@@ -23,7 +23,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.Serializable;
 import java.util.HashSet;
-import java.util.Set;
 
 import org.junit.After;
 import org.junit.Before;
@@ -57,21 +56,21 @@ public class QueryWithBucketParameterIntegrationTest {
 
   @Before
   public void setUp() throws Exception {
-    String regionName = "pr1";
-    int totalBuckets = 40;
-    int numValues = 80;
+    var regionName = "pr1";
+    var totalBuckets = 40;
+    var numValues = 80;
     CacheUtils.startCache();
     Cache cache = CacheUtils.getCache();
-    PartitionAttributesFactory pAFactory =
+    var pAFactory =
         getPartitionAttributesFactoryWithPartitionResolver(totalBuckets);
     RegionFactory rf = cache.createRegionFactory(RegionShortcut.PARTITION);
     rf.setPartitionAttributes(pAFactory.create());
-    PartitionedRegion pr1 = (PartitionedRegion) rf.create(regionName);
+    var pr1 = (PartitionedRegion) rf.create(regionName);
     populateRegion(pr1, numValues);
-    QueryService qs = pr1.getCache().getQueryService();
-    String query = "select distinct e1.value from " + SEPARATOR + "pr1 e1";
+    var qs = pr1.getCache().getQueryService();
+    var query = "select distinct e1.value from " + SEPARATOR + "pr1 e1";
     queryExecutor = (DefaultQuery) CacheUtils.getQueryService().newQuery(query);
-    Set<Integer> set = createAndPopulateSet(totalBuckets);
+    var set = createAndPopulateSet(totalBuckets);
     lds = new LocalDataSet(pr1, set);
   }
 
@@ -82,7 +81,7 @@ public class QueryWithBucketParameterIntegrationTest {
 
   private PartitionAttributesFactory getPartitionAttributesFactoryWithPartitionResolver(
       int totalBuckets) {
-    PartitionAttributesFactory pAFactory = new PartitionAttributesFactory();
+    var pAFactory = new PartitionAttributesFactory();
     pAFactory.setRedundantCopies(1).setTotalNumBuckets(totalBuckets)
         .setPartitionResolver(getPartitionResolver());
     return pAFactory;
@@ -107,8 +106,8 @@ public class QueryWithBucketParameterIntegrationTest {
 
   @Test
   public void testQueryExecuteWithEmptyBucketListExpectNoResults() throws Exception {
-    final ExecutionContext executionContext = new ExecutionContext(null, CacheUtils.getCache());
-    SelectResults r = (SelectResults) lds.executeQuery(queryExecutor, executionContext, null,
+    final var executionContext = new ExecutionContext(null, CacheUtils.getCache());
+    var r = (SelectResults) lds.executeQuery(queryExecutor, executionContext, null,
         new HashSet<>());
     assertTrue("Received: A non-empty result collection, expected : Empty result collection",
         r.isEmpty());
@@ -116,18 +115,18 @@ public class QueryWithBucketParameterIntegrationTest {
 
   @Test
   public void testQueryExecuteWithNullBucketListExpectNonEmptyResultSet() throws Exception {
-    final ExecutionContext executionContext = new ExecutionContext(null, CacheUtils.getCache());
-    SelectResults r = (SelectResults) lds.executeQuery(queryExecutor, executionContext, null, null);
+    final var executionContext = new ExecutionContext(null, CacheUtils.getCache());
+    var r = (SelectResults) lds.executeQuery(queryExecutor, executionContext, null, null);
     assertFalse("Received: An empty result collection, expected : Non-empty result collection",
         r.isEmpty());
   }
 
   @Test
   public void testQueryExecuteWithNonEmptyBucketListExpectNonEmptyResultSet() throws Exception {
-    final ExecutionContext executionContext = new ExecutionContext(null, CacheUtils.getCache());
-    int nTestBucketNumber = 15;
-    Set<Integer> nonEmptySet = createAndPopulateSet(nTestBucketNumber);
-    SelectResults r =
+    final var executionContext = new ExecutionContext(null, CacheUtils.getCache());
+    var nTestBucketNumber = 15;
+    var nonEmptySet = createAndPopulateSet(nTestBucketNumber);
+    var r =
         (SelectResults) lds.executeQuery(queryExecutor, executionContext, null, nonEmptySet);
     assertFalse("Received: An empty result collection, expected : Non-empty result collection",
         r.isEmpty());
@@ -136,10 +135,10 @@ public class QueryWithBucketParameterIntegrationTest {
   @Test(expected = QueryInvocationTargetException.class)
   public void testQueryExecuteWithLargerBucketListThanExistingExpectQueryInvocationTargetException()
       throws Exception {
-    final ExecutionContext executionContext = new ExecutionContext(null, CacheUtils.getCache());
-    int nTestBucketNumber = 45;
-    Set<Integer> overflowSet = createAndPopulateSet(nTestBucketNumber);
-    SelectResults r =
+    final var executionContext = new ExecutionContext(null, CacheUtils.getCache());
+    var nTestBucketNumber = 45;
+    var overflowSet = createAndPopulateSet(nTestBucketNumber);
+    var r =
         (SelectResults) lds.executeQuery(queryExecutor, executionContext, null, overflowSet);
   }
 }

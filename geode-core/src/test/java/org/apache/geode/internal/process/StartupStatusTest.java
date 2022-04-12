@@ -110,11 +110,11 @@ public class StartupStatusTest {
   public void startup_nullStringId_throwsIllegalArgumentException() {
     // arrange
     String stringId = null;
-    Object[] params = new Object[0];
-    StartupStatus startupStatus = new StartupStatus();
+    var params = new Object[0];
+    var startupStatus = new StartupStatus();
 
     // act
-    Throwable thrown = catchThrowable(() -> startupStatus.startup(stringId, params));
+    var thrown = catchThrowable(() -> startupStatus.startup(stringId, params));
 
     // assert
     assertThat(thrown)
@@ -125,9 +125,9 @@ public class StartupStatusTest {
   @Test
   public void startup_emptyParams() {
     // arrange
-    String stringId = "my string";
-    Object[] params = new Object[0];
-    StartupStatus startupStatus = new StartupStatus();
+    var stringId = "my string";
+    var params = new Object[0];
+    var startupStatus = new StartupStatus();
 
     // act
     startupStatus.startup(stringId, params);
@@ -140,9 +140,9 @@ public class StartupStatusTest {
   @Test
   public void startup_doesNothingIfNoListener() {
     // arrange
-    String stringId = "my string";
-    Object[] params = new Object[0];
-    StartupStatus startupStatus = new StartupStatus();
+    var stringId = "my string";
+    var params = new Object[0];
+    var startupStatus = new StartupStatus();
 
     // act
     startupStatus.startup(stringId, params);
@@ -156,10 +156,10 @@ public class StartupStatusTest {
   public void startup_invokesListener() {
     // arrange
     listener = statusMessage -> statusMessageList.add(statusMessage);
-    String stringId = "my string";
-    Object[] params = new Object[0];
+    var stringId = "my string";
+    var params = new Object[0];
     setListener(listener);
-    StartupStatus startupStatus = new StartupStatus();
+    var startupStatus = new StartupStatus();
 
     // act
     startupStatus.startup(stringId, params);
@@ -174,11 +174,11 @@ public class StartupStatusTest {
   public void startupTwice_invokesListenerTwice() {
     // arrange
     listener = statusMessage -> statusMessageList.add(statusMessage);
-    String stringIdOne = "my string";
-    String stringIdTwo = "other string";
-    Object[] params = new Object[0];
+    var stringIdOne = "my string";
+    var stringIdTwo = "other string";
+    var params = new Object[0];
     setListener(listener);
-    StartupStatus startupStatus = new StartupStatus();
+    var startupStatus = new StartupStatus();
 
     // act
     startupStatus.startup(stringIdOne, params);

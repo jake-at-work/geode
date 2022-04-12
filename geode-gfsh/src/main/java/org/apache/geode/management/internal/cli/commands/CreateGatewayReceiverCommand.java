@@ -16,8 +16,6 @@
 package org.apache.geode.management.internal.cli.commands;
 
 import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.shell.core.annotation.CliCommand;
@@ -27,7 +25,6 @@ import org.apache.geode.cache.configuration.CacheConfig;
 import org.apache.geode.cache.configuration.DeclarableType;
 import org.apache.geode.cache.configuration.GatewayReceiverConfig;
 import org.apache.geode.cache.wan.GatewayReceiver;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.ConverterHint;
 import org.apache.geode.management.cli.SingleGfshCommand;
@@ -35,7 +32,6 @@ import org.apache.geode.management.internal.cli.AbstractCliAroundInterceptor;
 import org.apache.geode.management.internal.cli.GfshParseResult;
 import org.apache.geode.management.internal.cli.functions.GatewayReceiverCreateFunction;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.functions.CliFunctionResult;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.security.ResourceOperation;
 import org.apache.geode.security.ResourcePermission;
@@ -84,17 +80,17 @@ public class CreateGatewayReceiverCommand extends SingleGfshCommand {
       @CliOption(key = CliStrings.IFNOTEXISTS, help = CliStrings.IFNOTEXISTS_HELP,
           specifiedDefaultValue = "true", unspecifiedDefaultValue = "false") Boolean ifNotExists) {
 
-    GatewayReceiverConfig configuration =
+    var configuration =
         buildConfiguration(manualStart, startPort, endPort, bindAddress, maximumTimeBetweenPings,
             socketBufferSize, gatewayTransportFilters, hostnameForSenders);
 
-    Set<DistributedMember> membersToCreateGatewayReceiverOn = getMembers(onGroups, onMember);
+    var membersToCreateGatewayReceiverOn = getMembers(onGroups, onMember);
 
-    List<CliFunctionResult> gatewayReceiverCreateResults =
+    var gatewayReceiverCreateResults =
         executeAndGetFunctionResult(GatewayReceiverCreateFunction.INSTANCE,
             new Object[] {configuration, ifNotExists}, membersToCreateGatewayReceiverOn);
 
-    ResultModel result = ResultModel.createMemberStatusResult(gatewayReceiverCreateResults);
+    var result = ResultModel.createMemberStatusResult(gatewayReceiverCreateResults);
     result.setConfigObject(configuration);
     return result;
   }
@@ -108,12 +104,12 @@ public class CreateGatewayReceiverCommand extends SingleGfshCommand {
   private GatewayReceiverConfig buildConfiguration(Boolean manualStart, Integer startPort,
       Integer endPort, String bindAddress, Integer maximumTimeBetweenPings,
       Integer socketBufferSize, String[] gatewayTransportFilters, String hostnameForSenders) {
-    GatewayReceiverConfig configuration = new GatewayReceiverConfig();
+    var configuration = new GatewayReceiverConfig();
 
     if (gatewayTransportFilters != null) {
-      List<DeclarableType> filters =
+      var filters =
           Arrays.stream(gatewayTransportFilters).map(fullyQualifiedClassName -> {
-            DeclarableType thisFilter = new DeclarableType();
+            var thisFilter = new DeclarableType();
             thisFilter.setClassName(fullyQualifiedClassName);
             return thisFilter;
           }).collect(Collectors.toList());
@@ -140,8 +136,8 @@ public class CreateGatewayReceiverCommand extends SingleGfshCommand {
   public static class Interceptor extends AbstractCliAroundInterceptor {
     @Override
     public ResultModel preExecution(GfshParseResult parseResult) {
-      Integer startPort = (Integer) parseResult.getParamValue("start-port");
-      Integer endPort = (Integer) parseResult.getParamValue("end-port");
+      var startPort = (Integer) parseResult.getParamValue("start-port");
+      var endPort = (Integer) parseResult.getParamValue("end-port");
 
       if (startPort == null) {
         startPort = GatewayReceiver.DEFAULT_START_PORT;

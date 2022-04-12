@@ -23,7 +23,6 @@ import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.Statistics;
 import org.apache.geode.StatisticsFactory;
 import org.apache.geode.StatisticsType;
-import org.apache.geode.StatisticsTypeFactory;
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.annotations.VisibleForTesting;
 import org.apache.geode.annotations.internal.MakeNotStatic;
@@ -245,212 +244,212 @@ public class DistributionStats implements DMStats {
   private static final int udpFinalCheckResponsesReceivedId;
 
   static {
-    String statName = "DistributionStats";
-    String statDescription = "Statistics on the gemfire distribution layer.";
+    var statName = "DistributionStats";
+    var statDescription = "Statistics on the gemfire distribution layer.";
 
-    final String sentMessagesDesc =
+    final var sentMessagesDesc =
         "The number of distribution messages that this GemFire system has sent. This includes broadcastMessages.";
-    final String sentCommitMessagesDesc =
+    final var sentCommitMessagesDesc =
         "The number of transaction commit messages that this GemFire system has created to be sent. Note that it is possible for a commit to only create one message even though it will end up being sent to multiple recipients.";
-    final String commitWaitsDesc =
+    final var commitWaitsDesc =
         "The number of transaction commits that had to wait for a response before they could complete.";
-    final String sentMessagesTimeDesc =
+    final var sentMessagesTimeDesc =
         "The total amount of time this distribution manager has spent sending messages. This includes broadcastMessagesTime.";
-    final String sentMessagesMaxTimeDesc =
+    final var sentMessagesMaxTimeDesc =
         "The highest amount of time this distribution manager has spent distributing a single message to the network.";
-    final String broadcastMessagesDesc =
+    final var broadcastMessagesDesc =
         "The number of distribution messages that this GemFire system has broadcast. A broadcast message is one sent to every other manager in the group.";
-    final String broadcastMessagesTimeDesc =
+    final var broadcastMessagesTimeDesc =
         "The total amount of time this distribution manager has spent broadcasting messages. A broadcast message is one sent to every other manager in the group.";
-    final String receivedMessagesDesc =
+    final var receivedMessagesDesc =
         "The number of distribution messages that this GemFire system has received.";
-    final String receivedBytesDesc =
+    final var receivedBytesDesc =
         "The number of distribution message bytes that this GemFire system has received.";
-    final String sentBytesDesc =
+    final var sentBytesDesc =
         "The number of distribution message bytes that this GemFire system has sent.";
-    final String processedMessagesDesc =
+    final var processedMessagesDesc =
         "The number of distribution messages that this GemFire system has processed.";
-    final String processedMessagesTimeDesc =
+    final var processedMessagesTimeDesc =
         "The amount of time this distribution manager has spent in message.process().";
-    final String messageProcessingScheduleTimeDesc =
+    final var messageProcessingScheduleTimeDesc =
         "The amount of time this distribution manager has spent dispatching message to processor threads.";
-    final String overflowQueueSizeDesc =
+    final var overflowQueueSizeDesc =
         "The number of normal distribution messages currently waiting to be processed.";
-    final String waitingQueueSizeDesc =
+    final var waitingQueueSizeDesc =
         "The number of distribution messages currently waiting for some other resource before they can be processed.";
-    final String overflowQueueThrottleTimeDesc =
+    final var overflowQueueThrottleTimeDesc =
         "The total amount of time, in nanoseconds, spent delayed by the overflow queue throttle.";
-    final String overflowQueueThrottleCountDesc =
+    final var overflowQueueThrottleCountDesc =
         "The total number of times a thread was delayed in adding a normal message to the overflow queue.";
-    final String highPriorityQueueSizeDesc =
+    final var highPriorityQueueSizeDesc =
         "The number of high priority distribution messages currently waiting to be processed.";
-    final String highPriorityQueueThrottleTimeDesc =
+    final var highPriorityQueueThrottleTimeDesc =
         "The total amount of time, in nanoseconds, spent delayed by the high priority queue throttle.";
-    final String highPriorityQueueThrottleCountDesc =
+    final var highPriorityQueueThrottleCountDesc =
         "The total number of times a thread was delayed in adding a normal message to the high priority queue.";
-    final String serialQueueSizeDesc =
+    final var serialQueueSizeDesc =
         "The number of serial distribution messages currently waiting to be processed.";
-    final String serialQueueBytesDesc =
+    final var serialQueueBytesDesc =
         "The approximate number of bytes consumed by serial distribution messages currently waiting to be processed.";
-    final String serialPooledThreadDesc =
+    final var serialPooledThreadDesc =
         "The number of threads created in the SerialQueuedExecutorPool.";
-    final String serialQueueThrottleTimeDesc =
+    final var serialQueueThrottleTimeDesc =
         "The total amount of time, in nanoseconds, spent delayed by the serial queue throttle.";
-    final String serialQueueThrottleCountDesc =
+    final var serialQueueThrottleCountDesc =
         "The total number of times a thread was delayed in adding a ordered message to the serial queue.";
-    final String serialThreadsDesc =
+    final var serialThreadsDesc =
         "The number of threads currently processing serial/ordered messages.";
-    final String processingThreadsDesc =
+    final var processingThreadsDesc =
         "The number of threads currently processing normal messages.";
-    final String highPriorityThreadsDesc =
+    final var highPriorityThreadsDesc =
         "The number of threads currently processing high priority messages.";
-    final String partitionedRegionThreadsDesc =
+    final var partitionedRegionThreadsDesc =
         "The number of threads currently processing partitioned region messages.";
-    final String functionExecutionThreadsDesc =
+    final var functionExecutionThreadsDesc =
         "The number of threads currently processing function execution messages.";
-    final String waitingThreadsDesc =
+    final var waitingThreadsDesc =
         "The number of threads currently processing messages that had to wait for a resource.";
-    final String messageChannelTimeDesc =
+    final var messageChannelTimeDesc =
         "The total amount of time received messages spent in the distribution channel";
-    final String udpDispatchRequestTimeDesc =
+    final var udpDispatchRequestTimeDesc =
         "The total amount of time spent deserializing and dispatching UDP messages in the message-reader thread.";
-    final String replyMessageTimeDesc =
+    final var replyMessageTimeDesc =
         "The amount of time spent processing reply messages. This includes both processedMessagesTime and messageProcessingScheduleTime.";
-    final String distributeMessageTimeDesc =
+    final var distributeMessageTimeDesc =
         "The amount of time it takes to prepare a message and send it on the network.  This includes sentMessagesTime.";
-    final String nodesDesc = "The current number of nodes in this distributed system.";
-    final String replyWaitsInProgressDesc = "Current number of threads waiting for a reply.";
-    final String replyWaitsCompletedDesc =
+    final var nodesDesc = "The current number of nodes in this distributed system.";
+    final var replyWaitsInProgressDesc = "Current number of threads waiting for a reply.";
+    final var replyWaitsCompletedDesc =
         "Total number of times waits for a reply have completed.";
-    final String replyWaitTimeDesc = "Total time spent waiting for a reply to a message.";
-    final String replyWaitMaxTimeDesc =
+    final var replyWaitTimeDesc = "Total time spent waiting for a reply to a message.";
+    final var replyWaitMaxTimeDesc =
         "Maximum time spent transmitting and then waiting for a reply to a message. See sentMessagesMaxTime for related information";
-    final String replyTimeoutsDesc = "Total number of message replies that have timed out.";
-    final String receiverConnectionsDesc =
+    final var replyTimeoutsDesc = "Total number of message replies that have timed out.";
+    final var receiverConnectionsDesc =
         "Current number of sockets dedicated to receiving messages.";
-    final String failedAcceptsDesc =
+    final var failedAcceptsDesc =
         "Total number of times an accept (receiver creation) of a connect from some other member has failed";
-    final String failedConnectsDesc =
+    final var failedConnectsDesc =
         "Total number of times a connect (sender creation) to some other member has failed.";
-    final String reconnectAttemptsDesc =
+    final var reconnectAttemptsDesc =
         "Total number of times an established connection was lost and a reconnect was attempted.";
-    final String lostConnectionLeaseDesc =
+    final var lostConnectionLeaseDesc =
         "Total number of times an unshared sender socket has remained idle long enough that its lease expired.";
-    final String sharedOrderedSenderConnectionsDesc =
+    final var sharedOrderedSenderConnectionsDesc =
         "Current number of shared sockets dedicated to sending ordered messages.";
-    final String sharedUnorderedSenderConnectionsDesc =
+    final var sharedUnorderedSenderConnectionsDesc =
         "Current number of shared sockets dedicated to sending unordered messages.";
-    final String threadOrderedSenderConnectionsDesc =
+    final var threadOrderedSenderConnectionsDesc =
         "Current number of thread sockets dedicated to sending ordered messages.";
-    final String threadUnorderedSenderConnectionsDesc =
+    final var threadUnorderedSenderConnectionsDesc =
         "Current number of thread sockets dedicated to sending unordered messages.";
 
-    final String asyncQueuesDesc = "The current number of queues for asynchronous messaging.";
-    final String asyncQueueFlushesInProgressDesc =
+    final var asyncQueuesDesc = "The current number of queues for asynchronous messaging.";
+    final var asyncQueueFlushesInProgressDesc =
         "Current number of asynchronous queues being flushed.";
-    final String asyncQueueFlushesCompletedDesc =
+    final var asyncQueueFlushesCompletedDesc =
         "Total number of asynchronous queue flushes completed.";
-    final String asyncQueueFlushTimeDesc = "Total time spent flushing asynchronous queues.";
-    final String asyncQueueTimeoutExceededDesc =
+    final var asyncQueueFlushTimeDesc = "Total time spent flushing asynchronous queues.";
+    final var asyncQueueTimeoutExceededDesc =
         "Total number of asynchronous queues that have timed out by being blocked for more than async-queue-timeout milliseconds.";
-    final String asyncQueueSizeExceededDesc =
+    final var asyncQueueSizeExceededDesc =
         "Total number of asynchronous queues that have exceeded max size.";
-    final String asyncDistributionTimeoutExceededDesc =
+    final var asyncDistributionTimeoutExceededDesc =
         "Total number of times the async-distribution-timeout has been exceeded during a socket write.";
-    final String asyncQueueSizeDesc = "The current size in bytes used for asynchronous queues.";
-    final String asyncQueuedMsgsDesc =
+    final var asyncQueueSizeDesc = "The current size in bytes used for asynchronous queues.";
+    final var asyncQueuedMsgsDesc =
         "The total number of queued messages used for asynchronous queues.";
-    final String asyncDequeuedMsgsDesc =
+    final var asyncDequeuedMsgsDesc =
         "The total number of queued messages that have been removed from the queue and successfully sent.";
-    final String asyncConflatedMsgsDesc =
+    final var asyncConflatedMsgsDesc =
         "The total number of queued conflated messages used for asynchronous queues.";
 
-    final String asyncThreadsDesc = "Total number of asynchronous message queue threads.";
-    final String asyncThreadInProgressDesc =
+    final var asyncThreadsDesc = "Total number of asynchronous message queue threads.";
+    final var asyncThreadInProgressDesc =
         "Current iterations of work performed by asynchronous message queue threads.";
-    final String asyncThreadCompletedDesc =
+    final var asyncThreadCompletedDesc =
         "Total number of iterations of work performed by asynchronous message queue threads.";
-    final String asyncThreadTimeDesc =
+    final var asyncThreadTimeDesc =
         "Total time spent by asynchronous message queue threads performing iterations.";
-    final String receiverDirectBufferSizeDesc =
+    final var receiverDirectBufferSizeDesc =
         "Current number of bytes allocated from direct memory as buffers for incoming messages.";
-    final String receiverHeapBufferSizeDesc =
+    final var receiverHeapBufferSizeDesc =
         "Current number of bytes allocated from Java heap memory as buffers for incoming messages.";
-    final String senderDirectBufferSizeDesc =
+    final var senderDirectBufferSizeDesc =
         "Current number of bytes allocated from direct memory as buffers for outgoing messages.";
-    final String senderHeapBufferSizeDesc =
+    final var senderHeapBufferSizeDesc =
         "Current number of bytes allocated from Java heap memory as buffers for outoing messages.";
 
-    final String replyHandoffTimeDesc =
+    final var replyHandoffTimeDesc =
         "Total number of seconds to switch thread contexts from processing thread to application thread.";
 
-    final String partitionedRegionThreadJobsDesc =
+    final var partitionedRegionThreadJobsDesc =
         "The number of messages currently being processed by partitioned region threads";
-    final String functionExecutionThreadJobsDesc =
+    final var functionExecutionThreadJobsDesc =
         "The number of messages currently being processed by function execution threads";
-    final String serialThreadJobsDesc =
+    final var serialThreadJobsDesc =
         "The number of messages currently being processed by serial threads.";
-    final String serialPooledThreadJobsDesc =
+    final var serialPooledThreadJobsDesc =
         "The number of messages currently being processed by pooled serial processor threads.";
-    final String processingThreadJobsDesc =
+    final var processingThreadJobsDesc =
         "The number of messages currently being processed by pooled message processor threads.";
-    final String highPriorityThreadJobsDesc =
+    final var highPriorityThreadJobsDesc =
         "The number of messages currently being processed by high priority processor threads.";
-    final String waitingThreadJobsDesc =
+    final var waitingThreadJobsDesc =
         "The number of messages currently being processed by waiting pooly processor threads.";
 
-    final String eldersDesc = "Current number of system elders hosted in this member.";
-    final String initialImageMessagesInFlightDesc =
+    final var eldersDesc = "Current number of system elders hosted in this member.";
+    final var initialImageMessagesInFlightDesc =
         "The number of messages with initial image data sent from this member that have not yet been acknowledged.";
-    final String initialImageRequestsInProgressDesc =
+    final var initialImageRequestsInProgressDesc =
         "The number of initial images this member is currently receiving.";
 
     // For GMSHealthMonitor
-    final String heartbeatRequestsSentDesc =
+    final var heartbeatRequestsSentDesc =
         "Heartbeat request messages that this member has sent.";
-    final String heartbeatRequestsReceivedDesc =
+    final var heartbeatRequestsReceivedDesc =
         "Heartbeat request messages that this member has received.";
 
-    final String heartbeatsSentDesc = "Heartbeat messages that this member has sent.";
-    final String heartbeatsReceivedDesc = "Heartbeat messages that this member has received.";
+    final var heartbeatsSentDesc = "Heartbeat messages that this member has sent.";
+    final var heartbeatsReceivedDesc = "Heartbeat messages that this member has received.";
 
-    final String suspectsSentDesc = "Suspect member messages that this member has sent.";
-    final String suspectsReceivedDesc = "Suspect member messages that this member has received.";
+    final var suspectsSentDesc = "Suspect member messages that this member has sent.";
+    final var suspectsReceivedDesc = "Suspect member messages that this member has received.";
 
-    final String finalCheckRequestsSentDesc = "Final check requests that this member has sent.";
-    final String finalCheckRequestsReceivedDesc =
+    final var finalCheckRequestsSentDesc = "Final check requests that this member has sent.";
+    final var finalCheckRequestsReceivedDesc =
         "Final check requests that this member has received.";
 
-    final String finalCheckResponsesSentDesc = "Final check responses that this member has sent.";
-    final String finalCheckResponsesReceivedDesc =
+    final var finalCheckResponsesSentDesc = "Final check responses that this member has sent.";
+    final var finalCheckResponsesReceivedDesc =
         "Final check responses that this member has received.";
 
-    final String tcpFinalCheckRequestsSentDesc =
+    final var tcpFinalCheckRequestsSentDesc =
         "TCP final check requests that this member has sent.";
-    final String tcpFinalCheckRequestsReceivedDesc =
+    final var tcpFinalCheckRequestsReceivedDesc =
         "TCP final check requests that this member has received.";
 
-    final String tcpFinalCheckResponsesSentDesc =
+    final var tcpFinalCheckResponsesSentDesc =
         "TCP final check responses that this member has sent.";
-    final String tcpFinalCheckResponsesReceivedDesc =
+    final var tcpFinalCheckResponsesReceivedDesc =
         "TCP final check responses that this member has received.";
 
-    final String udpFinalCheckRequestsSentDesc =
+    final var udpFinalCheckRequestsSentDesc =
         "UDP final check requests that this member has sent.";
-    final String udpFinalCheckRequestsReceivedDesc =
+    final var udpFinalCheckRequestsReceivedDesc =
         "UDP final check requests that this member has received.";
 
-    final String udpFinalCheckResponsesSentDesc =
+    final var udpFinalCheckResponsesSentDesc =
         "UDP final check responses that this member has sent.";
-    final String udpFinalCheckResponsesReceivedDesc =
+    final var udpFinalCheckResponsesReceivedDesc =
         "UDP final check responses that this member has received.";
 
-    final String senderCreatesDesc =
+    final var senderCreatesDesc =
         "Total amount of time, in nanoseconds, spent creating a sender.";
-    final String senderCreatesInProgressDesc =
+    final var senderCreatesInProgressDesc =
         "Current number of sender creations in progress.";
 
-    StatisticsTypeFactory f = StatisticsTypeFactoryImpl.singleton();
+    var f = StatisticsTypeFactoryImpl.singleton();
 
     type = f.createType(statName, statDescription, new StatisticDescriptor[] {
         f.createLongCounter("sentMessages", sentMessagesDesc, "messages"),
@@ -1055,7 +1054,7 @@ public class DistributionStats implements DMStats {
   public void incSentMessagesTime(long nanos) {
     if (enableClockStats) {
       stats.incLong(sentMessagesTimeId, nanos);
-      long millis = NanoTimer.nanosToMillis(nanos);
+      var millis = NanoTimer.nanosToMillis(nanos);
       maxSentMessagesTime.recordMax(millis);
     }
   }
@@ -1399,7 +1398,7 @@ public class DistributionStats implements DMStats {
 
   @Override
   public void endSocketWrite(boolean sync, long start, long bytesWritten, long retries) {
-    final long now = getTime();
+    final var now = getTime();
     if (sync) {
       stats.incLong(syncSocketWritesInProgressId, -1);
       stats.incLong(syncSocketWritesId, 1);
@@ -1428,7 +1427,7 @@ public class DistributionStats implements DMStats {
 
   @Override
   public void endSocketLock(long start) {
-    long ts = getTime();
+    var ts = getTime();
     stats.incLong(socketLocksInProgressId, -1);
     stats.incLong(socketLocksId, 1);
     stats.incLong(socketLockTimeId, ts - start);
@@ -1442,7 +1441,7 @@ public class DistributionStats implements DMStats {
 
   @Override
   public void endBufferAcquire(long start) {
-    long ts = getTime();
+    var ts = getTime();
     stats.incLong(bufferAcquiresInProgressId, -1);
     stats.incLong(bufferAcquiresId, 1);
     stats.incLong(bufferAcquireTimeId, ts - start);
@@ -1615,7 +1614,7 @@ public class DistributionStats implements DMStats {
       // this.replyWaitHistogram.endOp(delta);
     }
     if (initTime != 0) {
-      long waitTime = System.currentTimeMillis() - initTime;
+      var waitTime = System.currentTimeMillis() - initTime;
       maxReplyWaitTime.recordMax(waitTime);
     }
     stats.incLong(replyWaitsInProgressId, -1);
@@ -2354,7 +2353,7 @@ public class DistributionStats implements DMStats {
   @Override
   public void incReplyHandOffTime(long start) {
     if (enableClockStats) {
-      long delta = getTime() - start;
+      var delta = getTime() - start;
       stats.incLong(replyHandoffTimeId, delta);
       // this.replyHandoffHistogram.endOp(delta);
     }

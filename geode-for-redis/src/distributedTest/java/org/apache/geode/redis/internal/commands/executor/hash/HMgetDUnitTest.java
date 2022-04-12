@@ -54,7 +54,7 @@ public class HMgetDUnitTest {
     server1 = clusterStartUp.startRedisVM(1, locator.getPort());
     server2 = clusterStartUp.startRedisVM(2, locator.getPort());
 
-    int redisServerPort = clusterStartUp.getRedisPort(1);
+    var redisServerPort = clusterStartUp.getRedisPort(1);
     jedis = new JedisCluster(new HostAndPort(LOCAL_HOST, redisServerPort), JEDIS_TIMEOUT);
   }
 
@@ -70,9 +70,9 @@ public class HMgetDUnitTest {
 
   @Test
   public void testConcurrentHMget_whileUpdatingValues() {
-    String key = "key";
+    var key = "key";
 
-    Map<String, String> testMap = makeHashMap(HASH_SIZE, "field-", "value-");
+    var testMap = makeHashMap(HASH_SIZE, "field-", "value-");
 
     jedis.hset(key, testMap);
 
@@ -81,14 +81,14 @@ public class HMgetDUnitTest {
         (i) -> assertThat(jedis.hmget(key, "field-" + i)).isNotNull(),
         (i) -> assertThat(jedis.hmget(key, "field-" + i)).isNotNull()).run();
 
-    Map<String, String> expectedResult = makeHashMap(HASH_SIZE, "field-", "changedValue-");
+    var expectedResult = makeHashMap(HASH_SIZE, "field-", "changedValue-");
     assertThat(jedis.hgetAll(key)).containsExactlyInAnyOrderEntriesOf(expectedResult);
   }
 
   private Map<String, String> makeHashMap(int hashSize, String baseFieldName,
       String baseValueName) {
     Map<String, String> map = new HashMap<>();
-    for (int i = 0; i < hashSize; i++) {
+    for (var i = 0; i < hashSize; i++) {
       map.put(baseFieldName + i, baseValueName + i);
     }
     return map;

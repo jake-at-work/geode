@@ -46,7 +46,7 @@ public class ASTAggregateFunc extends GemFireAST {
   @Override
   public void compile(QCompiler compiler) {
     super.compile(compiler);
-    Object expr = compiler.pop();
+    var expr = compiler.pop();
     if (expr instanceof String) {
       if (expr.equals("*")) {
         expr = null;

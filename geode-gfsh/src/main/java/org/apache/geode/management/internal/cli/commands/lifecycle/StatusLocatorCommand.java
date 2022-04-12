@@ -27,11 +27,9 @@ import org.springframework.shell.core.annotation.CliOption;
 
 import org.apache.geode.distributed.AbstractLauncher;
 import org.apache.geode.distributed.LocatorLauncher;
-import org.apache.geode.management.MemberMXBean;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.ConverterHint;
 import org.apache.geode.management.internal.cli.commands.OfflineGfshCommand;
-import org.apache.geode.management.internal.cli.result.model.InfoResultModel;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
 import org.apache.geode.management.internal.configuration.utils.ClusterConfigurationStatusRetriever;
 import org.apache.geode.management.internal.i18n.CliStrings;
@@ -58,16 +56,16 @@ public class StatusLocatorCommand extends OfflineGfshCommand {
       @CliOption(key = CliStrings.CONNECT__SECURITY_PROPERTIES, optionContext = ConverterHint.FILE,
           help = SECURITY_PROPERTIES__HELP) final File gfSecurityPropertiesFile)
       throws Exception {
-    Properties properties = new Properties();
+    var properties = new Properties();
     if (gfSecurityPropertiesFile != null) {
       properties = loadProperties(gfSecurityPropertiesFile);
     }
     if (StringUtils.isNotBlank(member)) {
       if (isConnectedAndReady()) {
-        final MemberMXBean locatorProxy = getMemberMXBean(member);
+        final var locatorProxy = getMemberMXBean(member);
 
         if (locatorProxy != null) {
-          LocatorLauncher.LocatorState state =
+          var state =
               LocatorLauncher.LocatorState.fromJson(locatorProxy.status());
           return createStatusLocatorResult(state, properties);
         } else {
@@ -79,13 +77,13 @@ public class StatusLocatorCommand extends OfflineGfshCommand {
             CliStrings.STATUS_SERVICE__GFSH_NOT_CONNECTED_ERROR_MESSAGE, LOCATOR_TERM_NAME));
       }
     } else {
-      final LocatorLauncher locatorLauncher =
+      final var locatorLauncher =
           new LocatorLauncher.Builder().setCommand(LocatorLauncher.Command.STATUS)
               .setBindAddress(locatorHost).setDebug(isDebugging()).setPid(pid).setPort(locatorPort)
               .set(properties)
               .setWorkingDirectory(workingDirectory).build();
 
-      final LocatorLauncher.LocatorState status = locatorLauncher.status();
+      final var status = locatorLauncher.status();
       if (status.getStatus().equals(AbstractLauncher.Status.NOT_RESPONDING)
           || status.getStatus().equals(AbstractLauncher.Status.STOPPED)) {
         return ResultModel.createError(status.toString());
@@ -98,8 +96,8 @@ public class StatusLocatorCommand extends OfflineGfshCommand {
   protected ResultModel createStatusLocatorResult(final LocatorLauncher.LocatorState state,
       final Properties properties)
       throws NumberFormatException, IOException, ClassNotFoundException {
-    ResultModel result = new ResultModel();
-    InfoResultModel info = result.addInfo();
+    var result = new ResultModel();
+    var info = result.addInfo();
     info.addLine(state.toString());
     info.addLine(ClusterConfigurationStatusRetriever.fromLocator(state, properties));
     return result;

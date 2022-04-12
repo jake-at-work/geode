@@ -124,15 +124,15 @@ public class ValueComparisonHelper {
       // obj may be a CachedDeserializable in which case we want to convert it to a PdxInstance even
       // if we are not readSerialized.
       if (obj instanceof CachedDeserializable) {
-        CachedDeserializable cdObj = (CachedDeserializable) obj;
+        var cdObj = (CachedDeserializable) obj;
         if (!cdObj.isSerialized()) {
           // obj is actually a byte[] which will never be equal to a PdxInstance
           return false;
         }
-        Object cdVal = cdObj.getValue();
+        var cdVal = cdObj.getValue();
         if (cdVal instanceof byte[]) {
-          byte[] cdValBytes = (byte[]) cdVal;
-          PdxInstance pi = InternalDataSerializer.readPdxInstance(cdValBytes, cache);
+          var cdValBytes = (byte[]) cdVal;
+          var pi = InternalDataSerializer.readPdxInstance(cdValBytes, cache);
           if (pi != null) {
             return pi.equals(pdx);
           } else {
@@ -153,10 +153,10 @@ public class ValueComparisonHelper {
         }
         if (pdxSerializer != null || obj instanceof PdxSerializable) {
           // try to convert obj to a PdxInstance
-          try (HeapDataOutputStream hdos = new HeapDataOutputStream(KnownVersion.CURRENT)) {
+          try (var hdos = new HeapDataOutputStream(KnownVersion.CURRENT)) {
             if (InternalDataSerializer.autoSerialized(obj, hdos)
                 || InternalDataSerializer.writePdx(hdos, cache, obj, pdxSerializer)) {
-              PdxInstance pi = InternalDataSerializer.readPdxInstance(hdos.toByteArray(), cache);
+              var pi = InternalDataSerializer.readPdxInstance(hdos.toByteArray(), cache);
               if (pi != null) {
                 obj = pi;
               }
@@ -173,7 +173,7 @@ public class ValueComparisonHelper {
   private static boolean checkOffHeapEquals(@Unretained StoredObject ohVal, @Unretained Object obj,
       InternalCache cache) {
     if (ohVal.isSerializedPdxInstance()) {
-      PdxInstance pi = InternalDataSerializer.readPdxInstance(ohVal.getSerializedValue(), cache);
+      var pi = InternalDataSerializer.readPdxInstance(ohVal.getSerializedValue(), cache);
       return ValueComparisonHelper.checkPdxEquals(pi, obj, cache);
     }
     if (obj instanceof StoredObject) {
@@ -181,7 +181,7 @@ public class ValueComparisonHelper {
     } else {
       byte[] serializedObj;
       if (obj instanceof CachedDeserializable) {
-        CachedDeserializable cdObj = (CachedDeserializable) obj;
+        var cdObj = (CachedDeserializable) obj;
         if (!ohVal.isSerialized()) {
           assert cdObj.isSerialized();
           return false;
@@ -211,7 +211,7 @@ public class ValueComparisonHelper {
       // cd is an actual byte[].
       byte[] ba2;
       if (obj instanceof CachedDeserializable) {
-        CachedDeserializable cdObj = (CachedDeserializable) obj;
+        var cdObj = (CachedDeserializable) obj;
         if (cdObj.isSerialized()) {
           return false;
         }
@@ -221,16 +221,16 @@ public class ValueComparisonHelper {
       } else {
         return false;
       }
-      byte[] ba1 = (byte[]) cd.getDeserializedForReading();
+      var ba1 = (byte[]) cd.getDeserializedForReading();
       return Arrays.equals(ba1, ba2);
     }
-    Object cdVal = cd.getValue();
+    var cdVal = cd.getValue();
     if (cdVal instanceof byte[]) {
       if (obj == null || obj == Token.NOT_AVAILABLE || Token.isInvalidOrRemoved(obj)) {
         return false;
       }
-      byte[] cdValBytes = (byte[]) cdVal;
-      PdxInstance pi = InternalDataSerializer.readPdxInstance(cdValBytes, cache);
+      var cdValBytes = (byte[]) cdVal;
+      var pi = InternalDataSerializer.readPdxInstance(cdValBytes, cache);
       if (pi != null) {
         return ValueComparisonHelper.checkPdxEquals(pi, obj, cache);
       }

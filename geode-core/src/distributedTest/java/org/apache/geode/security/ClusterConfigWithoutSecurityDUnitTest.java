@@ -29,7 +29,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.GemFireConfigException;
-import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.examples.SimpleSecurityManager;
 import org.apache.geode.test.dunit.IgnoredException;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
@@ -67,17 +66,17 @@ public class ClusterConfigWithoutSecurityDUnitTest {
    */
   @Test
   public void serverShouldBeAllowedToStartWithSecurityIfNotUsingClusterConfig() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(SECURITY_MANAGER, SimpleSecurityManager.class.getName());
     props.setProperty(SECURITY_POST_PROCESSOR, PDXPostProcessor.class.getName());
     props.setProperty(USE_CLUSTER_CONFIGURATION, "false");
 
     // initial security properties should only contain initial set of values
     serverStarter.startServer(props, lsRule.getMember(0).getPort());
-    DistributedSystem ds = serverStarter.getCache().getDistributedSystem();
+    var ds = serverStarter.getCache().getDistributedSystem();
 
     // after cache is created, the configuration won't chagne
-    Properties secProps = ds.getSecurityProperties();
+    var secProps = ds.getSecurityProperties();
     assertEquals(2, secProps.size());
     assertEquals(SimpleSecurityManager.class.getName(),
         secProps.getProperty("security-manager"));
@@ -89,7 +88,7 @@ public class ClusterConfigWithoutSecurityDUnitTest {
    */
   @Test
   public void serverShouldNotBeAllowedToStartWithSecurityIfUsingClusterConfig() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(SECURITY_MANAGER, SimpleSecurityManager.class.getName());
     props.setProperty(USE_CLUSTER_CONFIGURATION, "true");
 
@@ -101,7 +100,7 @@ public class ClusterConfigWithoutSecurityDUnitTest {
 
   @Test
   public void nonExistentSecurityManagerThrowsGemFireSecurityException() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(SECURITY_MANAGER, "mySecurityManager");
     props.setProperty(USE_CLUSTER_CONFIGURATION, "true");
 

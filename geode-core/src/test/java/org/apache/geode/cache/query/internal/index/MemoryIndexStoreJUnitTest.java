@@ -105,7 +105,7 @@ public class MemoryIndexStoreJUnitTest {
         throw new AssertionError(e);
       }
     });
-    RegionEntry entry = createRegionEntry(1, new Object());
+    var entry = createRegionEntry(1, new Object());
     store.addMapping(1, entry);
     store.updateMapping(2, 1, entry, entry.getValue(null));
     assertEquals(151, numObjectsInStore(store));
@@ -120,7 +120,7 @@ public class MemoryIndexStoreJUnitTest {
 
   @Test
   public void testCanAddManyObjectsWithUndefinedKey() throws Exception {
-    for (final RegionEntry mockEntry : mockEntries) {
+    for (final var mockEntry : mockEntries) {
       store.addMapping(QueryService.UNDEFINED, mockEntry);
     }
     assertEquals(mockEntries.length, numObjectsIterated(store.get(QueryService.UNDEFINED)));
@@ -192,8 +192,8 @@ public class MemoryIndexStoreJUnitTest {
 
   @Test
   public void testDescendingIteratorReturnsExpectedOrderOfEntries() throws Exception {
-    RegionEntry mockEntry1 = mockEntries[0];
-    RegionEntry mockEntry2 = mockEntries[1];
+    var mockEntry1 = mockEntries[0];
+    var mockEntry2 = mockEntries[1];
     store.addMapping("1", mockEntry1);
     store.addMapping("2", mockEntry2);
     Iterator iteratorFirst = store.descendingIterator(null);
@@ -211,9 +211,9 @@ public class MemoryIndexStoreJUnitTest {
   @Test
   public void testDescendingIteratorWithRemovedKeysReturnsExpectedOrderOfEntries()
       throws Exception {
-    RegionEntry mockEntry1 = mockEntries[0];
-    RegionEntry mockEntry2 = mockEntries[1];
-    RegionEntry mockEntry3 = mockEntries[2];
+    var mockEntry1 = mockEntries[0];
+    var mockEntry2 = mockEntries[1];
+    var mockEntry3 = mockEntries[2];
     store.addMapping("1", mockEntry1);
     store.addMapping("2", mockEntry2);
     store.addMapping("3", mockEntry3);
@@ -237,9 +237,9 @@ public class MemoryIndexStoreJUnitTest {
   @Test
   public void testDescendingIteratorWithMultipleRemovedKeysReturnsExpectedOrderOfEntries()
       throws Exception {
-    RegionEntry mockEntry1 = mockEntries[0];
-    RegionEntry mockEntry2 = mockEntries[1];
-    RegionEntry mockEntry3 = mockEntries[2];
+    var mockEntry1 = mockEntries[0];
+    var mockEntry2 = mockEntries[1];
+    var mockEntry3 = mockEntries[2];
     store.addMapping("1", mockEntry1);
     store.addMapping("2", mockEntry2);
     store.addMapping("3", mockEntry3);
@@ -261,8 +261,8 @@ public class MemoryIndexStoreJUnitTest {
 
   @Test
   public void testSizeWithKeyArgumentReturnsCorrectSize() throws Exception {
-    RegionEntry mockEntry1 = mockEntries[0];
-    RegionEntry mockEntry2 = mockEntries[1];
+    var mockEntry1 = mockEntries[0];
+    var mockEntry2 = mockEntries[1];
     store.addMapping("1", mockEntry1);
     store.addMapping("2", mockEntry2);
     assertEquals(1, store.size("1"));
@@ -270,8 +270,8 @@ public class MemoryIndexStoreJUnitTest {
 
   @Test
   public void testGetReturnsExpectedIteratorValue() throws Exception {
-    RegionEntry mockEntry1 = mockEntries[0];
-    RegionEntry mockEntry2 = mockEntries[1];
+    var mockEntry1 = mockEntries[0];
+    var mockEntry2 = mockEntries[1];
     store.addMapping("1", mockEntry1);
     store.addMapping("2", mockEntry2);
     assertEquals(1, numObjectsIterated(store.get("1")));
@@ -279,10 +279,10 @@ public class MemoryIndexStoreJUnitTest {
 
   @Test
   public void testGetReturnsExpectedIteratorWithMultipleValues() throws Exception {
-    RegionEntry mockEntry1 = mockEntries[0];
-    RegionEntry mockEntry2 = mockEntries[1];
-    RegionEntry mockEntry3 = mockEntries[2];
-    RegionEntry mockEntry4 = mockEntries[3];
+    var mockEntry1 = mockEntries[0];
+    var mockEntry2 = mockEntries[1];
+    var mockEntry3 = mockEntries[2];
+    var mockEntry4 = mockEntries[3];
     store.addMapping("1", mockEntry1);
     store.addMapping("1", mockEntry2);
     store.addMapping("1", mockEntry3);
@@ -293,8 +293,8 @@ public class MemoryIndexStoreJUnitTest {
 
   @Test
   public void testGetWithIndexOnKeysReturnsExpectedIteratorValues() throws Exception {
-    RegionEntry mockEntry1 = mockEntries[0];
-    RegionEntry mockEntry2 = mockEntries[1];
+    var mockEntry1 = mockEntries[0];
+    var mockEntry2 = mockEntries[1];
     store.setIndexOnValues(false);
     store.setIndexOnRegionKeys(true);
     store.addMapping("1", mockEntry1);
@@ -304,8 +304,8 @@ public class MemoryIndexStoreJUnitTest {
 
   @Test
   public void testCorrectlyRemovesEntryProvidedTheWrongKey() throws Exception {
-    RegionEntry mockEntry1 = mockEntries[0];
-    RegionEntry mockEntry2 = mockEntries[1];
+    var mockEntry1 = mockEntries[0];
+    var mockEntry2 = mockEntries[1];
     store.addMapping("1", mockEntry1);
     store.addMapping("2", mockEntry2);
     store.removeMapping("1", mockEntry2);
@@ -315,8 +315,8 @@ public class MemoryIndexStoreJUnitTest {
 
   @Test
   public void testRemoveMappingRemovesFromBackingMap() throws Exception {
-    RegionEntry mockEntry1 = mockEntries[0];
-    RegionEntry mockEntry2 = mockEntries[1];
+    var mockEntry1 = mockEntries[0];
+    var mockEntry2 = mockEntries[1];
     store.addMapping("1", mockEntry1);
     store.addMapping("2", mockEntry2);
     store.removeMapping("1", mockEntry1);
@@ -326,8 +326,8 @@ public class MemoryIndexStoreJUnitTest {
 
   @Test
   public void testAddMappingAddsToBackingMap() throws Exception {
-    RegionEntry mockEntry1 = mockEntries[0];
-    RegionEntry mockEntry2 = mockEntries[1];
+    var mockEntry1 = mockEntries[0];
+    var mockEntry2 = mockEntries[1];
     store.addMapping("1", mockEntry1);
     store.addMapping("2", mockEntry2);
     assertEquals(2, numObjectsInStore(store));
@@ -337,8 +337,8 @@ public class MemoryIndexStoreJUnitTest {
 
   @Test
   public void testClear() throws Exception {
-    RegionEntry mockEntry1 = mockEntries[0];
-    RegionEntry mockEntry2 = mockEntries[1];
+    var mockEntry1 = mockEntries[0];
+    var mockEntry2 = mockEntries[1];
     store.addMapping("1", mockEntry1);
     store.addMapping("1", mockEntry2);
     store.clear();
@@ -351,7 +351,7 @@ public class MemoryIndexStoreJUnitTest {
   }
 
   private int numObjectsIterated(Iterator iterator) {
-    int count = 0;
+    var count = 0;
     while (iterator.hasNext()) {
       iterator.next();
       count++;
@@ -360,7 +360,7 @@ public class MemoryIndexStoreJUnitTest {
   }
 
   private boolean objectContainedIn(MemoryIndexStore store, Object o) {
-    Iterator iterator = store.valueToEntriesMap.values().iterator();
+    var iterator = store.valueToEntriesMap.values().iterator();
     return objectContainedIn(iterator, o);
   }
 
@@ -384,7 +384,7 @@ public class MemoryIndexStoreJUnitTest {
   }
 
   private RegionEntry createRegionEntry(Object key, Object value) {
-    RegionEntry mockEntry = mock(RegionEntry.class);
+    var mockEntry = mock(RegionEntry.class);
     when(mockEntry.getValue(any())).thenReturn(value);
     when(mockEntry.getKey()).thenReturn(key);
     return mockEntry;

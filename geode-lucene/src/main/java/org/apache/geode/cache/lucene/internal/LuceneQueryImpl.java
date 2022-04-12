@@ -67,22 +67,22 @@ public class LuceneQueryImpl<K, V> implements LuceneQuery<K, V> {
 
   @Override
   public Collection<K> findKeys() throws LuceneQueryException {
-    TopEntries<K> entries = findTopEntries();
-    final List<EntryScore<K>> hits = entries.getHits();
+    var entries = findTopEntries();
+    final var hits = entries.getHits();
 
     return hits.stream().map(EntryScore::getKey).collect(Collectors.toList());
   }
 
   @Override
   public Collection<V> findValues() throws LuceneQueryException {
-    final List<LuceneResultStruct<K, V>> page = findResults();
+    final var page = findResults();
 
     return page.stream().map(LuceneResultStruct::getValue).collect(Collectors.toList());
   }
 
   @Override
   public List<LuceneResultStruct<K, V>> findResults() throws LuceneQueryException {
-    PageableLuceneQueryResults<K, V> pages = findPages(0);
+    var pages = findPages(0);
     if (!pages.hasNext()) {
       return Collections.emptyList();
     }
@@ -96,7 +96,7 @@ public class LuceneQueryImpl<K, V> implements LuceneQuery<K, V> {
   }
 
   private PageableLuceneQueryResults<K, V> findPages(int pageSize) throws LuceneQueryException {
-    TopEntries<K> entries = findTopEntries();
+    var entries = findTopEntries();
     return newPageableResults(pageSize, entries);
   }
 
@@ -106,9 +106,9 @@ public class LuceneQueryImpl<K, V> implements LuceneQuery<K, V> {
   }
 
   private TopEntries<K> findTopEntries() throws LuceneQueryException {
-    TopEntriesCollectorManager manager = new TopEntriesCollectorManager(null, limit);
-    LuceneFunctionContext<TopEntriesCollector> context =
-        new LuceneFunctionContext<>(query, indexName, manager, limit);
+    var manager = new TopEntriesCollectorManager(null, limit);
+    var context =
+        new LuceneFunctionContext<TopEntriesCollector>(query, indexName, manager, limit);
     if (region.getCache().getCacheTransactionManager().exists()) {
       throw new LuceneQueryException(LUCENE_QUERY_CANNOT_BE_EXECUTED_WITHIN_A_TRANSACTION);
     }
@@ -116,7 +116,7 @@ public class LuceneQueryImpl<K, V> implements LuceneQuery<K, V> {
     // TODO provide a timeout to the user?
     TopEntries<K> entries = null;
     try {
-      TopEntriesFunctionCollector collector = new TopEntriesFunctionCollector(context);
+      var collector = new TopEntriesFunctionCollector(context);
       ResultCollector<TopEntriesCollector, TopEntries<K>> rc =
           onRegion().setArguments(context).withCollector(collector).execute(LuceneQueryFunction.ID);
       entries = rc.getResult();

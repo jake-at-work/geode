@@ -26,7 +26,6 @@ import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.CacheLoaderException;
 import org.apache.geode.cache.LoaderHelper;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.test.dunit.cache.internal.JUnit4CacheTestCase;
 
@@ -43,20 +42,20 @@ public class CacheCloseDUnitTest extends JUnit4CacheTestCase {
   }
 
   private RegionAttributes createAtts(List callbacks) {
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
 
     {
-      TestCacheListener listener = new TestCacheListener() {};
+      var listener = new TestCacheListener() {};
       callbacks.add(listener);
       factory.setCacheListener(listener);
     }
     {
-      TestCacheWriter writer = new TestCacheWriter() {};
+      var writer = new TestCacheWriter() {};
       callbacks.add(writer);
       factory.setCacheWriter(writer);
     }
     {
-      TestCacheLoader loader = new TestCacheLoader() {
+      var loader = new TestCacheLoader() {
         @Override
         public Object load2(LoaderHelper helper) throws CacheLoaderException {
           fail("load2 should not be called by this test");
@@ -84,7 +83,7 @@ public class CacheCloseDUnitTest extends JUnit4CacheTestCase {
       List callbacks = new ArrayList();
 
       // create a root region with callbacks
-      Region r = createRootRegion(createAtts(callbacks));
+      var r = createRootRegion(createAtts(callbacks));
 
       // create a sub region with callbacks
       r.createSubregion("testCallbacksClosed", createAtts(callbacks));
@@ -92,8 +91,8 @@ public class CacheCloseDUnitTest extends JUnit4CacheTestCase {
       closeCache();
 
       // make sure all callbacks called
-      for (final Object callback : callbacks) {
-        TestCacheCallback listener = (TestCacheCallback) callback;
+      for (final var callback : callbacks) {
+        var listener = (TestCacheCallback) callback;
         assertTrue("listener not invoked: " + listener, listener.isClosed());
       }
     }
@@ -101,7 +100,7 @@ public class CacheCloseDUnitTest extends JUnit4CacheTestCase {
     // now recreate the cache and root region so they can be destroyed
     // during teardown
     {
-      AttributesFactory factory = new AttributesFactory();
+      var factory = new AttributesFactory();
       createRootRegion(factory.create());
     }
   }

@@ -15,10 +15,7 @@
 package org.apache.geode.internal.net;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.Socket;
-
-import javax.net.ssl.SSLSocketFactory;
 
 import org.apache.geode.GemFireConfigException;
 import org.apache.geode.SystemConnectException;
@@ -55,13 +52,13 @@ class SCAdvancedSocketCreator extends AdvancedSocketCreatorImpl {
 
     // create an SSL connection
 
-    InetSocketAddress sockaddr = addr.getSocketInetAddress();
+    var sockaddr = addr.getSocketInetAddress();
 
     if (coreSocketCreator.getSslContext() == null) {
       throw new GemFireConfigException(
           "SSL not configured correctly, Please look at previous error");
     }
-    Socket socket = socketFactory.createSocket();
+    var socket = socketFactory.createSocket();
 
     // Optionally enable SO_KEEPALIVE in the OS network protocol.
     socket.setKeepAlive(ENABLE_TCP_KEEP_ALIVE);
@@ -78,7 +75,7 @@ class SCAdvancedSocketCreator extends AdvancedSocketCreatorImpl {
         optionalWatcher.beforeConnect(socket);
       }
       socket.connect(sockaddr, Math.max(timeout, 0));
-      SSLSocketFactory sf = coreSocketCreator.getSslContext().getSocketFactory();
+      var sf = coreSocketCreator.getSslContext().getSocketFactory();
       socket = sf.createSocket(socket, addr.getHostName(), addr.getPort(), true);
       coreSocketCreator.configureClientSSLSocket(socket, addr, timeout);
       return socket;
@@ -103,7 +100,7 @@ class SCAdvancedSocketCreator extends AdvancedSocketCreatorImpl {
   @Override
   protected Socket createCustomClientSocket(HostAndPort addr) throws IOException {
     if (coreSocketCreator.getClientSocketFactory() != null) {
-      InetSocketAddress inetSocketAddress = addr.getSocketInetAddress();
+      var inetSocketAddress = addr.getSocketInetAddress();
       return coreSocketCreator.getClientSocketFactory().createSocket(inetSocketAddress.getAddress(),
           inetSocketAddress.getPort());
     }

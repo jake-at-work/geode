@@ -38,11 +38,11 @@ public class DiskRegionIllegalCacheXMLvaluesJUnitTest {
   public void createRegion(String path) {
     DistributedSystem ds = null;
     try {
-      boolean exceptionOccurred = false;
-      File dir = new File("testingDirectoryForXML");
+      var exceptionOccurred = false;
+      var dir = new File("testingDirectoryForXML");
       dir.mkdir();
       dir.deleteOnExit();
-      Properties props = new Properties();
+      var props = new Properties();
       props.setProperty(MCAST_PORT, "0");
       props.setProperty(CACHE_XML_FILE,
           createTempFileFromResource(getClass(), path).getAbsolutePath());

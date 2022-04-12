@@ -59,7 +59,7 @@ public class AbortableTaskService {
    * @param task the task to execute
    */
   public void execute(AbortableTask task) {
-    AbortingRunnable ar = new AbortingRunnable(task);
+    var ar = new AbortingRunnable(task);
     tasks.add(ar);
 
     try {
@@ -75,7 +75,7 @@ public class AbortableTaskService {
    * Aborts all executing tasks.
    */
   public void abortAll() {
-    for (AbortingRunnable ar : tasks) {
+    for (var ar : tasks) {
       ar.abort();
     }
   }
@@ -84,8 +84,8 @@ public class AbortableTaskService {
    * Waits for all currently executing tasks to complete.
    */
   public void waitForCompletion() {
-    boolean interrupted = false;
-    for (AbortingRunnable ar : tasks) {
+    var interrupted = false;
+    for (var ar : tasks) {
       try {
         ar.waitForCompletion();
       } catch (InterruptedException e) {
@@ -102,7 +102,7 @@ public class AbortableTaskService {
    * Returns true if all tasks are done or aborted.
    */
   public boolean isCompleted() {
-    for (AbortingRunnable ar : tasks) {
+    for (var ar : tasks) {
       synchronized (ar) {
         if (!ar.done) {
           return false;

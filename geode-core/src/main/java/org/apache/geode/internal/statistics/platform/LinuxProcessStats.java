@@ -18,7 +18,6 @@ package org.apache.geode.internal.statistics.platform;
 import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.Statistics;
 import org.apache.geode.StatisticsType;
-import org.apache.geode.StatisticsTypeFactory;
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.internal.statistics.StatisticsTypeFactoryImpl;
 
@@ -35,7 +34,7 @@ public class LinuxProcessStats {
   private static final StatisticsType myType;
 
   static {
-    StatisticsTypeFactory f = StatisticsTypeFactoryImpl.singleton();
+    var f = StatisticsTypeFactoryImpl.singleton();
     myType = f.createType("LinuxProcessStats", "Statistics on a Linux process.",
         new StatisticDescriptor[] {
             f.createLongGauge("imageSize", "The size of the process's image in megabytes.",

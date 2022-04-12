@@ -46,7 +46,6 @@ import org.apache.geode.cache.lucene.internal.InternalLuceneService;
 import org.apache.geode.cache.lucene.internal.LuceneResultStructImpl;
 import org.apache.geode.cache.lucene.internal.cli.LuceneQueryInfo;
 import org.apache.geode.cache.lucene.internal.cli.LuceneSearchResults;
-import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.test.fake.Fakes;
 import org.apache.geode.test.junit.categories.LuceneTest;
 
@@ -57,16 +56,16 @@ public class LuceneSearchIndexFunctionJUnitTest {
   @Test
   @SuppressWarnings("unchecked")
   public void testExecute() throws LuceneQueryException {
-    FunctionContext context = mock(FunctionContext.class);
-    ResultSender resultSender = mock(ResultSender.class);
-    GemFireCacheImpl cache = Fakes.cache();
+    var context = mock(FunctionContext.class);
+    var resultSender = mock(ResultSender.class);
+    var cache = Fakes.cache();
 
-    LuceneQueryInfo queryInfo =
+    var queryInfo =
         createMockQueryInfo("index", "region", "field1:region1", "field1", 1);
-    InternalLuceneService service = getMockLuceneService("A", "Value", "1.2");
-    Region mockRegion = mock(Region.class);
+    var service = getMockLuceneService("A", "Value", "1.2");
+    var mockRegion = mock(Region.class);
 
-    LuceneSearchIndexFunction function = new LuceneSearchIndexFunction();
+    var function = new LuceneSearchIndexFunction();
 
     doReturn(queryInfo).when(context).getArguments();
     doReturn(resultSender).when(context).getResultSender();
@@ -76,12 +75,12 @@ public class LuceneSearchIndexFunctionJUnitTest {
     when(cache.getRegion(queryInfo.getRegionPath())).thenReturn(mockRegion);
 
     function.execute(context);
-    ArgumentCaptor<Set> resultCaptor = ArgumentCaptor.forClass(Set.class);
+    var resultCaptor = ArgumentCaptor.forClass(Set.class);
     verify(resultSender).lastResult(resultCaptor.capture());
     Set<LuceneSearchResults> result = resultCaptor.getValue();
 
     assertEquals(1, result.size());
-    for (LuceneSearchResults searchResult : result) {
+    for (var searchResult : result) {
       assertEquals("A", searchResult.getKey());
       assertEquals("Value", searchResult.getValue());
       assertEquals(1.2, searchResult.getScore(), .1);
@@ -90,10 +89,10 @@ public class LuceneSearchIndexFunctionJUnitTest {
 
   private InternalLuceneService getMockLuceneService(String resultKey, String resultValue,
       String resultScore) throws LuceneQueryException {
-    InternalLuceneService service = mock(InternalLuceneService.class);
-    LuceneQueryFactory mockQueryFactory = spy(LuceneQueryFactory.class);
-    LuceneQuery mockQuery = mock(LuceneQuery.class);
-    PageableLuceneQueryResults pageableLuceneQueryResults = mock(PageableLuceneQueryResults.class);
+    var service = mock(InternalLuceneService.class);
+    var mockQueryFactory = spy(LuceneQueryFactory.class);
+    var mockQuery = mock(LuceneQuery.class);
+    var pageableLuceneQueryResults = mock(PageableLuceneQueryResults.class);
     LuceneResultStruct<String, String> resultStruct =
         new LuceneResultStructImpl(resultKey, resultValue, Float.parseFloat(resultScore));
     List<LuceneResultStruct<String, String>> queryResults = new ArrayList<>();
@@ -112,7 +111,7 @@ public class LuceneSearchIndexFunctionJUnitTest {
 
   private LuceneQueryInfo createMockQueryInfo(final String index, final String region,
       final String query, final String field, final int limit) {
-    LuceneQueryInfo queryInfo = mock(LuceneQueryInfo.class);
+    var queryInfo = mock(LuceneQueryInfo.class);
     when(queryInfo.getIndexName()).thenReturn(index);
     when(queryInfo.getRegionPath()).thenReturn(region);
     when(queryInfo.getQueryString()).thenReturn(query);

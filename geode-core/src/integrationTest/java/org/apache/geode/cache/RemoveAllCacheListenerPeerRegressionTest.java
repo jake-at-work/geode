@@ -41,7 +41,7 @@ public class RemoveAllCacheListenerPeerRegressionTest {
 
   @Before
   public void setUp() throws Exception {
-    Properties p = new Properties();
+    var p = new Properties();
     p.setProperty(MCAST_PORT, "0");
     p.setProperty(LOCATORS, "");
     ds = DistributedSystem.connect(p);
@@ -104,7 +104,7 @@ public class RemoveAllCacheListenerPeerRegressionTest {
   }
 
   private void doRemoveAllTest(RegionShortcut shortcut) {
-    RegionFactory<Object, Object> factory = cache.createRegionFactory(shortcut);
+    var factory = cache.createRegionFactory(shortcut);
     factory.addCacheListener(new TestListener());
     Region aRegion = factory.create("TestRegion");
     aRegion.put("key1", "value1");
@@ -120,7 +120,7 @@ public class RemoveAllCacheListenerPeerRegressionTest {
   }
 
   private void doDestroyTest(RegionShortcut shortcut) {
-    RegionFactory<Object, Object> factory = cache.createRegionFactory(shortcut);
+    var factory = cache.createRegionFactory(shortcut);
     factory.addCacheListener(new TestListener());
     Region aRegion = factory.create("TestRegion");
     try {
@@ -135,10 +135,10 @@ public class RemoveAllCacheListenerPeerRegressionTest {
   }
 
   private void doRemoveTest(RegionShortcut shortcut) {
-    RegionFactory<Object, Object> factory = cache.createRegionFactory(shortcut);
+    var factory = cache.createRegionFactory(shortcut);
     factory.addCacheListener(new TestListener());
     Region aRegion = factory.create("TestRegion");
-    Object returnedValue = aRegion.remove(NON_EXISTENT_KEY);
+    var returnedValue = aRegion.remove(NON_EXISTENT_KEY);
     assertNull(returnedValue);
     assertNull(errStr); // errStr is set if we invoke afterDestroy in the listener
   }
@@ -148,7 +148,7 @@ public class RemoveAllCacheListenerPeerRegressionTest {
     try {
       throw new Exception("Exception to get stack trace");
     } catch (Exception e) {
-      StringWriter sw = new StringWriter();
+      var sw = new StringWriter();
       e.printStackTrace(new PrintWriter(sw, true));
       return sw.toString();
     }

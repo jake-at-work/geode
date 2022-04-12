@@ -51,9 +51,9 @@ public class ConnectionCountProbe extends ServerLoadProbeAdapter
    */
   @Override
   public ServerLoad getLoad(ServerMetrics metrics) {
-    float load = metrics.getConnectionCount() / (float) metrics.getMaxConnections();
-    int queueLoad = metrics.getSubscriptionConnectionCount();
-    float loadPerConnection = 1 / (float) metrics.getMaxConnections();
+    var load = metrics.getConnectionCount() / (float) metrics.getMaxConnections();
+    var queueLoad = metrics.getSubscriptionConnectionCount();
+    var loadPerConnection = 1 / (float) metrics.getMaxConnections();
 
     return new ServerLoad(load, loadPerConnection, queueLoad, 1);
   }

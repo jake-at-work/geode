@@ -29,14 +29,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 import org.junit.Before;
@@ -49,8 +47,6 @@ import org.junit.runners.Parameterized.Parameters;
 import org.junit.runners.Parameterized.UseParametersRunnerFactory;
 
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.DiskStore;
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
@@ -59,7 +55,6 @@ import org.apache.geode.cache.query.FunctionDomainException;
 import org.apache.geode.cache.query.NameResolutionException;
 import org.apache.geode.cache.query.QueryInvocationTargetException;
 import org.apache.geode.cache.query.TypeMismatchException;
-import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.test.dunit.rules.CacheRule;
 import org.apache.geode.test.dunit.rules.DistributedDiskDirRule;
@@ -157,7 +152,7 @@ public class PrepareAndFinishBackupDistributedTest {
     region.put(1, 1);
     region.put(2, 2);
 
-    List<Integer> keys = Arrays.asList(1, 2);
+    var keys = Arrays.asList(1, 2);
     doActionAndVerifyWaitForBackup(() -> region.removeAll(keys));
     assertThat(region).isEmpty();
   }
@@ -177,17 +172,17 @@ public class PrepareAndFinishBackupDistributedTest {
   private Region<Integer, Integer> createRegion(RegionShortcut shortcut) {
     Cache cache = cacheRule.getOrCreateCache();
 
-    DiskStoreFactory diskStoreFactory = cache.createDiskStoreFactory();
+    var diskStoreFactory = cache.createDiskStoreFactory();
     diskStoreFactory.setDiskDirs(new File[] {getDiskDir()});
 
-    DiskStore diskStore = diskStoreFactory.create(getUniqueName());
+    var diskStore = diskStoreFactory.create(getUniqueName());
 
     RegionFactory<Integer, Integer> regionFactory = cache.createRegionFactory(shortcut);
     regionFactory.setDiskStoreName(diskStore.getName());
     regionFactory.setDiskSynchronous(true);
 
     if (shortcut.equals(PARTITION_PERSISTENT)) {
-      PartitionAttributesFactory partitionAttributesFactory = new PartitionAttributesFactory();
+      var partitionAttributesFactory = new PartitionAttributesFactory();
       partitionAttributesFactory.setTotalNumBuckets(1);
       regionFactory.setPartitionAttributes(partitionAttributesFactory.create());
     }
@@ -197,16 +192,16 @@ public class PrepareAndFinishBackupDistributedTest {
 
   private void doActionAndVerifyWaitForBackup(Runnable function)
       throws InterruptedException, TimeoutException, ExecutionException {
-    DistributionManager dm = cacheRule.getCache().getDistributionManager();
+    var dm = cacheRule.getCache().getDistributionManager();
     Set recipients = dm.getOtherDistributionManagerIds();
 
-    Properties backupProperties = new BackupConfigFactory()
+    var backupProperties = new BackupConfigFactory()
         .withTargetDirPath(getDiskDir().toString()).createBackupProperties();
 
     new PrepareBackupStep(dm, dm.getId(), dm.getCache(), recipients,
         new PrepareBackupFactory(), backupProperties).send();
 
-    ReentrantLock backupLock = ((LocalRegion) region).getDiskStore().getBackupLock();
+    var backupLock = ((LocalRegion) region).getDiskStore().getBackupLock();
     Future<Void> future = CompletableFuture.runAsync(function);
     await()
         .untilAsserted(() -> assertThat(backupLock.getQueueLength()).isGreaterThanOrEqualTo(0));
@@ -218,17 +213,17 @@ public class PrepareAndFinishBackupDistributedTest {
   }
 
   private void doReadActionsAndVerifyCompletion() {
-    DistributionManager dm = cacheRule.getCache().getDistributionManager();
+    var dm = cacheRule.getCache().getDistributionManager();
     Set recipients = dm.getOtherDistributionManagerIds();
 
-    Properties backupProperties = new BackupConfigFactory()
+    var backupProperties = new BackupConfigFactory()
         .withTargetDirPath(getDiskDir().toString()).createBackupProperties();
 
     new PrepareBackupStep(dm, dm.getId(), dm.getCache(), recipients,
         new PrepareBackupFactory(), backupProperties).send();
 
-    ReentrantLock backupLock = ((LocalRegion) region).getDiskStore().getBackupLock();
-    List<CompletableFuture<?>> futureList = doReadActions();
+    var backupLock = ((LocalRegion) region).getDiskStore().getBackupLock();
+    var futureList = doReadActions();
     CompletableFuture.allOf(futureList.toArray(new CompletableFuture<?>[futureList.size()]));
     assertThat(backupLock.getQueueLength()).isEqualTo(0);
 

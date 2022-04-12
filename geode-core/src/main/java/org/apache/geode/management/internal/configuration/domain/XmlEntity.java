@@ -22,9 +22,7 @@ import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -192,15 +190,15 @@ public class XmlEntity implements VersionedDataSerializable {
   private String parseXmlForDefinition() {
     final Cache cache = cacheProvider.getCache();
 
-    final StringWriter stringWriter = new StringWriter();
-    final PrintWriter printWriter = new PrintWriter(stringWriter);
+    final var stringWriter = new StringWriter();
+    final var printWriter = new PrintWriter(stringWriter);
     CacheXmlGenerator.generate(cache, printWriter, false, false);
     printWriter.close();
-    InputSource inputSource = new InputSource(new StringReader(stringWriter.toString()));
+    var inputSource = new InputSource(new StringReader(stringWriter.toString()));
 
     try {
-      Document document = XmlUtils.getDocumentBuilder().parse(inputSource);
-      Node element = document.getElementsByTagNameNS(childNamespace, type).item(0);
+      var document = XmlUtils.getDocumentBuilder().parse(inputSource);
+      var element = document.getElementsByTagNameNS(childNamespace, type).item(0);
       if (null != element) {
         return XmlUtils.elementToString(element);
       }
@@ -216,7 +214,7 @@ public class XmlEntity implements VersionedDataSerializable {
 
   private void initializeSearchString(final String parentKey, final String parentValue,
       final String childPrefix, final String childKey, final String childValue) {
-    StringBuilder sb = new StringBuilder();
+    var sb = new StringBuilder();
     sb.append("//").append(prefix).append(':').append(parentType);
 
     if (StringUtils.isNotBlank(parentKey) && StringUtils.isNotBlank(parentValue)) {
@@ -256,8 +254,8 @@ public class XmlEntity implements VersionedDataSerializable {
   private String loadXmlDefinition() {
     final Cache cache = cacheProvider.getCache();
 
-    final StringWriter stringWriter = new StringWriter();
-    final PrintWriter printWriter = new PrintWriter(stringWriter);
+    final var stringWriter = new StringWriter();
+    final var printWriter = new PrintWriter(stringWriter);
     CacheXmlGenerator.generate(cache, printWriter, false, false);
     printWriter.close();
 
@@ -273,7 +271,7 @@ public class XmlEntity implements VersionedDataSerializable {
    */
   private String loadXmlDefinition(final String xmlDocument) {
     try {
-      InputSource inputSource = new InputSource(new StringReader(xmlDocument));
+      var inputSource = new InputSource(new StringReader(xmlDocument));
       return loadXmlDefinition(XmlUtils.getDocumentBuilder().parse(inputSource));
     } catch (IOException | SAXException | ParserConfigurationException | XPathExpressionException
         | TransformerFactoryConfigurationError | TransformerException e) {
@@ -294,7 +292,7 @@ public class XmlEntity implements VersionedDataSerializable {
     logger.info("XmlEntity:searchString: {}", searchString);
 
     if (document != null) {
-      XPathContext xpathContext = new XPathContext();
+      var xpathContext = new XPathContext();
       xpathContext.addNamespace(prefix, namespace);
 
       // TODO: wrap this line with conditional
@@ -325,13 +323,13 @@ public class XmlEntity implements VersionedDataSerializable {
    */
   private String createQueryString(final String prefix, final String element,
       final Map<String, String> attributes) {
-    StringBuilder queryStringBuilder = new StringBuilder();
-    Iterator<Entry<String, String>> attributeIter = attributes.entrySet().iterator();
+    var queryStringBuilder = new StringBuilder();
+    var attributeIter = attributes.entrySet().iterator();
     queryStringBuilder.append("//").append(prefix).append(':').append(element);
 
     if (!attributes.isEmpty()) {
       queryStringBuilder.append('[');
-      Entry<String, String> attrEntry = attributeIter.next();
+      var attrEntry = attributeIter.next();
       queryStringBuilder.append('@').append(attrEntry.getKey()).append("='")
           .append(attrEntry.getValue()).append('\'');
       while (attributeIter.hasNext()) {
@@ -438,8 +436,8 @@ public class XmlEntity implements VersionedDataSerializable {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
+    final var prime = 31;
+    var result = 1;
     result = prime * result + ((attributes == null) ? 0 : attributes.hashCode());
     result = prime * result + ((type == null) ? 0 : type.hashCode());
     return result;
@@ -456,7 +454,7 @@ public class XmlEntity implements VersionedDataSerializable {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    XmlEntity other = (XmlEntity) obj;
+    var other = (XmlEntity) obj;
     if (attributes == null) {
       if (other.attributes != null) {
         return false;
@@ -547,7 +545,7 @@ public class XmlEntity implements VersionedDataSerializable {
     public XmlEntity build() {
       xmlEntity.init();
 
-      final XmlEntity built = xmlEntity;
+      final var built = xmlEntity;
       xmlEntity = new XmlEntity();
 
       return built;

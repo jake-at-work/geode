@@ -17,8 +17,6 @@ package org.apache.geode.tools.pulse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.nio.file.Path;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -37,8 +35,8 @@ public class PulseLoggingTest {
 
   @Test
   public void pulseCreatesLogFileOnStartup() {
-    Path locatorDir = locator.getWorkingDir().toPath();
-    Path pulseLogFile = locatorDir.resolve("pulse.log");
+    var locatorDir = locator.getWorkingDir().toPath();
+    var pulseLogFile = locatorDir.resolve("pulse.log");
     assertThat(pulseLogFile).exists();
   }
 }

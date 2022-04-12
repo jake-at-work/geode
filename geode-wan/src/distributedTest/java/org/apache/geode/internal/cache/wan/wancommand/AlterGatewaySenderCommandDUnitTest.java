@@ -32,8 +32,6 @@ import org.junit.experimental.categories.Category;
 import org.apache.geode.cache.wan.GatewayEventFilter;
 import org.apache.geode.cache.wan.GatewayQueueEvent;
 import org.apache.geode.cache.wan.GatewaySender;
-import org.apache.geode.distributed.internal.InternalLocator;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.test.dunit.IgnoredException;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
@@ -73,7 +71,7 @@ public class AlterGatewaySenderCommandDUnitTest {
 
   @BeforeClass
   public static void beforeClass() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(NAME, "happylocator");
     props.setProperty(DISTRIBUTED_SYSTEM_ID, "" + 1);
     locatorSite1 = clusterStartupRule.startLocatorVM(0, props);
@@ -120,8 +118,8 @@ public class AlterGatewaySenderCommandDUnitTest {
 
     // verify that server1's event queue has the default value
     server1.invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
-      GatewaySender sender = cache.getGatewaySender("sender1");
+      var cache = ClusterStartupRule.getCache();
+      var sender = cache.getGatewaySender("sender1");
       assertThat(sender.getBatchSize()).isEqualTo(GatewaySender.DEFAULT_BATCH_SIZE);
       assertThat(sender.getBatchTimeInterval())
           .isEqualTo(GatewaySender.DEFAULT_BATCH_TIME_INTERVAL);
@@ -148,8 +146,8 @@ public class AlterGatewaySenderCommandDUnitTest {
 
     // verify that server1's event queue has the default value
     server1.invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
-      GatewaySender sender = cache.getGatewaySender("sender1");
+      var cache = ClusterStartupRule.getCache();
+      var sender = cache.getGatewaySender("sender1");
       assertThat(sender.getBatchSize()).isEqualTo(200);
       assertThat(sender.getBatchTimeInterval())
           .isEqualTo(GatewaySender.DEFAULT_BATCH_TIME_INTERVAL);
@@ -175,8 +173,8 @@ public class AlterGatewaySenderCommandDUnitTest {
 
     // verify that server1's event queue has the default value
     server1.invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
-      GatewaySender sender = cache.getGatewaySender("sender1");
+      var cache = ClusterStartupRule.getCache();
+      var sender = cache.getGatewaySender("sender1");
       assertThat(sender.getBatchSize()).isEqualTo(GatewaySender.DEFAULT_BATCH_SIZE);
       assertThat(sender.getBatchTimeInterval())
           .isEqualTo(GatewaySender.DEFAULT_BATCH_TIME_INTERVAL);
@@ -202,8 +200,8 @@ public class AlterGatewaySenderCommandDUnitTest {
 
     // verify that server1's event queue has the default value
     server1.invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
-      GatewaySender sender = cache.getGatewaySender("sender1");
+      var cache = ClusterStartupRule.getCache();
+      var sender = cache.getGatewaySender("sender1");
       assertThat(sender.getBatchSize()).isEqualTo(200);
       assertThat(sender.getBatchTimeInterval())
           .isEqualTo(GatewaySender.DEFAULT_BATCH_TIME_INTERVAL);
@@ -212,8 +210,8 @@ public class AlterGatewaySenderCommandDUnitTest {
 
     // verify that server1's event queue has the default value
     server2.invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
-      GatewaySender sender = cache.getGatewaySender("sender1");
+      var cache = ClusterStartupRule.getCache();
+      var sender = cache.getGatewaySender("sender1");
       assertThat(sender.getBatchSize()).isEqualTo(200);
       assertThat(sender.getBatchTimeInterval())
           .isEqualTo(GatewaySender.DEFAULT_BATCH_TIME_INTERVAL);
@@ -221,9 +219,9 @@ public class AlterGatewaySenderCommandDUnitTest {
     });
 
     locatorSite1.invoke(() -> {
-      InternalLocator locator = ClusterStartupRule.getLocator();
+      var locator = ClusterStartupRule.getLocator();
       assertThat(locator).isNotNull();
-      String xml = locator.getConfigurationPersistenceService().getConfiguration("cluster")
+      var xml = locator.getConfigurationPersistenceService().getConfiguration("cluster")
           .getCacheXmlContent();
       assertThat(xml).contains("batch-size=\"200\"");
       assertThat(xml).contains("alert-threshold=\"100\"");
@@ -267,15 +265,15 @@ public class AlterGatewaySenderCommandDUnitTest {
         "alter gateway-sender --id=sender1 --batch-size=200 --alert-threshold=100")
         .statusIsSuccess();
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(NAME, "happyserver1");
     props.setProperty(DISTRIBUTED_SYSTEM_ID, "" + 1);
     server1 = clusterStartupRule.startServerVM(1, props, locatorSite1.getPort());
 
     // verify that server1's event queue has the default value
     server1.invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
-      GatewaySender sender = cache.getGatewaySender("sender1");
+      var cache = ClusterStartupRule.getCache();
+      var sender = cache.getGatewaySender("sender1");
       assertThat(sender.getBatchSize()).isEqualTo(200);
       assertThat(sender.getBatchTimeInterval())
           .isEqualTo(GatewaySender.DEFAULT_BATCH_TIME_INTERVAL);
@@ -303,8 +301,8 @@ public class AlterGatewaySenderCommandDUnitTest {
 
     // verify that server1's event queue has the default value
     server1.invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
-      GatewaySender sender = cache.getGatewaySender("sender1");
+      var cache = ClusterStartupRule.getCache();
+      var sender = cache.getGatewaySender("sender1");
       assertThat(sender.getBatchSize()).isEqualTo(200);
       assertThat(sender.getBatchTimeInterval())
           .isEqualTo(GatewaySender.DEFAULT_BATCH_TIME_INTERVAL);
@@ -314,8 +312,8 @@ public class AlterGatewaySenderCommandDUnitTest {
 
     });
     server2.invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
-      GatewaySender sender = cache.getGatewaySender("sender1");
+      var cache = ClusterStartupRule.getCache();
+      var sender = cache.getGatewaySender("sender1");
       assertThat(sender.getBatchSize()).isEqualTo(200);
       assertThat(sender.getBatchTimeInterval())
           .isEqualTo(GatewaySender.DEFAULT_BATCH_TIME_INTERVAL);
@@ -330,8 +328,8 @@ public class AlterGatewaySenderCommandDUnitTest {
 
     // verify that server1's event queue has the default value
     server1.invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
-      GatewaySender sender = cache.getGatewaySender("sender1");
+      var cache = ClusterStartupRule.getCache();
+      var sender = cache.getGatewaySender("sender1");
       assertThat(sender.getBatchSize()).isEqualTo(2000);
       assertThat(sender.getBatchTimeInterval())
           .isEqualTo(GatewaySender.DEFAULT_BATCH_TIME_INTERVAL);
@@ -341,8 +339,8 @@ public class AlterGatewaySenderCommandDUnitTest {
 
     });
     server2.invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
-      GatewaySender sender = cache.getGatewaySender("sender1");
+      var cache = ClusterStartupRule.getCache();
+      var sender = cache.getGatewaySender("sender1");
       assertThat(sender.getBatchSize()).isEqualTo(2000);
       assertThat(sender.getBatchTimeInterval())
           .isEqualTo(GatewaySender.DEFAULT_BATCH_TIME_INTERVAL);
@@ -372,8 +370,8 @@ public class AlterGatewaySenderCommandDUnitTest {
 
     // verify that server1's event queue has the default value
     server1.invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
-      GatewaySender sender = cache.getGatewaySender("sender1");
+      var cache = ClusterStartupRule.getCache();
+      var sender = cache.getGatewaySender("sender1");
       assertThat(sender.getBatchSize()).isEqualTo(200);
       assertThat(sender.getBatchTimeInterval())
           .isEqualTo(GatewaySender.DEFAULT_BATCH_TIME_INTERVAL);
@@ -383,8 +381,8 @@ public class AlterGatewaySenderCommandDUnitTest {
 
     });
     server2.invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
-      GatewaySender sender = cache.getGatewaySender("sender1");
+      var cache = ClusterStartupRule.getCache();
+      var sender = cache.getGatewaySender("sender1");
       assertThat(sender.getBatchSize()).isEqualTo(200);
       assertThat(sender.getBatchTimeInterval())
           .isEqualTo(GatewaySender.DEFAULT_BATCH_TIME_INTERVAL);
@@ -399,8 +397,8 @@ public class AlterGatewaySenderCommandDUnitTest {
 
     // verify that server1's event queue has the default value
     server1.invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
-      GatewaySender sender = cache.getGatewaySender("sender1");
+      var cache = ClusterStartupRule.getCache();
+      var sender = cache.getGatewaySender("sender1");
       assertThat(sender.getBatchSize()).isEqualTo(111);
       assertThat(sender.getBatchTimeInterval())
           .isEqualTo(GatewaySender.DEFAULT_BATCH_TIME_INTERVAL);
@@ -409,8 +407,8 @@ public class AlterGatewaySenderCommandDUnitTest {
 
     });
     server2.invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
-      GatewaySender sender = cache.getGatewaySender("sender1");
+      var cache = ClusterStartupRule.getCache();
+      var sender = cache.getGatewaySender("sender1");
       assertThat(sender.getBatchSize()).isEqualTo(111);
       assertThat(sender.getBatchTimeInterval())
           .isEqualTo(GatewaySender.DEFAULT_BATCH_TIME_INTERVAL);
@@ -438,8 +436,8 @@ public class AlterGatewaySenderCommandDUnitTest {
 
     // verify that server1's event queue has the default value
     server1.invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
-      GatewaySender sender = cache.getGatewaySender("sender1P");
+      var cache = ClusterStartupRule.getCache();
+      var sender = cache.getGatewaySender("sender1P");
       assertThat(sender.getBatchSize()).isEqualTo(200);
       assertThat(sender.getBatchTimeInterval())
           .isEqualTo(GatewaySender.DEFAULT_BATCH_TIME_INTERVAL);
@@ -464,8 +462,8 @@ public class AlterGatewaySenderCommandDUnitTest {
 
     // verify that server1's event queue has the default value
     server1.invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
-      GatewaySender sender = cache.getGatewaySender("sender1P");
+      var cache = ClusterStartupRule.getCache();
+      var sender = cache.getGatewaySender("sender1P");
       assertThat(sender.mustGroupTransactionEvents()).isTrue();
     });
   }

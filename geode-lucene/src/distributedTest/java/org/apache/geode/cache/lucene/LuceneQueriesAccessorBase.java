@@ -29,15 +29,11 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.geode.DataSerializable;
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.Region;
-import org.apache.geode.cache.control.RebalanceOperation;
-import org.apache.geode.cache.control.RebalanceResults;
 import org.apache.geode.cache.lucene.internal.LuceneIndexFactorySpy;
 import org.apache.geode.cache.lucene.internal.LuceneIndexImpl;
 import org.apache.geode.cache.lucene.test.IndexRepositorySpy;
@@ -47,7 +43,6 @@ import org.apache.geode.distributed.internal.membership.InternalDistributedMembe
 import org.apache.geode.internal.cache.InitialImageOperation;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.partitioned.BecomePrimaryBucketMessage;
-import org.apache.geode.internal.cache.partitioned.BecomePrimaryBucketMessage.BecomePrimaryBucketResponse;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.VM;
 
@@ -64,7 +59,7 @@ public class LuceneQueriesAccessorBase extends LuceneDUnitTest {
   protected void putDataInRegion(VM vm) {
     vm.invoke(() -> {
       final Cache cache = getCache();
-      Region<Object, Object> region = cache.getRegion(REGION_NAME);
+      var region = cache.getRegion(REGION_NAME);
       region.put(1, new TestObject("hello world"));
       region.put(113, new TestObject("hi world"));
       region.put(2, new TestObject("goodbye world"));
@@ -75,8 +70,8 @@ public class LuceneQueriesAccessorBase extends LuceneDUnitTest {
     return vm.invoke(() -> {
       Cache cache = getCache();
 
-      LuceneService service = LuceneServiceProvider.get(cache);
-      LuceneIndexImpl index = (LuceneIndexImpl) service.getIndex(INDEX_NAME, REGION_NAME);
+      var service = LuceneServiceProvider.get(cache);
+      var index = (LuceneIndexImpl) service.getIndex(INDEX_NAME, REGION_NAME);
 
       return service.waitUntilFlushed(INDEX_NAME, REGION_NAME, ms, TimeUnit.MILLISECONDS);
     });
@@ -85,18 +80,18 @@ public class LuceneQueriesAccessorBase extends LuceneDUnitTest {
   protected void executeTextSearch(VM vm) {
     vm.invoke(() -> {
       Cache cache = getCache();
-      Region<Object, Object> region = cache.getRegion(REGION_NAME);
+      var region = cache.getRegion(REGION_NAME);
 
-      LuceneService service = LuceneServiceProvider.get(cache);
+      var service = LuceneServiceProvider.get(cache);
       LuceneQuery<Integer, TestObject> query;
       query = service.createLuceneQueryFactory().create(INDEX_NAME, REGION_NAME, "text:world",
           DEFAULT_FIELD);
-      PageableLuceneQueryResults<Integer, TestObject> results = query.findPages();
+      var results = query.findPages();
       assertEquals(3, results.size());
-      List<LuceneResultStruct<Integer, TestObject>> page = results.next();
+      var page = results.next();
 
       Map<Integer, TestObject> data = new HashMap<>();
-      for (LuceneResultStruct<Integer, TestObject> row : page) {
+      for (var row : page) {
         data.put(row.getKey(), row.getValue());
       }
 
@@ -110,7 +105,7 @@ public class LuceneQueriesAccessorBase extends LuceneDUnitTest {
     vm.invoke(() -> {
       Cache cache = getCache();
 
-      LuceneService service = LuceneServiceProvider.get(cache);
+      var service = LuceneServiceProvider.get(cache);
       LuceneQuery<Integer, TestObject> query;
       query = service.createLuceneQueryFactory().setLimit(1000).setPageSize(1000).create(INDEX_NAME,
           REGION_NAME, queryString, defaultField);
@@ -125,7 +120,7 @@ public class LuceneQueriesAccessorBase extends LuceneDUnitTest {
     vm.invoke(() -> {
       Cache cache = getCache();
 
-      LuceneService service = LuceneServiceProvider.get(cache);
+      var service = LuceneServiceProvider.get(cache);
       LuceneQuery<Integer, TestObject> query;
       query = service.createLuceneQueryFactory().setLimit(1000).setPageSize(1000).create(INDEX_NAME,
           REGION_NAME, queryString, defaultField);
@@ -140,7 +135,7 @@ public class LuceneQueriesAccessorBase extends LuceneDUnitTest {
 
   protected void addCallbackToTriggerRebalance(VM vm) {
     vm.invoke(() -> {
-      IndexRepositorySpy spy = IndexRepositorySpy.injectSpy();
+      var spy = IndexRepositorySpy.injectSpy();
 
       spy.beforeWriteIndexRepository(doOnce(key -> rebalanceRegion(vm)));
     });
@@ -148,7 +143,7 @@ public class LuceneQueriesAccessorBase extends LuceneDUnitTest {
 
   protected void addCallbackToMoveBucket(VM vm, final DistributedMember destination) {
     vm.invoke(() -> {
-      IndexRepositorySpy spy = IndexRepositorySpy.injectSpy();
+      var spy = IndexRepositorySpy.injectSpy();
 
       spy.beforeWriteIndexRepository(doOnce(key -> moveBucket(destination, key)));
     });
@@ -156,7 +151,7 @@ public class LuceneQueriesAccessorBase extends LuceneDUnitTest {
 
   protected void addCallbackToMovePrimary(VM vm, final DistributedMember destination) {
     vm.invoke(() -> {
-      IndexRepositorySpy spy = IndexRepositorySpy.injectSpy();
+      var spy = IndexRepositorySpy.injectSpy();
 
       spy.beforeWriteIndexRepository(doOnce(key -> movePrimary(destination, key)));
     });
@@ -164,22 +159,22 @@ public class LuceneQueriesAccessorBase extends LuceneDUnitTest {
 
   protected void addCallbackToMovePrimaryOnQuery(VM vm, final DistributedMember destination) {
     vm.invoke(() -> {
-      LuceneIndexFactorySpy factorySpy = LuceneIndexFactorySpy.injectSpy();
+      var factorySpy = LuceneIndexFactorySpy.injectSpy();
 
       factorySpy.setGetRespositoryConsumer(doOnce(key -> moveBucket(destination, key)));
     });
   }
 
   private void moveBucket(final DistributedMember destination, final Object key) {
-    Region<Object, Object> region = getCache().getRegion(REGION_NAME);
-    DistributedMember source = getCache().getDistributedSystem().getDistributedMember();
+    var region = getCache().getRegion(REGION_NAME);
+    var source = getCache().getDistributedSystem().getDistributedMember();
     PartitionRegionHelper.moveBucketByKey(region, source, destination, key);
   }
 
   private void movePrimary(final DistributedMember destination, final Object key) {
-    PartitionedRegion region = (PartitionedRegion) getCache().getRegion(REGION_NAME);
+    var region = (PartitionedRegion) getCache().getRegion(REGION_NAME);
 
-    BecomePrimaryBucketResponse response =
+    var response =
         BecomePrimaryBucketMessage.send((InternalDistributedMember) destination, region,
             region.getKeyInfo(key).getBucketId(), true);
     assertNotNull(response);
@@ -197,8 +192,8 @@ public class LuceneQueriesAccessorBase extends LuceneDUnitTest {
   protected void rebalanceRegion(VM vm) {
     // Do a rebalance
     vm.invoke(() -> {
-      RebalanceOperation op = getCache().getResourceManager().createRebalanceFactory().start();
-      RebalanceResults results = op.getResults();
+      var op = getCache().getResourceManager().createRebalanceFactory().start();
+      var results = op.getResults();
     });
   }
 
@@ -214,8 +209,8 @@ public class LuceneQueriesAccessorBase extends LuceneDUnitTest {
 
     @Override
     public int hashCode() {
-      final int prime = 31;
-      int result = 1;
+      final var prime = 31;
+      var result = 1;
       result = prime * result + ((text == null) ? 0 : text.hashCode());
       return result;
     }
@@ -231,7 +226,7 @@ public class LuceneQueriesAccessorBase extends LuceneDUnitTest {
       if (getClass() != obj.getClass()) {
         return false;
       }
-      TestObject other = (TestObject) obj;
+      var other = (TestObject) obj;
       if (text == null) {
         return other.text == null;
       } else

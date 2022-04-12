@@ -25,13 +25,11 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.Collection;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.IntStream;
@@ -65,8 +63,8 @@ public class InternalResourceManagerTest {
 
   @Before
   public void setup() {
-    InternalCache cache = mock(InternalCache.class);
-    DistributedSystem distributedSystem = mock(DistributedSystem.class);
+    var cache = mock(InternalCache.class);
+    var distributedSystem = mock(DistributedSystem.class);
 
     when(cache.getDistributedSystem()).thenReturn(distributedSystem);
     when(distributedSystem.createAtomicStatistics(any(), anyString()))
@@ -84,9 +82,9 @@ public class InternalResourceManagerTest {
 
   @Test
   public void closeDoesNotHangWaitingForExecutorTasks() {
-    ScheduledExecutorService executor = resourceManager.getExecutor();
+    var executor = resourceManager.getExecutor();
 
-    Future<Boolean> submittedTask =
+    var submittedTask =
         executor.submit(() -> hangLatch.await(getTimeout().getSeconds(), SECONDS));
 
     resourceManager.close();
@@ -98,7 +96,7 @@ public class InternalResourceManagerTest {
   @Test
   public void nonExecutedRunnablesShouldBeInterruptedSoFutureGetDoesNotHang()
       throws InterruptedException, ExecutionException {
-    ScheduledExecutorService executor = resourceManager.getExecutor();
+    var executor = resourceManager.getExecutor();
 
     Future<Boolean> submittedTask =
         executor.schedule(() -> {
@@ -113,14 +111,14 @@ public class InternalResourceManagerTest {
 
   @Test
   public void addStartupTaskThrowsIfStartupTaskIsNull() {
-    Throwable thrown = catchThrowable(() -> resourceManager.addStartupTask(null));
+    var thrown = catchThrowable(() -> resourceManager.addStartupTask(null));
 
     assertThat(thrown).isInstanceOf(NullPointerException.class);
   }
 
   @Test
   public void allOfStartupTasksIsDoneIfZeroStartupTasks() {
-    CompletableFuture<Void> withoutStartupTasks = resourceManager.allOfStartupTasks();
+    var withoutStartupTasks = resourceManager.allOfStartupTasks();
 
     assertThat(withoutStartupTasks).isDone();
   }
@@ -129,7 +127,7 @@ public class InternalResourceManagerTest {
   public void allOfStartupTasksIsDoneAfterOneStartupTaskCompletes() {
     resourceManager.addStartupTask(CompletableFuture.completedFuture(null));
 
-    CompletableFuture<Void> withOneStartupTask = resourceManager.allOfStartupTasks();
+    var withOneStartupTask = resourceManager.allOfStartupTasks();
 
     assertThat(withOneStartupTask).isDone();
   }
@@ -138,7 +136,7 @@ public class InternalResourceManagerTest {
   public void allOfStartupTasksIsNotDoneIfOnlyStartupTaskIsNotComplete() {
     resourceManager.addStartupTask(new CompletableFuture<>());
 
-    CompletableFuture<Void> withOneStartupTask = resourceManager.allOfStartupTasks();
+    var withOneStartupTask = resourceManager.allOfStartupTasks();
 
     assertThat(withOneStartupTask).isNotDone();
   }
@@ -148,7 +146,7 @@ public class InternalResourceManagerTest {
     resourceManager.addStartupTask(CompletableFuture.completedFuture(null));
     resourceManager.addStartupTask(CompletableFuture.completedFuture(null));
 
-    CompletableFuture<Void> withManyStartupTasks = resourceManager.allOfStartupTasks();
+    var withManyStartupTasks = resourceManager.allOfStartupTasks();
 
     assertThat(withManyStartupTasks).isDone();
   }
@@ -158,7 +156,7 @@ public class InternalResourceManagerTest {
     resourceManager.addStartupTask(CompletableFuture.completedFuture(null));
     resourceManager.addStartupTask(new CompletableFuture<>());
 
-    CompletableFuture<Void> withManyStartupTasks = resourceManager.allOfStartupTasks();
+    var withManyStartupTasks = resourceManager.allOfStartupTasks();
 
     assertThat(withManyStartupTasks).isNotDone();
   }
@@ -170,33 +168,33 @@ public class InternalResourceManagerTest {
     // Clears the startup tasks
     resourceManager.allOfStartupTasks();
 
-    CompletableFuture<Void> withoutStartupTasks = resourceManager.allOfStartupTasks();
+    var withoutStartupTasks = resourceManager.allOfStartupTasks();
 
     assertThat(withoutStartupTasks).isDone();
   }
 
   @Test
   public void allOfStartupTasksIsCompletedExceptionallyIfFirstStartupTaskThrows() {
-    CompletableFuture<Void> completesExceptionally = new CompletableFuture<>();
+    var completesExceptionally = new CompletableFuture<Void>();
     completesExceptionally.completeExceptionally(new RuntimeException());
 
     resourceManager.addStartupTask(completesExceptionally);
     resourceManager.addStartupTask(CompletableFuture.completedFuture(null));
 
-    CompletableFuture<Void> withManyStartupTasks = resourceManager.allOfStartupTasks();
+    var withManyStartupTasks = resourceManager.allOfStartupTasks();
 
     assertThat(withManyStartupTasks).isCompletedExceptionally();
   }
 
   @Test
   public void allOfStartupTasksIsCompletedExceptionallyIfLastStartupTaskThrows() {
-    CompletableFuture<Void> completesExceptionally = new CompletableFuture<>();
+    var completesExceptionally = new CompletableFuture<Void>();
     completesExceptionally.completeExceptionally(new RuntimeException());
 
     resourceManager.addStartupTask(CompletableFuture.completedFuture(null));
     resourceManager.addStartupTask(completesExceptionally);
 
-    CompletableFuture<Void> withManyStartupTasks = resourceManager.allOfStartupTasks();
+    var withManyStartupTasks = resourceManager.allOfStartupTasks();
 
     assertThat(withManyStartupTasks).isCompletedExceptionally();
   }
@@ -204,14 +202,14 @@ public class InternalResourceManagerTest {
   @Test
   public void testConcurrentAddStartupTask() throws InterruptedException {
     CompletableFuture task = new CompletableFuture<>();
-    final AtomicBoolean done = new AtomicBoolean(false);
+    final var done = new AtomicBoolean(false);
     IntStream.range(0, 100).forEach(i -> resourceManager.addStartupTask(task));
 
     executorServiceRule.submit(() -> {
       try {
-        Collection<CompletableFuture<Void>> startupTasks = resourceManager.getStartupTasks();
+        var startupTasks = resourceManager.getStartupTasks();
         synchronized (startupTasks) {
-          for (CompletableFuture<Void> startupTask : startupTasks) {
+          for (var startupTask : startupTasks) {
             Thread.sleep(100);
           }
         }
@@ -238,14 +236,14 @@ public class InternalResourceManagerTest {
   @Test
   public void testConcurrentAllOfStartupTasks() throws InterruptedException {
     CompletableFuture task = new CompletableFuture<>();
-    final AtomicBoolean done = new AtomicBoolean(false);
+    final var done = new AtomicBoolean(false);
     IntStream.range(0, 100).forEach(i -> resourceManager.addStartupTask(task));
 
     executorServiceRule.submit(() -> {
       try {
-        Collection<CompletableFuture<Void>> startupTasks = resourceManager.getStartupTasks();
+        var startupTasks = resourceManager.getStartupTasks();
         synchronized (startupTasks) {
-          for (CompletableFuture<Void> startupTask : startupTasks) {
+          for (var startupTask : startupTasks) {
             Thread.sleep(100);
           }
         }

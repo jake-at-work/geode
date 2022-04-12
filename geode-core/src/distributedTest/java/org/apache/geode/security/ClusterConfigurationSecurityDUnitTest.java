@@ -46,7 +46,7 @@ public class ClusterConfigurationSecurityDUnitTest {
 
   @BeforeClass
   public static void beforeClass() throws Exception {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.put(SECURITY_MANAGER, SimpleSecurityManager.class.getName());
     locator = lsRule.startLocatorVM(0, properties);
   }
@@ -60,7 +60,7 @@ public class ClusterConfigurationSecurityDUnitTest {
 
   @Test
   public void startServerWithInvalidCredentialWouldfail() throws Exception {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.put("security-username", "test");
     properties.put("security-password", "invalidPassword");
     assertThatThrownBy(() -> serverStarter.startServer(properties, locator.getPort()))
@@ -70,7 +70,7 @@ public class ClusterConfigurationSecurityDUnitTest {
 
   @Test
   public void startServerWithInsufficientCredential() throws Exception {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.put("security-username", "test");
     properties.put("security-password", "test");
     assertThatThrownBy(() -> serverStarter.startServer(properties, locator.getPort()))
@@ -80,7 +80,7 @@ public class ClusterConfigurationSecurityDUnitTest {
 
   @Test
   public void startServerWithValidCredential() throws Exception {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.put("security-username", "clusterManage");
     properties.put("security-password", "clusterManage");
     serverStarter.startServer(properties, locator.getPort());

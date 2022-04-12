@@ -21,12 +21,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import io.github.classgraph.ClassGraph;
-import io.github.classgraph.ClassInfo;
-import io.github.classgraph.ClassInfoList;
 import io.github.classgraph.ScanResult;
 
 /**
@@ -83,11 +80,11 @@ public class StressNewTestHelper {
   }
 
   public String buildGradleCommand() {
-    StringBuilder command = new StringBuilder();
+    var command = new StringBuilder();
 
-    int testCount = 0;
-    for (Map.Entry<String, Set<String>> entry : sourceToTestMapping.entrySet()) {
-      String sourceSet = entry.getKey();
+    var testCount = 0;
+    for (var entry : sourceToTestMapping.entrySet()) {
+      var sourceSet = entry.getKey();
       if (sourceToGradleMapping.get(sourceSet) == null) {
         System.err.println("Skipping repeat test for " + sourceSet);
         continue;
@@ -107,10 +104,10 @@ public class StressNewTestHelper {
   }
 
   public void add(String javaFile) {
-    TestClassInfo testClassInfo = createTestClassInfo(javaFile);
-    List<TestClassInfo> extenders = whatExtends(testClassInfo);
+    var testClassInfo = createTestClassInfo(javaFile);
+    var extenders = whatExtends(testClassInfo);
 
-    ClassInfo classInfo = scanResult.getClassInfo(testClassInfo.className);
+    var classInfo = scanResult.getClassInfo(testClassInfo.className);
     // This is a possibility for non org.apache.geode files
     if (classInfo == null) {
       return;
@@ -129,16 +126,16 @@ public class StressNewTestHelper {
   }
 
   private void addTestToCategory(String category, String testClass) {
-    Set<String> listOfTests = sourceToTestMapping.computeIfAbsent(category, k -> new TreeSet<>());
+    var listOfTests = sourceToTestMapping.computeIfAbsent(category, k -> new TreeSet<>());
     listOfTests.add(testClass);
   }
 
   private List<TestClassInfo> whatExtends(TestClassInfo testClass) {
     List<TestClassInfo> results = new ArrayList<>();
-    ClassInfoList subClasses = scanResult.getSubclasses(testClass.className);
+    var subClasses = scanResult.getSubclasses(testClass.className);
 
-    for (ClassInfo classInfo : subClasses) {
-      String classFilename = classInfo.getClasspathElementURL().getFile();
+    for (var classInfo : subClasses) {
+      var classFilename = classInfo.getClasspathElementURL().getFile();
       results.add(
           new TestClassInfo(classFilename, getCategory(classFilename), classInfo.getName(),
               getSimpleName(classInfo.getName())));
@@ -152,26 +149,26 @@ public class StressNewTestHelper {
   }
 
   private TestClassInfo createTestClassInfo(String javaFile) {
-    String category = getCategory(javaFile);
-    String sanitized = javaFile.replace("/", ".");
+    var category = getCategory(javaFile);
+    var sanitized = javaFile.replace("/", ".");
 
-    int packageStart = sanitized.indexOf(packageToScan);
+    var packageStart = sanitized.indexOf(packageToScan);
     if (packageStart >= 0) {
       sanitized = sanitized.substring(packageStart);
     }
 
     if (sanitized.endsWith(".java")) {
-      int javaIdx = sanitized.indexOf(".java");
+      var javaIdx = sanitized.indexOf(".java");
       sanitized = sanitized.substring(0, javaIdx);
     }
 
-    int classIndex = sanitized.lastIndexOf(".");
+    var classIndex = sanitized.lastIndexOf(".");
 
     return new TestClassInfo(javaFile, category, sanitized, sanitized.substring(classIndex + 1));
   }
 
   private String getCategory(String javaFile) {
-    Matcher matcher = categoryPattern.matcher(javaFile);
+    var matcher = categoryPattern.matcher(javaFile);
 
     // Maybe we're running tests in Intellij
     if (!matcher.matches()) {
@@ -191,9 +188,9 @@ public class StressNewTestHelper {
   }
 
   public static void main(String[] args) {
-    StressNewTestHelper helper = new StressNewTestHelper("org.apache.geode");
+    var helper = new StressNewTestHelper("org.apache.geode");
 
-    for (String arg : args) {
+    for (var arg : args) {
       try {
         helper.add(arg);
       } catch (Exception e) {

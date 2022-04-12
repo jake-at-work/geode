@@ -27,8 +27,8 @@ class DirectoryTree {
     if (!folder.isDirectory()) {
       throw new IllegalArgumentException("folder is not a Directory");
     }
-    int indent = 0;
-    StringBuilder sb = new StringBuilder();
+    var indent = 0;
+    var sb = new StringBuilder();
     printDirectoryTree(folder, indent, sb);
     return sb.toString();
   }
@@ -42,7 +42,7 @@ class DirectoryTree {
     sb.append(folder.getName());
     sb.append("/");
     sb.append(lineSeparator());
-    for (File file : folder.listFiles()) {
+    for (var file : folder.listFiles()) {
       if (file.isDirectory()) {
         printDirectoryTree(file, indent + 1, sb);
       } else {
@@ -59,8 +59,8 @@ class DirectoryTree {
   }
 
   private static String getIndentString(int indent) {
-    StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < indent; i++) {
+    var sb = new StringBuilder();
+    for (var i = 0; i < indent; i++) {
       sb.append("|  ");
     }
     return sb.toString();

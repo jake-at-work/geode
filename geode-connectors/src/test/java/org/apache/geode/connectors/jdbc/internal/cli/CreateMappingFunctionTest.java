@@ -74,8 +74,8 @@ public class CreateMappingFunctionTest {
     resultSender = mock(ResultSender.class);
     cache = mock(InternalCache.class);
     region = mock(LocalRegion.class);
-    DistributedSystem system = mock(DistributedSystem.class);
-    DistributedMember distributedMember = mock(DistributedMember.class);
+    var system = mock(DistributedSystem.class);
+    var distributedMember = mock(DistributedMember.class);
     service = mock(JdbcConnectorService.class);
 
     regionMapping = new RegionMapping(REGION_NAME, null, null, null, null, null, null);
@@ -141,7 +141,7 @@ public class CreateMappingFunctionTest {
     }).when(service)
         .createRegionMapping(eq(regionMapping));
 
-    Throwable throwable =
+    var throwable =
         catchThrowable(() -> function.createRegionMapping(service, regionMapping));
 
     assertThat(throwable).isInstanceOf(RegionMappingExistsException.class);
@@ -152,7 +152,7 @@ public class CreateMappingFunctionTest {
   public void createRegionMappingThrowsIfRegionDoesNotExist() {
     when(cache.getRegion(REGION_NAME)).thenReturn(null);
 
-    Throwable throwable = catchThrowable(() -> function.executeFunction(context));
+    var throwable = catchThrowable(() -> function.executeFunction(context));
 
     assertThat(throwable).isInstanceOf(IllegalStateException.class)
         .hasMessage("create jdbc-mapping requires that the region \"" + REGION_NAME + "\" exists.");
@@ -170,7 +170,7 @@ public class CreateMappingFunctionTest {
     function.executeFunction(context);
 
     verify(service, times(1)).createRegionMapping(regionMapping);
-    AttributesMutator<Object, Object> mutator = region.getAttributesMutator();
+    var mutator = region.getAttributesMutator();
     verify(mutator, times(1)).setCacheLoader(any());
   }
 
@@ -179,7 +179,7 @@ public class CreateMappingFunctionTest {
     setupSynchronous();
     function.executeFunction(context);
 
-    AttributesMutator<Object, Object> mutator = region.getAttributesMutator();
+    var mutator = region.getAttributesMutator();
     verify(mutator, times(1)).setCacheWriter(any());
   }
 
@@ -188,7 +188,7 @@ public class CreateMappingFunctionTest {
     setupSynchronous();
     function.executeFunction(context);
 
-    AttributesMutator<Object, Object> mutator = region.getAttributesMutator();
+    var mutator = region.getAttributesMutator();
     verify(mutator, never()).addAsyncEventQueueId(any());
   }
 
@@ -202,11 +202,11 @@ public class CreateMappingFunctionTest {
 
   @Test
   public void executeAlterRegionAsyncEventQueue() throws Exception {
-    String queueName = MappingCommandUtils.createAsyncEventQueueName(REGION_NAME);
+    var queueName = MappingCommandUtils.createAsyncEventQueueName(REGION_NAME);
     function.executeFunction(context);
 
     verify(service, times(1)).createRegionMapping(regionMapping);
-    AttributesMutator<Object, Object> mutator = region.getAttributesMutator();
+    var mutator = region.getAttributesMutator();
     verify(mutator, times(1)).addAsyncEventQueueId(queueName);
   }
 
@@ -223,7 +223,7 @@ public class CreateMappingFunctionTest {
   @Test
   public void shouldOnlyAddAEQIdForProxyPR() throws Exception {
     when(attributes.getDataPolicy()).thenReturn(DataPolicy.PARTITION);
-    PartitionedRegion pr = mock(PartitionedRegion.class);
+    var pr = mock(PartitionedRegion.class);
     when(cache.getRegion(REGION_NAME)).thenReturn(pr);
     when(pr.getAttributes()).thenReturn(attributes);
     PartitionAttributes<Object, Object> pa = mock(PartitionAttributes.class);
@@ -245,7 +245,7 @@ public class CreateMappingFunctionTest {
   public void shouldOnlyAddAEQIdForProxyReplicate() throws Exception {
     when(attributes.getDataPolicy()).thenReturn(DataPolicy.EMPTY);
     when(cache.getRegion(REGION_NAME)).thenReturn(region);
-    LocalRegion lr = (LocalRegion) region;
+    var lr = (LocalRegion) region;
     when(lr.getAttributes()).thenReturn(attributes);
     when(lr.getAttributesMutator()).thenReturn(mock(AttributesMutator.class));
     function.executeFunction(context);
@@ -284,7 +284,7 @@ public class CreateMappingFunctionTest {
 
     function.execute(context);
 
-    ArgumentCaptor<CliFunctionResult> argument = ArgumentCaptor.forClass(CliFunctionResult.class);
+    var argument = ArgumentCaptor.forClass(CliFunctionResult.class);
     verify(resultSender, times(1)).lastResult(argument.capture());
     assertThat(argument.getValue().getStatusMessage())
         .contains(RegionMappingExistsException.class.getName());

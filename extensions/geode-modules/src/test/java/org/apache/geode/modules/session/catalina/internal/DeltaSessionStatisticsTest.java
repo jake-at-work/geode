@@ -32,15 +32,15 @@ public class DeltaSessionStatisticsTest {
 
   @Test
   public void CreatedDeltaSessionStatisticsAccessProperStats() {
-    final String appName = "DeltaSessionStatisticsTest";
+    final var appName = "DeltaSessionStatisticsTest";
 
-    final InternalDistributedSystem internalDistributedSystem =
+    final var internalDistributedSystem =
         mock(InternalDistributedSystem.class);
-    final Statistics statistics = mock(Statistics.class);
+    final var statistics = mock(Statistics.class);
 
     when(internalDistributedSystem.createAtomicStatistics(any(), any())).thenReturn(statistics);
 
-    final DeltaSessionStatistics deltaSessionStatistics =
+    final var deltaSessionStatistics =
         new DeltaSessionStatistics(internalDistributedSystem, appName);
 
     deltaSessionStatistics.incSessionsCreated();

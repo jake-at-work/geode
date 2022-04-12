@@ -47,12 +47,12 @@ public class DistributedSystemIdDUnitTest extends JUnit4DistributedTestCase {
 
   @Test
   public void testMatchingIds() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
 
-    int locatorPort = createLocator(vm0, "1");
+    var locatorPort = createLocator(vm0, "1");
     createSystem(vm1, "1", locatorPort);
     createSystem(vm2, "1", locatorPort);
 
@@ -63,11 +63,11 @@ public class DistributedSystemIdDUnitTest extends JUnit4DistributedTestCase {
 
   @Test
   public void testInfectiousId() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
-    int locatorPort = createLocator(vm0, "1");
+    var locatorPort = createLocator(vm0, "1");
     createSystem(vm1, "-1", locatorPort);
 
     checkId(vm1, 1);
@@ -76,11 +76,11 @@ public class DistributedSystemIdDUnitTest extends JUnit4DistributedTestCase {
   @Test
   public void testMismatch() {
     IgnoredException.addIgnoredException("Rejected new system node");
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
-    int locatorPort = createLocator(vm0, "1");
+    var locatorPort = createLocator(vm0, "1");
 
     // Creating a member with a different distributed system id should fail
     assertThatThrownBy(() -> createSystem(vm1, "2", locatorPort))
@@ -91,9 +91,9 @@ public class DistributedSystemIdDUnitTest extends JUnit4DistributedTestCase {
 
   @Test
   public void testInvalid() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
     try {
       createLocator(vm0, "256");
@@ -110,10 +110,10 @@ public class DistributedSystemIdDUnitTest extends JUnit4DistributedTestCase {
 
   private void createSystem(VM vm, final String dsId, final int locatorPort) {
 
-    SerializableCallable createSystem = new SerializableCallable() {
+    var createSystem = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        Properties props = new Properties();
+        var props = new Properties();
         props.setProperty(DISTRIBUTED_SYSTEM_ID, dsId);
         props.setProperty(LOCATORS, "localhost[" + locatorPort + "]");
         getSystem(props);
@@ -124,11 +124,11 @@ public class DistributedSystemIdDUnitTest extends JUnit4DistributedTestCase {
   }
 
   private int createLocator(VM vm, final String dsId) {
-    SerializableCallable createSystem = new SerializableCallable() {
+    var createSystem = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        int port = AvailablePortHelper.getRandomAvailableTCPPort();
-        Properties props = new Properties();
+        var port = AvailablePortHelper.getRandomAvailableTCPPort();
+        var props = new Properties();
         props.setProperty(DISTRIBUTED_SYSTEM_ID, dsId);
         props.setProperty(MCAST_PORT, "0");
         props.setProperty(LOCATORS, "localhost[" + port + "]");
@@ -142,10 +142,10 @@ public class DistributedSystemIdDUnitTest extends JUnit4DistributedTestCase {
 
   private void checkId(VM vm, final int dsId) {
 
-    SerializableCallable createSystem = new SerializableCallable() {
+    var createSystem = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        ClusterDistributionManager dm =
+        var dm =
             (ClusterDistributionManager) basicGetSystem().getDistributionManager();
         assertEquals(dsId, dm.getDistributedSystemId());
         return null;

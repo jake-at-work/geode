@@ -35,14 +35,14 @@ public class ClassNameConverterTest {
 
   @Test
   public void convertClassOnly() {
-    ClassName declarable = converter.convertFromText("abc", ClassName.class, "");
+    var declarable = converter.convertFromText("abc", ClassName.class, "");
     assertThat(declarable.getClassName()).isEqualTo("abc");
     assertThat(declarable.getInitProperties()).isEmpty();
   }
 
   @Test
   public void convertClassAndEmptyProp() {
-    ClassName declarable = converter.convertFromText("abc{}", ClassName.class, "");
+    var declarable = converter.convertFromText("abc{}", ClassName.class, "");
     assertThat(declarable.getClassName()).isEqualTo("abc");
     assertThat(declarable.getInitProperties()).isEmpty();
   }
@@ -60,14 +60,14 @@ public class ClassNameConverterTest {
 
   @Test
   public void convertWithEmptyString() {
-    ClassName className = converter.convertFromText("", ClassName.class, "");
+    var className = converter.convertFromText("", ClassName.class, "");
     assertThat(className).isEqualTo(ClassName.EMPTY);
   }
 
   @Test
   public void convertClassAndProperties() {
-    String json = "{'k1':'v1','k2':'v2'}";
-    ClassName declarable = converter.convertFromText("abc" + json, ClassName.class, "");
+    var json = "{'k1':'v1','k2':'v2'}";
+    var declarable = converter.convertFromText("abc" + json, ClassName.class, "");
     assertThat(declarable.getClassName()).isEqualTo("abc");
     assertThat(declarable.getInitProperties()).containsOnlyKeys("k1", "k2")
         .containsEntry("k1", "v1").containsEntry("k2", "v2");
@@ -75,8 +75,8 @@ public class ClassNameConverterTest {
 
   @Test
   public void convertClassAndPropertiesWithDoubleQuotes() {
-    String json = "{\"k1\":\"v1\",\"k2\":\"v2\"}";
-    ClassName declarable = converter.convertFromText("abc" + json, ClassName.class, "");
+    var json = "{\"k1\":\"v1\",\"k2\":\"v2\"}";
+    var declarable = converter.convertFromText("abc" + json, ClassName.class, "");
     assertThat(declarable.getClassName()).isEqualTo("abc");
     assertThat(declarable.getInitProperties()).containsOnlyKeys("k1", "k2")
         .containsEntry("k1", "v1").containsEntry("k2", "v2");

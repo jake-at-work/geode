@@ -60,10 +60,10 @@ public class RegionOperationStateStoreTest {
   @Test
   public void recordStartReturnsAnIdFromProvidedSupplier() {
     ClusterManagementOperation<OperationResult> operation = mock(ClusterManagementOperation.class);
-    String uniqueId = ";lkajdfa;ldkjfppoiuqe.,.,mnavc098";
-    String locator = "locator";
+    var uniqueId = ";lkajdfa;ldkjfppoiuqe.,.,mnavc098";
+    var locator = "locator";
     when(uniqueIdSupplier.get()).thenReturn(uniqueId);
-    String opId = service.recordStart(operation, locator);
+    var opId = service.recordStart(operation, locator);
 
     assertThat(opId).isSameAs(uniqueId);
     verify(uniqueIdSupplier).get();
@@ -72,14 +72,14 @@ public class RegionOperationStateStoreTest {
   @Test
   public void recordStartRecordsOperationStatusInGivenRegion() {
     ClusterManagementOperation<OperationResult> operation = mock(ClusterManagementOperation.class);
-    String locator = "locator";
+    var locator = "locator";
 
-    String opId = service.recordStart(operation, locator);
+    var opId = service.recordStart(operation, locator);
 
-    ArgumentCaptor<OperationState> capturedOperationInstance = ArgumentCaptor.forClass(
+    var capturedOperationInstance = ArgumentCaptor.forClass(
         OperationState.class);
     verify(region).put(eq(opId), capturedOperationInstance.capture());
-    OperationState operationInstance = capturedOperationInstance.getValue();
+    var operationInstance = capturedOperationInstance.getValue();
 
     assertThat(operationInstance).as("operationInstance").isNotNull();
 
@@ -93,11 +93,11 @@ public class RegionOperationStateStoreTest {
 
   @Test
   public void recordEndRecordsSuccessfulCompletion() {
-    String opId = "my-id";
-    OperationState operationState = mock(OperationState.class);
+    var opId = "my-id";
+    var operationState = mock(OperationState.class);
     when(region.get(opId)).thenReturn(operationState);
 
-    OperationResult operationResult = mock(OperationResult.class);
+    var operationResult = mock(OperationResult.class);
     Throwable thrownByOperation = new RuntimeException();
 
     service.recordEnd(opId, operationResult, thrownByOperation);
@@ -111,7 +111,7 @@ public class RegionOperationStateStoreTest {
 
   @Test
   public void removeRemovesIdentifiedOperationStateFromRegion() {
-    String opId = "doomed-operation";
+    var opId = "doomed-operation";
 
     service.remove(opId);
 
@@ -120,7 +120,7 @@ public class RegionOperationStateStoreTest {
 
   @Test
   public void getReturnsNullIfNotInRegion() {
-    String opId = "doomed-operation";
+    var opId = "doomed-operation";
     when(region.get(opId)).thenReturn(null);
 
     OperationState operationState = service.get(opId);
@@ -130,8 +130,8 @@ public class RegionOperationStateStoreTest {
 
   @Test
   public void getReturnsOperationFromRegion() {
-    String opId = "doomed-operation";
-    OperationState recordedOperationState = mock(OperationState.class);
+    var opId = "doomed-operation";
+    var recordedOperationState = mock(OperationState.class);
     when(region.get(opId)).thenReturn(recordedOperationState);
     when(recordedOperationState.createCopy()).thenReturn(recordedOperationState);
 
@@ -154,10 +154,10 @@ public class RegionOperationStateStoreTest {
 
   @Test
   public void cacheConstructorUsesExistingRegion() {
-    Region region = mock(Region.class);
+    var region = mock(Region.class);
     when(cache.getRegion(OPERATION_STATE_REGION_NAME)).thenReturn(region);
 
-    RegionOperationStateStore result =
+    var result =
         new RegionOperationStateStore(cache);
 
     assertThat(result.getRegion()).isSameAs(region);
@@ -166,17 +166,17 @@ public class RegionOperationStateStoreTest {
   @Test
   public void constructorWithNoExistingRegionCreatesRegion() {
     when(cache.getRegion(OPERATION_STATE_REGION_NAME)).thenReturn(null);
-    DiskStoreFactory diskStoreFactory = mock(DiskStoreFactory.class);
+    var diskStoreFactory = mock(DiskStoreFactory.class);
     when(cache.createDiskStoreFactory()).thenReturn(diskStoreFactory);
     when(diskStoreFactory.setDiskDirs(any())).thenReturn(diskStoreFactory);
     when(diskStoreFactory.setAutoCompact(true)).thenReturn(diskStoreFactory);
     when(diskStoreFactory.setMaxOplogSize(10)).thenReturn(diskStoreFactory);
-    InternalRegionFactory regionFactory = mock(InternalRegionFactory.class);
+    var regionFactory = mock(InternalRegionFactory.class);
     when(cache.createInternalRegionFactory(eq(RegionShortcut.REPLICATE))).thenReturn(regionFactory);
-    Region region = mock(Region.class);
+    var region = mock(Region.class);
     when(regionFactory.create(OPERATION_STATE_REGION_NAME)).thenReturn(region);
 
-    RegionOperationStateStore result =
+    var result =
         new RegionOperationStateStore(cache);
 
     assertThat(result.getRegion()).isSameAs(region);

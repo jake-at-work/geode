@@ -113,7 +113,7 @@ public abstract class UriUtils {
    */
   public static String[] decode(final String[] encodedValues, final String encoding) {
     if (encodedValues != null) {
-      for (int index = 0; index < encodedValues.length; index++) {
+      for (var index = 0; index < encodedValues.length; index++) {
         encodedValues[index] = decode(encodedValues[index], encoding);
       }
     }
@@ -153,8 +153,8 @@ public abstract class UriUtils {
    */
   public static Map<String, Object> decode(final Map<String, Object> form, final String encoding) {
     if (form != null) {
-      for (final String key : form.keySet()) {
-        final Object value = form.get(key);
+      for (final var key : form.keySet()) {
+        final var value = form.get(key);
         if (value instanceof String) {
           form.put(key, decode(value.toString(), encoding));
         }
@@ -224,7 +224,7 @@ public abstract class UriUtils {
    */
   public static String[] encode(final String[] values, final String encoding) {
     if (values != null) {
-      for (int index = 0; index < values.length; index++) {
+      for (var index = 0; index < values.length; index++) {
         values[index] = encode(values[index], encoding);
       }
     }
@@ -260,8 +260,8 @@ public abstract class UriUtils {
    */
   public static Map<String, Object> encode(final Map<String, Object> form, final String encoding) {
     if (form != null) {
-      for (final String key : form.keySet()) {
-        final Object value = form.get(key);
+      for (final var key : form.keySet()) {
+        final var value = form.get(key);
         if (value instanceof String) {
           form.put(key, encode(value.toString(), encoding));
         }

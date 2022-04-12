@@ -53,11 +53,11 @@ public class CountTest {
 
   @Test
   public void terminateShouldCorrectlyComputeAverageUponAccumulatedValues() {
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       count.accumulate(i);
     }
 
-    Object result = count.terminate();
+    var result = count.terminate();
     assertThat(result).isInstanceOf(Number.class);
     assertThat(((Number) result).intValue()).isEqualTo(10);
   }

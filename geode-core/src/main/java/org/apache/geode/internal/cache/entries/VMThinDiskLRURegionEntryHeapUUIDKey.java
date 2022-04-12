@@ -21,7 +21,6 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
 import org.apache.geode.internal.cache.DiskId;
-import org.apache.geode.internal.cache.DiskStoreImpl;
 import org.apache.geode.internal.cache.InternalRegion;
 import org.apache.geode.internal.cache.PlaceHolderDiskRegion;
 import org.apache.geode.internal.cache.RegionEntry;
@@ -133,10 +132,10 @@ public class VMThinDiskLRURegionEntryHeapUUIDKey extends VMThinDiskLRURegionEntr
 
   @Override
   public synchronized int updateAsyncEntrySize(final EvictionController evictionController) {
-    int oldSize = getEntrySize();
-    int newSize = evictionController.entrySize(getKeyForSizing(), null);
+    var oldSize = getEntrySize();
+    var newSize = evictionController.entrySize(getKeyForSizing(), null);
     setEntrySize(newSize);
-    int delta = newSize - oldSize;
+    var delta = newSize - oldSize;
     return delta;
   }
 
@@ -152,9 +151,9 @@ public class VMThinDiskLRURegionEntryHeapUUIDKey extends VMThinDiskLRURegionEntr
   }
 
   private void diskInitialize(final RegionEntryContext context, final Object value) {
-    DiskRecoveryStore diskRecoveryStore = (DiskRecoveryStore) context;
-    DiskStoreImpl diskStore = diskRecoveryStore.getDiskStore();
-    long maxOplogSize = diskStore.getMaxOplogSize();
+    var diskRecoveryStore = (DiskRecoveryStore) context;
+    var diskStore = diskRecoveryStore.getDiskStore();
+    var maxOplogSize = diskStore.getMaxOplogSize();
     // get appropriate instance of DiskId implementation based on maxOplogSize
     id = DiskId.createDiskId(maxOplogSize, true, diskStore.needsLinkedList());
     Helper.initialize(this, diskRecoveryStore, value);
@@ -164,8 +163,8 @@ public class VMThinDiskLRURegionEntryHeapUUIDKey extends VMThinDiskLRURegionEntr
   // DO NOT modify this class. It was generated from LeafRegionEntry.cpp
   @Override
   public void setDelayedDiskId(final DiskRecoveryStore diskRecoveryStore) {
-    DiskStoreImpl diskStore = diskRecoveryStore.getDiskStore();
-    long maxOplogSize = diskStore.getMaxOplogSize();
+    var diskStore = diskRecoveryStore.getDiskStore();
+    var maxOplogSize = diskStore.getMaxOplogSize();
     id = DiskId.createDiskId(maxOplogSize, false, diskStore.needsLinkedList());
   }
 
@@ -179,10 +178,10 @@ public class VMThinDiskLRURegionEntryHeapUUIDKey extends VMThinDiskLRURegionEntr
   @Override
   public synchronized int updateEntrySize(final EvictionController evictionController,
       final Object value) {
-    int oldSize = getEntrySize();
-    int newSize = evictionController.entrySize(getKeyForSizing(), value);
+    var oldSize = getEntrySize();
+    var newSize = evictionController.entrySize(getKeyForSizing(), value);
     setEntrySize(newSize);
-    int delta = newSize - oldSize;
+    var delta = newSize - oldSize;
     return delta;
   }
 
@@ -270,7 +269,7 @@ public class VMThinDiskLRURegionEntryHeapUUIDKey extends VMThinDiskLRURegionEntr
   @Override
   public boolean isKeyEqual(final Object key) {
     if (key instanceof UUID) {
-      UUID uuid = (UUID) key;
+      var uuid = (UUID) key;
       return uuid.getLeastSignificantBits() == keyLeastSigBits
           && uuid.getMostSignificantBits() == keyMostSigBits;
     }

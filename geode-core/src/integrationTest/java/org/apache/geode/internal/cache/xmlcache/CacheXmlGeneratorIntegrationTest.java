@@ -17,7 +17,6 @@ package org.apache.geode.internal.cache.xmlcache;
 import static org.apache.geode.distributed.ConfigurationProperties.OFF_HEAP_MEMORY_SIZE;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.Arrays;
@@ -33,7 +32,6 @@ import org.junit.runners.Parameterized;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.PartitionAttributesFactory;
-import org.apache.geode.cache.Region;
 import org.apache.geode.test.junit.rules.ServerStarterRule;
 
 @RunWith(Parameterized.class)
@@ -61,13 +59,13 @@ public class CacheXmlGeneratorIntegrationTest {
   @Test
   public void generateXmlForPartitionRegionWithOffHeapWhenDistributedSystemDoesNotExistShouldWorkProperly()
       throws Exception {
-    CacheCreation cacheCreation = new CacheCreation();
-    RegionAttributesCreation attributes = new RegionAttributesCreation(cacheCreation);
+    var cacheCreation = new CacheCreation();
+    var attributes = new RegionAttributesCreation(cacheCreation);
     attributes.setOffHeap(true);
     attributes.setPartitionAttributes(partitionAttributes);
     cacheCreation.createVMRegion(testName.getMethodName(), attributes);
-    File cacheXmlFile = temporaryFolder.newFile(testName.getMethodName() + ".xml");
-    PrintWriter printWriter = new PrintWriter(new FileWriter(cacheXmlFile), true);
+    var cacheXmlFile = temporaryFolder.newFile(testName.getMethodName() + ".xml");
+    var printWriter = new PrintWriter(new FileWriter(cacheXmlFile), true);
     CacheXmlGenerator.generate(cacheCreation, printWriter);
 
     serverStarterRule.withProperty(OFF_HEAP_MEMORY_SIZE, "32m")
@@ -75,10 +73,10 @@ public class CacheXmlGeneratorIntegrationTest {
 
     Cache cache = serverStarterRule.getCache();
     assertThat(cache).isNotNull();
-    Region<Object, Object> region = cache.getRegion(testName.getMethodName());
+    var region = cache.getRegion(testName.getMethodName());
     assertThat(region).isNotNull();
     assertThat(region.getAttributes().getOffHeap()).isTrue();
-    PartitionAttributes parsedAttributes = region.getAttributes().getPartitionAttributes();
+    var parsedAttributes = region.getAttributes().getPartitionAttributes();
     assertThat(parsedAttributes.getLocalMaxMemory())
         .isEqualTo(partitionAttributes.getLocalMaxMemory());
     assertThat(parsedAttributes.getTotalNumBuckets())

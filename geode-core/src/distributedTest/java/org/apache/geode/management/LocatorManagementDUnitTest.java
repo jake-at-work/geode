@@ -73,7 +73,7 @@ public class LocatorManagementDUnitTest extends ManagementTestBase {
     startLocator(locatorVM, locatorPort);
     validateLocatorMXBean(locatorVM, locatorPort);
 
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, hostName + "[" + locatorPort + "]");
     config.setProperty(JMX_MANAGER, "true");
     config.setProperty(JMX_MANAGER_START, "false");
@@ -82,7 +82,7 @@ public class LocatorManagementDUnitTest extends ManagementTestBase {
 
     createCache(managerVM, config);
     startManagingNode(managerVM);
-    DistributedMember locatorMember = getMember(locatorVM);
+    var locatorMember = getMember(locatorVM);
 
     validateLocatorMXBean(managerVM, locatorMember);
   }
@@ -93,7 +93,7 @@ public class LocatorManagementDUnitTest extends ManagementTestBase {
 
     validateLocatorMXBean(locatorVM, locatorPort);
 
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, hostName + "[" + locatorPort + "]");
     config.setProperty(JMX_MANAGER, "true");
     config.setProperty(JMX_MANAGER_START, "false");
@@ -102,7 +102,7 @@ public class LocatorManagementDUnitTest extends ManagementTestBase {
 
     createCache(managerVM, config);
     startManagingNode(managerVM);
-    DistributedMember locatorMember = getMember(locatorVM);
+    var locatorMember = getMember(locatorVM);
 
     validateLocatorMXBean(managerVM, locatorMember);
   }
@@ -150,7 +150,7 @@ public class LocatorManagementDUnitTest extends ManagementTestBase {
   public void testWillingManagers() throws Exception {
     startLocator(locatorVM, locatorPort);
 
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, hostName + "[" + locatorPort + "]");
     config.setProperty(JMX_MANAGER, "true");
 
@@ -164,7 +164,7 @@ public class LocatorManagementDUnitTest extends ManagementTestBase {
   public void testWillingManagersWithPortZero() throws Exception {
     locatorPort = startLocator(locatorVM, 0);
 
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, hostName + "[" + locatorPort + "]");
     config.setProperty(JMX_MANAGER, "true");
 
@@ -181,13 +181,13 @@ public class LocatorManagementDUnitTest extends ManagementTestBase {
     return locatorVM.invoke("Start Locator In VM", () -> {
       assertThat(InternalLocator.hasLocator()).isFalse();
 
-      Properties config = new Properties();
+      var config = new Properties();
       config.setProperty(LOCATORS, "");
 
-      InetAddress bindAddress = InetAddress.getByName(hostName);
+      var bindAddress = InetAddress.getByName(hostName);
 
-      File logFile = new File(getTestMethodName() + "-locator" + port + ".log");
-      Locator locator = Locator.startLocatorAndDS(port, logFile, bindAddress, config);
+      var logFile = new File(getTestMethodName() + "-locator" + port + ".log");
+      var locator = Locator.startLocatorAndDS(port, logFile, bindAddress, config);
 
       assertThat(InternalLocator.hasLocator()).isTrue();
       return locator.getPort();
@@ -204,7 +204,7 @@ public class LocatorManagementDUnitTest extends ManagementTestBase {
 
   private void validateLocatorMXBean(final VM locatorVM, final int port) {
     locatorVM.invoke("validateLocatorMXBean", () -> {
-      LocatorMXBean locatorMXBean = awaitLocalLocatorMXBean();
+      var locatorMXBean = awaitLocalLocatorMXBean();
 
       assertThat(locatorMXBean.getPort()).isEqualTo(port);
     });
@@ -212,14 +212,14 @@ public class LocatorManagementDUnitTest extends ManagementTestBase {
 
   private void validateLocatorMXBean(final VM vm, final DistributedMember member) {
     vm.invoke("validateLocatorMXBean", () -> {
-      LocatorMXBean locatorMXBean = awaitLocatorMXBeanProxy(member);
+      var locatorMXBean = awaitLocatorMXBeanProxy(member);
       assertThat(locatorMXBean).isNotNull();
     });
   }
 
   private void validateManagers(final VM locatorVM) {
     locatorVM.invoke("validateManagers", () -> {
-      LocatorMXBean locatorMXBean = awaitLocalLocatorMXBean();
+      var locatorMXBean = awaitLocalLocatorMXBean();
 
       await()
           .untilAsserted(() -> assertThat(locatorMXBean.listManagers()).hasSize(1));
@@ -229,7 +229,7 @@ public class LocatorManagementDUnitTest extends ManagementTestBase {
   private void validatePotentialManagers(final VM locatorVM,
       final int expectedNumberPotentialManagers) {
     locatorVM.invoke("List Willing Managers", () -> {
-      LocatorMXBean locatorMXBean = awaitLocalLocatorMXBean();
+      var locatorMXBean = awaitLocalLocatorMXBean();
 
       await()
           .untilAsserted(() -> assertThat(locatorMXBean.listPotentialManagers())

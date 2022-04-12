@@ -62,7 +62,7 @@ public class ExportStackTraceCommandDUnitTest {
   public void exportStackTrace_no_file() {
     gfsh.executeAndAssertThat("export stack-traces").statusIsSuccess()
         .containsOutput("stack-trace(s) exported to file").containsOutput("On host : ");
-    File[] files = locator.getWorkingDir().listFiles(x -> x.getName().startsWith("stacktrace_"));
+    var files = locator.getWorkingDir().listFiles(x -> x.getName().startsWith("stacktrace_"));
     assertThat(files.length).isEqualTo(1);
     // delete this file afterwards so that we won't pollute the other tests in this class
     files[0].delete();
@@ -73,7 +73,7 @@ public class ExportStackTraceCommandDUnitTest {
   public void exportStackTrace_on_one_member(String memberName) {
     gfsh.executeAndAssertThat("export stack-traces --member=" + memberName).statusIsSuccess()
         .containsOutput("stack-trace(s) exported to file").containsOutput("On host : ");
-    File[] files = locator.getWorkingDir().listFiles(x -> x.getName().startsWith("stacktrace_"));
+    var files = locator.getWorkingDir().listFiles(x -> x.getName().startsWith("stacktrace_"));
     assertThat(files.length).isEqualTo(1);
     // delete this file afterwards so that we won't pollute the other tests in this class
     files[0].delete();
@@ -81,12 +81,12 @@ public class ExportStackTraceCommandDUnitTest {
 
   @Test
   public void exportStackTrace_with_file() {
-    File stackTraceFile = new File(locator.getWorkingDir(), "my_file");
+    var stackTraceFile = new File(locator.getWorkingDir(), "my_file");
     gfsh.executeAndAssertThat("export stack-traces --file=" + stackTraceFile.getAbsolutePath())
         .statusIsSuccess().containsOutput("stack-trace(s) exported to file");
 
     // make sure file exists afterwards
-    File[] files = locator.getWorkingDir().listFiles(x -> x.getName().startsWith("my_file"));
+    var files = locator.getWorkingDir().listFiles(x -> x.getName().startsWith("my_file"));
     assertThat(files.length).isEqualTo(1);
 
     // execute the command again with the abort flag
@@ -107,20 +107,20 @@ public class ExportStackTraceCommandDUnitTest {
 
   @Test
   public void exportStackTraceCheckFileContent() throws IOException {
-    File stackTraceFile = new File(locator.getWorkingDir(), "my_file");
+    var stackTraceFile = new File(locator.getWorkingDir(), "my_file");
 
     gfsh.executeAndAssertThat("export stack-traces --file=" + stackTraceFile.getAbsolutePath())
         .statusIsSuccess().containsOutput("stack-trace(s) exported to file");
 
     // make sure file exists afterwards
-    File[] files = locator.getWorkingDir().listFiles(x -> x.getName().startsWith("my_file"));
+    var files = locator.getWorkingDir().listFiles(x -> x.getName().startsWith("my_file"));
     assertThat(files.length).isEqualTo(1);
 
-    BufferedReader bufferedReader = new BufferedReader(new FileReader(stackTraceFile));
-    String firstLine = bufferedReader.readLine();
+    var bufferedReader = new BufferedReader(new FileReader(stackTraceFile));
+    var firstLine = bufferedReader.readLine();
 
-    String regex = "(\\d{4}\\/\\d{2}\\/\\d{2}\\s\\d{2}\\:\\d{2}\\:\\d{2}\\.\\d{3})";
-    boolean dateExist = Pattern.compile(regex).matcher(firstLine).find();
+    var regex = "(\\d{4}\\/\\d{2}\\/\\d{2}\\s\\d{2}\\:\\d{2}\\:\\d{2}\\.\\d{3})";
+    var dateExist = Pattern.compile(regex).matcher(firstLine).find();
 
     assertThat(dateExist).isEqualTo(true);
 

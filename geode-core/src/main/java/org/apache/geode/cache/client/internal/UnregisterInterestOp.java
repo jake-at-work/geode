@@ -60,11 +60,11 @@ public class UnregisterInterestOp {
       getMessage().addIntPart(interestType.ordinal());
       getMessage().addStringOrObjPart(key);
       {
-        byte closingByte = (byte) (isClosing ? 0x01 : 0x00);
+        var closingByte = (byte) (isClosing ? 0x01 : 0x00);
         getMessage().addBytesPart(new byte[] {closingByte});
       }
       {
-        byte keepAliveByte = (byte) (keepAlive ? 0x01 : 0x00);
+        var keepAliveByte = (byte) (keepAlive ? 0x01 : 0x00);
         getMessage().addBytesPart(new byte[] {keepAliveByte});
       }
     }

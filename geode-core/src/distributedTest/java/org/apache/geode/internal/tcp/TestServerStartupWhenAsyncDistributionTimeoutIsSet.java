@@ -63,7 +63,7 @@ public class TestServerStartupWhenAsyncDistributionTimeoutIsSet implements Seria
     }));
 
     locator.invoke(() -> await("for message to be sent").until(() -> {
-      final SerialAckedMessage serialAckedMessage = new SerialAckedMessage();
+      final var serialAckedMessage = new SerialAckedMessage();
       serialAckedMessage.send(system.getAllOtherMembers(), false);
       return true;
     }));

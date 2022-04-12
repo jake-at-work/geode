@@ -32,14 +32,10 @@ import org.apache.geode.distributed.internal.ClusterDistributionManager;
 import org.apache.geode.distributed.internal.DistributionMessage;
 import org.apache.geode.distributed.internal.DistributionMessageObserver;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
-import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.cache.partitioned.RemoveBucketMessage;
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.test.dunit.AsyncInvocation;
-import org.apache.geode.test.dunit.rules.ClientVM;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.DistributedBlackboard;
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.rules.serializable.SerializableTestName;
 
 public class RebalanceWhileCreatingRegionDistributedTest implements Serializable {
@@ -65,16 +61,16 @@ public class RebalanceWhileCreatingRegionDistributedTest implements Serializable
     blackboard.initBlackboard();
 
     // Start Locator
-    MemberVM locator = cluster.startLocatorVM(0);
+    var locator = cluster.startLocatorVM(0);
 
     // Start servers
-    int locatorPort = locator.getPort();
-    MemberVM server1 = cluster.startServerVM(1, locatorPort);
-    MemberVM server2 = cluster.startServerVM(2, locatorPort);
-    MemberVM accessor = cluster.startServerVM(4, locatorPort);
+    var locatorPort = locator.getPort();
+    var server1 = cluster.startServerVM(1, locatorPort);
+    var server2 = cluster.startServerVM(2, locatorPort);
+    var accessor = cluster.startServerVM(4, locatorPort);
 
     // Add DistributionMessageObserver
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     Stream.of(server1, server2, accessor)
         .forEach(server -> server.invoke(() -> addDistributionMessageObserver(regionName)));
 
@@ -83,11 +79,11 @@ public class RebalanceWhileCreatingRegionDistributedTest implements Serializable
     server2.invoke(() -> createRegion(regionName, RegionShortcut.PARTITION));
 
     // Asynchronously wait to create the proxy region in the accessor
-    AsyncInvocation asyncInvocation =
+    var asyncInvocation =
         accessor.invokeAsync(() -> waitToCreateProxyRegion(regionName));
 
     // Connect client1
-    ClientVM client1 =
+    var client1 =
         cluster.startClientVM(5, c -> c.withServerConnection(server1.getPort(), server2.getPort()));
 
     // Do puts
@@ -98,7 +94,7 @@ public class RebalanceWhileCreatingRegionDistributedTest implements Serializable
     });
 
     // Start server3
-    MemberVM server3 = cluster.startServerVM(3, locatorPort);
+    var server3 = cluster.startServerVM(3, locatorPort);
 
     // Create region in server3
     server3.invoke(() -> createRegion(regionName, RegionShortcut.PARTITION));
@@ -114,7 +110,7 @@ public class RebalanceWhileCreatingRegionDistributedTest implements Serializable
     server3.invoke(() -> ClusterStartupRule.getCache().close());
 
     // Connect client to accessor
-    ClientVM client2 =
+    var client2 =
         cluster.startClientVM(6, c -> c.withServerConnection(accessor.getPort())
             .withCacheSetup(cf -> cf.setPoolReadTimeout(20000)));
 
@@ -140,26 +136,26 @@ public class RebalanceWhileCreatingRegionDistributedTest implements Serializable
     blackboard.initBlackboard();
 
     // Start Locator
-    MemberVM locator = cluster.startLocatorVM(0);
+    var locator = cluster.startLocatorVM(0);
 
     // Start servers
-    int locatorPort = locator.getPort();
-    MemberVM server1 = cluster.startServerVM(1, locatorPort);
-    MemberVM server2 = cluster.startServerVM(2, locatorPort);
-    MemberVM accessor = cluster.startServerVM(3, locatorPort);
+    var locatorPort = locator.getPort();
+    var server1 = cluster.startServerVM(1, locatorPort);
+    var server2 = cluster.startServerVM(2, locatorPort);
+    var accessor = cluster.startServerVM(3, locatorPort);
 
     // Add DistributionMessageObserver
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     Stream.of(server1, server2, accessor)
         .forEach(server -> server.invoke(() -> addDistributionMessageObserver(regionName)));
 
     // Create regions in each server
-    InternalDistributedMember source = server1.invoke(() -> {
+    var source = server1.invoke(() -> {
       createSingleBucketRegion(regionName, RegionShortcut.PARTITION);
       Region<Integer, Integer> region =
           ClusterStartupRule.getCache().getRegion(regionName);
       region.put(123, 123);
-      PartitionedRegionDataStore partitionedRegionDataStore =
+      var partitionedRegionDataStore =
           ((PartitionedRegion) region).getDataStore();
       // Make sure server1 has the primary bucket
       assertThat(partitionedRegionDataStore).isNotNull();
@@ -167,11 +163,11 @@ public class RebalanceWhileCreatingRegionDistributedTest implements Serializable
       return InternalDistributedSystem.getAnyInstance().getDistributedMember();
     });
 
-    InternalDistributedMember destination = server2.invoke(() -> {
+    var destination = server2.invoke(() -> {
       createSingleBucketRegion(regionName, RegionShortcut.PARTITION);
       Region<Integer, Integer> region =
           ClusterStartupRule.getCache().getRegion(regionName);
-      PartitionedRegionDataStore partitionedRegionDataStore =
+      var partitionedRegionDataStore =
           ((PartitionedRegion) region).getDataStore();
       // Make sure server2 does not have primary bucket
       assertThat(partitionedRegionDataStore).isNotNull();
@@ -180,15 +176,15 @@ public class RebalanceWhileCreatingRegionDistributedTest implements Serializable
     });
 
     // Asynchronously wait to create the proxy region in the accessor
-    AsyncInvocation asyncInvocation = accessor.invokeAsync(() -> {
+    var asyncInvocation = accessor.invokeAsync(() -> {
       waitToCreateSingleBucketProxyRegion(regionName);
     });
 
     // Move the primary bucket from server1 to server2 and close the cache in the end
     server2.invoke(() -> {
-      PartitionedRegion partitionedRegion =
+      var partitionedRegion =
           (PartitionedRegion) ClusterStartupRule.getCache().getRegion(regionName);
-      PartitionedRegionDataStore partitionedRegionDataStore = partitionedRegion.getDataStore();
+      var partitionedRegionDataStore = partitionedRegion.getDataStore();
       // Simulate rebalance operation by calling moveBucket()
       partitionedRegionDataStore.moveBucket(0, source, true);
       ClusterStartupRule.getCache().close();
@@ -198,7 +194,7 @@ public class RebalanceWhileCreatingRegionDistributedTest implements Serializable
 
     // Make sure the accessor knows that the primary bucket has moved to server2
     accessor.invoke(() -> {
-      PartitionedRegion pr =
+      var pr =
           (PartitionedRegion) ClusterStartupRule.getCache().getRegion(regionName);
       assertThat(pr.getRegionAdvisor().getBucket(0).getBucketAdvisor().getProfile(source))
           .isNull();
@@ -208,7 +204,7 @@ public class RebalanceWhileCreatingRegionDistributedTest implements Serializable
   }
 
   private void createRegion(String regionName, RegionShortcut shortcut) {
-    PartitionAttributesFactory<Integer, Integer> paf = new PartitionAttributesFactory<>();
+    var paf = new PartitionAttributesFactory<Integer, Integer>();
     paf.setRedundantCopies(0);
     paf.setTotalNumBuckets(3);
     if (shortcut.isProxy()) {
@@ -223,7 +219,7 @@ public class RebalanceWhileCreatingRegionDistributedTest implements Serializable
   }
 
   private void createSingleBucketRegion(String regionName, RegionShortcut shortcut) {
-    PartitionAttributesFactory<Integer, Integer> paf = new PartitionAttributesFactory<>();
+    var paf = new PartitionAttributesFactory<Integer, Integer>();
     paf.setRedundantCopies(0);
     paf.setTotalNumBuckets(1);
     if (shortcut.isProxy()) {
@@ -296,7 +292,7 @@ public class RebalanceWhileCreatingRegionDistributedTest implements Serializable
 
     public void beforeSendMessage(ClusterDistributionManager dm, DistributionMessage message) {
       if (message instanceof DestroyRegionOperation.DestroyRegionMessage) {
-        DestroyRegionOperation.DestroyRegionMessage drm =
+        var drm =
             (DestroyRegionOperation.DestroyRegionMessage) message;
         if (drm.regionPath.contains(regionName)) {
           logger.info(

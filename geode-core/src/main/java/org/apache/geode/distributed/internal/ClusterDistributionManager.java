@@ -301,7 +301,7 @@ public class ClusterDistributionManager implements DistributionManager {
       final MembershipLocator<InternalDistributedMember> membershipLocator) {
 
     ClusterDistributionManager distributionManager = null;
-    boolean beforeJoined = true;
+    var beforeJoined = true;
 
     try {
 
@@ -318,11 +318,11 @@ public class ClusterDistributionManager implements DistributionManager {
         vmKind = NORMAL_DM_TYPE;
       }
 
-      RemoteTransportConfig transport = new RemoteTransportConfig(system.getConfig(), vmKind);
+      var transport = new RemoteTransportConfig(system.getConfig(), vmKind);
       transport.setIsReconnectingDS(system.isReconnectingDS());
       transport.setOldDSMembershipInfo(system.oldDSMembershipInfo());
 
-      long start = System.currentTimeMillis();
+      var start = System.currentTimeMillis();
 
       distributionManager =
           new ClusterDistributionManager(system, transport, system.getAlertingService(),
@@ -332,9 +332,9 @@ public class ClusterDistributionManager implements DistributionManager {
       beforeJoined = false; // we have now joined the system
 
       {
-        InternalDistributedMember id = distributionManager.getDistributionManagerId();
+        var id = distributionManager.getDistributionManagerId();
         if (!"".equals(id.getName())) {
-          for (InternalDistributedMember m : distributionManager
+          for (var m : distributionManager
               .getViewMembers()) {
             if (m.equals(id)) {
               // I'm counting on the members returned by getViewMembers being ordered such that
@@ -357,7 +357,7 @@ public class ClusterDistributionManager implements DistributionManager {
       }
 
       // Send out a StartupMessage to the other members.
-      StartupOperation op = new StartupOperation(distributionManager, transport);
+      var op = new StartupOperation(distributionManager, transport);
 
       try {
         if (!distributionManager.sendStartupMessage(op)) {
@@ -387,7 +387,7 @@ public class ClusterDistributionManager implements DistributionManager {
       }
 
       if (logger.isInfoEnabled()) {
-        long delta = System.currentTimeMillis() - start;
+        var delta = System.currentTimeMillis() - start;
         logger.info(LogMarker.DM_MARKER,
             "DistributionManager {} started on {}. There were {} other DMs. others: {} {} {}",
             distributionManager.getDistributionManagerId(), transport,
@@ -446,7 +446,7 @@ public class ClusterDistributionManager implements DistributionManager {
     DistributionStats.enableClockStats = system.getConfig().getEnableTimeStatistics();
 
     exceptionInThreads = false;
-    boolean finishedConstructor = false;
+    var finishedConstructor = false;
     try {
 
       executors = new ClusterOperationExecutors(stats, system);
@@ -456,12 +456,12 @@ public class ClusterDistributionManager implements DistributionManager {
             new LoggingThread("DM-MemberEventInvoker", new MemberEventInvoker());
       }
 
-      StringBuilder sb = new StringBuilder(" (took ");
+      var sb = new StringBuilder(" (took ");
 
       // connect to the cluster
-      long start = System.currentTimeMillis();
+      var start = System.currentTimeMillis();
 
-      DMListener listener = new DMListener(this);
+      var listener = new DMListener(this);
       distribution = DistributionImpl
           .createDistribution(this, transport, system, listener,
               this::handleIncomingDMsg, locator);
@@ -498,7 +498,7 @@ public class ClusterDistributionManager implements DistributionManager {
       final MembershipLocator<InternalDistributedMember> membershipLocator) {
     this(transport, system, alertingService, membershipLocator);
 
-    boolean finishedConstructor = false;
+    var finishedConstructor = false;
     try {
 
       setIsStartupThread();
@@ -509,7 +509,7 @@ public class ClusterDistributionManager implements DistributionManager {
       distribution.startEventProcessing();
       for (;;) {
         getCancelCriterion().checkCancelInProgress(null);
-        boolean interrupted = Thread.interrupted();
+        var interrupted = Thread.interrupted();
         try {
           distribution.waitForEventProcessing();
           break;
@@ -564,7 +564,7 @@ public class ClusterDistributionManager implements DistributionManager {
   @Override
   public boolean areOnEquivalentHost(InternalDistributedMember member1,
       InternalDistributedMember member2) {
-    Set<InetAddress> equivalents1 = getEquivalents(member1.getInetAddress());
+    var equivalents1 = getEquivalents(member1.getInetAddress());
     return equivalents1.contains(member2.getInetAddress());
   }
 
@@ -575,7 +575,7 @@ public class ClusterDistributionManager implements DistributionManager {
    * @param equivs list of InetAddress's that all point at same host
    */
   void setEquivalentHosts(Set<InetAddress> equivs) {
-    Iterator<InetAddress> it = equivs.iterator();
+    var it = equivs.iterator();
     synchronized (equivalentHosts) {
       while (it.hasNext()) {
         equivalentHosts.put(it.next(), Collections.unmodifiableSet(equivs));
@@ -609,7 +609,7 @@ public class ClusterDistributionManager implements DistributionManager {
       redundancyZones.put(member, redundancyZone);
     }
     if (member != getDistributionManagerId()) {
-      String relationship = areInSameZone(getDistributionManagerId(), member) ? "" : "not ";
+      var relationship = areInSameZone(getDistributionManagerId(), member) ? "" : "not ";
       logger.info("Member {} is {}equivalent or in the same redundancy zone.",
           member, relationship);
     }
@@ -639,7 +639,7 @@ public class ClusterDistributionManager implements DistributionManager {
    */
   private void assertDistributionManagerType() {
     // Assert that dmType is one of the three DM types...
-    int theDmType = getDMType();
+    var theDmType = getDMType();
     switch (theDmType) {
       case NORMAL_DM_TYPE:
       case LONER_DM_TYPE:
@@ -651,8 +651,8 @@ public class ClusterDistributionManager implements DistributionManager {
     }
 
     // Assert InternalDistributedMember VmKind matches this DistributionManagerType...
-    final InternalDistributedMember theId = getDistributionManagerId();
-    final int vmKind = theId.getVmKind();
+    final var theId = getDistributionManagerId();
+    final var vmKind = theId.getVmKind();
     if (theDmType != vmKind) {
       Assert.assertTrue(false,
           "InternalDistributedMember has a vmKind of " + vmKind + " instead of " + theDmType);
@@ -684,12 +684,12 @@ public class ClusterDistributionManager implements DistributionManager {
     try {
 
       // And the distinguished guests today are...
-      MembershipView<InternalDistributedMember> v = distribution.getView();
+      var v = distribution.getView();
       logger.info("Initial (distribution manager) view, {}",
           String.valueOf(v));
 
       // Add them all to our view
-      for (InternalDistributedMember internalDistributedMember : v.getMembers()) {
+      for (var internalDistributedMember : v.getMembers()) {
         addNewMember(internalDistributedMember);
       }
 
@@ -736,7 +736,7 @@ public class ClusterDistributionManager implements DistributionManager {
     synchronized (this) {
       while (!readyForMessages) {
         stopper.checkCancelInProgress(null);
-        boolean interrupted = Thread.interrupted();
+        var interrupted = Thread.interrupted();
         try {
           wait();
         } catch (InterruptedException e) {
@@ -785,7 +785,7 @@ public class ClusterDistributionManager implements DistributionManager {
     synchronized (readyToSendMsgsLock) {
       while (!readyToSendMsgs) {
         stopper.checkCancelInProgress(null);
-        boolean interrupted = Thread.interrupted();
+        var interrupted = Thread.interrupted();
         try {
           readyToSendMsgsLock.wait();
         } catch (InterruptedException e) {
@@ -1010,7 +1010,7 @@ public class ClusterDistributionManager implements DistributionManager {
     // collect the old list and copy under the lock.
     Set<InternalDistributedMember> result = new HashSet<>(getDistributionManagerIds());
 
-    InternalDistributedMember me = getDistributionManagerId();
+    var me = getDistributionManagerId();
     result.remove(me);
 
     // It's okay for my own id to not be in the list of all ids yet.
@@ -1023,7 +1023,7 @@ public class ClusterDistributionManager implements DistributionManager {
     // collect the old list and copy under the lock.
     Set<InternalDistributedMember> result = new HashSet<>(getNormalDistributionManagerIds());
 
-    InternalDistributedMember me = getDistributionManagerId();
+    var me = getDistributionManagerId();
     result.remove(me);
 
     // It's okay for my own id to not be in the list of all ids yet.
@@ -1032,7 +1032,7 @@ public class ClusterDistributionManager implements DistributionManager {
 
   @Override
   public InternalDistributedMember getCanonicalId(DistributedMember id) {
-    Distribution m = distribution;
+    var m = distribution;
     if (m == null) {
       return (InternalDistributedMember) id;
     }
@@ -1054,7 +1054,7 @@ public class ClusterDistributionManager implements DistributionManager {
 
   private void addNewMember(InternalDistributedMember member) {
     // This is the place to cleanup the zombieMembers
-    int vmType = member.getVmKind();
+    var vmType = member.getVmKind();
     switch (vmType) {
       case ADMIN_ONLY_DM_TYPE:
         handleConsoleStartup(member);
@@ -1081,7 +1081,7 @@ public class ClusterDistributionManager implements DistributionManager {
   @Nullable
   public Set<InternalDistributedMember> putOutgoing(final @NotNull DistributionMessage msg) {
     try {
-      DistributionMessageObserver observer = DistributionMessageObserver.getInstance();
+      var observer = DistributionMessageObserver.getInstance();
       if (observer != null) {
         observer.beforeSendMessage(this, msg);
       }
@@ -1112,13 +1112,13 @@ public class ClusterDistributionManager implements DistributionManager {
 
     // [bruce] log shutdown at info level and with ID to balance the
     // "Starting" message. recycleConn.conf is hard to debug w/o this
-    final String exceptionStatus = (exceptionInThreads()
+    final var exceptionStatus = (exceptionInThreads()
         ? "At least one Exception occurred."
         : "");
     logger.info("Shutting down DistributionManager {}. {}",
         new Object[] {localAddress, exceptionStatus});
 
-    final long start = System.currentTimeMillis();
+    final var start = System.currentTimeMillis();
     try {
       if (rootCause instanceof ForcedDisconnectException) {
         if (logger.isDebugEnabled()) {
@@ -1128,7 +1128,7 @@ public class ClusterDistributionManager implements DistributionManager {
       } else {
         // Don't block indefinitely trying to send the shutdown message, in
         // case other VMs in the system are ill-behaved. (bug 34710)
-        final Runnable r = () -> {
+        final var r = (Runnable) () -> {
           try {
             ConnectionTable.threadWantsSharedResources();
             sendShutdownMessage();
@@ -1141,7 +1141,7 @@ public class ClusterDistributionManager implements DistributionManager {
             new LoggingThread(String.format("Shutdown Message Thread for %s",
                 localAddress), false, r);
         t.start();
-        boolean interrupted = Thread.interrupted();
+        var interrupted = Thread.interrupted();
         try {
           t.join(ClusterOperationExecutors.MAX_STOP_TIME / 4);
         } catch (final InterruptedException e) {
@@ -1175,20 +1175,20 @@ public class ClusterDistributionManager implements DistributionManager {
   private void askThreadsToStop() {
     executors.askThreadsToStop();
 
-    Thread th = memberEventThread;
+    var th = memberEventThread;
     if (th != null) {
       th.interrupt();
     }
   }
 
   private void waitForThreadsToStop(long timeInMillis) throws InterruptedException {
-    long start = System.currentTimeMillis();
+    var start = System.currentTimeMillis();
     executors.waitForThreadsToStop(timeInMillis);
-    long remaining = timeInMillis - (System.currentTimeMillis() - start);
+    var remaining = timeInMillis - (System.currentTimeMillis() - start);
     if (remaining <= 0) {
       return;
     }
-    Thread th = memberEventThread;
+    var th = memberEventThread;
     if (th != null) {
       th.interrupt();
       th.join(remaining);
@@ -1214,7 +1214,7 @@ public class ClusterDistributionManager implements DistributionManager {
       // we could be more violent here...
       // t.stop();
       try {
-        for (int i = 0; i < MAX_STOP_ATTEMPTS && t.isAlive(); i++) {
+        for (var i = 0; i < MAX_STOP_ATTEMPTS && t.isAlive(); i++) {
           t.join(ClusterOperationExecutors.STOP_PAUSE_TIME);
           t.interrupt();
         }
@@ -1236,7 +1236,7 @@ public class ClusterDistributionManager implements DistributionManager {
    */
   private void forceThreadsToStop() {
     executors.forceThreadsToStop();
-    Thread th = memberEventThread;
+    var th = memberEventThread;
     if (th != null) {
       clobberThread(th);
     }
@@ -1367,7 +1367,7 @@ public class ClusterDistributionManager implements DistributionManager {
     if (isCloseInProgress()) {
       return true;
     }
-    InternalDistributedSystem ds = getSystem();
+    var ds = getSystem();
     return ds != null && ds.isDisconnecting();
   }
 
@@ -1438,7 +1438,7 @@ public class ClusterDistributionManager implements DistributionManager {
           break;
         }
         try {
-          MemberEvent ev =
+          var ev =
               membershipEventQueue.take();
           handleMemberEvent(ev);
         } catch (InterruptedException e) {
@@ -1478,7 +1478,7 @@ public class ClusterDistributionManager implements DistributionManager {
       handleMemberEvent(ev);
     } else {
       stopper.checkCancelInProgress(null);
-      boolean interrupted = Thread.interrupted();
+      var interrupted = Thread.interrupted();
       try {
         membershipEventQueue.put(ev);
       } catch (InterruptedException ex) {
@@ -1535,7 +1535,7 @@ public class ClusterDistributionManager implements DistributionManager {
   @Override
   public DistributionConfig getConfig() {
     DistributionConfig result = null;
-    InternalDistributedSystem sys = getSystem();
+    var sys = getSystem();
     if (sys != null) {
       result = system.getConfig();
     }
@@ -1544,7 +1544,7 @@ public class ClusterDistributionManager implements DistributionManager {
 
   @Override
   public Set<InternalDistributedMember> getAllOtherMembers() {
-    Set<InternalDistributedMember> result =
+    var result =
         getDistributionManagerIdsIncludingAdmin();
     result.remove(getDistributionManagerId());
     return result;
@@ -1587,7 +1587,7 @@ public class ClusterDistributionManager implements DistributionManager {
     boolean ok;
 
     // Be sure to add ourself to the equivalencies list!
-    Set<InetAddress> equivs = StartupMessage.getMyAddresses(this);
+    var equivs = StartupMessage.getMyAddresses(this);
     if (equivs == null || equivs.size() == 0) {
       // no network interface
       equivs = new HashSet<>();
@@ -1603,17 +1603,17 @@ public class ClusterDistributionManager implements DistributionManager {
     }
     setEquivalentHosts(equivs);
     setEnforceUniqueZone(getConfig().getEnforceUniqueHost());
-    String redundancyZone = getConfig().getRedundancyZone();
+    var redundancyZone = getConfig().getRedundancyZone();
     if (redundancyZone != null && !redundancyZone.equals("")) {
       setEnforceUniqueZone(true);
     }
     setRedundancyZone(getDistributionManagerId(), redundancyZone);
     if (logger.isDebugEnabled()) {
-      StringBuilder sb = new StringBuilder();
+      var sb = new StringBuilder();
       sb.append("Equivalent IPs for this host: ");
       Iterator it = equivs.iterator();
       while (it.hasNext()) {
-        InetAddress in = (InetAddress) it.next();
+        var in = (InetAddress) it.next();
         sb.append(in.toString());
         if (it.hasNext()) {
           sb.append(", ");
@@ -1642,7 +1642,7 @@ public class ClusterDistributionManager implements DistributionManager {
       throw new IncompatibleSystemException(rejectionMessage);
     }
 
-    boolean receivedAny = receivedStartupResponse;
+    var receivedAny = receivedStartupResponse;
 
     if (!ok) { // someone didn't reply
       int unresponsiveCount;
@@ -1668,10 +1668,10 @@ public class ClusterDistributionManager implements DistributionManager {
       // If there are other members, we must receive at least _one_ response
       if (allOthers.size() != 0) { // there exist others
         if (!receivedAny) { // and none responded
-          StringBuilder sb = new StringBuilder();
+          var sb = new StringBuilder();
           Iterator itt = allOthers.iterator();
           while (itt.hasNext()) {
-            Object m = itt.next();
+            var m = itt.next();
             sb.append(m.toString());
             if (itt.hasNext()) {
               sb.append(", ");
@@ -1687,7 +1687,7 @@ public class ClusterDistributionManager implements DistributionManager {
         } // and none responded
       } // there exist others
 
-      InternalDistributedMember e = clusterElderManager.getElderId();
+      var e = clusterElderManager.getElderId();
       if (e != null) { // an elder exists
         boolean unresponsiveElder;
         synchronized (unfinishedStartupsLock) {
@@ -1732,7 +1732,7 @@ public class ClusterDistributionManager implements DistributionManager {
       Iterator it = unfinishedStartups.iterator();
       synchronized (membersLock) {
         while (it.hasNext()) {
-          InternalDistributedMember m = (InternalDistributedMember) it.next();
+          var m = (InternalDistributedMember) it.next();
           if (!isCurrentMember(m)) {
             it.remove();
           }
@@ -1762,7 +1762,7 @@ public class ClusterDistributionManager implements DistributionManager {
             "Stopped waiting for startup reply from <{}> because the reply was finally received.";
       }
       logger.info(msg, m);
-      int numLeft = unfinishedStartups.size();
+      var numLeft = unfinishedStartups.size();
       if (numLeft != 0) {
         logger.info("Still awaiting {} response(s) from: {}.",
             new Object[] {numLeft, unfinishedStartups});
@@ -1790,7 +1790,7 @@ public class ClusterDistributionManager implements DistributionManager {
   }
 
   private String prettifyReason(String r) {
-    final String str = "java.io.IOException:";
+    final var str = "java.io.IOException:";
     if (r.startsWith(str)) {
       return r.substring(str.length());
     }
@@ -1822,7 +1822,7 @@ public class ClusterDistributionManager implements DistributionManager {
    *
    */
   private void handleConsoleStartup(InternalDistributedMember theId) {
-    for (MembershipListener listener : allMembershipListeners) {
+    for (var listener : allMembershipListeners) {
       listener.memberJoined(this, theId);
     }
     logger.info("DMMembership: Admitting new administration member < {} >.",
@@ -1855,7 +1855,7 @@ public class ClusterDistributionManager implements DistributionManager {
   public void handleConsoleShutdown(InternalDistributedMember theId, boolean crashed,
       String reason) {
     removeHostedLocators(theId);
-    for (MembershipListener listener : allMembershipListeners) {
+    for (var listener : allMembershipListeners) {
       listener.memberDeparted(this, theId, crashed);
     }
     redundancyZones.remove(theId);
@@ -1880,7 +1880,7 @@ public class ClusterDistributionManager implements DistributionManager {
 
     removeUnfinishedStartup(theId, true);
 
-    int vmType = theId.getVmKind();
+    var vmType = theId.getVmKind();
     if (vmType == ADMIN_ONLY_DM_TYPE) {
       handleConsoleShutdown(theId, memberCrashed, reason);
       return;
@@ -1917,7 +1917,7 @@ public class ClusterDistributionManager implements DistributionManager {
       return; // fault tolerance
     }
 
-    int vmType = suspect.getVmKind();
+    var vmType = suspect.getVmKind();
     if (vmType == ADMIN_ONLY_DM_TYPE) {
       return;
     }
@@ -1946,8 +1946,8 @@ public class ClusterDistributionManager implements DistributionManager {
       return;
     }
 
-    ShutdownMessage m = new ShutdownMessage();
-    InternalDistributedMember theId = getDistributionManagerId();
+    var m = new ShutdownMessage();
+    var theId = getDistributionManagerId();
     m.setDistributionManagerId(theId);
     Set<InternalDistributedMember> allOthers = new HashSet<>(getViewMembers());
     allOthers.remove(getDistributionManagerId());
@@ -1961,7 +1961,7 @@ public class ClusterDistributionManager implements DistributionManager {
 
     try {
       // m.resetTimestamp(); // nanotimers across systems don't match
-      long startTime = DistributionStats.getStatTime();
+      var startTime = DistributionStats.getStatTime();
       sendViaMembershipManager(m.getRecipients(), m, this, stats);
       stats.incSentMessages(1L);
       if (DistributionStats.enableClockStats) {
@@ -1988,15 +1988,15 @@ public class ClusterDistributionManager implements DistributionManager {
    */
   Set<InternalDistributedMember> sendOutgoing(DistributionMessage message)
       throws NotSerializableException {
-    long startTime = DistributionStats.getStatTime();
+    var startTime = DistributionStats.getStatTime();
 
-    Set<InternalDistributedMember> result =
+    var result =
         sendViaMembershipManager(message.getRecipients(), message, this, stats);
-    long endTime = 0L;
+    var endTime = 0L;
     if (DistributionStats.enableClockStats) {
       endTime = NanoTimer.getTime();
     }
-    boolean sentToAll = message.forAll();
+    var sentToAll = message.forAll();
 
     if (sentToAll) {
       stats.incBroadcastMessages(1L);
@@ -2034,7 +2034,7 @@ public class ClusterDistributionManager implements DistributionManager {
       throw ex;
     } catch (Exception ex) {
       exceptionInThreads = true;
-      String receiver = "NULL";
+      var receiver = "NULL";
       if (message != null) {
         receiver = message.getRecipientsDescription();
       }
@@ -2187,14 +2187,14 @@ public class ClusterDistributionManager implements DistributionManager {
       return;
     }
     {
-      final HealthMonitor hm = getHealthMonitor(owner);
+      final var hm = getHealthMonitor(owner);
       if (hm != null) {
         hm.stop();
         hmMap.remove(owner);
       }
     }
     {
-      HealthMonitorImpl newHm = new HealthMonitorImpl(owner, cfg, this);
+      var newHm = new HealthMonitorImpl(owner, cfg, this);
       newHm.start();
       hmMap.put(owner, newHm);
     }
@@ -2207,7 +2207,7 @@ public class ClusterDistributionManager implements DistributionManager {
    */
   @Override
   public void removeHealthMonitor(InternalDistributedMember owner, int theId) {
-    final HealthMonitor hm = getHealthMonitor(owner);
+    final var hm = getHealthMonitor(owner);
     if (hm != null && hm.getId() == theId) {
       hm.stop();
       hmMap.remove(owner);
@@ -2217,7 +2217,7 @@ public class ClusterDistributionManager implements DistributionManager {
   private void removeAllHealthMonitors() {
     Iterator it = hmMap.values().iterator();
     while (it.hasNext()) {
-      HealthMonitor hm = (HealthMonitor) it.next();
+      var hm = (HealthMonitor) it.next();
       hm.stop();
       it.remove();
     }
@@ -2238,11 +2238,11 @@ public class ClusterDistributionManager implements DistributionManager {
   /** Returns count of members filling the specified role */
   @Override
   public int getRoleCount(Role role) {
-    int count = 0;
-    Set<InternalDistributedMember> mbrs = getDistributionManagerIds();
-    for (InternalDistributedMember mbr : mbrs) {
-      Set<Role> roles = (mbr).getRoles();
-      for (Role mbrRole : roles) {
+    var count = 0;
+    var mbrs = getDistributionManagerIds();
+    for (var mbr : mbrs) {
+      var roles = (mbr).getRoles();
+      for (var mbrRole : roles) {
         if (mbrRole.equals(role)) {
           count++;
           break;
@@ -2255,10 +2255,10 @@ public class ClusterDistributionManager implements DistributionManager {
   /** Returns true if at least one member is filling the specified role */
   @Override
   public boolean isRolePresent(Role role) {
-    Set<InternalDistributedMember> mbrs = getDistributionManagerIds();
-    for (InternalDistributedMember mbr : mbrs) {
-      Set<Role> roles = mbr.getRoles();
-      for (Role mbrRole : roles) {
+    var mbrs = getDistributionManagerIds();
+    for (var mbr : mbrs) {
+      var roles = mbr.getRoles();
+      for (var mbrRole : roles) {
         if ((mbrRole).equals(role)) {
           return true;
         }
@@ -2271,8 +2271,8 @@ public class ClusterDistributionManager implements DistributionManager {
   @Override
   public Set<Role> getAllRoles() {
     Set<Role> allRoles = new HashSet<>();
-    Set<InternalDistributedMember> mbrs = getDistributionManagerIds();
-    for (InternalDistributedMember mbr : mbrs) {
+    var mbrs = getDistributionManagerIds();
+    for (var mbr : mbrs) {
       allRoles.addAll(mbr.getRoles());
     }
     return allRoles;
@@ -2313,23 +2313,23 @@ public class ClusterDistributionManager implements DistributionManager {
     @Override
     public void membershipFailure(String reason, Throwable t) {
       dm.exceptionInThreads = true;
-      Throwable cause = t;
+      var cause = t;
       if (cause != null && !(cause instanceof ForcedDisconnectException)) {
         logger.info("cluster membership failed due to ", cause);
         cause = new ForcedDisconnectException(cause.getMessage());
       }
       dm.setRootCause(cause);
       try {
-        List<MembershipTestHook> testHooks = dm.getMembershipTestHooks();
+        var testHooks = dm.getMembershipTestHooks();
         if (testHooks != null) {
-          for (final MembershipTestHook testHook : testHooks) {
+          for (final var testHook : testHooks) {
             testHook.beforeMembershipFailure(reason, cause);
           }
         }
         dm.getSystem().disconnect(reason, true);
         testHooks = dm.getMembershipTestHooks();
         if (testHooks != null) {
-          for (final MembershipTestHook testHook : testHooks) {
+          for (final var testHook : testHooks) {
             testHook.afterMembershipFailure(reason, cause);
           }
         }
@@ -2362,13 +2362,13 @@ public class ClusterDistributionManager implements DistributionManager {
     @Override
     public void memberDeparted(InternalDistributedMember theId, boolean crashed, String reason) {
       try {
-        boolean wasAdmin = dm.getAdminMemberSet().contains(theId);
+        var wasAdmin = dm.getAdminMemberSet().contains(theId);
         if (wasAdmin) {
           // Pretend we received an AdminConsoleDisconnectMessage from the console that
           // is no longer in the JavaGroup view.
           // It must have died without sending a ShutdownMessage.
           // This fixes bug 28454.
-          AdminConsoleDisconnectMessage message = new AdminConsoleDisconnectMessage();
+          var message = new AdminConsoleDisconnectMessage();
           message.setSender(theId);
           message.setCrashed(crashed);
           message.setAlertListenerExpected(true);
@@ -2440,7 +2440,7 @@ public class ClusterDistributionManager implements DistributionManager {
 
     private void handleEvent(ClusterDistributionManager manager,
         Set<MembershipListener> membershipListeners) {
-      for (MembershipListener listener : membershipListeners) {
+      for (var listener : membershipListeners) {
         try {
           handleEvent(manager, listener);
         } catch (CancelException e) {
@@ -2672,8 +2672,8 @@ public class ClusterDistributionManager implements DistributionManager {
     Set<InternalDistributedMember> buddyMembers = new HashSet<>();
     if (!redundancyZones.isEmpty()) {
       synchronized (redundancyZones) {
-        String targetZone = redundancyZones.get(targetMember);
-        for (Map.Entry<InternalDistributedMember, String> entry : redundancyZones.entrySet()) {
+        var targetZone = redundancyZones.get(targetMember);
+        for (var entry : redundancyZones.entrySet()) {
           if (entry.getValue().equals(targetZone)) {
             buddyMembers.add(entry.getKey());
           }
@@ -2681,8 +2681,8 @@ public class ClusterDistributionManager implements DistributionManager {
       }
     } else {
       buddyMembers.add(targetMember);
-      Set<InetAddress> targetAddrs = getEquivalents(targetMember.getInetAddress());
-      for (InternalDistributedMember o : getDistributionManagerIds()) {
+      var targetAddrs = getEquivalents(targetMember.getInetAddress());
+      for (var o : getDistributionManagerIds()) {
         if (!Collections.disjoint(targetAddrs, getEquivalents(o.getInetAddress()))) {
           buddyMembers.add(o);
         }
@@ -2696,8 +2696,8 @@ public class ClusterDistributionManager implements DistributionManager {
       InternalDistributedMember member2) {
 
     if (!redundancyZones.isEmpty()) {
-      String zone1 = redundancyZones.get(member1);
-      String zone2 = redundancyZones.get(member2);
+      var zone1 = redundancyZones.get(member1);
+      var zone2 = redundancyZones.get(member2);
       return zone1 != null && zone1.equals(zone2);
     } else {
       return areOnEquivalentHost(member1, member2);
@@ -2771,7 +2771,7 @@ public class ClusterDistributionManager implements DistributionManager {
       requiresMessage.addAll(ids);
       ids.remove(localAddress);
     } else {
-      for (InternalDistributedMember mbr : ids) {
+      for (var mbr : ids) {
         if (mbr.getProcessId() > 0
             && mbr.getInetAddress().equals(localAddress.getInetAddress())) {
           if (!mbr.equals(localAddress)) {
@@ -2785,7 +2785,7 @@ public class ClusterDistributionManager implements DistributionManager {
       }
     }
     if (requiresMessage.size() > 0) {
-      HighPriorityAckedMessage msg = new HighPriorityAckedMessage();
+      var msg = new HighPriorityAckedMessage();
       msg.dumpStacks(requiresMessage, useNative, false);
     }
   }
@@ -2834,7 +2834,7 @@ public class ClusterDistributionManager implements DistributionManager {
 
   @Override
   public InternalCache getExistingCache() {
-    InternalCache result = cache;
+    var result = cache;
     if (result == null) {
       throw new CacheClosedException(
           "A cache has not yet been created.");
@@ -2875,11 +2875,11 @@ public class ClusterDistributionManager implements DistributionManager {
 
     @Override
     public RuntimeException generateCancelledException(Throwable e) {
-      String reason = cancelInProgress();
+      var reason = cancelInProgress();
       if (reason == null) {
         return null;
       }
-      Throwable rc = dm.rootCause; // volatile read
+      var rc = dm.rootCause; // volatile read
       if (rc == null) {
         // No root cause, specify the one given and be done with it.
         return new DistributedSystemDisconnectedException(reason, e);
@@ -2894,7 +2894,7 @@ public class ClusterDistributionManager implements DistributionManager {
       }
 
       // Attempt to stick rootCause at tail end of the exception chain.
-      Throwable nt = e;
+      var nt = e;
       while (nt.getCause() != null) {
         nt = nt.getCause();
       }

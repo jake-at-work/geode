@@ -18,7 +18,6 @@ import static org.apache.geode.cache.lucene.internal.repository.serializer.Seria
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-import org.apache.lucene.document.Document;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -34,14 +33,14 @@ public class ReflectionFieldMapperJUnitTest {
   @Test
   public void testAllFields() {
 
-    String[] allFields = new String[] {"s", "i", "l", "d", "f", "s2"};
-    ReflectionLuceneSerializer mapper1 = new ReflectionLuceneSerializer(Type1.class, allFields);
-    ReflectionLuceneSerializer mapper2 = new ReflectionLuceneSerializer(Type2.class, allFields);
+    var allFields = new String[] {"s", "i", "l", "d", "f", "s2"};
+    var mapper1 = new ReflectionLuceneSerializer(Type1.class, allFields);
+    var mapper2 = new ReflectionLuceneSerializer(Type2.class, allFields);
 
-    Type1 type1 = new Type1("a", 1, 2L, 3.0, 4.0f);
-    Type2 type2 = new Type2("a", 1, 2L, 3.0, 4.0f, "b");
+    var type1 = new Type1("a", 1, 2L, 3.0, 4.0f);
+    var type2 = new Type2("a", 1, 2L, 3.0, 4.0f, "b");
 
-    Document doc1 = invokeSerializer(mapper1, type1, allFields);
+    var doc1 = invokeSerializer(mapper1, type1, allFields);
 
     assertEquals(5, doc1.getFields().size());
     assertEquals("a", doc1.getField("s").stringValue());
@@ -50,7 +49,7 @@ public class ReflectionFieldMapperJUnitTest {
     assertEquals(3.0, doc1.getField("d").numericValue());
     assertEquals(4.0f, doc1.getField("f").numericValue());
 
-    Document doc2 = invokeSerializer(mapper2, type2, allFields);
+    var doc2 = invokeSerializer(mapper2, type2, allFields);
 
     assertEquals(6, doc2.getFields().size());
     assertEquals("a", doc2.getField("s").stringValue());
@@ -64,12 +63,12 @@ public class ReflectionFieldMapperJUnitTest {
   @Test
   public void testIgnoreInvalid() {
 
-    String[] fields = new String[] {"s", "o", "s2"};
-    ReflectionLuceneSerializer mapper = new ReflectionLuceneSerializer(Type2.class, fields);
+    var fields = new String[] {"s", "o", "s2"};
+    var mapper = new ReflectionLuceneSerializer(Type2.class, fields);
 
-    Type2 type2 = new Type2("a", 1, 2L, 3.0, 4.0f, "b");
+    var type2 = new Type2("a", 1, 2L, 3.0, 4.0f, "b");
 
-    Document doc = invokeSerializer(mapper, type2, fields);
+    var doc = invokeSerializer(mapper, type2, fields);
 
     assertEquals(2, doc.getFields().size());
     assertEquals("a", doc.getField("s").stringValue());
@@ -79,12 +78,12 @@ public class ReflectionFieldMapperJUnitTest {
   @Test
   public void testNullField() {
 
-    String[] fields = new String[] {"s", "o", "s2"};
-    ReflectionLuceneSerializer mapper = new ReflectionLuceneSerializer(Type2.class, fields);
+    var fields = new String[] {"s", "o", "s2"};
+    var mapper = new ReflectionLuceneSerializer(Type2.class, fields);
 
-    Type2 type2 = new Type2("a", 1, 2L, 3.0, 4.0f, null);
+    var type2 = new Type2("a", 1, 2L, 3.0, 4.0f, null);
 
-    Document doc = invokeSerializer(mapper, type2, fields);
+    var doc = invokeSerializer(mapper, type2, fields);
 
     assertEquals(1, doc.getFields().size());
     assertEquals("a", doc.getField("s").stringValue());

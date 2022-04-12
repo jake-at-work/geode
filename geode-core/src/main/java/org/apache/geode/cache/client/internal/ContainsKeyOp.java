@@ -36,7 +36,7 @@ public class ContainsKeyOp {
    */
   public static boolean execute(ExecutablePool pool, String region, Object key, MODE mode) {
     AbstractOp op = new ContainsKeyOpImpl(region, key, mode);
-    Boolean result = (Boolean) pool.execute(op);
+    var result = (Boolean) pool.execute(op);
     return result;
   }
 

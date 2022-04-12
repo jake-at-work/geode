@@ -18,27 +18,23 @@ import static org.apache.geode.redis.internal.netty.StringBytesGlossary.AFTER;
 import static org.apache.geode.redis.internal.netty.StringBytesGlossary.BEFORE;
 
 import java.util.Arrays;
-import java.util.List;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.redis.internal.RedisConstants;
 import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
 import org.apache.geode.redis.internal.commands.executor.RedisResponse;
-import org.apache.geode.redis.internal.data.RedisData;
-import org.apache.geode.redis.internal.data.RedisKey;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
 
 public class LInsertExecutor implements CommandExecutor {
 
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
-    List<byte[]> commandElements = command.getProcessedCommand();
+    var commandElements = command.getProcessedCommand();
 
-    byte[] direction = commandElements.get(2);
+    var direction = commandElements.get(2);
     boolean before;
-    byte[] referenceElement = commandElements.get(3);
-    byte[] elementToInsert = commandElements.get(4);
+    var referenceElement = commandElements.get(3);
+    var elementToInsert = commandElements.get(4);
 
     if (Arrays.equals(direction, BEFORE)) {
       before = true;
@@ -48,8 +44,8 @@ public class LInsertExecutor implements CommandExecutor {
       return RedisResponse.error(RedisConstants.ERROR_SYNTAX);
     }
 
-    Region<RedisKey, RedisData> region = context.getRegion();
-    RedisKey key = command.getKey();
+    var region = context.getRegion();
+    var key = command.getKey();
 
     int result = context.listLockedExecute(key, false,
         list -> list.linsert(elementToInsert, referenceElement, before, region, key));

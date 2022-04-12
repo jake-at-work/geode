@@ -94,7 +94,7 @@ public class SystemManagementServiceTest {
   public void startManager_throws_ifIfNotWillingToBeJmxManager() {
     when(config.getJmxManager()).thenReturn(false);
 
-    BaseManagementService service = systemManagementService();
+    var service = systemManagementService();
 
     assertThatThrownBy(service::startManager)
         .isInstanceOf(ManagementException.class);
@@ -105,7 +105,7 @@ public class SystemManagementServiceTest {
     // Must be connected to construct the service
     when(system.isConnected()).thenReturn(true);
 
-    BaseManagementService service = systemManagementService();
+    var service = systemManagementService();
 
     when(system.isConnected()).thenReturn(false);
 
@@ -115,7 +115,7 @@ public class SystemManagementServiceTest {
 
   @Test
   public void startManager_throws_ifServiceIsClosed() {
-    BaseManagementService service = systemManagementService();
+    var service = systemManagementService();
 
     service.close();
 
@@ -125,7 +125,7 @@ public class SystemManagementServiceTest {
 
   @Test
   public void startManager_throws_ifExistingFederatingManagerIsAlreadyRunning() {
-    BaseManagementService service = systemManagementService();
+    var service = systemManagementService();
 
     service.startManager();
 
@@ -137,7 +137,7 @@ public class SystemManagementServiceTest {
 
   @Test
   public void startManager_startsExistingFederatingManager_ifNotAlreadyStarted() {
-    BaseManagementService service = systemManagementService();
+    var service = systemManagementService();
 
     service.startManager();
 
@@ -156,7 +156,7 @@ public class SystemManagementServiceTest {
 
   @Test
   public void startManager_startsNewFederatingManager_ifNoExistingFederatingManager() {
-    BaseManagementService service = systemManagementService();
+    var service = systemManagementService();
 
     service.startManager();
 
@@ -167,7 +167,7 @@ public class SystemManagementServiceTest {
 
   @Test
   public void startManager_reportsManagerStarted() {
-    BaseManagementService service = systemManagementService();
+    var service = systemManagementService();
 
     service.startManager();
 
@@ -176,7 +176,7 @@ public class SystemManagementServiceTest {
 
   @Test
   public void startManager_broadcastsJmxManagerChange() {
-    BaseManagementService service = systemManagementService();
+    var service = systemManagementService();
 
     service.startManager();
 
@@ -185,7 +185,7 @@ public class SystemManagementServiceTest {
 
   @Test
   public void startManager_stopsFederatingManager_ifRuntimeExceptionAfterStarting() {
-    BaseManagementService service = systemManagementService();
+    var service = systemManagementService();
 
     // Called after starting federating manager
     doThrow(new RuntimeException("thrown for testing")).when(managementAgent).startAgent();
@@ -198,7 +198,7 @@ public class SystemManagementServiceTest {
 
   @Test
   public void startManager_reportsManagerStopped_ifRuntimeExceptionAfterStarting() {
-    BaseManagementService service = systemManagementService();
+    var service = systemManagementService();
 
     // Called after starting federating manager
     doThrow(new RuntimeException("thrown for testing")).when(managementAgent).startAgent();

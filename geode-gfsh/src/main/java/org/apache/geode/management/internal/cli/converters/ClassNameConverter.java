@@ -44,12 +44,12 @@ public class ClassNameConverter implements Converter<ClassName> {
 
   @Override
   public ClassName convertFromText(String value, Class<?> targetType, String optionContext) {
-    int index = value.indexOf('{');
+    var index = value.indexOf('{');
     if (index < 0) {
       return new ClassName(value);
     } else {
-      String className = value.substring(0, index);
-      String json = value.substring(index);
+      var className = value.substring(0, index);
+      var json = value.substring(index);
       return new ClassName(className, json);
     }
   }

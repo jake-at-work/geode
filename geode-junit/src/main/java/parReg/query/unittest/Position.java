@@ -76,11 +76,11 @@ public class Position implements Declarable, Serializable, Comparable {
   }
 
   public static String toString(List aList) {
-    StringBuilder aStr = new StringBuilder();
+    var aStr = new StringBuilder();
     aStr.append("List of size " + aList.size() + "\n");
-    for (Object anObj : aList) {
+    for (var anObj : aList) {
       if (anObj instanceof Position) {
-        Position p = (Position) (anObj);
+        var p = (Position) (anObj);
         aStr.append(p);
       }
       aStr.append("\n");
@@ -96,7 +96,7 @@ public class Position implements Declarable, Serializable, Comparable {
       return false;
     }
     if (anObj.getClass() == getClass()) {
-      Position pos = (Position) anObj;
+      var pos = (Position) anObj;
       if ((pos.mktValue != mktValue) || (pos.qty != qty)) {
         return false;
       }
@@ -113,7 +113,7 @@ public class Position implements Declarable, Serializable, Comparable {
   }
 
   public int hashCode() {
-    int result = 17;
+    var result = 17;
     result = 37 * result
         + (int) (Double.doubleToLongBits(mktValue) ^ (Double.doubleToLongBits(mktValue) >>> 32));
     result =

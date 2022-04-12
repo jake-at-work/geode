@@ -32,7 +32,6 @@ import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.query.CqAttributesFactory;
 import org.apache.geode.cache.query.CqException;
 import org.apache.geode.cache.query.CqQuery;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.RegionNotFoundException;
 import org.apache.geode.security.query.data.QueryTestObject;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
@@ -77,10 +76,10 @@ public class CqSecurityAllowedUsersDistributedTest extends AbstractQuerySecurity
   }
 
   private CqQuery createCq(String query) throws CqException {
-    TestCqListener cqListener = new TestCqListener();
-    QueryService queryService = getClientCache().getQueryService();
+    var cqListener = new TestCqListener();
+    var queryService = getClientCache().getQueryService();
     CqSecurityAllowedUsersDistributedTest.cqListener = cqListener;
-    CqAttributesFactory cqAttributesFactory = new CqAttributesFactory();
+    var cqAttributesFactory = new CqAttributesFactory();
     cqAttributesFactory.addCqListener(cqListener);
 
     return queryService.newCq(query, cqAttributesFactory.create());
@@ -88,7 +87,7 @@ public class CqSecurityAllowedUsersDistributedTest extends AbstractQuerySecurity
 
   private void executeCqAndAssertExceptionThrown(String query) {
     specificUserClient.invoke(() -> {
-      CqQuery cq = createCq(query);
+      var cq = createCq(query);
 
       assertThatThrownBy(cq::execute)
           .as("Expected an exception when executing cq " + cq.getQueryString() + " with user "
@@ -100,7 +99,7 @@ public class CqSecurityAllowedUsersDistributedTest extends AbstractQuerySecurity
 
   private void executeCqWithInitialResultsAndAssertExceptionThrown(String query) {
     specificUserClient.invoke(() -> {
-      CqQuery cq = createCq(query);
+      var cq = createCq(query);
 
       assertThatThrownBy(cq::executeWithInitialResults)
           .as("Expected an exception when executing cq " + cq.getQueryString() + " with user "
@@ -112,7 +111,7 @@ public class CqSecurityAllowedUsersDistributedTest extends AbstractQuerySecurity
 
   private void executeCqAndAssertThatOnErrorIsInvokedOnNextMatchingEvent(String query) {
     specificUserClient.invoke(() -> {
-      CqQuery cq = createCq(query);
+      var cq = createCq(query);
       cq.execute();
     });
 
@@ -124,7 +123,7 @@ public class CqSecurityAllowedUsersDistributedTest extends AbstractQuerySecurity
   private void executeCqWithInitialResultsAndAssertThatOnErrorIsInvokedOnNextMatchingEvent(
       String query) {
     specificUserClient.invoke(() -> {
-      CqQuery cq = createCq(query);
+      var cq = createCq(query);
       cq.executeWithInitialResults();
     });
 
@@ -138,14 +137,14 @@ public class CqSecurityAllowedUsersDistributedTest extends AbstractQuerySecurity
   @Test
   public void cqQueryWithPublicFieldOnNonEmptyRegionShouldNotThrowException() {
     putIntoRegion(superUserClient, keys, values, regionName);
-    String query = "SELECT * FROM " + SEPARATOR + regionName + " r WHERE r.id = 0";
+    var query = "SELECT * FROM " + SEPARATOR + regionName + " r WHERE r.id = 0";
 
     specificUserClient.invoke(() -> {
-      CqQuery cq = createCq(query);
+      var cq = createCq(query);
       cq.execute();
     });
 
-    Object[] newValues = new Object[] {new QueryTestObject(0, "Bethany")};
+    var newValues = new Object[] {new QueryTestObject(0, "Bethany")};
     putIntoRegion(superUserClient, keys, newValues, regionName);
     specificUserClient.invoke(
         () -> await().untilAsserted(() -> assertThat(cqListener.getNumEvents()).isEqualTo(1)));
@@ -153,14 +152,14 @@ public class CqSecurityAllowedUsersDistributedTest extends AbstractQuerySecurity
 
   @Test
   public void cqQueryWithImplicitMethodInvocationOnEmptyRegionShouldNotThrowExceptionDuringExecuteWithInitialResultsAndInvokeOnErrorForNextMatchingEvent() {
-    String query = "SELECT * FROM " + SEPARATOR + regionName + " r WHERE r.name = 'Beth'";
+    var query = "SELECT * FROM " + SEPARATOR + regionName + " r WHERE r.name = 'Beth'";
 
     executeCqWithInitialResultsAndAssertThatOnErrorIsInvokedOnNextMatchingEvent(query);
   }
 
   @Test
   public void cqQueryWithExplicitMethodInvocationOnEmptyRegionShouldNotThrowExceptionDuringExecuteWithInitialResultsAndInvokeOnErrorForNextMatchingEvent() {
-    String query = "SELECT * FROM " + SEPARATOR + regionName + " r WHERE r.getName = 'Beth'";
+    var query = "SELECT * FROM " + SEPARATOR + regionName + " r WHERE r.getName = 'Beth'";
 
     executeCqWithInitialResultsAndAssertThatOnErrorIsInvokedOnNextMatchingEvent(query);
   }
@@ -169,7 +168,7 @@ public class CqSecurityAllowedUsersDistributedTest extends AbstractQuerySecurity
   public void cqQueryWithImplicitMethodInvocationOnNonEmptyReplicateRegionShouldThrowExceptionDuringExecute() {
     Assume.assumeTrue(regionShortcut.equals(REPLICATE));
     putIntoRegion(superUserClient, keys, values, regionName);
-    String query = "SELECT * FROM " + SEPARATOR + regionName + " r WHERE r.name = 'Beth'";
+    var query = "SELECT * FROM " + SEPARATOR + regionName + " r WHERE r.name = 'Beth'";
 
     executeCqAndAssertExceptionThrown(query);
   }
@@ -178,7 +177,7 @@ public class CqSecurityAllowedUsersDistributedTest extends AbstractQuerySecurity
   public void cqQueryWithExplicitMethodInvocationOnNonEmptyReplicateRegionShouldThrowExceptionDuringExecute() {
     Assume.assumeTrue(regionShortcut.equals(REPLICATE));
     putIntoRegion(superUserClient, keys, values, regionName);
-    String query = "SELECT * FROM " + SEPARATOR + regionName + " r WHERE r.getName = 'Beth'";
+    var query = "SELECT * FROM " + SEPARATOR + regionName + " r WHERE r.getName = 'Beth'";
 
     executeCqAndAssertExceptionThrown(query);
   }
@@ -187,7 +186,7 @@ public class CqSecurityAllowedUsersDistributedTest extends AbstractQuerySecurity
   public void cqQueryWithImplicitMethodInvocationOnNonEmptyPartitionRegionShouldNotThrowExceptionDuringExecuteAndInvokeOnErrorForNextMatchingEvent() {
     Assume.assumeTrue(regionShortcut.equals(PARTITION));
     putIntoRegion(superUserClient, keys, values, regionName);
-    String query = "SELECT * FROM " + SEPARATOR + regionName + " r WHERE r.name = 'Beth'";
+    var query = "SELECT * FROM " + SEPARATOR + regionName + " r WHERE r.name = 'Beth'";
 
     executeCqAndAssertThatOnErrorIsInvokedOnNextMatchingEvent(query);
   }
@@ -196,7 +195,7 @@ public class CqSecurityAllowedUsersDistributedTest extends AbstractQuerySecurity
   public void cqQueryWithExplicitMethodInvocationOnNonEmptyPartitionRegionShouldNotThrowExceptionDuringExecuteAndInvokeOnErrorForNextMatchingEvent() {
     Assume.assumeTrue(regionShortcut.equals(PARTITION));
     putIntoRegion(superUserClient, keys, values, regionName);
-    String query = "SELECT * FROM " + SEPARATOR + regionName + " r WHERE r.getName = 'Beth'";
+    var query = "SELECT * FROM " + SEPARATOR + regionName + " r WHERE r.getName = 'Beth'";
 
     executeCqAndAssertThatOnErrorIsInvokedOnNextMatchingEvent(query);
   }
@@ -204,7 +203,7 @@ public class CqSecurityAllowedUsersDistributedTest extends AbstractQuerySecurity
   @Test
   public void cqQueryWithImplicitMethodInvocationOnNonEmptyRegionShouldThrowExceptionDuringExecuteWithInitialResults() {
     putIntoRegion(superUserClient, keys, values, regionName);
-    String query = "SELECT * FROM " + SEPARATOR + regionName + " r WHERE r.name = 'Beth'";
+    var query = "SELECT * FROM " + SEPARATOR + regionName + " r WHERE r.name = 'Beth'";
 
     executeCqWithInitialResultsAndAssertExceptionThrown(query);
   }
@@ -212,17 +211,17 @@ public class CqSecurityAllowedUsersDistributedTest extends AbstractQuerySecurity
   @Test
   public void cqQueryWithExplicitMethodInvocationOnNonEmptyRegionShouldThrowExceptionDuringExecuteWithInitialResults() {
     putIntoRegion(superUserClient, keys, values, regionName);
-    String query = "SELECT * FROM " + SEPARATOR + regionName + " r WHERE r.getName = 'Beth'";
+    var query = "SELECT * FROM " + SEPARATOR + regionName + " r WHERE r.getName = 'Beth'";
 
     executeCqWithInitialResultsAndAssertExceptionThrown(query);
   }
 
   @Test
   public void cqCanBeClosedByTheCreator() {
-    String query = "SELECT * FROM " + SEPARATOR + regionName + " r WHERE r.id = 0";
+    var query = "SELECT * FROM " + SEPARATOR + regionName + " r WHERE r.id = 0";
 
     specificUserClient.invoke(() -> {
-      CqQuery cq = createCq(query);
+      var cq = createCq(query);
       cq.execute();
       cq.close();
       assertThat(cq.isClosed()).isTrue();

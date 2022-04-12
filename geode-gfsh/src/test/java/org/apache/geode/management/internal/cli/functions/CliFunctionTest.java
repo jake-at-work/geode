@@ -47,7 +47,7 @@ public class CliFunctionTest {
 
   @Test
   public void executeShouldSendCliFunctionResultIfErrorHappens() throws Exception {
-    CliFunction<Object[]> function = new CliFunction<Object[]>() {
+    var function = new CliFunction<Object[]>() {
       @Override
       public CliFunctionResult executeFunction(FunctionContext<Object[]> context) {
         throw new InternalGemFireError("test");
@@ -55,7 +55,7 @@ public class CliFunctionTest {
     };
     function.execute(context);
 
-    ArgumentCaptor<Object> captor = ArgumentCaptor.forClass(Object.class);
+    var captor = ArgumentCaptor.forClass(Object.class);
     verify(resultSender).lastResult(captor.capture());
     assertThat(captor.getValue()).isInstanceOf(CliFunctionResult.class);
   }

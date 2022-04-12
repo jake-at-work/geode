@@ -30,7 +30,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.Index;
 import org.apache.geode.cache.query.IndexType;
@@ -59,37 +58,37 @@ public class TestNewFunctionSSorRSIntegrationTest {
 
   @Test
   public void testNewFunc() throws Exception {
-    Region region = CacheUtils.createRegion("portfolios", Portfolio.class);
-    for (int i = 0; i < 4; i++) {
+    var region = CacheUtils.createRegion("portfolios", Portfolio.class);
+    for (var i = 0; i < 4; i++) {
       region.put("" + i, new Portfolio(i));
       // CacheUtils.log(new Portfolio(i));
     }
 
-    Object[][] r = new Object[2][2];
+    var r = new Object[2][2];
     QueryService qs;
     qs = CacheUtils.getQueryService();
 
-    String[] queries =
-        {"SELECT DISTINCT * from " + SEPARATOR
+    var queries =
+        new String[] {"SELECT DISTINCT * from " + SEPARATOR
             + "portfolios pf , pf.positions.values pos where status = 'inactive'",
             "select distinct * from " + SEPARATOR + "portfolios where ID > 1 ",
 
         };
 
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       q = CacheUtils.getQueryService().newQuery(queries[i]);
-      QueryObserverImpl observer1 = new QueryObserverImpl();
+      var observer1 = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer1);
       r[i][0] = q.execute();
     }
 
     qs.createIndex("sIndex", IndexType.FUNCTIONAL, "status", SEPARATOR + "portfolios");
     qs.createIndex("iIndex", IndexType.FUNCTIONAL, "ID", SEPARATOR + "portfolios");
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       q = CacheUtils.getQueryService().newQuery(queries[i]);
-      QueryObserverImpl observer2 = new QueryObserverImpl();
+      var observer2 = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer2);
       r[i][1] = q.execute();
       if (!observer2.isIndexesUsed) {
@@ -97,7 +96,7 @@ public class TestNewFunctionSSorRSIntegrationTest {
       }
     }
 
-    StructSetOrResultsSet ssORrs = new StructSetOrResultsSet();
+    var ssORrs = new StructSetOrResultsSet();
     ssORrs.CompareQueryResultsWithoutAndWithIndexes(r, queries.length, queries);
   }
 

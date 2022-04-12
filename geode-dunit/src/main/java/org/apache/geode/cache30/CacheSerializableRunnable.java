@@ -54,7 +54,7 @@ public abstract class CacheSerializableRunnable extends SerializableRunnable {
     try {
       run2();
     } catch (CacheException exception) {
-      String message = "While invoking \"" + this + "\"";
+      var message = "While invoking \"" + this + "\"";
       throw new CacheSerializableRunnableException(message, exception);
     }
   }

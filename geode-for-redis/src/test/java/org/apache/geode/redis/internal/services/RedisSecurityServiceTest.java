@@ -46,10 +46,10 @@ public class RedisSecurityServiceTest {
 
   @Test
   public void serviceDelegatesToLogin_andCanAuthenticateCorrectly() {
-    ChannelId channelId = mock(ChannelId.class);
+    var channelId = mock(ChannelId.class);
     when(channelId.asShortText()).thenReturn("channelId");
-    Properties properties = mock(Properties.class);
-    Subject subject = mock(Subject.class);
+    var properties = mock(Properties.class);
+    var subject = mock(Subject.class);
     when(geodeSecurityService.login(any())).thenReturn(subject);
 
     assertThat(redisSecurityService.login(channelId, properties)).isEqualTo(subject);
@@ -58,10 +58,10 @@ public class RedisSecurityServiceTest {
 
   @Test
   public void serviceDelegatesToLogout() {
-    ChannelId channelId = mock(ChannelId.class);
+    var channelId = mock(ChannelId.class);
     when(channelId.asShortText()).thenReturn("channelId");
-    Properties properties = mock(Properties.class);
-    Subject subject = mock(Subject.class);
+    var properties = mock(Properties.class);
+    var subject = mock(Subject.class);
     when(geodeSecurityService.login(any())).thenReturn(subject);
 
     assertThat(redisSecurityService.login(channelId, properties)).isEqualTo(subject);
@@ -73,17 +73,17 @@ public class RedisSecurityServiceTest {
 
   @Test
   public void serviceDelegatesToAuthorize() {
-    ChannelId channelId = mock(ChannelId.class);
+    var channelId = mock(ChannelId.class);
     when(channelId.asShortText()).thenReturn("channelId");
-    Properties properties = mock(Properties.class);
-    Subject subject = mock(Subject.class);
+    var properties = mock(Properties.class);
+    var subject = mock(Subject.class);
     when(geodeSecurityService.login(any())).thenReturn(subject);
 
     assertThat(redisSecurityService.login(channelId, properties)).isEqualTo(subject);
 
     redisSecurityService.authorize(mock(ResourcePermission.class), subject);
 
-    ArgumentCaptor<Subject> argumentCaptor = ArgumentCaptor.forClass(Subject.class);
+    var argumentCaptor = ArgumentCaptor.forClass(Subject.class);
     verify(geodeSecurityService)
         .authorize(any(ResourcePermission.class), argumentCaptor.capture());
     assertThat(argumentCaptor.getValue()).isEqualTo(subject);

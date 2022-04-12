@@ -88,7 +88,7 @@ public class UseJacksonForJsonPathRule extends SerializableExternalResource {
 
   private void saveDefaults() {
     try {
-      Configuration defaultConfiguration = Configuration.defaultConfiguration();
+      var defaultConfiguration = Configuration.defaultConfiguration();
       jsonProvider = defaultConfiguration.jsonProvider();
       mappingProvider = defaultConfiguration.mappingProvider();
       options = defaultConfiguration.getOptions();

@@ -47,7 +47,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -66,8 +65,6 @@ import org.junit.runner.RunWith;
 
 import org.apache.geode.DataSerializer;
 import org.apache.geode.cache.CacheClosedException;
-import org.apache.geode.cache.DiskStore;
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionDestroyedException;
 import org.apache.geode.cache.RegionFactory;
@@ -82,18 +79,13 @@ import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.HeapDataOutputStream;
 import org.apache.geode.internal.cache.AbstractUpdateOperation.AbstractUpdateMessage;
 import org.apache.geode.internal.cache.DestroyRegionOperation.DestroyRegionMessage;
-import org.apache.geode.internal.cache.DiskRegion;
-import org.apache.geode.internal.cache.DiskRegionStats;
 import org.apache.geode.internal.cache.DistributedRegion;
 import org.apache.geode.internal.cache.InitialImageOperation.RequestImageMessage;
 import org.apache.geode.internal.cache.InternalRegion;
 import org.apache.geode.internal.cache.versions.RegionVersionVector;
 import org.apache.geode.management.DiskStoreMXBean;
-import org.apache.geode.management.DistributedSystemMXBean;
 import org.apache.geode.management.ManagementService;
-import org.apache.geode.management.PersistentMemberDetails;
 import org.apache.geode.test.dunit.AsyncInvocation;
-import org.apache.geode.test.dunit.IgnoredException;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.cache.CacheTestCase;
 import org.apache.geode.test.dunit.rules.DistributedDiskDirRule;
@@ -151,7 +143,7 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
     vm3 = getVM(3);
 
     rootDir = temporaryFolder.newFolder("rootDir-" + getName()).getAbsoluteFile();
-    for (VM vm : toArray(vm0, vm1, vm2, vm3)) {
+    for (var vm : toArray(vm0, vm1, vm2, vm3)) {
       diskDirs.put(vm.getId(), new File(rootDir, "vm-" + vm.getId()));
     }
 
@@ -161,10 +153,10 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
 
   @After
   public void tearDown() {
-    for (VM vm : toArray(getAllVMs(), getController())) {
+    for (var vm : toArray(getAllVMs(), getController())) {
       vm.invoke(() -> {
         DistributionMessageObserver.setInstance(null);
-        CountDownLatch latch = SLEEP.get();
+        var latch = SLEEP.get();
         while (latch != null && latch.getCount() > 0) {
           latch.countDown();
         }
@@ -175,7 +167,7 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties configProperties = super.getDistributedSystemProperties();
+    var configProperties = super.getDistributedSystemProperties();
     configProperties.setProperty(ACK_WAIT_THRESHOLD, "5");
     return configProperties;
   }
@@ -186,7 +178,7 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
    */
   @Test
   public void testWaitForLatestMember() throws Exception {
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> createReplicateRegion(regionName, getDiskDirs(getVMId())));
     }
 
@@ -211,7 +203,7 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
 
     createPersistentRegionInVM0.await();
 
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> validateEntry("A", "C"));
     }
 
@@ -225,7 +217,7 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
   @Test
   public void testRevokeAMember() throws Exception {
     vm2.invoke(() -> {
-      Properties props = getDistributedSystemProperties();
+      var props = getDistributedSystemProperties();
       props.setProperty(JMX_MANAGER, "true");
       props.setProperty(JMX_MANAGER_PORT, valueOf(jmxManagerPort));
       props.setProperty(JMX_MANAGER_START, "true");
@@ -233,15 +225,15 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
       getCache(props);
     });
 
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> createReplicateRegion(regionName, getDiskDirs(getVMId())));
     }
 
     vm0.invoke(() -> {
       putEntry("A", "B");
 
-      PersistentMemberManager manager = getCache().getPersistentMemberManager();
-      Map<String, Set<PersistentMemberID>> waitingRegions = manager.getWaitingRegions();
+      var manager = getCache().getPersistentMemberManager();
+      var waitingRegions = manager.getWaitingRegions();
       assertThat(waitingRegions).isEmpty();
 
       getCache().getRegion(regionName).close();
@@ -260,21 +252,21 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
     assertThat(createPersistentRegionInVM0.isAlive()).isTrue();
 
     vm2.invoke(() -> {
-      ManagementService managementService = ManagementService.getManagementService(getCache());
+      var managementService = ManagementService.getManagementService(getCache());
 
       await().untilAsserted(() -> {
         assertThat(managementService.getDistributedSystemMXBean()).isNotNull();
       });
 
-      DistributedSystemMXBean dsMXBean = managementService.getDistributedSystemMXBean();
+      var dsMXBean = managementService.getDistributedSystemMXBean();
 
       await().until(() -> dsMXBean.listMissingDiskStores().length > 0);
 
-      PersistentMemberDetails[] persistentMemberDetails = dsMXBean.listMissingDiskStores();
+      var persistentMemberDetails = dsMXBean.listMissingDiskStores();
       assertThat(persistentMemberDetails).hasSize(1);
 
-      String missingDiskStoreId = persistentMemberDetails[0].getDiskStoreId();
-      boolean revoked = dsMXBean.revokeMissingDiskStores(missingDiskStoreId);
+      var missingDiskStoreId = persistentMemberDetails[0].getDiskStoreId();
+      var revoked = dsMXBean.revokeMissingDiskStores(missingDiskStoreId);
       assertThat(revoked).isTrue();
     });
 
@@ -290,8 +282,8 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
 
     // Now, we should not be able to create a region in vm1, because the this member was revoked
     vm1.invoke(() -> {
-      try (IgnoredException ie = addIgnoredException(RevokedPersistentDataException.class)) {
-        Throwable thrown = catchThrowable(() -> {
+      try (var ie = addIgnoredException(RevokedPersistentDataException.class)) {
+        var thrown = catchThrowable(() -> {
           createReplicateRegion(regionName, getDiskDirs(getVMId()));
         });
         assertThat(thrown).isInstanceOf(RevokedPersistentDataException.class);
@@ -314,7 +306,7 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
   @Test
   public void testRevokeAHostBeforeInitialization() throws Exception {
     vm2.invoke(() -> {
-      Properties props = getDistributedSystemProperties();
+      var props = getDistributedSystemProperties();
       props.setProperty(JMX_MANAGER, "true");
       props.setProperty(JMX_MANAGER_PORT, String.valueOf(jmxManagerPort));
       props.setProperty(JMX_MANAGER_START, "true");
@@ -322,15 +314,15 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
       getCache(props);
     });
 
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> createReplicateRegion(regionName, getDiskDirs(getVMId())));
     }
 
     vm0.invoke(() -> {
       putEntry("A", "B");
 
-      PersistentMemberManager manager = getCache().getPersistentMemberManager();
-      Map<String, Set<PersistentMemberID>> waitingRegions = manager.getWaitingRegions();
+      var manager = getCache().getPersistentMemberManager();
+      var waitingRegions = manager.getWaitingRegions();
       assertThat(waitingRegions).isEmpty();
 
       getCache().getRegion(regionName).close();
@@ -346,21 +338,21 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
     });
 
     vm2.invoke(() -> {
-      ManagementService managementService = ManagementService.getManagementService(getCache());
+      var managementService = ManagementService.getManagementService(getCache());
 
       await().untilAsserted(() -> {
         assertThat(managementService.getDistributedSystemMXBean()).isNotNull();
       });
 
-      DistributedSystemMXBean dsMXBean = managementService.getDistributedSystemMXBean();
+      var dsMXBean = managementService.getDistributedSystemMXBean();
 
       await().until(() -> dsMXBean.listMissingDiskStores().length > 0);
 
-      PersistentMemberDetails[] persistentMemberDetails = dsMXBean.listMissingDiskStores();
+      var persistentMemberDetails = dsMXBean.listMissingDiskStores();
       assertThat(persistentMemberDetails).hasSize(1);
 
-      String missingDiskStoreId = persistentMemberDetails[0].getDiskStoreId();
-      boolean revoked = dsMXBean.revokeMissingDiskStores(missingDiskStoreId);
+      var missingDiskStoreId = persistentMemberDetails[0].getDiskStoreId();
+      var revoked = dsMXBean.revokeMissingDiskStores(missingDiskStoreId);
       assertThat(revoked).isTrue();
     });
 
@@ -378,8 +370,8 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
     // Now, we should not be able to create a region
     // in vm1, because the this member was revoked
     vm1.invoke(() -> {
-      try (IgnoredException ie = addIgnoredException(RevokedPersistentDataException.class)) {
-        Throwable thrown = catchThrowable(() -> {
+      try (var ie = addIgnoredException(RevokedPersistentDataException.class)) {
+        var thrown = catchThrowable(() -> {
           createReplicateRegion(regionName, getDiskDirs(getVMId()));
         });
         assertThat(thrown).isInstanceOf(RevokedPersistentDataException.class);
@@ -393,7 +385,7 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
   @Test
   public void testWaitingMemberList() {
     vm3.invoke(() -> {
-      Properties props = getDistributedSystemProperties();
+      var props = getDistributedSystemProperties();
       props.setProperty(JMX_MANAGER, "true");
       props.setProperty(JMX_MANAGER_PORT, String.valueOf(jmxManagerPort));
       props.setProperty(JMX_MANAGER_START, "true");
@@ -401,15 +393,15 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
       getCache(props);
     });
 
-    for (VM vm : toArray(vm0, vm1, vm2)) {
+    for (var vm : toArray(vm0, vm1, vm2)) {
       vm.invoke(() -> createReplicateRegion(regionName, getDiskDirs(getVMId())));
     }
 
     vm0.invoke(() -> {
       putEntry("A", "B");
 
-      PersistentMemberManager manager = getCache().getPersistentMemberManager();
-      Map<String, Set<PersistentMemberID>> waitingRegions = manager.getWaitingRegions();
+      var manager = getCache().getPersistentMemberManager();
+      var waitingRegions = manager.getWaitingRegions();
       assertThat(waitingRegions).isEmpty();
 
       getCache().close();
@@ -439,16 +431,16 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
     assertThat(createPersistentRegionInVM1.isAlive()).isTrue();
 
     vm3.invoke(() -> {
-      ManagementService managementService = ManagementService.getManagementService(getCache());
+      var managementService = ManagementService.getManagementService(getCache());
 
       await().untilAsserted(() -> {
         assertThat(managementService.getDistributedSystemMXBean()).isNotNull();
       });
 
-      DistributedSystemMXBean dsMXBean = managementService.getDistributedSystemMXBean();
+      var dsMXBean = managementService.getDistributedSystemMXBean();
 
       await().untilAsserted(() -> {
-        PersistentMemberDetails[] persistentMemberDetails = dsMXBean.listMissingDiskStores();
+        var persistentMemberDetails = dsMXBean.listMissingDiskStores();
         assertThat(persistentMemberDetails).hasSize(1);
       });
     });
@@ -461,16 +453,16 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
 
     // Now we should be missing 2 members
     vm3.invoke(() -> {
-      ManagementService managementService = ManagementService.getManagementService(getCache());
+      var managementService = ManagementService.getManagementService(getCache());
 
       await().untilAsserted(() -> {
         assertThat(managementService.getDistributedSystemMXBean()).isNotNull();
       });
 
-      DistributedSystemMXBean dsMXBean = managementService.getDistributedSystemMXBean();
+      var dsMXBean = managementService.getDistributedSystemMXBean();
 
       await().untilAsserted(() -> {
-        PersistentMemberDetails[] persistentMemberDetails = dsMXBean.listMissingDiskStores();
+        var persistentMemberDetails = dsMXBean.listMissingDiskStores();
         assertThat(persistentMemberDetails).hasSize(2);
       });
     });
@@ -481,7 +473,7 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
    */
   @Test
   public void testDoNotWaitForOldMember() {
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> createReplicateRegion(regionName, getDiskDirs(getVMId())));
     }
 
@@ -510,7 +502,7 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
    */
   @Test
   public void testSimultaneousCrash() throws Exception {
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> createReplicateRegion(regionName, getDiskDirs(getVMId())));
     }
 
@@ -519,17 +511,17 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
     vm1.invoke(() -> updateEntry("A", "C"));
 
     // Copy the regions as they are with both members online.
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       backupDir(vm.getId());
     }
 
     // destroy the members
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> getCache().close());
     }
 
     // now restore from backup
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       restoreBackup(vm.getId());
     }
 
@@ -544,7 +536,7 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
 
     createPersistentRegionInVM0.await();
 
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> validateEntry("A", "C"));
     }
   }
@@ -556,7 +548,7 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
    */
   @Test
   public void testTransmitCrashedMembers() throws Exception {
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> createReplicateRegion(regionName, getDiskDirs(getVMId())));
     }
 
@@ -588,7 +580,7 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
     // VM0 should be informed that VM2 is older, so it should start
     createPersistentRegionInVM0.await();
 
-    for (VM vm : toArray(vm0, vm2)) {
+    for (var vm : toArray(vm0, vm2)) {
       vm.invoke(() -> validateEntry("A", "C"));
     }
   }
@@ -607,7 +599,7 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
     });
 
     vm1.invoke(() -> {
-      Throwable thrown = catchThrowable(() -> updateEntry("A", "C"));
+      var thrown = catchThrowable(() -> updateEntry("A", "C"));
       assertThat(thrown).isInstanceOf(PersistentReplicatesOfflineException.class);
     });
 
@@ -619,7 +611,7 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
 
     vm1.invoke(() -> updateEntry("A", "C"));
 
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> validateEntry("A", "C"));
     }
   }
@@ -648,7 +640,7 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
     });
 
     vm1.invoke(() -> {
-      Throwable thrown = catchThrowable(() -> {
+      var thrown = catchThrowable(() -> {
         createReplicateRegion(regionName, getDiskDirs(getVMId()));
       });
       assertThat(thrown).isInstanceOf(DistributedSystemDisconnectedException.class);
@@ -673,8 +665,8 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
     vm1.invoke(() -> validateEntry("A", "C"));
 
     vm0.invoke(() -> {
-      InternalRegion region = (InternalRegion) getCache().getRegion(regionName);
-      DiskRegion diskRegion = region.getDiskRegion();
+      var region = (InternalRegion) getCache().getRegion(regionName);
+      var diskRegion = region.getDiskRegion();
 
       assertThat(diskRegion.getOfflineMembers()).isEmpty();
       assertThat(diskRegion.getOnlineMembers()).hasSize(1);
@@ -691,7 +683,7 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
   @Parameters({"true", "false"})
   @TestCaseName("{method}({params})")
   public void testPersistConflictOperations(boolean diskSynchronous) throws Exception {
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(this::addSleepBeforeSendAbstractUpdateMessage);
     }
 
@@ -712,22 +704,22 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
       getCache().<String, String>getRegion(regionName).put("A", "vm1");
     });
 
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> SLEEP.get().countDown());
     }
 
     putInVM0.await();
     putInVM1.await();
 
-    RegionVersionVector rvvInVM0 = toRVV(vm0.invoke(this::getRVVBytes));
-    RegionVersionVector rvvInVM1 = toRVV(vm1.invoke(this::getRVVBytes));
+    var rvvInVM0 = toRVV(vm0.invoke(this::getRVVBytes));
+    var rvvInVM1 = toRVV(vm1.invoke(this::getRVVBytes));
     assertSameRVV(rvvInVM1, rvvInVM0);
 
-    Object valueInVM0 = vm0.invoke(() -> getCache().getRegion(regionName).get("A"));
-    Object valueInVM1 = vm1.invoke(() -> getCache().getRegion(regionName).get("A"));
+    var valueInVM0 = vm0.invoke(() -> getCache().getRegion(regionName).get("A"));
+    var valueInVM1 = vm1.invoke(() -> getCache().getRegion(regionName).get("A"));
     assertThat(valueInVM1).isEqualTo(valueInVM0);
 
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> getCache().getRegion(regionName).close());
     }
 
@@ -751,24 +743,24 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
     assertSameRVV(rvvInVM1, rvvInVM0);
 
     // round 2: async disk write
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(this::addSleepBeforeSendAbstractUpdateMessage);
     }
 
     putInVM0 = vm0.invokeAsync(() -> {
       Region<String, String> region = getCache().getRegion(regionName);
-      for (int i = 0; i < 1000; i++) {
+      for (var i = 0; i < 1000; i++) {
         region.put("A", "vm0-" + i);
       }
     });
     putInVM1 = vm1.invokeAsync(() -> {
       Region<String, String> region = getCache().getRegion(regionName);
-      for (int i = 0; i < 1000; i++) {
+      for (var i = 0; i < 1000; i++) {
         region.put("A", "vm1-" + i);
       }
     });
 
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> SLEEP.get().countDown());
     }
 
@@ -783,7 +775,7 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
     valueInVM1 = vm1.invoke(() -> getCache().getRegion(regionName).get("A"));
     assertThat(valueInVM1).isEqualTo(valueInVM0);
 
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> getCache().close());
     }
 
@@ -837,17 +829,17 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
 
     vm1.invoke(() -> updateEntry("A", "C"));
 
-    for (VM vm : toArray(vm1, vm2)) {
+    for (var vm : toArray(vm1, vm2)) {
       vm.invoke(() -> getCache().getRegion(regionName).close());
     }
 
     // VM2 has the most recent data, it should start
     // VM0 should be informed that it has older data than VM2, so it should initialize from vm2
-    for (VM vm : toArray(vm2, vm0)) {
+    for (var vm : toArray(vm2, vm0)) {
       vm.invoke(() -> createReplicateRegion(regionName, getDiskDirs(getVMId())));
     }
 
-    for (VM vm : toArray(vm0, vm2)) {
+    for (var vm : toArray(vm0, vm2)) {
       vm.invoke(() -> validateEntry("A", "C"));
     }
   }
@@ -870,10 +862,10 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
     vm0.invoke(() -> createReplicateRegion(regionName, getDiskDirs(getVMId())));
 
     vm1.invoke(() -> {
-      try (IgnoredException ie = addIgnoredException(ConflictingPersistentDataException.class)) {
+      try (var ie = addIgnoredException(ConflictingPersistentDataException.class)) {
         // VM1 should not start up, because we should detect that vm1
         // was never in the same distributed system as vm0
-        Throwable thrown = catchThrowable(() -> {
+        var thrown = catchThrowable(() -> {
           createReplicateRegion(regionName, getDiskDirs(getVMId()));
         });
         assertThat(thrown)
@@ -919,7 +911,7 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
    */
   @Test
   public void testCrashDuringGII() throws Exception {
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> createReplicateRegion(regionName, getDiskDirs(getVMId())));
     }
 
@@ -981,7 +973,7 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
 
     createPersistentRegionInVM0.await();
 
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> validateEntry("A", "C"));
     }
 
@@ -1043,8 +1035,8 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
     destroyRegionInVM0.await();
 
     vm2.invoke(() -> {
-      DistributedRegion region = (DistributedRegion) getCache().getRegion(regionName);
-      PersistenceAdvisor persistAdvisor = region.getPersistenceAdvisor();
+      var region = (DistributedRegion) getCache().getRegion(regionName);
+      var persistAdvisor = region.getPersistenceAdvisor();
       assertThat(persistAdvisor.getMembershipView().getOfflineMembers()).isEmpty();
     });
   }
@@ -1075,7 +1067,7 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
     });
 
     AsyncInvocation<Void> createPersistentRegionInVM1 = vm1.invokeAsync(() -> {
-      Throwable thrown = catchThrowable(() -> {
+      var thrown = catchThrowable(() -> {
         createReplicateRegion(regionName, getDiskDirs(getVMId()));
       });
       assertThat(thrown).isInstanceOf(CacheClosedException.class);
@@ -1092,11 +1084,11 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
       await().until(() -> system != null && system.isDisconnected());
     });
 
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> createReplicateRegion(regionName, getDiskDirs(getVMId())));
     }
 
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> validateEntry("A", "C"));
     }
   }
@@ -1113,8 +1105,8 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
     vm0.invoke(() -> createReplicateRegion(regionName));
 
     vm1.invoke(() -> {
-      try (IgnoredException ie = addIgnoredException(IllegalStateException.class)) {
-        Throwable thrown = catchThrowable(() -> {
+      try (var ie = addIgnoredException(IllegalStateException.class)) {
+        var thrown = catchThrowable(() -> {
           createReplicateRegion(regionName, getDiskDirs(getVMId()));
         });
         assertThat(thrown).isInstanceOf(IllegalStateException.class);
@@ -1152,13 +1144,13 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
       });
     });
 
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> createReplicateRegion(regionName, getDiskDirs(getVMId())));
     }
 
     vm1.invoke(() -> validateEntry("A", "C"));
 
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> getCache().getRegion(regionName).close());
     }
 
@@ -1175,7 +1167,7 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
   @Test
   public void testCompactFromAdmin() {
     vm2.invoke(() -> {
-      Properties props = getDistributedSystemProperties();
+      var props = getDistributedSystemProperties();
       props.setProperty(JMX_MANAGER, "true");
       props.setProperty(JMX_MANAGER_PORT, valueOf(jmxManagerPort));
       props.setProperty(JMX_MANAGER_START, "true");
@@ -1183,43 +1175,43 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
       getCache(props);
     });
 
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> createReplicateRegionWithoutCompaction(regionName, getDiskDirs(getVMId())));
     }
 
     vm1.invoke(() -> {
       Region<Integer, byte[]> region = getCache().getRegion(regionName);
-      for (int i = 0; i < 1024; i++) {
+      for (var i = 0; i < 1024; i++) {
         region.put(i, new byte[1024]);
       }
-      for (int i = 2; i < 1024; i++) {
+      for (var i = 2; i < 1024; i++) {
         assertThat(region.destroy(i)).isNotNull();
       }
-      DiskStore diskStore = getCache().findDiskStore(regionName);
+      var diskStore = getCache().findDiskStore(regionName);
       diskStore.forceRoll();
     });
 
     vm2.invoke(() -> {
       // GemFire:service=DiskStore,name={0},type=Member,member={1}
-      ObjectName pattern = new ObjectName("GemFire:service=DiskStore,*");
+      var pattern = new ObjectName("GemFire:service=DiskStore,*");
 
       await().untilAsserted(() -> {
-        Set<ObjectName> mbeanNames = getPlatformMBeanServer().queryNames(pattern, null);
+        var mbeanNames = getPlatformMBeanServer().queryNames(pattern, null);
 
         assertThat(mbeanNames).hasSize(2);
       });
 
-      Set<ObjectName> mbeanNames = getPlatformMBeanServer().queryNames(pattern, null);
-      for (ObjectName objectName : mbeanNames) {
-        DiskStoreMXBean diskStoreMXBean =
+      var mbeanNames = getPlatformMBeanServer().queryNames(pattern, null);
+      for (var objectName : mbeanNames) {
+        var diskStoreMXBean =
             newProxyInstance(getPlatformMBeanServer(), objectName, DiskStoreMXBean.class, false);
         assertThat(diskStoreMXBean.forceCompaction()).isTrue();
       }
     });
 
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> {
-        DiskStore diskStore = getCache().findDiskStore(regionName);
+        var diskStore = getCache().findDiskStore(regionName);
         assertThat(diskStore.forceCompaction()).isFalse();
       });
     }
@@ -1227,13 +1219,13 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
 
   @Test
   public void testCloseDuringRegionOperation() throws Exception {
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> createReplicateRegion(regionName, getDiskDirs(getVMId())));
     }
 
     // Try to make sure there are some operations in flight while closing the cache
 
-    AsyncInvocation<Integer> createDataInVM0 = vm0.invokeAsync(() -> {
+    var createDataInVM0 = vm0.invokeAsync(() -> {
       Region<Integer, Integer> region = getCache().getRegion(regionName);
       COUNT.set(0);
       while (true) {
@@ -1246,7 +1238,7 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
       return COUNT.get();
     });
 
-    AsyncInvocation<Integer> createDataInVM1 = vm1.invokeAsync(() -> {
+    var createDataInVM1 = vm1.invokeAsync(() -> {
       Region<Integer, Integer> region = getCache().getRegion(regionName);
       COUNT.set(0);
       while (true) {
@@ -1259,7 +1251,7 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
       return COUNT.get();
     });
 
-    for (VM vm : toArray(vm0, vm1)) {
+    for (var vm : toArray(vm0, vm1)) {
       vm.invoke(() -> {
         await().until(() -> COUNT.get() > 1);
       });
@@ -1288,7 +1280,7 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
       int valueInVM0 = vm0.invoke(() -> getValue(key));
       int valueInVM1 = vm1.invoke(() -> getValue(key));
 
-      int expectedValue = key == 0 ? expectedValueFor0 : expectedValueFor1;
+      var expectedValue = key == 0 ? expectedValueFor0 : expectedValueFor1;
 
       assertThat(valueInVM0)
           .isEqualTo(valueInVM1)
@@ -1314,9 +1306,9 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
     });
 
     vm0.invoke(() -> {
-      try (IgnoredException ie = addIgnoredException(ConflictingPersistentDataException.class)) {
+      try (var ie = addIgnoredException(ConflictingPersistentDataException.class)) {
         // this should cause a conflict
-        Throwable thrown = catchThrowable(() -> {
+        var thrown = catchThrowable(() -> {
           createReplicateRegion(regionName, getDiskDirs(getVMId()));
         });
         assertThat(thrown).isInstanceOf(ConflictingPersistentDataException.class);
@@ -1334,9 +1326,9 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
 
     // Now make sure vm1 gets a conflict
     vm1.invoke(() -> {
-      try (IgnoredException ie = addIgnoredException(ConflictingPersistentDataException.class)) {
+      try (var ie = addIgnoredException(ConflictingPersistentDataException.class)) {
         // this should cause a conflict
-        Throwable thrown = catchThrowable(() -> {
+        var thrown = catchThrowable(() -> {
           createReplicateRegion(regionName, getDiskDirs(getVMId()));
         });
         assertThat(thrown).isInstanceOf(ConflictingPersistentDataException.class);
@@ -1346,11 +1338,11 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
 
   protected void createReplicateRegion(String regionName, File[] diskDirs,
       boolean diskSynchronous) {
-    DiskStoreFactory diskStoreFactory = getCache().createDiskStoreFactory();
+    var diskStoreFactory = getCache().createDiskStoreFactory();
     diskStoreFactory.setDiskDirs(diskDirs);
     diskStoreFactory.setMaxOplogSize(1);
 
-    DiskStore diskStore = diskStoreFactory.create(regionName);
+    var diskStore = diskStoreFactory.create(regionName);
 
     RegionFactory regionFactory = getCache().createRegionFactory(REPLICATE_PERSISTENT);
     regionFactory.setDiskStoreName(diskStore.getName());
@@ -1368,14 +1360,14 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
   }
 
   private void createReplicateRegionWithoutCompaction(String regionName, File[] diskDirs) {
-    DiskStoreFactory diskStoreFactory = getCache().createDiskStoreFactory();
+    var diskStoreFactory = getCache().createDiskStoreFactory();
     diskStoreFactory.setAllowForceCompaction(true);
     diskStoreFactory.setAutoCompact(false);
     diskStoreFactory.setCompactionThreshold(20);
     diskStoreFactory.setDiskDirs(diskDirs);
     diskStoreFactory.setMaxOplogSize(1);
 
-    DiskStore diskStore = diskStoreFactory.create(regionName);
+    var diskStore = diskStoreFactory.create(regionName);
 
     RegionFactory regionFactory = getCache().createRegionFactory(REPLICATE_PERSISTENT);
     regionFactory.setDiskStoreName(diskStore.getName());
@@ -1401,11 +1393,11 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
   }
 
   private byte[] getRVVBytes() throws IOException {
-    InternalRegion region = (InternalRegion) getCache().getRegion(regionName);
+    var region = (InternalRegion) getCache().getRegion(regionName);
 
-    RegionVersionVector regionVersionVector = region.getVersionVector();
+    var regionVersionVector = region.getVersionVector();
     regionVersionVector = regionVersionVector.getCloneForTransmission();
-    HeapDataOutputStream outputStream = new HeapDataOutputStream(2048);
+    var outputStream = new HeapDataOutputStream(2048);
 
     // Using gemfire serialization because RegionVersionVector is not java serializable
     DataSerializer.writeObject(regionVersionVector, outputStream);
@@ -1413,7 +1405,7 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
   }
 
   private RegionVersionVector toRVV(byte[] bytes) throws IOException, ClassNotFoundException {
-    ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
+    var inputStream = new ByteArrayInputStream(bytes);
     return DataSerializer.readObject(new DataInputStream(inputStream));
   }
 
@@ -1442,8 +1434,8 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
 
   private void waitForBlockedInitialization() {
     await().until(() -> {
-      PersistentMemberManager manager = getCache().getPersistentMemberManager();
-      Map<String, Set<PersistentMemberID>> regions = manager.getWaitingRegions();
+      var manager = getCache().getPersistentMemberManager();
+      var regions = manager.getWaitingRegions();
       return !regions.isEmpty();
     });
   }
@@ -1455,8 +1447,8 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
   }
 
   private void validateDiskRegionInitializationStats(boolean localRecovery) {
-    InternalRegion region = (InternalRegion) getCache().getRegion(regionName);
-    DiskRegionStats diskRegionStats = region.getDiskRegion().getStats();
+    var region = (InternalRegion) getCache().getRegion(regionName);
+    var diskRegionStats = region.getDiskRegion().getStats();
 
     if (localRecovery) {
       assertThat(diskRegionStats.getLocalInitializations()).isEqualTo(1);
@@ -1472,21 +1464,21 @@ public class PersistentRecoveryOrderDUnitTest extends CacheTestCase {
   }
 
   private File getDiskDir(int vmId) {
-    File diskDir = diskDirs.get(vmId);
+    var diskDir = diskDirs.get(vmId);
     diskDir.mkdirs();
     return diskDir;
   }
 
   private void backupDir(int vmId) throws IOException {
-    File diskDir = getDiskDir(vmId);
-    File backupDir = new File(rootDir, diskDir.getName() + ".bk");
+    var diskDir = getDiskDir(vmId);
+    var backupDir = new File(rootDir, diskDir.getName() + ".bk");
 
     copyDirectory(diskDir, backupDir);
   }
 
   private void restoreBackup(int vmId) throws IOException {
-    File diskDir = getDiskDir(vmId);
-    File backupDir = new File(rootDir, diskDir.getName() + ".bk");
+    var diskDir = getDiskDir(vmId);
+    var backupDir = new File(rootDir, diskDir.getName() + ".bk");
 
     if (!backupDir.renameTo(diskDir)) {
       deleteDirectory(diskDir);

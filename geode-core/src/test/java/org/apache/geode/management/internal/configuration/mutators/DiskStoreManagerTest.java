@@ -18,7 +18,6 @@ package org.apache.geode.management.internal.configuration.mutators;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -56,7 +55,7 @@ public class DiskStoreManagerTest {
 
   @Test
   public void deleteWhenDiskStoreExistsShouldSucceed() {
-    DiskStoreType diskStoreType = new DiskStoreType();
+    var diskStoreType = new DiskStoreType();
     diskStoreType.setName(diskStore.getName());
     cacheConfig.getDiskStores().add(diskStoreType);
     manager.delete(diskStore, cacheConfig);
@@ -72,38 +71,38 @@ public class DiskStoreManagerTest {
 
   @Test
   public void listShouldIncludeAllKnownDiskStores() {
-    DiskStoreType diskStoreType = new DiskStoreType();
+    var diskStoreType = new DiskStoreType();
     diskStoreType.setName(diskStore.getName());
     cacheConfig.getDiskStores().add(diskStoreType);
-    List<DiskStore> diskStores = manager.list(diskStore, cacheConfig);
+    var diskStores = manager.list(diskStore, cacheConfig);
     assertThat(diskStores.size()).isEqualTo(1);
     assertThat(diskStores.contains(diskStoreType));
   }
 
   @Test
   public void getShouldReturnDiskStoreMatchingByName() {
-    DiskStoreType diskStoreType = new DiskStoreType();
+    var diskStoreType = new DiskStoreType();
     diskStoreType.setName(diskStore.getName());
     cacheConfig.getDiskStores().add(diskStoreType);
-    DiskStore foundDiskStore = manager.get(diskStore, cacheConfig);
+    var foundDiskStore = manager.get(diskStore, cacheConfig);
     assertThat(foundDiskStore).isNotNull();
     assertThat(foundDiskStore.getName()).isEqualTo(diskStoreType.getName());
   }
 
   @Test
   public void getShouldReturnNullIfNoDiskStoresExist() {
-    DiskStoreType diskStoreType = new DiskStoreType();
+    var diskStoreType = new DiskStoreType();
     diskStoreType.setName(diskStore.getName());
-    DiskStore foundDiskStore = manager.get(diskStore, cacheConfig);
+    var foundDiskStore = manager.get(diskStore, cacheConfig);
     assertThat(foundDiskStore).isNull();
   }
 
   @Test
   public void getShouldReturnNullIfDiskStoreDoesNotMatch() {
-    DiskStoreType diskStoreType = new DiskStoreType();
+    var diskStoreType = new DiskStoreType();
     diskStoreType.setName("notTheDiskStoreYouAreLookingFor");
     cacheConfig.getDiskStores().add(diskStoreType);
-    DiskStore foundDiskStore = manager.get(diskStore, cacheConfig);
+    var foundDiskStore = manager.get(diskStore, cacheConfig);
     assertThat(foundDiskStore).isNull();
   }
 }

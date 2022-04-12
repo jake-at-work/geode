@@ -15,7 +15,6 @@
 
 package org.apache.geode.redis.internal.commands.executor.key;
 
-import java.util.List;
 
 import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
@@ -27,9 +26,9 @@ import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
 public class DumpExecutor implements CommandExecutor {
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
-    List<RedisKey> commandElems = command.getProcessedCommandKeys();
+    var commandElems = command.getProcessedCommandKeys();
 
-    byte[] rawData = dump(context, commandElems.get(0));
+    var rawData = dump(context, commandElems.get(0));
 
     return RedisResponse.bulkString(rawData);
   }

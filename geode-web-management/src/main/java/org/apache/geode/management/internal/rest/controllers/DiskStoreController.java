@@ -73,7 +73,7 @@ public class DiskStoreController extends AbstractManagementController {
   public ClusterManagementListResult<DiskStore, DiskStoreInfo> listDiskStores(
       @RequestParam(required = false) String id,
       @RequestParam(required = false) String group) {
-    DiskStore filter = new DiskStore();
+    var filter = new DiskStore();
     if (StringUtils.isNotBlank(id)) {
       filter.setName(id);
     }
@@ -92,7 +92,7 @@ public class DiskStoreController extends AbstractManagementController {
       @PathVariable(name = "id") String id) {
     securityService.authorize(ResourcePermission.Resource.CLUSTER,
         ResourcePermission.Operation.READ, id);
-    DiskStore config = new DiskStore();
+    var config = new DiskStore();
     config.setName(id);
     return clusterManagementService.get(config);
   }
@@ -103,7 +103,7 @@ public class DiskStoreController extends AbstractManagementController {
   public ClusterManagementResult deleteDiskStore(
       @PathVariable(name = "id") String id,
       @RequestParam(required = false) String group) {
-    DiskStore config = new DiskStore();
+    var config = new DiskStore();
     config.setName(id);
     if (StringUtils.isNotBlank(group)) {
       config.setGroup(group);

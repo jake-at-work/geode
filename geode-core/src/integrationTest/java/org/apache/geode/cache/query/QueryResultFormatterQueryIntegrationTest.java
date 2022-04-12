@@ -18,7 +18,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -42,18 +41,18 @@ public class QueryResultFormatterQueryIntegrationTest {
 
   @Test
   public void testUserObject() throws Exception {
-    Portfolio p = new Portfolio(2);
+    var p = new Portfolio(2);
 
-    QueryResultFormatter queryResultFormatter = new QueryResultFormatter(100).add(RESULT, p);
+    var queryResultFormatter = new QueryResultFormatter(100).add(RESULT, p);
 
     checkResult(queryResultFormatter);
   }
 
   @Test
   public void testUserObjectArray() throws Exception {
-    Portfolio[] portfolios = createPortfoliosAndPositions(2);
+    var portfolios = createPortfoliosAndPositions(2);
 
-    QueryResultFormatter queryResultFormatter =
+    var queryResultFormatter =
         new QueryResultFormatter(100).add(RESULT, portfolios);
 
     checkResult(queryResultFormatter);
@@ -61,10 +60,10 @@ public class QueryResultFormatterQueryIntegrationTest {
 
   @Test
   public void testMemUsage() throws Exception {
-    Portfolio[] portfolios = createPortfoliosAndPositions(1000);
+    var portfolios = createPortfoliosAndPositions(1000);
     System.out.println("Size Of port " + ObjectSizer.REFLECTION_SIZE.sizeof(portfolios));
 
-    QueryResultFormatter queryResultFormatter =
+    var queryResultFormatter =
         new QueryResultFormatter(100).add(RESULT, portfolios);
     System.out.println("Size Of json " + ObjectSizer.REFLECTION_SIZE.sizeof(queryResultFormatter));
 
@@ -73,13 +72,13 @@ public class QueryResultFormatterQueryIntegrationTest {
 
   @Test
   public void testQueryLike() throws Exception {
-    Portfolio[] portfolios = createPortfoliosAndPositions(2);
+    var portfolios = createPortfoliosAndPositions(2);
 
-    QueryResultFormatter queryResultFormatter = new QueryResultFormatter(100).add(RESULT, null);
+    var queryResultFormatter = new QueryResultFormatter(100).add(RESULT, null);
     queryResultFormatter.add("member", "server1");
     // checkResult(queryResultFormatter); -- fails
 
-    for (int i = 0; i < 2; i++) {
+    for (var i = 0; i < 2; i++) {
       queryResultFormatter.add(RESULT, portfolios[i]);
     }
     checkResult(queryResultFormatter);
@@ -87,15 +86,15 @@ public class QueryResultFormatterQueryIntegrationTest {
 
   private Portfolio[] createPortfoliosAndPositions(final int count) {
     Position.cnt = 0; // reset Portfolio counter
-    Portfolio[] portfolios = new Portfolio[count];
-    for (int i = 0; i < count; i++) {
+    var portfolios = new Portfolio[count];
+    for (var i = 0; i < count; i++) {
       portfolios[i] = new Portfolio(i);
     }
     return portfolios;
   }
 
   private void checkResult(final QueryResultFormatter queryResultFormatter) throws IOException {
-    JsonNode jsonObject = new ObjectMapper().readTree(queryResultFormatter.toString());
+    var jsonObject = new ObjectMapper().readTree(queryResultFormatter.toString());
     System.out.println(jsonObject.toString());
     assertThat(jsonObject.get(RESULT)).isNotNull();
   }

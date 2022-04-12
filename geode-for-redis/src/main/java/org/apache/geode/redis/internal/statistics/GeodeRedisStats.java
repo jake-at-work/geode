@@ -70,15 +70,15 @@ public class GeodeRedisStats {
     this.clock = clock;
     generalStats = factory.createAtomicStatistics(generalType, generalType.getName());
 
-    for (RedisCommandType.Category category : RedisCommandType.Category.values()) {
-      StatisticsType type = statisticTypes.get(category);
-      Statistics stats = factory.createAtomicStatistics(type, type.getName());
+    for (var category : RedisCommandType.Category.values()) {
+      var type = statisticTypes.get(category);
+      var stats = factory.createAtomicStatistics(type, type.getName());
       statistics.put(category, stats);
     }
   }
 
   static {
-    StatisticsTypeFactory statisticsTypeFactory = StatisticsTypeFactoryImpl.singleton();
+    var statisticsTypeFactory = StatisticsTypeFactoryImpl.singleton();
 
     generalType = statisticsTypeFactory
         .createType(STATS_BASENAME,
@@ -103,8 +103,8 @@ public class GeodeRedisStats {
     uniqueChannelSubscriptionsId = generalType.nameToId("uniqueChannelSubscriptions");
     uniquePatternSubscriptionsId = generalType.nameToId("uniquePatternSubscriptions");
 
-    for (RedisCommandType.Category category : RedisCommandType.Category.values()) {
-      StatisticsType type = statisticsTypeFactory
+    for (var category : RedisCommandType.Category.values()) {
+      var type = statisticsTypeFactory
           .createType(STATS_BASENAME + ":" + category.name(),
               category.name() + " statistics for a geode-for-redis server",
               createCategoryStatisticDescriptors(statisticsTypeFactory, category));
@@ -120,7 +120,7 @@ public class GeodeRedisStats {
   }
 
   public void endCommand(RedisCommandType command, long start) {
-    Statistics stat = statistics.get(command.category());
+    var stat = statistics.get(command.category());
     if (clock.isEnabled()) {
       stat.incLong(timeCommandStatIds.get(command), getCurrentTimeNanos() - start);
     }
@@ -205,19 +205,19 @@ public class GeodeRedisStats {
   private static StatisticDescriptor[] createCategoryStatisticDescriptors(
       StatisticsTypeFactory factory,
       RedisCommandType.Category category) {
-    ArrayList<StatisticDescriptor> descriptors = new ArrayList<>();
+    var descriptors = new ArrayList<StatisticDescriptor>();
 
-    for (RedisCommandType command : RedisCommandType.getCommandsForCategory(category)) {
-      String name = command.name().toLowerCase();
-      String statCompletedName = name + "Completed";
-      String statCompletedDescription = "Total number of redis '" + name
+    for (var command : RedisCommandType.getCommandsForCategory(category)) {
+      var name = command.name().toLowerCase();
+      var statCompletedName = name + "Completed";
+      var statCompletedDescription = "Total number of redis '" + name
           + "' operations that have completed execution on this server.";
 
       descriptors.add(
           factory.createLongCounter(statCompletedName, statCompletedDescription, "operations"));
 
-      String statTimeName = name + "Time";
-      String statTimeDescription =
+      var statTimeName = name + "Time";
+      var statTimeDescription =
           "Total amount of time, in nanoseconds, spent executing redis '"
               + name + "' operations on this server.";
 
@@ -229,24 +229,24 @@ public class GeodeRedisStats {
   }
 
   private static void fillCompletedIdMap(RedisCommandType.Category category, StatisticsType type) {
-    for (RedisCommandType command : RedisCommandType.getCommandsForCategory(category)) {
-      String name = command.name().toLowerCase();
-      String statName = name + "Completed";
+    for (var command : RedisCommandType.getCommandsForCategory(category)) {
+      var name = command.name().toLowerCase();
+      var statName = name + "Completed";
       completedCommandStatIds.put(command, type.nameToId(statName));
     }
   }
 
   private static void fillTimeIdMap(RedisCommandType.Category category, StatisticsType type) {
-    for (RedisCommandType command : RedisCommandType.getCommandsForCategory(category)) {
-      String name = command.name().toLowerCase();
-      String statName = name + "Time";
+    for (var command : RedisCommandType.getCommandsForCategory(category)) {
+      var name = command.name().toLowerCase();
+      var statName = name + "Time";
       timeCommandStatIds.put(command, type.nameToId(statName));
     }
   }
 
   private static StatisticDescriptor[] createGeneralStatisticDescriptors(
       StatisticsTypeFactory statisticsTypeFactory) {
-    ArrayList<StatisticDescriptor> descriptors = new ArrayList<>();
+    var descriptors = new ArrayList<StatisticDescriptor>();
 
     descriptors.add(statisticsTypeFactory.createLongGauge("connectedClients",
         "Current client connections to this redis server.",

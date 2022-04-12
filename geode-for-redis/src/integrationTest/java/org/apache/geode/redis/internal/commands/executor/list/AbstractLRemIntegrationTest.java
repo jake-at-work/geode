@@ -76,8 +76,8 @@ public abstract class AbstractLRemIntegrationTest implements RedisIntegrationTes
   public void lrem_withCountAsZero_returnsNumberOfAllMatchingElementsRemoved() {
     jedis.lpush(LIST_KEY, LIST_ELEMENTS);
 
-    final String[] result =
-        {"elder", "sugar", "aroma", "skill", "sugar", "cynic"};
+    final var result =
+        new String[] {"elder", "sugar", "aroma", "skill", "sugar", "cynic"};
     assertThat(jedis.lrem(LIST_KEY, 0, "pause")).isEqualTo(5);
     assertThat(jedis.lrange(LIST_KEY, 0, -1)).containsExactly(result);
   }
@@ -87,13 +87,13 @@ public abstract class AbstractLRemIntegrationTest implements RedisIntegrationTes
     jedis.lpush(LIST_KEY, LIST_ELEMENTS);
 
     // Amount of elements to remove is SMALLER than the amount in the list
-    final String[] result1 =
-        {"elder", "sugar", "aroma", "pause", "skill", "sugar", "cynic", "pause"};
+    final var result1 =
+        new String[] {"elder", "sugar", "aroma", "pause", "skill", "sugar", "cynic", "pause"};
     assertThat(jedis.lrem(LIST_KEY, 3, "pause")).isEqualTo(3);
     assertThat(jedis.lrange(LIST_KEY, 0, -1)).containsExactly(result1);
 
     // Amount of elements to remove is GREATER than the amount in the list
-    final String[] result2 = {"elder", "aroma", "pause", "skill", "cynic", "pause"};
+    final var result2 = new String[] {"elder", "aroma", "pause", "skill", "cynic", "pause"};
     assertThat(jedis.lrem(LIST_KEY, 10, "sugar")).isEqualTo(2);
     assertThat(jedis.lrange(LIST_KEY, 0, -1)).containsExactly(result2);
   }
@@ -103,13 +103,14 @@ public abstract class AbstractLRemIntegrationTest implements RedisIntegrationTes
     jedis.lpush(LIST_KEY, LIST_ELEMENTS);
 
     // Amount of elements to remove is SMALLER than the amount in the list
-    final String[] result1 =
-        {"elder", "pause", "sugar", "aroma", "pause", "pause", "skill", "sugar", "cynic"};
+    final var result1 =
+        new String[] {"elder", "pause", "sugar", "aroma", "pause", "pause", "skill", "sugar",
+            "cynic"};
     assertThat(jedis.lrem(LIST_KEY, -2, "pause")).isEqualTo(2);
     assertThat(jedis.lrange(LIST_KEY, 0, -1)).containsExactly(result1);
 
     // Amount of elements to remove is GREATER than the amount in the list
-    final String[] result2 = {"elder", "sugar", "aroma", "skill", "sugar", "cynic"};
+    final var result2 = new String[] {"elder", "sugar", "aroma", "skill", "sugar", "cynic"};
     assertThat(jedis.lrem(LIST_KEY, -10, "pause")).isEqualTo(3);
     assertThat(jedis.lrange(LIST_KEY, 0, -1)).containsExactly(result2);
   }
@@ -129,7 +130,7 @@ public abstract class AbstractLRemIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void lrem_withWrongTypeKey_returnsErrorWrongType() {
-    String key = "{tag1}ding";
+    var key = "{tag1}ding";
     jedis.set(key, "dong");
     assertThatThrownBy(() -> jedis.sendCommand(key, Protocol.Command.LREM, key, "0", "element"))
         .hasMessage(ERROR_WRONG_TYPE);
@@ -139,12 +140,13 @@ public abstract class AbstractLRemIntegrationTest implements RedisIntegrationTes
   public void ensureListConsistency_whenRunningConcurrently() {
     jedis.lpush(LIST_KEY, LIST_ELEMENTS);
 
-    final String[] elementsToAdd = {"pause", "magic", "loved", "pause"};
-    String[] resultPushThenRemove =
-        {"loved", "magic", "elder", "sugar", "aroma", "skill", "sugar", "cynic"};
-    String[] resultRemoveThenPush =
-        {"pause", "loved", "magic", "pause", "elder", "sugar", "aroma", "skill", "sugar", "cynic"};
-    final AtomicLong lremResultReference = new AtomicLong();
+    final var elementsToAdd = new String[] {"pause", "magic", "loved", "pause"};
+    var resultPushThenRemove =
+        new String[] {"loved", "magic", "elder", "sugar", "aroma", "skill", "sugar", "cynic"};
+    var resultRemoveThenPush =
+        new String[] {"pause", "loved", "magic", "pause", "elder", "sugar", "aroma", "skill",
+            "sugar", "cynic"};
+    final var lremResultReference = new AtomicLong();
     new ConcurrentLoopingThreads(1000,
         i -> jedis.lpush(LIST_KEY, elementsToAdd),
         i -> lremResultReference.set(jedis.lrem(LIST_KEY, 0, "pause")))

@@ -101,18 +101,18 @@ public class RestrictedMethodAuthorizerTest {
 
   @Test
   public void constructorShouldSetTheConfiguredSecurityServiceForGeodeCreatedCacheInstances() {
-    InternalCache cache = mock(InternalCache.class);
-    SecurityService securityService = mock(SecurityService.class);
+    var cache = mock(InternalCache.class);
+    var securityService = mock(SecurityService.class);
     when(cache.getSecurityService()).thenReturn(securityService);
 
-    RestrictedMethodAuthorizer defaultAuthorizer = new RestrictedMethodAuthorizer(cache);
+    var defaultAuthorizer = new RestrictedMethodAuthorizer(cache);
     verify(cache).getSecurityService();
     assertThat(defaultAuthorizer.securityService).isSameAs(securityService);
   }
 
   @Test
   public void constructorShouldThrowExceptionForNonGeodeCreatedCacheInstancesWhenDistributedSystemIsNull() {
-    Cache cache = mock(Cache.class);
+    var cache = mock(Cache.class);
 
     assertThatThrownBy(() -> new RestrictedMethodAuthorizer(cache))
         .isInstanceOf(NullPointerException.class)
@@ -122,11 +122,11 @@ public class RestrictedMethodAuthorizerTest {
 
   @Test
   public void constructorShouldSetTheLegacySecurityServiceForNonGeodeCreatedCacheInstancesWithDefaultProperties() {
-    Cache mockCache = mock(Cache.class);
-    DistributedSystem mockDistributedSystem = mock(DistributedSystem.class);
+    var mockCache = mock(Cache.class);
+    var mockDistributedSystem = mock(DistributedSystem.class);
     when(mockCache.getDistributedSystem()).thenReturn(mockDistributedSystem);
 
-    RestrictedMethodAuthorizer authorizerWithLegacyService =
+    var authorizerWithLegacyService =
         new RestrictedMethodAuthorizer(mockCache);
     verify(mockDistributedSystem).getSecurityProperties();
     assertThat(authorizerWithLegacyService.securityService)
@@ -135,14 +135,14 @@ public class RestrictedMethodAuthorizerTest {
 
   @Test
   public void constructorShouldSetTheIntegratedSecurityServiceForNonGeodeCreatedCacheInstancesWithNonDefaultProperties() {
-    Cache mockCache = mock(Cache.class);
-    Properties securityProperties = new Properties();
+    var mockCache = mock(Cache.class);
+    var securityProperties = new Properties();
     securityProperties.setProperty(SECURITY_MANAGER, SimpleSecurityManager.class.getName());
-    DistributedSystem mockDistributedSystem = mock(DistributedSystem.class);
+    var mockDistributedSystem = mock(DistributedSystem.class);
     when(mockCache.getDistributedSystem()).thenReturn(mockDistributedSystem);
     when(mockDistributedSystem.getSecurityProperties()).thenReturn(securityProperties);
 
-    RestrictedMethodAuthorizer authorizerWithIntegratedService =
+    var authorizerWithIntegratedService =
         new RestrictedMethodAuthorizer(mockCache);
     verify(mockDistributedSystem).getSecurityProperties();
     assertThat(authorizerWithIntegratedService.securityService)
@@ -169,8 +169,8 @@ public class RestrictedMethodAuthorizerTest {
 
   @Test
   public void verifyAuthorizersUsesDefaultForbiddenList() {
-    RestrictedMethodAuthorizer authorizer1 = new RestrictedMethodAuthorizer(mockCache);
-    RestrictedMethodAuthorizer authorizer2 = new RestrictedMethodAuthorizer(mockCache);
+    var authorizer1 = new RestrictedMethodAuthorizer(mockCache);
+    var authorizer2 = new RestrictedMethodAuthorizer(mockCache);
 
     assertThat(authorizer1.getForbiddenMethods()).isSameAs(authorizer2.getForbiddenMethods());
     assertThat(authorizer1.getForbiddenMethods())
@@ -181,8 +181,8 @@ public class RestrictedMethodAuthorizerTest {
 
   @Test
   public void verifyAuthorizersUsesDefaultAllowedList() {
-    RestrictedMethodAuthorizer authorizer1 = new RestrictedMethodAuthorizer(mockCache);
-    RestrictedMethodAuthorizer authorizer2 = new RestrictedMethodAuthorizer(mockCache);
+    var authorizer1 = new RestrictedMethodAuthorizer(mockCache);
+    var authorizer2 = new RestrictedMethodAuthorizer(mockCache);
 
     assertThat(authorizer1.getAllowedMethodsPerClass())
         .isSameAs(authorizer2.getAllowedMethodsPerClass());
@@ -194,8 +194,8 @@ public class RestrictedMethodAuthorizerTest {
 
   @Test
   public void verifyAuthorizersUsesGeodeAllowedList() {
-    RestrictedMethodAuthorizer authorizer1 = new RestrictedMethodAuthorizer(mockCache);
-    RestrictedMethodAuthorizer authorizer2 = new RestrictedMethodAuthorizer(mockCache);
+    var authorizer1 = new RestrictedMethodAuthorizer(mockCache);
+    var authorizer2 = new RestrictedMethodAuthorizer(mockCache);
 
     assertThat(authorizer1.getAllowedGeodeMethodsPerClass())
         .isSameAs(authorizer2.getAllowedGeodeMethodsPerClass());
@@ -208,8 +208,8 @@ public class RestrictedMethodAuthorizerTest {
   @SuppressWarnings("unchecked")
   private void verifyObjectMethods(Class type, Object object) {
     try {
-      Method toStringMethod = type.getMethod("toString");
-      Method equalsMethod = type.getMethod("equals", Object.class);
+      var toStringMethod = type.getMethod("toString");
+      var equalsMethod = type.getMethod("equals", Object.class);
 
       assertThat(methodAuthorizer.authorize(toStringMethod, object)).isTrue();
       assertThat(methodAuthorizer.authorize(equalsMethod, object)).isTrue();
@@ -221,7 +221,7 @@ public class RestrictedMethodAuthorizerTest {
   @SuppressWarnings("unchecked")
   private void verifyComparableMethods(Class type, Object object) {
     try {
-      Method compareToMethod = type.getMethod("compareTo", Object.class);
+      var compareToMethod = type.getMethod("compareTo", Object.class);
 
       assertThat(methodAuthorizer.authorize(compareToMethod, object)).isTrue();
     } catch (NoSuchMethodException noSuchMethodException) {
@@ -231,7 +231,7 @@ public class RestrictedMethodAuthorizerTest {
 
   @Test
   public void authorizeShouldReturnFalseForNotAllowedMethods() throws Exception {
-    TestBean testBean = new TestBean();
+    var testBean = new TestBean();
     List<Method> dangerousMethods = new ArrayList<>();
     dangerousMethods.add(TestBean.class.getMethod("getClass"));
     dangerousMethods.add(TestBean.class.getMethod("readResolve"));
@@ -247,9 +247,9 @@ public class RestrictedMethodAuthorizerTest {
   @Test
   public void authorizeShouldReturnTrueForAllowedMethodsOnAnyObjectInstance()
       throws NoSuchMethodException {
-    Method toStringMethod = Object.class.getMethod("toString");
-    Method equalsMethod = Object.class.getMethod("equals", Object.class);
-    Method compareToMethod = Comparable.class.getMethod("compareTo", Object.class);
+    var toStringMethod = Object.class.getMethod("toString");
+    var equalsMethod = Object.class.getMethod("equals", Object.class);
+    var compareToMethod = Comparable.class.getMethod("compareTo", Object.class);
 
     assertThat(methodAuthorizer.authorize(toStringMethod, new Object())).isTrue();
     assertThat(methodAuthorizer.authorize(equalsMethod, new Object())).isTrue();
@@ -258,7 +258,7 @@ public class RestrictedMethodAuthorizerTest {
 
   @Test
   public void authorizeShouldReturnTrueForAllowedMethodsOnBooleanInstances() throws Exception {
-    Method booleanValueMethod = Boolean.class.getMethod("booleanValue");
+    var booleanValueMethod = Boolean.class.getMethod("booleanValue");
     assertThat(methodAuthorizer.authorize(booleanValueMethod, Boolean.TRUE)).isTrue();
 
     verifyObjectMethods(Boolean.class, Boolean.TRUE);
@@ -283,12 +283,12 @@ public class RestrictedMethodAuthorizerTest {
     instances.add(new LongAdder());
     instances.add(new Short("1"));
 
-    Method byteValueMethod = Number.class.getMethod("byteValue");
-    Method doubleValueMethod = Number.class.getMethod("doubleValue");
-    Method intValueMethod = Number.class.getMethod("intValue");
-    Method floatValueMethod = Number.class.getMethod("longValue");
-    Method longValueMethod = Number.class.getMethod("floatValue");
-    Method shortValueMethod = Number.class.getMethod("shortValue");
+    var byteValueMethod = Number.class.getMethod("byteValue");
+    var doubleValueMethod = Number.class.getMethod("doubleValue");
+    var intValueMethod = Number.class.getMethod("intValue");
+    var floatValueMethod = Number.class.getMethod("longValue");
+    var longValueMethod = Number.class.getMethod("floatValue");
+    var shortValueMethod = Number.class.getMethod("shortValue");
 
     instances.forEach((number) -> {
       assertThat(methodAuthorizer.authorize(byteValueMethod, number)).isTrue();
@@ -309,9 +309,9 @@ public class RestrictedMethodAuthorizerTest {
     instances.add(new Time(0));
     instances.add(new Timestamp(0));
 
-    Method afterMethod = Date.class.getMethod("after", Date.class);
-    Method beforeMethod = Date.class.getMethod("before", Date.class);
-    Method getTimeMethod = Date.class.getMethod("getTime");
+    var afterMethod = Date.class.getMethod("after", Date.class);
+    var beforeMethod = Date.class.getMethod("before", Date.class);
+    var getTimeMethod = Date.class.getMethod("getTime");
 
     instances.forEach((date) -> {
       assertThat(methodAuthorizer.authorize(afterMethod, date)).isTrue();
@@ -325,11 +325,11 @@ public class RestrictedMethodAuthorizerTest {
 
   @Test
   public void authorizeShouldReturnTrueForAllowedMethodsOnTimestampInstances() throws Exception {
-    Timestamp timestamp = new Timestamp(0);
-    Method afterMethod = Timestamp.class.getMethod("after", Date.class);
-    Method beforeMethod = Timestamp.class.getMethod("before", Date.class);
-    Method getNanosMethod = Timestamp.class.getMethod("getNanos");
-    Method getTimeMethod = Timestamp.class.getMethod("getTime");
+    var timestamp = new Timestamp(0);
+    var afterMethod = Timestamp.class.getMethod("after", Date.class);
+    var beforeMethod = Timestamp.class.getMethod("before", Date.class);
+    var getNanosMethod = Timestamp.class.getMethod("getNanos");
+    var getTimeMethod = Timestamp.class.getMethod("getTime");
 
     assertThat(methodAuthorizer.authorize(afterMethod, timestamp)).isTrue();
     assertThat(methodAuthorizer.authorize(beforeMethod, timestamp)).isTrue();
@@ -342,7 +342,7 @@ public class RestrictedMethodAuthorizerTest {
 
   @Test
   public void authorizeShouldReturnTrueForAllowedMethodsOnStringInstances() throws Exception {
-    String string = "";
+    var string = "";
     List<Method> stringMethods = new ArrayList<>();
     stringMethods.add(String.class.getMethod("charAt", int.class));
     stringMethods.add(String.class.getMethod("codePointAt", int.class));
@@ -402,8 +402,8 @@ public class RestrictedMethodAuthorizerTest {
     instances.add(mock(NonTXEntry.class));
     instances.add(mock(EntrySnapshot.class));
     instances.add(mock(Region.Entry.class));
-    Method getKeyMethod = Map.Entry.class.getMethod("getKey");
-    Method getValueMethod = Map.Entry.class.getMethod("getValue");
+    var getKeyMethod = Map.Entry.class.getMethod("getKey");
+    var getValueMethod = Map.Entry.class.getMethod("getValue");
 
     instances.forEach((mapEntry) -> {
       assertThat(methodAuthorizer.authorize(getKeyMethod, mapEntry)).isTrue();
@@ -414,7 +414,7 @@ public class RestrictedMethodAuthorizerTest {
 
   @Test
   public void authorizeShouldReturnTrueForAllowedMethodsOnMapInstances() throws Exception {
-    Map mapInstance = mock(Map.class);
+    var mapInstance = mock(Map.class);
     List<Method> mapMethods = new ArrayList<>();
     mapMethods.add(Map.class.getMethod("containsKey", Object.class));
     mapMethods.add(Map.class.getMethod("entrySet"));
@@ -429,8 +429,8 @@ public class RestrictedMethodAuthorizerTest {
 
   @Test
   public void authorizeShouldReturnTrueForAllowedMethodsOnQRegionInstances() throws Exception {
-    QRegion qRegionInstance = mock(QRegion.class);
-    DummyQRegion dummyQRegionInstance = mock(DummyQRegion.class);
+    var qRegionInstance = mock(QRegion.class);
+    var dummyQRegionInstance = mock(DummyQRegion.class);
 
     List<Method> methods = new ArrayList<>();
     methods.add(Map.class.getMethod("containsKey", Object.class));
@@ -453,9 +453,9 @@ public class RestrictedMethodAuthorizerTest {
   @Test
   public void authorizeShouldReturnTrueForMapMethodsOnRegionInstancesWheneverTheSecurityServiceAllowsOperationsOnTheRegion()
       throws Exception {
-    Region region = mock(Region.class);
+    var region = mock(Region.class);
     Region localRegion = mock(LocalRegion.class);
-    PartitionedRegion partitionedRegion = mock(PartitionedRegion.class);
+    var partitionedRegion = mock(PartitionedRegion.class);
 
     List<Method> methods = new ArrayList<>();
     methods.add(Map.class.getMethod("containsKey", Object.class));
@@ -480,9 +480,9 @@ public class RestrictedMethodAuthorizerTest {
       throws Exception {
     doThrow(new NotAuthorizedException("Mock Exception")).when(mockSecurityService).authorize(
         ResourcePermission.Resource.DATA, ResourcePermission.Operation.READ, "testRegion");
-    Region region = mock(Region.class);
+    var region = mock(Region.class);
     when(region.getName()).thenReturn("testRegion");
-    PartitionedRegion partitionedRegion = mock(PartitionedRegion.class);
+    var partitionedRegion = mock(PartitionedRegion.class);
     when(partitionedRegion.getName()).thenReturn("testRegion");
 
     List<Method> methods = new ArrayList<>();
@@ -500,7 +500,7 @@ public class RestrictedMethodAuthorizerTest {
 
   @Test
   public void isAllowedGeodeMethodShouldReturnFalseForNonGeodeObjectInstances() throws Exception {
-    Map mapInstance = mock(Map.class);
+    var mapInstance = mock(Map.class);
     List<Method> mapMethods = new ArrayList<>();
     mapMethods.add(Map.class.getMethod("containsKey", Object.class));
     mapMethods.add(Map.class.getMethod("entrySet"));
@@ -508,7 +508,7 @@ public class RestrictedMethodAuthorizerTest {
     mapMethods.add(Map.class.getMethod("keySet"));
     mapMethods.add(Map.class.getMethod("values"));
 
-    Map.Entry mapEntryInstance = mock(Map.Entry.class);
+    var mapEntryInstance = mock(Map.Entry.class);
     List<Method> mapEntryMethods = new ArrayList<>();
     mapEntryMethods.add(Map.Entry.class.getMethod("getKey"));
     mapEntryMethods.add(Map.Entry.class.getMethod("getValue"));
@@ -523,10 +523,10 @@ public class RestrictedMethodAuthorizerTest {
   @Test
   public void isAllowedGeodeMethodShouldReturnFalseForGeodeObjectsThatAreNotInstanceOfRegionAndRegionEntry()
       throws Exception {
-    EntryEvent entryEvent = mock(EntryEvent.class);
-    HAContainerMap haContainerMap = mock(HAContainerMap.class);
-    GatewayQueueEvent gatewayQueueEvent = mock(GatewayQueueEvent.class);
-    PartitionedRegionDataStore partitionedRegionDataStore = mock(PartitionedRegionDataStore.class);
+    var entryEvent = mock(EntryEvent.class);
+    var haContainerMap = mock(HAContainerMap.class);
+    var gatewayQueueEvent = mock(GatewayQueueEvent.class);
+    var partitionedRegionDataStore = mock(PartitionedRegionDataStore.class);
 
     List<Method> queueRegionMethods = new ArrayList<>();
     queueRegionMethods.add(QRegion.class.getMethod("getEntries"));
@@ -568,10 +568,10 @@ public class RestrictedMethodAuthorizerTest {
     regionEntryInstances.add(mock(Region.Entry.class));
     regionEntryInstances.add(mock(EntrySnapshot.class));
 
-    Method getKeyMethod = Region.Entry.class.getMethod("getKey");
-    Method getValueMethod = Region.Entry.class.getMethod("getValue");
-    Method toStringMethod = Object.class.getMethod("toString");
-    Method equalsMethod = Object.class.getMethod("equals", Object.class);
+    var getKeyMethod = Region.Entry.class.getMethod("getKey");
+    var getValueMethod = Region.Entry.class.getMethod("getValue");
+    var toStringMethod = Object.class.getMethod("toString");
+    var equalsMethod = Object.class.getMethod("equals", Object.class);
 
     regionEntryInstances.forEach((regionEntry) -> {
       assertThat(methodAuthorizer.isAllowedGeodeMethod(getKeyMethod, regionEntry)).isTrue();
@@ -584,9 +584,9 @@ public class RestrictedMethodAuthorizerTest {
   @Test
   public void isAllowedGeodeMethodShouldReturnTrueForRegionMethodsOnRegionInstancesWheneverTheSecurityServiceAllowsOperationsOnTheRegion()
       throws Exception {
-    Region region = mock(Region.class);
-    LocalRegion localRegion = mock(LocalRegion.class);
-    PartitionedRegion partitionedRegion = mock(PartitionedRegion.class);
+    var region = mock(Region.class);
+    var localRegion = mock(LocalRegion.class);
+    var partitionedRegion = mock(PartitionedRegion.class);
 
     List<Method> regionMethods = new ArrayList<>();
     regionMethods.add(Region.class.getMethod("containsKey", Object.class));
@@ -609,11 +609,11 @@ public class RestrictedMethodAuthorizerTest {
       throws Exception {
     doThrow(new NotAuthorizedException("Mock Exception")).when(mockSecurityService).authorize(
         ResourcePermission.Resource.DATA, ResourcePermission.Operation.READ, "testRegion");
-    Region region = mock(Region.class);
+    var region = mock(Region.class);
     when(region.getName()).thenReturn("testRegion");
-    LocalRegion localRegion = mock(LocalRegion.class);
+    var localRegion = mock(LocalRegion.class);
     when(localRegion.getName()).thenReturn("testRegion");
-    PartitionedRegion partitionedRegion = mock(PartitionedRegion.class);
+    var partitionedRegion = mock(PartitionedRegion.class);
     when(partitionedRegion.getName()).thenReturn("testRegion");
 
     List<Method> regionMethods = new ArrayList<>();
@@ -632,7 +632,7 @@ public class RestrictedMethodAuthorizerTest {
 
   @Test
   public void isPermanentlyForbiddenMethodShouldReturnTrueForNonSafeMethods() throws Exception {
-    TestBean testBean = new TestBean();
+    var testBean = new TestBean();
     List<Method> dangerousMethods = new ArrayList<>();
     dangerousMethods.add(TestBean.class.getMethod("getClass"));
     dangerousMethods.add(TestBean.class.getMethod("readResolve"));

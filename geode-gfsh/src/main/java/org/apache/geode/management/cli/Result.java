@@ -132,7 +132,7 @@ public interface Result {
    * @return the string representation of the result with the specified line separator.
    */
   default String asString() {
-    StringBuilder builder = new StringBuilder();
+    var builder = new StringBuilder();
     while (hasNextLine()) {
       builder.append(nextLine());
     }

@@ -27,7 +27,6 @@ import javax.servlet.http.HttpSession;
 import org.junit.Test;
 
 import org.apache.geode.cache.Region;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 
 public class Jetty9CachingClientServerTest extends GenericAppServerClientServerTest {
@@ -48,19 +47,19 @@ public class Jetty9CachingClientServerTest extends GenericAppServerClientServerT
       throws Exception {
     manager.startAllInactiveContainers();
     await().until(() -> {
-      ServerContainer container = manager.getContainer(0);
+      var container = manager.getContainer(0);
       return container.getState().isStarted();
     });
-    String key = "value_testSessionExpiration";
-    String value = "Foo";
+    var key = "value_testSessionExpiration";
+    var value = "Foo";
 
     client.setPort(Integer.parseInt(manager.getContainerPort(0)));
-    Client.Response resp = client.set(key, value);
+    var resp = client.set(key, value);
     assertThat(resp.getResponse()).isEqualTo("");
     assertThat(resp.getSessionCookie()).isNotEqualTo("");
 
     serverVM.invoke("set bogus session key", () -> {
-      final InternalCache cache = ClusterStartupRule.memberStarter.getCache();
+      final var cache = ClusterStartupRule.memberStarter.getCache();
       Region<String, HttpSession> region = cache.getRegion("gemfire_modules_sessions");
       region.values().forEach(session -> session.setAttribute(key, "bogus"));
     });

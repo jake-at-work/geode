@@ -26,15 +26,12 @@ import java.util.Properties;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache.util.CacheWriterAdapter;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.NetworkUtils;
 import org.apache.geode.test.dunit.SerializableCallable;
 import org.apache.geode.test.dunit.SerializableRunnable;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.cache.internal.JUnit4CacheTestCase;
 import org.apache.geode.test.junit.categories.ClientServerTest;
 
@@ -60,18 +57,18 @@ public class ConnectionPoolAndLoaderDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testPoolAndLoader() throws Exception {
-    final String regionName = getName();
-    final Host host = Host.getHost(0);
-    VM server = host.getVM(0);
-    VM client = host.getVM(1);
+    final var regionName = getName();
+    final var host = Host.getHost(0);
+    var server = host.getVM(0);
+    var client = host.getVM(1);
 
-    final int serverPort = getRandomAvailableTCPPort();
+    final var serverPort = getRandomAvailableTCPPort();
     server.invoke(new SerializableCallable() {
       @Override
       public Object call() throws IOException {
         Cache cache = getCache();
-        AttributesFactory af = new AttributesFactory();
-        RegionAttributes attrs = af.create();
+        var af = new AttributesFactory();
+        var attrs = af.create();
         cache.createRegion(regionName, attrs);
 
         startBridgeServer(serverPort, true);
@@ -83,16 +80,16 @@ public class ConnectionPoolAndLoaderDUnitTest extends JUnit4CacheTestCase {
       @Override
       public Object call() {
         Cache cache = getCache();
-        PoolFactory factory = PoolManager.createFactory();
+        var factory = PoolManager.createFactory();
         factory.addServer(NetworkUtils.getServerHostName(host), serverPort);
         factory.create("pool1");
 
-        AttributesFactory af = new AttributesFactory();
+        var af = new AttributesFactory();
         af.setDataPolicy(DataPolicy.DEFAULT);
         af.setScope(Scope.LOCAL);
         af.setPoolName("pool1");
         af.setCacheLoader(new MyCacheLoader("loaded"));
-        RegionAttributes attrs = af.create();
+        var attrs = af.create();
         cache.createRegion(regionName, attrs);
 
         return null;
@@ -142,18 +139,18 @@ public class ConnectionPoolAndLoaderDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testPoolAndWriter() throws Exception {
-    final String regionName = getName();
-    final Host host = Host.getHost(0);
-    VM server = host.getVM(0);
-    VM client = host.getVM(1);
+    final var regionName = getName();
+    final var host = Host.getHost(0);
+    var server = host.getVM(0);
+    var client = host.getVM(1);
 
-    final int serverPort = getRandomAvailableTCPPort();
+    final var serverPort = getRandomAvailableTCPPort();
     server.invoke(new SerializableCallable() {
       @Override
       public Object call() throws IOException {
         Cache cache = getCache();
-        AttributesFactory af = new AttributesFactory();
-        RegionAttributes attrs = af.create();
+        var af = new AttributesFactory();
+        var attrs = af.create();
         cache.createRegion(regionName, attrs);
 
         startBridgeServer(serverPort, true);
@@ -165,16 +162,16 @@ public class ConnectionPoolAndLoaderDUnitTest extends JUnit4CacheTestCase {
       @Override
       public Object call() {
         Cache cache = getCache();
-        PoolFactory factory = PoolManager.createFactory();
+        var factory = PoolManager.createFactory();
         factory.addServer(NetworkUtils.getServerHostName(host), serverPort);
         factory.create("pool1");
 
-        AttributesFactory af = new AttributesFactory();
+        var af = new AttributesFactory();
         af.setDataPolicy(DataPolicy.DEFAULT);
         af.setScope(Scope.LOCAL);
         af.setPoolName("pool1");
         af.setCacheWriter(new MyCacheWriter());
-        RegionAttributes attrs = af.create();
+        var attrs = af.create();
         cache.createRegion(regionName, attrs);
 
         return null;
@@ -185,7 +182,7 @@ public class ConnectionPoolAndLoaderDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run() {
         Region region = getRootRegion(regionName);
-        MyCacheWriter writer = (MyCacheWriter) region.getAttributes().getCacheWriter();
+        var writer = (MyCacheWriter) region.getAttributes().getCacheWriter();
         region.put("a", "a");
         region.put("b", "b");
         region.put("c", "c");
@@ -243,19 +240,19 @@ public class ConnectionPoolAndLoaderDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testPoolLoadAndPeer() throws Exception {
-    final String regionName = getName();
-    final Host host = Host.getHost(0);
-    VM server = host.getVM(0);
-    VM client1 = host.getVM(1);
-    VM client2 = host.getVM(2);
+    final var regionName = getName();
+    final var host = Host.getHost(0);
+    var server = host.getVM(0);
+    var client1 = host.getVM(1);
+    var client2 = host.getVM(2);
 
-    final int serverPort = getRandomAvailableTCPPort();
+    final var serverPort = getRandomAvailableTCPPort();
     server.invoke(new SerializableCallable() {
       @Override
       public Object call() throws IOException {
         Cache cache = getCache();
-        AttributesFactory af = new AttributesFactory();
-        RegionAttributes attrs = af.create();
+        var af = new AttributesFactory();
+        var attrs = af.create();
 
         cache.createRegion(regionName, attrs);
 
@@ -264,44 +261,44 @@ public class ConnectionPoolAndLoaderDUnitTest extends JUnit4CacheTestCase {
       }
     });
 
-    SerializableCallable createClient1 = new SerializableCallable() {
+    var createClient1 = new SerializableCallable() {
       @Override
       public Object call() {
         // Make sure we get a distributed system that has the locator
         useLocator = true;
         Cache cache = getCache();
         useLocator = false;
-        PoolFactory factory = PoolManager.createFactory();
+        var factory = PoolManager.createFactory();
         factory.addServer(NetworkUtils.getServerHostName(host), serverPort);
         factory.create("pool1");
-        AttributesFactory af = new AttributesFactory();
+        var af = new AttributesFactory();
         af.setDataPolicy(DataPolicy.NORMAL);
         af.setScope(Scope.DISTRIBUTED_ACK);
         af.setPoolName("pool1");
         af.setCacheLoader(new MyCacheLoader("loaded1"));
-        RegionAttributes attrs = af.create();
+        var attrs = af.create();
         cache.createRegion(regionName, attrs);
         return null;
       }
     };
     client1.invoke(createClient1);
 
-    SerializableCallable createClient2 = new SerializableCallable() {
+    var createClient2 = new SerializableCallable() {
       @Override
       public Object call() {
         // Make sure we get a distributed system that has the locator
         useLocator = true;
         Cache cache = getCache();
         useLocator = false;
-        PoolFactory factory = PoolManager.createFactory();
+        var factory = PoolManager.createFactory();
         factory.addServer(NetworkUtils.getServerHostName(host), serverPort);
         factory.create("pool1");
-        AttributesFactory af = new AttributesFactory();
+        var af = new AttributesFactory();
         af.setDataPolicy(DataPolicy.NORMAL);
         af.setScope(Scope.DISTRIBUTED_ACK);
         af.setCacheLoader(new MyCacheLoader("loaded2"));
         af.setPoolName("pool1");
-        RegionAttributes attrs = af.create();
+        var attrs = af.create();
         cache.createRegion(regionName, attrs);
         return null;
       }
@@ -393,7 +390,7 @@ public class ConnectionPoolAndLoaderDUnitTest extends JUnit4CacheTestCase {
 
   private void startBridgeServer(int port, boolean notifyBySubscription) throws IOException {
     Cache cache = getCache();
-    CacheServer bridge = cache.addCacheServer();
+    var bridge = cache.addCacheServer();
     bridge.setPort(port);
     bridge.setNotifyBySubscription(notifyBySubscription);
     bridge.start();
@@ -402,7 +399,7 @@ public class ConnectionPoolAndLoaderDUnitTest extends JUnit4CacheTestCase {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties p = new Properties();
+    var p = new Properties();
     if (!useLocator) {
       p.setProperty(LOCATORS, "");
       p.setProperty(MCAST_PORT, "0");
@@ -462,14 +459,14 @@ public class ConnectionPoolAndLoaderDUnitTest extends JUnit4CacheTestCase {
     public Object load(LoaderHelper helper) throws CacheLoaderException {
       if (helper.getRegion().getAttributes().getScope().equals(Scope.DISTRIBUTED_ACK)) {
         System.err.println("Doing a net search for " + helper.getKey());
-        Object result = helper.netSearch(false);
+        var result = helper.netSearch(false);
         System.err.println("Net search found " + result);
         if (result != null) {
           return result;
         }
       }
 
-      Object key = helper.getKey();
+      var key = helper.getKey();
       return message + "-" + key;
     }
 

@@ -174,7 +174,7 @@ public abstract class AbstractProcessStreamReaderIntegrationTest {
 
   private ProcessStreamReader buildProcessStreamReader(final InputStream stream,
       final ReadingMode mode, final StringBuilder buffer) {
-    ProcessStreamReader.Builder builder =
+    var builder =
         new ProcessStreamReader.Builder(process).inputStream(stream).readingMode(mode);
     if (buffer != null) {
       builder.inputListener(buffer::append);
@@ -187,12 +187,12 @@ public abstract class AbstractProcessStreamReaderIntegrationTest {
   }
 
   private static String getJavaPath() {
-    String java = "java";
+    var java = "java";
     return new File(new File(System.getProperty("java.home"), "bin"), java).getPath();
   }
 
   private static void sleepAtMost(final int duration) throws InterruptedException {
-    StopWatch stopWatch = new StopWatch(true);
+    var stopWatch = new StopWatch(true);
     while (stopWatch.elapsedTimeMillis() < duration) {
       Thread.sleep(1000);
     }

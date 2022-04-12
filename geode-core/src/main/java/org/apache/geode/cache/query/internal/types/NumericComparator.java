@@ -41,8 +41,8 @@ class NumericComparator implements Comparator {
   // throws ClassCastExcepton if obj1 or obj2 is not a Number
   @Override
   public int compare(Object obj1, Object obj2) {
-    Number num1 = (Number) obj1;
-    Number num2 = (Number) obj2;
+    var num1 = (Number) obj1;
+    var num2 = (Number) obj2;
 
 
     // create as few objects as possible, but
@@ -78,19 +78,19 @@ class NumericComparator implements Comparator {
       if (num2 instanceof Long) {
         return ((Long) num1).compareTo((Long) num2);
       } else {
-        long l1 = num1.longValue();
-        long l2 = num2.longValue();
+        var l1 = num1.longValue();
+        var l2 = num2.longValue();
         return l1 == l2 ? 0 : (l1 < l2 ? -1 : 1);
       }
     } else if (num2 instanceof Long) {
-      long l1 = num1.longValue();
-      long l2 = num2.longValue();
+      var l1 = num1.longValue();
+      var l2 = num2.longValue();
       return l1 == l2 ? 0 : (l1 < l2 ? -1 : 1);
     }
 
     // ints
-    int i1 = num1.intValue();
-    int i2 = num2.intValue();
+    var i1 = num1.intValue();
+    var i2 = num2.intValue();
     return i1 == i2 ? 0 : (i1 < i2 ? -1 : 1);
   }
 }

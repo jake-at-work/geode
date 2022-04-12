@@ -25,11 +25,9 @@ import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.BaseCommand;
-import org.apache.geode.internal.cache.tier.sockets.CacheServerStats;
 import org.apache.geode.internal.cache.tier.sockets.Message;
 import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
-import org.apache.geode.internal.security.AuthorizeRequest;
 import org.apache.geode.internal.security.SecurityService;
 import org.apache.geode.security.NotAuthorizedException;
 import org.apache.geode.security.ResourcePermission.Operation;
@@ -46,7 +44,7 @@ public class ContainsKey66 extends BaseCommand {
 
   private static void writeContainsKeyResponse(boolean containsKey, Message origMsg,
       ServerConnection servConn) throws IOException {
-    Message responseMsg = servConn.getResponseMessage();
+    var responseMsg = servConn.getResponseMessage();
     responseMsg.setMessageType(MessageType.RESPONSE);
     responseMsg.setNumberOfParts(1);
     responseMsg.setTransactionId(origMsg.getTransactionId());
@@ -62,11 +60,11 @@ public class ContainsKey66 extends BaseCommand {
     String regionName = null;
     Object key = null;
     ContainsKeyOp.MODE mode;
-    CacheServerStats stats = serverConnection.getCacheServerStats();
+    var stats = serverConnection.getCacheServerStats();
 
     serverConnection.setAsTrue(REQUIRES_RESPONSE);
     {
-      long oldStart = start;
+      var oldStart = start;
       start = DistributionStats.getStatTime();
       stats.incReadContainsKeyRequestTime(start - oldStart);
     }
@@ -90,7 +88,7 @@ public class ContainsKey66 extends BaseCommand {
 
     // Process the containsKey request
     if (key == null || regionName == null) {
-      String errMessage = "";
+      var errMessage = "";
       if (key == null) {
         logger.warn("{}: The input key for the containsKey request is null",
             serverConnection.getName());
@@ -107,9 +105,9 @@ public class ContainsKey66 extends BaseCommand {
       serverConnection.setAsTrue(RESPONDED);
       return;
     }
-    LocalRegion region = (LocalRegion) serverConnection.getCache().getRegion(regionName);
+    var region = (LocalRegion) serverConnection.getCache().getRegion(regionName);
     if (region == null) {
-      String reason =
+      var reason =
           "was not found during containsKey request";
       writeRegionDestroyedEx(clientMessage, regionName, reason, serverConnection);
       serverConnection.setAsTrue(RESPONDED);
@@ -124,7 +122,7 @@ public class ContainsKey66 extends BaseCommand {
       return;
     }
 
-    AuthorizeRequest authzRequest = serverConnection.getAuthzRequest();
+    var authzRequest = serverConnection.getAuthzRequest();
     if (authzRequest != null) {
       try {
         authzRequest.containsKeyAuthorize(regionName, key);
@@ -153,7 +151,7 @@ public class ContainsKey66 extends BaseCommand {
 
     // Update the statistics and write the reply
     {
-      long oldStart = start;
+      var oldStart = start;
       start = DistributionStats.getStatTime();
       stats.incProcessContainsKeyTime(start - oldStart);
     }

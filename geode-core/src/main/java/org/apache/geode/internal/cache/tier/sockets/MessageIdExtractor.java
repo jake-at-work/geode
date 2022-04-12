@@ -21,7 +21,7 @@ import org.apache.geode.security.AuthenticationRequiredException;
 public class MessageIdExtractor {
   public long getUniqueIdFromMessage(Message requestMessage, Encryptor handshake, long connectionId)
       throws AuthenticationRequiredException {
-    AuthIds aIds = getAuthIdsFromMessage(requestMessage, handshake);
+    var aIds = getAuthIdsFromMessage(requestMessage, handshake);
     if (connectionId != aIds.getConnectionId()) {
       throw new AuthenticationRequiredException(
           "No security credentials are provided");
@@ -32,7 +32,7 @@ public class MessageIdExtractor {
   private AuthIds getAuthIdsFromMessage(Message requestMessage, Encryptor handshake)
       throws AuthenticationRequiredException {
     try {
-      byte[] secureBytes = requestMessage.getSecureBytes();
+      var secureBytes = requestMessage.getSecureBytes();
       secureBytes = handshake.decryptBytes(secureBytes);
       return new AuthIds(secureBytes);
     } catch (Exception ex) {

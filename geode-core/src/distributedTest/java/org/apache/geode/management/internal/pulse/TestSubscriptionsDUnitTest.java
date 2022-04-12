@@ -33,15 +33,11 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.PoolImpl;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
-import org.apache.geode.management.DistributedSystemMXBean;
-import org.apache.geode.management.ManagementService;
 import org.apache.geode.management.ManagementTestBase;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
 import org.apache.geode.test.dunit.VM;
@@ -78,7 +74,7 @@ public class TestSubscriptionsDUnitTest extends ManagementTestBase {
     createManagementCache(managingNode);
     startManagingNode(managingNode);
 
-    int port = createServerCache(server);
+    var port = createServerCache(server);
     getMember(server);
 
     createClientCache(client, getServerHostName(server.getHost()), port);
@@ -109,20 +105,20 @@ public class TestSubscriptionsDUnitTest extends ManagementTestBase {
 
   private Cache createCache(Properties props) throws Exception {
     DistributedSystem ds = getSystem(props);
-    Cache cache = CacheFactory.create(ds);
+    var cache = CacheFactory.create(ds);
     return cache;
   }
 
   private int createServerCache(DataPolicy dataPolicy) throws Exception {
-    Cache cache = createCache(false);
+    var cache = createCache(false);
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(dataPolicy);
 
     cache.createRegion(REGION_NAME, factory.create());
 
-    CacheServer server1 = cache.addCacheServer();
+    var server1 = cache.addCacheServer();
     server1.setPort(0);
     server1.setNotifyBySubscription(true);
     server1.start();
@@ -135,23 +131,23 @@ public class TestSubscriptionsDUnitTest extends ManagementTestBase {
   }
 
   private Cache createClientCache(String host, int port1) throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
 
-    Cache cache = createCache(props);
+    var cache = createCache(props);
 
-    PoolImpl p =
+    var p =
         (PoolImpl) PoolManager.createFactory().addServer(host, port1).setSubscriptionEnabled(true)
             .setMinConnections(1).setReadTimeout(20000)
             .setPingInterval(10000).setRetryAttempts(1).setSubscriptionEnabled(true)
             .setStatisticInterval(1000).create("TestSubscriptionsDUnitTest");
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setPoolName(p.getName());
 
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME, attrs);
 
     return cache;
@@ -159,13 +155,13 @@ public class TestSubscriptionsDUnitTest extends ManagementTestBase {
 
   private void verifyNumSubscriptions(final VM vm) {
     vm.invoke("TestSubscriptionsDUnitTest Verify Cache Server Remote", () -> {
-      final GemFireCacheImpl cache = getInstance();
+      final var cache = getInstance();
 
       GeodeAwaitility.await().untilAsserted(new WaitCriterion() {
         @Override
         public boolean done() {
-          ManagementService service = getExistingManagementService(cache);
-          DistributedSystemMXBean distributedSystemMXBean = service.getDistributedSystemMXBean();
+          var service = getExistingManagementService(cache);
+          var distributedSystemMXBean = service.getDistributedSystemMXBean();
           return distributedSystemMXBean != null
               & distributedSystemMXBean.getNumSubscriptions() > 1;
         }
@@ -176,7 +172,7 @@ public class TestSubscriptionsDUnitTest extends ManagementTestBase {
         }
       });
 
-      DistributedSystemMXBean distributedSystemMXBean =
+      var distributedSystemMXBean =
           getExistingManagementService(cache).getDistributedSystemMXBean();
       assertNotNull(distributedSystemMXBean);
       assertEquals(2, distributedSystemMXBean.getNumSubscriptions());
@@ -186,7 +182,7 @@ public class TestSubscriptionsDUnitTest extends ManagementTestBase {
   private void registerInterest(final VM vm) {
     vm.invoke("TestSubscriptionsDUnitTest registerInterest", () -> {
       Cache cache = GemFireCacheImpl.getInstance();
-      Region<Object, Object> region = cache.getRegion(SEPARATOR + REGION_NAME);
+      var region = cache.getRegion(SEPARATOR + REGION_NAME);
       assertNotNull(region);
 
       region.registerInterest(KEY1);

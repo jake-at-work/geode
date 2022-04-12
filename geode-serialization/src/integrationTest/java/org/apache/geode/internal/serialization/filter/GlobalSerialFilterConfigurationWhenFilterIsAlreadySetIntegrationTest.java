@@ -28,8 +28,8 @@ public class GlobalSerialFilterConfigurationWhenFilterIsAlreadySetIntegrationTes
   @Before
   public void filterIsAlreadySet() throws InvocationTargetException, IllegalAccessException {
     ObjectInputFilterApiFactory factory = new ReflectiveObjectInputFilterApiFactory();
-    ObjectInputFilterApi api = factory.createObjectInputFilterApi();
-    Object filter = api.createFilter("*");
+    var api = factory.createObjectInputFilterApi();
+    var filter = api.createFilter("*");
     api.setSerialFilter(filter);
   }
 
@@ -38,7 +38,7 @@ public class GlobalSerialFilterConfigurationWhenFilterIsAlreadySetIntegrationTes
     FilterConfiguration configuration =
         new GlobalSerialFilterConfiguration(mock(SerializableObjectConfig.class));
 
-    Throwable thrown = catchThrowable(() -> {
+    var thrown = catchThrowable(() -> {
       configuration.configure();
     });
 

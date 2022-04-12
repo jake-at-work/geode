@@ -17,15 +17,11 @@ package org.apache.geode.management.internal.cli.commands;
 
 import static org.apache.geode.management.internal.cli.commands.DataCommandsUtils.callFunctionForRegion;
 
-import java.util.Set;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.Region;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.management.cli.CliMetaData;
@@ -60,7 +56,7 @@ public class PutCommand extends GfshCommand {
           specifiedDefaultValue = "true",
           unspecifiedDefaultValue = "false") boolean putIfNotExists) {
 
-    Cache cache = getCache();
+    var cache = getCache();
     authorize(Resource.DATA, Operation.WRITE, regionPath);
     DataCommandResult dataResult;
 
@@ -71,11 +67,11 @@ public class PutCommand extends GfshCommand {
     LogService.getLogger().info("Cache instance for put: " + cache.toString());
     @SuppressWarnings("rawtypes")
     Region region = cache.getRegion(regionPath);
-    DataCommandFunction putfn = new DataCommandFunction();
+    var putfn = new DataCommandFunction();
     if (region == null) {
-      Set<DistributedMember> memberList = findAnyMembersForRegion(regionPath);
+      var memberList = findAnyMembersForRegion(regionPath);
       if (CollectionUtils.isNotEmpty(memberList)) {
-        DataCommandRequest request = new DataCommandRequest();
+        var request = new DataCommandRequest();
         request.setCommand(CliStrings.PUT);
         request.setValue(value);
         request.setKey(key);

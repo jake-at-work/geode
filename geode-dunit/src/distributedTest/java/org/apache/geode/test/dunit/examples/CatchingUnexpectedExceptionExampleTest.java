@@ -24,10 +24,8 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import org.apache.geode.cache.AttributesFactory;
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.test.dunit.SerializableRunnable;
 import org.apache.geode.test.dunit.rules.DistributedRule;
@@ -47,9 +45,9 @@ public class CatchingUnexpectedExceptionExampleTest implements Serializable {
       @Override
       public void run() {
         try {
-          Cache cache = new CacheFactory().create();
-          RegionFactory regionFactory = cache.createRegionFactory(new AttributesFactory().create());
-          LocalRegion region = (LocalRegion) regionFactory.create("region1");
+          var cache = new CacheFactory().create();
+          var regionFactory = cache.createRegionFactory(new AttributesFactory().create());
+          var region = (LocalRegion) regionFactory.create("region1");
           assertThat(region).isNotNull();
         } catch (CacheException ex) {
           fail("While creating region", ex);
@@ -66,9 +64,9 @@ public class CatchingUnexpectedExceptionExampleTest implements Serializable {
     getVM(0).invoke(new SerializableRunnable("Create Region") {
       @Override
       public void run() {
-        Cache cache = new CacheFactory().create();
-        RegionFactory regionFactory = cache.createRegionFactory(new AttributesFactory().create());
-        LocalRegion region = (LocalRegion) regionFactory.create("region1");
+        var cache = new CacheFactory().create();
+        var regionFactory = cache.createRegionFactory(new AttributesFactory().create());
+        var region = (LocalRegion) regionFactory.create("region1");
         assertThat(region).isNotNull();
       }
     });
@@ -80,9 +78,9 @@ public class CatchingUnexpectedExceptionExampleTest implements Serializable {
   @Test
   public void createRegion_withLambda_THIS_IS_BEST() {
     getVM(0).invoke("Create Region", () -> {
-      Cache cache = new CacheFactory().create();
-      RegionFactory regionFactory = cache.createRegionFactory(new AttributesFactory().create());
-      LocalRegion region = (LocalRegion) regionFactory.create("region1");
+      var cache = new CacheFactory().create();
+      var regionFactory = cache.createRegionFactory(new AttributesFactory().create());
+      var region = (LocalRegion) regionFactory.create("region1");
       assertThat(region).isNotNull();
     });
   }

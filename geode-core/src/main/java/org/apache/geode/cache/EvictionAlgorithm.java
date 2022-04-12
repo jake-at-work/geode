@@ -117,7 +117,7 @@ public final class EvictionAlgorithm extends EnumSyntax implements Serializable 
     if (s.length() < 1) {
       return null;
     }
-    for (int i = 0; i < stringTable.length; ++i) {
+    for (var i = 0; i < stringTable.length; ++i) {
       if (s.equals(stringTable[i])) {
         return enumValueTable[i];
       }

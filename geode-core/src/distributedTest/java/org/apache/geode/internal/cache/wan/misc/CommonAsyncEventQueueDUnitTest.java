@@ -53,9 +53,9 @@ public class CommonAsyncEventQueueDUnitTest extends AsyncEventQueueTestBase {
   }
 
   public AEQFactoryTestSupplier[] getAsyncEventQueueParameters() {
-    AEQFactoryTestSupplier[] suppliers = new AEQFactoryTestSupplier[2];
+    var suppliers = new AEQFactoryTestSupplier[2];
     suppliers[0] = (Cache cache) -> {
-      AsyncEventQueueFactory serialAEQFactory = cache.createAsyncEventQueueFactory();
+      var serialAEQFactory = cache.createAsyncEventQueueFactory();
       serialAEQFactory.setPersistent(false);
       serialAEQFactory.setMaximumQueueMemory(100);
       serialAEQFactory.setParallel(false);
@@ -63,7 +63,7 @@ public class CommonAsyncEventQueueDUnitTest extends AsyncEventQueueTestBase {
     };
 
     suppliers[1] = (Cache cache) -> {
-      AsyncEventQueueFactory parallelAEQFactory = cache.createAsyncEventQueueFactory();
+      var parallelAEQFactory = cache.createAsyncEventQueueFactory();
       parallelAEQFactory.setPersistent(false);
       parallelAEQFactory.setMaximumQueueMemory(100);
       parallelAEQFactory.setParallel(true);
@@ -76,7 +76,7 @@ public class CommonAsyncEventQueueDUnitTest extends AsyncEventQueueTestBase {
   @Test
   public void testSameSenderWithNonColocatedRegions() throws Exception {
     IgnoredException.addIgnoredException("cannot have the same parallel async");
-    Integer lnPort =
+    var lnPort =
         vm0.invoke(() -> AsyncEventQueueTestBase.createFirstLocatorWithDSId(1));
     vm1.invoke(() -> AsyncEventQueueTestBase.createCache(lnPort));
     vm1.invoke(() -> AsyncEventQueueTestBase.createAsyncEventQueue("ln", true, 100, 100, false,
@@ -99,11 +99,11 @@ public class CommonAsyncEventQueueDUnitTest extends AsyncEventQueueTestBase {
   @Parameters(method = "getAsyncEventQueueParameters")
   public void whenAEQBatchBasedOnTimeOnlyThenQueueShouldNotDispatchUntilIntervalIsHit(
       final AEQFactoryTestSupplier aeqSupplier) throws Exception {
-    int batchIntervalTime = 5000;
-    int numPuts = 100;
-    String regionName = getTestMethodName() + "_PR1";
+    var batchIntervalTime = 5000;
+    var numPuts = 100;
+    var regionName = getTestMethodName() + "_PR1";
 
-    Integer lnPort =
+    var lnPort =
         vm0.invoke(() -> AsyncEventQueueTestBase.createFirstLocatorWithDSId(1));
     vm1.invoke(() -> AsyncEventQueueTestBase.createCache(lnPort));
 
@@ -111,7 +111,7 @@ public class CommonAsyncEventQueueDUnitTest extends AsyncEventQueueTestBase {
       // Clear events map in this vm
       myAsyncEventListener.getEventsMap().clear();
 
-      AsyncEventQueueFactory aeqFactory = aeqSupplier.get(cache);
+      var aeqFactory = aeqSupplier.get(cache);
       aeqFactory.setBatchSize(RegionQueue.BATCH_BASED_ON_TIME_ONLY);
       aeqFactory.setBatchTimeInterval(batchIntervalTime);
       aeqFactory.create("ln", myAsyncEventListener);
@@ -132,7 +132,7 @@ public class CommonAsyncEventQueueDUnitTest extends AsyncEventQueueTestBase {
     // more than enough
     // for a regular dispatch to have occurred
     vm1.invoke(() -> {
-      long startTime = System.currentTimeMillis();
+      var startTime = System.currentTimeMillis();
       while (System.currentTimeMillis() - startTime < batchIntervalTime - 1000) {
         assertEquals(0, myAsyncEventListener.getEventsMap().size());
       }

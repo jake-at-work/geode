@@ -15,7 +15,6 @@
 package org.apache.geode.management.internal.security;
 
 
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -26,7 +25,6 @@ import org.apache.geode.examples.SimpleSecurityManager;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.test.dunit.AsyncInvocation;
 import org.apache.geode.test.dunit.IgnoredException;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.junit.categories.SecurityTest;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
@@ -52,28 +50,28 @@ public class MultiGfshDUnitTest {
     IgnoredException.addIgnoredException("java.util.zip.ZipException: zip file is empty");
     IgnoredException
         .addIgnoredException("java.lang.IllegalStateException: WAN service is not available.");
-    int jmxPort = server.getJmxPort();
+    var jmxPort = server.getJmxPort();
 
     // set up vm_1 as a gfsh vm, data-reader will login and log out constantly in this vm until the
     // test is done.
-    VM vm1 = lsRule.getVM(1);
+    var vm1 = lsRule.getVM(1);
     vm1.invokeAsync("run as data-reader", () -> {
       while (true) {
-        GfshCommandRule gfsh = new GfshCommandRule(server::getJmxPort, PortType.jmxManager);
+        var gfsh = new GfshCommandRule(server::getJmxPort, PortType.jmxManager);
         gfsh.secureConnectAndVerify(jmxPort, PortType.jmxManager, "dataRead", "dataRead");
         gfsh.close();
       }
     });
 
-    VM vm2 = lsRule.getVM(2);
+    var vm2 = lsRule.getVM(2);
     // set up vm_2 as a gfsh vm, and then connect as "stranger" and try to execute the commands and
     // assert errors comes back are NotAuthorized
     AsyncInvocation vm2Invoke = vm2.invokeAsync("run as guest", () -> {
-      GfshCommandRule gfsh = new GfshCommandRule();
+      var gfsh = new GfshCommandRule();
       gfsh.secureConnectAndVerify(jmxPort, PortType.jmxManager, "guest", "guest");
 
-      List<TestCommand> allCommands = TestCommand.getOnlineCommands();
-      for (TestCommand command : allCommands) {
+      var allCommands = TestCommand.getOnlineCommands();
+      for (var command : allCommands) {
         LogService.getLogger().info("executing: " + command.getCommand());
         gfsh.executeAndAssertThat(command.getCommand()).statusIsError()
             .containsOutput("Unauthorized");
@@ -83,8 +81,7 @@ public class MultiGfshDUnitTest {
       LogService.getLogger().info("vm 2 done!");
     });
 
-
-    VM vm0 = lsRule.getVM(0);
+    var vm0 = lsRule.getVM(0);
     IgnoredException
         .addIgnoredException("java.lang.IllegalArgumentException: Region does not exist: RegionA",
             vm0);
@@ -92,13 +89,13 @@ public class MultiGfshDUnitTest {
 
     // set up vm_3 as another gfsh vm, and then connect as "super-user" and try to execute the
     // commands and assert we don't get a NotAuthorized Exception
-    VM vm3 = lsRule.getVM(3);
+    var vm3 = lsRule.getVM(3);
     AsyncInvocation vm3Invoke = vm3.invokeAsync("run as superUser", () -> {
-      GfshCommandRule gfsh = new GfshCommandRule();
+      var gfsh = new GfshCommandRule();
       gfsh.secureConnectAndVerify(jmxPort, PortType.jmxManager, "data,cluster", "data,cluster");
 
-      List<TestCommand> allCommands = TestCommand.getOnlineCommands();
-      for (TestCommand command : allCommands) {
+      var allCommands = TestCommand.getOnlineCommands();
+      for (var command : allCommands) {
         LogService.getLogger().info("executing: " + command.getCommand());
         gfsh.executeAndAssertThat(command.getCommand()).doesNotContainOutput("Unauthorized");
       }

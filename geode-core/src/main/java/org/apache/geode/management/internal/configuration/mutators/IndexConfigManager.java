@@ -21,7 +21,6 @@ import java.util.List;
 import org.apache.commons.lang3.NotImplementedException;
 
 import org.apache.geode.cache.configuration.CacheConfig;
-import org.apache.geode.cache.configuration.RegionConfig;
 import org.apache.geode.distributed.ConfigurationPersistenceService;
 import org.apache.geode.lang.Identifiable;
 import org.apache.geode.management.configuration.Index;
@@ -36,12 +35,12 @@ public class IndexConfigManager extends CacheConfigurationManager<Index> {
 
   @Override
   public void add(Index config, CacheConfig existing) {
-    RegionConfig regionConfig = existing.findRegionConfiguration(config.getRegionName());
+    var regionConfig = existing.findRegionConfiguration(config.getRegionName());
     if (regionConfig == null) {
       throw new IllegalArgumentException(
           "Region provided does not exist: " + config.getRegionName());
     }
-    RegionConfig.Index index = converter.fromConfigObject(config);
+    var index = converter.fromConfigObject(config);
     regionConfig.getIndexes().add(index);
   }
 
@@ -52,12 +51,12 @@ public class IndexConfigManager extends CacheConfigurationManager<Index> {
 
   @Override
   public void delete(Index config, CacheConfig existing) {
-    RegionConfig regionConfig = existing.findRegionConfiguration(config.getRegionName());
+    var regionConfig = existing.findRegionConfiguration(config.getRegionName());
     if (regionConfig == null) {
       throw new IllegalArgumentException(
           "Region provided does not exist: " + config.getRegionName());
     }
-    RegionConfig.Index index = regionConfig.getIndexes().stream()
+    var index = regionConfig.getIndexes().stream()
         .filter(item -> item.getName().equals(config.getName()))
         .findFirst()
         .orElseThrow(() -> new IllegalArgumentException("Index provided does not exist on Region: "
@@ -71,16 +70,16 @@ public class IndexConfigManager extends CacheConfigurationManager<Index> {
   @Override
   public List<Index> list(Index filterConfig, CacheConfig existing) {
     List<Index> result = new ArrayList<>();
-    for (RegionConfig region : existing.getRegions()) {
+    for (var region : existing.getRegions()) {
       if (filterConfig.getRegionName() != null
           && !region.getName().equals(filterConfig.getRegionName())) {
         continue;
       }
-      for (RegionConfig.Index index : region.getIndexes()) {
+      for (var index : region.getIndexes()) {
         if (filterConfig.getName() != null && !index.getName().equals(filterConfig.getName())) {
           continue;
         }
-        Index matchingIndex = converter.fromXmlObject(index);
+        var matchingIndex = converter.fromXmlObject(index);
         result.add(matchingIndex);
       }
     }
@@ -89,7 +88,7 @@ public class IndexConfigManager extends CacheConfigurationManager<Index> {
 
   @Override
   public Index get(Index config, CacheConfig existing) {
-    RegionConfig regionConfiguration = existing.findRegionConfiguration(config.getRegionName());
+    var regionConfiguration = existing.findRegionConfiguration(config.getRegionName());
     if (regionConfiguration == null) {
       return null;
     }

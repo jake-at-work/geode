@@ -36,7 +36,7 @@ public class SingleHopClientExecutorLoggingIntegrationTest {
 
   @Test
   public void submittedTaskShouldLogFailure() {
-    String message = "I am expecting this to be logged";
+    var message = "I am expecting this to be logged";
 
     SingleHopClientExecutor.submitTask(() -> {
       throw new RuntimeException(message);

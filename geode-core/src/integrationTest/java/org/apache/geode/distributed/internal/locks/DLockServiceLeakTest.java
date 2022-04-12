@@ -19,14 +19,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.locks.Lock;
 
 import org.junit.After;
 import org.junit.Before;
@@ -55,7 +53,7 @@ public class DLockServiceLeakTest {
 
   @Before
   public void setUp() {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(MCAST_PORT, "0");
 
     cache = new CacheFactory(properties).create();
@@ -73,10 +71,10 @@ public class DLockServiceLeakTest {
 
   @Test
   public void basicDLockUsage() throws InterruptedException, ExecutionException, TimeoutException {
-    Lock lock = testRegion.getDistributedLock("testLockName");
+    var lock = testRegion.getDistributedLock("testLockName");
     lock.lockInterruptibly();
 
-    Future<Boolean> future = executorServiceRule.submit(() -> lock.tryLock());
+    var future = executorServiceRule.submit(() -> lock.tryLock());
     assertFalse("should not be able to get lock from another thread",
         future.get(5, TimeUnit.SECONDS));
 
@@ -95,7 +93,7 @@ public class DLockServiceLeakTest {
     lock.unlock();
 
     future = executorServiceRule.submit(() -> {
-      boolean locked = lock.tryLock();
+      var locked = lock.tryLock();
       if (!locked) {
         return false;
       }
@@ -104,10 +102,10 @@ public class DLockServiceLeakTest {
     });
     assertTrue("Another thread can now take out the lock", future.get(5, TimeUnit.SECONDS));
 
-    DLockService lockService = (DLockService) testRegion.getLockService();
-    Collection<DLockToken> tokens = lockService.getTokens();
+    var lockService = (DLockService) testRegion.getLockService();
+    var tokens = lockService.getTokens();
 
-    for (DLockToken token : tokens) {
+    for (var token : tokens) {
       assertEquals(0, token.getUsageCount());
     }
   }
@@ -116,20 +114,20 @@ public class DLockServiceLeakTest {
   public void singleThreadWithCache() {
     putTestKey();
 
-    DLockService lockService = (DLockService) testRegion.getLockService();
-    Collection<DLockToken> tokens = lockService.getTokens();
+    var lockService = (DLockService) testRegion.getLockService();
+    var tokens = lockService.getTokens();
 
     assertEquals(1, tokens.size());
 
-    for (DLockToken token : tokens) {
+    for (var token : tokens) {
       assertEquals(0, token.getUsageCount());
     }
   }
 
   @Test
   public void multipleThreadsWithCache() {
-    LinkedList<Future> futures = new LinkedList<>();
-    for (int i = 0; i < 5; i++) {
+    var futures = new LinkedList<Future>();
+    for (var i = 0; i < 5; i++) {
       futures.add(executorServiceRule.submit(this::putTestKey));
     }
 
@@ -141,18 +139,18 @@ public class DLockServiceLeakTest {
       }
     });
 
-    DLockService lockService = (DLockService) testRegion.getLockService();
-    Collection<DLockToken> tokens = lockService.getTokens();
+    var lockService = (DLockService) testRegion.getLockService();
+    var tokens = lockService.getTokens();
 
     assertTrue(tokens.size() < 2);
 
-    for (DLockToken token : tokens) {
+    for (var token : tokens) {
       assertEquals(0, token.getUsageCount());
     }
   }
 
   private void putTestKey() {
-    for (int i = 0; i < 1000; i++) {
+    for (var i = 0; i < 1000; i++) {
       testRegion.put("testKey", "testValue");
     }
   }

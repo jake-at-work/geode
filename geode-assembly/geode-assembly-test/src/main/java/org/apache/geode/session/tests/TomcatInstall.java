@@ -168,7 +168,7 @@ public class TomcatInstall extends ContainerInstall {
    * listener class ({@link #getServerLifeCycleListenerClass()}) respectively
    */
   public void setupDefaultSettings() {
-    HashMap<String, String> attributes = new HashMap<>();
+    var attributes = new HashMap<String, String>();
 
     // Set the session manager class within the context XML file
     attributes.put("className", getContextSessionManagerClass());
@@ -188,7 +188,7 @@ public class TomcatInstall extends ContainerInstall {
    * ContainerInstall#connType} is client server or peer to peer.
    */
   public String getServerLifeCycleListenerClass() {
-    String className = "org.apache.geode.modules.session.catalina.";
+    var className = "org.apache.geode.modules.session.catalina.";
     switch (getConnectionType()) {
       case PEER_TO_PEER:
         className += "PeerToPeer";
@@ -277,23 +277,23 @@ public class TomcatInstall extends ContainerInstall {
    */
   private void copyTomcatGeodeReqFiles(String moduleJarDir, String extraJarsPath)
       throws IOException {
-    ArrayList<File> requiredFiles = new ArrayList<>();
+    var requiredFiles = new ArrayList<File>();
     // The library path for the current tomcat installation
-    String tomcatLibPath = getHome() + "/lib/";
+    var tomcatLibPath = getHome() + "/lib/";
 
     // List of required jars and form version regexps from them
-    String versionRegex = "-?[0-9]*.*\\.jar";
-    ArrayList<Pattern> patterns = new ArrayList<>(tomcatRequiredJars.length);
-    for (String jar : tomcatRequiredJars) {
+    var versionRegex = "-?[0-9]*.*\\.jar";
+    var patterns = new ArrayList<Pattern>(tomcatRequiredJars.length);
+    for (var jar : tomcatRequiredJars) {
       patterns.add(Pattern.compile(jar + versionRegex));
     }
 
     // Don't need to copy any jars already in the tomcat install
-    File tomcatLib = new File(tomcatLibPath);
+    var tomcatLib = new File(tomcatLibPath);
 
     // Find all jars in the tomcatModulePath and add them as required jars
     try {
-      for (File file : (new File(moduleJarDir)).listFiles()) {
+      for (var file : (new File(moduleJarDir)).listFiles()) {
         if (file.isFile() && file.getName().endsWith(".jar")) {
           requiredFiles.add(file);
         }
@@ -305,8 +305,8 @@ public class TomcatInstall extends ContainerInstall {
 
     // Find all the required jars in the extraJarsPath
     try {
-      for (File file : (new File(extraJarsPath)).listFiles()) {
-        for (Pattern pattern : patterns) {
+      for (var file : (new File(extraJarsPath)).listFiles()) {
+        for (var pattern : patterns) {
           if (pattern.matcher(file.getName()).find()) {
             requiredFiles.add(file);
             break;
@@ -318,7 +318,7 @@ public class TomcatInstall extends ContainerInstall {
     }
 
     // Copy the required jars to the given tomcat lib folder
-    for (File file : requiredFiles) {
+    for (var file : requiredFiles) {
       Files.copy(file.toPath(), tomcatLib.toPath().resolve(file.toPath().getFileName()),
           StandardCopyOption.REPLACE_EXISTING);
       logger.debug("Copied required jar from " + file.toPath() + " to "
@@ -332,9 +332,9 @@ public class TomcatInstall extends ContainerInstall {
    * Update the tomcat installation property file using {@link #editPropertyFile)}
    */
   private void updateProperties() throws Exception {
-    String jarsToSkip = "";
+    var jarsToSkip = "";
     // Adds all the required jars as jars to skip when starting Tomcat
-    for (String jarName : tomcatRequiredJars) {
+    for (var jarName : tomcatRequiredJars) {
       jarsToSkip += "," + jarName + "*.jar";
     }
 

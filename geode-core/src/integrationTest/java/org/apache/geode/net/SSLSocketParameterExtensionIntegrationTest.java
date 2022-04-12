@@ -33,7 +33,6 @@ import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -100,13 +99,13 @@ public class SSLSocketParameterExtensionIntegrationTest {
   public void setUp() throws Exception {
     IgnoredException.addIgnoredException("javax.net.ssl.SSLException: Read timed out");
 
-    File keystore = findTestKeystore();
+    var keystore = findTestKeystore();
     System.setProperty("javax.net.ssl.trustStore", keystore.getCanonicalPath());
     System.setProperty("javax.net.ssl.trustStorePassword", "password");
     System.setProperty("javax.net.ssl.keyStore", keystore.getCanonicalPath());
     System.setProperty("javax.net.ssl.keyStorePassword", "password");
 
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(MCAST_PORT, "0");
     properties.setProperty(CLUSTER_SSL_ENABLED, "true");
     properties.setProperty(CLUSTER_SSL_REQUIRE_AUTHENTICATION, "true");
@@ -145,20 +144,20 @@ public class SSLSocketParameterExtensionIntegrationTest {
     serverSocket = socketCreator.forCluster().createServerSocket(0, 0, localHost);
     serverThread = startServer(serverSocket, 15000);
 
-    int serverPort = serverSocket.getLocalPort();
+    var serverPort = serverSocket.getLocalPort();
     clientSocket = socketCreator.forCluster()
         .connect(new HostAndPort(localHost.getHostAddress(), serverPort));
 
-    SSLSocket sslSocket = (SSLSocket) clientSocket;
+    var sslSocket = (SSLSocket) clientSocket;
 
     List<SNIServerName> serverNames = new ArrayList<>(1);
-    SNIHostName serverName = new SNIHostName("11");
+    var serverName = new SNIHostName("11");
     serverNames.add(serverName);
 
     assertThat(sslSocket.getSSLParameters().getServerNames()).isEqualTo(serverNames);
 
     // transmit expected string from Client to Server
-    ObjectOutputStream output = new ObjectOutputStream(clientSocket.getOutputStream());
+    var output = new ObjectOutputStream(clientSocket.getOutputStream());
     output.writeObject(MESSAGE);
     output.flush();
 
@@ -175,24 +174,24 @@ public class SSLSocketParameterExtensionIntegrationTest {
   }
 
   public File copyKeystoreResourceToFile(final String name) throws IOException {
-    URL resource = getClass().getResource(name);
+    var resource = getClass().getResource(name);
     assertThat(resource).isNotNull();
 
-    File file = temporaryFolder.newFile(name.replaceFirst(".*/", ""));
+    var file = temporaryFolder.newFile(name.replaceFirst(".*/", ""));
     FileUtils.copyURLToFile(resource, file);
     return file;
   }
 
   private Thread startServer(final ServerSocket serverSocket, int timeoutMillis) throws Exception {
-    Thread serverThread = new Thread(new MyThreadGroup(testName.getMethodName()), () -> {
+    var serverThread = new Thread(new MyThreadGroup(testName.getMethodName()), () -> {
       try {
-        Socket socket = serverSocket.accept();
+        var socket = serverSocket.accept();
         SocketCreatorFactory.getSocketCreatorForComponent(CLUSTER).forCluster()
             .handshakeIfSocketIsSSL(socket,
                 timeoutMillis);
         assertThat(socket.getSoTimeout()).isEqualTo(0);
 
-        ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+        var ois = new ObjectInputStream(socket.getInputStream());
         messageFromClient.set((String) ois.readObject());
       } catch (Throwable throwable) {
         serverException = throwable;
@@ -226,7 +225,7 @@ public class SSLSocketParameterExtensionIntegrationTest {
     @Override
     public SSLParameters modifySSLClientSocketParameters(SSLParameters parameters) {
       List<SNIServerName> serverNames = new ArrayList<>(1);
-      SNIHostName serverName =
+      var serverName =
           new SNIHostName(String.valueOf(context.getDistributedSystemId()));
       serverNames.add(serverName);
       parameters.setServerNames(serverNames);
@@ -236,7 +235,7 @@ public class SSLSocketParameterExtensionIntegrationTest {
     @Override
     public SSLParameters modifySSLServerSocketParameters(SSLParameters parameters) {
       List<SNIServerName> serverNames = new ArrayList<>(1);
-      SNIHostName serverName = new SNIHostName("server");
+      var serverName = new SNIHostName("server");
       serverNames.add(serverName);
       parameters.setServerNames(serverNames);
       return parameters;

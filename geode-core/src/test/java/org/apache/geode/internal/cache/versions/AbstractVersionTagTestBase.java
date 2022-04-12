@@ -42,7 +42,6 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import org.apache.geode.internal.InternalDataSerializer;
-import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.KnownVersion;
 import org.apache.geode.internal.serialization.VersionedDataInputStream;
 import org.apache.geode.internal.tcp.ByteBufferInputStream;
@@ -76,13 +75,13 @@ public abstract class AbstractVersionTagTestBase {
 
   @Test
   public void testConcurrentCanonicalizationOfIDsAndSerialization() throws IOException {
-    VersionTag spy = spy(vt);
-    DataOutput dataOutput = mock(DataOutput.class);
+    var spy = spy(vt);
+    var dataOutput = mock(DataOutput.class);
     spy.setMemberID(createMemberID());
     spy.setPreviousMemberID(createMemberID());
     final short[] flags = {0};
 
-    Answer myAnswer = new Answer() {
+    var myAnswer = new Answer() {
       boolean firstInvocation = true;
 
       @Override
@@ -111,13 +110,13 @@ public abstract class AbstractVersionTagTestBase {
 
   @Test
   public void testSerializationWritesNoMemberID() throws IOException {
-    VersionTag spy = spy(vt);
-    DataOutput dataOutput = mock(DataOutput.class);
+    var spy = spy(vt);
+    var dataOutput = mock(DataOutput.class);
     spy.setMemberID(createMemberID());
     spy.setPreviousMemberID(createMemberID());
     final short[] flags = {0};
 
-    Answer myAnswer = new Answer() {
+    var myAnswer = new Answer() {
       boolean firstInvocation = true;
 
       @Override
@@ -145,8 +144,8 @@ public abstract class AbstractVersionTagTestBase {
   @Test
   public void testBufferUnderflowFromOldVersionIsIgnored()
       throws IOException, ClassNotFoundException {
-    ByteArrayOutputStream outputStream = new ByteArrayOutputStream(1000);
-    DataOutputStream out = new DataOutputStream(outputStream);
+    var outputStream = new ByteArrayOutputStream(1000);
+    var out = new DataOutputStream(outputStream);
     short flags =
         VersionTag.HAS_MEMBER_ID | VersionTag.HAS_PREVIOUS_MEMBER_ID | VersionTag.VERSION_TWO_BYTES;
     out.writeShort(flags);
@@ -155,16 +154,16 @@ public abstract class AbstractVersionTagTestBase {
     out.writeShort(12345);
     out.writeInt(12345);
     InternalDataSerializer.writeUnsignedVL(1L, out);
-    VersionSource memberID = createMemberID();
+    var memberID = createMemberID();
     vt.writeMember(memberID, out);
     out.flush();
 
-    ByteBufferInputStream inputStream =
+    var inputStream =
         new ByteBufferInputStream(ByteBuffer.wrap(outputStream.toByteArray()));
-    DataInputStream in = new DataInputStream(inputStream);
-    VersionedDataInputStream versionedDataInputStream =
+    var in = new DataInputStream(inputStream);
+    var versionedDataInputStream =
         new VersionedDataInputStream(in, KnownVersion.GEODE_1_10_0);
-    DeserializationContext context =
+    var context =
         InternalDataSerializer.createDeserializationContext(versionedDataInputStream);
 
     // deserializing a version tag that's missing the "previous member id" should work for messages
@@ -174,8 +173,8 @@ public abstract class AbstractVersionTagTestBase {
     assertThat(vt.getMemberID()).isEqualTo(memberID);
 
     inputStream.position(0);
-    final DataInputStream unversionedInputStream = new DataInputStream(inputStream);
-    final DeserializationContext unversionedContext =
+    final var unversionedInputStream = new DataInputStream(inputStream);
+    final var unversionedContext =
         InternalDataSerializer.createDeserializationContext(in);
     vt = createVersionTag();
     assertThatThrownBy(() -> vt.fromData(unversionedInputStream, unversionedContext))

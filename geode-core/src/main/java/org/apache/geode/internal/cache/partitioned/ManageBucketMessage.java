@@ -39,7 +39,6 @@ import org.apache.geode.internal.InternalDataSerializer;
 import org.apache.geode.internal.cache.ForceReattemptException;
 import org.apache.geode.internal.cache.Node;
 import org.apache.geode.internal.cache.PartitionedRegion;
-import org.apache.geode.internal.cache.PartitionedRegionDataStore;
 import org.apache.geode.internal.logging.log4j.LogMarker;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
@@ -101,8 +100,8 @@ public class ManageBucketMessage extends PartitionMessage {
   public static NodeResponse send(InternalDistributedMember recipient, PartitionedRegion r,
       int bucketId, int bucketSize, boolean forceCreation) throws ForceReattemptException {
     Assert.assertTrue(recipient != null, "ManageBucketMessage NULL recipient");
-    NodeResponse p = new NodeResponse(r.getSystem(), recipient);
-    ManageBucketMessage m =
+    var p = new NodeResponse(r.getSystem(), recipient);
+    var m =
         new ManageBucketMessage(recipient, r.getPRId(), p, bucketId, bucketSize, forceCreation);
     m.setTransactionDistributed(r.getCache().getTxManager().isDistributed());
 
@@ -141,8 +140,8 @@ public class ManageBucketMessage extends PartitionMessage {
 
     r.checkReadiness(); // Don't allow closed PartitionedRegions that have datastores to host
                         // buckets
-    PartitionedRegionDataStore prDs = r.getDataStore();
-    boolean managingBucket = prDs.handleManageBucketRequest(bucketId, bucketSize,
+    var prDs = r.getDataStore();
+    var managingBucket = prDs.handleManageBucketRequest(bucketId, bucketSize,
         sender, forceCreation);
     r.getPrStats().endPartitionMessagesProcessing(startTime);
     if (managingBucket) {
@@ -250,7 +249,7 @@ public class ManageBucketMessage extends PartitionMessage {
     public static void sendRefusal(InternalDistributedMember recipient, int processorId,
         DistributionManager dm) {
       Assert.assertTrue(recipient != null, "ManageBucketReplyMessage NULL reply message");
-      ManageBucketReplyMessage m = new ManageBucketReplyMessage(processorId, false, false);
+      var m = new ManageBucketReplyMessage(processorId, false, false);
       m.setRecipient(recipient);
       dm.putOutgoing(m);
     }
@@ -264,7 +263,7 @@ public class ManageBucketMessage extends PartitionMessage {
      */
     public static void sendStillInitializing(InternalDistributedMember recipient, int processorId,
         DistributionManager dm) {
-      ManageBucketReplyMessage m = new ManageBucketReplyMessage(processorId, false, true);
+      var m = new ManageBucketReplyMessage(processorId, false, true);
       m.setRecipient(recipient);
       dm.putOutgoing(m);
     }
@@ -279,7 +278,7 @@ public class ManageBucketMessage extends PartitionMessage {
     public static void sendAcceptance(InternalDistributedMember recipient, int processorId,
         DistributionManager dm) {
       Assert.assertTrue(recipient != null, "ManageBucketReplyMessage NULL reply message");
-      ManageBucketReplyMessage m = new ManageBucketReplyMessage(processorId, true, false);
+      var m = new ManageBucketReplyMessage(processorId, true, false);
       m.setRecipient(recipient);
       dm.putOutgoing(m);
     }
@@ -291,7 +290,7 @@ public class ManageBucketMessage extends PartitionMessage {
      */
     @Override
     public void process(final DistributionManager dm, final ReplyProcessor21 processor) {
-      final long startTime = getTimestamp();
+      final var startTime = getTimestamp();
       if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
         logger.trace(LogMarker.DM_VERBOSE,
             "ManageBucketReplyMessage process invoking reply processor with processorId: {}",
@@ -361,7 +360,7 @@ public class ManageBucketMessage extends PartitionMessage {
     public void process(DistributionMessage msg) {
       try {
         if (msg instanceof ManageBucketReplyMessage) {
-          ManageBucketReplyMessage reply = (ManageBucketReplyMessage) msg;
+          var reply = (ManageBucketReplyMessage) msg;
           this.msg = reply;
           if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
             logger.trace(LogMarker.DM_VERBOSE, "NodeResponse return value is {} isInitializing {}",
@@ -388,7 +387,7 @@ public class ManageBucketMessage extends PartitionMessage {
       try {
         waitForRepliesUninterruptibly();
       } catch (ReplyException e) {
-        Throwable t = e.getCause();
+        var t = e.getCause();
         if (t instanceof CancelException) {
           logger.debug(
               "NodeResponse got remote cancellation, throwing PartitionedRegionCommunication Exception. {}",
@@ -409,7 +408,7 @@ public class ManageBucketMessage extends PartitionMessage {
           throw (PartitionOfflineException) t;
         }
         if (t instanceof ForceReattemptException) {
-          String msg =
+          var msg =
               "NodeResponse got ForceReattemptException due to local destroy on the PartitionRegion.";
           logger.debug(msg, t);
           throw (ForceReattemptException) t;

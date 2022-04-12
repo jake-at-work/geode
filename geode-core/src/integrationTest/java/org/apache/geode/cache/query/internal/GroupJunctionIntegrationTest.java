@@ -34,9 +34,7 @@ import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.test.junit.categories.OQLQueryTest;
@@ -95,7 +93,7 @@ public class GroupJunctionIntegrationTest {
   }
 
   private void setUpRegionAndIndexes(RegionShortcut regionShortcut, List<String> indexedFields) {
-    Region<String, TestObject> region = server.getCache()
+    var region = server.getCache()
         .<String, TestObject>createRegionFactory(regionShortcut).create(REGION_NAME);
     indexedFields.forEach(fieldName -> {
       try {
@@ -106,8 +104,8 @@ public class GroupJunctionIntegrationTest {
     });
 
     IntStream.range(0, ENTRIES).forEach(value -> {
-      String stringValue = "string_" + value;
-      TestObject testObject = new TestObject(stringValue, stringValue, stringValue, stringValue);
+      var stringValue = "string_" + value;
+      var testObject = new TestObject(stringValue, stringValue, stringValue, stringValue);
       region.put(String.valueOf(value), testObject);
     });
   }
@@ -117,9 +115,9 @@ public class GroupJunctionIntegrationTest {
   public void equiJoinWithBothFieldsRangeIndexedAndOtherFilterOnSingleRegionShouldReturnCorrectResults(
       RegionShortcut regionShortcut, String queryString) throws Exception {
     setUpRegionAndIndexes(regionShortcut, Arrays.asList("code", "utilityCode"));
-    Query queryObject = queryService.newQuery(queryString);
+    var queryObject = queryService.newQuery(queryString);
 
-    SelectResults<?> results = (SelectResults<?>) queryObject.execute();
+    var results = (SelectResults<?>) queryObject.execute();
     assertThat(results).isNotNull();
     assertThat(results.size()).isEqualTo(ENTRIES);
   }
@@ -130,9 +128,9 @@ public class GroupJunctionIntegrationTest {
       RegionShortcut regionShortcut, String queryString) throws Exception {
     setUpRegionAndIndexes(regionShortcut,
         Arrays.asList("code", "utilityCode", "functionalCode", "managementCode"));
-    Query queryObject = queryService.newQuery(queryString);
+    var queryObject = queryService.newQuery(queryString);
 
-    SelectResults<?> results = (SelectResults<?>) queryObject.execute();
+    var results = (SelectResults<?>) queryObject.execute();
     assertThat(results).isNotNull();
     assertThat(results.size()).isEqualTo(ENTRIES);
   }

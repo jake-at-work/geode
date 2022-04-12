@@ -78,8 +78,8 @@ public class RemoteInvalidateMessage extends RemoteDestroyMessage {
 
   @SuppressWarnings("unchecked")
   public static boolean distribute(EntryEventImpl event, boolean onlyPersistent) {
-    boolean successful = false;
-    DistributedRegion r = (DistributedRegion) event.getRegion();
+    var successful = false;
+    var r = (DistributedRegion) event.getRegion();
     Collection<InternalDistributedMember> replicates = onlyPersistent
         ? r.getCacheDistributionAdvisor().adviseInitializedPersistentMembers().keySet()
         : r.getCacheDistributionAdvisor().adviseInitializedReplicates();
@@ -87,18 +87,18 @@ public class RemoteInvalidateMessage extends RemoteDestroyMessage {
       return false;
     }
     if (replicates.size() > 1) {
-      ArrayList<InternalDistributedMember> l = new ArrayList<>(replicates);
+      var l = new ArrayList<InternalDistributedMember>(replicates);
       Collections.shuffle(l);
       replicates = l;
     }
-    int attempts = 0;
-    for (InternalDistributedMember replicate : replicates) {
+    var attempts = 0;
+    for (var replicate : replicates) {
       try {
         attempts++;
-        final boolean posDup = (attempts > 1);
-        InvalidateResponse processor = send(replicate, event.getRegion(), event, false, posDup);
+        final var posDup = (attempts > 1);
+        var processor = send(replicate, event.getRegion(), event, false, posDup);
         processor.waitForRemoteResponse();
-        VersionTag<?> versionTag = processor.getVersionTag();
+        var versionTag = processor.getVersionTag();
         if (versionTag != null) {
           event.setVersionTag(versionTag);
           if (event.getRegion().getVersionVector() != null) {
@@ -149,8 +149,8 @@ public class RemoteInvalidateMessage extends RemoteDestroyMessage {
   public static InvalidateResponse send(DistributedMember recipient, InternalRegion r,
       EntryEventImpl event, boolean useOriginRemote, boolean possibleDuplicate)
       throws RemoteOperationException {
-    InvalidateResponse p = new InvalidateResponse(r.getSystem(), recipient, event.getKey());
-    RemoteInvalidateMessage m = new RemoteInvalidateMessage(recipient, r.getFullPath(), p, event,
+    var p = new InvalidateResponse(r.getSystem(), recipient, event.getKey());
+    var m = new RemoteInvalidateMessage(recipient, r.getFullPath(), p, event,
         useOriginRemote, possibleDuplicate);
     Set<?> failures = r.getDistributionManager().putOutgoing(m);
     if (failures != null && failures.size() > 0) {
@@ -169,13 +169,13 @@ public class RemoteInvalidateMessage extends RemoteDestroyMessage {
   protected boolean operateOnRegion(ClusterDistributionManager dm, LocalRegion r, long startTime)
       throws EntryExistsException, RemoteOperationException {
 
-    InternalDistributedMember eventSender = originalSender;
+    var eventSender = originalSender;
     if (eventSender == null) {
       eventSender = getSender();
     }
-    final Object key = getKey();
+    final var key = getKey();
     @Released
-    final EntryEventImpl event = EntryEventImpl.create(r, getOperation(), key, null, /* newValue */
+    final var event = EntryEventImpl.create(r, getOperation(), key, null, /* newValue */
         getCallbackArg(),
         useOriginRemote/* originRemote - false to force distribution in buckets */,
         eventSender, true/* generateCallbacks */, false/* initializeId */);
@@ -196,7 +196,7 @@ public class RemoteInvalidateMessage extends RemoteDestroyMessage {
       event.setPossibleDuplicate(possibleDuplicate);
 
       // for cqs, which needs old value based on old value being sent on wire.
-      boolean eventShouldHaveOldValue = getHasOldValue();
+      var eventShouldHaveOldValue = getHasOldValue();
       if (eventShouldHaveOldValue) {
         if (getOldValueIsSerialized()) {
           event.setSerializedOldValue(getOldValueBytes());
@@ -204,7 +204,7 @@ public class RemoteInvalidateMessage extends RemoteDestroyMessage {
           event.setOldValue(getOldValueBytes());
         }
       }
-      boolean sendReply = true;
+      var sendReply = true;
       try {
         r.checkReadiness();
         r.checkForLimitedOrNoAccess();
@@ -269,7 +269,7 @@ public class RemoteInvalidateMessage extends RemoteDestroyMessage {
     public static void send(InternalDistributedMember recipient, int processorId,
         ReplySender replySender, VersionTag<?> versionTag, ReplyException ex) {
       Assert.assertTrue(recipient != null, "InvalidateReplyMessage NULL reply message");
-      InvalidateReplyMessage m = new InvalidateReplyMessage(processorId, versionTag, ex);
+      var m = new InvalidateReplyMessage(processorId, versionTag, ex);
       m.setRecipient(recipient);
       replySender.putOutgoing(m);
     }
@@ -281,7 +281,7 @@ public class RemoteInvalidateMessage extends RemoteDestroyMessage {
      */
     @Override
     public void process(final DistributionManager dm, final ReplyProcessor21 rp) {
-      final long startTime = getTimestamp();
+      final var startTime = getTimestamp();
       if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
         logger.trace(LogMarker.DM_VERBOSE,
             "InvalidateReplyMessage process invoking reply processor with processorId:{}",
@@ -298,7 +298,7 @@ public class RemoteInvalidateMessage extends RemoteDestroyMessage {
         versionTag.replaceNullIDs(getSender());
       }
       if (rp instanceof InvalidateResponse) {
-        InvalidateResponse processor = (InvalidateResponse) rp;
+        var processor = (InvalidateResponse) rp;
         processor.setResponse(versionTag);
       }
       rp.process(this);
@@ -336,9 +336,9 @@ public class RemoteInvalidateMessage extends RemoteDestroyMessage {
     public void fromData(DataInput in,
         DeserializationContext context) throws IOException, ClassNotFoundException {
       super.fromData(in, context);
-      byte b = in.readByte();
-      boolean hasTag = (b & HAS_VERSION) != 0;
-      boolean persistentTag = (b & PERSISTENT) != 0;
+      var b = in.readByte();
+      var hasTag = (b & HAS_VERSION) != 0;
+      var persistentTag = (b & PERSISTENT) != 0;
       if (hasTag) {
         versionTag = VersionTag.create(persistentTag, in);
       }
@@ -346,7 +346,7 @@ public class RemoteInvalidateMessage extends RemoteDestroyMessage {
 
     @Override
     public String toString() {
-      StringBuilder sb = new StringBuilder();
+      var sb = new StringBuilder();
       sb.append("InvalidateReplyMessage ").append("processorid=").append(processorId)
           .append(" exception=").append(getException());
       if (versionTag != null) {

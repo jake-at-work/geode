@@ -29,7 +29,6 @@ import org.apache.geode.cache.query.NameNotFoundException;
 import org.apache.geode.cache.query.NameResolutionException;
 import org.apache.geode.cache.query.QueryInvocationTargetException;
 import org.apache.geode.cache.query.internal.types.TypeUtils;
-import org.apache.geode.cache.query.security.MethodInvocationAuthorizer;
 import org.apache.geode.security.NotAuthorizedException;
 
 /**
@@ -55,10 +54,10 @@ public class MethodDispatch {
 
   public Object invoke(Object target, List args, ExecutionContext executionContext)
       throws NameNotFoundException, QueryInvocationTargetException {
-    Object[] argsArray = args.toArray();
+    var argsArray = args.toArray();
 
     try {
-      MethodInvocationAuthorizer authorizer = executionContext.getMethodInvocationAuthorizer();
+      var authorizer = executionContext.getMethodInvocationAuthorizer();
 
       // CQs are generally executed on individual events, so caching is just an overhead.
       if (executionContext.isCqQueryContext()) {
@@ -68,7 +67,7 @@ public class MethodDispatch {
       } else {
         // Try to use cached result so authorizer gets invoked only once per query.
         boolean authorizationResult;
-        Boolean cachedResult = (Boolean) executionContext.cacheGet(_method);
+        var cachedResult = (Boolean) executionContext.cacheGet(_method);
 
         if (cachedResult != null) {
           // Use cached result.
@@ -93,7 +92,7 @@ public class MethodDispatch {
     } catch (InvocationTargetException e) {
       // if targetException is Exception, wrap it, otherwise wrap the InvocationTargetException
       // itself
-      Throwable t = e.getTargetException();
+      var t = e.getTargetException();
       if (t instanceof Exception) {
         throw new QueryInvocationTargetException(t);
       }
@@ -105,7 +104,7 @@ public class MethodDispatch {
     // if argTypes contains a null, then go directly to resolveGeneral(),
     // otherwise try to resolve on the specific types first
     // (a null type gets passed in if the runtime value of the arg is null)
-    for (final Class argType : _argTypes) {
+    for (final var argType : _argTypes) {
       if (argType == null) {
         resolveGeneral();
         return;
@@ -121,10 +120,10 @@ public class MethodDispatch {
   }
 
   private void resolveGeneral() throws NameResolutionException {
-    Method[] allMethods = _targetClass.getMethods();
+    var allMethods = _targetClass.getMethods();
     // keep only ones whose method names match and have the same number of args
     List<Method> candidates = new ArrayList<>();
-    for (Method meth : allMethods) {
+    for (var meth : allMethods) {
       /*
        * if (Modifier.isStatic(meth.getModifiers())) continue;
        */
@@ -158,8 +157,8 @@ public class MethodDispatch {
     sortByDecreasingSpecificity(candidates);
     // get the first two methods in the sorted list,
     // if they are equally specific, then throw AmbiguousMethodException
-    Method meth1 = candidates.get(0);
-    Method meth2 = candidates.get(1);
+    var meth1 = candidates.get(0);
+    var meth2 = candidates.get(1);
     // if meth1 cannot be type-converted to meth2, then meth1 is not more
     // specific than meth2 and the invocation is ambiguous.
     // special case a null argument type in this case, since there should
@@ -177,14 +176,14 @@ public class MethodDispatch {
 
   private void sortByDecreasingSpecificity(List methods) {
     Collections.sort(methods, (Comparator) (o1, o2) -> {
-      Method m1 = (Method) o1;
-      Method m2 = (Method) o2;
+      var m1 = (Method) o1;
+      var m2 = (Method) o2;
       if (m1.equals(m2)) {
         return 0;
       }
 
-      boolean convertible1 = methodConvertible(m1, m2);
-      boolean convertible2 = methodConvertible(m2, m1);
+      var convertible1 = methodConvertible(m1, m2);
+      var convertible2 = methodConvertible(m2, m1);
       // check to see if they are convertible both ways or neither way
       if (convertible1 == convertible2) {
         return 0;
@@ -194,13 +193,13 @@ public class MethodDispatch {
   }
 
   private boolean methodConvertible(Method m1, Method m2) {
-    boolean declaringClassesConvertible =
+    var declaringClassesConvertible =
         TypeUtils.isTypeConvertible(m1.getDeclaringClass(), m2.getDeclaringClass());
 
-    boolean paramsConvertible = true;
+    var paramsConvertible = true;
     Class[] p1 = m1.getParameterTypes();
     Class[] p2 = m2.getParameterTypes();
-    for (int i = 0; i < p1.length; i++) {
+    for (var i = 0; i < p1.length; i++) {
       if (!TypeUtils.isTypeConvertible(p1[i], p2[i])) {
         paramsConvertible = false;
         break;
@@ -221,7 +220,7 @@ public class MethodDispatch {
     // answer false, otherwise true.
     Class[] p1 = m1.getParameterTypes();
     Class[] p2 = m2.getParameterTypes();
-    for (int i = 0; i < p1.length; i++) {
+    for (var i = 0; i < p1.length; i++) {
       // assumes m1 is <= m2 in specificity
       if (argTypes[i] != null && p1[i] != p2[i] && TypeUtils.isTypeConvertible(p1[i], p2[i])) {
         return false;

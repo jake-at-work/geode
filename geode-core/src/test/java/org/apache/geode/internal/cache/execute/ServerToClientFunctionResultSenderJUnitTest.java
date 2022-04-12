@@ -45,13 +45,13 @@ public class ServerToClientFunctionResultSenderJUnitTest {
   ServerConnection serverConnection;
 
   protected ServerToClientFunctionResultSender getResultSender() {
-    ChunkedMessage msg = mock(ChunkedMessage.class);
+    var msg = mock(ChunkedMessage.class);
     serverConnection = mock(ServerConnection.class);
-    Function function = mock(Function.class);
-    ExecuteFunctionOperationContext executeFunctionOperationContext =
+    var function = mock(Function.class);
+    var executeFunctionOperationContext =
         mock(ExecuteFunctionOperationContext.class);
     // sc.getAcceptor().isSelector();
-    AcceptorImpl acceptor = mock(AcceptorImpl.class);
+    var acceptor = mock(AcceptorImpl.class);
     when(serverConnection.getAcceptor()).thenReturn(acceptor);
     when(acceptor.isSelector()).thenReturn(true);
     when(acceptor.isRunning()).thenReturn(true);
@@ -62,11 +62,11 @@ public class ServerToClientFunctionResultSenderJUnitTest {
 
   @Test
   public void whenLastResultReceivedIsSetThenLastResultMustReturnImmediately() throws IOException {
-    ServerToClientFunctionResultSender resultSender = getResultSender();
+    var resultSender = getResultSender();
     resultSender.lastResultReceived = true;
 
-    Object object = mock(Object.class);
-    DistributedMember memberId = mock(DistributedMember.class);
+    var object = mock(Object.class);
+    var memberId = mock(DistributedMember.class);
     resultSender.lastResult(object, memberId);
     verify(serverConnection, times(0)).getPostAuthzRequest();
 
@@ -78,17 +78,17 @@ public class ServerToClientFunctionResultSenderJUnitTest {
 
   @Test
   public void whenExceptionOccursThenLastResultReceivedMustNotBeSet() throws Exception {
-    ServerToClientFunctionResultSender resultSender = getResultSender();
+    var resultSender = getResultSender();
     resultSender.ids = mock(InternalDistributedSystem.class);
     when(resultSender.ids.isDisconnecting()).thenReturn(false);
-    Object object = mock(Object.class);
+    var object = mock(Object.class);
     resultSender.lastResultReceived = false;
-    DistributedMember distributedMember = mock(DistributedMember.class);
+    var distributedMember = mock(DistributedMember.class);
     when(serverConnection.getPostAuthzRequest())
         .thenThrow(new NotAuthorizedException("Should catch this exception"));
-    CachedRegionHelper cachedRegionHelper = mock(CachedRegionHelper.class);
+    var cachedRegionHelper = mock(CachedRegionHelper.class);
     when(serverConnection.getCachedRegionHelper()).thenReturn(cachedRegionHelper);
-    InternalCache cache = mock(InternalCache.class);
+    var cache = mock(InternalCache.class);
     when(cachedRegionHelper.getCache()).thenReturn(cache);
     when(cache.isClosed()).thenReturn(false);
     expectedException.expect(NotAuthorizedException.class);
@@ -101,11 +101,11 @@ public class ServerToClientFunctionResultSenderJUnitTest {
 
   @Test
   public void whenLastResultReceivedIsSetThenSendResultMustReturnImmediately() throws IOException {
-    ServerToClientFunctionResultSender resultSender = getResultSender();
+    var resultSender = getResultSender();
     resultSender.lastResultReceived = true;
 
-    Object object = mock(Object.class);
-    DistributedMember memberId = mock(DistributedMember.class);
+    var object = mock(Object.class);
+    var memberId = mock(DistributedMember.class);
     resultSender.sendResult(object, memberId);
     verify(serverConnection, times(0)).getPostAuthzRequest();
 

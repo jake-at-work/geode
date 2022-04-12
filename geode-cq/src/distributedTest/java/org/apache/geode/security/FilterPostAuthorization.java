@@ -19,7 +19,6 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.geode.DataSerializable;
@@ -35,7 +34,6 @@ import org.apache.geode.cache.operations.QueryOperationContext;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.internal.CqEntry;
 import org.apache.geode.cache.query.internal.ResultsCollectionWrapper;
-import org.apache.geode.cache.query.types.ObjectType;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.internal.HeapDataOutputStream;
 import org.apache.geode.internal.serialization.KnownVersion;
@@ -86,8 +84,8 @@ public class FilterPostAuthorization implements AccessControl {
     if (!isObject) {
       return null;
     }
-    ByteArrayInputStream bis = new ByteArrayInputStream(serializedObj);
-    DataInputStream dis = new DataInputStream(bis);
+    var bis = new ByteArrayInputStream(serializedObj);
+    var dis = new DataInputStream(bis);
     Object obj;
     try {
       obj = DataSerializer.readObject(dis);
@@ -103,7 +101,7 @@ public class FilterPostAuthorization implements AccessControl {
     }
     obj = checkObjectAuth(obj);
     if (obj != null) {
-      HeapDataOutputStream hos =
+      var hos =
           new HeapDataOutputStream(serializedObj.length + 32, KnownVersion.CURRENT);
       try {
         DataSerializer.writeObject(obj, hos);
@@ -118,16 +116,16 @@ public class FilterPostAuthorization implements AccessControl {
   }
 
   private Object checkObjectAuth(Object value) {
-    Object obj = value;
+    var obj = value;
     if (value instanceof CqEntry) {
       obj = ((CqEntry) value).getValue();
     }
 
     if (obj instanceof ObjectWithAuthz) {
-      int lastChar = principalName.charAt(principalName.length() - 1) - '0';
+      var lastChar = principalName.charAt(principalName.length() - 1) - '0';
       lastChar %= 10;
-      ObjectWithAuthz authzObj = (ObjectWithAuthz) obj;
-      int authzIndex = (Integer) authzObj.getAuthz() - '0';
+      var authzObj = (ObjectWithAuthz) obj;
+      var authzIndex = (Integer) authzObj.getAuthz() - '0';
       authzIndex %= 10;
       if ((lastChar == 0) || (authzIndex % lastChar != 0)) {
         logger.warning(
@@ -156,27 +154,27 @@ public class FilterPostAuthorization implements AccessControl {
   @Override
   public boolean authorizeOperation(String regionName, OperationContext context) {
     assert context.isPostOperation();
-    OperationCode opCode = context.getOperationCode();
+    var opCode = context.getOperationCode();
     if (opCode.isGet()) {
-      GetOperationContext getContext = (GetOperationContext) context;
-      Object value = getContext.getObject();
-      boolean isObject = getContext.isObject();
+      var getContext = (GetOperationContext) context;
+      var value = getContext.getObject();
+      var isObject = getContext.isObject();
       if (value != null) {
         if ((value = checkObjectAuth(value)) != null) {
           getContext.setObject(value, isObject);
           return true;
         }
       } else {
-        byte[] serializedValue = getContext.getSerializedValue();
+        var serializedValue = getContext.getSerializedValue();
         if ((serializedValue = checkObjectAuth(serializedValue, isObject)) != null) {
           getContext.setSerializedValue(serializedValue, isObject);
           return true;
         }
       }
     } else if (opCode.isPut()) {
-      PutOperationContext putContext = (PutOperationContext) context;
-      byte[] serializedValue = putContext.getSerializedValue();
-      boolean isObject = putContext.isObject();
+      var putContext = (PutOperationContext) context;
+      var serializedValue = putContext.getSerializedValue();
+      var isObject = putContext.isObject();
       if ((serializedValue = checkObjectAuth(serializedValue, isObject)) != null) {
         putContext.setSerializedValue(serializedValue, isObject);
         return true;
@@ -184,14 +182,14 @@ public class FilterPostAuthorization implements AccessControl {
     } else if (opCode.equals(OperationCode.PUTALL)) {
       // no need for now
     } else if (opCode.isQuery() || opCode.isExecuteCQ()) {
-      QueryOperationContext queryContext = (QueryOperationContext) context;
-      Object value = queryContext.getQueryResult();
+      var queryContext = (QueryOperationContext) context;
+      var value = queryContext.getQueryResult();
       if (value instanceof SelectResults) {
-        SelectResults results = (SelectResults) value;
+        var results = (SelectResults) value;
         List<Object> newResults = new ArrayList<>();
-        Iterator resultIter = results.iterator();
+        var resultIter = results.iterator();
         while (resultIter.hasNext()) {
-          Object obj = resultIter.next();
+          var obj = resultIter.next();
           if ((obj = checkObjectAuth(obj)) != null) {
             newResults.add(obj);
           }
@@ -200,7 +198,7 @@ public class FilterPostAuthorization implements AccessControl {
           results.clear();
           results.addAll(newResults);
         } else {
-          ObjectType constraint = results.getCollectionType().getElementType();
+          var constraint = results.getCollectionType().getElementType();
           results = new ResultsCollectionWrapper(constraint, newResults);
           queryContext.setQueryResult(results);
         }

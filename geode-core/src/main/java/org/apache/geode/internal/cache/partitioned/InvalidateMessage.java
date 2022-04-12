@@ -44,7 +44,6 @@ import org.apache.geode.internal.cache.EnumListenerEvent;
 import org.apache.geode.internal.cache.FilterRoutingInfo;
 import org.apache.geode.internal.cache.ForceReattemptException;
 import org.apache.geode.internal.cache.PartitionedRegion;
-import org.apache.geode.internal.cache.PartitionedRegionDataStore;
 import org.apache.geode.internal.cache.PartitionedRegionHelper;
 import org.apache.geode.internal.cache.PrimaryBucketException;
 import org.apache.geode.internal.cache.versions.VersionTag;
@@ -108,7 +107,7 @@ public class InvalidateMessage extends DestroyMessage {
   public static Set notifyListeners(Set cacheOpReceivers, Set adjunctRecipients,
       FilterRoutingInfo filterRoutingInfo, PartitionedRegion r, EntryEventImpl event,
       DirectReplyProcessor processor) {
-    InvalidateMessage msg =
+    var msg =
         new InvalidateMessage(Collections.EMPTY_SET, true, r.getPRId(), processor, event);
     msg.setTransactionDistributed(r.getCache().getTxManager().isDistributed());
     msg.versionTag = event.getVersionTag();
@@ -133,8 +132,8 @@ public class InvalidateMessage extends DestroyMessage {
     // Assert.assertTrue(recipient != null, "InvalidateMessage NULL recipient"); recipient may be
     // null for remote notifications
     Set recipients = Collections.singleton(recipient);
-    InvalidateResponse p = new InvalidateResponse(r.getSystem(), recipients, event.getKey());
-    InvalidateMessage m = new InvalidateMessage(recipients, false, r.getPRId(), p, event);
+    var p = new InvalidateResponse(r.getSystem(), recipients, event.getKey());
+    var m = new InvalidateMessage(recipients, false, r.getPRId(), p, event);
     m.setTransactionDistributed(r.getCache().getTxManager().isDistributed());
     Set failures = r.getDistributionManager().putOutgoing(m);
     if (failures != null && failures.size() > 0) {
@@ -153,13 +152,13 @@ public class InvalidateMessage extends DestroyMessage {
   @Override
   protected boolean operateOnPartitionedRegion(ClusterDistributionManager dm, PartitionedRegion r,
       long startTime) throws EntryExistsException, DataLocationException {
-    InternalDistributedMember eventSender = originalSender;
+    var eventSender = originalSender;
     if (eventSender == null) {
       eventSender = getSender();
     }
-    final Object key = getKey();
+    final var key = getKey();
     @Released
-    final EntryEventImpl event = EntryEventImpl.create(r, getOperation(), key, null, /* newValue */
+    final var event = EntryEventImpl.create(r, getOperation(), key, null, /* newValue */
         getCallbackArg(), false/* originRemote - false to force distribution in buckets */,
         eventSender, true/* generateCallbacks */, false/* initializeId */);
     try {
@@ -174,8 +173,8 @@ public class InvalidateMessage extends DestroyMessage {
       event.setEventId(eventId);
       event.setPossibleDuplicate(posDup);
 
-      PartitionedRegionDataStore ds = r.getDataStore();
-      boolean sendReply = true;
+      var ds = r.getDataStore();
+      var sendReply = true;
       // boolean failed = false;
       event.setInvokePRCallbacks(!notificationOnly);
       if (!notificationOnly) {
@@ -267,7 +266,7 @@ public class InvalidateMessage extends DestroyMessage {
     public static void send(InternalDistributedMember recipient, int processorId,
         ReplySender replySender, ReplyException ex, VersionTag version) {
       Assert.assertTrue(recipient != null, "InvalidateReplyMessage NULL reply message");
-      InvalidateReplyMessage m = new InvalidateReplyMessage(processorId, version, ex);
+      var m = new InvalidateReplyMessage(processorId, version, ex);
       m.setRecipient(recipient);
       replySender.putOutgoing(m);
     }
@@ -279,7 +278,7 @@ public class InvalidateMessage extends DestroyMessage {
      */
     @Override
     public void process(final DistributionManager dm, final ReplyProcessor21 rp) {
-      final long startTime = getTimestamp();
+      final var startTime = getTimestamp();
       if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
         logger.trace(LogMarker.DM_VERBOSE,
             "InvalidateReplyMessage process invoking reply processor with processorId: {}",
@@ -293,7 +292,7 @@ public class InvalidateMessage extends DestroyMessage {
         return;
       }
       if (rp instanceof InvalidateResponse) {
-        InvalidateResponse processor = (InvalidateResponse) rp;
+        var processor = (InvalidateResponse) rp;
         processor.setResponse(this);
       }
       rp.process(this);

@@ -40,25 +40,25 @@ public class PutUserCredentials extends BaseCommand {
       final @NotNull ServerConnection serverConnection,
       final @NotNull SecurityService securityService, long start)
       throws IOException, ClassNotFoundException, InterruptedException {
-    boolean isSecureMode = clientMessage.isSecureMode();
+    var isSecureMode = clientMessage.isSecureMode();
 
     if (!isSecureMode) {
       // client has not send security header, need to send exception and log this in security (file)
       return;
     }
 
-    int numberOfParts = clientMessage.getNumberOfParts();
+    var numberOfParts = clientMessage.getNumberOfParts();
     if (numberOfParts != 1) {
       // need to throw exception
       return;
     }
 
     // client older than 1.14 will send in existing uniqueId to re-authenticate
-    long existingUniqueId = serverConnection.getUniqueId();
+    var existingUniqueId = serverConnection.getUniqueId();
     // need to get credentials
     try {
       serverConnection.setAsTrue(REQUIRES_RESPONSE);
-      byte[] uniqueId = serverConnection.setCredentials(clientMessage, existingUniqueId);
+      var uniqueId = serverConnection.setCredentials(clientMessage, existingUniqueId);
       writeResponse(uniqueId, null, clientMessage, false, serverConnection);
     } catch (GemFireSecurityException gfse) {
       if (serverConnection.getSecurityLogWriter().warningEnabled()) {

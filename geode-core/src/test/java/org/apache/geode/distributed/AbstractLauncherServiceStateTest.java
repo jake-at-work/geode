@@ -35,7 +35,6 @@ import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.List;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.After;
@@ -78,8 +77,8 @@ public class AbstractLauncherServiceStateTest {
     gemfireVersion = GemFireVersion.getGemFireVersion();
     javaVersion = System.getProperty("java.version");
 
-    int port = 12345;
-    InetAddress host = InetAddress.getLocalHost();
+    var port = 12345;
+    var host = InetAddress.getLocalHost();
 
     launcher = new TestLauncher(host, port, name);
     launcher.setStatus(STARTING);
@@ -98,8 +97,8 @@ public class AbstractLauncherServiceStateTest {
 
   @Test
   public void serviceStateMarshalsToAndFromJsonWhenStarting() {
-    TestLauncher.TestState status = launcher.status();
-    String json = status.toJson();
+    var status = launcher.status();
+    var json = status.toJson();
     validateJson(status, json);
     validateStatus(status, TestLauncher.TestState.fromJson(json));
   }
@@ -107,8 +106,8 @@ public class AbstractLauncherServiceStateTest {
   @Test
   public void serviceStateMarshalsToAndFromJsonWhenNotResponding() {
     launcher.setStatus(NOT_RESPONDING);
-    TestLauncher.TestState status = launcher.status();
-    String json = status.toJson();
+    var status = launcher.status();
+    var json = status.toJson();
     validateJson(status, json);
     validateStatus(status, TestLauncher.TestState.fromJson(json));
   }
@@ -116,8 +115,8 @@ public class AbstractLauncherServiceStateTest {
   @Test
   public void serviceStateMarshalsToAndFromJsonWhenOnline() {
     launcher.setStatus(ONLINE);
-    TestLauncher.TestState status = launcher.status();
-    String json = status.toJson();
+    var status = launcher.status();
+    var json = status.toJson();
     validateJson(status, json);
     validateStatus(status, TestLauncher.TestState.fromJson(json));
   }
@@ -125,17 +124,17 @@ public class AbstractLauncherServiceStateTest {
   @Test
   public void serviceStateMarshalsToAndFromJsonWhenStopped() {
     launcher.setStatus(STOPPED);
-    TestLauncher.TestState status = launcher.status();
-    String json = status.toJson();
+    var status = launcher.status();
+    var json = status.toJson();
     validateJson(status, json);
     validateStatus(status, TestLauncher.TestState.fromJson(json));
   }
 
   @Test
   public void toStringContainsLineSeparatorsWhenStarting() {
-    TestLauncher.TestState status = launcher.status();
+    var status = launcher.status();
 
-    String result = status.toString();
+    var result = status.toString();
 
     assertThat(result).contains(System.lineSeparator());
   }
@@ -143,9 +142,9 @@ public class AbstractLauncherServiceStateTest {
   @Test
   public void toStringDoesNotContainLineSeparatorsWhenNotResponding() {
     launcher.setStatus(NOT_RESPONDING);
-    TestLauncher.TestState status = launcher.status();
+    var status = launcher.status();
 
-    String result = status.toString();
+    var result = status.toString();
 
     assertThat(result).doesNotContain(System.lineSeparator());
   }
@@ -153,9 +152,9 @@ public class AbstractLauncherServiceStateTest {
   @Test
   public void toStringContainsLineSeparatorsWhenOnline() {
     launcher.setStatus(ONLINE);
-    TestLauncher.TestState status = launcher.status();
+    var status = launcher.status();
 
-    String result = status.toString();
+    var result = status.toString();
 
     assertThat(result).contains(System.lineSeparator());
   }
@@ -163,18 +162,18 @@ public class AbstractLauncherServiceStateTest {
   @Test
   public void toStringDoesNotContainLineSeparatorsWhenStopped() {
     launcher.setStatus(STOPPED);
-    TestLauncher.TestState status = launcher.status();
+    var status = launcher.status();
 
-    String result = status.toString();
+    var result = status.toString();
 
     assertThat(result).doesNotContain(System.lineSeparator());
   }
 
   @Test
   public void toStringContainsProcessIdWhenStarting() {
-    TestLauncher.TestState status = launcher.status();
+    var status = launcher.status();
 
-    String result = status.toString();
+    var result = status.toString();
 
     assertThat(result).contains(TO_STRING_PROCESS_ID + pid);
   }
@@ -182,9 +181,9 @@ public class AbstractLauncherServiceStateTest {
   @Test
   public void toStringDoesNotContainProcessIdWhenNotResponding() {
     launcher.setStatus(NOT_RESPONDING);
-    TestLauncher.TestState status = launcher.status();
+    var status = launcher.status();
 
-    String result = status.toString();
+    var result = status.toString();
 
     assertThat(result).doesNotContain(TO_STRING_PROCESS_ID);
   }
@@ -192,9 +191,9 @@ public class AbstractLauncherServiceStateTest {
   @Test
   public void toStringContainsProcessIdWhenOnline() {
     launcher.setStatus(ONLINE);
-    TestLauncher.TestState status = launcher.status();
+    var status = launcher.status();
 
-    String result = status.toString();
+    var result = status.toString();
 
     assertThat(result).contains(TO_STRING_PROCESS_ID + pid);
   }
@@ -202,18 +201,18 @@ public class AbstractLauncherServiceStateTest {
   @Test
   public void toStringDoesNotContainProcessIdWhenStopped() {
     launcher.setStatus(STOPPED);
-    TestLauncher.TestState status = launcher.status();
+    var status = launcher.status();
 
-    String result = status.toString();
+    var result = status.toString();
 
     assertThat(result).doesNotContain(TO_STRING_PROCESS_ID);
   }
 
   @Test
   public void toStringContainsJavaVersionWhenStarting() {
-    TestLauncher.TestState status = launcher.status();
+    var status = launcher.status();
 
-    String result = status.toString();
+    var result = status.toString();
 
     assertThat(result).contains(TO_STRING_PROCESS_ID);
   }
@@ -221,9 +220,9 @@ public class AbstractLauncherServiceStateTest {
   @Test
   public void toStringDoesNotContainJavaVersionWhenNotResponding() {
     launcher.setStatus(NOT_RESPONDING);
-    TestLauncher.TestState status = launcher.status();
+    var status = launcher.status();
 
-    String result = status.toString();
+    var result = status.toString();
 
     assertThat(result).doesNotContain(TO_STRING_PROCESS_ID);
   }
@@ -231,9 +230,9 @@ public class AbstractLauncherServiceStateTest {
   @Test
   public void toStringContainsJavaVersionWhenOnline() {
     launcher.setStatus(ONLINE);
-    TestLauncher.TestState status = launcher.status();
+    var status = launcher.status();
 
-    String result = status.toString();
+    var result = status.toString();
 
     assertThat(result).contains(TO_STRING_PROCESS_ID);
   }
@@ -241,18 +240,18 @@ public class AbstractLauncherServiceStateTest {
   @Test
   public void toStringDoesNotContainJavaVersionWhenStopped() {
     launcher.setStatus(STOPPED);
-    TestLauncher.TestState status = launcher.status();
+    var status = launcher.status();
 
-    String result = status.toString();
+    var result = status.toString();
 
     assertThat(result).doesNotContain(TO_STRING_PROCESS_ID);
   }
 
   @Test
   public void toStringContainsLogFileWhenStarting() {
-    TestLauncher.TestState status = launcher.status();
+    var status = launcher.status();
 
-    String result = status.toString();
+    var result = status.toString();
 
     assertThat(result).contains(TO_STRING_PROCESS_ID);
   }
@@ -260,9 +259,9 @@ public class AbstractLauncherServiceStateTest {
   @Test
   public void toStringDoesNotContainLogFileWhenNotResponding() {
     launcher.setStatus(NOT_RESPONDING);
-    TestLauncher.TestState status = launcher.status();
+    var status = launcher.status();
 
-    String result = status.toString();
+    var result = status.toString();
 
     assertThat(result).doesNotContain(TO_STRING_PROCESS_ID);
   }
@@ -270,9 +269,9 @@ public class AbstractLauncherServiceStateTest {
   @Test
   public void toStringContainsLogFileWhenOnline() {
     launcher.setStatus(ONLINE);
-    TestLauncher.TestState status = launcher.status();
+    var status = launcher.status();
 
-    String result = status.toString();
+    var result = status.toString();
 
     assertThat(result).contains(TO_STRING_PROCESS_ID);
   }
@@ -280,18 +279,18 @@ public class AbstractLauncherServiceStateTest {
   @Test
   public void toStringDoesNotContainLogFileWhenStopped() {
     launcher.setStatus(STOPPED);
-    TestLauncher.TestState status = launcher.status();
+    var status = launcher.status();
 
-    String result = status.toString();
+    var result = status.toString();
 
     assertThat(result).doesNotContain(TO_STRING_PROCESS_ID);
   }
 
   @Test
   public void toStringContainsJvmArgumentsWhenStarting() {
-    TestLauncher.TestState status = launcher.status();
+    var status = launcher.status();
 
-    String result = status.toString();
+    var result = status.toString();
 
     assertThat(result).contains(TO_STRING_JVM_ARGUMENTS);
   }
@@ -299,9 +298,9 @@ public class AbstractLauncherServiceStateTest {
   @Test
   public void toStringDoesNotContainJvmArgumentsWhenNotResponding() {
     launcher.setStatus(NOT_RESPONDING);
-    TestLauncher.TestState status = launcher.status();
+    var status = launcher.status();
 
-    String result = status.toString();
+    var result = status.toString();
 
     assertThat(result).doesNotContain(TO_STRING_JVM_ARGUMENTS);
   }
@@ -309,9 +308,9 @@ public class AbstractLauncherServiceStateTest {
   @Test
   public void toStringContainsJvmArgumentsWhenOnline() {
     launcher.setStatus(ONLINE);
-    TestLauncher.TestState status = launcher.status();
+    var status = launcher.status();
 
-    String result = status.toString();
+    var result = status.toString();
 
     assertThat(result).contains(TO_STRING_JVM_ARGUMENTS);
   }
@@ -319,18 +318,18 @@ public class AbstractLauncherServiceStateTest {
   @Test
   public void toStringDoesNotContainJvmArgumentsWhenStopped() {
     launcher.setStatus(STOPPED);
-    TestLauncher.TestState status = launcher.status();
+    var status = launcher.status();
 
-    String result = status.toString();
+    var result = status.toString();
 
     assertThat(result).doesNotContain(TO_STRING_JVM_ARGUMENTS);
   }
 
   @Test
   public void toStringContainsClassPathWhenStarting() {
-    TestLauncher.TestState status = launcher.status();
+    var status = launcher.status();
 
-    String result = status.toString();
+    var result = status.toString();
 
     assertThat(result).contains(TO_STRING_CLASS_PATH);
   }
@@ -338,9 +337,9 @@ public class AbstractLauncherServiceStateTest {
   @Test
   public void toStringDoesNotContainClassPathWhenNotResponding() {
     launcher.setStatus(NOT_RESPONDING);
-    TestLauncher.TestState status = launcher.status();
+    var status = launcher.status();
 
-    String result = status.toString();
+    var result = status.toString();
 
     assertThat(result).doesNotContain(TO_STRING_CLASS_PATH);
   }
@@ -348,9 +347,9 @@ public class AbstractLauncherServiceStateTest {
   @Test
   public void toStringContainsClassPathWhenOnline() {
     launcher.setStatus(ONLINE);
-    TestLauncher.TestState status = launcher.status();
+    var status = launcher.status();
 
-    String result = status.toString();
+    var result = status.toString();
 
     assertThat(result).contains(TO_STRING_CLASS_PATH);
   }
@@ -358,18 +357,18 @@ public class AbstractLauncherServiceStateTest {
   @Test
   public void toStringDoesNotContainClassPathWhenStopped() {
     launcher.setStatus(STOPPED);
-    TestLauncher.TestState status = launcher.status();
+    var status = launcher.status();
 
-    String result = status.toString();
+    var result = status.toString();
 
     assertThat(result).doesNotContain(TO_STRING_CLASS_PATH);
   }
 
   @Test
   public void toStringDoesNotContainUptimeWhenStarting() {
-    TestLauncher.TestState status = launcher.status();
+    var status = launcher.status();
 
-    String result = status.toString();
+    var result = status.toString();
 
     assertThat(result).doesNotContain(TO_STRING_UPTIME);
   }
@@ -377,9 +376,9 @@ public class AbstractLauncherServiceStateTest {
   @Test
   public void toStringDoesNotContainUptimeWhenNotResponding() {
     launcher.setStatus(NOT_RESPONDING);
-    TestLauncher.TestState status = launcher.status();
+    var status = launcher.status();
 
-    String result = status.toString();
+    var result = status.toString();
 
     assertThat(result).doesNotContain(TO_STRING_UPTIME);
   }
@@ -387,9 +386,9 @@ public class AbstractLauncherServiceStateTest {
   @Test
   public void toStringContainsUptimeWhenOnline() {
     launcher.setStatus(ONLINE);
-    TestLauncher.TestState status = launcher.status();
+    var status = launcher.status();
 
-    String result = status.toString();
+    var result = status.toString();
 
     assertThat(result).contains(TO_STRING_UPTIME);
   }
@@ -397,18 +396,18 @@ public class AbstractLauncherServiceStateTest {
   @Test
   public void toStringDoesNotContainUptimeWhenStopped() {
     launcher.setStatus(STOPPED);
-    TestLauncher.TestState status = launcher.status();
+    var status = launcher.status();
 
-    String result = status.toString();
+    var result = status.toString();
 
     assertThat(result).doesNotContain(TO_STRING_UPTIME);
   }
 
   @Test
   public void toStringDoesNotContainGeodeVersionWhenStarting() {
-    TestLauncher.TestState status = launcher.status();
+    var status = launcher.status();
 
-    String result = status.toString();
+    var result = status.toString();
 
     assertThat(result).doesNotContain(TO_STRING_GEODE_VERSION);
   }
@@ -416,9 +415,9 @@ public class AbstractLauncherServiceStateTest {
   @Test
   public void toStringDoesNotContainGeodeVersionWhenNotResponding() {
     launcher.setStatus(NOT_RESPONDING);
-    TestLauncher.TestState status = launcher.status();
+    var status = launcher.status();
 
-    String result = status.toString();
+    var result = status.toString();
 
     assertThat(result).doesNotContain(TO_STRING_GEODE_VERSION);
   }
@@ -426,9 +425,9 @@ public class AbstractLauncherServiceStateTest {
   @Test
   public void toStringContainsGeodeVersionWhenOnline() {
     launcher.setStatus(ONLINE);
-    TestLauncher.TestState status = launcher.status();
+    var status = launcher.status();
 
-    String result = status.toString();
+    var result = status.toString();
 
     assertThat(result).contains(TO_STRING_GEODE_VERSION);
   }
@@ -436,22 +435,22 @@ public class AbstractLauncherServiceStateTest {
   @Test
   public void toStringDoesNotContainGeodeVersionWhenStopped() {
     launcher.setStatus(STOPPED);
-    TestLauncher.TestState status = launcher.status();
+    var status = launcher.status();
 
-    String result = status.toString();
+    var result = status.toString();
 
     assertThat(result).doesNotContain(TO_STRING_GEODE_VERSION);
   }
 
   @Test
   public void processIdStartsOnNewLineInToStringWhenStarting() {
-    TestLauncher.TestState status = launcher.status();
+    var status = launcher.status();
 
-    String result = status.toString();
-    List<String> lines = Arrays.asList(StringUtils.split(result, System.lineSeparator()));
+    var result = status.toString();
+    var lines = Arrays.asList(StringUtils.split(result, System.lineSeparator()));
 
     String processId = null;
-    for (String line : lines) {
+    for (var line : lines) {
       if (line.contains(TO_STRING_PROCESS_ID)) {
         processId = line;
         break;
@@ -467,13 +466,13 @@ public class AbstractLauncherServiceStateTest {
   @Test
   public void processIdStartsOnNewLineInToStringWhenOnline() {
     launcher.setStatus(ONLINE);
-    TestLauncher.TestState status = launcher.status();
+    var status = launcher.status();
 
-    String result = status.toString();
-    List<String> lines = Arrays.asList(StringUtils.split(result, System.lineSeparator()));
+    var result = status.toString();
+    var lines = Arrays.asList(StringUtils.split(result, System.lineSeparator()));
 
     String processId = null;
-    for (String line : lines) {
+    for (var line : lines) {
       if (line.contains(TO_STRING_PROCESS_ID)) {
         processId = line;
         break;
@@ -489,13 +488,13 @@ public class AbstractLauncherServiceStateTest {
   @Test
   public void uptimeStartsOnNewLineInToStringWhenOnline() {
     launcher.setStatus(ONLINE);
-    TestLauncher.TestState status = launcher.status();
+    var status = launcher.status();
 
-    String result = status.toString();
-    List<String> lines = Arrays.asList(StringUtils.split(result, System.lineSeparator()));
+    var result = status.toString();
+    var lines = Arrays.asList(StringUtils.split(result, System.lineSeparator()));
 
     String uptime = null;
-    for (String line : lines) {
+    for (var line : lines) {
       if (line.contains(TO_STRING_UPTIME)) {
         uptime = line;
         break;
@@ -511,13 +510,13 @@ public class AbstractLauncherServiceStateTest {
   @Test
   public void geodeVersionStartsOnNewLineInToStringWhenOnline() {
     launcher.setStatus(ONLINE);
-    TestLauncher.TestState status = launcher.status();
+    var status = launcher.status();
 
-    String result = status.toString();
-    List<String> lines = Arrays.asList(StringUtils.split(result, System.lineSeparator()));
+    var result = status.toString();
+    var lines = Arrays.asList(StringUtils.split(result, System.lineSeparator()));
 
     String geodeVersion = null;
-    for (String line : lines) {
+    for (var line : lines) {
       if (line.contains(TO_STRING_GEODE_VERSION)) {
         geodeVersion = line;
         break;
@@ -532,13 +531,13 @@ public class AbstractLauncherServiceStateTest {
 
   @Test
   public void javaVersionStartsOnNewLineInToStringWhenStarting() {
-    TestLauncher.TestState status = launcher.status();
+    var status = launcher.status();
 
-    String result = status.toString();
-    List<String> lines = Arrays.asList(StringUtils.split(result, System.lineSeparator()));
+    var result = status.toString();
+    var lines = Arrays.asList(StringUtils.split(result, System.lineSeparator()));
 
     String javaVersion = null;
-    for (String line : lines) {
+    for (var line : lines) {
       if (line.contains(TO_STRING_JAVA_VERSION)) {
         javaVersion = line;
         break;
@@ -554,13 +553,13 @@ public class AbstractLauncherServiceStateTest {
   @Test
   public void javaVersionStartsOnNewLineInToStringWhenOnline() {
     launcher.setStatus(ONLINE);
-    TestLauncher.TestState status = launcher.status();
+    var status = launcher.status();
 
-    String result = status.toString();
-    List<String> lines = Arrays.asList(StringUtils.split(result, System.lineSeparator()));
+    var result = status.toString();
+    var lines = Arrays.asList(StringUtils.split(result, System.lineSeparator()));
 
     String javaVersion = null;
-    for (String line : lines) {
+    for (var line : lines) {
       if (line.contains(TO_STRING_JAVA_VERSION)) {
         javaVersion = line;
         break;
@@ -575,13 +574,13 @@ public class AbstractLauncherServiceStateTest {
 
   @Test
   public void logFileStartsOnNewLineInToStringWhenStarting() {
-    TestLauncher.TestState status = launcher.status();
+    var status = launcher.status();
 
-    String result = status.toString();
-    List<String> lines = Arrays.asList(StringUtils.split(result, System.lineSeparator()));
+    var result = status.toString();
+    var lines = Arrays.asList(StringUtils.split(result, System.lineSeparator()));
 
     String logFile = null;
-    for (String line : lines) {
+    for (var line : lines) {
       if (line.contains(TO_STRING_LOG_FILE)) {
         logFile = line;
         break;
@@ -597,13 +596,13 @@ public class AbstractLauncherServiceStateTest {
   @Test
   public void logFileStartsOnNewLineInToStringWhenOnline() {
     launcher.setStatus(ONLINE);
-    TestLauncher.TestState status = launcher.status();
+    var status = launcher.status();
 
-    String result = status.toString();
-    List<String> lines = Arrays.asList(StringUtils.split(result, System.lineSeparator()));
+    var result = status.toString();
+    var lines = Arrays.asList(StringUtils.split(result, System.lineSeparator()));
 
     String logFile = null;
-    for (String line : lines) {
+    for (var line : lines) {
       if (line.contains(TO_STRING_LOG_FILE)) {
         logFile = line;
         break;
@@ -618,13 +617,13 @@ public class AbstractLauncherServiceStateTest {
 
   @Test
   public void jvmArgumentsStartsOnNewLineInToStringWhenStarting() {
-    TestLauncher.TestState status = launcher.status();
+    var status = launcher.status();
 
-    String result = status.toString();
-    List<String> lines = Arrays.asList(StringUtils.split(result, System.lineSeparator()));
+    var result = status.toString();
+    var lines = Arrays.asList(StringUtils.split(result, System.lineSeparator()));
 
     String jvmArguments = null;
-    for (String line : lines) {
+    for (var line : lines) {
       if (line.contains(TO_STRING_JVM_ARGUMENTS)) {
         jvmArguments = line;
         break;
@@ -640,13 +639,13 @@ public class AbstractLauncherServiceStateTest {
   @Test
   public void jvmArgumentsStartsOnNewLineInToStringWhenOnline() {
     launcher.setStatus(ONLINE);
-    TestLauncher.TestState status = launcher.status();
+    var status = launcher.status();
 
-    String result = status.toString();
-    List<String> lines = Arrays.asList(StringUtils.split(result, System.lineSeparator()));
+    var result = status.toString();
+    var lines = Arrays.asList(StringUtils.split(result, System.lineSeparator()));
 
     String jvmArguments = null;
-    for (String line : lines) {
+    for (var line : lines) {
       if (line.contains(TO_STRING_JVM_ARGUMENTS)) {
         jvmArguments = line;
         break;
@@ -661,13 +660,13 @@ public class AbstractLauncherServiceStateTest {
 
   @Test
   public void classPathStartsOnNewLineInToStringWhenStarting() {
-    TestLauncher.TestState status = launcher.status();
+    var status = launcher.status();
 
-    String result = status.toString();
-    List<String> lines = Arrays.asList(StringUtils.split(result, System.lineSeparator()));
+    var result = status.toString();
+    var lines = Arrays.asList(StringUtils.split(result, System.lineSeparator()));
 
     String classPath = null;
-    for (String line : lines) {
+    for (var line : lines) {
       if (line.contains(TO_STRING_CLASS_PATH)) {
         classPath = line;
         break;
@@ -683,13 +682,13 @@ public class AbstractLauncherServiceStateTest {
   @Test
   public void classPathStartsOnNewLineInToStringWhenOnline() {
     launcher.setStatus(ONLINE);
-    TestLauncher.TestState status = launcher.status();
+    var status = launcher.status();
 
-    String result = status.toString();
-    List<String> lines = Arrays.asList(StringUtils.split(result, System.lineSeparator()));
+    var result = status.toString();
+    var lines = Arrays.asList(StringUtils.split(result, System.lineSeparator()));
 
     String classPath = null;
-    for (String line : lines) {
+    for (var line : lines) {
       if (line.contains(TO_STRING_CLASS_PATH)) {
         classPath = line;
         break;
@@ -719,7 +718,7 @@ public class AbstractLauncherServiceStateTest {
   }
 
   private void validateJson(final TestLauncher.TestState expected, final String json) {
-    TestLauncher.TestState actual = TestLauncher.TestState.fromJson(json);
+    var actual = TestLauncher.TestState.fromJson(json);
     validateStatus(expected, actual);
   }
 
@@ -802,10 +801,10 @@ public class AbstractLauncherServiceStateTest {
 
       protected static TestState fromJson(final String json) {
         try {
-          JsonNode jsonObject = new ObjectMapper().readTree(json);
+          var jsonObject = new ObjectMapper().readTree(json);
 
-          Status status = valueOfDescription(jsonObject.get(JSON_STATUS).asText());
-          List<String> jvmArguments = JsonUtil.toStringList(jsonObject.get(JSON_JVMARGUMENTS));
+          var status = valueOfDescription(jsonObject.get(JSON_STATUS).asText());
+          var jvmArguments = JsonUtil.toStringList(jsonObject.get(JSON_JVMARGUMENTS));
 
           return new TestState(status, jsonObject.get(JSON_STATUSMESSAGE).asText(),
               jsonObject.get(JSON_TIMESTAMP).asLong(), jsonObject.get(JSON_LOCATION).asText(),

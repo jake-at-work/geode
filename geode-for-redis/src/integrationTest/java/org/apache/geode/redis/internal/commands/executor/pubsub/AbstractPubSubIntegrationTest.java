@@ -29,7 +29,6 @@ import java.util.Queue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -98,15 +97,15 @@ public abstract class AbstractPubSubIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testOneSubscriberOneChannel() {
-    List<String> expectedMessages = Arrays.asList("hello");
+    var expectedMessages = Arrays.asList("hello");
 
-    MockSubscriber mockSubscriber = new MockSubscriber();
+    var mockSubscriber = new MockSubscriber();
 
-    Runnable runnable = () -> {
+    var runnable = (Runnable) () -> {
       subscriber.subscribe(mockSubscriber, "salutations");
     };
 
-    Thread subscriberThread = new Thread(runnable);
+    var subscriberThread = new Thread(runnable);
     subscriberThread.start();
     waitFor(() -> mockSubscriber.getSubscribedChannels() == 1);
     checkInfoChannelCount(1);
@@ -136,27 +135,27 @@ public abstract class AbstractPubSubIntegrationTest implements RedisIntegrationT
   }
 
   private void checkInfoStatValue(int expectedValue, String statName) {
-    String infoResult = publisher.info("stats");
-    int startIndex = infoResult.indexOf(statName);
+    var infoResult = publisher.info("stats");
+    var startIndex = infoResult.indexOf(statName);
     if (startIndex == -1) {
       fail("info did not contain " + statName + " " + infoResult);
     }
     startIndex += statName.length();
-    int endIndex = startIndex;
+    var endIndex = startIndex;
     while (Character.isDigit(infoResult.charAt(endIndex))) {
       endIndex++;
     }
-    int channelCount = Integer.parseInt(infoResult.substring(startIndex, endIndex));
+    var channelCount = Integer.parseInt(infoResult.substring(startIndex, endIndex));
     assertThat(channelCount).isEqualTo(expectedValue);
   }
 
   @Test
   public void punsubscribe_givenSubscribe_doesNotReduceSubscriptions() {
-    MockSubscriber mockSubscriber = new MockSubscriber();
+    var mockSubscriber = new MockSubscriber();
 
-    Runnable runnable = () -> subscriber.subscribe(mockSubscriber, "salutations");
+    var runnable = (Runnable) () -> subscriber.subscribe(mockSubscriber, "salutations");
 
-    Thread subscriberThread = new Thread(runnable);
+    var subscriberThread = new Thread(runnable);
     subscriberThread.start();
     try {
       waitFor(() -> mockSubscriber.getSubscribedChannels() == 1);
@@ -176,11 +175,11 @@ public abstract class AbstractPubSubIntegrationTest implements RedisIntegrationT
 
   @Test
   public void unsubscribe_givenPsubscribe_doesNotReduceSubscriptions() {
-    MockSubscriber mockSubscriber = new MockSubscriber();
+    var mockSubscriber = new MockSubscriber();
 
-    Runnable runnable = () -> subscriber.psubscribe(mockSubscriber, "salutations");
+    var runnable = (Runnable) () -> subscriber.psubscribe(mockSubscriber, "salutations");
 
-    Thread subscriberThread = new Thread(runnable);
+    var subscriberThread = new Thread(runnable);
     subscriberThread.start();
     try {
       waitFor(() -> mockSubscriber.getSubscribedChannels() == 1);
@@ -200,12 +199,12 @@ public abstract class AbstractPubSubIntegrationTest implements RedisIntegrationT
 
   @Test
   public void unsubscribe_onNonExistentSubscription_doesNotReduceSubscriptions() {
-    MockSubscriber mockSubscriber = new MockSubscriber();
-    Runnable runnable = () -> {
+    var mockSubscriber = new MockSubscriber();
+    var runnable = (Runnable) () -> {
       subscriber.subscribe(mockSubscriber, "salutations");
     };
 
-    Thread subscriberThread = new Thread(runnable);
+    var subscriberThread = new Thread(runnable);
     subscriberThread.start();
     try {
       waitFor(() -> mockSubscriber.getSubscribedChannels() == 1);
@@ -224,10 +223,10 @@ public abstract class AbstractPubSubIntegrationTest implements RedisIntegrationT
 
   @Test
   public void unsubscribe_whenGivenAnEmptyString() {
-    MockSubscriber mockSubscriber = new MockSubscriber();
-    Runnable runnable = () -> subscriber.subscribe(mockSubscriber, "salutations");
+    var mockSubscriber = new MockSubscriber();
+    var runnable = (Runnable) () -> subscriber.subscribe(mockSubscriber, "salutations");
 
-    Thread subscriberThread = new Thread(runnable);
+    var subscriberThread = new Thread(runnable);
     subscriberThread.start();
     try {
       waitFor(() -> mockSubscriber.getSubscribedChannels() == 1);
@@ -246,10 +245,10 @@ public abstract class AbstractPubSubIntegrationTest implements RedisIntegrationT
 
   @Test
   public void unsubscribeWithEmptyChannel_doesNotUnsubscribeExistingChannels() {
-    MockSubscriber mockSubscriber = new MockSubscriber();
-    Runnable runnable = () -> subscriber.subscribe(mockSubscriber, "salutations");
+    var mockSubscriber = new MockSubscriber();
+    var runnable = (Runnable) () -> subscriber.subscribe(mockSubscriber, "salutations");
 
-    Thread subscriberThread = new Thread(runnable);
+    var subscriberThread = new Thread(runnable);
     subscriberThread.start();
     try {
       waitFor(() -> mockSubscriber.getSubscribedChannels() == 1);
@@ -270,10 +269,10 @@ public abstract class AbstractPubSubIntegrationTest implements RedisIntegrationT
 
   @Test
   public void canSubscribeToAnEmptyString() {
-    MockSubscriber mockSubscriber = new MockSubscriber();
-    Runnable runnable = () -> subscriber.subscribe(mockSubscriber, "");
+    var mockSubscriber = new MockSubscriber();
+    var runnable = (Runnable) () -> subscriber.subscribe(mockSubscriber, "");
 
-    Thread subscriberThread = new Thread(runnable);
+    var subscriberThread = new Thread(runnable);
     subscriberThread.start();
     waitFor(() -> mockSubscriber.getSubscribedChannels() == 1);
 
@@ -291,12 +290,12 @@ public abstract class AbstractPubSubIntegrationTest implements RedisIntegrationT
 
   @Test
   public void punsubscribe_onNonExistentSubscription_doesNotReduceSubscriptions() {
-    MockSubscriber mockSubscriber = new MockSubscriber();
-    Runnable runnable = () -> {
+    var mockSubscriber = new MockSubscriber();
+    var runnable = (Runnable) () -> {
       subscriber.psubscribe(mockSubscriber, "salutations");
     };
 
-    Thread subscriberThread = new Thread(runnable);
+    var subscriberThread = new Thread(runnable);
     subscriberThread.start();
     try {
       waitFor(() -> mockSubscriber.getSubscribedChannels() == 1);
@@ -315,18 +314,18 @@ public abstract class AbstractPubSubIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testPublishBinaryData() {
-    byte[] expectedMessage = new byte[256];
-    for (int i = 0; i < 256; i++) {
+    var expectedMessage = new byte[256];
+    for (var i = 0; i < 256; i++) {
       expectedMessage[i] = (byte) i;
     }
 
-    MockBinarySubscriber mockSubscriber = new MockBinarySubscriber();
+    var mockSubscriber = new MockBinarySubscriber();
 
-    Runnable runnable = () -> {
+    var runnable = (Runnable) () -> {
       subscriber.subscribe(mockSubscriber, "salutations".getBytes());
     };
 
-    Thread subscriberThread = new Thread(runnable);
+    var subscriberThread = new Thread(runnable);
     subscriberThread.start();
     waitFor(() -> mockSubscriber.getSubscribedChannels() == 1);
 
@@ -344,18 +343,18 @@ public abstract class AbstractPubSubIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testSubscribeAndPublishUsingBinaryData() {
-    byte[] binaryBlob = new byte[256];
-    for (int i = 0; i < 256; i++) {
+    var binaryBlob = new byte[256];
+    for (var i = 0; i < 256; i++) {
       binaryBlob[i] = (byte) i;
     }
 
-    MockBinarySubscriber mockSubscriber = new MockBinarySubscriber();
+    var mockSubscriber = new MockBinarySubscriber();
 
-    Runnable runnable = () -> {
+    var runnable = (Runnable) () -> {
       subscriber.subscribe(mockSubscriber, binaryBlob);
     };
 
-    Thread subscriberThread = new Thread(runnable);
+    var subscriberThread = new Thread(runnable);
     subscriberThread.start();
     waitFor(() -> mockSubscriber.getSubscribedChannels() == 1);
 
@@ -372,12 +371,12 @@ public abstract class AbstractPubSubIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testOneSubscriberSubscribingToTwoChannels() {
-    List<String> expectedMessages = Arrays.asList("hello", "howdy");
-    MockSubscriber mockSubscriber = new MockSubscriber();
+    var expectedMessages = Arrays.asList("hello", "howdy");
+    var mockSubscriber = new MockSubscriber();
 
-    Runnable runnable = () -> subscriber.subscribe(mockSubscriber, "salutations", "yuletide");
+    var runnable = (Runnable) () -> subscriber.subscribe(mockSubscriber, "salutations", "yuletide");
 
-    Thread subscriberThread = new Thread(runnable);
+    var subscriberThread = new Thread(runnable);
     subscriberThread.start();
 
     waitFor(() -> mockSubscriber.getSubscribedChannels() == 2);
@@ -415,11 +414,11 @@ public abstract class AbstractPubSubIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testSubscribingAndUnsubscribingFromMultipleChannels() {
-    MockSubscriber mockSubscriber = new MockSubscriber();
+    var mockSubscriber = new MockSubscriber();
 
-    Runnable runnable = () -> subscriber.subscribe(mockSubscriber, "salutations", "yuletide");
+    var runnable = (Runnable) () -> subscriber.subscribe(mockSubscriber, "salutations", "yuletide");
 
-    Thread subscriberThread = new Thread(runnable);
+    var subscriberThread = new Thread(runnable);
     subscriberThread.start();
 
     waitFor(() -> mockSubscriber.getSubscribedChannels() == 2);
@@ -428,12 +427,12 @@ public abstract class AbstractPubSubIntegrationTest implements RedisIntegrationT
     waitFor(() -> mockSubscriber.getSubscribedChannels() == 0);
     waitFor(() -> !subscriberThread.isAlive());
 
-    List<String> unsubscribedChannels = mockSubscriber.unsubscribeInfos.stream()
+    var unsubscribedChannels = mockSubscriber.unsubscribeInfos.stream()
         .map(x -> x.channel)
         .collect(Collectors.toList());
     assertThat(unsubscribedChannels).containsExactlyInAnyOrder("salutations", "yuletide");
 
-    List<Integer> channelCounts = mockSubscriber.unsubscribeInfos.stream()
+    var channelCounts = mockSubscriber.unsubscribeInfos.stream()
         .map(x -> x.count)
         .collect(Collectors.toList());
     assertThat(channelCounts).containsExactlyInAnyOrder(1, 0);
@@ -442,11 +441,11 @@ public abstract class AbstractPubSubIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testPsubscribingAndPunsubscribingFromMultipleChannels() {
-    MockSubscriber mockSubscriber = new MockSubscriber();
+    var mockSubscriber = new MockSubscriber();
 
-    Runnable runnable = () -> subscriber.psubscribe(mockSubscriber, "sal*", "yul*");
+    var runnable = (Runnable) () -> subscriber.psubscribe(mockSubscriber, "sal*", "yul*");
 
-    Thread subscriberThread = new Thread(runnable);
+    var subscriberThread = new Thread(runnable);
     subscriberThread.start();
 
     waitFor(() -> mockSubscriber.getSubscribedChannels() == 2);
@@ -465,11 +464,11 @@ public abstract class AbstractPubSubIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testPunsubscribingImplicitlyFromAllChannels() {
-    MockSubscriber mockSubscriber = new MockSubscriber();
+    var mockSubscriber = new MockSubscriber();
 
-    Runnable runnable = () -> subscriber.psubscribe(mockSubscriber, "sal*", "yul*");
+    var runnable = (Runnable) () -> subscriber.psubscribe(mockSubscriber, "sal*", "yul*");
 
-    Thread subscriberThread = new Thread(runnable);
+    var subscriberThread = new Thread(runnable);
     subscriberThread.start();
 
     waitFor(() -> mockSubscriber.getSubscribedChannels() == 2);
@@ -484,9 +483,9 @@ public abstract class AbstractPubSubIntegrationTest implements RedisIntegrationT
 
   @Test
   public void ensureOrderingOfPublishedMessagesWithTwoSubscriptions() throws Exception {
-    AtomicBoolean running = new AtomicBoolean(true);
+    var running = new AtomicBoolean(true);
 
-    Future<Void> future1 =
+    var future1 =
         executor.submit(() -> runSubscribeAndPublish(1, 3000, running));
 
     running.set(false);
@@ -496,11 +495,11 @@ public abstract class AbstractPubSubIntegrationTest implements RedisIntegrationT
   private void runSubscribeAndPublish(int index, int minimumIterations, AtomicBoolean running)
       throws Exception {
 
-    int iterationCount = 0;
-    Jedis publisher = getConnection();
+    var iterationCount = 0;
+    var publisher = getConnection();
 
     while (iterationCount < minimumIterations || running.get()) {
-      List<String> result = subscribeAndPublish(index, iterationCount, publisher);
+      var result = subscribeAndPublish(index, iterationCount, publisher);
 
       assertThat(result)
           .as("Failed at iteration " + iterationCount)
@@ -514,13 +513,13 @@ public abstract class AbstractPubSubIntegrationTest implements RedisIntegrationT
 
   private List<String> subscribeAndPublish(int index, int iteration, Jedis localPublisher)
       throws Exception {
-    String channel = index + ".foo.bar";
-    String pChannel = index + ".foo.*";
+    var channel = index + ".foo.bar";
+    var pChannel = index + ".foo.*";
 
-    MockSubscriber mockSubscriber = new MockSubscriber();
+    var mockSubscriber = new MockSubscriber();
 
-    try (Jedis localSubscriber = getConnection()) {
-      Future<Void> future =
+    try (var localSubscriber = getConnection()) {
+      var future =
           executor.submit(() -> localSubscriber.subscribe(mockSubscriber, channel));
 
       mockSubscriber.awaitSubscribe(channel);
@@ -547,7 +546,7 @@ public abstract class AbstractPubSubIntegrationTest implements RedisIntegrationT
 
   @Test
   public void ensureOrderingWithOneSubscriberMultiplePublishes() {
-    MockSubscriber mockSubscriber = new MockSubscriber();
+    var mockSubscriber = new MockSubscriber();
     executor.submit(() -> subscriber.subscribe(mockSubscriber, "salutations"));
 
     waitFor(() -> mockSubscriber.getSubscribedChannels() == 1);
@@ -567,16 +566,16 @@ public abstract class AbstractPubSubIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testTwoSubscribersOneChannel() {
-    Jedis subscriber2 = new Jedis("localhost", getPort(), JEDIS_TIMEOUT);
-    MockSubscriber mockSubscriber1 = new MockSubscriber();
-    MockSubscriber mockSubscriber2 = new MockSubscriber();
+    var subscriber2 = new Jedis("localhost", getPort(), JEDIS_TIMEOUT);
+    var mockSubscriber1 = new MockSubscriber();
+    var mockSubscriber2 = new MockSubscriber();
 
-    Runnable runnable1 = () -> subscriber.subscribe(mockSubscriber1, "salutations");
-    Runnable runnable2 = () -> subscriber2.subscribe(mockSubscriber2, "salutations");
+    var runnable1 = (Runnable) () -> subscriber.subscribe(mockSubscriber1, "salutations");
+    var runnable2 = (Runnable) () -> subscriber2.subscribe(mockSubscriber2, "salutations");
 
-    Thread subscriber1Thread = new Thread(runnable1);
+    var subscriber1Thread = new Thread(runnable1);
     subscriber1Thread.start();
-    Thread subscriber2Thread = new Thread(runnable2);
+    var subscriber2Thread = new Thread(runnable2);
     subscriber2Thread.start();
 
     waitFor(() -> mockSubscriber1.getSubscribedChannels() == 1);
@@ -625,11 +624,12 @@ public abstract class AbstractPubSubIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testOneSubscriberOneChannelTwoTimes() {
-    MockSubscriber mockSubscriber = new MockSubscriber();
+    var mockSubscriber = new MockSubscriber();
 
-    Runnable runnable1 = () -> subscriber.subscribe(mockSubscriber, "salutations", "salutations");
+    var runnable1 =
+        (Runnable) () -> subscriber.subscribe(mockSubscriber, "salutations", "salutations");
 
-    Thread subscriberThread = new Thread(runnable1);
+    var subscriberThread = new Thread(runnable1);
     subscriberThread.start();
 
     waitFor(() -> mockSubscriber.getSubscribedChannels() == 1);
@@ -651,15 +651,15 @@ public abstract class AbstractPubSubIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testDeadSubscriber() {
-    Jedis deadSubscriber = new Jedis("localhost", getPort(), JEDIS_TIMEOUT);
+    var deadSubscriber = new Jedis("localhost", getPort(), JEDIS_TIMEOUT);
 
-    MockSubscriber mockSubscriber = new MockSubscriber();
+    var mockSubscriber = new MockSubscriber();
 
-    Runnable runnable = () -> {
+    var runnable = (Runnable) () -> {
       deadSubscriber.subscribe(mockSubscriber, "salutations");
     };
 
-    Thread subscriberThread = new Thread(runnable);
+    var subscriberThread = new Thread(runnable);
     subscriberThread.start();
     waitFor(() -> mockSubscriber.getSubscribedChannels() == 1);
 
@@ -674,18 +674,18 @@ public abstract class AbstractPubSubIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testPatternSubscribe() {
-    MockSubscriber mockSubscriber = new MockSubscriber();
+    var mockSubscriber = new MockSubscriber();
 
-    Runnable runnable = () -> {
+    var runnable = (Runnable) () -> {
       subscriber.psubscribe(mockSubscriber, "sal*s");
     };
 
-    Thread subscriberThread = new Thread(runnable);
+    var subscriberThread = new Thread(runnable);
     subscriberThread.start();
 
     waitFor(() -> mockSubscriber.getSubscribedChannels() == 1);
 
-    String message = "hello-" + System.currentTimeMillis();
+    var message = "hello-" + System.currentTimeMillis();
 
     Long result = publisher.publish("salutations", message);
     assertThat(result).isEqualTo(1);
@@ -703,13 +703,13 @@ public abstract class AbstractPubSubIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testSubscribeToSamePattern() {
-    MockSubscriber mockSubscriber = new MockSubscriber();
+    var mockSubscriber = new MockSubscriber();
 
-    Runnable runnable = () -> {
+    var runnable = (Runnable) () -> {
       subscriber.psubscribe(mockSubscriber, "sal*s");
     };
 
-    Thread subscriberThread = new Thread(runnable);
+    var subscriberThread = new Thread(runnable);
     subscriberThread.start();
 
     waitFor(() -> mockSubscriber.getSubscribedChannels() == 1);
@@ -719,7 +719,7 @@ public abstract class AbstractPubSubIntegrationTest implements RedisIntegrationT
         .until(() -> mockSubscriber.getSubscribedChannels() == 1);
     checkInfoPatternCount(1);
 
-    String message = "hello-" + System.currentTimeMillis();
+    var message = "hello-" + System.currentTimeMillis();
 
     Long result = publisher.publish("salutations", message);
     assertThat(result).isEqualTo(1);
@@ -737,13 +737,13 @@ public abstract class AbstractPubSubIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testPatternAndRegularSubscribe() {
-    MockSubscriber mockSubscriber = new MockSubscriber();
+    var mockSubscriber = new MockSubscriber();
 
-    Runnable runnable = () -> {
+    var runnable = (Runnable) () -> {
       subscriber.subscribe(mockSubscriber, "salutations");
     };
 
-    Thread subscriberThread = new Thread(runnable);
+    var subscriberThread = new Thread(runnable);
     subscriberThread.start();
     waitFor(() -> mockSubscriber.getSubscribedChannels() == 1);
 
@@ -778,13 +778,13 @@ public abstract class AbstractPubSubIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testPatternWithoutAGlob() {
-    MockSubscriber mockSubscriber = new MockSubscriber();
+    var mockSubscriber = new MockSubscriber();
 
-    Runnable runnable = () -> {
+    var runnable = (Runnable) () -> {
       subscriber.subscribe(mockSubscriber, "salutations");
     };
 
-    Thread subscriberThread = new Thread(runnable);
+    var subscriberThread = new Thread(runnable);
     subscriberThread.start();
     waitFor(() -> mockSubscriber.getSubscribedChannels() == 1);
 
@@ -813,18 +813,18 @@ public abstract class AbstractPubSubIntegrationTest implements RedisIntegrationT
 
   @Test
   public void concurrentSubscribers_andPublishers_doesNotHang() throws Exception {
-    AtomicBoolean running = new AtomicBoolean(true);
+    var running = new AtomicBoolean(true);
 
-    Future<Integer> makeSubscribersFuture1 =
+    var makeSubscribersFuture1 =
         executor.submit(() -> makeSubscribers(10000, running));
-    Future<Integer> makeSubscribersFuture2 =
+    var makeSubscribersFuture2 =
         executor.submit(() -> makeSubscribers(10000, running));
 
-    Future<Integer> publish1 = executor.submit(() -> doPublishing(1, 10000, running));
-    Future<Integer> publish2 = executor.submit(() -> doPublishing(2, 10000, running));
-    Future<Integer> publish3 = executor.submit(() -> doPublishing(3, 10000, running));
-    Future<Integer> publish4 = executor.submit(() -> doPublishing(4, 10000, running));
-    Future<Integer> publish5 = executor.submit(() -> doPublishing(5, 10000, running));
+    var publish1 = executor.submit(() -> doPublishing(1, 10000, running));
+    var publish2 = executor.submit(() -> doPublishing(2, 10000, running));
+    var publish3 = executor.submit(() -> doPublishing(3, 10000, running));
+    var publish4 = executor.submit(() -> doPublishing(4, 10000, running));
+    var publish5 = executor.submit(() -> doPublishing(5, 10000, running));
 
     running.set(false);
 
@@ -841,7 +841,7 @@ public abstract class AbstractPubSubIntegrationTest implements RedisIntegrationT
   private Jedis getConnection() {
     Exception lastException = null;
 
-    for (int i = 0; i < 20; i++) {
+    for (var i = 0; i < 20; i++) {
       Jedis client = null;
       try {
         client = new Jedis("localhost", getPort(), JEDIS_TIMEOUT);
@@ -872,9 +872,9 @@ public abstract class AbstractPubSubIntegrationTest implements RedisIntegrationT
   // TODO: This exists for debugging some flakiness in this test. If this is fully resolved in the
   // future, please delete this and the associated dependency in build.gradle
   private void runit(String command, String... args) {
-    StreamConsumer consumer = stream -> {
-      InputStreamReader inputStreamReader = new InputStreamReader(stream);
-      BufferedReader bufReader = new BufferedReader(inputStreamReader);
+    var consumer = (StreamConsumer) stream -> {
+      var inputStreamReader = new InputStreamReader(stream);
+      var bufReader = new BufferedReader(inputStreamReader);
       String line;
       while ((line = bufReader.readLine()) != null) {
         System.err.println("::::: " + line);
@@ -889,9 +889,9 @@ public abstract class AbstractPubSubIntegrationTest implements RedisIntegrationT
   }
 
   int doPublishing(int index, int minimumIterations, AtomicBoolean running) {
-    int iterationCount = 0;
-    int publishedMessages = 0;
-    Jedis client = getConnection();
+    var iterationCount = 0;
+    var publishedMessages = 0;
+    var client = getConnection();
     try {
       while (iterationCount < minimumIterations || running.get()) {
         publishedMessages += client.publish("my-channel", "boo-" + index + "-" + iterationCount);
@@ -906,17 +906,17 @@ public abstract class AbstractPubSubIntegrationTest implements RedisIntegrationT
 
   int makeSubscribers(int minimumIterations, AtomicBoolean running)
       throws InterruptedException, ExecutionException {
-    ExecutorService executor = Executors.newFixedThreadPool(100);
+    var executor = Executors.newFixedThreadPool(100);
     Queue<Future<Void>> workQ = new ConcurrentLinkedQueue<>();
 
-    Future<Integer> consumer = executor.submit(() -> {
-      int subscribersProcessed = 0;
+    var consumer = executor.submit(() -> {
+      var subscribersProcessed = 0;
       while (subscribersProcessed < minimumIterations || running.get()) {
         if (workQ.isEmpty()) {
           Thread.yield();
           continue;
         }
-        Future<Void> f = workQ.poll();
+        var f = workQ.poll();
         try {
           f.get();
         } catch (Exception e) {
@@ -927,14 +927,14 @@ public abstract class AbstractPubSubIntegrationTest implements RedisIntegrationT
       return subscribersProcessed;
     });
 
-    int iterationCount = 0;
-    String channel = "my-channel";
+    var iterationCount = 0;
+    var channel = "my-channel";
     while (iterationCount < minimumIterations || running.get()) {
       Future<Void> f = executor.submit(() -> {
-        Jedis client = getConnection();
-        ExecutorService secondaryExecutor = Executors.newSingleThreadExecutor();
-        MockSubscriber mockSubscriber = new MockSubscriber();
-        AtomicReference<Thread> innerThread = new AtomicReference<>();
+        var client = getConnection();
+        var secondaryExecutor = Executors.newSingleThreadExecutor();
+        var mockSubscriber = new MockSubscriber();
+        var innerThread = new AtomicReference<Thread>();
         Future<Void> inner = secondaryExecutor.submit(() -> {
           innerThread.set(Thread.currentThread());
           client.subscribe(mockSubscriber, channel);
@@ -951,7 +951,7 @@ public abstract class AbstractPubSubIntegrationTest implements RedisIntegrationT
           inner.get(30, TimeUnit.SECONDS);
         } catch (Exception e) {
           LogService.getLogger().debug("=> {} {}", innerThread.get(), innerThread.get().getState());
-          for (StackTraceElement st : innerThread.get().getStackTrace()) {
+          for (var st : innerThread.get().getStackTrace()) {
             LogService.getLogger().debug("-> {}", st);
           }
           throw new RuntimeException("inner.get() errored after unsubscribe: " + e.getMessage());

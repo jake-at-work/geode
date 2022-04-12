@@ -75,9 +75,9 @@ public class StatAlertNotification extends StatAlert
    */
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder();
+    var buf = new StringBuilder();
     buf.append("[");
-    for (int i = 0; i < getValues().length; i++) {
+    for (var i = 0; i < getValues().length; i++) {
       buf.append(getValues()[i] + ", ");
     }
     buf.append("]");
@@ -91,12 +91,12 @@ public class StatAlertNotification extends StatAlert
    * @return String representation of this object based on {@link StatAlertDefinition}
    */
   public String toString(StatAlertDefinition defn) {
-    StringBuilder buf = new StringBuilder();
+    var buf = new StringBuilder();
     buf.append("For Member ID: ");
     buf.append(memberId);
     buf.append("\n");
     buf.append("[ ");
-    for (int i = 0; i < getValues().length; i++) {
+    for (var i = 0; i < getValues().length; i++) {
       buf.append(defn.getStatisticInfo()[i].toString() + "=" + getValues()[i] + "\n");
     }
     buf.append("]");
@@ -109,9 +109,9 @@ public class StatAlertNotification extends StatAlert
       return false;
     }
 
-    StatAlertNotification other = (StatAlertNotification) object;
+    var other = (StatAlertNotification) object;
 
-    int defId = getDefinitionId();
+    var defId = getDefinitionId();
 
     return defId != -1 && defId == other.getDefinitionId() && memberId != null
         && memberId.equals(other.getMemberId());

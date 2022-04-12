@@ -75,7 +75,7 @@ public class RegionData<T> implements Iterable<T>, JsonSerializable {
 
   @SafeVarargs
   public final RegionData<T> add(final T... data) {
-    for (final T element : data) {
+    for (final var element : data) {
       if (element != null) {
         add(element);
       }
@@ -85,7 +85,7 @@ public class RegionData<T> implements Iterable<T>, JsonSerializable {
   }
 
   public RegionData<T> add(final Iterable<T> data) {
-    for (final T element : data) {
+    for (final var element : data) {
       add(element);
     }
 
@@ -124,7 +124,7 @@ public class RegionData<T> implements Iterable<T>, JsonSerializable {
     jsonGenerator.writeStartObject();
     jsonGenerator.writeArrayFieldStart(getRegionNamePath());
 
-    for (T element : this) {
+    for (var element : this) {
       JsonWriter.writeValueAsJson(jsonGenerator, element, null);
     }
 

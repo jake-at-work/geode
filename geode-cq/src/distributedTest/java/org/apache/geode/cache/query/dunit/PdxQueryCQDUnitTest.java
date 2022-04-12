@@ -29,11 +29,9 @@ import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.client.PoolManager;
-import org.apache.geode.cache.query.CqAttributes;
 import org.apache.geode.cache.query.CqAttributesFactory;
 import org.apache.geode.cache.query.CqEvent;
 import org.apache.geode.cache.query.CqListener;
-import org.apache.geode.cache.query.CqQuery;
 import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.Struct;
@@ -63,13 +61,13 @@ public class PdxQueryCQDUnitTest extends PdxQueryCQTestBase {
   @Test
   public void testCq() throws CacheException {
 
-    final Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
-    final int numberOfEntries = 10;
-    final int queryLimit = 6; // where id > 5 (0-5)
+    final var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
+    final var numberOfEntries = 10;
+    final var queryLimit = 6; // where id > 5 (0-5)
 
     // Start server1
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
@@ -77,7 +75,7 @@ public class PdxQueryCQDUnitTest extends PdxQueryCQTestBase {
       public void run2() throws CacheException {
         configAndStartBridgeServer();
         Region region = getRootRegion().getSubregion(regionName);
-        for (int i = 0; i < numberOfEntries; i++) {
+        for (var i = 0; i < numberOfEntries; i++) {
           region.put("key-" + i, new TestObject(i, "vmware"));
         }
       }
@@ -96,13 +94,13 @@ public class PdxQueryCQDUnitTest extends PdxQueryCQTestBase {
     final int port0 = vm0.invoke(PdxQueryCQTestBase::getCacheServerPort);
     final int port1 = vm1.invoke(PdxQueryCQTestBase::getCacheServerPort);
 
-    final String host0 = NetworkUtils.getServerHostName(vm0.getHost());
+    final var host0 = NetworkUtils.getServerHostName(vm0.getHost());
 
     // Create client pool.
-    final String poolName = "testCqPool";
+    final var poolName = "testCqPool";
     createPool(vm2, poolName, new String[] {host0}, new int[] {port0}, true);
     createPool(vm3, poolName, new String[] {host0}, new int[] {port1}, true);
-    final String cqName = "testCq";
+    final var cqName = "testCq";
 
     // Execute CQ
     SerializableRunnable executeCq = new CacheSerializableRunnable("Execute queries") {
@@ -117,27 +115,27 @@ public class PdxQueryCQDUnitTest extends PdxQueryCQTestBase {
           Assert.fail("Failed to getCQService.", cqe);
         }
         // Create CQ Attributes.
-        CqAttributesFactory cqf = new CqAttributesFactory();
+        var cqf = new CqAttributesFactory();
         CqListener[] cqListeners = {new CqQueryTestListener(LogWriterUtils.getLogWriter())};
         ((CqQueryTestListener) cqListeners[0]).cqName = cqName;
 
         cqf.initCqListeners(cqListeners);
-        CqAttributes cqa = cqf.create();
+        var cqa = cqf.create();
 
         // Create CQ.
         try {
-          CqQuery cq = qService.newCq(cqName, queryString[3], cqa);
+          var cq = qService.newCq(cqName, queryString[3], cqa);
           SelectResults sr = cq.executeWithInitialResults();
-          for (Object o : sr.asSet()) {
-            Struct s = (Struct) o;
-            Object value = s.get("value");
+          for (var o : sr.asSet()) {
+            var s = (Struct) o;
+            var value = s.get("value");
             if (!(value instanceof TestObject)) {
               fail(
                   "Expected type TestObject, not found in result set. Found type :" + o.getClass());
             }
           }
         } catch (Exception ex) {
-          AssertionError err = new AssertionError("Failed to create CQ " + cqName + " . ", ex);
+          var err = new AssertionError("Failed to create CQ " + cqName + " . ", ex);
           LogWriterUtils.getLogWriter().info("QueryService is :" + qService, err);
           throw err;
         }
@@ -161,7 +159,7 @@ public class PdxQueryCQDUnitTest extends PdxQueryCQTestBase {
       @Override
       public void run2() throws CacheException {
         Region region = getRootRegion().getSubregion(regionName);
-        for (int i = 0; i < numberOfEntries * 2; i++) {
+        for (var i = 0; i < numberOfEntries * 2; i++) {
           region.put("key-" + i, new TestObject(i, "vmware"));
         }
         // Check for TestObject instances.
@@ -190,14 +188,14 @@ public class PdxQueryCQDUnitTest extends PdxQueryCQTestBase {
           Assert.fail("Failed to getCQService.", cqe);
         }
 
-        CqQuery cQuery = cqService.getCq(cqName);
+        var cQuery = cqService.getCq(cqName);
         if (cQuery == null) {
           fail("Failed to get CqQuery for CQ : " + cqName);
         }
 
-        CqAttributes cqAttr = cQuery.getCqAttributes();
-        CqListener[] cqListeners = cqAttr.getCqListeners();
-        final CqQueryTestListener listener = (CqQueryTestListener) cqListeners[0];
+        var cqAttr = cQuery.getCqAttributes();
+        var cqListeners = cqAttr.getCqListeners();
+        final var listener = (CqQueryTestListener) cqListeners[0];
 
         // Wait for the events to show up on the client.
         await().until(() -> listener.getTotalEventCount() >= (numberOfEntries * 2 - queryLimit));
@@ -205,10 +203,10 @@ public class PdxQueryCQDUnitTest extends PdxQueryCQTestBase {
         listener.printInfo(false);
 
         // Check for event type.
-        Object[] cqEvents = listener.getEvents();
-        for (Object o : cqEvents) {
-          CqEvent cqEvent = (CqEvent) o;
-          Object value = cqEvent.getNewValue();
+        var cqEvents = listener.getEvents();
+        for (var o : cqEvents) {
+          var cqEvent = (CqEvent) o;
+          var value = cqEvent.getNewValue();
           if (!(value instanceof TestObject)) {
             fail("Expected type TestObject, not found in result set. Found type :" + o.getClass());
           }
@@ -243,15 +241,15 @@ public class PdxQueryCQDUnitTest extends PdxQueryCQTestBase {
   @Test
   public void testCqAndInterestRegistrations() throws CacheException {
 
-    final Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
-    final int numberOfEntries = 10;
-    final int queryLimit = 6; // where id > 5 (0-5)
+    final var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
+    final var numberOfEntries = 10;
+    final var queryLimit = 6; // where id > 5 (0-5)
 
-    final String[] queries =
+    final var queries =
         new String[] {"SELECT * FROM " + regName + " p WHERE p.ticker = 'vmware'",
             "SELECT * FROM " + regName + " WHERE id > 5",};
 
@@ -277,27 +275,27 @@ public class PdxQueryCQDUnitTest extends PdxQueryCQTestBase {
     final int port0 = vm0.invoke(PdxQueryCQTestBase::getCacheServerPort);
     final int port1 = vm1.invoke(PdxQueryCQTestBase::getCacheServerPort);
 
-    final String host0 = NetworkUtils.getServerHostName(vm0.getHost());
+    final var host0 = NetworkUtils.getServerHostName(vm0.getHost());
 
     // Create client pool.
-    final String poolName = "testCqPool";
+    final var poolName = "testCqPool";
 
     createPool(vm2, poolName, new String[] {host0, host0}, new int[] {port0, port1}, true);
     createPool(vm3, poolName, new String[] {host0, host0}, new int[] {port1, port0}, true);
 
-    final String cqName = "testCq";
+    final var cqName = "testCq";
 
     vm3.invoke(new CacheSerializableRunnable("init region") {
       @Override
       public void run2() throws CacheException {
         QueryService localQueryService = null;
 
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
         ClientServerTestCase.configureConnectionPool(factory, host0, port1, -1, true, -1, -1, null);
-        Region region = createRegion(regionName, rootRegionName, factory.create());
+        var region = createRegion(regionName, rootRegionName, factory.create());
 
-        for (int i = 0; i < numberOfEntries; i++) {
+        for (var i = 0; i < numberOfEntries; i++) {
           region.put("key-" + i, new TestObject(i, "vmware"));
         }
       }
@@ -308,10 +306,10 @@ public class PdxQueryCQDUnitTest extends PdxQueryCQTestBase {
       public void run2() throws CacheException {
         QueryService localQueryService = null;
 
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
         ClientServerTestCase.configureConnectionPool(factory, host0, port0, -1, true, -1, -1, null);
-        Region region = createRegion(regionName, rootRegionName, factory.create());
+        var region = createRegion(regionName, rootRegionName, factory.create());
       }
     });
 
@@ -322,7 +320,7 @@ public class PdxQueryCQDUnitTest extends PdxQueryCQTestBase {
         // Register interest
         Region region = getRootRegion().getSubregion(regionName);
         List list = new ArrayList();
-        for (int i = 1; i <= numberOfEntries * 3; i++) {
+        for (var i = 1; i <= numberOfEntries * 3; i++) {
           if (i % 4 == 0) {
             list.add("key-" + i);
           }
@@ -338,28 +336,28 @@ public class PdxQueryCQDUnitTest extends PdxQueryCQTestBase {
           Assert.fail("Failed to getCQService.", cqe);
         }
         // Create CQ Attributes.
-        for (int i = 0; i < queries.length; i++) {
-          CqAttributesFactory cqf = new CqAttributesFactory();
+        for (var i = 0; i < queries.length; i++) {
+          var cqf = new CqAttributesFactory();
           CqListener[] cqListeners = {new CqQueryTestListener(LogWriterUtils.getLogWriter())};
           ((CqQueryTestListener) cqListeners[0]).cqName = (cqName + i);
 
           cqf.initCqListeners(cqListeners);
-          CqAttributes cqa = cqf.create();
+          var cqa = cqf.create();
 
           // Create CQ.
           try {
-            CqQuery cq = qService.newCq(cqName + i, queries[i], cqa);
+            var cq = qService.newCq(cqName + i, queries[i], cqa);
             SelectResults sr = cq.executeWithInitialResults();
-            for (Object o : sr.asSet()) {
-              Struct s = (Struct) o;
-              Object value = s.get("value");
+            for (var o : sr.asSet()) {
+              var s = (Struct) o;
+              var value = s.get("value");
               if (!(value instanceof TestObject)) {
                 fail("Expected type TestObject, not found in result set. Found type :"
                     + o.getClass());
               }
             }
           } catch (Exception ex) {
-            AssertionError err = new AssertionError("Failed to create CQ " + cqName + " . ", ex);
+            var err = new AssertionError("Failed to create CQ " + cqName + " . ", ex);
             LogWriterUtils.getLogWriter().info("QueryService is :" + qService, err);
             throw err;
           }
@@ -393,16 +391,16 @@ public class PdxQueryCQDUnitTest extends PdxQueryCQTestBase {
       public void run2() throws CacheException {
         Region region = getRootRegion().getSubregion(regionName);
 
-        for (int i = 0; i < numberOfEntries * 2; i++) {
+        for (var i = 0; i < numberOfEntries * 2; i++) {
           region.put("key-" + i, new TestObject(i, "vmware"));
         }
       }
     });
 
     // Validate CQs.
-    for (int i = 0; i < queries.length; i++) {
-      int expectedEvent = 0;
-      int updateEvents = 0;
+    for (var i = 0; i < queries.length; i++) {
+      var expectedEvent = 0;
+      var updateEvents = 0;
 
       if (i != 0) {
         expectedEvent = numberOfEntries * 2 - queryLimit;
@@ -448,15 +446,15 @@ public class PdxQueryCQDUnitTest extends PdxQueryCQTestBase {
   @Test
   public void testCqAndInterestRegistrationsWithFailOver() throws CacheException {
 
-    final Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
-    final int numberOfEntries = 10;
-    final int queryLimit = 6; // where id > 5 (0-5)
+    final var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
+    final var numberOfEntries = 10;
+    final var queryLimit = 6; // where id > 5 (0-5)
 
-    final String[] queries =
+    final var queries =
         new String[] {"SELECT * FROM " + regName + " p WHERE p.ticker = 'vmware'",
             "SELECT * FROM " + regName + " WHERE id > 5",};
 
@@ -492,26 +490,26 @@ public class PdxQueryCQDUnitTest extends PdxQueryCQTestBase {
     final int port1 = vm1.invoke(PdxQueryCQTestBase::getCacheServerPort);
     final int port2 = vm2.invoke(PdxQueryCQTestBase::getCacheServerPort);
 
-    final String host0 = NetworkUtils.getServerHostName(vm0.getHost());
+    final var host0 = NetworkUtils.getServerHostName(vm0.getHost());
 
     // Create client pool.
-    final String poolName = "testCqPool";
+    final var poolName = "testCqPool";
     createPool(vm3, poolName, new String[] {host0, host0, host0}, new int[] {port1, port0, port2},
         true, 1);
 
-    final String cqName = "testCq";
+    final var cqName = "testCq";
 
     vm3.invoke(new CacheSerializableRunnable("init region") {
       @Override
       public void run2() throws CacheException {
         QueryService localQueryService = null;
 
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
         ClientServerTestCase.configureConnectionPool(factory, host0, port1, -1, true, -1, -1, null);
-        Region region = createRegion(regionName, rootRegionName, factory.create());
+        var region = createRegion(regionName, rootRegionName, factory.create());
 
-        for (int i = 0; i < numberOfEntries; i++) {
+        for (var i = 0; i < numberOfEntries; i++) {
           region.put("key-" + i, new TestObject(i, "vmware"));
         }
       }
@@ -524,7 +522,7 @@ public class PdxQueryCQDUnitTest extends PdxQueryCQTestBase {
         // Register interest
         Region region = getRootRegion().getSubregion(regionName);
         List list = new ArrayList();
-        for (int i = 1; i <= numberOfEntries * 3; i++) {
+        for (var i = 1; i <= numberOfEntries * 3; i++) {
           if (i % 4 == 0) {
             list.add("key-" + i);
           }
@@ -540,28 +538,28 @@ public class PdxQueryCQDUnitTest extends PdxQueryCQTestBase {
           Assert.fail("Failed to getCQService.", cqe);
         }
         // Create CQ Attributes.
-        for (int i = 0; i < queries.length; i++) {
-          CqAttributesFactory cqf = new CqAttributesFactory();
+        for (var i = 0; i < queries.length; i++) {
+          var cqf = new CqAttributesFactory();
           CqListener[] cqListeners = {new CqQueryTestListener(LogWriterUtils.getLogWriter())};
           ((CqQueryTestListener) cqListeners[0]).cqName = (cqName + i);
 
           cqf.initCqListeners(cqListeners);
-          CqAttributes cqa = cqf.create();
+          var cqa = cqf.create();
 
           // Create CQ.
           try {
-            CqQuery cq = qService.newCq(cqName + i, queries[i], cqa);
+            var cq = qService.newCq(cqName + i, queries[i], cqa);
             SelectResults sr = cq.executeWithInitialResults();
-            for (Object o : sr.asSet()) {
-              Struct s = (Struct) o;
-              Object value = s.get("value");
+            for (var o : sr.asSet()) {
+              var s = (Struct) o;
+              var value = s.get("value");
               if (!(value instanceof TestObject)) {
                 fail("Expected type TestObject, not found in result set. Found type :"
                     + o.getClass());
               }
             }
           } catch (Exception ex) {
-            AssertionError err = new AssertionError("Failed to create CQ " + cqName + " . ", ex);
+            var err = new AssertionError("Failed to create CQ " + cqName + " . ", ex);
             LogWriterUtils.getLogWriter().info("QueryService is :" + qService, err);
             throw err;
           }
@@ -595,16 +593,16 @@ public class PdxQueryCQDUnitTest extends PdxQueryCQTestBase {
       public void run2() throws CacheException {
         Region region = getRootRegion().getSubregion(regionName);
 
-        for (int i = 0; i < numberOfEntries * 2; i++) {
+        for (var i = 0; i < numberOfEntries * 2; i++) {
           region.put("key-" + i, new TestObject(i, "vmware"));
         }
       }
     });
 
     // Validate CQs.
-    for (int i = 0; i < queries.length; i++) {
-      int expectedEvent = 0;
-      int updateEvents = 0;
+    for (var i = 0; i < queries.length; i++) {
+      var expectedEvent = 0;
+      var updateEvents = 0;
 
       if (i != 0) {
         expectedEvent = (numberOfEntries * 2) - queryLimit;
@@ -641,7 +639,7 @@ public class PdxQueryCQDUnitTest extends PdxQueryCQTestBase {
       public void run2() throws CacheException {
         Region region = getRootRegion().getSubregion(regionName);
 
-        for (int i = 0; i < numberOfEntries * 2; i++) {
+        for (var i = 0; i < numberOfEntries * 2; i++) {
           region.put("key-" + i, new TestObject(i, "vmware"));
         }
       }
@@ -651,9 +649,9 @@ public class PdxQueryCQDUnitTest extends PdxQueryCQTestBase {
     closeClient(vm0);
 
     // validate cq
-    for (int i = 0; i < queries.length; i++) {
-      int expectedEvent = 0;
-      int updateEvents = 0;
+    for (var i = 0; i < queries.length; i++) {
+      var expectedEvent = 0;
+      var updateEvents = 0;
 
       if (i != 0) {
         expectedEvent = (numberOfEntries * 4) - (queryLimit * 2); // Double the previous time
@@ -697,21 +695,21 @@ public class PdxQueryCQDUnitTest extends PdxQueryCQTestBase {
           Assert.fail("Failed to getCQService.", cqe);
         }
 
-        CqQuery cQuery = cqService.getCq(cqName);
+        var cQuery = cqService.getCq(cqName);
         if (cQuery == null) {
           fail("Failed to get CqQuery for CQ : " + cqName);
         }
 
-        CqAttributes cqAttr = cQuery.getCqAttributes();
-        CqListener[] cqListeners = cqAttr.getCqListeners();
-        CqQueryTestListener listener = (CqQueryTestListener) cqListeners[0];
+        var cqAttr = cQuery.getCqAttributes();
+        var cqListeners = cqAttr.getCqListeners();
+        var listener = (CqQueryTestListener) cqListeners[0];
         listener.printInfo(false);
 
         // Check for event type.
-        Object[] cqEvents = listener.getEvents();
-        for (Object o : cqEvents) {
-          CqEvent cqEvent = (CqEvent) o;
-          Object value = cqEvent.getNewValue();
+        var cqEvents = listener.getEvents();
+        for (var o : cqEvents) {
+          var cqEvent = (CqEvent) o;
+          var value = cqEvent.getNewValue();
           if (!(value instanceof TestObject)) {
             fail("Expected type TestObject, not found in result set. Found type :" + o.getClass());
           }

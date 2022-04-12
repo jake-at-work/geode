@@ -40,7 +40,7 @@ public class LogChecker {
   }
 
   static void checkLogs(File dir) {
-    List<File> logsToCheck = getLogs(dir);
+    var logsToCheck = getLogs(dir);
     checkLogs(logsToCheck);
   }
 
@@ -52,15 +52,15 @@ public class LogChecker {
   }
 
   private static void getLogs(File currentDir, List<File> logs) {
-    File[] dirContents = currentDir.listFiles();
+    var dirContents = currentDir.listFiles();
     if (dirContents == null) {
       return;
     }
-    for (File aFile : dirContents) {
+    for (var aFile : dirContents) {
       if (aFile.isDirectory()) {
         getLogs(aFile, logs);
       } else {
-        String fileName = aFile.getName();
+        var fileName = aFile.getName();
         if (fileName.startsWith("container") && fileName.endsWith(".log")) {
           logs.add(aFile);
         } else if (fileName.startsWith("gemfire") && fileName.endsWith(".log")) {
@@ -73,7 +73,7 @@ public class LogChecker {
   private static void checkLogs(List<File> logsToCheck) {
     BufferedReader reader = null;
     String line;
-    for (File aFile : logsToCheck) {
+    for (var aFile : logsToCheck) {
       logger.info("Checking " + aFile.getAbsolutePath());
       try {
         try {
@@ -106,7 +106,7 @@ public class LogChecker {
   }
 
   private static boolean contains(List<String> targetStrs, String aStr) {
-    for (String target : targetStrs) {
+    for (var target : targetStrs) {
       if (aStr.contains(target)) {
         return true;
       }

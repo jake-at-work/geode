@@ -28,7 +28,7 @@ public class PRDistTXDUnitTest extends PRTransactionDUnitTest {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties props = super.getDistributedSystemProperties();
+    var props = super.getDistributedSystemProperties();
     props.setProperty(DISTRIBUTED_TRANSACTIONS, "true");
     return props;
   }

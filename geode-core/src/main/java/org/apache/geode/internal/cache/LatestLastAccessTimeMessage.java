@@ -62,18 +62,18 @@ public class LatestLastAccessTimeMessage<K> extends PooledDistributionMessage
 
   @Override
   protected void process(ClusterDistributionManager dm) {
-    long lastAccessed = 0L;
+    var lastAccessed = 0L;
     try {
-      final InternalCache cache = dm.getCache();
+      final var cache = dm.getCache();
       if (cache == null) {
         return;
       }
-      final InternalDistributedRegion region =
+      final var region =
           (InternalDistributedRegion) cache.getRegion(regionName);
       if (region == null) {
         return;
       }
-      final RegionEntry entry = region.getRegionEntry(key);
+      final var entry = region.getRegionEntry(key);
       if (entry == null) {
         return;
       }

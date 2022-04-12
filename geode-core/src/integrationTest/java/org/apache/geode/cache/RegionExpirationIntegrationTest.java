@@ -37,7 +37,6 @@ import org.junit.Test;
 import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.mockito.InOrder;
 
 import org.apache.geode.test.junit.runners.CategoryWithParameterizedRunnerFactory;
 
@@ -71,14 +70,14 @@ public class RegionExpirationIntegrationTest {
 
   @Test
   public void increaseRegionTtl() throws Exception {
-    int firstTtlSeconds = 3;
-    int secondTtlSeconds = 8;
-    long startNanos = nanoTime();
+    var firstTtlSeconds = 3;
+    var secondTtlSeconds = 8;
+    var startNanos = nanoTime();
 
     RegionFactory<String, String> regionFactory = cache.createRegionFactory(LOCAL);
     regionFactory.setRegionTimeToLive(new ExpirationAttributes(firstTtlSeconds, DESTROY));
     regionFactory.setDataPolicy(dataPolicy);
-    Region<String, String> region = regionFactory.create(regionName);
+    var region = regionFactory.create(regionName);
 
     region.getAttributesMutator()
         .setRegionTimeToLive(new ExpirationAttributes(secondTtlSeconds, DESTROY));
@@ -90,14 +89,14 @@ public class RegionExpirationIntegrationTest {
 
   @Test
   public void decreaseRegionTtl() throws Exception {
-    int firstTtlSeconds = 5;
-    int secondTtlSeconds = 1;
-    long startNanos = nanoTime();
+    var firstTtlSeconds = 5;
+    var secondTtlSeconds = 1;
+    var startNanos = nanoTime();
 
     RegionFactory<String, String> regionFactory = cache.createRegionFactory(LOCAL);
     regionFactory.setRegionTimeToLive(new ExpirationAttributes(firstTtlSeconds, DESTROY));
     regionFactory.setDataPolicy(dataPolicy);
-    Region<String, String> region = regionFactory.create(regionName);
+    var region = regionFactory.create(regionName);
 
     region.getAttributesMutator()
         .setRegionTimeToLive(new ExpirationAttributes(secondTtlSeconds, DESTROY));
@@ -108,15 +107,15 @@ public class RegionExpirationIntegrationTest {
 
   @Test
   public void regionTtlWithIdleMock() throws Exception {
-    int ttlSeconds = 5;
-    int idleSeconds = 1;
+    var ttlSeconds = 5;
+    var idleSeconds = 1;
 
     RegionFactory<String, String> regionFactory = cache.createRegionFactory(LOCAL);
     regionFactory.setRegionTimeToLive(new ExpirationAttributes(ttlSeconds, DESTROY));
     regionFactory.setRegionIdleTimeout(new ExpirationAttributes(idleSeconds, INVALIDATE));
     regionFactory.setDataPolicy(dataPolicy);
     regionFactory.addCacheListener(spyCacheListener);
-    Region<String, String> region = regionFactory.create(regionName);
+    var region = regionFactory.create(regionName);
 
     region.create("key", "val");
 
@@ -130,7 +129,7 @@ public class RegionExpirationIntegrationTest {
     verify(spyCacheListener, timeout(SECONDS.toMillis(30))).afterRegionDestroy(any());
     assertTrue(region.isDestroyed());
 
-    InOrder inOrder = inOrder(spyCacheListener);
+    var inOrder = inOrder(spyCacheListener);
     inOrder.verify(spyCacheListener).afterRegionInvalidate(any());
     inOrder.verify(spyCacheListener).afterRegionDestroy(any());
   }

@@ -51,7 +51,7 @@ public class BlockingHARQAddOperationJUnitTest extends HARQAddOperationJUnitTest
   @Override
   protected HARegionQueue createHARegionQueue(String name)
       throws IOException, ClassNotFoundException, CacheException, InterruptedException {
-    HARegionQueue regionqueue =
+    var regionqueue =
         HARegionQueue.getHARegionQueueInstance(name, cache, HARegionQueue.BLOCKING_HA_QUEUE, false,
             disabledClock());
     return regionqueue;
@@ -65,7 +65,7 @@ public class BlockingHARQAddOperationJUnitTest extends HARQAddOperationJUnitTest
   @Override
   protected HARegionQueue createHARegionQueue(String name, HARegionQueueAttributes attrs)
       throws IOException, ClassNotFoundException, CacheException, InterruptedException {
-    HARegionQueue regionqueue = HARegionQueue.getHARegionQueueInstance(name, cache, attrs,
+    var regionqueue = HARegionQueue.getHARegionQueueInstance(name, cache, attrs,
         HARegionQueue.BLOCKING_HA_QUEUE, false, disabledClock());
     return regionqueue;
   }
@@ -109,9 +109,9 @@ public class BlockingHARQAddOperationJUnitTest extends HARQAddOperationJUnitTest
 
     testFailed = false;
     message = null;
-    final HARegionQueue rq = createHARegionQueue("testBlockingTake");
+    final var rq = createHARegionQueue("testBlockingTake");
     final List takenObjects = new ArrayList();
-    Thread takeThread = new Thread() {
+    var takeThread = new Thread() {
       @Override
       public void run() {
         try {
@@ -128,12 +128,12 @@ public class BlockingHARQAddOperationJUnitTest extends HARQAddOperationJUnitTest
     if (!takeThread.isAlive()) {
       fail("take() thread died ");
     }
-    EventID id1 = new EventID(new byte[] {1}, 1, 1);
-    ConflatableObject c1 = new ConflatableObject(KEY1, VALUE1, id1, conflationEnabled, "region1");
+    var id1 = new EventID(new byte[] {1}, 1, 1);
+    var c1 = new ConflatableObject(KEY1, VALUE1, id1, conflationEnabled, "region1");
     rq.put(c1);
     ThreadUtils.join(takeThread, 20 * 1000);
     assertEquals(1, takenObjects.size());
-    Conflatable obj = (Conflatable) takenObjects.get(0);
+    var obj = (Conflatable) takenObjects.get(0);
     assertNotNull(obj);
     assertEquals(id1, obj.getEventId());
 
@@ -158,11 +158,11 @@ public class BlockingHARQAddOperationJUnitTest extends HARQAddOperationJUnitTest
 
     testFailed = false;
     message = null;
-    final HARegionQueue rq = createHARegionQueue("testBlockingTake");
+    final var rq = createHARegionQueue("testBlockingTake");
     final List takenObjects = new Vector();
-    final int totalTakeThreads = 2;
-    Thread[] takeThreads = new Thread[totalTakeThreads];
-    for (int i = 0; i < totalTakeThreads; i++) {
+    final var totalTakeThreads = 2;
+    var takeThreads = new Thread[totalTakeThreads];
+    for (var i = 0; i < totalTakeThreads; i++) {
       takeThreads[i] = new Thread() {
         @Override
         public void run() {
@@ -179,18 +179,18 @@ public class BlockingHARQAddOperationJUnitTest extends HARQAddOperationJUnitTest
 
     Conflatable c = null;
     EventID id = null;
-    for (int i = 0; i < totalTakeThreads; i++) {
+    for (var i = 0; i < totalTakeThreads; i++) {
       id = new EventID(new byte[] {1}, 1, i);
       c = new ConflatableObject("k" + i, "v" + i, id, true, "region1");
       rq.put(c);
     }
-    for (int i = 0; i < totalTakeThreads; i++) {
+    for (var i = 0; i < totalTakeThreads; i++) {
       ThreadUtils.join(takeThreads[i], 20 * 1000);
     }
 
     assertEquals(totalTakeThreads, takenObjects.size());
 
-    for (int i = 0; i < totalTakeThreads; i++) {
+    for (var i = 0; i < totalTakeThreads; i++) {
       c = (Conflatable) takenObjects.get(i);
       assertNotNull(c);
     }

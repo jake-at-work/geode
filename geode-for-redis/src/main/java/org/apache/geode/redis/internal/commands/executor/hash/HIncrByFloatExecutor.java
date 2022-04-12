@@ -15,18 +15,11 @@
 package org.apache.geode.redis.internal.commands.executor.hash;
 
 
-import java.math.BigDecimal;
-import java.util.List;
 
-import org.apache.commons.lang3.tuple.Pair;
-
-import org.apache.geode.cache.Region;
 import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
 import org.apache.geode.redis.internal.commands.executor.RedisResponse;
 import org.apache.geode.redis.internal.commands.executor.string.IncrByFloatExecutor;
-import org.apache.geode.redis.internal.data.RedisData;
-import org.apache.geode.redis.internal.data.RedisKey;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
 
 /**
@@ -58,19 +51,19 @@ public class HIncrByFloatExecutor implements CommandExecutor {
   @Override
   public RedisResponse executeCommand(Command command,
       ExecutionHandlerContext context) {
-    List<byte[]> commandElems = command.getProcessedCommand();
+    var commandElems = command.getProcessedCommand();
 
-    Pair<BigDecimal, RedisResponse> validated =
+    var validated =
         IncrByFloatExecutor.validateIncrByFloatArgument(commandElems.get(INCREMENT_INDEX));
     if (validated.getRight() != null) {
       return validated.getRight();
     }
 
-    Region<RedisKey, RedisData> region = context.getRegion();
-    RedisKey key = command.getKey();
-    byte[] field = commandElems.get(2);
+    var region = context.getRegion();
+    var key = command.getKey();
+    var field = commandElems.get(2);
 
-    BigDecimal value = context.hashLockedExecute(key, false,
+    var value = context.hashLockedExecute(key, false,
         hash -> hash.hincrbyfloat(region, key, field, validated.getLeft()));
 
     return RedisResponse.bigDecimal(value);

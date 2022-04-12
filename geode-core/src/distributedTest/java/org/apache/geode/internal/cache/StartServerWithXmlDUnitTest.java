@@ -47,12 +47,12 @@ public class StartServerWithXmlDUnitTest {
   public void before() throws Exception {
     locator = cluster.startLocatorVM(0);
 
-    String locators = "localhost[" + locator.getPort() + "]";
-    String cacheXmlPath =
+    var locators = "localhost[" + locator.getPort() + "]";
+    var cacheXmlPath =
         createTempFileFromResource(getClass(), "CacheServerWithZeroPort.xml")
             .getAbsolutePath();
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(LOCATORS, locators);
     props.setProperty(CACHE_XML_FILE, cacheXmlPath);
 

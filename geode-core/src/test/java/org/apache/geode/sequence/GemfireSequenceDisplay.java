@@ -19,7 +19,6 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -39,8 +38,6 @@ import org.apache.geode.internal.ExitCode;
 import org.apache.geode.internal.sequencelog.GraphType;
 import org.apache.geode.internal.sequencelog.io.Filter;
 import org.apache.geode.internal.sequencelog.io.GraphReader;
-import org.apache.geode.internal.sequencelog.model.Edge;
-import org.apache.geode.internal.sequencelog.model.Graph;
 import org.apache.geode.internal.sequencelog.model.GraphID;
 import org.apache.geode.internal.sequencelog.model.GraphSet;
 import org.apache.geode.internal.sequencelog.model.Vertex;
@@ -87,14 +84,14 @@ public class GemfireSequenceDisplay {
   }
 
   private void createMenu() {
-    JMenuBar menuBar = new JMenuBar();
+    var menuBar = new JMenuBar();
 
-    JMenu sequenceMenu = new JMenu("Sequence");
+    var sequenceMenu = new JMenu("Sequence");
     sequenceMenu.setMnemonic(KeyEvent.VK_S);
     sequenceMenu.getAccessibleContext()
         .setAccessibleDescription("The only menu in this program that has menu items");
     menuBar.add(sequenceMenu);
-    JMenuItem selectGraphs = new JMenuItem("Choose Graphs", KeyEvent.VK_G);
+    var selectGraphs = new JMenuItem("Choose Graphs", KeyEvent.VK_G);
     selectGraphs.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, ActionEvent.ALT_MASK));
     selectGraphs.getAccessibleContext().setAccessibleDescription("Select what graphs to display");
     selectGraphs.setActionCommand("selectgraphs");
@@ -112,11 +109,11 @@ public class GemfireSequenceDisplay {
 
   private void updateGraphs(List<GraphID> selectedIds) {
     List<GraphID> existingDiagrams = (List) sequenceDiagram.getSubDiagramsNames();
-    for (GraphID id : selectedIds) {
+    for (var id : selectedIds) {
       showSubDiagram(id);
       existingDiagrams.remove(id);
     }
-    for (GraphID id : existingDiagrams) {
+    for (var id : existingDiagrams) {
       hideSubDiagram(id);
     }
 
@@ -160,43 +157,43 @@ public class GemfireSequenceDisplay {
 
   private void createSequenceMaps(GraphSet graphs) {
 
-    Map<GraphID, Graph> map = graphs.getMap();
-    for (Map.Entry<GraphID, Graph> entry : map.entrySet()) {
-      GraphID graphId = entry.getKey();
-      Graph graph = entry.getValue();
+    var map = graphs.getMap();
+    for (var entry : map.entrySet()) {
+      var graphId = entry.getKey();
+      var graph = entry.getValue();
       Map<String, Lifeline> lines =
           new LinkedHashMap<>(graphs.getLocations().size());
       List<Arrow> arrows = new ArrayList<>();
       Map<Vertex, LifelineState> states = new HashMap<>();
-      for (String location : graphs.getLocations()) {
+      for (var location : graphs.getLocations()) {
         lines.put(location, new Lifeline(graphId, location));
       }
 
-      Collection<Edge> edges = graph.getEdges();
-      for (Edge edge : edges) {
-        Vertex dest = edge.getDest();
-        Vertex source = edge.getSource();
+      var edges = graph.getEdges();
+      for (var edge : edges) {
+        var dest = edge.getDest();
+        var source = edge.getSource();
         if (dest == null) {
           dest = source;
         }
         if (source == null) {
           source = dest;
         }
-        LifelineState destState = states.get(dest);
+        var destState = states.get(dest);
         if (destState == null) {
-          final Lifeline lifeline = lines.get(dest.getName());
+          final var lifeline = lines.get(dest.getName());
           destState = createState(lifeline, graphs, dest);
           lifeline.addState(destState);
           states.put(dest, destState);
         }
-        LifelineState sourceState = states.get(source);
+        var sourceState = states.get(source);
         if (sourceState == null) {
-          final Lifeline lifeline = lines.get(source.getName());
+          final var lifeline = lines.get(source.getName());
           sourceState = createState(lifeline, graphs, source);
           lifeline.addState(sourceState);
           states.put(source, sourceState);
         }
-        Arrow arrow = new Arrow(edge.getName(), sourceState, destState);
+        var arrow = new Arrow(edge.getName(), sourceState, destState);
         arrows.add(arrow);
         destState.addInboundArrow(arrow);
       }
@@ -223,8 +220,8 @@ public class GemfireSequenceDisplay {
   }
 
   private static LifelineState createState(Lifeline lifeline, GraphSet graphs, Vertex dest) {
-    long start = dest.getTimestamp();
-    long end = dest.getNextVertexOnDest() == null ? graphs.getMaxTime()
+    var start = dest.getTimestamp();
+    var end = dest.getNextVertexOnDest() == null ? graphs.getMaxTime()
         : dest.getNextVertexOnDest().getTimestamp();
     return new LifelineState(lifeline, dest.getState(), start, end);
   }
@@ -232,11 +229,11 @@ public class GemfireSequenceDisplay {
   public static void main(String[] args) throws IOException {
     File[] files;
     Set<String> keyFilters = new HashSet<>();
-    boolean areGemfireLogs = false;
+    var areGemfireLogs = false;
     if (args.length > 0) {
-      ArrayList<File> fileList = new ArrayList<>();
-      for (int i = 0; i < args.length; i++) {
-        String arg = args[i];
+      var fileList = new ArrayList<File>();
+      for (var i = 0; i < args.length; i++) {
+        var arg = args[i];
         if (arg.equals("-filterkey")) {
           keyFilters.add(args[i + 1]);
           i++;
@@ -261,8 +258,8 @@ public class GemfireSequenceDisplay {
 
     graphs = getGraphs(areGemfireLogs, keyFilters, files);
 
-    final LineMapper lineMapper = getLineMapper(files);
-    final GemfireSequenceDisplay display = new GemfireSequenceDisplay();
+    final var lineMapper = getLineMapper(files);
+    final var display = new GemfireSequenceDisplay();
     // Schedule a job for the event-dispatching thread:
     // creating and showing this application's GUI.
     javax.swing.SwingUtilities.invokeLater(() -> display.createAndShowGUI(graphs, lineMapper));
@@ -272,8 +269,7 @@ public class GemfireSequenceDisplay {
       throws IOException {
     Filter graphFilter = new KeyFilter(keyFilters);
 
-
-    GraphReader reader = new GraphReader(files);
+    var reader = new GraphReader(files);
     final GraphSet graphs;
     if (keyFilters.isEmpty()) {
       graphs = reader.readGraphs(useLogFiles);
@@ -296,7 +292,7 @@ public class GemfireSequenceDisplay {
 
 
     public KeyFilter(Set<String> keyFilters) {
-      for (String filterString : keyFilters) {
+      for (var filterString : keyFilters) {
         patterns.add(Pattern.compile(filterString));
       }
     }
@@ -305,7 +301,7 @@ public class GemfireSequenceDisplay {
     public boolean accept(GraphType graphType, String name, String edgeName, String source,
         String dest) {
       if (graphType.equals(GraphType.KEY)) {
-        for (Pattern pattern : patterns) {
+        for (var pattern : patterns) {
           if (pattern.matcher(name).find()) {
             return true;
           }

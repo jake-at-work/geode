@@ -16,7 +16,6 @@ package org.apache.geode.internal.monitoring.executor;
 
 import static java.lang.Integer.min;
 
-import java.lang.management.LockInfo;
 import java.lang.management.MonitorInfo;
 import java.lang.management.ThreadInfo;
 import java.text.DateFormat;
@@ -59,11 +58,11 @@ public abstract class AbstractExecutor {
 
     final DateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy HH:mm:ss zzz");
 
-    final ThreadInfo thread = threadInfoMap.get(threadID);
-    final boolean logThreadDetails = (thread != null);
+    final var thread = threadInfoMap.get(threadID);
+    final var logThreadDetails = (thread != null);
 
-    final StringBuilder stringBuilder = new StringBuilder();
-    final String lineSeparator = System.lineSeparator();
+    final var stringBuilder = new StringBuilder();
+    final var lineSeparator = System.lineSeparator();
 
     stringBuilder.append("Thread <").append(threadID).append("> (0x")
         .append(Long.toHexString(threadID)).append(") that was executed at <")
@@ -97,7 +96,7 @@ public abstract class AbstractExecutor {
     }
 
     if (logThreadDetails && thread.getLockOwnerName() != null) {
-      final ThreadInfo lockOwnerThread = threadInfoMap.get(thread.getLockOwnerId());
+      final var lockOwnerThread = threadInfoMap.get(thread.getLockOwnerId());
       if (lockOwnerThread != null) {
         writeThreadStack(lockOwnerThread, LOCK_OWNER_THREAD_STACK, stringBuilder);
       }
@@ -124,18 +123,18 @@ public abstract class AbstractExecutor {
       strb.append(" (in native)");
     }
     strb.append(lineSeparator);
-    MonitorInfo[] lockedMonitors = thread.getLockedMonitors();
-    for (int i = 0; i < min(thread.getStackTrace().length, THREAD_DUMP_DEPTH); i++) {
-      String row = thread.getStackTrace()[i].toString();
+    var lockedMonitors = thread.getLockedMonitors();
+    for (var i = 0; i < min(thread.getStackTrace().length, THREAD_DUMP_DEPTH); i++) {
+      var row = thread.getStackTrace()[i].toString();
       strb.append(INDENT).append("at ").append(row).append(lineSeparator);
       appendLockedMonitor(strb, i, lockedMonitors);
     }
     strb.append("Locked ownable synchronizers:").append(lineSeparator);
-    LockInfo[] lockedSynchronizers = thread.getLockedSynchronizers();
+    var lockedSynchronizers = thread.getLockedSynchronizers();
     if (lockedSynchronizers.length == 0) {
       strb.append(INDENT).append("- None").append(lineSeparator);
     } else {
-      for (LockInfo lockInfo : lockedSynchronizers) {
+      for (var lockInfo : lockedSynchronizers) {
         strb.append(INDENT).append("- ").append(lockInfo).append(lineSeparator);
       }
     }
@@ -143,7 +142,7 @@ public abstract class AbstractExecutor {
 
   private void appendLockedMonitor(StringBuilder strb, int stackDepth,
       MonitorInfo[] lockedMonitors) {
-    for (MonitorInfo monitorInfo : lockedMonitors) {
+    for (var monitorInfo : lockedMonitors) {
       if (stackDepth == monitorInfo.getLockedStackDepth()) {
         strb.append(INDENT).append("  - locked " + monitorInfo).append(lineSeparator);
       }

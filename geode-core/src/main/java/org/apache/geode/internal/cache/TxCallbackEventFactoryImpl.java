@@ -47,15 +47,15 @@ public class TxCallbackEventFactoryImpl implements TxCallbackEventFactory {
     Assert.assertTrue(txId != null);
     originator = txId.getMemberId();
 
-    InternalRegion eventRegion = internalRegion;
+    var eventRegion = internalRegion;
     if (eventRegion.isUsedForPartitionedRegionBucket()) {
       eventRegion = internalRegion.getPartitionedRegion();
     }
 
     @Retained
-    EntryEventImpl retVal = EntryEventImpl.create(internalRegion, op, key, newValue,
+    var retVal = EntryEventImpl.create(internalRegion, op, key, newValue,
         aCallbackArgument, txEntryState == null, originator);
-    boolean returnedRetVal = false;
+    var returnedRetVal = false;
     try {
       if (bridgeContext != null) {
         retVal.setContext(bridgeContext);
@@ -74,7 +74,7 @@ public class TxCallbackEventFactoryImpl implements TxCallbackEventFactory {
       setLocalFilterInfo(internalRegion, filterRoutingInfo, retVal);
 
       if (internalRegion.isUsedForPartitionedRegionBucket()) {
-        BucketRegion bucket = (BucketRegion) internalRegion;
+        var bucket = (BucketRegion) internalRegion;
         retVal.setInvokePRCallbacks(BucketRegion.FORCE_LOCAL_LISTENERS_INVOCATION
             || bucket.getBucketAdvisor().isPrimary());
       }

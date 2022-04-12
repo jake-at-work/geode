@@ -19,12 +19,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.SortedSet;
@@ -45,9 +43,9 @@ public class NWayMergeResultsTest {
 
   @Before
   public void setUp() {
-    QueryConfigurationService mockService = mock(QueryConfigurationService.class);
+    var mockService = mock(QueryConfigurationService.class);
     when(mockService.getMethodAuthorizer()).thenReturn(mock(MethodInvocationAuthorizer.class));
-    InternalCache mockCache = mock(InternalCache.class);
+    var mockCache = mock(InternalCache.class);
     when(mockCache.getService(QueryConfigurationService.class)).thenReturn(mockService);
 
     context = new ExecutionContext(null, mockCache);
@@ -55,36 +53,36 @@ public class NWayMergeResultsTest {
 
   @Test
   public void testNonDistinct() throws Exception {
-    final int numSortedLists = 40;
+    final var numSortedLists = 40;
     Collection<List<Integer>> listOfSortedLists = new ArrayList<>();
-    for (int i = 0; i < numSortedLists; ++i) {
+    for (var i = 0; i < numSortedLists; ++i) {
       listOfSortedLists.add(new ArrayList<>());
     }
-    int step = 0;
-    for (List<Integer> list : listOfSortedLists) {
+    var step = 0;
+    for (var list : listOfSortedLists) {
       step = step + 1;
-      for (int i = -500; i < 500; i = i + step) {
+      for (var i = -500; i < 500; i = i + step) {
         list.add(i);
       }
     }
-    int totalElements = 0;
-    for (List<Integer> list : listOfSortedLists) {
+    var totalElements = 0;
+    for (var list : listOfSortedLists) {
       totalElements += list.size();
     }
 
-    int[] combinedArray = new int[totalElements];
-    int i = 0;
-    for (List<Integer> list : listOfSortedLists) {
-      for (Integer num : list) {
+    var combinedArray = new int[totalElements];
+    var i = 0;
+    for (var list : listOfSortedLists) {
+      for (var num : list) {
         combinedArray[i++] = num;
       }
     }
     Arrays.sort(combinedArray);
 
-    NWayMergeResults<Integer> mergedResults =
+    var mergedResults =
         createSingleFieldMergedResult(listOfSortedLists, false, -1);
-    Iterator<Integer> iter = mergedResults.iterator();
-    for (int elem : combinedArray) {
+    var iter = mergedResults.iterator();
+    for (var elem : combinedArray) {
       assertThat(iter.next().intValue()).isEqualTo(elem);
     }
 
@@ -97,29 +95,29 @@ public class NWayMergeResultsTest {
 
   @Test
   public void testDistinct() throws Exception {
-    final int numSortedLists = 40;
+    final var numSortedLists = 40;
     Collection<List<Integer>> listOfSortedLists = new ArrayList<>();
-    for (int i = 0; i < numSortedLists; ++i) {
+    for (var i = 0; i < numSortedLists; ++i) {
       listOfSortedLists.add(new ArrayList<>());
     }
-    int step = 0;
-    for (List<Integer> list : listOfSortedLists) {
+    var step = 0;
+    for (var list : listOfSortedLists) {
       step = step + 1;
-      for (int i = -500; i < 500; i = i + step) {
+      for (var i = -500; i < 500; i = i + step) {
         list.add(i);
       }
     }
 
     SortedSet<Integer> sortedSet = new TreeSet<>();
 
-    for (List<Integer> list : listOfSortedLists) {
+    for (var list : listOfSortedLists) {
       sortedSet.addAll(list);
     }
 
-    NWayMergeResults<Integer> mergedResults =
+    var mergedResults =
         createSingleFieldMergedResult(listOfSortedLists, true, -1);
 
-    Iterator<Integer> iter = mergedResults.iterator();
+    var iter = mergedResults.iterator();
     for (int elem : sortedSet) {
       assertThat(iter.next().intValue()).isEqualTo(elem);
     }
@@ -134,39 +132,39 @@ public class NWayMergeResultsTest {
 
   @Test
   public void testLimitNoDistinct() throws Exception {
-    final int numSortedLists = 40;
-    final int limit = 53;
+    final var numSortedLists = 40;
+    final var limit = 53;
     Collection<List<Integer>> listOfSortedLists = new ArrayList<>();
-    for (int i = 0; i < numSortedLists; ++i) {
+    for (var i = 0; i < numSortedLists; ++i) {
       listOfSortedLists.add(new ArrayList<>());
     }
-    int step = 0;
-    for (List<Integer> list : listOfSortedLists) {
+    var step = 0;
+    for (var list : listOfSortedLists) {
       step = step + 1;
-      for (int i = -500; i < 500; i = i + step) {
+      for (var i = -500; i < 500; i = i + step) {
         list.add(i);
       }
     }
-    int totalElements = 0;
-    for (List<Integer> list : listOfSortedLists) {
+    var totalElements = 0;
+    for (var list : listOfSortedLists) {
       totalElements += list.size();
     }
 
-    int[] combinedArray = new int[totalElements];
-    int i = 0;
-    for (List<Integer> list : listOfSortedLists) {
-      for (Integer num : list) {
+    var combinedArray = new int[totalElements];
+    var i = 0;
+    for (var list : listOfSortedLists) {
+      for (var num : list) {
         combinedArray[i++] = num;
       }
     }
     Arrays.sort(combinedArray);
 
-    NWayMergeResults<Integer> mergedResults =
+    var mergedResults =
         createSingleFieldMergedResult(listOfSortedLists, false, limit);
 
-    Iterator<Integer> iter = mergedResults.iterator();
-    int count = 0;
-    for (int elem : combinedArray) {
+    var iter = mergedResults.iterator();
+    var count = 0;
+    for (var elem : combinedArray) {
       if (count == limit) {
         break;
       }
@@ -183,32 +181,32 @@ public class NWayMergeResultsTest {
 
   @Test
   public void testLimitDistinct() throws Exception {
-    final int numSortedLists = 40;
-    final int limit = 53;
+    final var numSortedLists = 40;
+    final var limit = 53;
     Collection<List<Integer>> listOfSortedLists = new ArrayList<>();
-    for (int i = 0; i < numSortedLists; ++i) {
+    for (var i = 0; i < numSortedLists; ++i) {
       listOfSortedLists.add(new ArrayList<>());
     }
-    int step = 0;
-    for (List<Integer> list : listOfSortedLists) {
+    var step = 0;
+    for (var list : listOfSortedLists) {
       step = step + 1;
-      for (int i = -500; i < 500; i = i + step) {
+      for (var i = -500; i < 500; i = i + step) {
         list.add(i);
       }
     }
 
     SortedSet<Integer> sortedSet = new TreeSet<>();
 
-    for (List<Integer> list : listOfSortedLists) {
+    for (var list : listOfSortedLists) {
       sortedSet.addAll(list);
     }
 
-    NWayMergeResults<Integer> mergedResults =
+    var mergedResults =
         createSingleFieldMergedResult(listOfSortedLists, true, limit);
 
-    Iterator<Integer> iter = mergedResults.iterator();
+    var iter = mergedResults.iterator();
 
-    int count = 0;
+    var count = 0;
 
     for (int elem : sortedSet) {
       if (count == limit) {
@@ -226,40 +224,40 @@ public class NWayMergeResultsTest {
 
   @Test
   public void testNonDistinctStruct() throws Exception {
-    final int numSortedLists = 40;
-    StructTypeImpl structType = new StructTypeImpl(new String[] {"a", "b"},
+    final var numSortedLists = 40;
+    var structType = new StructTypeImpl(new String[] {"a", "b"},
         new ObjectType[] {new ObjectTypeImpl(Integer.TYPE), new ObjectTypeImpl(Integer.TYPE)});
     Collection<List<Struct>> listOfSortedLists = new ArrayList<>();
-    for (int i = 0; i < numSortedLists; ++i) {
+    for (var i = 0; i < numSortedLists; ++i) {
       listOfSortedLists.add(new ArrayList<>());
     }
-    int step = 0;
-    for (List<Struct> list : listOfSortedLists) {
+    var step = 0;
+    for (var list : listOfSortedLists) {
       step = step + 1;
-      int j = 1000;
-      for (int i = -500; i < 500; i = i + step) {
+      var j = 1000;
+      for (var i = -500; i < 500; i = i + step) {
         Struct struct = new StructImpl(structType,
             new Object[] {i, j - step});
         list.add(struct);
       }
     }
-    int totalElements = 0;
-    for (List<Struct> list : listOfSortedLists) {
+    var totalElements = 0;
+    for (var list : listOfSortedLists) {
       totalElements += list.size();
     }
 
-    Struct[] combinedArray = new Struct[totalElements];
-    int i = 0;
-    for (List<Struct> list : listOfSortedLists) {
-      for (Struct struct : list) {
+    var combinedArray = new Struct[totalElements];
+    var i = 0;
+    for (var list : listOfSortedLists) {
+      for (var struct : list) {
         combinedArray[i++] = struct;
       }
     }
 
     Arrays.sort(combinedArray, (o1, o2) -> {
-      Object[] fields_1 = o1.getFieldValues();
-      Object[] fields_2 = o2.getFieldValues();
-      int compare = ((Comparable) fields_1[0]).compareTo(fields_2[0]);
+      var fields_1 = o1.getFieldValues();
+      var fields_2 = o2.getFieldValues();
+      var compare = ((Comparable) fields_1[0]).compareTo(fields_2[0]);
       if (compare == 0) {
         // second field is descending
         compare = ((Comparable) fields_2[1]).compareTo(fields_1[1]);
@@ -267,11 +265,11 @@ public class NWayMergeResultsTest {
       return compare;
     });
 
-    NWayMergeResults<Struct> mergedResults =
+    var mergedResults =
         createStructFieldMergedResult(listOfSortedLists, structType);
 
-    Iterator<Struct> iter = mergedResults.iterator();
-    for (Struct elem : combinedArray) {
+    var iter = mergedResults.iterator();
+    for (var elem : combinedArray) {
       assertThat(iter.next()).isEqualTo(elem);
     }
     assertThat(iter.hasNext()).isFalse();
@@ -282,18 +280,18 @@ public class NWayMergeResultsTest {
 
   @Test
   public void testDistinctStruct() throws Exception {
-    final int numSortedLists = 40;
-    StructTypeImpl structType = new StructTypeImpl(new String[] {"a", "b"},
+    final var numSortedLists = 40;
+    var structType = new StructTypeImpl(new String[] {"a", "b"},
         new ObjectType[] {new ObjectTypeImpl(Integer.TYPE), new ObjectTypeImpl(Integer.TYPE)});
     Collection<List<Struct>> listOfSortedLists = new ArrayList<>();
-    for (int i = 0; i < numSortedLists; ++i) {
+    for (var i = 0; i < numSortedLists; ++i) {
       listOfSortedLists.add(new ArrayList<>());
     }
-    int step = 0;
-    for (List<Struct> list : listOfSortedLists) {
+    var step = 0;
+    for (var list : listOfSortedLists) {
       step = step + 1;
-      int j = 1000;
-      for (int i = -500; i < 500; i = i + step) {
+      var j = 1000;
+      for (var i = -500; i < 500; i = i + step) {
         Struct struct = new StructImpl(structType,
             new Object[] {i, j - step});
         list.add(struct);
@@ -302,11 +300,11 @@ public class NWayMergeResultsTest {
 
     @SuppressWarnings("unchecked")
     SortedSet<Struct> sortedSet = new TreeSet<>((o1, o2) -> {
-      Object[] fields_1 = o1.getFieldValues();
-      Object[] fields_2 = o2.getFieldValues();
+      var fields_1 = o1.getFieldValues();
+      var fields_2 = o2.getFieldValues();
 
       @SuppressWarnings("unchecked")
-      int compare = ((Comparable) fields_1[0]).compareTo(fields_2[0]);
+      var compare = ((Comparable) fields_1[0]).compareTo(fields_2[0]);
       if (compare == 0) {
         // second field is descending
         compare = ((Comparable) fields_2[1]).compareTo(fields_1[1]);
@@ -314,15 +312,15 @@ public class NWayMergeResultsTest {
       return compare;
     });
 
-    for (List<Struct> list : listOfSortedLists) {
+    for (var list : listOfSortedLists) {
       sortedSet.addAll(list);
     }
 
-    NWayMergeResults<Struct> mergedResults =
+    var mergedResults =
         createStructFieldMergedResult(listOfSortedLists, structType);
 
-    Iterator<Struct> iter = mergedResults.iterator();
-    for (Struct elem : sortedSet) {
+    var iter = mergedResults.iterator();
+    for (var elem : sortedSet) {
       assertThat(iter.next()).isEqualTo(elem);
     }
     assertThat(iter.hasNext()).isFalse();
@@ -333,34 +331,34 @@ public class NWayMergeResultsTest {
 
   @Test
   public void testOccurrenceNonDistinct() throws Exception {
-    final int numSortedLists = 40;
+    final var numSortedLists = 40;
     Collection<List<Integer>> listOfSortedLists = new ArrayList<>();
-    for (int i = 0; i < numSortedLists; ++i) {
+    for (var i = 0; i < numSortedLists; ++i) {
       listOfSortedLists.add(new ArrayList<>());
     }
-    int step = 0;
-    for (List<Integer> list : listOfSortedLists) {
+    var step = 0;
+    for (var list : listOfSortedLists) {
       step = step + 1;
-      for (int i = -500; i < 500; i = i + step) {
+      for (var i = -500; i < 500; i = i + step) {
         list.add(i);
       }
     }
-    int totalElements = 0;
-    for (List<Integer> list : listOfSortedLists) {
+    var totalElements = 0;
+    for (var list : listOfSortedLists) {
       totalElements += list.size();
     }
 
-    int[] combinedArray = new int[totalElements];
-    int i = 0;
-    for (List<Integer> list : listOfSortedLists) {
-      for (Integer num : list) {
+    var combinedArray = new int[totalElements];
+    var i = 0;
+    for (var list : listOfSortedLists) {
+      for (var num : list) {
         combinedArray[i++] = num;
       }
     }
     Arrays.sort(combinedArray);
     // count occurrence of 70, 72,73 , 75
     int num70 = 0, num72 = 0, num73 = 0, num75 = 0;
-    for (int num : combinedArray) {
+    for (var num : combinedArray) {
       if (num == 70) {
         ++num70;
       } else if (num == 72) {
@@ -371,7 +369,7 @@ public class NWayMergeResultsTest {
         ++num75;
       }
     }
-    NWayMergeResults<Integer> mergedResults =
+    var mergedResults =
         createSingleFieldMergedResult(listOfSortedLists, false, -1);
     assertThat(mergedResults.occurrences(70)).isEqualTo(num70);
     assertThat(mergedResults.occurrences(72)).isEqualTo(num72);
@@ -381,20 +379,20 @@ public class NWayMergeResultsTest {
 
   @Test
   public void testOccurrenceDistinct() throws Exception {
-    final int numSortedLists = 40;
+    final var numSortedLists = 40;
     Collection<List<Integer>> listOfSortedLists = new ArrayList<>();
-    for (int i = 0; i < numSortedLists; ++i) {
+    for (var i = 0; i < numSortedLists; ++i) {
       listOfSortedLists.add(new ArrayList<>());
     }
-    int step = 0;
-    for (List<Integer> list : listOfSortedLists) {
+    var step = 0;
+    for (var list : listOfSortedLists) {
       step = step + 1;
-      for (int i = -500; i < 500; i = i + step) {
+      for (var i = -500; i < 500; i = i + step) {
         list.add(i);
       }
     }
 
-    NWayMergeResults<Integer> mergedResults =
+    var mergedResults =
         createSingleFieldMergedResult(listOfSortedLists, true, -1);
 
     assertThat(mergedResults.occurrences(70)).isEqualTo(1);
@@ -406,9 +404,9 @@ public class NWayMergeResultsTest {
   private <E> NWayMergeResults<E> createSingleFieldMergedResult(
       Collection<? extends Collection<E>> sortedResults, boolean isDistinct, int limit)
       throws Exception {
-    CompiledSortCriterion csc = new CompiledSortCriterion(false,
+    var csc = new CompiledSortCriterion(false,
         CompiledSortCriterion.ProjectionField.getProjectionField());
-    Method method = CompiledSortCriterion.class
+    var method = CompiledSortCriterion.class
         .getDeclaredMethod("substituteExpressionWithProjectionField", Integer.TYPE);
     method.setAccessible(true);
     method.invoke(csc, 0);
@@ -423,11 +421,11 @@ public class NWayMergeResultsTest {
   private NWayMergeResults<Struct> createStructFieldMergedResult(
       Collection<? extends Collection<Struct>> sortedResults,
       StructTypeImpl structType) throws Exception {
-    CompiledSortCriterion csc1 = new CompiledSortCriterion(false,
+    var csc1 = new CompiledSortCriterion(false,
         CompiledSortCriterion.ProjectionField.getProjectionField());
-    CompiledSortCriterion csc2 =
+    var csc2 =
         new CompiledSortCriterion(true, CompiledSortCriterion.ProjectionField.getProjectionField());
-    Method method = CompiledSortCriterion.class
+    var method = CompiledSortCriterion.class
         .getDeclaredMethod("substituteExpressionWithProjectionField", Integer.TYPE);
     method.setAccessible(true);
     method.invoke(csc1, 0);
@@ -471,7 +469,7 @@ public class NWayMergeResultsTest {
     sortedLists.add(results6);
     sortedLists.add(results7);
 
-    NWayMergeResults<String> mergedResults = createSingleFieldMergedResult(sortedLists, true, -1);
+    var mergedResults = createSingleFieldMergedResult(sortedLists, true, -1);
 
     List<String> results8 = new ArrayList<>();
     results8.add("DELL");
@@ -494,7 +492,7 @@ public class NWayMergeResultsTest {
     sortedLists1.add(results8);
     sortedLists1.add(results9);
 
-    NWayMergeResults<String> netMergedResults =
+    var netMergedResults =
         createSingleFieldMergedResult(sortedLists1, true, -1);
 
     assertThat(netMergedResults.size()).isEqualTo(12);

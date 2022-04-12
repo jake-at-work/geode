@@ -29,17 +29,14 @@ import java.util.concurrent.RejectedExecutionException;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.InterestResultPolicy;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.client.Pool;
-import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache30.CacheSerializableRunnable;
 import org.apache.geode.internal.cache.CacheServerImpl;
 import org.apache.geode.internal.cache.PoolFactoryImpl;
-import org.apache.geode.internal.cache.tier.Acceptor;
 import org.apache.geode.test.dunit.Assert;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.NetworkUtils;
@@ -73,7 +70,7 @@ public class DurableClientStatsDUnitTest extends JUnit4DistributedTestCase {
 
   @Override
   public final void postSetUp() throws Exception {
-    Host host = Host.getHost(0);
+    var host = Host.getHost(0);
     server1VM = host.getVM(0);
     durableClientVM = host.getVM(1);
     regionName = DurableClientStatsDUnitTest.class.getName() + "_region";
@@ -96,7 +93,7 @@ public class DurableClientStatsDUnitTest extends JUnit4DistributedTestCase {
     // Step 2: Bring Up the Client
     // Start a durable client that is not kept alive on the server when it
     // stops normally
-    final int durableClientTimeout = 600; // keep the client alive for 600
+    final var durableClientTimeout = 600; // keep the client alive for 600
     // seconds
 
     startAndCloseNonDurableClientCache(durableClientTimeout);
@@ -140,7 +137,7 @@ public class DurableClientStatsDUnitTest extends JUnit4DistributedTestCase {
     // Step 2: Bring Up the Client
     // Start a durable client that is not kept alive on the server when it
     // stops normally
-    final int durableClientTimeout = 600; // keep the client alive for 600
+    final var durableClientTimeout = 600; // keep the client alive for 600
     // seconds
 
     startAndCloseDurableClientCache(durableClientTimeout);
@@ -175,7 +172,7 @@ public class DurableClientStatsDUnitTest extends JUnit4DistributedTestCase {
   }
 
   public void startRegisterAndCloseDurableClientCache(int durableClientTimeout) {
-    final String durableClientId = getName() + "_client";
+    final var durableClientId = getName() + "_client";
 
     durableClientVM
         .invoke(() -> CacheServerTestUtil.createCacheClient(
@@ -200,7 +197,7 @@ public class DurableClientStatsDUnitTest extends JUnit4DistributedTestCase {
   }
 
   public void startRegisterAndCloseNonDurableClientCache(int durableClientTimeout) {
-    final String durableClientId = getName() + "_client";
+    final var durableClientId = getName() + "_client";
 
     durableClientVM
         .invoke(() -> CacheServerTestUtil.createCacheClient(
@@ -226,7 +223,7 @@ public class DurableClientStatsDUnitTest extends JUnit4DistributedTestCase {
 
   public void startAndCloseDurableClientCache(int durableClientTimeout) {
 
-    final String durableClientId = getName() + "_client";
+    final var durableClientId = getName() + "_client";
 
     durableClientVM
         .invoke(() -> CacheServerTestUtil.createCacheClient(
@@ -250,7 +247,7 @@ public class DurableClientStatsDUnitTest extends JUnit4DistributedTestCase {
 
   public void startAndCloseNonDurableClientCache(int durableClientTimeout) {
 
-    final String durableClientId = getName() + "_client";
+    final var durableClientId = getName() + "_client";
 
     durableClientVM
         .invoke(() -> CacheServerTestUtil.createCacheClient(
@@ -274,13 +271,13 @@ public class DurableClientStatsDUnitTest extends JUnit4DistributedTestCase {
 
   public static void checkStatistics() {
     try {
-      Cache cache = CacheServerTestUtil.getCache();
-      org.apache.geode.LogWriter logger = cache.getLogger();
-      CacheServerImpl currentServer =
+      var cache = CacheServerTestUtil.getCache();
+      var logger = cache.getLogger();
+      var currentServer =
           (CacheServerImpl) (new ArrayList(cache.getCacheServers()).get(0));
-      Acceptor ai = currentServer.getAcceptor();
-      CacheClientNotifier notifier = ai.getCacheClientNotifier();
-      CacheClientNotifierStats stats = notifier.getStats();
+      var ai = currentServer.getAcceptor();
+      var notifier = ai.getCacheClientNotifier();
+      var stats = notifier.getStats();
       logger.info("Stats:" + "\nDurableReconnectionCount:" + stats.get_durableReconnectionCount()
           + "\nQueueDroppedCount" + stats.get_queueDroppedCount()
           + "\nEventsEnqueuedWhileClientAwayCount" + stats.get_eventEnqueuedWhileClientAwayCount());
@@ -292,13 +289,13 @@ public class DurableClientStatsDUnitTest extends JUnit4DistributedTestCase {
   public static void checkStatisticsWithExpectedValues(int reconnectionCount, int queueDropCount,
       int enqueueCount) {
     try {
-      Cache cache = CacheServerTestUtil.getCache();
-      org.apache.geode.LogWriter logger = cache.getLogger();
-      CacheServerImpl currentServer =
+      var cache = CacheServerTestUtil.getCache();
+      var logger = cache.getLogger();
+      var currentServer =
           (CacheServerImpl) (new ArrayList(cache.getCacheServers()).get(0));
-      Acceptor ai = currentServer.getAcceptor();
-      CacheClientNotifier notifier = ai.getCacheClientNotifier();
-      CacheClientNotifierStats stats = notifier.getStats();
+      var ai = currentServer.getAcceptor();
+      var notifier = ai.getCacheClientNotifier();
+      var stats = notifier.getStats();
       logger.info("Stats:" + "\nDurableReconnectionCount:" + stats.get_durableReconnectionCount()
           + "\nQueueDroppedCount" + stats.get_queueDroppedCount()
           + "\nEventsEnqueuedWhileClientAwayCount" + stats.get_eventEnqueuedWhileClientAwayCount());
@@ -311,7 +308,7 @@ public class DurableClientStatsDUnitTest extends JUnit4DistributedTestCase {
   }
 
   public static void closeCache() {
-    Cache cache = CacheServerTestUtil.getCache();
+    var cache = CacheServerTestUtil.getCache();
     if (cache != null && !cache.isClosed()) {
       // might fail in DataSerializerRecoveryListener.RecoveryTask in shutdown
       cache.getLogger().info("<ExpectedException action=add>"
@@ -354,7 +351,7 @@ public class DurableClientStatsDUnitTest extends JUnit4DistributedTestCase {
 
   private Pool getClientPool(String host, int server1Port, boolean establishCallbackConnection,
       int redundancyLevel) {
-    PoolFactory pf = PoolManager.createFactory();
+    var pf = PoolManager.createFactory();
     pf.addServer(host, server1Port).setSubscriptionEnabled(establishCallbackConnection)
         .setSubscriptionRedundancy(redundancyLevel);
     return ((PoolFactoryImpl) pf).getPoolAttributes();
@@ -362,7 +359,7 @@ public class DurableClientStatsDUnitTest extends JUnit4DistributedTestCase {
 
   private Properties getDurableClientDistributedSystemProperties(String durableClientId,
       int durableClientTimeout) {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(MCAST_PORT, "0");
     properties.setProperty(LOCATORS, "");
     properties.setProperty(DURABLE_CLIENT_ID, durableClientId);
@@ -372,7 +369,7 @@ public class DurableClientStatsDUnitTest extends JUnit4DistributedTestCase {
 
   private Properties getNonDurableClientDistributedSystemProperties(String durableClientId,
       int durableClientTimeout) {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(MCAST_PORT, "0");
     properties.setProperty(LOCATORS, "");
     return properties;

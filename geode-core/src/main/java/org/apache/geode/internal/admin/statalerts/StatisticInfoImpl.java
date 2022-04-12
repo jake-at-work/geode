@@ -23,7 +23,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.Statistics;
 import org.apache.geode.StatisticsFactory;
-import org.apache.geode.StatisticsType;
 import org.apache.geode.admin.Statistic;
 
 /**
@@ -100,9 +99,9 @@ public class StatisticInfoImpl implements StatisticInfo {
       return false;
     }
 
-    String statisticsTextId = getStatisticsTextId();
+    var statisticsTextId = getStatisticsTextId();
 
-    StatisticInfoImpl other = (StatisticInfoImpl) object;
+    var other = (StatisticInfoImpl) object;
 
     return StringUtils.equals(getStatisticName(), other.getStatisticName())
         && statisticsTextId != null
@@ -126,28 +125,28 @@ public class StatisticInfoImpl implements StatisticInfo {
   }
 
   public static StatisticInfoImpl create(String toString, StatisticsFactory f) {
-    int startBrack = toString.indexOf("[");
-    int endBrack = toString.indexOf("]");
+    var startBrack = toString.indexOf("[");
+    var endBrack = toString.indexOf("]");
 
     if (startBrack == -1 || endBrack == -1) {
       return null;
     }
 
-    String name = toString.substring(0, startBrack).trim();
-    String ids = toString.substring(startBrack + 1, endBrack).trim();
+    var name = toString.substring(0, startBrack).trim();
+    var ids = toString.substring(startBrack + 1, endBrack).trim();
 
-    StatisticsType type = f.findType(name);
+    var type = f.findType(name);
     if (type == null) {
       return null;
     }
 
-    Statistics[] stats = f.findStatisticsByType(type);
+    var stats = f.findStatisticsByType(type);
     if (stats.length == 0) {
       return null;
     }
 
-    StatisticDescriptor[] descs = type.getStatistics();
-    for (final StatisticDescriptor desc : descs) {
+    var descs = type.getStatistics();
+    for (final var desc : descs) {
       if (desc.getName().equalsIgnoreCase(ids)) {
         return new StatisticInfoImpl(stats[0], desc);
       }

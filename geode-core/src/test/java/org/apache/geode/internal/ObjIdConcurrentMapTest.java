@@ -27,8 +27,8 @@ public class ObjIdConcurrentMapTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    ObjIdConcurrentMap mockObjIdConcurrentMap = mock(ObjIdConcurrentMap.class);
-    Segment mockSegment = mock(Segment.class);
+    var mockObjIdConcurrentMap = mock(ObjIdConcurrentMap.class);
+    var mockSegment = mock(Segment.class);
 
     when(mockObjIdConcurrentMap.segmentFor(anyInt())).thenReturn(mockSegment);
 

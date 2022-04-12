@@ -35,7 +35,6 @@ import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.RegionExistsException;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.TimeoutException;
-import org.apache.geode.cache.query.types.CollectionType;
 import org.apache.geode.cache.query.types.ObjectType;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
@@ -106,12 +105,12 @@ public class CacheUtils {
 
   public static Region createRegion(String regionName, Class valueConstraint, Scope scope) {
     try {
-      AttributesFactory attributesFactory = new AttributesFactory();
+      var attributesFactory = new AttributesFactory();
       attributesFactory.setValueConstraint(valueConstraint);
       if (scope != null) {
         attributesFactory.setScope(scope);
       }
-      RegionAttributes regionAttributes = attributesFactory.create();
+      var regionAttributes = attributesFactory.create();
       return cache.createRegion(regionName, regionAttributes);
     } catch (Exception e) {
       throw new AssertionError(e);
@@ -135,10 +134,10 @@ public class CacheUtils {
   public static Region createRegion(String regionName, Class valueConstraint,
       boolean indexMaintenanceSynchronous) {
     try {
-      AttributesFactory attributesFactory = new AttributesFactory();
+      var attributesFactory = new AttributesFactory();
       attributesFactory.setValueConstraint(valueConstraint);
       attributesFactory.setIndexMaintenanceSynchronous(indexMaintenanceSynchronous);
-      RegionAttributes regionAttributes = attributesFactory.create();
+      var regionAttributes = attributesFactory.create();
       return cache.createRegion(regionName, regionAttributes);
     } catch (Exception e) {
       throw new AssertionError(e);
@@ -147,11 +146,11 @@ public class CacheUtils {
 
   public static Region createRegion(Region parentRegion, String regionName, Class valueConstraint) {
     try {
-      AttributesFactory attributesFactory = new AttributesFactory();
+      var attributesFactory = new AttributesFactory();
       if (valueConstraint != null) {
         attributesFactory.setValueConstraint(valueConstraint);
       }
-      RegionAttributes regionAttributes = attributesFactory.create();
+      var regionAttributes = attributesFactory.create();
       return parentRegion.createSubregion(regionName, regionAttributes);
     } catch (Exception e) {
       throw new AssertionError(e);
@@ -192,9 +191,9 @@ public class CacheUtils {
     ObjectType type1;
     ObjectType type2;
 
-    for (final SelectResults[] selectResults : r) {
-      CollectionType collType1 = selectResults[0].getCollectionType();
-      CollectionType collType2 = selectResults[1].getCollectionType();
+    for (final var selectResults : r) {
+      var collType1 = selectResults[0].getCollectionType();
+      var collType2 = selectResults[1].getCollectionType();
       type1 = collType1.getElementType();
       type2 = collType2.getElementType();
 
@@ -236,19 +235,19 @@ public class CacheUtils {
 
       itert1 = set1.iterator();
       while (itert1.hasNext()) {
-        Object p1 = itert1.next();
+        var p1 = itert1.next();
         itert2 = set2.iterator();
 
-        boolean exactMatch = false;
+        var exactMatch = false;
         while (itert2.hasNext()) {
-          Object p2 = itert2.next();
+          var p2 = itert2.next();
 
           if (p1 instanceof Struct) {
-            Object[] values1 = ((Struct) p1).getFieldValues();
-            Object[] values2 = ((Struct) p2).getFieldValues();
+            var values1 = ((Struct) p1).getFieldValues();
+            var values2 = ((Struct) p2).getFieldValues();
             assertEquals(values1.length, values2.length);
-            boolean elementEqual = true;
-            for (int i = 0; i < values1.length; ++i) {
+            var elementEqual = true;
+            for (var i = 0; i < values1.length; ++i) {
               elementEqual =
                   elementEqual && (values1[i] == values2[i] || values1[i].equals(values2[i]));
             }
@@ -269,7 +268,7 @@ public class CacheUtils {
   }
 
   public static boolean compareResultsOfWithAndWithoutIndex(SelectResults[][] r) {
-    boolean ok = true;
+    var ok = true;
     Set set1;
     Set set2;
     Iterator itert1;
@@ -278,9 +277,9 @@ public class CacheUtils {
     ObjectType type2;
 
     // TODO: eliminate loop labels
-    outer: for (final SelectResults[] aR : r) {
-      CollectionType collType1 = aR[0].getCollectionType();
-      CollectionType collType2 = aR[1].getCollectionType();
+    outer: for (final var aR : r) {
+      var collType1 = aR[0].getCollectionType();
+      var collType2 = aR[1].getCollectionType();
       type1 = collType1.getElementType();
       type2 = collType2.getElementType();
 
@@ -329,21 +328,21 @@ public class CacheUtils {
       itert1 = set1.iterator();
 
       while (itert1.hasNext()) {
-        Object p1 = itert1.next();
+        var p1 = itert1.next();
         itert2 = set2.iterator();
 
-        boolean exactMatch = false;
+        var exactMatch = false;
         while (itert2.hasNext()) {
-          Object p2 = itert2.next();
+          var p2 = itert2.next();
           if (p1 instanceof Struct) {
-            Object[] values1 = ((Struct) p1).getFieldValues();
-            Object[] values2 = ((Struct) p2).getFieldValues();
+            var values1 = ((Struct) p1).getFieldValues();
+            var values2 = ((Struct) p2).getFieldValues();
             if (values1.length != values2.length) {
               ok = false;
               break outer;
             }
-            boolean elementEqual = true;
-            for (int i = 0; i < values1.length; ++i) {
+            var elementEqual = true;
+            for (var i = 0; i < values1.length; ++i) {
               if (values1[i] != null) {
                 elementEqual =
                     elementEqual && (values1[i] == values2[i] || values1[i].equals(values2[i]));

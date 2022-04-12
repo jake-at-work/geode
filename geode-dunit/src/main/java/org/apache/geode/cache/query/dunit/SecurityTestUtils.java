@@ -29,7 +29,6 @@ import org.apache.geode.cache.query.CqEvent;
 import org.apache.geode.cache.query.CqException;
 import org.apache.geode.cache.query.CqExistsException;
 import org.apache.geode.cache.query.CqListener;
-import org.apache.geode.cache.query.CqQuery;
 import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.RegionNotFoundException;
 import org.apache.geode.cache.util.CacheListenerAdapter;
@@ -40,12 +39,12 @@ import org.apache.geode.test.dunit.rules.MemberVM;
 public class SecurityTestUtils {
   public static ExpirableSecurityManager collectSecurityManagers(MemberVM... vms) {
     List<ExpirableSecurityManager> results = new ArrayList<>();
-    for (MemberVM vm : vms) {
+    for (var vm : vms) {
       results.add(vm.invoke(SecurityTestUtils::getSecurityManager));
     }
 
-    ExpirableSecurityManager consolidated = new ExpirableSecurityManager();
-    for (ExpirableSecurityManager result : results) {
+    var consolidated = new ExpirableSecurityManager();
+    for (var result : results) {
       consolidated.getExpiredUsers().addAll(result.getExpiredUsers());
       combine(consolidated.getAuthorizedOps(), result.getAuthorizedOps());
       combine(consolidated.getUnAuthorizedOps(), result.getUnAuthorizedOps());
@@ -54,7 +53,7 @@ public class SecurityTestUtils {
   }
 
   public static void combine(Map<String, List<String>> to, Map<String, List<String>> from) {
-    for (String key : from.keySet()) {
+    for (var key : from.keySet()) {
       if (to.containsKey(key)) {
         to.get(key).addAll(from.get(key));
       } else {
@@ -97,11 +96,11 @@ public class SecurityTestUtils {
   public static EventsCqListner createAndExecuteCQ(QueryService queryService, String cqName,
       String query)
       throws CqExistsException, CqException, RegionNotFoundException {
-    CqAttributesFactory cqaf = new CqAttributesFactory();
-    EventsCqListner listenter = new EventsCqListner();
+    var cqaf = new CqAttributesFactory();
+    var listenter = new EventsCqListner();
     cqaf.addCqListener(listenter);
 
-    CqQuery cq = queryService.newCq(cqName, query, cqaf.create());
+    var cq = queryService.newCq(cqName, query, cqaf.create());
     cq.execute();
     return listenter;
   }

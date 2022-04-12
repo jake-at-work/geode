@@ -20,7 +20,6 @@ import static org.apache.geode.util.internal.GeodeGlossary.GEMFIRE_PREFIX;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -31,7 +30,6 @@ import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.cache.RegionDestroyedException;
-import org.apache.geode.distributed.internal.QueueStatHelper;
 import org.apache.geode.internal.cache.BucketRegion;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.LocalRegion;
@@ -115,7 +113,7 @@ public class HeapEvictor implements ResourceListener<MemoryEvent> {
     this.cache = cache;
 
     if (!DISABLE_HEAP_EVICTOR_THREAD_POOL) {
-      QueueStatHelper poolStats = this.cache.getCachePerfStats().getEvictionQueueStatHelper();
+      var poolStats = this.cache.getCachePerfStats().getEvictionQueueStatHelper();
       evictorThreadPool = CoreLoggingExecutors.newFixedThreadPoolWithTimeout(
           MAX_EVICTOR_THREADS, 15, SECONDS, poolStats, threadName);
     } else {
@@ -142,17 +140,17 @@ public class HeapEvictor implements ResourceListener<MemoryEvent> {
 
   private List<LocalRegion> getAllRegionList() {
     List<LocalRegion> allRegionsList = new ArrayList<>();
-    InternalResourceManager resourceManager = (InternalResourceManager) cache.getResourceManager();
+    var resourceManager = (InternalResourceManager) cache.getResourceManager();
 
-    for (ResourceListener<?> listener : resourceManager
+    for (var listener : resourceManager
         .getResourceListeners(getResourceType())) {
       if (listener instanceof PartitionedRegion) {
-        PartitionedRegion partitionedRegion = (PartitionedRegion) listener;
+        var partitionedRegion = (PartitionedRegion) listener;
         if (includePartitionedRegion(partitionedRegion)) {
           allRegionsList.addAll(partitionedRegion.getDataStore().getAllLocalBucketRegions());
         }
       } else if (listener instanceof LocalRegion) {
-        LocalRegion lr = (LocalRegion) listener;
+        var lr = (LocalRegion) listener;
         if (includeLocalRegion(lr)) {
           allRegionsList.add(lr);
         }
@@ -160,9 +158,9 @@ public class HeapEvictor implements ResourceListener<MemoryEvent> {
     }
 
     if (HeapEvictor.MINIMUM_ENTRIES_PER_BUCKET > 0) {
-      Iterator<LocalRegion> iterator = allRegionsList.iterator();
+      var iterator = allRegionsList.iterator();
       while (iterator.hasNext()) {
-        LocalRegion region = iterator.next();
+        var region = iterator.next();
         if (region instanceof BucketRegion) {
           if (((BucketRegion) region)
               .getNumEntriesInVM() <= HeapEvictor.MINIMUM_ENTRIES_PER_BUCKET) {
@@ -175,12 +173,12 @@ public class HeapEvictor implements ResourceListener<MemoryEvent> {
   }
 
   private List<LocalRegion> getAllSortedRegionList() {
-    List<LocalRegion> allRegionList = getAllRegionList();
+    var allRegionList = getAllRegionList();
 
     // Capture the sizes so that they do not change while sorting
-    final Object2LongOpenHashMap<LocalRegion> sizes =
-        new Object2LongOpenHashMap<>(allRegionList.size());
-    for (LocalRegion region : allRegionList) {
+    final var sizes =
+        new Object2LongOpenHashMap<LocalRegion>(allRegionList.size());
+    for (var region : allRegionList) {
       long size = region instanceof BucketRegion ? ((BucketRegion) region).getSizeForEviction()
           : region.size();
       sizes.put(region, size);
@@ -219,9 +217,9 @@ public class HeapEvictor implements ResourceListener<MemoryEvent> {
   }
 
   private void createAndSubmitWeightedRegionEvictionTasks() {
-    List<LocalRegion> allRegionList = getAllSortedRegionList();
+    var allRegionList = getAllSortedRegionList();
     float numEntriesInVM = 0;
-    for (LocalRegion region : allRegionList) {
+    for (var region : allRegionList) {
       if (region instanceof BucketRegion) {
         numEntriesInVM += ((BucketRegion) region).getSizeForEviction();
       } else {
@@ -229,7 +227,7 @@ public class HeapEvictor implements ResourceListener<MemoryEvent> {
       }
     }
 
-    for (LocalRegion region : allRegionList) {
+    for (var region : allRegionList) {
       float regionEntryCount;
       if (region instanceof BucketRegion) {
         regionEntryCount = ((BucketRegion) region).getSizeForEviction();
@@ -237,8 +235,8 @@ public class HeapEvictor implements ResourceListener<MemoryEvent> {
         regionEntryCount = region.getRegionMap().sizeInVM();
       }
 
-      float percentage = regionEntryCount / numEntriesInVM;
-      long bytesToEvictPerTask = (long) (getTotalBytesToEvict() * percentage);
+      var percentage = regionEntryCount / numEntriesInVM;
+      var bytesToEvictPerTask = (long) (getTotalBytesToEvict() * percentage);
       List<LocalRegion> regionsForSingleTask = new ArrayList<>(1);
       regionsForSingleTask.add(region);
       if (mustEvict()) {
@@ -255,38 +253,38 @@ public class HeapEvictor implements ResourceListener<MemoryEvent> {
       return Collections.emptySet();
     }
 
-    int threadsAvailable = MAX_EVICTOR_THREADS;
-    long bytesToEvictPerTask = getTotalBytesToEvict() / threadsAvailable;
-    List<LocalRegion> allRegionList = getAllRegionList();
+    var threadsAvailable = MAX_EVICTOR_THREADS;
+    var bytesToEvictPerTask = getTotalBytesToEvict() / threadsAvailable;
+    var allRegionList = getAllRegionList();
     if (allRegionList.isEmpty()) {
       return Collections.emptySet();
     }
 
     // This shuffling is not required when eviction triggered for the first time
     Collections.shuffle(allRegionList);
-    int allRegionSetSize = allRegionList.size();
+    var allRegionSetSize = allRegionList.size();
     Set<RegionEvictorTask> evictorTaskSet = new HashSet<>();
     if (allRegionSetSize <= threadsAvailable) {
-      for (LocalRegion region : allRegionList) {
+      for (var region : allRegionList) {
         List<LocalRegion> regionList = new ArrayList<>(1);
         regionList.add(region);
-        RegionEvictorTask task =
+        var task =
             new RegionEvictorTask(cache.getCachePerfStats(), regionList, this, bytesToEvictPerTask,
                 statisticsClock);
         evictorTaskSet.add(task);
       }
-      for (RegionEvictorTask regionEvictorTask : evictorTaskSet) {
+      for (var regionEvictorTask : evictorTaskSet) {
         testTaskSetSizes.add(regionEvictorTask.getRegionList().size());
       }
       return evictorTaskSet;
     }
 
-    int numRegionsInTask = allRegionSetSize / threadsAvailable;
+    var numRegionsInTask = allRegionSetSize / threadsAvailable;
     List<LocalRegion> regionsForSingleTask = null;
-    Iterator<LocalRegion> regionIterator = allRegionList.iterator();
-    for (int i = 0; i < threadsAvailable; i++) {
+    var regionIterator = allRegionList.iterator();
+    for (var i = 0; i < threadsAvailable; i++) {
       regionsForSingleTask = new ArrayList<>(numRegionsInTask);
-      int count = 1;
+      var count = 1;
       while (count <= numRegionsInTask) {
         if (regionIterator.hasNext()) {
           regionsForSingleTask.add(regionIterator.next());
@@ -302,7 +300,7 @@ public class HeapEvictor implements ResourceListener<MemoryEvent> {
       regionsForSingleTask.add(regionIterator.next());
     }
 
-    for (RegionEvictorTask regionEvictorTask : evictorTaskSet) {
+    for (var regionEvictorTask : evictorTaskSet) {
       testTaskSetSizes.add(regionEvictorTask.getRegionList().size());
     }
     return evictorTaskSet;
@@ -354,7 +352,7 @@ public class HeapEvictor implements ResourceListener<MemoryEvent> {
         }
 
         // The new thread which will run in a loop performing evictions
-        final Runnable evictionManagerTask = new Runnable() {
+        final var evictionManagerTask = new Runnable() {
           @Override
           public void run() {
             // Has the test hook been set which will cause eviction to abort early
@@ -364,7 +362,7 @@ public class HeapEvictor implements ResourceListener<MemoryEvent> {
                 if (EVICT_HIGH_ENTRY_COUNT_BUCKETS_FIRST) {
                   createAndSubmitWeightedRegionEvictionTasks();
                 } else {
-                  for (RegionEvictorTask task : createRegionEvictionTasks()) {
+                  for (var task : createRegionEvictionTasks()) {
                     executeInThreadPool(task);
                   }
                 }
@@ -372,7 +370,7 @@ public class HeapEvictor implements ResourceListener<MemoryEvent> {
                 // Make sure that another thread isn't processing a new eviction event
                 // and changing the number of fast loops to perform.
                 synchronized (evictionLock) {
-                  int delayTime = getEvictionLoopDelayTime();
+                  var delayTime = getEvictionLoopDelayTime();
                   if (logger.isDebugEnabled()) {
                     logger.debug(
                         "Eviction loop delay time calculated to be {} milliseconds. Fast Loops={}, Loop #={}",
@@ -417,7 +415,7 @@ public class HeapEvictor implements ResourceListener<MemoryEvent> {
   }
 
   protected int getEvictionLoopDelayTime() {
-    int delayTime = 850; // The waiting period when running fast loops
+    var delayTime = 850; // The waiting period when running fast loops
     if (numEvictionLoopsCompleted - numFastLoops > 2) {
       delayTime = 3000; // Way below the threshold
     } else if (numEvictionLoopsCompleted >= numFastLoops) {
@@ -473,9 +471,9 @@ public class HeapEvictor implements ResourceListener<MemoryEvent> {
   }
 
   private static long setTotalBytesToEvictFromHeap() {
-    float evictionBurstPercentage = Float.parseFloat(System
+    var evictionBurstPercentage = Float.parseFloat(System
         .getProperty(GEMFIRE_PREFIX + "HeapLRUCapacityController.evictionBurstPercentage", "0.4"));
-    long maxTenuredBytes = HeapMemoryMonitor.getTenuredPoolMaxMemory();
+    var maxTenuredBytes = HeapMemoryMonitor.getTenuredPoolMaxMemory();
     return (long) (maxTenuredBytes * 0.01 * evictionBurstPercentage);
   }
 }

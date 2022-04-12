@@ -58,17 +58,17 @@ public abstract class TomcatClientServerTest extends CargoTestBase {
 
   private String startAServer(int serverNumber) {
     // List of all the jars for tomcat to put on the server classpath
-    String libDirJars = install.getHome() + "/lib/*";
-    String binDirJars = install.getHome() + "/bin/*";
+    var libDirJars = install.getHome() + "/lib/*";
+    var binDirJars = install.getHome() + "/bin/*";
 
     // Set server name based on the test about to be run
-    String serverName =
+    var serverName =
         getClass().getSimpleName() + "_" + testName.getMethodName() + "_" + serverNumber;
 
     // Create command string for starting server
-    CommandStringBuilder command = new CommandStringBuilder(CliStrings.START_SERVER);
+    var command = new CommandStringBuilder(CliStrings.START_SERVER);
     command.addOption(CliStrings.START_SERVER__NAME, serverName);
-    int locatorPortSuggestion = AvailablePortHelper.getRandomAvailableTCPPort();
+    var locatorPortSuggestion = AvailablePortHelper.getRandomAvailableTCPPort();
     command.addOption(CliStrings.START_SERVER__SERVER_PORT, String.valueOf(locatorPortSuggestion));
     // Add Tomcat jars to server classpath
     command.addOption(CliStrings.START_SERVER__CLASSPATH,
@@ -94,7 +94,7 @@ public abstract class TomcatClientServerTest extends CargoTestBase {
   }
 
   private void stopAServer(String serverName) {
-    CommandStringBuilder command = new CommandStringBuilder(CliStrings.STOP_SERVER);
+    var command = new CommandStringBuilder(CliStrings.STOP_SERVER);
     command.addOption(CliStrings.STOP_SERVER__DIR, serverName);
     gfsh.executeAndAssertThat(command.toString()).statusIsSuccess();
   }

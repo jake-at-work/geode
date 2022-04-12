@@ -39,14 +39,10 @@ import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolManager;
-import org.apache.geode.cache.execute.Execution;
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionService;
-import org.apache.geode.cache.execute.ResultCollector;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.distributed.Locator;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
@@ -63,7 +59,6 @@ import org.apache.geode.test.dunit.NetworkUtils;
 import org.apache.geode.test.dunit.SerializableRunnable;
 import org.apache.geode.test.dunit.SerializableRunnableIF;
 import org.apache.geode.test.dunit.ThreadUtils;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.junit.categories.ClientServerTest;
 import org.apache.geode.test.junit.categories.FunctionServiceTest;
 import org.apache.geode.test.junit.runners.CategoryWithParameterizedRunnerFactory;
@@ -103,7 +98,7 @@ public class PRClientServerRegionFunctionExecutionFailoverDUnitTest extends PRCl
   @Test
   public void testServerFailoverWithTwoServerAliveHA() {
     IgnoredException.addIgnoredException("FunctionInvocationTargetException");
-    ArrayList commonAttributes =
+    var commonAttributes =
         createCommonServerAttributes("TestPartitionedRegion", null, 1, null);
     createClientServerScenarion(commonAttributes, 20, 20, 20);
     Function function = new TestFunction(true, TestFunction.TEST_FUNCTION_HA);
@@ -111,8 +106,8 @@ public class PRClientServerRegionFunctionExecutionFailoverDUnitTest extends PRCl
     server2.invoke(PRClientServerRegionFunctionExecutionDUnitTest::stopServerHA);
     server3.invoke(PRClientServerRegionFunctionExecutionDUnitTest::stopServerHA);
     client.invoke(PRClientServerRegionFunctionExecutionDUnitTest::putOperation);
-    int AsyncInvocationArrSize = 1;
-    AsyncInvocation[] async = new AsyncInvocation[AsyncInvocationArrSize];
+    var AsyncInvocationArrSize = 1;
+    var async = new AsyncInvocation[AsyncInvocationArrSize];
     async[0] = client
         .invokeAsync(PRClientServerRegionFunctionExecutionDUnitTest::executeFunctionHA);
     server2.invoke(PRClientServerRegionFunctionExecutionDUnitTest::startServerHA);
@@ -124,7 +119,7 @@ public class PRClientServerRegionFunctionExecutionFailoverDUnitTest extends PRCl
     if (async[0].getException() != null) {
       Assert.fail("UnExpected Exception Occurred : ", async[0].getException());
     }
-    List l = (List) async[0].getReturnValue();
+    var l = (List) async[0].getReturnValue();
     assertEquals(2, l.size());
   }
 
@@ -135,7 +130,7 @@ public class PRClientServerRegionFunctionExecutionFailoverDUnitTest extends PRCl
   @Test
   public void testServerCacheClosedFailoverWithTwoServerAliveHA() {
     IgnoredException.addIgnoredException("FunctionInvocationTargetException");
-    ArrayList commonAttributes =
+    var commonAttributes =
         createCommonServerAttributes("TestPartitionedRegion", null, 1, null);
     createClientServerScenarion(commonAttributes, 20, 20, 20);
     Function function = new TestFunction(true, TestFunction.TEST_FUNCTION_HA);
@@ -143,8 +138,8 @@ public class PRClientServerRegionFunctionExecutionFailoverDUnitTest extends PRCl
     server2.invoke(PRClientServerRegionFunctionExecutionDUnitTest::stopServerHA);
     server3.invoke(PRClientServerRegionFunctionExecutionDUnitTest::stopServerHA);
     client.invoke(PRClientServerRegionFunctionExecutionDUnitTest::putOperation);
-    int AsyncInvocationArrSize = 1;
-    AsyncInvocation[] async = new AsyncInvocation[AsyncInvocationArrSize];
+    var AsyncInvocationArrSize = 1;
+    var async = new AsyncInvocation[AsyncInvocationArrSize];
     async[0] = client
         .invokeAsync(PRClientServerRegionFunctionExecutionDUnitTest::executeFunctionHA);
     server2.invoke(PRClientServerRegionFunctionExecutionDUnitTest::startServerHA);
@@ -156,7 +151,7 @@ public class PRClientServerRegionFunctionExecutionFailoverDUnitTest extends PRCl
     if (async[0].getException() != null) {
       Assert.fail("UnExpected Exception Occurred : ", async[0].getException());
     }
-    List l = (List) async[0].getReturnValue();
+    var l = (List) async[0].getReturnValue();
     assertEquals(2, l.size());
   }
 
@@ -255,7 +250,7 @@ public class PRClientServerRegionFunctionExecutionFailoverDUnitTest extends PRCl
    */
   @Test
   public void testOnRegionFailoverNonHASingleHop() {
-    ArrayList commonAttributes =
+    var commonAttributes =
         createCommonServerAttributes("TestPartitionedRegion", null, 0, null);
     createClientServerScenarioSingleHop(commonAttributes, 20, 20, 20);
 
@@ -272,7 +267,7 @@ public class PRClientServerRegionFunctionExecutionFailoverDUnitTest extends PRCl
       @Override
       public void run() {
         region = cache.getRegion(PRClientServerTestBase.PartitionedRegionName);
-        for (int i = 0; i < 13; i++) {
+        for (var i = 0; i < 13; i++) {
           region.put(i, i);
         }
       }
@@ -312,20 +307,20 @@ public class PRClientServerRegionFunctionExecutionFailoverDUnitTest extends PRCl
   public void testServerBucketMovedException() {
 
     IgnoredException.addIgnoredException("BucketMovedException");
-    final Host host = Host.getHost(0);
-    VM server1 = host.getVM(0);
-    VM server2 = host.getVM(1);
-    VM server3 = host.getVM(2);
-    VM server4 = host.getVM(3);
+    final var host = Host.getHost(0);
+    var server1 = host.getVM(0);
+    var server2 = host.getVM(1);
+    var server3 = host.getVM(2);
+    var server4 = host.getVM(3);
 
     disconnectAllFromDS();
 
-    ArrayList commonAttributes =
+    var commonAttributes =
         createCommonServerAttributes("TestPartitionedRegion", null, 1, null);
 
-    final int portLocator = getRandomAvailableTCPPort();
-    final String hostLocator = NetworkUtils.getServerHostName(server1.getHost());
-    final String locator = hostLocator + "[" + portLocator + "]";
+    final var portLocator = getRandomAvailableTCPPort();
+    final var hostLocator = NetworkUtils.getServerHostName(server1.getHost());
+    final var locator = hostLocator + "[" + portLocator + "]";
 
     startLocatorInVM(portLocator);
     try {
@@ -341,9 +336,9 @@ public class PRClientServerRegionFunctionExecutionFailoverDUnitTest extends PRCl
 
       server3.invoke(() -> createServerWithLocator(locator, false, commonAttributes));
 
-      Object result = server4
+      var result = server4
           .invoke(PRClientServerRegionFunctionExecutionFailoverDUnitTest::executeFunction);
-      List l = (List) result;
+      var l = (List) result;
       assertEquals(2, l.size());
 
     } finally {
@@ -355,17 +350,17 @@ public class PRClientServerRegionFunctionExecutionFailoverDUnitTest extends PRCl
   public void testServerBucketMovedException_LocalServer() {
     IgnoredException.addIgnoredException("BucketMovedException");
 
-    final Host host = Host.getHost(0);
-    VM server1 = host.getVM(0);
-    VM server2 = host.getVM(1);
-    VM server4 = host.getVM(3);
+    final var host = Host.getHost(0);
+    var server1 = host.getVM(0);
+    var server2 = host.getVM(1);
+    var server4 = host.getVM(3);
 
-    ArrayList commonAttributes =
+    var commonAttributes =
         createCommonServerAttributes("TestPartitionedRegion", null, 0, null);
 
-    final int portLocator = getRandomAvailableTCPPort();
-    final String hostLocator = NetworkUtils.getServerHostName(server1.getHost());
-    final String locator = hostLocator + "[" + portLocator + "]";
+    final var portLocator = getRandomAvailableTCPPort();
+    final var hostLocator = NetworkUtils.getServerHostName(server1.getHost());
+    final var locator = hostLocator + "[" + portLocator + "]";
 
     startLocatorInVM(portLocator);
     try {
@@ -379,9 +374,9 @@ public class PRClientServerRegionFunctionExecutionFailoverDUnitTest extends PRCl
 
       server2.invoke(() -> createServerWithLocator(locator, false, commonAttributes));
 
-      Object result = server4
+      var result = server4
           .invoke(PRClientServerRegionFunctionExecutionFailoverDUnitTest::executeFunction);
-      List l = (List) result;
+      var l = (List) result;
       assertEquals(2, l.size());
 
     } finally {
@@ -395,9 +390,9 @@ public class PRClientServerRegionFunctionExecutionFailoverDUnitTest extends PRCl
 
   private void startLocatorInVM(final int locatorPort) {
 
-    File logFile = new File("locator-" + locatorPort + ".log");
+    var logFile = new File("locator-" + locatorPort + ".log");
 
-    Properties props = new Properties();
+    var props = new Properties();
     props = DistributedTestUtils.getAllDistributedSystemProperties(props);
     props.setProperty(ENABLE_CLUSTER_CONFIGURATION, "false");
 
@@ -413,13 +408,13 @@ public class PRClientServerRegionFunctionExecutionFailoverDUnitTest extends PRCl
   }
 
   private int createServerWithLocator(String locator, boolean isAccessor, ArrayList commonAttrs) {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(LOCATORS, locator);
     DistributedSystem ds = getSystem(props);
     cache = CacheFactory.create(ds);
 
-    CacheServer server = cache.addCacheServer();
-    int port = getRandomAvailableTCPPort();
+    var server = cache.addCacheServer();
+    var port = getRandomAvailableTCPPort();
     server.setPort(port);
     server.setHostnameForClients("localhost");
     try {
@@ -427,15 +422,14 @@ public class PRClientServerRegionFunctionExecutionFailoverDUnitTest extends PRCl
     } catch (IOException e) {
       Assert.fail("Failed to start server ", e);
     }
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     if (isAccessor) {
       paf.setLocalMaxMemory(0);
     }
     paf.setTotalNumBuckets((Integer) commonAttrs.get(3))
         .setRedundantCopies((Integer) commonAttrs.get(2));
 
-
-    AttributesFactory attr = new AttributesFactory();
+    var attr = new AttributesFactory();
     attr.setPartitionAttributes(paf.create());
     region = cache.createRegion(regionName, attr.create());
     assertNotNull(region);
@@ -445,7 +439,7 @@ public class PRClientServerRegionFunctionExecutionFailoverDUnitTest extends PRCl
   }
 
   private void createClientWithLocator(String host, int port0) {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     DistributedSystem ds = getSystem(props);
@@ -461,10 +455,10 @@ public class PRClientServerRegionFunctionExecutionFailoverDUnitTest extends PRCl
     } finally {
       CacheServerTestUtil.enableShufflingOfEndpoints();
     }
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setPoolName(p.getName());
     factory.setDataPolicy(DataPolicy.EMPTY);
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     region = cache.createRegion(regionName, attrs);
     assertNotNull(region);
     logger
@@ -472,7 +466,7 @@ public class PRClientServerRegionFunctionExecutionFailoverDUnitTest extends PRCl
   }
 
   public static void putIntoRegion() {
-    for (int i = 0; i < 113; i++) {
+    for (var i = 0; i < 113; i++) {
       region.put(i, "KB_" + i);
     }
     logger
@@ -480,16 +474,16 @@ public class PRClientServerRegionFunctionExecutionFailoverDUnitTest extends PRCl
   }
 
   public static Object executeFunction() {
-    Execution execute = FunctionService.onRegion(region);
-    ResultCollector rc = execute.setArguments(Boolean.TRUE)
+    var execute = FunctionService.onRegion(region);
+    var rc = execute.setArguments(Boolean.TRUE)
         .execute(new TestFunction(true, TestFunction.TEST_FUNCTION_LASTRESULT));
     logger.info("Exeuction Result :" + rc.getResult());
-    List l = ((List) rc.getResult());
+    var l = ((List) rc.getResult());
     return l;
   }
 
   protected void createScenario() {
-    ArrayList commonAttributes =
+    var commonAttributes =
         createCommonServerAttributes("TestPartitionedRegion", null, 0, null);
     createClientServerScenarion(commonAttributes, 20, 20, 20);
   }

@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -33,15 +32,11 @@ import org.apache.geode.annotations.VisibleForTesting;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.control.RebalanceFactory;
-import org.apache.geode.cache.control.RebalanceResults;
-import org.apache.geode.cache.control.ResourceManager;
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.serialization.KnownVersion;
-import org.apache.geode.management.DistributedRegionMXBean;
 import org.apache.geode.management.ManagementService;
 import org.apache.geode.management.internal.MBeanJMXAdapter;
 import org.apache.geode.management.internal.exceptions.NoMembersException;
@@ -57,11 +52,11 @@ public class RebalanceOperationPerformer
     implements OperationPerformer<RebalanceOperation, RebalanceResult> {
 
   public RebalanceResult perform(Cache cache, RebalanceOperation parameters) {
-    List<String> includeRegions = parameters.getIncludeRegions();
-    List<String> excludeRegions = parameters.getExcludeRegions();
-    boolean simulate = parameters.isSimulate();
+    var includeRegions = parameters.getIncludeRegions();
+    var excludeRegions = parameters.getExcludeRegions();
+    var simulate = parameters.isSimulate();
 
-    RebalanceResultImpl result = new RebalanceResultImpl();
+    var result = new RebalanceResultImpl();
     result.setSuccess(false);
 
     if (!includeRegions.isEmpty()) {
@@ -70,7 +65,7 @@ public class RebalanceOperationPerformer
 
       NoMembersException latestNoMembersException = null;
 
-      for (String regionName : includeRegions) {
+      for (var regionName : includeRegions) {
 
         // Handle exclude / include regions
         RebalanceRegionResult rebalanceResult;
@@ -112,21 +107,21 @@ public class RebalanceOperationPerformer
     Region region = cache.getRegion(regionName);
 
     if (region == null) {
-      DistributedMember member = getAssociatedMembers(regionName, (InternalCache) cache);
+      var member = getAssociatedMembers(regionName, (InternalCache) cache);
 
       if (member == null) {
         throw new NoMembersException(MessageFormat.format(
             CliStrings.REBALANCE__MSG__NO_ASSOCIATED_DISTRIBUTED_MEMBER, regionName));
       }
 
-      Object[] functionArgs = new Object[3];
+      var functionArgs = new Object[3];
       functionArgs[0] = simulate ? "true" : "false";
       Set<String> setRegionName = new HashSet<>();
       setRegionName.add(regionName);
       functionArgs[1] = setRegionName;
 
       functionArgs[2] = null;
-      Function function = getRebalanceFunction((InternalDistributedMember) member);
+      var function = getRebalanceFunction((InternalDistributedMember) member);
       List<String> resultList = null;
       try {
         resultList = (List<String>) ManagementUtils
@@ -138,15 +133,15 @@ public class RebalanceOperationPerformer
 
       RebalanceRegionResult result = new RebalanceRegionResultImpl();
       if (resultList != null && !resultList.isEmpty()) {
-        List<String> rstList = Arrays.asList(resultList.get(0).split(","));
+        var rstList = Arrays.asList(resultList.get(0).split(","));
         result = toRebalanceRegionResult(rstList);
       }
 
       return result;
     } else {
 
-      ResourceManager manager = cache.getResourceManager();
-      RebalanceFactory rbFactory = manager.createRebalanceFactory();
+      var manager = cache.getResourceManager();
+      var rbFactory = manager.createRebalanceFactory();
       Set<String> includeRegionSet = new HashSet<>();
       includeRegionSet.add(regionName);
       rbFactory.includeRegions(includeRegionSet);
@@ -158,10 +153,10 @@ public class RebalanceOperationPerformer
         op = manager.createRebalanceFactory().start();
       }
       // Wait until the rebalance is complete and then get the results
-      RebalanceResults results = op.getResults();
+      var results = op.getResults();
 
       // translate to the return type we want
-      RebalanceRegionResultImpl result = new RebalanceRegionResultImpl();
+      var result = new RebalanceRegionResultImpl();
       result.setRegionName(regionName);
       result.setBucketCreateBytes(results.getTotalBucketCreateBytes());
       result.setBucketCreateTimeInMilliseconds(results.getTotalBucketCreateTime());
@@ -179,7 +174,7 @@ public class RebalanceOperationPerformer
   }
 
   public static DistributedMember getAssociatedMembers(String region, InternalCache cache) {
-    DistributedRegionMXBean bean =
+    var bean =
         ManagementService.getManagementService(cache).getDistributedRegionMXBean(region);
 
     DistributedMember member = null;
@@ -188,16 +183,16 @@ public class RebalanceOperationPerformer
       return null;
     }
 
-    String[] membersName = bean.getMembers();
-    Set<DistributedMember> dsMembers = ManagementUtils.getAllMembers(cache);
-    Iterator<DistributedMember> it = dsMembers.iterator();
+    var membersName = bean.getMembers();
+    var dsMembers = ManagementUtils.getAllMembers(cache);
+    var it = dsMembers.iterator();
 
-    boolean matchFound = false;
+    var matchFound = false;
 
     if (membersName.length > 1) {
       while (it.hasNext() && !matchFound) {
-        DistributedMember dsMember = it.next();
-        for (String memberName : membersName) {
+        var dsMember = it.next();
+        for (var memberName : membersName) {
           if (MBeanJMXAdapter.getMemberNameOrUniqueId(dsMember).equals(memberName)) {
             member = dsMember;
             matchFound = true;
@@ -213,17 +208,17 @@ public class RebalanceOperationPerformer
       InternalCache cache,
       List<String> listExcludedRegion) {
     List<MemberPRInfo> listMemberPRInfo = new ArrayList<>();
-    String[] listDSRegions =
+    var listDSRegions =
         managementService.getDistributedSystemMXBean().listAllRegionPaths();
-    Set<DistributedMember> dsMembers = ManagementUtils.getAllMembers(cache);
+    var dsMembers = ManagementUtils.getAllMembers(cache);
 
-    for (String regionName : listDSRegions) {
+    for (var regionName : listDSRegions) {
       // check for excluded regions
-      boolean excludedRegionMatch = false;
+      var excludedRegionMatch = false;
       if (listExcludedRegion != null) {
-        for (String aListExcludedRegion : listExcludedRegion) {
+        for (var aListExcludedRegion : listExcludedRegion) {
           // this is needed since region name may start with / or without it
-          String excludedRegion = aListExcludedRegion.trim();
+          var excludedRegion = aListExcludedRegion.trim();
           if (regionName.startsWith(SEPARATOR) && !excludedRegion.startsWith(SEPARATOR)) {
             excludedRegion = SEPARATOR + excludedRegion;
           }
@@ -248,23 +243,23 @@ public class RebalanceOperationPerformer
         regionName = SEPARATOR + regionName;
       }
       // remove this prefix /
-      DistributedRegionMXBean bean = managementService.getDistributedRegionMXBean(regionName);
+      var bean = managementService.getDistributedRegionMXBean(regionName);
 
       if (bean != null) {
         if (bean.getRegionType().equals(DataPolicy.PARTITION.toString())
             || bean.getRegionType().equals(DataPolicy.PERSISTENT_PARTITION.toString())) {
 
-          String[] memberNames = bean.getMembers();
-          for (DistributedMember dsMember : dsMembers) {
-            for (String memberName : memberNames) {
+          var memberNames = bean.getMembers();
+          for (var dsMember : dsMembers) {
+            for (var memberName : memberNames) {
               if (MBeanJMXAdapter.getMemberNameOrUniqueId(dsMember).equals(memberName)) {
-                MemberPRInfo memberAndItsPRRegions = new MemberPRInfo();
+                var memberAndItsPRRegions = new MemberPRInfo();
                 memberAndItsPRRegions.region = regionName;
                 memberAndItsPRRegions.dsMemberList.add(dsMember);
                 if (listMemberPRInfo.contains(memberAndItsPRRegions)) {
                   // add member for appropriate region
-                  int index = listMemberPRInfo.indexOf(memberAndItsPRRegions);
-                  MemberPRInfo listMember = listMemberPRInfo.get(index);
+                  var index = listMemberPRInfo.indexOf(memberAndItsPRRegions);
+                  var listMember = listMemberPRInfo.get(index);
                   listMember.dsMemberList.add(dsMember);
                 } else {
                   listMemberPRInfo.add(memberAndItsPRRegions);
@@ -283,13 +278,13 @@ public class RebalanceOperationPerformer
   private boolean checkMemberPresence(InternalCache cache, DistributedMember dsMember) {
     // check if member's presence just before executing function
     // this is to avoid running a function on departed members #47248
-    Set<DistributedMember> dsMemberList = ManagementUtils.getAllNormalMembers(cache);
+    var dsMemberList = ManagementUtils.getAllNormalMembers(cache);
     return dsMemberList.contains(dsMember);
   }
 
   private String listOfAllMembers(List<DistributedMember> dsMemberList) {
-    StringBuilder listMembersId = new StringBuilder();
-    for (int j = 0; j < dsMemberList.size() - 1; j++) {
+    var listMembersId = new StringBuilder();
+    for (var j = 0; j < dsMemberList.size() - 1; j++) {
       listMembersId.append(dsMemberList.get(j).getId());
       listMembersId.append(" ; ");
     }
@@ -298,9 +293,9 @@ public class RebalanceOperationPerformer
 
   private boolean checkResultList(List<String> errors, List<Object> resultList,
       DistributedMember member) {
-    boolean toContinueForOtherMembers = false;
+    var toContinueForOtherMembers = false;
     if (CollectionUtils.isNotEmpty(resultList)) {
-      for (Object object : resultList) {
+      for (var object : resultList) {
         if (object instanceof Exception) {
           errors.add(
               MessageFormat.format(CliStrings.REBALANCE__MSG__NO_EXECUTION, member.getId()) + ": " +
@@ -340,11 +335,11 @@ public class RebalanceOperationPerformer
   RebalanceResult executeRebalanceOnDS(ManagementService managementService,
       InternalCache cache, String simulate,
       List<String> excludeRegionsList, FunctionExecutor functionExecutor) {
-    RebalanceResultImpl rebalanceResult = new RebalanceResultImpl();
+    var rebalanceResult = new RebalanceResultImpl();
     rebalanceResult.setSuccess(false);
     List<String> errors = new ArrayList<>();
 
-    List<MemberPRInfo> listMemberRegion =
+    var listMemberRegion =
         getMemberRegionList(managementService, cache, excludeRegionsList);
 
     if (listMemberRegion.isEmpty()) {
@@ -353,8 +348,8 @@ public class RebalanceOperationPerformer
       return rebalanceResult;
     }
 
-    Iterator<MemberPRInfo> iterator = listMemberRegion.iterator();
-    boolean flagToContinueWithRebalance = false;
+    var iterator = listMemberRegion.iterator();
+    var flagToContinueWithRebalance = false;
 
     // check if list has some members that can be rebalanced
     while (iterator.hasNext()) {
@@ -371,15 +366,15 @@ public class RebalanceOperationPerformer
     }
 
     List<RebalanceRegionResult> rebalanceRegionResults = new ArrayList<>();
-    for (MemberPRInfo memberPR : listMemberRegion) {
+    for (var memberPR : listMemberRegion) {
       try {
         // check if there are more than one members associated with region for rebalancing
         if (memberPR.dsMemberList.size() > 1) {
-          for (int i = 0; i < memberPR.dsMemberList.size(); i++) {
-            DistributedMember dsMember = memberPR.dsMemberList.get(i);
-            Function rebalanceFunction = getRebalanceFunction(
+          for (var i = 0; i < memberPR.dsMemberList.size(); i++) {
+            var dsMember = memberPR.dsMemberList.get(i);
+            var rebalanceFunction = getRebalanceFunction(
                 (InternalDistributedMember) dsMember);
-            Object[] functionArgs = new Object[3];
+            var functionArgs = new Object[3];
             functionArgs[0] = simulate;
             Set<String> regionSet = new HashSet<>();
 
@@ -398,7 +393,7 @@ public class RebalanceOperationPerformer
                   continue;
                 }
 
-                List<String> rstList = Arrays.asList(((String) resultList.get(0)).split(","));
+                var rstList = Arrays.asList(((String) resultList.get(0)).split(","));
                 rebalanceRegionResults.add(toRebalanceRegionResult(rstList));
                 rebalanceResult.setSuccess(true);
 
@@ -430,7 +425,7 @@ public class RebalanceOperationPerformer
               continue;
             }
 
-            List<String> rstList = Arrays.asList(((String) resultList.get(0)).split(","));
+            var rstList = Arrays.asList(((String) resultList.get(0)).split(","));
             rebalanceRegionResults.add(toRebalanceRegionResult(rstList));
             rebalanceResult.setSuccess(true);
           }
@@ -462,7 +457,7 @@ public class RebalanceOperationPerformer
   }
 
   private static RebalanceRegionResult toRebalanceRegionResult(List<String> rstList) {
-    RebalanceRegionResultImpl result = new RebalanceRegionResultImpl();
+    var result = new RebalanceRegionResultImpl();
     result.setBucketCreateBytes(Long.parseLong(rstList.get(0)));
     result.setBucketCreateTimeInMilliseconds(Long.parseLong(rstList.get(1)));
     result.setBucketCreatesCompleted(Integer.parseInt(rstList.get(2)));

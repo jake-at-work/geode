@@ -34,14 +34,10 @@ import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.Index;
 import org.apache.geode.cache.query.IndexType;
-import org.apache.geode.cache.query.Query;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.cache.query.internal.DefaultQuery;
 import org.apache.geode.cache.query.internal.IndexTrackingQueryObserver;
-import org.apache.geode.cache.query.internal.IndexTrackingQueryObserver.IndexInfo;
-import org.apache.geode.cache.query.internal.QueryObserver;
 import org.apache.geode.cache.query.internal.QueryObserverHolder;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
 import org.apache.geode.test.dunit.Assert;
@@ -68,9 +64,9 @@ public class IndexTrackingQueryObserverDUnitTest extends JUnit4CacheTestCase {
   @Ignore("Disabled for bug 52321")
   @Test
   public void testIndexInfoOnRemotePartitionedRegion() throws Exception {
-    final Host host = Host.getHost(0);
-    VM ds0 = host.getVM(0);
-    VM ds1 = host.getVM(1);
+    final var host = Host.getHost(0);
+    var ds0 = host.getVM(0);
+    var ds1 = host.getVM(1);
 
     ds0.invoke(new SerializableRunnable("Set system property") {
       @Override
@@ -95,8 +91,8 @@ public class IndexTrackingQueryObserverDUnitTest extends JUnit4CacheTestCase {
     initializeRegion(ds0);
 
     // Check query verbose on both VMs
-    AsyncInvocation async1 = verifyQueryVerboseData(ds0, TOTAL_OBJECTS / 2);
-    AsyncInvocation async2 = verifyQueryVerboseData(ds1, TOTAL_OBJECTS / 2);
+    var async1 = verifyQueryVerboseData(ds0, TOTAL_OBJECTS / 2);
+    var async2 = verifyQueryVerboseData(ds1, TOTAL_OBJECTS / 2);
 
     // Run query on one vm only.
     runQuery(ds1);
@@ -139,20 +135,20 @@ public class IndexTrackingQueryObserverDUnitTest extends JUnit4CacheTestCase {
    */
   private void createPR(VM vm) {
 
-    SerializableRunnable createDS = new SerializableRunnable("Creating PR Datastore") {
+    var createDS = new SerializableRunnable("Creating PR Datastore") {
 
       @Override
       public void run() {
 
-        QueryObserver observer = QueryObserverHolder.setInstance(new IndexTrackingQueryObserver());
+        var observer = QueryObserverHolder.setInstance(new IndexTrackingQueryObserver());
 
         // Create Partition Region
-        PartitionAttributesFactory paf = new PartitionAttributesFactory();
+        var paf = new PartitionAttributesFactory();
         paf.setTotalNumBuckets(NUM_BKTS);
-        AttributesFactory af = new AttributesFactory();
+        var af = new AttributesFactory();
         af.setPartitionAttributes(paf.create());
 
-        Region region = getCache().createRegion("portfolio", af.create());
+        var region = getCache().createRegion("portfolio", af.create());
 
       }
     };
@@ -162,7 +158,7 @@ public class IndexTrackingQueryObserverDUnitTest extends JUnit4CacheTestCase {
 
   private void initializeRegion(VM vm) {
 
-    SerializableRunnable initRegion = new SerializableRunnable("Initialize the PR") {
+    var initRegion = new SerializableRunnable("Initialize the PR") {
 
       @Override
       public void run() {
@@ -170,7 +166,7 @@ public class IndexTrackingQueryObserverDUnitTest extends JUnit4CacheTestCase {
         Region region = getCache().getRegion("portfolio");
 
         if (region.size() == 0) {
-          for (int i = 0; i < TOTAL_OBJECTS; i++) {
+          for (var i = 0; i < TOTAL_OBJECTS; i++) {
             region.put(Integer.toString(i), new Portfolio(i, i));
           }
         }
@@ -183,7 +179,7 @@ public class IndexTrackingQueryObserverDUnitTest extends JUnit4CacheTestCase {
 
   private void createQueryIndex(VM vm, final boolean create) {
 
-    SerializableRunnable createIndex = new SerializableRunnable("Create index on PR") {
+    var createIndex = new SerializableRunnable("Create index on PR") {
 
       @Override
       public void run() {
@@ -191,7 +187,7 @@ public class IndexTrackingQueryObserverDUnitTest extends JUnit4CacheTestCase {
         // Query VERBOSE has to be true for the test
         assertTrue(DefaultQuery.QUERY_VERBOSE);
 
-        QueryService qs = getCache().getQueryService();
+        var qs = getCache().getQueryService();
 
         Index keyIndex1 = null;
         try {
@@ -207,8 +203,8 @@ public class IndexTrackingQueryObserverDUnitTest extends JUnit4CacheTestCase {
         }
         Region region = getCache().getRegion("portfolio");
         // Inject TestHook in QueryObserver before running query.
-        IndexTrackingTestHook th = new IndexTrackingTestHook(region, NUM_BKTS / 2);
-        QueryObserver observer = QueryObserverHolder.getInstance();
+        var th = new IndexTrackingTestHook(region, NUM_BKTS / 2);
+        var observer = QueryObserverHolder.getInstance();
         assertTrue(QueryObserverHolder.hasObserver());
 
         ((IndexTrackingQueryObserver) observer).setTestHook(th);
@@ -220,13 +216,13 @@ public class IndexTrackingQueryObserverDUnitTest extends JUnit4CacheTestCase {
 
   private void runQuery(VM vm) {
 
-    SerializableRunnable runQuery = new SerializableRunnable("Run Query on PR") {
+    var runQuery = new SerializableRunnable("Run Query on PR") {
 
       @Override
       public void run() {
 
-        QueryService qs = getCache().getQueryService();
-        Query query = qs.newQuery(queryStr);
+        var qs = getCache().getQueryService();
+        var query = qs.newQuery(queryStr);
         Region region = getCache().getRegion("portfolio");
 
         SelectResults results = null;
@@ -245,7 +241,7 @@ public class IndexTrackingQueryObserverDUnitTest extends JUnit4CacheTestCase {
 
   private AsyncInvocation verifyQueryVerboseData(VM vm, final int results) {
 
-    SerializableRunnable testQueryVerbose = new SerializableRunnable("Test Query Verbose Data") {
+    var testQueryVerbose = new SerializableRunnable("Test Query Verbose Data") {
 
       @Override
       public void run() {
@@ -253,10 +249,10 @@ public class IndexTrackingQueryObserverDUnitTest extends JUnit4CacheTestCase {
         assertTrue(QUERY_VERBOSE);
 
         // Get TestHook from observer.
-        QueryObserver observer = getInstance();
+        var observer = getInstance();
         assertTrue(hasObserver());
 
-        final IndexTrackingTestHook th =
+        final var th =
             (IndexTrackingTestHook) ((IndexTrackingQueryObserver) observer).getTestHook();
 
         GeodeAwaitility.await().untilAsserted(new WaitCriterion() {
@@ -275,11 +271,11 @@ public class IndexTrackingQueryObserverDUnitTest extends JUnit4CacheTestCase {
           }
         });
 
-        IndexInfo regionMap = th.getRegionMap();
+        var regionMap = th.getRegionMap();
 
         Collection<Integer> rslts = regionMap.getResults().values();
-        int totalResults = 0;
-        for (Integer i : rslts) {
+        var totalResults = 0;
+        for (var i : rslts) {
           totalResults += i;
         }
 

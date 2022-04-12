@@ -28,21 +28,15 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.InterestResultPolicy;
 import org.apache.geode.cache.PartitionAttributesFactory;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.partition.PartitionRegionHelper;
-import org.apache.geode.cache.query.CqAttributes;
 import org.apache.geode.cache.query.CqAttributesFactory;
 import org.apache.geode.cache.query.CqEvent;
 import org.apache.geode.cache.query.CqListener;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.TXManagerImpl;
 import org.apache.geode.internal.cache.TXState;
-import org.apache.geode.internal.cache.TXStateInterface;
 import org.apache.geode.internal.cache.TXStateProxyImpl;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
 import org.apache.geode.test.dunit.AsyncInvocation;
@@ -67,13 +61,13 @@ public class PartitionedRegionTxDUnitTest implements Serializable {
 
   @Before
   public void setUp() {
-    MemberVM locator = clusterStartupRule.startLocatorVM(0);
+    var locator = clusterStartupRule.startLocatorVM(0);
     server1 = clusterStartupRule.startServerVM(1, locator.getPort());
     server2 = clusterStartupRule.startServerVM(2, locator.getPort());
 
     server1.invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
-      Region<Object, Object> region =
+      var cache = ClusterStartupRule.getCache();
+      var region =
           cache.createRegionFactory(RegionShortcut.PARTITION).setPartitionAttributes(
               new PartitionAttributesFactory<>().setRedundantCopies(1).setTotalNumBuckets(1)
                   .create())
@@ -83,7 +77,7 @@ public class PartitionedRegionTxDUnitTest implements Serializable {
     });
 
     server2.invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
+      var cache = ClusterStartupRule.getCache();
       cache.createRegionFactory(RegionShortcut.PARTITION).setPartitionAttributes(
           new PartitionAttributesFactory<>().setRedundantCopies(1).setTotalNumBuckets(1).create())
           .create(REGION_NAME);
@@ -99,11 +93,11 @@ public class PartitionedRegionTxDUnitTest implements Serializable {
         cacheRule -> cacheRule.withServerConnection(server2.getPort()).withPoolSubscription(true));
 
     AsyncInvocation<?> serverAsync = server1.invokeAsync(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
-      TXManagerImpl txManager = (TXManagerImpl) cache.getCacheTransactionManager();
+      var cache = ClusterStartupRule.getCache();
+      var txManager = (TXManagerImpl) cache.getCacheTransactionManager();
       txManager.begin();
 
-      TXStateInterface txState =
+      var txState =
           ((TXStateProxyImpl) txManager.getTXState()).getRealDeal(null, null);
 
       ((TXState) txState).setDuringApplyChanges(() -> {
@@ -120,14 +114,14 @@ public class PartitionedRegionTxDUnitTest implements Serializable {
     });
 
     client.invoke(() -> {
-      ClientCache clientCache = ClusterStartupRule.getClientCache();
+      var clientCache = ClusterStartupRule.getClientCache();
       clientCache.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY).create(REGION_NAME);
 
-      QueryService queryService = clientCache.getQueryService();
-      CqAttributesFactory cqaf = new CqAttributesFactory();
-      TestCqListener testListener = new TestCqListener();
+      var queryService = clientCache.getQueryService();
+      var cqaf = new CqAttributesFactory();
+      var testListener = new TestCqListener();
       cqaf.addCqListener(testListener);
-      CqAttributes cqAttributes = cqaf.create();
+      var cqAttributes = cqaf.create();
 
       blackboard.waitForGate("StartCQ");
       SelectResults<Object> cqResults = queryService
@@ -154,27 +148,27 @@ public class PartitionedRegionTxDUnitTest implements Serializable {
         cacheRule -> cacheRule.withServerConnection(server1.getPort()).withPoolSubscription(true));
 
     server1.invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
+      var cache = ClusterStartupRule.getCache();
       cache.getRegion(REGION_NAME).put("Key-1", "value-1");
     });
 
     client.invoke(() -> {
-      ClientCache clientCache = ClusterStartupRule.getClientCache();
+      var clientCache = ClusterStartupRule.getClientCache();
       clientCache.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY).create(REGION_NAME);
 
-      QueryService queryService = clientCache.getQueryService();
-      CqAttributesFactory cqaf = new CqAttributesFactory();
-      TestCqListener testListener = new TestCqListener();
+      var queryService = clientCache.getQueryService();
+      var cqaf = new CqAttributesFactory();
+      var testListener = new TestCqListener();
       cqaf.addCqListener(testListener);
-      CqAttributes cqAttributes = cqaf.create();
+      var cqAttributes = cqaf.create();
 
       queryService.newCq("Select * from " + SEPARATOR + REGION_NAME, cqAttributes)
           .executeWithInitialResults();
     });
 
     client.invoke(() -> {
-      ClientCache clientCache = ClusterStartupRule.getClientCache();
-      TXManagerImpl txManager = (TXManagerImpl) clientCache.getCacheTransactionManager();
+      var clientCache = ClusterStartupRule.getClientCache();
+      var txManager = (TXManagerImpl) clientCache.getCacheTransactionManager();
       txManager.begin();
 
       clientCache.getRegion(REGION_NAME).destroy("Key-1");
@@ -192,12 +186,12 @@ public class PartitionedRegionTxDUnitTest implements Serializable {
     client = clusterStartupRule.startClientVM(3,
         cacheRule -> cacheRule.withServerConnection(server2.getPort()).withPoolSubscription(true));
 
-    AsyncInvocation serverAsync = server1.invokeAsync(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
-      TXManagerImpl txManager = (TXManagerImpl) cache.getCacheTransactionManager();
+    var serverAsync = server1.invokeAsync(() -> {
+      var cache = ClusterStartupRule.getCache();
+      var txManager = (TXManagerImpl) cache.getCacheTransactionManager();
       txManager.begin();
 
-      TXStateInterface txState =
+      var txState =
           ((TXStateProxyImpl) txManager.getTXState()).getRealDeal(null, null);
 
       ((TXState) txState).setDuringApplyChanges(() -> {
@@ -214,8 +208,8 @@ public class PartitionedRegionTxDUnitTest implements Serializable {
     });
 
     client.invoke(() -> {
-      ClientCache clientCache = ClusterStartupRule.getClientCache();
-      Region<Object, Object> region =
+      var clientCache = ClusterStartupRule.getClientCache();
+      var region =
           clientCache.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY)
               .create(REGION_NAME);
       blackboard.waitForGate("StartReg");

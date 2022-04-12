@@ -40,7 +40,6 @@ import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 
 /**
@@ -76,31 +75,31 @@ public class GeodeDevRestClient {
   }
 
   public HttpResponse doHEAD(String query, String username, String password) {
-    HttpHead httpHead = new HttpHead(context + query);
+    var httpHead = new HttpHead(context + query);
     return doRequest(httpHead, username, password);
   }
 
   public HttpResponse doPost(String query, String username, String password, String body) {
-    HttpPost httpPost = new HttpPost(context + query);
+    var httpPost = new HttpPost(context + query);
     httpPost.addHeader("content-type", "application/json");
     httpPost.setEntity(new StringEntity(body, StandardCharsets.UTF_8));
     return doRequest(httpPost, username, password);
   }
 
   public HttpResponse doPut(String query, String username, String password, String body) {
-    HttpPut httpPut = new HttpPut(context + query);
+    var httpPut = new HttpPut(context + query);
     httpPut.addHeader("content-type", "application/json");
     httpPut.setEntity(new StringEntity(body, StandardCharsets.UTF_8));
     return doRequest(httpPut, username, password);
   }
 
   public HttpResponse doGet(String uri, String username, String password) {
-    HttpGet getRequest = new HttpGet(context + uri);
+    var getRequest = new HttpGet(context + uri);
     return doRequest(getRequest, username, password);
   }
 
   public HttpResponse doDelete(String uri, String username, String password) {
-    HttpDelete httpDelete = new HttpDelete(context + uri);
+    var httpDelete = new HttpDelete(context + uri);
     return doRequest(httpDelete, username, password);
   }
 
@@ -134,8 +133,8 @@ public class GeodeDevRestClient {
    * this handles rest calls. each request creates a different httpClient object
    */
   public HttpResponse doRequest(HttpRequestBase request, String username, String password) {
-    HttpClientBuilder clientBuilder = HttpClients.custom();
-    HttpClientContext clientContext = HttpClientContext.create();
+    var clientBuilder = HttpClients.custom();
+    var clientContext = HttpClientContext.create();
 
     // configures the clientBuilder and clientContext
     if (username != null) {
@@ -147,7 +146,7 @@ public class GeodeDevRestClient {
 
     try {
       if (useSsl) {
-        SSLContext ctx = SSLContext.getInstance("TLS");
+        var ctx = SSLContext.getInstance("TLS");
         ctx.init(new KeyManager[0], new TrustManager[] {new DefaultTrustManager()},
             new SecureRandom());
         clientBuilder.setSSLContext(ctx);

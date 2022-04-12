@@ -16,16 +16,15 @@ package org.apache.geode.cache.lucene.internal;
 
 import static org.apache.geode.cache.Region.SEPARATOR;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
 public class CreateLuceneCommandParametersValidator {
   public static void validateRegionName(String name) {
     validateNameNotEmptyOrNull(name);
-    String msg =
+    var msg =
         "Region names may only be alphanumeric, must not begin with double-underscores, but can contain hyphens, underscores, or forward slashes: ";
-    Matcher matcher = Pattern.compile("[aA-zZ0-9-_." + SEPARATOR + "]+").matcher(name);
+    var matcher = Pattern.compile("[aA-zZ0-9-_." + SEPARATOR + "]+").matcher(name);
     if (name.startsWith("__") || name.startsWith(SEPARATOR + "__") || !matcher.matches()) {
       throw new IllegalArgumentException(msg + name);
     }
@@ -33,9 +32,9 @@ public class CreateLuceneCommandParametersValidator {
 
   public static void validateLuceneIndexName(String name) {
     validateNameNotEmptyOrNull(name);
-    String msg =
+    var msg =
         "Index names may only be alphanumeric, must not begin with double-underscores, but can contain hyphens or underscores: ";
-    Matcher matcher = Pattern.compile("[aA-zZ0-9-_.]+").matcher(name);
+    var matcher = Pattern.compile("[aA-zZ0-9-_.]+").matcher(name);
     if (name.startsWith("__") || !matcher.matches()) {
       throw new IllegalArgumentException(msg + name);
     }

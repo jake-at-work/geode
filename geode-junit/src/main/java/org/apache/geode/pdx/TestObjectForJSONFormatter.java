@@ -100,7 +100,7 @@ public class TestObjectForJSONFormatter implements PdxSerializable {
   public TestObjectForJSONFormatter() {}
 
   public String addClassTypeToJson(String json) throws IOException {
-    ObjectNode node = (ObjectNode) new ObjectMapper().readTree(json);
+    var node = (ObjectNode) new ObjectMapper().readTree(json);
     node.put("@type", "org.apache.geode.pdx.TestObjectForJSONFormatter");
     return node.toString();
   }
@@ -110,15 +110,15 @@ public class TestObjectForJSONFormatter implements PdxSerializable {
     employee = new Employee(1010L, "NilkanthKumar", "Patel");
 
     // Initialize Map type member
-    Employee e1 = new Employee(1L, "Nilkanth", "Patel");
-    Employee e2 = new Employee(2L, "Amey", "Barve");
-    Employee e3 = new Employee(3L, "Shankar", "Hundekar");
-    Employee e4 = new Employee(4L, "Avinash", "Dongre");
-    Employee e5 = new Employee(5L, "supriya", "Patil");
-    Employee e6 = new Employee(6L, "Rajesh", null);
-    Employee e7 = new Employee(7L, "Vishal", "Rao");
-    Employee e8 = new Employee(8L, "Hitesh", "Khamesara");
-    Employee e9 = new Employee(9L, "Sudhir", "Menon");
+    var e1 = new Employee(1L, "Nilkanth", "Patel");
+    var e2 = new Employee(2L, "Amey", "Barve");
+    var e3 = new Employee(3L, "Shankar", "Hundekar");
+    var e4 = new Employee(4L, "Avinash", "Dongre");
+    var e5 = new Employee(5L, "supriya", "Patil");
+    var e6 = new Employee(6L, "Rajesh", null);
+    var e7 = new Employee(7L, "Vishal", "Rao");
+    var e8 = new Employee(8L, "Hitesh", "Khamesara");
+    var e9 = new Employee(9L, "Sudhir", "Menon");
 
     m_empByCity = new HashMap<>();
     List<Employee> list1 = new ArrayList<>();
@@ -209,7 +209,7 @@ public class TestObjectForJSONFormatter implements PdxSerializable {
     w_doubleArray = new Double[3];
     w_strArray = new String[3];
 
-    for (int i = 0; i < 3; i++) {
+    for (var i = 0; i < 3; i++) {
       w_boolArray[i] = p_boolArray[i];
       w_byteArray[i] = p_byteArray[i];
       w_shortArray[i] = p_shortArray[i];
@@ -884,7 +884,7 @@ public class TestObjectForJSONFormatter implements PdxSerializable {
       return false;
     }
 
-    TestObjectForJSONFormatter other = (TestObjectForJSONFormatter) obj;
+    var other = (TestObjectForJSONFormatter) obj;
 
     // primitive type
     if (p_bool != other.p_bool) {
@@ -1027,7 +1027,7 @@ public class TestObjectForJSONFormatter implements PdxSerializable {
     if (m1.size() != m2.size()) {
       return false;
     }
-    for (Object key : m1.keySet()) {
+    for (var key : m1.keySet()) {
       if (!m1.get(key).equals(m2.get(key))) {
         return false;
       }
@@ -1037,7 +1037,7 @@ public class TestObjectForJSONFormatter implements PdxSerializable {
 
   @Override
   public int hashCode() {
-    int result = Objects.hash(p_bool, p_byte, p_short, p_int, p_long, p_float, p_double, w_bool,
+    var result = Objects.hash(p_bool, p_byte, p_short, p_int, p_long, p_float, p_double, w_bool,
         w_byte, w_short, w_int, w_long, w_bigInt, w_float, w_bigDec, w_double, w_string, c_list,
         c_set, c_queue, c_deque, m_empByCity, day);
     result = 31 * result + Arrays.hashCode(p_boolArray);

@@ -108,7 +108,7 @@ public class BrokenSerializationConsistencyRegressionTest implements Serializabl
   @Test
   public void failureToDataSerializeFailsToPropagate() {
     Region<String, DataSerializable> region = cacheRule.getCache().getRegion(REGION_NAME);
-    Throwable caughtException = catchThrowable(() -> region.put(KEY, valueFailsToSerialize));
+    var caughtException = catchThrowable(() -> region.put(KEY, valueFailsToSerialize));
 
     assertThat(caughtException).isInstanceOf(ToDataException.class);
     assertThat(caughtException.getCause()).isInstanceOf(IOException.class)
@@ -125,11 +125,11 @@ public class BrokenSerializationConsistencyRegressionTest implements Serializabl
   public void failureToDataSerializeFailsToPropagateInTransaction() {
     Region<String, DataSerializable> region = cacheRule.getCache().getRegion(REGION_NAME);
     Region<String, String> region2 = cacheRule.getCache().getRegion(REGION_NAME2);
-    TXManagerImpl txManager = cacheRule.getCache().getTxManager();
+    var txManager = cacheRule.getCache().getTxManager();
     txManager.begin();
     region2.put(KEY, stringValue);
     region.put(KEY, valueFailsToSerialize);
-    Throwable caughtException = catchThrowable(txManager::commit);
+    var caughtException = catchThrowable(txManager::commit);
 
     assertThat(caughtException).isInstanceOf(ToDataException.class);
     assertThat(caughtException.getCause()).isInstanceOf(IOException.class)
@@ -148,7 +148,7 @@ public class BrokenSerializationConsistencyRegressionTest implements Serializabl
   @Test
   public void failureToPdxSerializeFails() {
     Region<String, PdxSerializable> region = cacheRule.getCache().getRegion(REGION_NAME);
-    Throwable caughtException = catchThrowable(() -> region.put(KEY, pdxValueFailsToSerialize));
+    var caughtException = catchThrowable(() -> region.put(KEY, pdxValueFailsToSerialize));
 
     assertThat(caughtException).isInstanceOf(ToDataException.class);
     assertThat(caughtException.getCause()).isInstanceOf(UncheckedIOException.class);

@@ -35,7 +35,6 @@ import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.cache.EntryDestroyedException;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.query.FunctionDomainException;
 import org.apache.geode.cache.query.IndexStatistics;
 import org.apache.geode.cache.query.IndexType;
@@ -134,7 +133,7 @@ public class HashIndex extends AbstractIndex {
       String origIndexExpr, String[] definitions, IndexStatistics stats) {
     super(cache, indexName, region, fromClause, indexedExpression, projectionAttributes,
         origFromClause, origIndexExpr, definitions, stats);
-    RegionAttributes ra = region.getAttributes();
+    var ra = region.getAttributes();
 
 
     if (IndexManager.isObjectModificationInplace()) {
@@ -166,10 +165,10 @@ public class HashIndex extends AbstractIndex {
 
   @Override
   public void initializeIndex(boolean loadEntries) throws IMQException {
-    long startTime = System.nanoTime();
+    var startTime = System.nanoTime();
     evaluator.initializeIndex(loadEntries);
     internalIndexStats.incNumUpdates(((IMQEvaluator) evaluator).getTotalEntriesUpdated());
-    long endTime = System.nanoTime();
+    var endTime = System.nanoTime();
     internalIndexStats.incUpdateTime(endTime - startTime);
   }
 
@@ -195,9 +194,9 @@ public class HashIndex extends AbstractIndex {
             DefaultQuery.TestHook.SPOTS.BEFORE_ADD_OR_UPDATE_MAPPING_OR_DESERIALIZING_NTH_STREAMINGOPERATION,
             null, null);
       }
-      Object newKey = TypeUtils.indexKeyFor(key);
+      var newKey = TypeUtils.indexKeyFor(key);
       if (newKey.equals(QueryService.UNDEFINED)) {
-        Object targetObject = getTargetObjectForUpdate(entry);
+        var targetObject = getTargetObjectForUpdate(entry);
         if (Token.isInvalidOrRemoved(targetObject)) {
           // This should not happen as a token should only be added during gii
           // meaning we do not have an old mapping
@@ -227,9 +226,9 @@ public class HashIndex extends AbstractIndex {
       // Before adding the entry with new value, remove it from reverse map and
       // using the oldValue remove entry from the forward map.
       // Reverse-map is used based on the system property
-      Object oldKey = getOldKey(entry);
+      var oldKey = getOldKey(entry);
 
-      int indexSlot = entriesSet.add(newKey, entry);
+      var indexSlot = entriesSet.add(newKey, entry);
 
       if (indexSlot >= 0) {
         // Update the reverse map
@@ -316,7 +315,7 @@ public class HashIndex extends AbstractIndex {
     // it's current capacity is..so we trim after every
     // removal
     try {
-      Object newKey = TypeUtils.indexKeyFor(key);
+      var newKey = TypeUtils.indexKeyFor(key);
       removeFromEntriesSet(newKey, entry, updateReverseMap);
     } catch (TypeMismatchException ex) {
       throw new IMQException("Could not add object of type " + key.getClass().getName(), ex);
@@ -351,13 +350,13 @@ public class HashIndex extends AbstractIndex {
       throws TypeMismatchException, FunctionDomainException, NameResolutionException,
       QueryInvocationTargetException {
     // get a read lock when doing a lookup
-    long start = updateIndexUseStats();
+    var start = updateIndexUseStats();
     ((AbstractIndex) indx).updateIndexUseStats();
     List data = new ArrayList();
     Iterator inner = null;
     try {
       // We will iterate over each of the valueToEntries Map to obtain the keys
-      Iterator outer = entriesSet.iterator();
+      var outer = entriesSet.iterator();
       if (indx instanceof CompactRangeIndex) {
         inner = ((CompactRangeIndex) indx).getIndexStorage().iterator(null);
       } else {
@@ -368,7 +367,7 @@ public class HashIndex extends AbstractIndex {
       Object outerKey = null;
       Object innerKey = null;
       // boolean incrementOuter = true;
-      boolean incrementInner = true;
+      var incrementInner = true;
       outer: while (outer.hasNext()) {
         // if (incrementOuter) {
         outerEntry = (Map.Entry) outer.next();
@@ -384,7 +383,7 @@ public class HashIndex extends AbstractIndex {
               innerKey = ((Map.Entry) innerEntry).getKey();
             }
           }
-          int compare = ((Comparable) outerKey).compareTo(innerKey);
+          var compare = ((Comparable) outerKey).compareTo(innerKey);
           if (compare == 0) {
             Object innerValue = null;
             if (innerEntry instanceof IndexStoreEntry) {
@@ -433,8 +432,8 @@ public class HashIndex extends AbstractIndex {
       IndexInfo indexInfo, Object keyVal) throws FunctionDomainException, TypeMismatchException,
       NameResolutionException, QueryInvocationTargetException {
     // Verify index key in value.
-    CompactRangeIndex index = (CompactRangeIndex) indexInfo._getIndex();
-    RuntimeIterator runtimeItr = index.getRuntimeIteratorForThisIndex(context, indexInfo);
+    var index = (CompactRangeIndex) indexInfo._getIndex();
+    var runtimeItr = index.getRuntimeIteratorForThisIndex(context, indexInfo);
     if (runtimeItr != null) {
       runtimeItr.setCurrent(getTargetObject(entry));
     }
@@ -445,8 +444,8 @@ public class HashIndex extends AbstractIndex {
   public int getSizeEstimate(Object key, int operator, int matchLevel)
       throws TypeMismatchException {
     // Get approx size;
-    int size = 0;
-    long start = updateIndexUseStats(false);
+    var size = 0;
+    var start = updateIndexUseStats(false);
     try {
       switch (operator) {
         case OQLLexerTokenTypes.TOK_EQ: {
@@ -489,9 +488,9 @@ public class HashIndex extends AbstractIndex {
     if (keysToRemove == null) {
       keysToRemove = new HashSet(0);
     }
-    int limit = -1;
+    var limit = -1;
 
-    Boolean applyLimit = (Boolean) context.cacheGet(CompiledValue.CAN_APPLY_LIMIT_AT_INDEX);
+    var applyLimit = (Boolean) context.cacheGet(CompiledValue.CAN_APPLY_LIMIT_AT_INDEX);
     if (applyLimit != null && applyLimit) {
       limit = (Integer) context.cacheGet(CompiledValue.RESULT_LIMIT);
       if (limit != -1 && limit < indexThresholdSize) {
@@ -499,12 +498,12 @@ public class HashIndex extends AbstractIndex {
       }
     }
 
-    Boolean orderByClause = (Boolean) context.cacheGet(CompiledValue.CAN_APPLY_ORDER_BY_AT_INDEX);
-    boolean applyOrderBy = false;
+    var orderByClause = (Boolean) context.cacheGet(CompiledValue.CAN_APPLY_ORDER_BY_AT_INDEX);
+    var applyOrderBy = false;
     List orderByAttrs = null;
     if (orderByClause != null && orderByClause) {
       orderByAttrs = (List) context.cacheGet(CompiledValue.ORDERBY_ATTRIB);
-      CompiledSortCriterion csc = (CompiledSortCriterion) orderByAttrs.get(0);
+      var csc = (CompiledSortCriterion) orderByAttrs.get(0);
       applyOrderBy = true;
     }
     evaluate(key, operator, results, iterOps, runtimeItr, context, keysToRemove, projAttrib,
@@ -527,7 +526,7 @@ public class HashIndex extends AbstractIndex {
       SelectResults intermediateResults, boolean isIntersection, int limit, boolean applyOrderBy,
       List orderByAttribs) throws TypeMismatchException, FunctionDomainException,
       NameResolutionException, QueryInvocationTargetException {
-    boolean multiColOrderBy = false;
+    var multiColOrderBy = false;
     if (keysToRemove == null) {
       keysToRemove = new HashSet(0);
     }
@@ -535,15 +534,15 @@ public class HashIndex extends AbstractIndex {
     if (key == null) {
       key = IndexManager.NULL;
     }
-    boolean asc = true;
+    var asc = true;
     if (applyOrderBy) {
-      CompiledSortCriterion csc = (CompiledSortCriterion) orderByAttribs.get(0);
+      var csc = (CompiledSortCriterion) orderByAttribs.get(0);
       asc = !csc.getCriterion();
       multiColOrderBy = orderByAttribs.size() > 1;
     }
 
     try {
-      long iteratorCreationTime = cache.cacheTimeMillis();
+      var iteratorCreationTime = cache.cacheTimeMillis();
 
       switch (operator) {
         case OQLLexerTokenTypes.TOK_EQ:
@@ -570,7 +569,7 @@ public class HashIndex extends AbstractIndex {
       } else if (operator == OQLLexerTokenTypes.TOK_NE
           || operator == OQLLexerTokenTypes.TOK_NE_ALT) { // put
         keysToRemove.add(key);
-        long iteratorCreationTime = cache.cacheTimeMillis();
+        var iteratorCreationTime = cache.cacheTimeMillis();
         addToResultsFromEntries(entriesSet.getAllNotMatching(keysToRemove), results, iterOps,
             runtimeItr, context, projAttrib, intermediateResults, isIntersection,
             multiColOrderBy ? -1 : limit, keysToRemove, applyOrderBy, asc, iteratorCreationTime);
@@ -601,7 +600,7 @@ public class HashIndex extends AbstractIndex {
       SelectResults intermediateResults, boolean isIntersection, int limit, Set keysToRemove,
       boolean applyOrderBy, boolean asc, long iteratorCreationTime) throws FunctionDomainException,
       TypeMismatchException, NameResolutionException, QueryInvocationTargetException {
-    QueryObserver observer = QueryObserverHolder.getInstance();
+    var observer = QueryObserverHolder.getInstance();
     if (result == null || limit != -1 && result.size() == limit) {
       return;
     }
@@ -611,7 +610,7 @@ public class HashIndex extends AbstractIndex {
       orderedKeys = new ArrayList();
       orderedResults = new ArrayList();
     }
-    int i = 0;
+    var i = 0;
     while (entriesIter.hasNext()) {
       // Check if query execution on this thread is canceled.
       QueryMonitor.throwExceptionIfQueryOnCurrentThreadIsCanceled();
@@ -621,10 +620,10 @@ public class HashIndex extends AbstractIndex {
         }
         IndexManager.testHook.hook(11);
       }
-      Object obj = entriesIter.next();
+      var obj = entriesIter.next();
       Object key = null;
       if (obj != null && obj != HashIndexSet.REMOVED) {
-        RegionEntry re = (RegionEntry) obj;
+        var re = (RegionEntry) obj;
         if (applyOrderBy) {
           key = ((HashIndex.IMQEvaluator) evaluator).evaluateKey(obj);
           orderedKeys.add(new Object[] {key, i++});
@@ -647,9 +646,9 @@ public class HashIndex extends AbstractIndex {
       if (!asc) {
         Collections.reverse(orderedKeys);
       }
-      Object[] temp = orderedResults.toArray();
+      var temp = orderedResults.toArray();
       List tempResults = new ArrayList(temp.length);
-      for (Object o : orderedKeys) {
+      for (var o : orderedKeys) {
         int index = (Integer) ((Object[]) o)[1];
         tempResults.add(temp[index]);
       }
@@ -662,15 +661,15 @@ public class HashIndex extends AbstractIndex {
       SelectResults intermediateResults, boolean isIntersection, int limit, QueryObserver observer,
       long iteratorCreationTime) throws FunctionDomainException, TypeMismatchException,
       NameResolutionException, QueryInvocationTargetException {
-    Object value = getTargetObject(re);
+    var value = getTargetObject(re);
     if (value != null) {
-      boolean ok = true;
+      var ok = true;
       // If the region entry is currently being updated or it has been modified since starting
       // iteration
       // we will reevaluate to be sure the value still matches the key
       if (re.isUpdateInProgress()
           || IndexManager.needsRecalculation(iteratorCreationTime, re.getLastModified())) {
-        IndexInfo indexInfo = (IndexInfo) context.cacheGet(CompiledValue.INDEX_INFO);
+        var indexInfo = (IndexInfo) context.cacheGet(CompiledValue.INDEX_INFO);
         if (runtimeItr == null) {
           runtimeItr = getRuntimeIteratorForThisIndex(context, indexInfo);
           if (runtimeItr == null) {
@@ -712,9 +711,9 @@ public class HashIndex extends AbstractIndex {
   private boolean evaluateEntry(IndexInfo indexInfo, ExecutionContext context, Object keyVal)
       throws FunctionDomainException, TypeMismatchException, NameResolutionException,
       QueryInvocationTargetException {
-    CompiledValue path = indexInfo._path();
-    Object left = path.evaluate(context);
-    CompiledValue key = indexInfo._key();
+    var path = indexInfo._path();
+    var left = path.evaluate(context);
+    var key = indexInfo._key();
     Object right = null;
 
     // For CompiledUndefined indexInfo has null key.
@@ -728,7 +727,7 @@ public class HashIndex extends AbstractIndex {
       right = keyVal;
     }
 
-    int operator = indexInfo._operator();
+    var operator = indexInfo._operator();
     if (left == null && right == null) {
       return Boolean.TRUE;
     } else {
@@ -743,7 +742,7 @@ public class HashIndex extends AbstractIndex {
   private Object getTargetObject(RegionEntry entry) {
     if (indexOnValues) {
       // OFFHEAP: incrc, deserialize, decrc
-      Object o = entry.getValue((LocalRegion) getRegion());
+      var o = entry.getValue((LocalRegion) getRegion());
       try {
         if (o == Token.INVALID) {
           return null;
@@ -763,10 +762,10 @@ public class HashIndex extends AbstractIndex {
 
   private Object getTargetObjectForUpdate(RegionEntry entry) {
     if (indexOnValues) {
-      Object o = entry.getValueOffHeapOrDiskWithoutFaultIn((LocalRegion) getRegion());
+      var o = entry.getValueOffHeapOrDiskWithoutFaultIn((LocalRegion) getRegion());
       try {
         if (o instanceof StoredObject) {
-          StoredObject ohval = (StoredObject) o;
+          var ohval = (StoredObject) o;
           try {
             o = ohval.getDeserializedForReading();
           } finally {
@@ -792,15 +791,15 @@ public class HashIndex extends AbstractIndex {
     if (IndexManager.isObjectModificationInplace()) {
       entryToValuesMap.clear();
     }
-    int numKeys = (int) internalIndexStats.getNumberOfKeys();
+    var numKeys = (int) internalIndexStats.getNumberOfKeys();
     if (numKeys > 0) {
       internalIndexStats.incNumKeys(-numKeys);
     }
-    int numValues = (int) internalIndexStats.getNumberOfValues();
+    var numValues = (int) internalIndexStats.getNumberOfValues();
     if (numValues > 0) {
       internalIndexStats.incNumValues(-numValues);
     }
-    int updates = (int) internalIndexStats.getNumUpdates();
+    var updates = (int) internalIndexStats.getNumUpdates();
     if (updates > 0) {
       internalIndexStats.incNumUpdates(updates);
     }
@@ -808,10 +807,10 @@ public class HashIndex extends AbstractIndex {
   }
 
   public String dump() {
-    StringBuilder sb = new StringBuilder(toString()).append(" {").append(lineSeparator());
+    var sb = new StringBuilder(toString()).append(" {").append(lineSeparator());
     sb.append(" -----------------------------------------------").append(lineSeparator());
-    for (Object anEntriesSet : entriesSet) {
-      Entry indexEntry = (Entry) anEntriesSet;
+    for (var anEntriesSet : entriesSet) {
+      var indexEntry = (Entry) anEntriesSet;
       sb.append(" Key = ").append(indexEntry.getKey()).append(lineSeparator());
       sb.append(" Value Type = ").append(' ').append(indexEntry.getValue().getClass().getName())
           .append(lineSeparator());
@@ -823,10 +822,10 @@ public class HashIndex extends AbstractIndex {
       } else {
         throw new AssertionError("value instance of " + indexEntry.getValue().getClass().getName());
       }
-      Collection entrySet = regionEntryCollection(indexEntry.getValue());
-      for (Object anEntrySet : entrySet) {
-        RegionEntry e = (RegionEntry) anEntrySet;
-        Object value = getTargetObject(e);
+      var entrySet = regionEntryCollection(indexEntry.getValue());
+      for (var anEntrySet : entrySet) {
+        var e = (RegionEntry) anEntrySet;
+        var value = getTargetObject(e);
         sb.append("  RegionEntry.key = ").append(e.getKey());
         sb.append("  Value.type = ").append(value.getClass().getName());
         if (value instanceof Collection) {
@@ -1031,7 +1030,7 @@ public class HashIndex extends AbstractIndex {
       }
       iteratorSize = indexInitIterators.size();
       if (additionalProj instanceof CompiledPath) {
-        String tailId = ((CompiledPath) additionalProj).getTailID();
+        var tailId = ((CompiledPath) additionalProj).getTailID();
         if (tailId.equals("key")) {
           // index on keys
           indexOnRegionKeys = true;
@@ -1108,8 +1107,8 @@ public class HashIndex extends AbstractIndex {
         // scope ID of 1 , as otherwise if obtained from ExecutionContext
         // object, it will get incremented on very index initialization
         initContext.newScope(1);
-        for (int i = 0; i < iteratorSize; i++) {
-          CompiledIteratorDef iterDef = (CompiledIteratorDef) indexInitIterators.get(i);
+        for (var i = 0; i < iteratorSize; i++) {
+          var iterDef = (CompiledIteratorDef) indexInitIterators.get(i);
           RuntimeIterator rIter = null;
           if (!hasInitOccurredOnce) {
             iterDef.computeDependencies(initContext);
@@ -1146,13 +1145,13 @@ public class HashIndex extends AbstractIndex {
       if (level == iteratorSize) {
         applyProjectionForIndexInit(runtimeIterators);
       } else {
-        RuntimeIterator rIter = (RuntimeIterator) runtimeIterators.get(level);
+        var rIter = (RuntimeIterator) runtimeIterators.get(level);
         // System.out.println("Level = "+level+" Iter = "+rIter.getDef());
         Collection c = rIter.evaluateCollection(initContext);
         if (c == null) {
           return;
         }
-        for (final Object o : c) {
+        for (final var o : c) {
           rIter.setCurrent(o);
           doNestedIterationsForIndexInit(level + 1, runtimeIterators);
         }
@@ -1207,17 +1206,17 @@ public class HashIndex extends AbstractIndex {
     private void doNestedIterations(int level, boolean add, ExecutionContext context)
         throws TypeMismatchException, FunctionDomainException,
         NameResolutionException, QueryInvocationTargetException, IMQException {
-      List iterList = context.getCurrentIterators();
+      var iterList = context.getCurrentIterators();
       if (level == iteratorSize) {
         applyProjection(add, context);
       } else {
-        RuntimeIterator rIter = (RuntimeIterator) iterList.get(level);
+        var rIter = (RuntimeIterator) iterList.get(level);
         // System.out.println("Level = "+level+" Iter = "+rIter.getDef());
         Collection c = rIter.evaluateCollection(context);
         if (c == null) {
           return;
         }
-        for (final Object o : c) {
+        for (final var o : c) {
           rIter.setCurrent(o);
           doNestedIterations(level + 1, add, context);
         }
@@ -1230,12 +1229,12 @@ public class HashIndex extends AbstractIndex {
     private void applyProjection(boolean add, ExecutionContext context)
         throws FunctionDomainException, TypeMismatchException, NameResolutionException,
         QueryInvocationTargetException, IMQException {
-      Object indexKey = indexedExpr.evaluate(context);
+      var indexKey = indexedExpr.evaluate(context);
       if (indexKey == null) {
         indexKey = IndexManager.NULL;
       }
 
-      RegionEntry entry = ((DummyQRegion) context.getBindArgument(1)).getEntry();
+      var entry = ((DummyQRegion) context.getBindArgument(1)).getEntry();
       // Get thread local reverse map if available.
       if (add) {
         // Add new index entries before removing old ones.
@@ -1260,14 +1259,14 @@ public class HashIndex extends AbstractIndex {
     // The struct type calculation is modified if the
     // 0th iterator is modified to make it dependent on Entry
     private ObjectType createIndexResultSetType() {
-      List currentIterators = initContext.getCurrentIterators();
-      int len = currentIterators.size();
+      var currentIterators = initContext.getCurrentIterators();
+      var len = currentIterators.size();
       ObjectType type = null;
       // String fieldNames[] = new String[len];
-      ObjectType[] fieldTypes = new ObjectType[len];
-      int start = isFirstItrOnEntry ? 0 : 1;
+      var fieldTypes = new ObjectType[len];
+      var start = isFirstItrOnEntry ? 0 : 1;
       for (; start < len; start++) {
-        RuntimeIterator iter = (RuntimeIterator) currentIterators.get(start);
+        var iter = (RuntimeIterator) currentIterators.get(start);
         // fieldNames[start] = iter.getInternalId();
         fieldTypes[start] = iter.getElementType();
       }
@@ -1295,17 +1294,17 @@ public class HashIndex extends AbstractIndex {
 
     private ExecutionContext createExecutionContext(RegionEntry target)
         throws NameResolutionException, TypeMismatchException {
-      DummyQRegion dQRegion = new DummyQRegion(rgn);
+      var dQRegion = new DummyQRegion(rgn);
       dQRegion.setEntry(target);
       Object[] params = {dQRegion};
-      ExecutionContext context = new ExecutionContext(params, cache);
+      var context = new ExecutionContext(params, cache);
       context.newScope(IndexCreationHelper.INDEX_QUERY_SCOPE_ID);
 
       if (dependencyGraph != null) {
         context.setDependencyGraph(dependencyGraph);
       }
-      for (int i = 0; i < iteratorSize; i++) {
-        CompiledIteratorDef iterDef = (CompiledIteratorDef) fromIterators.get(i);
+      for (var i = 0; i < iteratorSize; i++) {
+        var iterDef = (CompiledIteratorDef) fromIterators.get(i);
         // We are re-using the same ExecutionContext on every evaluate -- this
         // is not how ExecutionContext was intended to be used.
         // Asif: Compute the dependency only once. The call to methods of this
@@ -1313,7 +1312,7 @@ public class HashIndex extends AbstractIndex {
         if (dependencyGraph == null) {
           iterDef.computeDependencies(context);
         }
-        RuntimeIterator rIter = iterDef.getRuntimeIterator(context);
+        var rIter = iterDef.getRuntimeIterator(context);
         context.addToIndependentRuntimeItrMapForIndexCreation(iterDef);
         context.bindIterator(rIter);
       }
@@ -1328,20 +1327,20 @@ public class HashIndex extends AbstractIndex {
     }
 
     public Object evaluateKey(Object object) {
-      Object value = object;
+      var value = object;
 
       ExecutionContext newContext = null;
       Object key = null;
       try {
         if (object instanceof RegionEntry) {
-          RegionEntry regionEntry = (RegionEntry) object;
+          var regionEntry = (RegionEntry) object;
           newContext = createExecutionContext(regionEntry);
           value = getTargetObjectForUpdate(regionEntry);
         }
 
         // context we use is the update context, from IMQEvaluator
-        List iterators = newContext.getCurrentIterators();
-        RuntimeIterator itr = (RuntimeIterator) iterators.get(0);
+        var iterators = newContext.getCurrentIterators();
+        var itr = (RuntimeIterator) iterators.get(0);
         itr.setCurrent(value);
 
         key = indexedExpr.evaluate(newContext);
@@ -1370,11 +1369,11 @@ public class HashIndex extends AbstractIndex {
         // undefined),
         // the value is reevaluated and removed from the result set if it does not match the
         // search criteria. This occurs in addToResultsFromEntries()
-        Object key0 = ((Object[]) arg0)[0];
-        Object key1 = ((Object[]) arg1)[0];
+        var key0 = ((Object[]) arg0)[0];
+        var key1 = ((Object[]) arg1)[0];
 
-        Comparable comp0 = (Comparable) key0;
-        Comparable comp1 = (Comparable) key1;
+        var comp0 = (Comparable) key0;
+        var comp1 = (Comparable) key1;
         return comp0.compareTo(comp1);
       }
     }

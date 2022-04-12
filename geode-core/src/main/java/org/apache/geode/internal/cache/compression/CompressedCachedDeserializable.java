@@ -190,7 +190,7 @@ public abstract class CompressedCachedDeserializable
 
   @Override
   public void fillSerializedValue(BytesAndBitsForCompactor wrapper, byte userBits) {
-    byte[] uncompressed = getCompressor().decompress(value);
+    var uncompressed = getCompressor().decompress(value);
     wrapper.setData(uncompressed, userBits, uncompressed.length, false);
   }
 

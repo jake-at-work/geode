@@ -22,10 +22,8 @@ import static org.apache.geode.test.util.ResourceUtils.createTempFileFromResourc
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Properties;
 
-import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 import javax.transaction.UserTransaction;
@@ -81,13 +79,13 @@ public class DataSourceJTAJUnitTest {
     String tblName;
     String tableName = null;
     // boolean to_continue = true;
-    final int XA_INSERTS = 3;
-    final int SM_INSERTS = 1;
+    final var XA_INSERTS = 3;
+    final var SM_INSERTS = 1;
 
     // call to init method
     try {
-      Properties props = new Properties();
-      String path =
+      var props = new Properties();
+      var path =
           createTempFileFromResource(CacheUtils.class, "cachejta.xml")
               .getAbsolutePath();
       props.setProperty(CACHE_XML_FILE, path);
@@ -113,14 +111,14 @@ public class DataSourceJTAJUnitTest {
     currRegion = cache.getRegion(SEPARATOR + "root");
     tblIDFld = 1;
     tblNameFld = "test1";
-    JTAUtils jtaObj = new JTAUtils(cache, currRegion);
+    var jtaObj = new JTAUtils(cache, currRegion);
 
     // to delete all rows inserted in creatTable () of CacheUtils class
     // deleteRows method of JTAUtils class is used.
     jtaObj.deleteRows(tblName);
 
     // initialize cache and get user transaction
-    Context ctx = cache.getJNDIContext();
+    var ctx = cache.getJNDIContext();
     UserTransaction ta = null;
     Connection xa_conn = null;
     Connection sm_conn = null;
@@ -134,20 +132,20 @@ public class DataSourceJTAJUnitTest {
     try {
 
       // get the SimpleDataSource before the transaction begins
-      DataSource sds = (DataSource) ctx.lookup("java:/SimpleDataSource");
+      var sds = (DataSource) ctx.lookup("java:/SimpleDataSource");
 
       // Begin the user transaction
       ta.begin();
 
       // Obtain XAPooledDataSource
-      DataSource da = (DataSource) ctx.lookup("java:/XAPooledDataSource");
+      var da = (DataSource) ctx.lookup("java:/XAPooledDataSource");
 
       // obtain connection from SimpleDataSource and XAPooledDataSource
       xa_conn = da.getConnection();
       sm_conn = sds.getConnection();
 
-      Statement xa_stmt = xa_conn.createStatement();
-      Statement sm_stmt = sm_conn.createStatement();
+      var xa_stmt = xa_conn.createStatement();
+      var sm_stmt = sm_conn.createStatement();
 
       // perform inserts and updates using both viz. Simple and XA DataSources
       // String sqlSTR = "insert into " + tblName + " values (" + tblIDFld + ","
@@ -156,7 +154,7 @@ public class DataSourceJTAJUnitTest {
       String sqlSTR;
 
       // insert XA_INSERTS rows into timestamped table
-      for (int i = 0; i < XA_INSERTS; i++) {
+      for (var i = 0; i < XA_INSERTS; i++) {
         tblIDFld = tblIDFld + i;
         sqlSTR =
             "insert into " + tblName + " values (" + tblIDFld + "," + "'" + tblNameFld + "'" + ")";
@@ -164,7 +162,7 @@ public class DataSourceJTAJUnitTest {
       }
 
       // insert SM_INSERTS rows into timestamped table
-      for (int j = 0; j < SM_INSERTS; j++) {
+      for (var j = 0; j < SM_INSERTS; j++) {
         tblIDFld = tblIDFld + j + 1;
         sqlSTR =
             "insert into " + tblName + " values (" + tblIDFld + "," + "'" + tblNameFld + "'" + ")";
@@ -200,7 +198,7 @@ public class DataSourceJTAJUnitTest {
     // using getRows method of JTAUtils
 
     try {
-      int num_rows = jtaObj.getRows(tblName);
+      var num_rows = jtaObj.getRows(tblName);
       System.out.println("\nNumber of rows in Table under tests are: " + num_rows);
 
       // determine what got commited and what not
@@ -259,13 +257,13 @@ public class DataSourceJTAJUnitTest {
     String tblName;
     String tableName = null;
     // boolean to_continue = true;
-    final int XA_INSERTS = 3;
-    final int SM_INSERTS = 1;
+    final var XA_INSERTS = 3;
+    final var SM_INSERTS = 1;
 
     // call to init method
     try {
-      Properties props = new Properties();
-      String path =
+      var props = new Properties();
+      var path =
           createTempFileFromResource(CacheUtils.class, "cachejta.xml")
               .getAbsolutePath();
       props.setProperty(CACHE_XML_FILE, path);
@@ -291,14 +289,14 @@ public class DataSourceJTAJUnitTest {
     currRegion = cache.getRegion(SEPARATOR + "root");
     tblIDFld = 1;
     tblNameFld = "test2";
-    JTAUtils jtaObj = new JTAUtils(cache, currRegion);
+    var jtaObj = new JTAUtils(cache, currRegion);
 
     // to delete all rows inserted in creatTable () of CacheUtils class
     // deleteRows method of JTAUtils class is used.
     jtaObj.deleteRows(tblName);
 
     // initialize cache and get user transaction
-    Context ctx = cache.getJNDIContext();
+    var ctx = cache.getJNDIContext();
     UserTransaction ta = null;
     Connection xa_conn = null;
     Connection sm_conn = null;
@@ -312,20 +310,20 @@ public class DataSourceJTAJUnitTest {
     try {
 
       // get the SimpleDataSource before the transaction begins
-      DataSource sds = (DataSource) ctx.lookup("java:/SimpleDataSource");
+      var sds = (DataSource) ctx.lookup("java:/SimpleDataSource");
 
       // Begin the user transaction
       ta.begin();
 
       // Obtain XAPooledDataSource
-      DataSource da = (DataSource) ctx.lookup("java:/XAPooledDataSource");
+      var da = (DataSource) ctx.lookup("java:/XAPooledDataSource");
 
       // obtain connection from SimpleDataSource and XAPooledDataSource
       xa_conn = da.getConnection();
       sm_conn = sds.getConnection();
 
-      Statement xa_stmt = xa_conn.createStatement();
-      Statement sm_stmt = sm_conn.createStatement();
+      var xa_stmt = xa_conn.createStatement();
+      var sm_stmt = sm_conn.createStatement();
 
       // perform inserts and updates using both viz. Simple and XA DataSources
       // String sqlSTR = "insert into " + tblName + " values (" + tblIDFld + ","
@@ -334,7 +332,7 @@ public class DataSourceJTAJUnitTest {
       String sqlSTR;
 
       // insert XA_INSERTS rows into timestamped table
-      for (int i = 0; i < XA_INSERTS; i++) {
+      for (var i = 0; i < XA_INSERTS; i++) {
         tblIDFld = tblIDFld + i;
         sqlSTR =
             "insert into " + tblName + " values (" + tblIDFld + "," + "'" + tblNameFld + "'" + ")";
@@ -342,7 +340,7 @@ public class DataSourceJTAJUnitTest {
       }
 
       // insert SM_INSERTS rows into timestamped table
-      for (int j = 0; j < SM_INSERTS; j++) {
+      for (var j = 0; j < SM_INSERTS; j++) {
         tblIDFld = tblIDFld + j + 1;
         sqlSTR =
             "insert into " + tblName + " values (" + tblIDFld + "," + "'" + tblNameFld + "'" + ")";
@@ -378,7 +376,7 @@ public class DataSourceJTAJUnitTest {
     // using getRows method of JTAUtils
 
     try {
-      int num_rows = jtaObj.getRows(tblName);
+      var num_rows = jtaObj.getRows(tblName);
       System.out.println("\nNumber of rows in Table under tests are: " + num_rows);
 
       // determine what got commited and what not
@@ -550,12 +548,12 @@ public class DataSourceJTAJUnitTest {
     String tblName;
     String tableName = null;
     // boolean to_continue = true;
-    final int XA_INSERTS = 3;
+    final var XA_INSERTS = 3;
 
     // call to init method
     try {
-      Properties props = new Properties();
-      String path =
+      var props = new Properties();
+      var path =
           createTempFileFromResource(CacheUtils.class, "cachejta.xml")
               .getAbsolutePath();
       props.setProperty(CACHE_XML_FILE, path);
@@ -581,14 +579,14 @@ public class DataSourceJTAJUnitTest {
     currRegion = cache.getRegion(SEPARATOR + "root");
     tblIDFld = 1;
     tblNameFld = "test4";
-    JTAUtils jtaObj = new JTAUtils(cache, currRegion);
+    var jtaObj = new JTAUtils(cache, currRegion);
 
     // to delete all rows inserted in creatTable () of CacheUtils class
     // deleteRows method of JTAUtils class is used.
     jtaObj.deleteRows(tblName);
 
     // initialize cache and get user transaction
-    Context ctx = cache.getJNDIContext();
+    var ctx = cache.getJNDIContext();
     UserTransaction ta = null;
     Connection xaCon = null;
     try {
@@ -604,12 +602,12 @@ public class DataSourceJTAJUnitTest {
       ta.begin();
 
       // Obtain XAPooledDataSource
-      DataSource da = (DataSource) ctx.lookup("java:/XAPooledDataSource");
+      var da = (DataSource) ctx.lookup("java:/XAPooledDataSource");
 
       // obtain connection from SimpleDataSource and XAPooledDataSource
       xaCon = da.getConnection();
 
-      Statement stmt = xaCon.createStatement();
+      var stmt = xaCon.createStatement();
 
       // perform inserts and updates using both XA DataSources
       // String sqlSTR = "insert into " + tblName + " values (" + tblIDFld + ","
@@ -618,7 +616,7 @@ public class DataSourceJTAJUnitTest {
       String sqlSTR;
 
       // insert XA_INSERTS rows into timestamped table
-      for (int i = 0; i < XA_INSERTS; i++) {
+      for (var i = 0; i < XA_INSERTS; i++) {
         tblIDFld = tblIDFld + i;
         sqlSTR =
             "insert into " + tblName + " values (" + tblIDFld + "," + "'" + tblNameFld + "'" + ")";
@@ -626,7 +624,7 @@ public class DataSourceJTAJUnitTest {
       }
 
       // insert SM_INSERTS rows into timestamped table
-      String sql = "create table TEST (id integer, name varchar(50))";
+      var sql = "create table TEST (id integer, name varchar(50))";
       stmt.executeUpdate(sql);
 
       sql = "drop table TEST";
@@ -659,7 +657,7 @@ public class DataSourceJTAJUnitTest {
     // using getRows method of JTAUtils
 
     try {
-      int num_rows = jtaObj.getRows(tblName);
+      var num_rows = jtaObj.getRows(tblName);
       System.out.println("\nNumber of rows in Table under tests are: " + num_rows);
 
       // determine what got commited and what not
@@ -713,12 +711,12 @@ public class DataSourceJTAJUnitTest {
     String tblName;
     String tableName = null;
     // boolean to_continue = true;
-    final int XA_INSERTS = 3;
+    final var XA_INSERTS = 3;
 
     // call to init method
     try {
-      Properties props = new Properties();
-      String path =
+      var props = new Properties();
+      var path =
           createTempFileFromResource(CacheUtils.class, "cachejta.xml")
               .getAbsolutePath();
       props.setProperty(CACHE_XML_FILE, path);
@@ -744,14 +742,14 @@ public class DataSourceJTAJUnitTest {
     currRegion = cache.getRegion(SEPARATOR + "root");
     tblIDFld = 1;
     tblNameFld = "test5";
-    JTAUtils jtaObj = new JTAUtils(cache, currRegion);
+    var jtaObj = new JTAUtils(cache, currRegion);
 
     // to delete all rows inserted in creatTable () of CacheUtils class
     // deleteRows method of JTAUtils class is used.
     jtaObj.deleteRows(tblName);
 
     // initialize cache and get user transaction
-    Context ctx = cache.getJNDIContext();
+    var ctx = cache.getJNDIContext();
     UserTransaction ta = null;
     Connection xaCon1 = null, xaCon2 = null, xaCon3 = null;
     try {
@@ -767,11 +765,11 @@ public class DataSourceJTAJUnitTest {
       ta.begin();
 
       // Operation with first XA Resource
-      DataSource da1 = (DataSource) ctx.lookup("java:/XAPooledDataSource");
+      var da1 = (DataSource) ctx.lookup("java:/XAPooledDataSource");
       xaCon1 = da1.getConnection();
-      Statement stmt1 = xaCon1.createStatement();
+      var stmt1 = xaCon1.createStatement();
       String sqlSTR;
-      for (int i = 0; i < XA_INSERTS; i++) {
+      for (var i = 0; i < XA_INSERTS; i++) {
         tblIDFld = tblIDFld + i;
         sqlSTR =
             "insert into " + tblName + " values (" + tblIDFld + "," + "'" + tblNameFld + "'" + ")";
@@ -781,10 +779,10 @@ public class DataSourceJTAJUnitTest {
       xaCon1.close();
 
       // Operation with second XA Resource
-      DataSource da2 = (DataSource) ctx.lookup("java:/XAPooledDataSource");
+      var da2 = (DataSource) ctx.lookup("java:/XAPooledDataSource");
       xaCon2 = da2.getConnection();
-      Statement stmt2 = xaCon2.createStatement();
-      for (int i = 0; i < XA_INSERTS; i++) {
+      var stmt2 = xaCon2.createStatement();
+      for (var i = 0; i < XA_INSERTS; i++) {
         tblIDFld = tblIDFld + i + 5;
         sqlSTR =
             "insert into " + tblName + " values (" + tblIDFld + "," + "'" + tblNameFld + "'" + ")";
@@ -794,10 +792,10 @@ public class DataSourceJTAJUnitTest {
       xaCon2.close();
 
       // Operation with third XA Resource
-      DataSource da3 = (DataSource) ctx.lookup("java:/XAPooledDataSource");
+      var da3 = (DataSource) ctx.lookup("java:/XAPooledDataSource");
       xaCon3 = da3.getConnection();
-      Statement stmt3 = xaCon3.createStatement();
-      for (int i = 0; i < XA_INSERTS; i++) {
+      var stmt3 = xaCon3.createStatement();
+      for (var i = 0; i < XA_INSERTS; i++) {
         tblIDFld = tblIDFld + 10;
         sqlSTR =
             "insert into " + tblName + " values (" + tblIDFld + "," + "'" + tblNameFld + "'" + ")";
@@ -830,7 +828,7 @@ public class DataSourceJTAJUnitTest {
     // using getRows method of JTAUtils
 
     try {
-      int num_rows = jtaObj.getRows(tblName);
+      var num_rows = jtaObj.getRows(tblName);
       System.out.println("\nNumber of rows in Table under tests are: " + num_rows);
 
       // determine what got commited and what not

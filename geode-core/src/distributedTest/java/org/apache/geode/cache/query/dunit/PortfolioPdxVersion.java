@@ -76,8 +76,8 @@ public class PortfolioPdxVersion {
     this(i);
     position1.portfolioId = j;
     position3 = new Object[3];
-    for (int k = 0; k < position3.length; k++) {
-      PositionPdxVersion p = new PositionPdxVersion(secIds[k], (k + 1) * 1000L);
+    for (var k = 0; k < position3.length; k++) {
+      var p = new PositionPdxVersion(secIds[k], (k + 1) * 1000L);
       p.portfolioId = (k + 1);
       position3[k] = p;
     }

@@ -22,28 +22,22 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.zip.GZIPInputStream;
 
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
-import org.apache.geode.cache.execute.ResultCollector;
-import org.apache.geode.distributed.DistributedMember;
-import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.ConverterHint;
 import org.apache.geode.management.cli.GfshCommand;
 import org.apache.geode.management.internal.cli.domain.StackTracesPerMember;
 import org.apache.geode.management.internal.cli.functions.GetStackTracesFunction;
-import org.apache.geode.management.internal.cli.result.model.InfoResultModel;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.security.ResourceOperation;
@@ -80,10 +74,10 @@ public class ExportStackTraceCommand extends GfshCommand {
       throws IOException {
 
     if (fileName == null) {
-      StringBuilder filePrefix = new StringBuilder("stacktrace");
+      var filePrefix = new StringBuilder("stacktrace");
       fileName = filePrefix.append("_").append(System.currentTimeMillis()).toString();
     }
-    final File outFile = new File(fileName);
+    final var outFile = new File(fileName);
 
     if (outFile.exists() && failIfFilePresent) {
       return ResultModel.createError(CliStrings
@@ -91,25 +85,25 @@ public class ExportStackTraceCommand extends GfshCommand {
     }
 
     Map<String, byte[]> dumps = new HashMap<>();
-    Set<DistributedMember> targetMembers = getMembersIncludingLocators(group, memberNameOrId);
+    var targetMembers = getMembersIncludingLocators(group, memberNameOrId);
 
-    ResultModel result = new ResultModel();
-    InfoResultModel resultData = result.addInfo();
+    var result = new ResultModel();
+    var resultData = result.addInfo();
 
-    ResultCollector<?, ?> rc = executeFunction(getStackTracesFunction, null, targetMembers);
+    var rc = executeFunction(getStackTracesFunction, null, targetMembers);
     @SuppressWarnings("unchecked")
-    ArrayList<Object> resultList = (ArrayList<Object>) rc.getResult();
+    var resultList = (ArrayList<Object>) rc.getResult();
 
-    for (Object resultObj : resultList) {
+    for (var resultObj : resultList) {
       if (resultObj instanceof StackTracesPerMember) {
-        StackTracesPerMember stackTracePerMember = (StackTracesPerMember) resultObj;
+        var stackTracePerMember = (StackTracesPerMember) resultObj;
         dumps.put(getHeaderMessage(stackTracePerMember),
             stackTracePerMember.getStackTraces());
       }
     }
 
-    InternalDistributedSystem ads = ((InternalCache) getCache()).getInternalDistributedSystem();
-    String filePath = writeStacksToFile(dumps, fileName);
+    var ads = ((InternalCache) getCache()).getInternalDistributedSystem();
+    var filePath = writeStacksToFile(dumps, fileName);
     resultData.addLine(CliStrings.format(CliStrings.EXPORT_STACKTRACE__SUCCESS, filePath));
     resultData.addLine(CliStrings.EXPORT_STACKTRACE__HOST + ads.getDistributedMember().getHost());
 
@@ -118,9 +112,9 @@ public class ExportStackTraceCommand extends GfshCommand {
   }
 
   String getHeaderMessage(StackTracesPerMember stackTracesPerMember) {
-    String headerMessage = stackTracesPerMember.getMemberNameOrId();
+    var headerMessage = stackTracesPerMember.getMemberNameOrId();
 
-    Instant timestamp = stackTracesPerMember.getTimestamp();
+    var timestamp = stackTracesPerMember.getTimestamp();
     if (timestamp != null) {
       headerMessage += " at " + formatter.format(timestamp);
     }
@@ -143,13 +137,13 @@ public class ExportStackTraceCommand extends GfshCommand {
     try (OutputStream os = new FileOutputStream(outputFile)) {
       ps = new PrintWriter(os);
 
-      for (Map.Entry<String, byte[]> entry : dumps.entrySet()) {
+      for (var entry : dumps.entrySet()) {
         ps.append(CliStrings.STACK_TRACE_FOR_MEMBER).append(entry.getKey()).append(" ***")
             .append(System.lineSeparator());
         ps.flush();
-        GZIPInputStream zipIn = new GZIPInputStream(new ByteArrayInputStream(entry.getValue()));
-        BufferedInputStream bin = new BufferedInputStream(zipIn);
-        byte[] buffer = new byte[10000];
+        var zipIn = new GZIPInputStream(new ByteArrayInputStream(entry.getValue()));
+        var bin = new BufferedInputStream(zipIn);
+        var buffer = new byte[10000];
         int count;
         while ((count = bin.read(buffer)) != -1) {
           os.write(buffer, 0, count);

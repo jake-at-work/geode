@@ -32,7 +32,6 @@ import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.CacheLoader;
 import org.apache.geode.cache.CacheLoaderException;
-import org.apache.geode.cache.CacheTransactionManager;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.EvictionAction;
@@ -40,7 +39,6 @@ import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.cache.InterestPolicy;
 import org.apache.geode.cache.LoaderHelper;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.SubscriptionAttributes;
 import org.apache.geode.cache.util.CacheListenerAdapter;
@@ -52,7 +50,6 @@ import org.apache.geode.internal.cache.eviction.HeapEvictor;
 import org.apache.geode.logging.internal.OSProcess;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.LogWriterUtils;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.cache.internal.JUnit4CacheTestCase;
 
 /**
@@ -77,7 +74,7 @@ public class LRUEvictionControllerDUnitTest extends JUnit4CacheTestCase {
    * Returns the <code>EvictionStatistics</code> for the given region
    */
   private EvictionCounters getLRUStats(Region region) {
-    final LocalRegion l = (LocalRegion) region;
+    final var l = (LocalRegion) region;
     return l.getEvictionController().getCounters();
   }
 
@@ -89,27 +86,27 @@ public class LRUEvictionControllerDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testRegionOperations() throws CacheException {
 
-    int threshold = 10;
+    var threshold = 10;
 
-    final String name = getUniqueName();
-    AttributesFactory factory = new AttributesFactory();
+    final var name = getUniqueName();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
     factory.setEvictionAttributes(EvictionAttributes.createLRUEntryAttributes(threshold));
 
     Region region;
     if (usingMain) {
-      DistributedSystem system = DistributedSystem.connect(new Properties());
-      Cache cache = CacheFactory.create(system);
+      var system = DistributedSystem.connect(new Properties());
+      var cache = CacheFactory.create(system);
       region = cache.createRegion("Test", factory.create());
 
     } else {
       region = createRegion(name, factory.create());
     }
 
-    EvictionCounters lruStats = getLRUStats(region);
+    var lruStats = getLRUStats(region);
     assertNotNull(lruStats);
 
-    for (int i = 1; i <= 10; i++) {
+    for (var i = 1; i <= 10; i++) {
       Object key = i;
       Object value = String.valueOf(i);
       region.put(key, value);
@@ -117,7 +114,7 @@ public class LRUEvictionControllerDUnitTest extends JUnit4CacheTestCase {
       assertEquals(0, lruStats.getEvictions());
     }
 
-    for (int i = 11; i <= 20; i++) {
+    for (var i = 11; i <= 20; i++) {
       Object key = i;
       Object value = String.valueOf(i);
       region.put(key, value);
@@ -134,10 +131,10 @@ public class LRUEvictionControllerDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testCacheLoader() throws CacheException {
 
-    int threshold = 10;
+    var threshold = 10;
 
-    final String name = getUniqueName();
-    AttributesFactory factory = new AttributesFactory();
+    final var name = getUniqueName();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
     factory.setEvictionAttributes(EvictionAttributes.createLRUEntryAttributes(threshold));
     factory.setCacheLoader(new CacheLoader() {
@@ -153,18 +150,18 @@ public class LRUEvictionControllerDUnitTest extends JUnit4CacheTestCase {
 
     Region region;
     if (usingMain) {
-      DistributedSystem system = DistributedSystem.connect(new Properties());
-      Cache cache = CacheFactory.create(system);
+      var system = DistributedSystem.connect(new Properties());
+      var cache = CacheFactory.create(system);
       region = cache.createRegion("Test", factory.create());
 
     } else {
       region = createRegion(name, factory.create());
     }
 
-    EvictionCounters lruStats = getLRUStats(region);
+    var lruStats = getLRUStats(region);
     assertNotNull(lruStats);
 
-    for (int i = 1; i <= 10; i++) {
+    for (var i = 1; i <= 10; i++) {
       Object key = i;
       Object value = String.valueOf(i);
       region.put(key, value);
@@ -172,7 +169,7 @@ public class LRUEvictionControllerDUnitTest extends JUnit4CacheTestCase {
       assertEquals(0, lruStats.getEvictions());
     }
 
-    for (int i = 11; i <= 20; i++) {
+    for (var i = 11; i <= 20; i++) {
       Object key = i;
       // Object value = String.valueOf(i);
       // Invoke loader
@@ -188,10 +185,10 @@ public class LRUEvictionControllerDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testSizeOne() throws CacheException {
-    int threshold = 1;
+    var threshold = 1;
 
-    final String name = getUniqueName();
-    AttributesFactory factory = new AttributesFactory();
+    final var name = getUniqueName();
+    var factory = new AttributesFactory();
     factory.setOffHeap(isOffHeapEnabled());
     factory.setScope(Scope.LOCAL);
     factory.setEvictionAttributes(EvictionAttributes.createLRUEntryAttributes(threshold));
@@ -209,18 +206,18 @@ public class LRUEvictionControllerDUnitTest extends JUnit4CacheTestCase {
 
     Region region;
     if (usingMain) {
-      DistributedSystem system = DistributedSystem.connect(new Properties());
-      Cache cache = CacheFactory.create(system);
+      var system = DistributedSystem.connect(new Properties());
+      var cache = CacheFactory.create(system);
       region = cache.createRegion("Test", factory.create());
 
     } else {
       region = createRegion(name, factory.create());
     }
 
-    EvictionCounters lruStats = getLRUStats(region);
+    var lruStats = getLRUStats(region);
     assertNotNull(lruStats);
 
-    for (int i = 1; i <= 1; i++) {
+    for (var i = 1; i <= 1; i++) {
       Object key = i;
       Object value = String.valueOf(i);
       region.put(key, value);
@@ -228,7 +225,7 @@ public class LRUEvictionControllerDUnitTest extends JUnit4CacheTestCase {
       assertEquals(0, lruStats.getEvictions());
     }
 
-    for (int i = 2; i <= 10; i++) {
+    for (var i = 2; i <= 10; i++) {
       Object key = i;
       Object value = String.valueOf(i);
       region.put(key, value);
@@ -236,7 +233,7 @@ public class LRUEvictionControllerDUnitTest extends JUnit4CacheTestCase {
       assertEquals(i - 1, lruStats.getEvictions());
     }
 
-    for (int i = 11; i <= 20; i++) {
+    for (var i = 11; i <= 20; i++) {
       Object key = i;
       // Object value = String.valueOf(i);
       // Invoke loader
@@ -252,21 +249,21 @@ public class LRUEvictionControllerDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testBug31592() throws Exception {
-    final String name = getUniqueName();
+    final var name = getUniqueName();
     final Object key = "KEY";
     final Object value = "VALUE";
     final Object key2 = "KEY2";
     final Object value2 = "VALUE2";
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setOffHeap(isOffHeapEnabled());
     factory.setScope(Scope.LOCAL);
     factory.setEvictionAttributes(EvictionAttributes.createLRUEntryAttributes(10));
-    final Region region = createRegion(name, factory.create());
+    final var region = createRegion(name, factory.create());
 
     region.put(key, value);
 
-    final Throwable[] errors = new Throwable[1];
+    final var errors = new Throwable[1];
     region.getAttributesMutator().addCacheListener(new CacheListenerAdapter() {
       @Override
       public void afterCreate(EntryEvent event) {
@@ -297,14 +294,14 @@ public class LRUEvictionControllerDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testCCMirrored() throws Exception {
-    final String name = getUniqueName();
-    AttributesFactory factory = new AttributesFactory();
+    final var name = getUniqueName();
+    var factory = new AttributesFactory();
     factory.setOffHeap(isOffHeapEnabled());
     factory.setEvictionAttributes(EvictionAttributes.createLRUEntryAttributes(10));
     factory.setDataPolicy(DataPolicy.REPLICATE);
 
-    Region r = createRegion(name, factory.create());
-    RegionAttributes ra = r.getAttributes();
+    var r = createRegion(name, factory.create());
+    var ra = r.getAttributes();
     assertEquals(DataPolicy.PRELOADED, ra.getDataPolicy());
     assertEquals(new SubscriptionAttributes(InterestPolicy.ALL), ra.getSubscriptionAttributes());
     r.destroyRegion();
@@ -317,29 +314,29 @@ public class LRUEvictionControllerDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testReplicationAndTransactions() throws Exception {
-    final String r1 = getUniqueName() + "-1";
-    final String r2 = getUniqueName() + "-2";
-    final String r3 = getUniqueName() + "-3";
+    final var r1 = getUniqueName() + "-1";
+    final var r2 = getUniqueName() + "-2";
+    final var r3 = getUniqueName() + "-3";
 
-    VM feeder = Host.getHost(0).getVM(3);
-    VM repl = Host.getHost(0).getVM(2);
+    var feeder = Host.getHost(0).getVM(3);
+    var repl = Host.getHost(0).getVM(2);
 
-    final int maxEntries = 1;
-    final int numEntries = 10000;
-    final int txBatchSize = 10;
+    final var maxEntries = 1;
+    final var numEntries = 10000;
+    final var txBatchSize = 10;
     assertTrue(numEntries > txBatchSize); // need at least one batch
 
-    CacheSerializableRunnable createRegion =
+    var createRegion =
         new CacheSerializableRunnable("Create Replicate Region") {
           @Override
           public void run2() throws CacheException {
-            AttributesFactory factory = new AttributesFactory();
+            var factory = new AttributesFactory();
             factory.setOffHeap(isOffHeapEnabled());
             factory.setEvictionAttributes(EvictionAttributes.createLRUEntryAttributes(maxEntries,
                 EvictionAction.OVERFLOW_TO_DISK));
             factory.setDataPolicy(DataPolicy.REPLICATE);
 
-            File[] diskDirs = new File[1];
+            var diskDirs = new File[1];
             diskDirs[0] = new File("overflowDir/" + OSProcess.getId());
             diskDirs[0].mkdirs();
             factory.setDiskStoreName(getCache().createDiskStoreFactory().setDiskDirs(diskDirs)
@@ -347,7 +344,7 @@ public class LRUEvictionControllerDUnitTest extends JUnit4CacheTestCase {
             factory.setDiskSynchronous(true);
 
             factory.setScope(Scope.DISTRIBUTED_ACK);
-            RegionAttributes a = factory.create();
+            var a = factory.create();
             createRegion(r1, a);
             createRegion(r2, a);
             createRegion(r3, a);
@@ -361,7 +358,7 @@ public class LRUEvictionControllerDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() throws CacheException {
         Cache c = getCache();
-        CacheTransactionManager txm = c.getCacheTransactionManager();
+        var txm = c.getCacheTransactionManager();
 
         Region reg1 = getRootRegion().getSubregion(r1);
         assertNotNull(reg1);
@@ -372,9 +369,9 @@ public class LRUEvictionControllerDUnitTest extends JUnit4CacheTestCase {
         Region reg3 = getRootRegion().getSubregion(r3);
         assertNotNull(reg3);
 
-        boolean startTx = false;
-        final Region[] r = {reg1, reg2, reg3};
-        for (int i = 0; i < numEntries; i++) {
+        var startTx = false;
+        final var r = new Region[] {reg1, reg2, reg3};
+        for (var i = 0; i < numEntries; i++) {
           if (i % txBatchSize == 0) {
             txm.begin();
             startTx = true;
@@ -397,10 +394,10 @@ public class LRUEvictionControllerDUnitTest extends JUnit4CacheTestCase {
           txm.commit();
         }
 
-        for (final Region region : r) {
+        for (final var region : r) {
           assertEquals(numEntries, region.size());
           {
-            LocalRegion lr = (LocalRegion) region;
+            var lr = (LocalRegion) region;
             assertEquals(maxEntries, lr.getEvictionController().getCounters().getLimit());
             assertEquals(maxEntries, lr.getEvictionController().getCounters().getCounter());
           }
@@ -416,12 +413,12 @@ public class LRUEvictionControllerDUnitTest extends JUnit4CacheTestCase {
         Region reg2 = getRootRegion().getSubregion(r2);
         Region reg3 = getRootRegion().getSubregion(r3);
 
-        final Region[] r = {reg1, reg2, reg3};
-        for (final Region region : r) {
+        final var r = new Region[] {reg1, reg2, reg3};
+        for (final var region : r) {
           assertNotNull(region);
           assertEquals(numEntries, region.size());
           {
-            LocalRegion lr = (LocalRegion) region;
+            var lr = (LocalRegion) region;
             assertEquals(maxEntries, lr.getEvictionController().getCounters().getLimit());
             assertEquals(maxEntries, lr.getEvictionController().getCounters().getCounter());
           }

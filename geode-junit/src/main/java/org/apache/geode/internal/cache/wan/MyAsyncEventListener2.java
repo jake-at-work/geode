@@ -32,10 +32,10 @@ public class MyAsyncEventListener2 implements AsyncEventListener {
 
   @Override
   public synchronized boolean processEvents(List<AsyncEvent> events) {
-    for (AsyncEvent event : events) {
-      GatewaySenderEventImpl gatewayEvent = (GatewaySenderEventImpl) event;
-      int bucketId = gatewayEvent.getBucketId();
-      List<GatewaySenderEventImpl> bucketEvents = bucketToEventsMap.get(bucketId);
+    for (var event : events) {
+      var gatewayEvent = (GatewaySenderEventImpl) event;
+      var bucketId = gatewayEvent.getBucketId();
+      var bucketEvents = bucketToEventsMap.get(bucketId);
       if (bucketEvents == null) {
         bucketEvents = new ArrayList<>();
         bucketEvents.add(gatewayEvent);

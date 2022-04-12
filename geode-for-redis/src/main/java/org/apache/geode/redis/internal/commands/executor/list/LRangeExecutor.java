@@ -18,18 +18,15 @@ import static org.apache.geode.redis.internal.RedisConstants.ERROR_NOT_INTEGER;
 import static org.apache.geode.redis.internal.netty.Coder.bytesToLong;
 import static org.apache.geode.redis.internal.netty.Coder.narrowLongToInt;
 
-import java.util.List;
-
 import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
 import org.apache.geode.redis.internal.commands.executor.RedisResponse;
-import org.apache.geode.redis.internal.data.RedisKey;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
 
 public class LRangeExecutor implements CommandExecutor {
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
-    List<byte[]> commandElems = command.getProcessedCommand();
+    var commandElems = command.getProcessedCommand();
 
     int startIndex;
     int stopIndex;
@@ -40,8 +37,8 @@ public class LRangeExecutor implements CommandExecutor {
       return RedisResponse.error(ERROR_NOT_INTEGER);
     }
 
-    RedisKey key = command.getKey();
-    List<byte[]> result = context.listLockedExecute(key, true,
+    var key = command.getKey();
+    var result = context.listLockedExecute(key, true,
         list -> list.lrange(startIndex, stopIndex));
     return RedisResponse.array(result, true);
   }

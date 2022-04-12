@@ -20,7 +20,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
-import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -66,7 +65,7 @@ public class ExportStackTraceCommandTest {
 
   @Test
   public void abortIfFileExists() throws IOException {
-    File file = temporaryFolder.newFile("stackTrace.txt");
+    var file = temporaryFolder.newFile("stackTrace.txt");
     gfsh.executeAndAssertThat(command,
         "export stack-traces --abort-if-file-exists --file=" + file.getAbsolutePath())
         .statusIsError().containsOutput("already present");
@@ -79,21 +78,21 @@ public class ExportStackTraceCommandTest {
 
   @Test
   public void getHeaderMessageWithTimestamp() throws IOException {
-    Instant time = Instant.now();
-    StackTracesPerMember stackTracePerMember =
+    var time = Instant.now();
+    var stackTracePerMember =
         new StackTracesPerMember("server", time,
             OSProcess.zipStacks());
-    String headerMessage = command.getHeaderMessage(stackTracePerMember);
+    var headerMessage = command.getHeaderMessage(stackTracePerMember);
 
     assertThat(headerMessage).isEqualTo("server at " + formatter.format(time));
   }
 
   @Test
   public void getHeaderMessageWithoutTimestamp() throws IOException {
-    StackTracesPerMember stackTracePerMember =
+    var stackTracePerMember =
         new StackTracesPerMember("server", null,
             OSProcess.zipStacks());
-    String headerMessage = command.getHeaderMessage(stackTracePerMember);
+    var headerMessage = command.getHeaderMessage(stackTracePerMember);
 
     assertThat(headerMessage).isEqualTo("server");
   }

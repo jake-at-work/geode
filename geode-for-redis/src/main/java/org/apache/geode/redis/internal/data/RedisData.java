@@ -83,10 +83,10 @@ public interface RedisData extends Delta, DataSerializable, Sizeable {
 
   default RedisData restore(byte[] data) throws Exception {
     Object obj;
-    byte[] header = new byte[RADISH_DUMP_HEADER.length];
+    var header = new byte[RADISH_DUMP_HEADER.length];
 
     try {
-      ByteArrayInputStream bais = new ByteArrayInputStream(data);
+      var bais = new ByteArrayInputStream(data);
       bais.read(header);
 
       // Don't handle Redis dump formats yet
@@ -94,9 +94,9 @@ public interface RedisData extends Delta, DataSerializable, Sizeable {
         throw new RedisException(ERROR_RESTORE_INVALID_PAYLOAD);
       }
 
-      DataInputStream inputStream = new DataInputStream(bais);
-      short ordinal = inputStream.readShort();
-      KnownVersion knownVersion = KnownVersion.getKnownVersion(ordinal);
+      var inputStream = new DataInputStream(bais);
+      var ordinal = inputStream.readShort();
+      var knownVersion = KnownVersion.getKnownVersion(ordinal);
       if (knownVersion == null) {
         LogService.getLogger()
             .info("Error restoring object - unknown version ordinal: {}", ordinal);

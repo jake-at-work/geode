@@ -15,14 +15,10 @@
 package org.apache.geode.redis.internal.commands.executor.string;
 
 
-import java.util.List;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
 import org.apache.geode.redis.internal.commands.executor.RedisResponse;
-import org.apache.geode.redis.internal.data.RedisData;
-import org.apache.geode.redis.internal.data.RedisKey;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
 
 public class GetSetExecutor implements CommandExecutor {
@@ -31,13 +27,13 @@ public class GetSetExecutor implements CommandExecutor {
 
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
-    List<byte[]> commandElems = command.getProcessedCommand();
+    var commandElems = command.getProcessedCommand();
 
-    Region<RedisKey, RedisData> region = context.getRegion();
-    RedisKey key = command.getKey();
-    byte[] newCharValue = commandElems.get(VALUE_INDEX);
+    var region = context.getRegion();
+    var key = command.getKey();
+    var newCharValue = commandElems.get(VALUE_INDEX);
 
-    byte[] oldValue = context.stringLockedExecute(key, true,
+    var oldValue = context.stringLockedExecute(key, true,
         string -> string.getset(region, key, newCharValue));
 
     return RedisResponse.bulkString(oldValue);

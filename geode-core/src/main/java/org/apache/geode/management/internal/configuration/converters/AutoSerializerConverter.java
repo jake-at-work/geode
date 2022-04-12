@@ -23,7 +23,6 @@ import java.util.Properties;
 import org.apache.commons.lang3.StringUtils;
 
 import org.apache.geode.cache.configuration.DeclarableType;
-import org.apache.geode.cache.configuration.ParameterType;
 import org.apache.geode.management.configuration.AutoSerializer;
 
 /**
@@ -44,7 +43,7 @@ public class AutoSerializerConverter
     }
     Boolean portable = null;
     List<String> patterns = null;
-    for (ParameterType parameter : xmlObject.getParameters()) {
+    for (var parameter : xmlObject.getParameters()) {
       if (PATTERNS_PROPERTY_NAME.equals(parameter.getName())) {
         if (parameter.getString() != null) {
           patterns = Arrays.asList(parameter.getString().split("\\s*,\\s*"));
@@ -60,8 +59,8 @@ public class AutoSerializerConverter
 
   @Override
   protected DeclarableType fromNonNullConfigObject(AutoSerializer configObject) {
-    Properties properties = new Properties();
-    List<String> patterns = configObject.getPatterns();
+    var properties = new Properties();
+    var patterns = configObject.getPatterns();
     if (patterns != null && !patterns.isEmpty()) {
       properties.setProperty(PATTERNS_PROPERTY_NAME, StringUtils.join(patterns, ','));
     }

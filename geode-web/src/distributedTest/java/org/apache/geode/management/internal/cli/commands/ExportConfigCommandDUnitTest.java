@@ -20,7 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Collectors;
 
 import junitparams.Parameters;
@@ -31,7 +30,6 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.categories.GfshTest;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
 import org.apache.geode.test.junit.runners.GeodeParamsRunner;
@@ -52,7 +50,7 @@ public class ExportConfigCommandDUnitTest {
   @Test
   @Parameters({"true", "false"})
   public void testExportConfig(final boolean connectOverHttp) throws Exception {
-    MemberVM server0 = startupRule.startServerVM(0,
+    var server0 = startupRule.startServerVM(0,
         x -> x.withProperty(GROUPS, "Group1").withJMXManager().withHttpService()
             .withEmbeddedLocator());
 
@@ -70,14 +68,14 @@ public class ExportConfigCommandDUnitTest {
     startupRule.startServerVM(3, server0.getEmbeddedLocatorPort());
 
     // export all members' config into a folder
-    File tempDir = temporaryFolder.newFolder("all-members");
+    var tempDir = temporaryFolder.newFolder("all-members");
     gfsh.executeAndAssertThat("export config --dir=" + tempDir.getAbsolutePath()).statusIsSuccess();
 
-    List<String> expectedFiles = Arrays.asList("server-0-cache.xml", "server-1-cache.xml",
+    var expectedFiles = Arrays.asList("server-0-cache.xml", "server-1-cache.xml",
         "server-2-cache.xml", "server-3-cache.xml", "server-0-gf.properties",
         "server-1-gf.properties", "server-2-gf.properties", "server-3-gf.properties");
 
-    List<String> actualFiles =
+    var actualFiles =
         Arrays.stream(tempDir.listFiles()).map(File::getName).collect(Collectors.toList());
     assertThat(actualFiles).hasSameElementsAs(expectedFiles);
     tempDir.delete();

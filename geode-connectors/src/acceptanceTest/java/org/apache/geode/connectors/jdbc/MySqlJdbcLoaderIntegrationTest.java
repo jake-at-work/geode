@@ -61,7 +61,7 @@ public class MySqlJdbcLoaderIntegrationTest extends JdbcLoaderIntegrationTest {
 
   @Override
   protected List<FieldMapping> getSupportedPdxFieldsTableFieldMappings() {
-    List<FieldMapping> fieldMappings = Arrays.asList(
+    var fieldMappings = Arrays.asList(
         new FieldMapping("id", FieldType.STRING.name(), "id", JDBCType.VARCHAR.name(), false),
         new FieldMapping("aboolean", FieldType.BOOLEAN.name(), "aboolean", JDBCType.SMALLINT.name(),
             true),

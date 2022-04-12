@@ -23,7 +23,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
@@ -114,7 +113,7 @@ public class PartitionedRegionDUnitTest extends MultiVMRegionTestCase {
    */
   @Override
   protected <K, V> RegionAttributes<K, V> getRegionAttributes() {
-    AttributesFactory<K, V> factory = new AttributesFactory<>();
+    var factory = new AttributesFactory<K, V>();
     factory.setPartitionAttributes((new PartitionAttributesFactory()).create());
     return factory.create();
   }
@@ -122,7 +121,7 @@ public class PartitionedRegionDUnitTest extends MultiVMRegionTestCase {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties properties = super.getDistributedSystemProperties();
+    var properties = super.getDistributedSystemProperties();
     properties.put(SERIALIZABLE_OBJECT_FILTER,
         "org.apache.geode.cache30.PartitionedRegionDUnitTest$PoisonedKey");
     return properties;
@@ -135,10 +134,10 @@ public class PartitionedRegionDUnitTest extends MultiVMRegionTestCase {
    */
   @Test
   public void testRegionInvalidationWithAdjunctMessages() {
-    final String name = getUniqueName();
-    VM vm1 = VM.getVM(1);
+    final var name = getUniqueName();
+    var vm1 = VM.getVM(1);
     RegionFactory<String, String> fact = getCache().createRegionFactory(RegionShortcut.PARTITION);
-    Region<String, String> pr = fact.create(name + "Region");
+    var pr = fact.create(name + "Region");
     pr.put("Object1", "Value1");
 
     vm1.invoke("create PR", new SerializableRunnable() {
@@ -172,10 +171,10 @@ public class PartitionedRegionDUnitTest extends MultiVMRegionTestCase {
    */
   @Test
   public void testIncompatibleSubregions() throws CacheException {
-    VM vm0 = VM.getVM(0);
-    VM vm1 = VM.getVM(1);
+    var vm0 = VM.getVM(0);
+    var vm1 = VM.getVM(1);
 
-    final String name = getUniqueName() + "-PR";
+    final var name = getUniqueName() + "-PR";
     vm0.invoke("Create partitioned Region", new SerializableRunnable() {
       @Override
       public void run() {
@@ -208,7 +207,7 @@ public class PartitionedRegionDUnitTest extends MultiVMRegionTestCase {
   }
 
   private void setupExtendedTest(final String regionName) {
-    SerializableRunnable createPR = new SerializableRunnable() {
+    var createPR = new SerializableRunnable() {
       @Override
       public void run() {
         try {
@@ -218,10 +217,10 @@ public class PartitionedRegionDUnitTest extends MultiVMRegionTestCase {
         }
       }
     };
-    for (int i = 1; i < 4; i++) {
+    for (var i = 1; i < 4; i++) {
       VM.getVM(i).invoke("createPartitionedRegion", createPR);
     }
-    VM vm0 = VM.getVM(0);
+    var vm0 = VM.getVM(0);
     vm0.invoke("Populate Partitioned Region", new SerializableRunnable() {
       @Override
       public void run() {
@@ -231,13 +230,13 @@ public class PartitionedRegionDUnitTest extends MultiVMRegionTestCase {
           // since random keys are being used, we might hit duplicates
           logger.info("<ExpectedException action=add>"
               + "org.apache.geode.cache.EntryExistsException" + "</ExpectedException>");
-          Random rand = new Random(System.currentTimeMillis());
-          for (int i = 0; i < 20000; i++) {
-            boolean created = false;
+          var rand = new Random(System.currentTimeMillis());
+          for (var i = 0; i < 20000; i++) {
+            var created = false;
             while (!created) {
               try {
-                int val = rand.nextInt(100000000);
-                String key = String.valueOf(val);
+                var val = rand.nextInt(100000000);
+                var key = String.valueOf(val);
                 region.create(key, val);
                 created = true;
               } catch (EntryExistsException eee) {
@@ -262,19 +261,19 @@ public class PartitionedRegionDUnitTest extends MultiVMRegionTestCase {
    */
   @Test
   public void testExtendedKeysValues() {
-    final String regionName = getUniqueName();
-    final int numEntries = 20000;
+    final var regionName = getUniqueName();
+    final var numEntries = 20000;
 
     // since this test has to create a lot of entries, info log level is used.
     // comment out the setting of this and rerun if there are problems
     setupExtendedTest(regionName);
 
-    VM vm0 = VM.getVM(0);
+    var vm0 = VM.getVM(0);
     vm0.invoke("exercise Region.values", new SerializableRunnable() {
       @Override
       public void run() {
         try {
-          Region<Object, Object> region = getRootRegion().getSubregion(regionName);
+          var region = getRootRegion().getSubregion(regionName);
           Collection values = region.values();
           Set keys = region.keySet();
           Set entries = region.entrySet();
@@ -283,20 +282,20 @@ public class PartitionedRegionDUnitTest extends MultiVMRegionTestCase {
           assertEquals("key set size was not the expected value", numEntries, keys.size());
           assertEquals("entry set size was not the expected value", numEntries, entries.size());
           assertEquals("region size was not the expected value", numEntries, region.size());
-          Iterator valuesIt = values.iterator();
-          Iterator keysIt = keys.iterator();
-          Iterator entriesIt = entries.iterator();
-          for (int i = 0; i < numEntries; i++) {
+          var valuesIt = values.iterator();
+          var keysIt = keys.iterator();
+          var entriesIt = entries.iterator();
+          for (var i = 0; i < numEntries; i++) {
             assertThat(valuesIt.hasNext()).isTrue();
-            Integer value = (Integer) valuesIt.next();
+            var value = (Integer) valuesIt.next();
             assertNotNull("value was null", value);
 
             assertThat(keysIt.hasNext()).isTrue();
-            String key = (String) keysIt.next();
+            var key = (String) keysIt.next();
             assertNotNull("key was null", key);
 
             assertThat(entriesIt.hasNext()).isTrue();
-            Region.Entry entry = (Region.Entry) entriesIt.next();
+            var entry = (Region.Entry) entriesIt.next();
             assertNotNull("entry was null", entry);
             assertNotNull("entry key was null", entry.getKey());
             assertNotNull("entry value was null", entry.getValue());
@@ -374,14 +373,14 @@ public class PartitionedRegionDUnitTest extends MultiVMRegionTestCase {
      * @return true if poison found
      */
     static boolean poisonFound() {
-      boolean result = poisonDetected;
+      var result = poisonDetected;
       poisonDetected = false; // restore default static value
       return result;
     }
 
     @Override
     public int hashCode() {
-      int result = k.hashCode();
+      var result = k.hashCode();
       synchronized (PoisonedKey.class) {
         if (poisoned) {
           result += (new Random()).nextInt();
@@ -404,7 +403,7 @@ public class PartitionedRegionDUnitTest extends MultiVMRegionTestCase {
       if (!(o instanceof PoisonedKey)) {
         return false;
       }
-      PoisonedKey po = (PoisonedKey) o;
+      var po = (PoisonedKey) o;
       if (k == null) {
         return po.k == null;
       }
@@ -414,10 +413,10 @@ public class PartitionedRegionDUnitTest extends MultiVMRegionTestCase {
 
   @Test
   public void testBadHash() {
-    final String regionName = getUniqueName();
-    VM vm0 = VM.getVM(0);
-    VM vm1 = VM.getVM(1);
-    SerializableRunnable createPR = new SerializableRunnable() {
+    final var regionName = getUniqueName();
+    var vm0 = VM.getVM(0);
+    var vm1 = VM.getVM(1);
+    var createPR = new SerializableRunnable() {
       @Override
       public void run() {
         try {
@@ -431,32 +430,32 @@ public class PartitionedRegionDUnitTest extends MultiVMRegionTestCase {
     vm1.invoke("createPartitionedRegion", createPR);
 
     vm0.invoke("Populate 1", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(regionName);
-      for (int i = 0; i < 10; i++) {
-        String st = Integer.toString(i);
-        PoisonedKey pk = new PoisonedKey(st);
+      var region = getRootRegion().getSubregion(regionName);
+      for (var i = 0; i < 10; i++) {
+        var st = Integer.toString(i);
+        var pk = new PoisonedKey(st);
         region.create(pk, st);
       }
     });
 
     // Verify values are readily accessible
     vm1.invoke("Read 1", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(regionName);
-      for (int i = 0; i < 10; i++) {
-        String st = Integer.toString(i);
-        PoisonedKey pk = new PoisonedKey(st);
+      var region = getRootRegion().getSubregion(regionName);
+      for (var i = 0; i < 10; i++) {
+        var st = Integer.toString(i);
+        var pk = new PoisonedKey(st);
         assertThat(region.get(pk).equals(st)).describedAs("Keys screwed up too early").isTrue();
       }
     });
 
     // Bucket ID's will be screwed up with these creates.
     vm0.invoke("Populate 2", () -> {
-      Region<Object, Object> region = getRootRegion().getSubregion(regionName);
+      var region = getRootRegion().getSubregion(regionName);
       PoisonedKey.poisoned = true;
       try {
-        for (int i = 10; i < 20; i++) {
-          String st = Integer.toString(i);
-          PoisonedKey pk = new PoisonedKey(st);
+        for (var i = 10; i < 20; i++) {
+          var st = Integer.toString(i);
+          var pk = new PoisonedKey(st);
           region.create(pk, st);
         }
       } catch (PartitionedRegionException e) {

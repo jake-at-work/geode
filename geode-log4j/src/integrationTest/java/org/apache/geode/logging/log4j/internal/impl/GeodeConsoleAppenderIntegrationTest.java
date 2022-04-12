@@ -18,13 +18,11 @@ import static org.apache.geode.test.util.ResourceUtils.createFileFromResource;
 import static org.apache.geode.test.util.ResourceUtils.getResource;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.net.URL;
 import java.nio.ByteBuffer;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LifeCycle;
-import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.appender.ConsoleAppender;
 import org.apache.logging.log4j.core.appender.DefaultErrorHandler;
 import org.apache.logging.log4j.core.appender.OutputStreamManager;
@@ -69,7 +67,7 @@ public class GeodeConsoleAppenderIntegrationTest {
 
   @BeforeClass
   public static void setUpLogConfigFile() {
-    URL resource = getResource(CONFIG_FILE_NAME);
+    var resource = getResource(CONFIG_FILE_NAME);
     configFilePath = createFileFromResource(resource, temporaryFolder.getRoot(), CONFIG_FILE_NAME)
         .getAbsolutePath();
   }
@@ -98,7 +96,7 @@ public class GeodeConsoleAppenderIntegrationTest {
 
     assertThat(geodeConsoleAppender.getLogEvents()).hasSize(1);
 
-    LogEvent event = geodeConsoleAppender.getLogEvents().get(0);
+    var event = geodeConsoleAppender.getLogEvents().get(0);
     assertThat(event.getLoggerName()).isEqualTo(getClass().getName());
     assertThat(event.getLevel()).isEqualTo(Level.INFO);
     assertThat(event.getMessage().getFormattedMessage()).isEqualTo(logMessage);
@@ -172,7 +170,7 @@ public class GeodeConsoleAppenderIntegrationTest {
     assertThat(geodeConsoleAppender.getState()).isSameAs(LifeCycle.State.STARTED);
     // assertThat(geodeConsoleAppender.getTarget()).isSameAs(ConsoleAppender.Target.SYSTEM_OUT);
 
-    OutputStreamManager outputStreamManager = geodeConsoleAppender.getManager();
+    var outputStreamManager = geodeConsoleAppender.getManager();
     assertThat(outputStreamManager.isOpen()).isTrue();
     assertThat(outputStreamManager.getByteBuffer()).isInstanceOf(ByteBuffer.class);
     assertThat(outputStreamManager.hasOutputStream()).isTrue();
@@ -183,7 +181,7 @@ public class GeodeConsoleAppenderIntegrationTest {
 
   @Test
   public void delegateConsoleAppenderIsConfigured() {
-    ConsoleAppender consoleAppender = geodeConsoleAppender.getDelegate();
+    var consoleAppender = geodeConsoleAppender.getDelegate();
     assertThat(consoleAppender).isNotNull();
 
     assertThat(consoleAppender.getFilter()).isNull();
@@ -195,7 +193,7 @@ public class GeodeConsoleAppenderIntegrationTest {
     assertThat(consoleAppender.getState()).isSameAs(LifeCycle.State.STARTED);
     assertThat(consoleAppender.getTarget()).isSameAs(ConsoleAppender.Target.SYSTEM_OUT);
 
-    OutputStreamManager outputStreamManager = consoleAppender.getManager();
+    var outputStreamManager = consoleAppender.getManager();
     assertThat(outputStreamManager.isOpen()).isTrue();
     assertThat(outputStreamManager.getByteBuffer()).isInstanceOf(ByteBuffer.class);
     assertThat(outputStreamManager.hasOutputStream()).isTrue();

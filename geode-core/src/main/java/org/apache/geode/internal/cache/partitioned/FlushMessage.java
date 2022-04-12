@@ -79,7 +79,7 @@ public class FlushMessage extends SerialDistributionMessage implements MessageWi
         logger.debug("Received sent FlushMessage {}", this);
       }
       try {
-        final PartitionedRegion p = PartitionedRegion.getPRFromId(prId);
+        final var p = PartitionedRegion.getPRFromId(prId);
         Assert.assertTrue(p.getRegionAdvisor().isPrimaryForBucket(bucketId));
       } catch (PRLocallyDestroyedException fre) {
         if (logger.isDebugEnabled()) {
@@ -98,7 +98,7 @@ public class FlushMessage extends SerialDistributionMessage implements MessageWi
         logger.debug("Processing FlushMessage as a response {}", this);
       }
 
-      ReplyProcessor21 rep = ReplyProcessor21.getProcessor(processorId);
+      var rep = ReplyProcessor21.getProcessor(processorId);
       if (rep != null) {
         rep.process(this);
       }
@@ -116,8 +116,8 @@ public class FlushMessage extends SerialDistributionMessage implements MessageWi
    */
   public static ReplyProcessor21 send(InternalDistributedMember primary, PartitionedRegion p,
       int bucketId) {
-    ReplyProcessor21 reply = new ReplyProcessor21(p.getDistributionManager(), primary);
-    FlushMessage fm = new FlushMessage(p.getPRId(), bucketId, reply.getProcessorId(), primary);
+    var reply = new ReplyProcessor21(p.getDistributionManager(), primary);
+    var fm = new FlushMessage(p.getPRId(), bucketId, reply.getProcessorId(), primary);
     p.getDistributionManager().putOutgoing(fm);
     return reply;
   }

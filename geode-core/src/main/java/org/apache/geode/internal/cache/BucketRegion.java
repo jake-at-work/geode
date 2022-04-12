@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.Lock;
 
 import org.apache.logging.log4j.Logger;
 
@@ -46,17 +45,12 @@ import org.apache.geode.cache.CacheWriterException;
 import org.apache.geode.cache.DiskAccessException;
 import org.apache.geode.cache.EntryNotFoundException;
 import org.apache.geode.cache.EvictionAction;
-import org.apache.geode.cache.EvictionAlgorithm;
-import org.apache.geode.cache.EvictionAttributes;
-import org.apache.geode.cache.ExpirationAction;
 import org.apache.geode.cache.Operation;
 import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.RegionDestroyedException;
 import org.apache.geode.cache.TimeoutException;
 import org.apache.geode.cache.TransactionId;
-import org.apache.geode.cache.partition.PartitionListener;
 import org.apache.geode.distributed.DistributedMember;
-import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.distributed.internal.AtomicLongWithTerminalState;
 import org.apache.geode.distributed.internal.DirectReplyProcessor;
 import org.apache.geode.distributed.internal.DistributionAdvisor.Profile;
@@ -68,25 +62,19 @@ import org.apache.geode.internal.cache.BucketAdvisor.BucketProfile;
 import org.apache.geode.internal.cache.CreateRegionProcessor.CreateRegionReplyProcessor;
 import org.apache.geode.internal.cache.FilterRoutingInfo.FilterInfo;
 import org.apache.geode.internal.cache.control.MemoryEvent;
-import org.apache.geode.internal.cache.event.EventSequenceNumberHolder;
 import org.apache.geode.internal.cache.eviction.EvictionController;
-import org.apache.geode.internal.cache.ha.ThreadIdentifier;
 import org.apache.geode.internal.cache.partitioned.Bucket;
 import org.apache.geode.internal.cache.partitioned.DestroyMessage;
 import org.apache.geode.internal.cache.partitioned.InvalidateMessage;
 import org.apache.geode.internal.cache.partitioned.LockObject;
 import org.apache.geode.internal.cache.partitioned.PRTombstoneMessage;
-import org.apache.geode.internal.cache.partitioned.PartitionMessage;
-import org.apache.geode.internal.cache.partitioned.PutAllPRMessage;
 import org.apache.geode.internal.cache.partitioned.PutMessage;
-import org.apache.geode.internal.cache.partitioned.RemoveAllPRMessage;
 import org.apache.geode.internal.cache.tier.sockets.CacheClientNotifier;
 import org.apache.geode.internal.cache.tier.sockets.ClientProxyMembershipID;
 import org.apache.geode.internal.cache.tier.sockets.ClientTombstoneMessage;
 import org.apache.geode.internal.cache.tier.sockets.ClientUpdateMessage;
 import org.apache.geode.internal.cache.versions.RegionVersionVector;
 import org.apache.geode.internal.cache.versions.VersionSource;
-import org.apache.geode.internal.cache.versions.VersionStamp;
 import org.apache.geode.internal.cache.versions.VersionTag;
 import org.apache.geode.internal.cache.wan.GatewaySenderEventImpl;
 import org.apache.geode.internal.concurrent.AtomicLong5;
@@ -192,8 +180,8 @@ public class BucketRegion extends DistributedRegion implements Bucket {
       if (isValueByteArray()) {
         if (copyOnRead) {
           // TODO move this code to CopyHelper.copy?
-          byte[] src = (byte[]) rawValue;
-          byte[] dest = new byte[src.length];
+          var src = (byte[]) rawValue;
+          var dest = new byte[src.length];
           System.arraycopy(rawValue, 0, dest, 0, dest.length);
           return dest;
         } else {
@@ -263,9 +251,9 @@ public class BucketRegion extends DistributedRegion implements Bucket {
     // Set this region in the ProxyBucketRegion early so that profile exchange will
     // perform the correct fillInProfile method
     getBucketAdvisor().getProxyBucketRegion().setBucketRegion(this);
-    boolean success = false;
+    var success = false;
     try {
-      final InternalDistributedMember primaryHolder = getBucketAdvisor().basicGetPrimaryMember();
+      final var primaryHolder = getBucketAdvisor().basicGetPrimaryMember();
       if (primaryHolder != null && !primaryHolder.equals(getMyId())) {
         // Ignore the provided image target, use an existing primary (if any)
         super.initialize(snapshotInputStream, primaryHolder, internalRegionArgs);
@@ -284,8 +272,8 @@ public class BucketRegion extends DistributedRegion implements Bucket {
 
   private void setEventSeqNum() {
     if (partitionedRegion.isShadowPR() && partitionedRegion.getColocatedWith() != null) {
-      PartitionedRegion parentPR = ColocationHelper.getLeaderRegion(partitionedRegion);
-      BucketRegion parentBucket = parentPR.getDataStore().getLocalBucketById(getId());
+      var parentPR = ColocationHelper.getLeaderRegion(partitionedRegion);
+      var parentBucket = parentPR.getDataStore().getLocalBucketById(getId());
       // needs to be set only once.
       if (parentBucket.eventSeqNum == null) {
         parentBucket.eventSeqNum = new AtomicLong5(getId());
@@ -294,8 +282,8 @@ public class BucketRegion extends DistributedRegion implements Bucket {
     if (partitionedRegion.getColocatedWith() == null) {
       eventSeqNum = new AtomicLong5(getId());
     } else {
-      PartitionedRegion parentPR = ColocationHelper.getLeaderRegion(partitionedRegion);
-      BucketRegion parentBucket = parentPR.getDataStore().getLocalBucketById(getId());
+      var parentPR = ColocationHelper.getLeaderRegion(partitionedRegion);
+      var parentBucket = parentPR.getDataStore().getLocalBucketById(getId());
       if (parentBucket == null && logger.isDebugEnabled()) {
         logger.debug("The parentBucket of region {} bucketId {} is NULL",
             partitionedRegion.getFullPath(), getId());
@@ -327,7 +315,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
   @Override
   protected void recordEventStateFromImageProvider(InternalDistributedMember provider) {
     if (createRegionReplyProcessor != null) {
-      Map<ThreadIdentifier, EventSequenceNumberHolder> providerEventStates =
+      var providerEventStates =
           createRegionReplyProcessor.getEventState(provider);
       if (providerEventStates != null) {
         recordEventState(provider, providerEventStates);
@@ -361,7 +349,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
 
   @Override
   protected EventID distributeTombstoneGC(Set<Object> keysRemoved) {
-    EventID eventId = super.distributeTombstoneGC(keysRemoved);
+    var eventId = super.distributeTombstoneGC(keysRemoved);
     if (keysRemoved != null && keysRemoved.size() > 0 && getFilterProfile() != null) {
       // send the GC to members that don't have the bucket but have the PR so they
       // can forward the event to clients
@@ -392,13 +380,13 @@ public class BucketRegion extends DistributedRegion implements Bucket {
       // We do this by constructing a region-level event and then use it to
       // have the filter profile ferret out all of the clients that have interest
       // in this region
-      FilterProfile fp = getFilterProfile();
+      var fp = getFilterProfile();
       // fix for bug #46309 - don't send null/empty key set to clients
       if ((removedKeys != null && !removedKeys.isEmpty()) // bug #51877 - NPE in clients
           && (routing != null || (fp != null && fp.hasInterest()))) {
-        RegionEventImpl regionEvent = new RegionEventImpl(getPartitionedRegion(),
+        var regionEvent = new RegionEventImpl(getPartitionedRegion(),
             Operation.REGION_DESTROY, null, true, getMyId());
-        FilterInfo clientRouting = routing;
+        var clientRouting = routing;
         if (clientRouting == null) {
           clientRouting = fp.getLocalFilterRouting(regionEvent);
         }
@@ -418,13 +406,13 @@ public class BucketRegion extends DistributedRegion implements Bucket {
    * @return first key found in CM null means not found
    */
   LockObject searchAndLock(Object[] keys) {
-    final boolean isDebugEnabled = logger.isDebugEnabled();
+    final var isDebugEnabled = logger.isDebugEnabled();
 
     LockObject foundLock = null;
 
     synchronized (allKeysMap) {
       // check if there's any key in map
-      for (Object key : keys) {
+      for (var key : keys) {
         if (allKeysMap.containsKey(key)) {
           foundLock = allKeysMap.get(key);
           if (isDebugEnabled) {
@@ -437,8 +425,8 @@ public class BucketRegion extends DistributedRegion implements Bucket {
 
       // save the keys when still locked
       if (foundLock == null) {
-        for (Object key : keys) {
-          LockObject lockValue =
+        for (var key : keys) {
+          var lockValue =
               new LockObject(key, isDebugEnabled ? System.currentTimeMillis() : 0);
           allKeysMap.put(key, lockValue);
           if (isDebugEnabled) {
@@ -456,17 +444,17 @@ public class BucketRegion extends DistributedRegion implements Bucket {
    * thread needs to acquire lock of CM first.
    */
   public void removeAndNotifyKeys(Object[] keys) {
-    final boolean isTraceEnabled = logger.isTraceEnabled();
+    final var isTraceEnabled = logger.isTraceEnabled();
 
     synchronized (allKeysMap) {
-      for (Object key : keys) {
-        LockObject lockValue = allKeysMap.remove(key);
+      for (var key : keys) {
+        var lockValue = allKeysMap.remove(key);
         if (lockValue != null) {
           // let current thread become the monitor of the key object
           synchronized (lockValue) {
             lockValue.setRemoved();
             if (isTraceEnabled) {
-              long waitTime = System.currentTimeMillis() - lockValue.lockedTimeStamp;
+              var waitTime = System.currentTimeMillis() - lockValue.lockedTimeStamp;
               logger.trace("LockKeys: remove key {}, notifyAll for {}. It waited {}", key,
                   lockValue, waitTime);
             }
@@ -485,11 +473,11 @@ public class BucketRegion extends DistributedRegion implements Bucket {
    * successfully save its keys into CM.
    */
   public boolean waitUntilLocked(Object[] keys) {
-    final boolean isDebugEnabled = logger.isDebugEnabled();
+    final var isDebugEnabled = logger.isDebugEnabled();
 
-    final String title = "BucketRegion.waitUntilLocked:";
+    final var title = "BucketRegion.waitUntilLocked:";
     while (true) {
-      LockObject foundLock = searchAndLock(keys);
+      var foundLock = searchAndLock(keys);
 
       if (foundLock != null) {
         synchronized (foundLock) {
@@ -507,7 +495,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
             }
           }
           if (isDebugEnabled) {
-            long waitTime = System.currentTimeMillis() - foundLock.lockedTimeStamp;
+            var waitTime = System.currentTimeMillis() - foundLock.lockedTimeStamp;
             logger.debug("{} waited {} ms to lock {}", title, waitTime, foundLock);
           }
         }
@@ -533,7 +521,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
       boolean throwConcurrentModification)
       throws TimeoutException, CacheWriterException {
 
-    boolean isLocked = lockKeysAndPrimary(event);
+    var isLocked = lockKeysAndPrimary(event);
 
     try {
       if (partitionedRegion.isParallelWanEnabled()) {
@@ -541,7 +529,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
       }
       if (!hasSeenEvent(event)) {
         forceSerialized(event);
-        RegionEntry oldEntry = entries.basicPut(event, lastModified, ifNew, ifOld,
+        var oldEntry = entries.basicPut(event, lastModified, ifNew, ifOld,
             expectedOldValue, requireOldValue, overwriteDestroyed);
         return oldEntry != null;
       }
@@ -573,7 +561,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
 
 
   long generateTailKey() {
-    long key = eventSeqNum.addAndGet(partitionedRegion.getTotalNumberOfBuckets());
+    var key = eventSeqNum.addAndGet(partitionedRegion.getTotalNumberOfBuckets());
     if (key < 0 || key % getPartitionedRegion().getTotalNumberOfBuckets() != getId()) {
       logger.error("ERROR! The sequence number {} generated for the bucket {} is incorrect.",
           new Object[] {key, getId()});
@@ -597,7 +585,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
 
     if (!(this instanceof AbstractBucketRegionQueue)) {
       if (getBucketAdvisor().isPrimary()) {
-        long key = eventSeqNum.addAndGet(partitionedRegion.getTotalNumberOfBuckets());
+        var key = eventSeqNum.addAndGet(partitionedRegion.getTotalNumberOfBuckets());
         if (key < 0 || key % getPartitionedRegion().getTotalNumberOfBuckets() != getId()) {
           logger.error("ERROR! The sequence number {} generated for the bucket {} is incorrect.",
               new Object[] {key, getId()});
@@ -674,7 +662,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
     // Typically UpdateOperation is called with the
     // timestamp returned from basicPutPart2, but as a bucket we want to do
     // distribution *before* we do basicPutPart2.
-    final long modifiedTime = event.getEventTime(lastModified);
+    final var modifiedTime = event.getEventTime(lastModified);
 
     long token = -1;
     UpdateOperation op = null;
@@ -686,8 +674,8 @@ public class BucketRegion extends DistributedRegion implements Bucket {
       }
       if (!event.isOriginRemote()) {
         if (event.getVersionTag() == null || event.getVersionTag().isGatewayTag()) {
-          boolean eventHasDelta = event.getDeltaBytes() != null;
-          VersionTag v = entry.generateVersionTag(null, eventHasDelta, this, event);
+          var eventHasDelta = event.getDeltaBytes() != null;
+          var v = entry.generateVersionTag(null, eventHasDelta, this, event);
           if (v != null) {
             if (logger.isDebugEnabled()) {
               logger.debug("generated version tag {} in region {}", v, getName());
@@ -701,7 +689,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
         // ops
 
         if (!event.isBulkOpInProgress()) {
-          long start = partitionedRegion.getPrStats().startSendReplication();
+          var start = partitionedRegion.getPrStats().startSendReplication();
           try {
             // before distribute: PR's put PR
             op = new UpdateOperation(event, modifiedTime);
@@ -727,7 +715,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
   protected void notifyGatewaySender(EnumListenerEvent operation, EntryEventImpl event) {
     // We don't need to clone the event for new Gateway Senders.
     // Preserve the bucket reference for resetting it later.
-    InternalRegion bucketRegion = event.getRegion();
+    var bucketRegion = event.getRegion();
     try {
       event.setRegion(partitionedRegion);
       partitionedRegion.notifyGatewaySender(operation, event);
@@ -740,11 +728,11 @@ public class BucketRegion extends DistributedRegion implements Bucket {
   }
 
   public void checkForPrimary() {
-    final boolean isp = getBucketAdvisor().isPrimary();
+    final var isp = getBucketAdvisor().isPrimary();
     if (!isp) {
       partitionedRegion.checkReadiness();
       checkReadiness();
-      InternalDistributedMember primaryHolder = getBucketAdvisor().basicGetPrimaryMember();
+      var primaryHolder = getBucketAdvisor().basicGetPrimaryMember();
       throw new PrimaryBucketException(
           "Bucket " + getName() + " is not primary. Current primary holder is " + primaryHolder);
     }
@@ -764,13 +752,13 @@ public class BucketRegion extends DistributedRegion implements Bucket {
       throw cache.getCacheClosedException("Cache is shutting down");
     }
 
-    Object[] keys = getKeysToBeLocked(event);
+    var keys = getKeysToBeLocked(event);
     waitUntilLocked(keys); // it might wait for long time
 
     if (wasPrimaryLockedPreviously(event)) {
       return true;
     }
-    boolean lockedForPrimary = false;
+    var lockedForPrimary = false;
 
     try {
       lockedForPrimary = doLockForPrimary(false);
@@ -786,7 +774,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
   }
 
   Object[] getKeysToBeLocked(EntryEventImpl event) {
-    Object[] keys = new Object[1];
+    var keys = new Object[1];
     keys[0] = event.getKey();
     return keys;
   }
@@ -798,12 +786,12 @@ public class BucketRegion extends DistributedRegion implements Bucket {
    * @return true if locks were obtained and are still held
    */
   public boolean doLockForPrimary(boolean tryLock) {
-    boolean locked = lockPrimaryStateReadLock(tryLock);
+    var locked = lockPrimaryStateReadLock(tryLock);
     if (!locked) {
       return false;
     }
 
-    boolean isPrimary = false;
+    var isPrimary = false;
     try {
       // Throw a PrimaryBucketException if this VM is assumed to be the
       // primary but isn't, preventing update and distribution
@@ -824,10 +812,10 @@ public class BucketRegion extends DistributedRegion implements Bucket {
   }
 
   private boolean lockPrimaryStateReadLock(boolean tryLock) {
-    Lock primaryMoveReadLock = getBucketAdvisor().getPrimaryMoveReadLock();
-    Lock parentLock = getBucketAdvisor().getParentPrimaryMoveReadLock();
+    var primaryMoveReadLock = getBucketAdvisor().getPrimaryMoveReadLock();
+    var parentLock = getBucketAdvisor().getParentPrimaryMoveReadLock();
     for (;;) {
-      boolean interrupted = Thread.interrupted();
+      var interrupted = Thread.interrupted();
       try {
         // Get the lock. If we have to wait here, it's because
         // this VM is actively becoming "not primary". We don't want
@@ -835,7 +823,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
         // primary, so we wait here for not primary to complete. See bug #39963
         if (parentLock != null) {
           if (tryLock) {
-            boolean locked = parentLock.tryLock();
+            var locked = parentLock.tryLock();
             if (!locked) {
               return false;
             }
@@ -843,7 +831,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
             parentLock.lockInterruptibly();
           }
           if (tryLock) {
-            boolean locked = primaryMoveReadLock.tryLock();
+            var locked = primaryMoveReadLock.tryLock();
             if (!locked) {
               parentLock.unlock();
               return false;
@@ -853,7 +841,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
           }
         } else {
           if (tryLock) {
-            boolean locked = primaryMoveReadLock.tryLock();
+            var locked = primaryMoveReadLock.tryLock();
             if (!locked) {
               return false;
             }
@@ -877,9 +865,9 @@ public class BucketRegion extends DistributedRegion implements Bucket {
   }
 
   public void doUnlockForPrimary() {
-    Lock primaryMoveReadLock = getBucketAdvisor().getPrimaryMoveReadLock();
+    var primaryMoveReadLock = getBucketAdvisor().getPrimaryMoveReadLock();
     primaryMoveReadLock.unlock();
-    Lock parentLock = getBucketAdvisor().getParentPrimaryMoveReadLock();
+    var parentLock = getBucketAdvisor().getParentPrimaryMoveReadLock();
     if (parentLock != null) {
       parentLock.unlock();
     }
@@ -894,7 +882,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
       doUnlockForPrimary();
     }
 
-    Object[] keys = getKeysToBeLocked(event);
+    var keys = getKeysToBeLocked(event);
     removeAndNotifyKeys(keys);
   }
 
@@ -933,21 +921,21 @@ public class BucketRegion extends DistributedRegion implements Bucket {
     Assert.assertTrue(!isTX());
     Assert.assertTrue(event.getOperation().isDistributed());
 
-    boolean locked = lockKeysAndPrimary(event);
+    var locked = lockKeysAndPrimary(event);
     try {
       // which performs the local op.
       // The ARM then calls basicInvalidatePart2 with the entry synchronized.
       if (!hasSeenEvent(event)) {
         if (event.getOperation().isExpiration()) { // bug 39905 - invoke listeners for expiration
-          DistributedSystem sys = cache.getDistributedSystem();
-          EventID newID = new EventID(sys);
+          var sys = cache.getDistributedSystem();
+          var newID = new EventID(sys);
           event.setEventId(newID);
           event.setInvokePRCallbacks(getBucketAdvisor().isPrimary());
         }
-        boolean forceCallbacks = isEntryEvictDestroyEnabled();
-        boolean done =
+        var forceCallbacks = isEntryEvictDestroyEnabled();
+        var done =
             entries.invalidate(event, invokeCallbacks, forceNewEntry, forceCallbacks);
-        ExpirationAction expirationAction = getEntryExpirationAction();
+        var expirationAction = getEntryExpirationAction();
         if (done && !getBucketAdvisor().isPrimary() && expirationAction != null
             && expirationAction.isInvalidate()) {
           synchronized (pendingSecondaryExpires) {
@@ -999,7 +987,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
     try {
       if (!event.isOriginRemote()) {
         if (event.getVersionTag() == null || event.getVersionTag().isGatewayTag()) {
-          VersionTag v = regionEntry.generateVersionTag(null, false, this, event);
+          var v = regionEntry.generateVersionTag(null, false, this, event);
           if (logger.isDebugEnabled() && v != null) {
             logger.debug("generated version tag {} in region {}", v, getName());
           }
@@ -1080,7 +1068,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
 
   @Override
   void performExpiryTimeout(ExpiryTask expiryTask) throws CacheException {
-    boolean isEvictDestroy = isEntryEvictDestroyEnabled();
+    var isEvictDestroy = isEntryEvictDestroyEnabled();
     // Fix for bug 43805 - get the primary lock before
     // synchronizing on pendingSecondaryExpires, to match the lock
     // ordering in other place (like acquiredPrimaryLock)
@@ -1091,7 +1079,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
       if (!getBucketAdvisor().isPrimary() && !isEvictDestroy) {
         synchronized (pendingSecondaryExpires) {
           if (expiryTask.isPending()) {
-            Object key = expiryTask.getKey();
+            var key = expiryTask.getKey();
             if (key != null) {
               pendingSecondaryExpires.put(key, expiryTask);
             }
@@ -1126,8 +1114,8 @@ public class BucketRegion extends DistributedRegion implements Bucket {
         if (isCacheClosing() || isClosed() || isDestroyed) {
           return;
         }
-        final boolean isDebugEnabled = logger.isDebugEnabled();
-        for (ExpiryTask task : tasks) {
+        final var isDebugEnabled = logger.isDebugEnabled();
+        for (var task : tasks) {
           try {
             if (isDebugEnabled) {
               logger.debug("{} fired at {}", task, System.currentTimeMillis());
@@ -1171,7 +1159,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
   @Override
   @Retained
   EntryEventImpl generateEvictDestroyEvent(Object key) {
-    EntryEventImpl event = super.generateEvictDestroyEvent(key);
+    var event = super.generateEvictDestroyEvent(key);
     event.setInvokePRCallbacks(true); // see bug 40797
     return event;
   }
@@ -1193,7 +1181,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
     Assert.assertTrue(!isTX());
     Assert.assertTrue(event.getOperation().isDistributed());
 
-    boolean locked = lockKeysAndPrimary(event);
+    var locked = lockKeysAndPrimary(event);
     try {
       // increment the tailKey for the destroy event
       if (partitionedRegion.isParallelWanEnabled()) {
@@ -1204,18 +1192,18 @@ public class BucketRegion extends DistributedRegion implements Bucket {
       // The ARM then calls basicDestroyPart2 with the entry synchronized.
       if (!hasSeenEvent(event)) {
         if (event.getOperation().isExpiration()) { // bug 39905 - invoke listeners for expiration
-          DistributedSystem sys = cache.getDistributedSystem();
+          var sys = cache.getDistributedSystem();
           if (event.getEventId() == null) { // Fix for #47388
-            EventID newID = new EventID(sys);
+            var newID = new EventID(sys);
             event.setEventId(newID);
           }
           event.setInvokePRCallbacks(getBucketAdvisor().isPrimary());
         }
-        boolean done = mapDestroy(event, cacheWrite, false, // isEviction //merge44610: In cheetah
-                                                            // instead of false
-                                                            // event.getOperation().isEviction() is
-                                                            // used. We kept the cedar change as it
-                                                            // is.
+        var done = mapDestroy(event, cacheWrite, false, // isEviction //merge44610: In cheetah
+                                                        // instead of false
+                                                        // event.getOperation().isEviction() is
+                                                        // used. We kept the cedar change as it
+                                                        // is.
             expectedOldValue);
         if (done && !getBucketAdvisor().isPrimary() && isEntryExpiryPossible()) {
           synchronized (pendingSecondaryExpires) {
@@ -1285,7 +1273,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
           && !(event.isExpiration() && isEntryEvictDestroyEnabled())) {
 
         if (event.getVersionTag() == null || event.getVersionTag().isGatewayTag()) {
-          VersionTag v = entry.generateVersionTag(null, false, this, event);
+          var v = entry.generateVersionTag(null, false, this, event);
           if (logger.isDebugEnabled() && v != null) {
             logger.debug("generated version tag {} in region {}", v, getName());
           }
@@ -1346,7 +1334,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
   @Override
   RegionEntry basicPutEntry(final EntryEventImpl event, final long lastModified)
       throws TimeoutException, CacheWriterException {
-    boolean locked = lockKeysAndPrimary(event);
+    var locked = lockKeysAndPrimary(event);
     try {
       if (getPartitionedRegion().isParallelWanEnabled()) {
         handleWANEvent(event);
@@ -1367,13 +1355,13 @@ public class BucketRegion extends DistributedRegion implements Bucket {
     Assert.assertTrue(!isTX());
     Assert.assertTrue(event.getOperation().isDistributed());
 
-    InternalRegion internalRegion = event.getRegion();
-    AbstractRegionMap arm = ((AbstractRegionMap) internalRegion.getRegionMap());
+    var internalRegion = event.getRegion();
+    var arm = ((AbstractRegionMap) internalRegion.getRegionMap());
 
     arm.lockForCacheModification(internalRegion, event);
-    final boolean locked = internalRegion.lockWhenRegionIsInitializing();
+    final var locked = internalRegion.lockWhenRegionIsInitializing();
     try {
-      boolean keysAndPrimaryLocked = lockKeysAndPrimary(event);
+      var keysAndPrimaryLocked = lockKeysAndPrimary(event);
       try {
         if (!hasSeenEvent(event)) {
           entries.updateEntryVersion(event);
@@ -1470,7 +1458,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
   @Override
   public void fillInProfile(Profile profile) {
     super.fillInProfile(profile);
-    BucketProfile bp = (BucketProfile) profile;
+    var bp = (BucketProfile) profile;
     bp.isInitializing = getInitializationLatchAfterGetInitialImage().getCount() > 0;
   }
 
@@ -1509,7 +1497,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
         }
       }
       if (clientEvent != null) {
-        VersionStamp stamp = re.getVersionStamp();
+        var stamp = re.getVersionStamp();
         if (stamp != null) {
           clientEvent.setVersionTag(stamp.asVersionTag());
         }
@@ -1544,13 +1532,13 @@ public class BucketRegion extends DistributedRegion implements Bucket {
       boolean returnTombstones) throws IOException {
     checkReadiness();
     checkForNoAccess();
-    CachePerfStats stats = getCachePerfStats();
-    long start = stats.startGet();
+    var stats = getCachePerfStats();
+    var start = stats.startGet();
 
-    boolean miss = true;
+    var miss = true;
     try {
       boolean isCreate;
-      RawValue result =
+      var result =
           getSerialized(keyInfo.getKey(), true, doNotLockEntry, clientEvent, returnTombstones);
       isCreate =
           result == NULLVALUE || (result.getRawValue() == Token.TOMBSTONE && !returnTombstones);
@@ -1562,7 +1550,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
           if (doNotLockEntry) {
             return REQUIRES_ENTRY_LOCK;
           }
-          Object value = nonTxnFindObject(keyInfo, isCreate, generateCallbacks,
+          var value = nonTxnFindObject(keyInfo, isCreate, generateCallbacks,
               result.getRawValue(), true, true, requestingClient, clientEvent, false);
           if (value != null) {
             result = new RawValue(value);
@@ -1607,14 +1595,14 @@ public class BucketRegion extends DistributedRegion implements Bucket {
       getPersistenceAdvisor().releaseTieLock();
     }
 
-    DiskRegion diskRegion = getDiskRegion();
+    var diskRegion = getDiskRegion();
 
     // Tell our peers whether we are destroying this region
     // or just closing it.
-    boolean shouldDestroy = rebalance || diskRegion == null || !diskRegion.isRecreated();
-    Operation op = shouldDestroy ? Operation.REGION_LOCAL_DESTROY : Operation.REGION_CLOSE;
+    var shouldDestroy = rebalance || diskRegion == null || !diskRegion.isRecreated();
+    var op = shouldDestroy ? Operation.REGION_LOCAL_DESTROY : Operation.REGION_CLOSE;
 
-    RegionEventImpl event = new RegionEventImpl(this, op, null, false, getMyId(),
+    var event = new RegionEventImpl(this, op, null, false, getMyId(),
         generateEventID()/* generate EventID */);
     // When destroying the whole partitioned region, there's no need to
     // distribute the region closure/destruction, the PR RegionAdvisor.close()
@@ -1642,8 +1630,8 @@ public class BucketRegion extends DistributedRegion implements Bucket {
 
   @Retained
   EntryEventImpl createEventForPR(EntryEventImpl sourceEvent) {
-    EntryEventImpl e2 = new EntryEventImpl(sourceEvent);
-    boolean returned = false;
+    var e2 = new EntryEventImpl(sourceEvent);
+    var returned = false;
     try {
       e2.setRegion(partitionedRegion);
       if (FORCE_LOCAL_LISTENERS_INVOCATION) {
@@ -1666,7 +1654,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
     if (!event.isGenerateCallbacks()) {
       return true;
     }
-    boolean needsPrEvent = (partitionedRegion.isInitialized() && callDispatchListenerEvent
+    var needsPrEvent = (partitionedRegion.isInitialized() && callDispatchListenerEvent
         && partitionedRegion.shouldDispatchListenerEvent())
         || CacheClientNotifier.singletonHasClientProxies();
     return !needsPrEvent;
@@ -1682,7 +1670,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
     // initializing. We can't block while initializing or a GII state flush
     // may hang, so we avoid notifying the bucket
     if (isInitialized()) {
-      boolean callThem = callDispatchListenerEvent;
+      var callThem = callDispatchListenerEvent;
       if (event.isPossibleDuplicate()
           && getEventTracker().isInitialImageProvider(event.getDistributedMember())) {
         callThem = false;
@@ -1695,7 +1683,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
     }
 
     @Released
-    final EntryEventImpl prEvent = createEventForPR(event);
+    final var prEvent = createEventForPR(event);
     try {
       partitionedRegion.invokeTXCallbacks(eventType, prEvent,
           partitionedRegion.isInitialized() && callDispatchListenerEvent);
@@ -1719,7 +1707,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
     // initializing. We can't block while initializing or a GII state flush
     // may hang, so we avoid notifying the bucket
     if (isInitialized()) {
-      boolean callThem = callDispatchListenerEvent;
+      var callThem = callDispatchListenerEvent;
       if (event.isPossibleDuplicate()
           && getEventTracker().isInitialImageProvider(event.getDistributedMember())) {
         callThem = false;
@@ -1732,7 +1720,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
     }
 
     @Released
-    final EntryEventImpl prEvent = createEventForPR(event);
+    final var prEvent = createEventForPR(event);
     try {
       partitionedRegion.invokeDestroyCallbacks(eventType, prEvent,
           partitionedRegion.isInitialized() && callDispatchListenerEvent, false);
@@ -1755,7 +1743,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
     // initializing. We can't block while initializing or a GII state flush
     // may hang, so we avoid notifying the bucket
     if (isInitialized()) {
-      boolean callThem = callDispatchListenerEvent;
+      var callThem = callDispatchListenerEvent;
       if (event.isPossibleDuplicate()
           && getEventTracker().isInitialImageProvider(event.getDistributedMember())) {
         callThem = false;
@@ -1768,7 +1756,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
     }
 
     @Released
-    final EntryEventImpl prEvent = createEventForPR(event);
+    final var prEvent = createEventForPR(event);
     try {
       partitionedRegion.invokeInvalidateCallbacks(eventType, prEvent,
           partitionedRegion.isInitialized() && callDispatchListenerEvent);
@@ -1794,7 +1782,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
     // initializing. We can't block while initializing or a GII state flush
     // may hang, so we avoid notifying the bucket
     if (isInitialized()) {
-      boolean callThem = callDispatchListenerEvent;
+      var callThem = callDispatchListenerEvent;
       if (callThem && event.isPossibleDuplicate()
           && getEventTracker().isInitialImageProvider(event.getDistributedMember())) {
         callThem = false;
@@ -1807,7 +1795,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
     }
 
     @Released
-    final EntryEventImpl prEvent = createEventForPR(event);
+    final var prEvent = createEventForPR(event);
     try {
       partitionedRegion.invokePutCallbacks(eventType, prEvent,
           partitionedRegion.isInitialized() && callDispatchListenerEvent, false);
@@ -1830,7 +1818,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
       DirectReplyProcessor processor,
       boolean calculateDelta, boolean sendDeltaWithFullValue) {
 
-    PartitionMessage msg = event.getPartitionMessage();
+    var msg = event.getPartitionMessage();
     if (calculateDelta) {
       setDeltaIfNeeded(event);
     }
@@ -1845,7 +1833,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
           event, partitionedRegion, processor);
     } else {
       // The primary bucket is being modified locally by an application thread locally
-      Operation op = event.getOperation();
+      var op = event.getOperation();
       if (op.isCreate() || op.isUpdate()) {
         // note that at this point ifNew/ifOld have been used to update the
         // local store, and the event operation should be correct
@@ -1866,21 +1854,21 @@ public class BucketRegion extends DistributedRegion implements Bucket {
     if (partitionedRegion.getSystem().getConfig().getDeltaPropagation()
         && event.getOperation().isUpdate() && event.getDeltaBytes() == null) {
       @Unretained
-      Object rawNewValue = event.getRawNewValue();
+      var rawNewValue = event.getRawNewValue();
       if (!(rawNewValue instanceof CachedDeserializable)) {
         return;
       }
-      CachedDeserializable cd = (CachedDeserializable) rawNewValue;
+      var cd = (CachedDeserializable) rawNewValue;
       if (!cd.isSerialized()) {
         // it is a byte[]; not a Delta
         return;
       }
-      Object instance = cd.getValue();
+      var instance = cd.getValue();
 
       if (instance instanceof org.apache.geode.Delta
           && ((org.apache.geode.Delta) instance).hasDelta()) {
-        try (HeapDataOutputStream hdos = new HeapDataOutputStream(KnownVersion.CURRENT)) {
-          long start = DistributionStats.getStatTime();
+        try (var hdos = new HeapDataOutputStream(KnownVersion.CURRENT)) {
+          var start = DistributionStats.getStatTime();
           ((org.apache.geode.Delta) instance).toDelta(hdos);
           event.setDeltaBytes(hdos.toByteArray());
           partitionedRegion.getCachePerfStats().endDeltaPrepared(start);
@@ -1908,7 +1896,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
   void performPutAllAdjunctMessaging(DistributedPutAllOperation dpao, Set cacheOpRecipients,
       Set<InternalDistributedMember> adjunctRecipients, FilterRoutingInfo filterRoutingInfo,
       DirectReplyProcessor processor) {
-    PutAllPRMessage prMsg = dpao.createPRMessagesNotifyOnly(getId());
+    var prMsg = dpao.createPRMessagesNotifyOnly(getId());
     prMsg.initMessage(partitionedRegion, adjunctRecipients, true, processor);
     prMsg.setSender(partitionedRegion.getDistributionManager().getDistributionManagerId());
     partitionedRegion.getDistributionManager().putOutgoing(prMsg);
@@ -1929,7 +1917,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
       FilterRoutingInfo filterRoutingInfo,
       DirectReplyProcessor processor) {
     // create a RemoveAllPRMessage out of RemoveAllMessage to send to adjunct nodes
-    RemoveAllPRMessage prMsg = op.createPRMessagesNotifyOnly(getId());
+    var prMsg = op.createPRMessagesNotifyOnly(getId());
     prMsg.initMessage(partitionedRegion, adjunctRecipients, true, processor);
     prMsg.setSender(partitionedRegion.getDistributionManager().getDistributionManagerId());
     partitionedRegion.getDistributionManager().putOutgoing(prMsg);
@@ -1941,14 +1929,14 @@ public class BucketRegion extends DistributedRegion implements Bucket {
   protected Set<InternalDistributedMember> getAdjunctReceivers(EntryEventImpl event,
       Set<InternalDistributedMember> cacheOpReceivers, Set<InternalDistributedMember> twoMessages,
       FilterRoutingInfo routing) {
-    Operation op = event.getOperation();
+    var op = event.getOperation();
     if (op == null) {
       return Collections.emptySet();
     }
     if (op.isUpdate() || op.isCreate() || op.isDestroy() || op.isInvalidate()) {
       // this method can safely assume that the operation is being distributed from
       // the primary bucket holder to other nodes
-      Set<InternalDistributedMember> r =
+      var r =
           partitionedRegion.getRegionAdvisor().adviseRequiresNotification();
       r.removeAll(cacheOpReceivers);
 
@@ -1964,7 +1952,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
       }
       if (routing != null) {
         // add adjunct messages to members with client routings
-        for (InternalDistributedMember id : routing.getMembers()) {
+        for (var id : routing.getMembers()) {
           if (!cacheOpReceivers.contains(id)) {
             if (r.isEmpty()) {
               r = new HashSet<>();
@@ -1989,7 +1977,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
       CacheWriter localWriter, boolean requireOldValue, Object expectedOldValue)
       throws CacheWriterException, TimeoutException {
 
-    boolean origRemoteState = false;
+    var origRemoteState = false;
     try {
       if (event.getPartitionMessage() != null || event.hasClientOrigin()) {
         origRemoteState = event.isOriginRemote();
@@ -2010,7 +1998,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
   public boolean cacheWriteBeforeDestroy(EntryEventImpl event, Object expectedOldValue)
       throws CacheWriterException, EntryNotFoundException, TimeoutException {
 
-    boolean origRemoteState = false;
+    var origRemoteState = false;
     try {
       if (event.getPartitionMessage() != null || event.hasClientOrigin()) {
         origRemoteState = event.isOriginRemote();
@@ -2108,7 +2096,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
     // a destroy could have already been applied to the map, and then updates
     // the stat after we reset it, making the state negative.
 
-    final PartitionedRegionDataStore prDs = partitionedRegion.getDataStore();
+    final var prDs = partitionedRegion.getDataStore();
     long oldMemValue;
 
     if (isDestroyed || isDestroyingDiskRegion) {
@@ -2196,14 +2184,14 @@ public class BucketRegion extends DistributedRegion implements Bucket {
   void closeCallbacksExceptListener() {
     // closeCacheCallback(getCacheLoader()); - fix bug 40228 - do NOT close loader
     closeCacheCallback(getCacheWriter());
-    EvictionController evictionController = getEvictionController();
+    var evictionController = getEvictionController();
     if (evictionController != null) {
       evictionController.closeBucket(this);
     }
   }
 
   public long getTotalBytes() {
-    long result = bytesInMemory.get();
+    var result = bytesInMemory.get();
     if (result == BUCKET_DESTROYED) {
       return 0;
     }
@@ -2212,7 +2200,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
   }
 
   public long getBytesInMemory() {
-    long result = bytesInMemory.get();
+    var result = bytesInMemory.get();
     if (result == BUCKET_DESTROYED) {
       return 0;
     }
@@ -2230,11 +2218,11 @@ public class BucketRegion extends DistributedRegion implements Bucket {
   }
 
   void invokePartitionListenerAfterBucketRemoved() {
-    PartitionListener[] partitionListeners = getPartitionedRegion().getPartitionListeners();
+    var partitionListeners = getPartitionedRegion().getPartitionListeners();
     if (partitionListeners == null || partitionListeners.length == 0) {
       return;
     }
-    for (PartitionListener listener : partitionListeners) {
+    for (var listener : partitionListeners) {
       if (listener != null) {
         listener.afterBucketRemoved(getId(), keySet());
       }
@@ -2242,11 +2230,11 @@ public class BucketRegion extends DistributedRegion implements Bucket {
   }
 
   void invokePartitionListenerAfterBucketCreated() {
-    PartitionListener[] partitionListeners = getPartitionedRegion().getPartitionListeners();
+    var partitionListeners = getPartitionedRegion().getPartitionListeners();
     if (partitionListeners == null || partitionListeners.length == 0) {
       return;
     }
-    for (PartitionListener listener : partitionListeners) {
+    for (var listener : partitionListeners) {
       if (listener != null) {
         listener.afterBucketCreated(getId(), keySet());
       }
@@ -2279,7 +2267,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
    */
   private void updateBucket2Size(int oldSize, int newSize, SizeOp op) {
 
-    final int memoryDelta = op.computeMemoryDelta(oldSize, newSize);
+    final var memoryDelta = op.computeMemoryDelta(oldSize, newSize);
 
     if (memoryDelta == 0) {
       return;
@@ -2291,7 +2279,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
   private void updateBucketMemoryStats(final int memoryDelta) {
     if (memoryDelta != 0) {
 
-      final long bSize = bytesInMemory.compareAddAndGet(BUCKET_DESTROYED, memoryDelta);
+      final var bSize = bytesInMemory.compareAddAndGet(BUCKET_DESTROYED, memoryDelta);
       if (bSize == BUCKET_DESTROYED) {
         return;
       }
@@ -2302,7 +2290,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
       }
     }
 
-    final PartitionedRegionDataStore prDS = partitionedRegion.getDataStore();
+    final var prDS = partitionedRegion.getDataStore();
     prDS.updateMemoryStats(memoryDelta);
   }
 
@@ -2373,15 +2361,15 @@ public class BucketRegion extends DistributedRegion implements Bucket {
   }
 
   public int getSizeForEviction() {
-    EvictionAttributes ea = getAttributes().getEvictionAttributes();
+    var ea = getAttributes().getEvictionAttributes();
     if (ea == null) {
       return 0;
     }
-    EvictionAlgorithm algo = ea.getAlgorithm();
+    var algo = ea.getAlgorithm();
     if (!algo.isLRUHeap()) {
       return 0;
     }
-    EvictionAction action = ea.getAction();
+    var action = ea.getAction();
     return action.isLocalDestroy() ? getRegionMap().sizeInVM() : (int) getNumEntriesInVM();
   }
 
@@ -2453,7 +2441,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
 
   @Override
   protected void postDestroyRegion(boolean destroyDiskRegion, RegionEventImpl event) {
-    DiskRegion dr = getDiskRegion();
+    var dr = getDiskRegion();
     if (dr != null && destroyDiskRegion) {
       dr.statsClear(this);
     }
@@ -2511,7 +2499,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
           || Token.isInvalidOrRemoved(newValue)) {
         wrappedNewValue = newValue;
       } else if (newValue instanceof Delta) {
-        int vSize = CachedDeserializableFactory.calcMemSize(newValue,
+        var vSize = CachedDeserializableFactory.calcMemSize(newValue,
             getPartitionedRegion().getObjectSizer(), false);
         wrappedNewValue = CachedDeserializableFactory.create(newValue, vSize, cache);
       } else {

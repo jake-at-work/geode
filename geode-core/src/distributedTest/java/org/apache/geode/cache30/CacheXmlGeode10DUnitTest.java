@@ -35,10 +35,6 @@ import org.apache.geode.cache.Declarable;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.asyncqueue.AsyncEvent;
 import org.apache.geode.cache.asyncqueue.AsyncEventListener;
-import org.apache.geode.cache.asyncqueue.AsyncEventQueue;
-import org.apache.geode.cache.asyncqueue.AsyncEventQueueFactory;
-import org.apache.geode.cache.client.Pool;
-import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.SocketFactory;
 import org.apache.geode.internal.cache.RegionEntryContext;
@@ -63,14 +59,14 @@ public class CacheXmlGeode10DUnitTest extends CacheXml81DUnitTest {
   public void testEnableOffHeapMemory() throws Exception {
     System.setProperty(GeodeGlossary.GEMFIRE_PREFIX + OFF_HEAP_MEMORY_SIZE, "1m");
 
-    final String regionName = "testEnableOffHeapMemory";
+    final var regionName = "testEnableOffHeapMemory";
 
-    final CacheCreation cache = new CacheCreation();
-    final RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    final var cache = new CacheCreation();
+    final var attrs = new RegionAttributesCreation(cache);
     attrs.setOffHeap(true);
     assertEquals(true, attrs.getOffHeap());
 
-    final Region regionBefore = cache.createRegion(regionName, attrs);
+    final var regionBefore = cache.createRegion(regionName, attrs);
     assertNotNull(regionBefore);
     assertEquals(true, regionBefore.getAttributes().getOffHeap());
 
@@ -90,14 +86,14 @@ public class CacheXmlGeode10DUnitTest extends CacheXml81DUnitTest {
   @Test
   public void testEnableOffHeapMemoryRootRegionWithoutOffHeapMemoryThrowsException()
       throws Exception {
-    final String regionName = getUniqueName();
+    final var regionName = getUniqueName();
 
-    final CacheCreation cache = new CacheCreation();
-    final RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    final var cache = new CacheCreation();
+    final var attrs = new RegionAttributesCreation(cache);
     attrs.setOffHeap(true);
     assertEquals(true, attrs.getOffHeap());
 
-    final Region regionBefore = cache.createRegion(regionName, attrs);
+    final var regionBefore = cache.createRegion(regionName, attrs);
     assertNotNull(regionBefore);
     assertEquals(true, regionBefore.getAttributes().getOffHeap());
 
@@ -111,7 +107,7 @@ public class CacheXmlGeode10DUnitTest extends CacheXml81DUnitTest {
       fail("Expected IllegalStateException to be thrown");
     } catch (IllegalStateException e) {
       // expected
-      String msg =
+      var msg =
           String.format(
               "The region %s was configured to use off heap memory but no off heap memory was configured",
               SEPARATOR + regionName);
@@ -123,22 +119,22 @@ public class CacheXmlGeode10DUnitTest extends CacheXml81DUnitTest {
   @Test
   public void testEnableOffHeapMemorySubRegionWithoutOffHeapMemoryThrowsException()
       throws Exception {
-    final String rootRegionName = getUniqueName();
-    final String subRegionName = "subRegion";
+    final var rootRegionName = getUniqueName();
+    final var subRegionName = "subRegion";
 
-    final CacheCreation cache = new CacheCreation();
-    final RegionAttributesCreation rootRegionAttrs = new RegionAttributesCreation(cache);
+    final var cache = new CacheCreation();
+    final var rootRegionAttrs = new RegionAttributesCreation(cache);
     assertEquals(false, rootRegionAttrs.getOffHeap());
 
-    final Region rootRegionBefore = cache.createRegion(rootRegionName, rootRegionAttrs);
+    final var rootRegionBefore = cache.createRegion(rootRegionName, rootRegionAttrs);
     assertNotNull(rootRegionBefore);
     assertEquals(false, rootRegionBefore.getAttributes().getOffHeap());
 
-    final RegionAttributesCreation subRegionAttrs = new RegionAttributesCreation(cache);
+    final var subRegionAttrs = new RegionAttributesCreation(cache);
     subRegionAttrs.setOffHeap(true);
     assertEquals(true, subRegionAttrs.getOffHeap());
 
-    final Region subRegionBefore = rootRegionBefore.createSubregion(subRegionName, subRegionAttrs);
+    final var subRegionBefore = rootRegionBefore.createSubregion(subRegionName, subRegionAttrs);
     assertNotNull(subRegionBefore);
     assertEquals(true, subRegionBefore.getAttributes().getOffHeap());
 
@@ -152,7 +148,7 @@ public class CacheXmlGeode10DUnitTest extends CacheXml81DUnitTest {
       fail("Expected IllegalStateException to be thrown");
     } catch (IllegalStateException e) {
       // expected
-      final String msg =
+      final var msg =
           String.format(
               "The region %s was configured to use off heap memory but no off heap memory was configured",
               SEPARATOR + rootRegionName + SEPARATOR + subRegionName);
@@ -167,14 +163,14 @@ public class CacheXmlGeode10DUnitTest extends CacheXml81DUnitTest {
   @Override
   @Test
   public void testResourceManagerThresholds() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    final float low = 90.0f;
-    final float high = 95.0f;
+    var cache = new CacheCreation();
+    final var low = 90.0f;
+    final var high = 95.0f;
 
     System.setProperty(GeodeGlossary.GEMFIRE_PREFIX + OFF_HEAP_MEMORY_SIZE, "1m");
 
     Cache c;
-    ResourceManagerCreation rmc = new ResourceManagerCreation();
+    var rmc = new ResourceManagerCreation();
     rmc.setEvictionOffHeapPercentage(low);
     rmc.setCriticalOffHeapPercentage(high);
     cache.setResourceManagerCreation(rmc);
@@ -203,7 +199,7 @@ public class CacheXmlGeode10DUnitTest extends CacheXml81DUnitTest {
     rmc.setEvictionOffHeapPercentage(high);
     rmc.setCriticalOffHeapPercentage(low);
     cache.setResourceManagerCreation(rmc);
-    IgnoredException expectedException = IgnoredException.addIgnoredException(
+    var expectedException = IgnoredException.addIgnoredException(
         "Eviction percentage must be less than the critical percentage.");
     try {
       testXml(cache);
@@ -254,33 +250,33 @@ public class CacheXmlGeode10DUnitTest extends CacheXml81DUnitTest {
   @SuppressWarnings("rawtypes")
   @Test
   public void testAsyncEventQueueIsForwardExpirationDestroyAttribute() throws Exception {
-    final String regionName = testName.getMethodName();
+    final var regionName = testName.getMethodName();
 
     // Create AsyncEventQueue with Listener
-    final CacheCreation cache = new CacheCreation();
-    AsyncEventQueueFactory factory = cache.createAsyncEventQueueFactory();
+    final var cache = new CacheCreation();
+    var factory = cache.createAsyncEventQueueFactory();
 
     AsyncEventListener listener = new MyAsyncEventListenerGeode10();
 
     // Test for default forwardExpirationDestroy attribute value (which is false)
-    String aeqId1 = "aeqWithDefaultFED";
+    var aeqId1 = "aeqWithDefaultFED";
     factory.create(aeqId1, listener);
-    AsyncEventQueue aeq1 = cache.getAsyncEventQueue(aeqId1);
+    var aeq1 = cache.getAsyncEventQueue(aeqId1);
     assertFalse(aeq1.isForwardExpirationDestroy());
 
     // Test by setting forwardExpirationDestroy attribute value.
-    String aeqId2 = "aeqWithFEDsetToTrue";
+    var aeqId2 = "aeqWithFEDsetToTrue";
     factory.setForwardExpirationDestroy(true);
     factory.create(aeqId2, listener);
 
-    AsyncEventQueue aeq2 = cache.getAsyncEventQueue(aeqId2);
+    var aeq2 = cache.getAsyncEventQueue(aeqId2);
     assertTrue(aeq2.isForwardExpirationDestroy());
 
     // Create region and set the AsyncEventQueue
-    final RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    final var attrs = new RegionAttributesCreation(cache);
     attrs.addAsyncEventQueueId(aeqId2);
 
-    final Region regionBefore = cache.createRegion(regionName, attrs);
+    final var regionBefore = cache.createRegion(regionName, attrs);
     assertNotNull(regionBefore);
     assertTrue(regionBefore.getAttributes().getAsyncEventQueueIds().size() == 1);
 
@@ -308,14 +304,14 @@ public class CacheXmlGeode10DUnitTest extends CacheXml81DUnitTest {
   @Test
   public void testPoolSocketFactory() throws IOException {
     getSystem();
-    CacheCreation cache = new CacheCreation();
-    PoolFactory f = cache.createPoolFactory();
+    var cache = new CacheCreation();
+    var f = cache.createPoolFactory();
     f.setSocketFactory(new TestSocketFactory());
     f.addServer("localhost", 443);
     f.create("mypool");
 
     testXml(cache);
-    Pool cp = PoolManager.find("mypool");
+    var cp = PoolManager.find("mypool");
     assertThat(cp.getSocketFactory()).isInstanceOf(TestSocketFactory.class);
   }
 

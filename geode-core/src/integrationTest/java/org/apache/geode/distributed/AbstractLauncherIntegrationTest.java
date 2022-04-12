@@ -58,7 +58,7 @@ public class AbstractLauncherIntegrationTest {
 
   @Test
   public void loadGemFirePropertiesFromFile() throws Exception {
-    Properties loadedProperties = loadGemFireProperties(propertiesFile.toURI().toURL());
+    var loadedProperties = loadGemFireProperties(propertiesFile.toURI().toURL());
 
     assertThat(loadedProperties).isEqualTo(expectedProperties);
   }

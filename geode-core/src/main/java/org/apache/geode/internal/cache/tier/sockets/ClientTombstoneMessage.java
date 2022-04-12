@@ -81,7 +81,7 @@ public class ClientTombstoneMessage extends ClientUpdateMessageImpl {
     // part 2: operation ordinal
     // part 3: regionGCVersions
     // Last part: event ID
-    final Message message = new Message(4, proxy.getVersion());
+    final var message = new Message(4, proxy.getVersion());
     // Set message type
     message.setMessageType(MessageType.TOMBSTONE_OPERATION);
     message.addStringPart(getRegionName(), true);

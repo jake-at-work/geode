@@ -19,15 +19,12 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.net.SocketAddress;
-import java.util.Map;
 import java.util.Properties;
 
 import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.cache.UnsupportedVersionException;
 import org.apache.geode.internal.cache.InternalCache;
-import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.CommunicationMode;
 import org.apache.geode.internal.serialization.KnownVersion;
 import org.apache.geode.internal.serialization.VersionedDataInputStream;
@@ -55,8 +52,8 @@ class ClientRegistrationMetadata {
   }
 
   boolean initialize() throws IOException {
-    DataInputStream unversionedDataInputStream = new DataInputStream(socket.getInputStream());
-    DataOutputStream unversionedDataOutputStream = new DataOutputStream(socket.getOutputStream());
+    var unversionedDataInputStream = new DataInputStream(socket.getInputStream());
+    var unversionedDataOutputStream = new DataOutputStream(socket.getOutputStream());
 
     if (getAndValidateClientVersion(socket, unversionedDataInputStream,
         unversionedDataOutputStream)) {
@@ -75,8 +72,8 @@ class ClientRegistrationMetadata {
       dataInputStream.readByte(); // replyCode
 
       // Read the ports and throw them away. We no longer need them
-      int numberOfPorts = dataInputStream.readInt();
-      for (int i = 0; i < numberOfPorts; i++) {
+      var numberOfPorts = dataInputStream.readInt();
+      for (var i = 0; i < numberOfPorts; i++) {
         dataInputStream.readInt();
       }
 
@@ -117,7 +114,7 @@ class ClientRegistrationMetadata {
   private boolean getAndValidateClientVersion(final Socket socket,
       final DataInputStream dataInputStream, final DataOutputStream dataOutputStream)
       throws IOException {
-    short clientVersionOrdinal = VersioningIO.readOrdinal(dataInputStream);
+    var clientVersionOrdinal = VersioningIO.readOrdinal(dataInputStream);
 
     clientVersion = Versioning.getKnownVersionOrDefault(
         Versioning.getVersion(clientVersionOrdinal), null);
@@ -126,7 +123,7 @@ class ClientRegistrationMetadata {
     if (clientVersion == null) {
       message = KnownVersion.unsupportedVersionMessage(clientVersionOrdinal);
     } else {
-      final Map<Integer, Command> commands =
+      final var commands =
           CommandInitializer.getDefaultInstance().get(clientVersion);
       if (commands == null) {
         message = "No commands registered for version " + clientVersion + ".";
@@ -138,12 +135,12 @@ class ClientRegistrationMetadata {
       }
     }
 
-    UnsupportedVersionException unsupportedVersionException =
+    var unsupportedVersionException =
         new UnsupportedVersionException(message);
-    SocketAddress socketAddress = socket.getRemoteSocketAddress();
+    var socketAddress = socket.getRemoteSocketAddress();
 
     if (socketAddress != null) {
-      String sInfo = " Client: " + socketAddress + ".";
+      var sInfo = " Client: " + socketAddress + ".";
       unsupportedVersionException = new UnsupportedVersionException(message + sInfo);
     }
 
@@ -173,7 +170,7 @@ class ClientRegistrationMetadata {
 
   private boolean getAndValidateClientConflation()
       throws IOException {
-    final byte[] overrides = Handshake.extractOverrides(new byte[] {(byte) dataInputStream.read()});
+    final var overrides = Handshake.extractOverrides(new byte[] {(byte) dataInputStream.read()});
     clientConflation = overrides[0];
 
     switch (clientConflation) {

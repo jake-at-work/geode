@@ -97,7 +97,7 @@ public class RegionConfigRealizerTest {
 
     realizer.create(config, cache);
     verify(regionFactory).setDataPolicy(DataPolicy.PARTITION);
-    ArgumentCaptor<PartitionAttributes> argumentCaptor =
+    var argumentCaptor =
         ArgumentCaptor.forClass(PartitionAttributes.class);
     verify(regionFactory).setPartitionAttributes(argumentCaptor.capture());
     assertThat(argumentCaptor.getValue().getRedundantCopies()).isEqualTo(2);
@@ -137,7 +137,7 @@ public class RegionConfigRealizerTest {
     config.setName("test");
     when(cache.getRegion(SEPARATOR + "test")).thenReturn(region);
     when(region.isDestroyed()).thenReturn(false);
-    boolean exists = realizer.exists(config, cache);
+    var exists = realizer.exists(config, cache);
     assertThat(exists).isTrue();
     verify(region, never()).size();
   }

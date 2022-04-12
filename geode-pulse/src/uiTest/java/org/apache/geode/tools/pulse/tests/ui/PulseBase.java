@@ -70,14 +70,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.text.DecimalFormat;
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 
 import org.apache.geode.tools.pulse.tests.JMXProperties;
@@ -99,102 +97,102 @@ public abstract class PulseBase {
   }
 
   protected void searchByLinkAndClick(String linkText) {
-    WebElement element = By.linkText(linkText).findElement(getWebDriver());
+    var element = By.linkText(linkText).findElement(getWebDriver());
     assertNotNull(element);
     element.click();
   }
 
   protected void searchByIdAndClick(String id) {
-    WebElement element = getWebDriver().findElement(By.id(id));
+    var element = getWebDriver().findElement(By.id(id));
     assertNotNull(element);
     element.click();
   }
 
   protected void searchByXPathAndClick(String xpath) {
-    WebElement element = getWebDriver().findElement(By.xpath(xpath));
+    var element = getWebDriver().findElement(By.xpath(xpath));
     assertNotNull(element);
     element.click();
   }
 
   @Test
   public void testClusterLocatorCount() {
-    String clusterLocators = getWebDriver().findElement(By.id(CLUSTER_VIEW_LOCATORS_ID)).getText();
+    var clusterLocators = getWebDriver().findElement(By.id(CLUSTER_VIEW_LOCATORS_ID)).getText();
 
-    String totallocators = JMXProperties.getInstance().getProperty("server.S1.locatorCount");
+    var totallocators = JMXProperties.getInstance().getProperty("server.S1.locatorCount");
     assertEquals(totallocators, clusterLocators);
   }
 
   @Test
   public void testClusterRegionCount() {
-    String clusterRegions = getWebDriver().findElement(By.id(CLUSTER_VIEW_REGIONS_ID)).getText();
-    String totalregions = JMXProperties.getInstance().getProperty("server.S1.totalRegionCount");
+    var clusterRegions = getWebDriver().findElement(By.id(CLUSTER_VIEW_REGIONS_ID)).getText();
+    var totalregions = JMXProperties.getInstance().getProperty("server.S1.totalRegionCount");
     assertEquals(totalregions, clusterRegions);
   }
 
   @Test
   public void testClusterMemberCount() {
-    String clusterMembers = getWebDriver().findElement(By.id(CLUSTER_VIEW_MEMBERS_ID)).getText();
-    String totalMembers = JMXProperties.getInstance().getProperty("server.S1.memberCount");
+    var clusterMembers = getWebDriver().findElement(By.id(CLUSTER_VIEW_MEMBERS_ID)).getText();
+    var totalMembers = JMXProperties.getInstance().getProperty("server.S1.memberCount");
     assertEquals(clusterMembers, totalMembers);
   }
 
   @Test
   public void testClusterNumClient() {
-    String clusterClients = getWebDriver().findElement(By.id(CLUSTER_CLIENTS_ID)).getText();
-    String totalclients = JMXProperties.getInstance().getProperty("server.S1.numClients");
+    var clusterClients = getWebDriver().findElement(By.id(CLUSTER_CLIENTS_ID)).getText();
+    var totalclients = JMXProperties.getInstance().getProperty("server.S1.numClients");
     assertEquals(totalclients, clusterClients);
   }
 
   @Test
   public void testClusterNumRunningFunction() {
-    String clusterFunctions = getWebDriver().findElement(By.id(CLUSTER_FUNCTIONS_ID)).getText();
-    String totalfunctions =
+    var clusterFunctions = getWebDriver().findElement(By.id(CLUSTER_FUNCTIONS_ID)).getText();
+    var totalfunctions =
         JMXProperties.getInstance().getProperty("server.S1.numRunningFunctions");
     assertEquals(totalfunctions, clusterFunctions);
   }
 
   @Test
   public void testClusterRegisteredCQCount() {
-    String clusterUniqueCQs = getWebDriver().findElement(By.id(CLUSTER_UNIQUECQS_ID)).getText();
-    String totaluniqueCQs = JMXProperties.getInstance().getProperty("server.S1.registeredCQCount");
+    var clusterUniqueCQs = getWebDriver().findElement(By.id(CLUSTER_UNIQUECQS_ID)).getText();
+    var totaluniqueCQs = JMXProperties.getInstance().getProperty("server.S1.registeredCQCount");
     assertEquals(totaluniqueCQs, clusterUniqueCQs);
   }
 
   @Test
   public void testClusterNumSubscriptions() {
-    String clusterSubscriptions =
+    var clusterSubscriptions =
         getWebDriver().findElement(By.id(CLUSTER_SUBSCRIPTION_ID)).getText();
-    String totalSubscriptions =
+    var totalSubscriptions =
         JMXProperties.getInstance().getProperty("server.S1.numSubscriptions");
     assertEquals(totalSubscriptions, clusterSubscriptions);
   }
 
   @Test
   public void testClusterJVMPausesWidget() {
-    String clusterJVMPauses = getWebDriver().findElement(By.id(CLUSTER_GCPAUSES_ID)).getText();
-    String totalgcpauses = JMXProperties.getInstance().getProperty("server.S1.jvmPauses");
+    var clusterJVMPauses = getWebDriver().findElement(By.id(CLUSTER_GCPAUSES_ID)).getText();
+    var totalgcpauses = JMXProperties.getInstance().getProperty("server.S1.jvmPauses");
     assertEquals(totalgcpauses, clusterJVMPauses);
   }
 
   @Test
   public void testClusterAverageWritesWidget() {
-    String clusterWritePerSec = getWebDriver().findElement(By.id(CLUSTER_WRITEPERSEC_ID)).getText();
-    String totalwritepersec = JMXProperties.getInstance().getProperty("server.S1.averageWrites");
+    var clusterWritePerSec = getWebDriver().findElement(By.id(CLUSTER_WRITEPERSEC_ID)).getText();
+    var totalwritepersec = JMXProperties.getInstance().getProperty("server.S1.averageWrites");
     assertEquals(totalwritepersec, clusterWritePerSec);
   }
 
   @Test
   public void testClusterAverageReadsWidget() {
-    String clusterReadPerSec = getWebDriver().findElement(By.id(CLUSTER_READPERSEC_ID)).getText();
-    String totalreadpersec = JMXProperties.getInstance().getProperty("server.S1.averageReads");
+    var clusterReadPerSec = getWebDriver().findElement(By.id(CLUSTER_READPERSEC_ID)).getText();
+    var totalreadpersec = JMXProperties.getInstance().getProperty("server.S1.averageReads");
     assertEquals(totalreadpersec, clusterReadPerSec);
   }
 
   @Test
   public void testClusterQuerRequestRateWidget() {
-    String clusterQueriesPerSec =
+    var clusterQueriesPerSec =
         getWebDriver().findElement(By.id(CLUSTER_QUERIESPERSEC_ID)).getText();
-    String totalqueriespersec =
+    var totalqueriespersec =
         JMXProperties.getInstance().getProperty("server.S1.queryRequestRate");
     assertEquals(totalqueriespersec, clusterQueriesPerSec);
   }
@@ -202,14 +200,14 @@ public abstract class PulseBase {
   @Test
   public void testClusterGridViewMemberID() {
     searchByIdAndClick("default_grid_button");
-    List<WebElement> elements =
+    var elements =
         getWebDriver().findElements(By.xpath("//table[@id='memberList']/tbody/tr"));
 
-    for (int memberCount = 1; memberCount < elements.size(); memberCount++) {
-      String memberId = getWebDriver()
+    for (var memberCount = 1; memberCount < elements.size(); memberCount++) {
+      var memberId = getWebDriver()
           .findElement(By.xpath("//table[@id='memberList']/tbody/tr[" + (memberCount + 1) + "]/td"))
           .getText();
-      String propertMemeberId =
+      var propertMemeberId =
           JMXProperties.getInstance().getProperty("member.M" + memberCount + ".id");
       assertEquals(memberId, propertMemeberId);
     }
@@ -218,14 +216,14 @@ public abstract class PulseBase {
   @Test
   public void testClusterGridViewMemberName() {
     searchByIdAndClick("default_grid_button");
-    List<WebElement> elements =
+    var elements =
         getWebDriver().findElements(By.xpath("//table[@id='memberList']/tbody/tr"));
-    for (int memberNameCount = 1; memberNameCount < elements.size(); memberNameCount++) {
-      String gridMemberName = getWebDriver()
+    for (var memberNameCount = 1; memberNameCount < elements.size(); memberNameCount++) {
+      var gridMemberName = getWebDriver()
           .findElement(
               By.xpath("//table[@id='memberList']/tbody/tr[" + (memberNameCount + 1) + "]/td[2]"))
           .getText();
-      String memberName =
+      var memberName =
           JMXProperties.getInstance().getProperty("member.M" + memberNameCount + ".member");
       assertEquals(gridMemberName, memberName);
     }
@@ -235,14 +233,14 @@ public abstract class PulseBase {
   @Test
   public void testClusterGridViewMemberHost() {
     searchByIdAndClick("default_grid_button");
-    List<WebElement> elements =
+    var elements =
         getWebDriver().findElements(By.xpath("//table[@id='memberList']/tbody/tr"));
-    for (int memberHostCount = 1; memberHostCount < elements.size(); memberHostCount++) {
-      String MemberHost = getWebDriver()
+    for (var memberHostCount = 1; memberHostCount < elements.size(); memberHostCount++) {
+      var MemberHost = getWebDriver()
           .findElement(
               By.xpath("//table[@id='memberList']/tbody/tr[" + (memberHostCount + 1) + "]/td[3]"))
           .getText();
-      String gridMemberHost =
+      var gridMemberHost =
           JMXProperties.getInstance().getProperty("member.M" + memberHostCount + ".host");
       assertEquals(gridMemberHost, MemberHost);
     }
@@ -251,7 +249,7 @@ public abstract class PulseBase {
   @Test
   public void testClusterGridViewHeapUsage() {
     searchByIdAndClick("default_grid_button");
-    for (int i = 1; i <= 3; i++) {
+    for (var i = 1; i <= 3; i++) {
       Float HeapUsage = Float.parseFloat(getWebDriver()
           .findElement(By.xpath("//table[@id='memberList']/tbody/tr[" + (i + 1) + "]/td[5]"))
           .getText());
@@ -264,11 +262,11 @@ public abstract class PulseBase {
   @Test
   public void testClusterGridViewCPUUsage() {
     searchByIdAndClick("default_grid_button");
-    for (int i = 1; i <= 3; i++) {
-      String CPUUsage = getWebDriver()
+    for (var i = 1; i <= 3; i++) {
+      var CPUUsage = getWebDriver()
           .findElement(By.xpath("//table[@id='memberList']/tbody/tr[" + (i + 1) + "]/td[6]"))
           .getText();
-      String gridCPUUsage = JMXProperties.getInstance().getProperty("member.M" + i + ".cpuUsage");
+      var gridCPUUsage = JMXProperties.getInstance().getProperty("member.M" + i + ".cpuUsage");
       gridCPUUsage = gridCPUUsage.trim();
       assertEquals(gridCPUUsage, CPUUsage);
     }
@@ -285,8 +283,8 @@ public abstract class PulseBase {
   @Ignore("ElementNotVisible with phantomJS")
   public void testMemberTotalRegionCount() {
     testRgraphWidget();
-    String RegionCount = getWebDriver().findElement(By.id(MEMBER_VIEW_REGION_ID)).getText();
-    String memberRegionCount =
+    var RegionCount = getWebDriver().findElement(By.id(MEMBER_VIEW_REGION_ID)).getText();
+    var memberRegionCount =
         JMXProperties.getInstance().getProperty("member.M1.totalRegionCount");
     assertEquals(memberRegionCount, RegionCount);
   }
@@ -295,8 +293,8 @@ public abstract class PulseBase {
   public void testMemberNumThread() {
     searchByIdAndClick("default_grid_button");
     searchByIdAndClick("M1&M1");
-    String ThreadCount = getWebDriver().findElement(By.id(MEMBER_VIEW_THREAD_ID)).getText();
-    String memberThreadCount = JMXProperties.getInstance().getProperty("member.M1.numThreads");
+    var ThreadCount = getWebDriver().findElement(By.id(MEMBER_VIEW_THREAD_ID)).getText();
+    var memberThreadCount = JMXProperties.getInstance().getProperty("member.M1.numThreads");
     assertEquals(memberThreadCount, ThreadCount);
   }
 
@@ -304,8 +302,8 @@ public abstract class PulseBase {
   public void testMemberTotalFileDescriptorOpen() {
     searchByIdAndClick("default_grid_button");
     searchByIdAndClick("M1&M1");
-    String SocketCount = getWebDriver().findElement(By.id(MEMBER_VIEW_SOCKETS_ID)).getText();
-    String memberSocketCount =
+    var SocketCount = getWebDriver().findElement(By.id(MEMBER_VIEW_SOCKETS_ID)).getText();
+    var memberSocketCount =
         JMXProperties.getInstance().getProperty("member.M1.totalFileDescriptorOpen");
     assertEquals(memberSocketCount, SocketCount);
   }
@@ -314,8 +312,8 @@ public abstract class PulseBase {
   public void testMemberLoadAverage() {
     searchByIdAndClick("default_grid_button");
     searchByIdAndClick("M1&M1");
-    String LoadAvg = getWebDriver().findElement(By.id(MEMBER_VIEW_LOADAVG_ID)).getText();
-    String memberLoadAvg = JMXProperties.getInstance().getProperty("member.M1.loadAverage");
+    var LoadAvg = getWebDriver().findElement(By.id(MEMBER_VIEW_LOADAVG_ID)).getText();
+    var memberLoadAvg = JMXProperties.getInstance().getProperty("member.M1.loadAverage");
     assertEquals(TWO_PLACE_DECIMAL_FORMAT.format(Double.valueOf(memberLoadAvg)), LoadAvg);
   }
 
@@ -323,11 +321,11 @@ public abstract class PulseBase {
   @Test
   public void testOffHeapFreeSize() {
 
-    String OffHeapFreeSizeString =
+    var OffHeapFreeSizeString =
         getWebDriver().findElement(By.id(MEMBER_VIEW_OFFHEAPFREESIZE_ID)).getText();
-    String OffHeapFreeSizetemp = OffHeapFreeSizeString.replaceAll("[a-zA-Z]", "");
-    float OffHeapFreeSize = Float.parseFloat(OffHeapFreeSizetemp);
-    float memberOffHeapFreeSize =
+    var OffHeapFreeSizetemp = OffHeapFreeSizeString.replaceAll("[a-zA-Z]", "");
+    var OffHeapFreeSize = Float.parseFloat(OffHeapFreeSizetemp);
+    var memberOffHeapFreeSize =
         Float.parseFloat(JMXProperties.getInstance().getProperty("member.M1.OffHeapFreeSize"));
     if (memberOffHeapFreeSize < 1048576) {
       memberOffHeapFreeSize = memberOffHeapFreeSize / 1024;
@@ -347,11 +345,11 @@ public abstract class PulseBase {
   @Test
   public void testOffHeapUsedSize() {
 
-    String OffHeapUsedSizeString =
+    var OffHeapUsedSizeString =
         getWebDriver().findElement(By.id(MEMBER_VIEW_OFFHEAPUSEDSIZE_ID)).getText();
-    String OffHeapUsedSizetemp = OffHeapUsedSizeString.replaceAll("[a-zA-Z]", "");
-    float OffHeapUsedSize = Float.parseFloat(OffHeapUsedSizetemp);
-    float memberOffHeapUsedSize =
+    var OffHeapUsedSizetemp = OffHeapUsedSizeString.replaceAll("[a-zA-Z]", "");
+    var OffHeapUsedSize = Float.parseFloat(OffHeapUsedSizetemp);
+    var memberOffHeapUsedSize =
         Float.parseFloat(JMXProperties.getInstance().getProperty("member.M1.OffHeapUsedSize"));
     if (memberOffHeapUsedSize < 1048576) {
       memberOffHeapUsedSize = memberOffHeapUsedSize / 1024;
@@ -370,8 +368,8 @@ public abstract class PulseBase {
   public void testMemberJVMPauses() {
     searchByIdAndClick("default_grid_button");
     searchByIdAndClick("M1&M1");
-    String JVMPauses = getWebDriver().findElement(By.id(MEMBER_VIEW_JVMPAUSES_ID)).getText();
-    String memberGcPausesAvg = JMXProperties.getInstance().getProperty("member.M1.JVMPauses");
+    var JVMPauses = getWebDriver().findElement(By.id(MEMBER_VIEW_JVMPAUSES_ID)).getText();
+    var memberGcPausesAvg = JMXProperties.getInstance().getProperty("member.M1.JVMPauses");
     assertEquals(memberGcPausesAvg, JVMPauses);
   }
 
@@ -379,8 +377,8 @@ public abstract class PulseBase {
   public void testMemberCPUUsage() {
     searchByIdAndClick("default_grid_button");
     searchByIdAndClick("M1&M1");
-    String CPUUsagevalue = getWebDriver().findElement(By.id(MEMBER_VIEW_CPUUSAGE_ID)).getText();
-    String memberCPUUsage = JMXProperties.getInstance().getProperty("member.M1.cpuUsage");
+    var CPUUsagevalue = getWebDriver().findElement(By.id(MEMBER_VIEW_CPUUSAGE_ID)).getText();
+    var memberCPUUsage = JMXProperties.getInstance().getProperty("member.M1.cpuUsage");
     assertEquals(memberCPUUsage, CPUUsagevalue);
   }
 
@@ -388,9 +386,9 @@ public abstract class PulseBase {
   public void testMemberAverageReads() {
     searchByIdAndClick("default_grid_button");
     searchByIdAndClick("M1&M1");
-    float ReadPerSec =
+    var ReadPerSec =
         Float.parseFloat(getWebDriver().findElement(By.id(MEMBER_VIEW_READPERSEC_ID)).getText());
-    float memberReadPerSec =
+    var memberReadPerSec =
         Float.parseFloat(JMXProperties.getInstance().getProperty("member.M1.averageReads"));
     memberReadPerSec = Float.parseFloat(new DecimalFormat("##.##").format(memberReadPerSec));
     assertEquals(memberReadPerSec, ReadPerSec, 0.001);
@@ -400,8 +398,8 @@ public abstract class PulseBase {
   @Ignore("ElementNotVisible with phantomJS")
   public void testMemberAverageWrites() {
     testRgraphWidget();
-    String WritePerSec = getWebDriver().findElement(By.id(MEMBER_VIEW_WRITEPERSEC_ID)).getText();
-    String memberWritePerSec = JMXProperties.getInstance().getProperty("member.M1.averageWrites");
+    var WritePerSec = getWebDriver().findElement(By.id(MEMBER_VIEW_WRITEPERSEC_ID)).getText();
+    var memberWritePerSec = JMXProperties.getInstance().getProperty("member.M1.averageWrites");
     assertEquals(memberWritePerSec, WritePerSec);
   }
 
@@ -412,19 +410,19 @@ public abstract class PulseBase {
     testRgraphWidget();
     searchByXPathAndClick(PulseTestLocators.MemberDetailsView.gridButtonXpath);
     // get the number of rows on the grid
-    String MemberRegionName = getWebDriver()
+    var MemberRegionName = getWebDriver()
         .findElement(By.xpath("//table[@id='memberRegionsList']/tbody/tr[2]/td[1]")).getText();
-    String memberRegionName = JMXProperties.getInstance().getProperty("region.R1.name");
+    var memberRegionName = JMXProperties.getInstance().getProperty("region.R1.name");
     assertEquals(memberRegionName, MemberRegionName);
 
-    String MemberRegionType = getWebDriver()
+    var MemberRegionType = getWebDriver()
         .findElement(By.xpath("//table[@id='memberRegionsList']/tbody/tr[2]/td[2]")).getText();
-    String memberRegionType = JMXProperties.getInstance().getProperty("region.R1.regionType");
+    var memberRegionType = JMXProperties.getInstance().getProperty("region.R1.regionType");
     assertEquals(memberRegionType, MemberRegionType);
 
-    String MemberRegionEntryCount = getWebDriver()
+    var MemberRegionEntryCount = getWebDriver()
         .findElement(By.xpath("//table[@id='memberRegionsList']/tbody/tr[2]/td[3]")).getText();
-    String memberRegionEntryCount =
+    var memberRegionEntryCount =
         JMXProperties.getInstance().getProperty("regionOnMember./R1.M1.entryCount");
     assertEquals(memberRegionEntryCount, MemberRegionEntryCount);
   }
@@ -445,40 +443,40 @@ public abstract class PulseBase {
     searchByLinkAndClick(DATA_VIEW_LABEL);
     Thread.sleep(7000);
     searchByIdAndClick("default_grid_button");
-    String regionName = getWebDriver().findElement(By.id(REGION_NAME_LABEL)).getText();
-    String dataviewregionname = JMXProperties.getInstance().getProperty("region.R1.name");
+    var regionName = getWebDriver().findElement(By.id(REGION_NAME_LABEL)).getText();
+    var dataviewregionname = JMXProperties.getInstance().getProperty("region.R1.name");
     assertEquals(dataviewregionname, regionName);
   }
 
   @Ignore("WIP")
   @Test
   public void testDataViewRegionPath() {
-    String regionPath = getWebDriver().findElement(By.id(REGION_PATH_LABEL)).getText();
-    String dataviewregionpath = JMXProperties.getInstance().getProperty("region.R1.fullPath");
+    var regionPath = getWebDriver().findElement(By.id(REGION_PATH_LABEL)).getText();
+    var dataviewregionpath = JMXProperties.getInstance().getProperty("region.R1.fullPath");
     assertEquals(dataviewregionpath, regionPath);
   }
 
   @Ignore("WIP")
   @Test
   public void testDataViewRegionType() {
-    String regionType = getWebDriver().findElement(By.id(REGION_TYPE_LABEL)).getText();
-    String dataviewregiontype = JMXProperties.getInstance().getProperty("region.R1.regionType");
+    var regionType = getWebDriver().findElement(By.id(REGION_TYPE_LABEL)).getText();
+    var dataviewregiontype = JMXProperties.getInstance().getProperty("region.R1.regionType");
     assertEquals(dataviewregiontype, regionType);
   }
 
   @Ignore("WIP")
   @Test
   public void testDataViewEmptyNodes() {
-    String regionEmptyNodes = getWebDriver().findElement(By.id(DATA_VIEW_EMPTYNODES)).getText();
-    String dataviewEmptyNodes = JMXProperties.getInstance().getProperty("region.R1.emptyNodes");
+    var regionEmptyNodes = getWebDriver().findElement(By.id(DATA_VIEW_EMPTYNODES)).getText();
+    var dataviewEmptyNodes = JMXProperties.getInstance().getProperty("region.R1.emptyNodes");
     assertEquals(dataviewEmptyNodes, regionEmptyNodes);
   }
 
   @Ignore("WIP")
   @Test
   public void testDataViewSystemRegionEntryCount() {
-    String regionEntryCount = getWebDriver().findElement(By.id(DATA_VIEW_ENTRYCOUNT)).getText();
-    String dataviewEntryCount =
+    var regionEntryCount = getWebDriver().findElement(By.id(DATA_VIEW_ENTRYCOUNT)).getText();
+    var dataviewEntryCount =
         JMXProperties.getInstance().getProperty("region.R1.systemRegionEntryCount");
     assertEquals(dataviewEntryCount, regionEntryCount);
   }
@@ -486,9 +484,9 @@ public abstract class PulseBase {
   @Ignore("WIP")
   @Test
   public void testDataViewPersistentEnabled() {
-    String regionPersistence =
+    var regionPersistence =
         getWebDriver().findElement(By.id(REGION_PERSISTENCE_LABEL)).getText();
-    String dataviewregionpersistence =
+    var dataviewregionpersistence =
         JMXProperties.getInstance().getProperty("region.R1.persistentEnabled");
     assertEquals(dataviewregionpersistence, regionPersistence);
   }
@@ -496,8 +494,8 @@ public abstract class PulseBase {
   @Ignore("WIP")
   @Test
   public void testDataViewDiskWritesRate() {
-    String regionWrites = getWebDriver().findElement(By.id(DATA_VIEW_WRITEPERSEC)).getText();
-    String dataviewRegionWrites =
+    var regionWrites = getWebDriver().findElement(By.id(DATA_VIEW_WRITEPERSEC)).getText();
+    var dataviewRegionWrites =
         JMXProperties.getInstance().getProperty("region.R1.diskWritesRate");
     assertEquals(dataviewRegionWrites, regionWrites);
   }
@@ -505,16 +503,16 @@ public abstract class PulseBase {
   @Ignore("WIP")
   @Test
   public void testDataViewDiskReadsRate() {
-    String regionReads = getWebDriver().findElement(By.id(DATA_VIEW_READPERSEC)).getText();
-    String dataviewRegionReads = JMXProperties.getInstance().getProperty("region.R1.diskReadsRate");
+    var regionReads = getWebDriver().findElement(By.id(DATA_VIEW_READPERSEC)).getText();
+    var dataviewRegionReads = JMXProperties.getInstance().getProperty("region.R1.diskReadsRate");
     assertEquals(dataviewRegionReads, regionReads);
   }
 
   @Ignore("WIP")
   @Test
   public void testDataViewDiskUsage() {
-    String regionMemoryUsed = getWebDriver().findElement(By.id(DATA_VIEW_USEDMEMORY)).getText();
-    String dataviewMemoryUsed = JMXProperties.getInstance().getProperty("region.R1.diskUsage");
+    var regionMemoryUsed = getWebDriver().findElement(By.id(DATA_VIEW_USEDMEMORY)).getText();
+    var dataviewMemoryUsed = JMXProperties.getInstance().getProperty("region.R1.diskUsage");
     assertEquals(dataviewMemoryUsed, regionMemoryUsed);
     searchByLinkAndClick(QUERY_STATISTICS_LABEL);
   }
@@ -522,25 +520,25 @@ public abstract class PulseBase {
   @Ignore("WIP")
   @Test
   public void testDataViewGridValue() {
-    String DataViewRegionName =
+    var DataViewRegionName =
         getWebDriver().findElement(By.xpath("//*[id('6')/x:td[1]]")).getText();
-    String dataViewRegionName = JMXProperties.getInstance().getProperty("region.R1.name");
+    var dataViewRegionName = JMXProperties.getInstance().getProperty("region.R1.name");
     assertEquals(dataViewRegionName, DataViewRegionName);
 
-    String DataViewRegionType =
+    var DataViewRegionType =
         getWebDriver().findElement(By.xpath("//*[id('6')/x:td[2]")).getText();
-    String dataViewRegionType = JMXProperties.getInstance().getProperty("region.R2.regionType");
+    var dataViewRegionType = JMXProperties.getInstance().getProperty("region.R2.regionType");
     assertEquals(dataViewRegionType, DataViewRegionType);
 
-    String DataViewEntryCount =
+    var DataViewEntryCount =
         getWebDriver().findElement(By.xpath("//*[id('6')/x:td[3]")).getText();
-    String dataViewEntryCount =
+    var dataViewEntryCount =
         JMXProperties.getInstance().getProperty("region.R2.systemRegionEntryCount");
     assertEquals(dataViewEntryCount, DataViewEntryCount);
 
-    String DataViewEntrySize =
+    var DataViewEntrySize =
         getWebDriver().findElement(By.xpath("//*[id('6')/x:td[4]")).getText();
-    String dataViewEntrySize = JMXProperties.getInstance().getProperty("region.R2.entrySize");
+    var dataViewEntrySize = JMXProperties.getInstance().getProperty("region.R2.entrySize");
     assertEquals(dataViewEntrySize, DataViewEntrySize);
 
   }
@@ -554,24 +552,24 @@ public abstract class PulseBase {
   @Test
   public void testDataBrowserRegionName() {
     loadDataBrowserpage();
-    String DataBrowserRegionName1 =
+    var DataBrowserRegionName1 =
         getWebDriver().findElement(By.id(DATA_BROWSER_REGIONName1)).getText();
-    String databrowserRegionNametemp1 = JMXProperties.getInstance().getProperty("region.R1.name");
-    String databrowserRegionName1 =
+    var databrowserRegionNametemp1 = JMXProperties.getInstance().getProperty("region.R1.name");
+    var databrowserRegionName1 =
         databrowserRegionNametemp1.replaceAll("[" + SEPARATOR + "]", "");
     assertEquals(databrowserRegionName1, DataBrowserRegionName1);
 
-    String DataBrowserRegionName2 =
+    var DataBrowserRegionName2 =
         getWebDriver().findElement(By.id(DATA_BROWSER_REGIONName2)).getText();
-    String databrowserRegionNametemp2 = JMXProperties.getInstance().getProperty("region.R2.name");
-    String databrowserRegionName2 =
+    var databrowserRegionNametemp2 = JMXProperties.getInstance().getProperty("region.R2.name");
+    var databrowserRegionName2 =
         databrowserRegionNametemp2.replaceAll("[" + SEPARATOR + "]", "");
     assertEquals(databrowserRegionName2, DataBrowserRegionName2);
 
-    String DataBrowserRegionName3 =
+    var DataBrowserRegionName3 =
         getWebDriver().findElement(By.id(DATA_BROWSER_REGIONName3)).getText();
-    String databrowserRegionNametemp3 = JMXProperties.getInstance().getProperty("region.R3.name");
-    String databrowserRegionName3 =
+    var databrowserRegionNametemp3 = JMXProperties.getInstance().getProperty("region.R3.name");
+    var databrowserRegionName3 =
         databrowserRegionNametemp3.replaceAll("[" + SEPARATOR + "]", "");
     assertEquals(databrowserRegionName3, DataBrowserRegionName3);
 
@@ -581,49 +579,49 @@ public abstract class PulseBase {
   public void testDataBrowserRegionMembersVerificaition() {
     loadDataBrowserpage();
     searchByIdAndClick(DATA_BROWSER_REGION1_CHECKBOX);
-    String DataBrowserMember1Name1 =
+    var DataBrowserMember1Name1 =
         getWebDriver().findElement(By.xpath("//label[@for='Member0']")).getText();
-    String DataBrowserMember1Name2 =
+    var DataBrowserMember1Name2 =
         getWebDriver().findElement(By.xpath("//label[@for='Member1']")).getText();
-    String DataBrowserMember1Name3 =
+    var DataBrowserMember1Name3 =
         getWebDriver().findElement(By.xpath("//label[@for='Member2']")).getText();
-    String databrowserMember1Names = JMXProperties.getInstance().getProperty("region.R1.members");
+    var databrowserMember1Names = JMXProperties.getInstance().getProperty("region.R1.members");
 
-    String databrowserMember1Names1 = databrowserMember1Names.substring(0, 2);
+    var databrowserMember1Names1 = databrowserMember1Names.substring(0, 2);
     assertEquals(databrowserMember1Names1, DataBrowserMember1Name1);
 
-    String databrowserMember1Names2 = databrowserMember1Names.substring(3, 5);
+    var databrowserMember1Names2 = databrowserMember1Names.substring(3, 5);
     assertEquals(databrowserMember1Names2, DataBrowserMember1Name2);
 
-    String databrowserMember1Names3 = databrowserMember1Names.substring(6, 8);
+    var databrowserMember1Names3 = databrowserMember1Names.substring(6, 8);
     assertEquals(databrowserMember1Names3, DataBrowserMember1Name3);
     searchByIdAndClick(DATA_BROWSER_REGION1_CHECKBOX);
 
     searchByIdAndClick(DATA_BROWSER_REGION2_CHECKBOX);
-    String DataBrowserMember2Name1 =
+    var DataBrowserMember2Name1 =
         getWebDriver().findElement(By.xpath("//label[@for='Member0']")).getText();
-    String DataBrowserMember2Name2 =
+    var DataBrowserMember2Name2 =
         getWebDriver().findElement(By.xpath("//label[@for='Member1']")).getText();
-    String databrowserMember2Names = JMXProperties.getInstance().getProperty("region.R2.members");
+    var databrowserMember2Names = JMXProperties.getInstance().getProperty("region.R2.members");
 
-    String databrowserMember2Names1 = databrowserMember2Names.substring(0, 2);
+    var databrowserMember2Names1 = databrowserMember2Names.substring(0, 2);
     assertEquals(databrowserMember2Names1, DataBrowserMember2Name1);
 
-    String databrowserMember2Names2 = databrowserMember2Names.substring(3, 5);
+    var databrowserMember2Names2 = databrowserMember2Names.substring(3, 5);
     assertEquals(databrowserMember2Names2, DataBrowserMember2Name2);
     searchByIdAndClick(DATA_BROWSER_REGION2_CHECKBOX);
 
     searchByIdAndClick(DATA_BROWSER_REGION3_CHECKBOX);
-    String DataBrowserMember3Name1 =
+    var DataBrowserMember3Name1 =
         getWebDriver().findElement(By.xpath("//label[@for='Member0']")).getText();
-    String DataBrowserMember3Name2 =
+    var DataBrowserMember3Name2 =
         getWebDriver().findElement(By.xpath("//label[@for='Member1']")).getText();
-    String databrowserMember3Names = JMXProperties.getInstance().getProperty("region.R3.members");
+    var databrowserMember3Names = JMXProperties.getInstance().getProperty("region.R3.members");
 
-    String databrowserMember3Names1 = databrowserMember3Names.substring(0, 2);
+    var databrowserMember3Names1 = databrowserMember3Names.substring(0, 2);
     assertEquals(databrowserMember3Names1, DataBrowserMember3Name1);
 
-    String databrowserMember3Names2 = databrowserMember3Names.substring(3, 5);
+    var databrowserMember3Names2 = databrowserMember3Names.substring(3, 5);
     assertEquals(databrowserMember3Names2, DataBrowserMember3Name2);
     searchByIdAndClick(DATA_BROWSER_REGION3_CHECKBOX);
   }
@@ -631,9 +629,9 @@ public abstract class PulseBase {
   @Test
   public void testDataBrowserColocatedRegions() {
     loadDataBrowserpage();
-    String databrowserMemberNames1 = JMXProperties.getInstance().getProperty("region.R1.members");
-    String databrowserMemberNames2 = JMXProperties.getInstance().getProperty("region.R2.members");
-    String databrowserMemberNames3 = JMXProperties.getInstance().getProperty("region.R3.members");
+    var databrowserMemberNames1 = JMXProperties.getInstance().getProperty("region.R1.members");
+    var databrowserMemberNames2 = JMXProperties.getInstance().getProperty("region.R2.members");
+    var databrowserMemberNames3 = JMXProperties.getInstance().getProperty("region.R3.members");
 
     if ((databrowserMemberNames1.matches(databrowserMemberNames2 + "(.*)"))) {
       if ((databrowserMemberNames1.matches(databrowserMemberNames3 + "(.*)"))) {
@@ -644,26 +642,26 @@ public abstract class PulseBase {
     }
     searchByIdAndClick(DATA_BROWSER_REGION1_CHECKBOX);
     searchByLinkAndClick(DATA_BROWSER_COLOCATED_REGION);
-    String DataBrowserColocatedRegion1 =
+    var DataBrowserColocatedRegion1 =
         getWebDriver().findElement(By.id(DATA_BROWSER_COLOCATED_REGION_NAME1)).getText();
-    String DataBrowserColocatedRegion2 =
+    var DataBrowserColocatedRegion2 =
         getWebDriver().findElement(By.id(DATA_BROWSER_COLOCATED_REGION_NAME2)).getText();
-    String DataBrowserColocatedRegion3 =
+    var DataBrowserColocatedRegion3 =
         getWebDriver().findElement(By.id(DATA_BROWSER_COLOCATED_REGION_NAME3)).getText();
 
-    String databrowserColocatedRegiontemp1 =
+    var databrowserColocatedRegiontemp1 =
         JMXProperties.getInstance().getProperty("region.R1.name");
-    String databrowserColocatedRegion1 =
+    var databrowserColocatedRegion1 =
         databrowserColocatedRegiontemp1.replaceAll("[" + SEPARATOR + "]", "");
 
-    String databrowserColocatedRegiontemp2 =
+    var databrowserColocatedRegiontemp2 =
         JMXProperties.getInstance().getProperty("region.R2.name");
-    String databrowserColocatedRegion2 =
+    var databrowserColocatedRegion2 =
         databrowserColocatedRegiontemp2.replaceAll("[" + SEPARATOR + "]", "");
 
-    String databrowserColocatedRegiontemp3 =
+    var databrowserColocatedRegiontemp3 =
         JMXProperties.getInstance().getProperty("region.R3.name");
-    String databrowserColocatedRegion3 =
+    var databrowserColocatedRegion3 =
         databrowserColocatedRegiontemp3.replaceAll("[" + SEPARATOR + "]", "");
 
     assertEquals(databrowserColocatedRegion1, DataBrowserColocatedRegion1);
@@ -673,58 +671,58 @@ public abstract class PulseBase {
   }
 
   public void testTreeMapPopUpData(String S1, String gridIcon) {
-    for (int i = 1; i <= 3; i++) {
+    for (var i = 1; i <= 3; i++) {
       searchByLinkAndClick(CLUSTER_VIEW_LABEL);
       if (gridIcon.equals(SERVER_GROUP_GRID_ID)) {
-        WebElement ServerGroupRadio =
+        var ServerGroupRadio =
             getWebDriver().findElement(By.xpath("//label[@for='radio-servergroups']"));
         ServerGroupRadio.click();
       }
       if (gridIcon.equals(REDUNDANCY_GRID_ID)) {
-        WebElement ServerGroupRadio =
+        var ServerGroupRadio =
             getWebDriver().findElement(By.xpath("//label[@for='radio-redundancyzones']"));
         ServerGroupRadio.click();
       }
       searchByIdAndClick(gridIcon);
-      WebElement TreeMapMember =
+      var TreeMapMember =
           getWebDriver().findElement(By.xpath("//div[@id='" + S1 + "M" + (i) + "']/div"));
-      Actions builder = new Actions(getWebDriver());
+      var builder = new Actions(getWebDriver());
       builder.clickAndHold(TreeMapMember).perform();
-      int j = 1;
-      String CPUUsageM1temp = getWebDriver()
+      var j = 1;
+      var CPUUsageM1temp = getWebDriver()
           .findElement(By.xpath("//div[@id='_tooltip']/div/div/div[2]/div/div[2]/div")).getText();
-      String CPUUsageM1 = CPUUsageM1temp.replaceAll("[%]", "");
-      String cpuUsageM1 = JMXProperties.getInstance().getProperty("member.M" + (i) + ".cpuUsage");
+      var CPUUsageM1 = CPUUsageM1temp.replaceAll("[%]", "");
+      var cpuUsageM1 = JMXProperties.getInstance().getProperty("member.M" + (i) + ".cpuUsage");
       assertEquals(cpuUsageM1, CPUUsageM1);
 
-      String MemoryUsageM1temp = getWebDriver()
+      var MemoryUsageM1temp = getWebDriver()
           .findElement(
               By.xpath("//div[@id='_tooltip']/div/div/div[2]/div[" + (j + 1) + "]/div[2]/div"))
           .getText();
-      String MemoryUsageM1 = MemoryUsageM1temp.replaceAll("MB", "");
-      String memoryUsageM1 =
+      var MemoryUsageM1 = MemoryUsageM1temp.replaceAll("MB", "");
+      var memoryUsageM1 =
           JMXProperties.getInstance().getProperty("member.M" + (i) + ".UsedMemory");
       assertEquals(memoryUsageM1, MemoryUsageM1);
 
-      String LoadAvgM1 = getWebDriver()
+      var LoadAvgM1 = getWebDriver()
           .findElement(
               By.xpath("//div[@id='_tooltip']/div/div/div[2]/div[" + (j + 2) + "]/div[2]/div"))
           .getText();
-      String loadAvgM1 = JMXProperties.getInstance().getProperty("member.M" + (i) + ".loadAverage");
+      var loadAvgM1 = JMXProperties.getInstance().getProperty("member.M" + (i) + ".loadAverage");
       assertEquals(TWO_PLACE_DECIMAL_FORMAT.format(Double.valueOf(loadAvgM1)), LoadAvgM1);
 
-      String ThreadsM1 = getWebDriver()
+      var ThreadsM1 = getWebDriver()
           .findElement(
               By.xpath("//div[@id='_tooltip']/div/div/div[2]/div[" + (j + 3) + "]/div[2]/div"))
           .getText();
-      String threadsM1 = JMXProperties.getInstance().getProperty("member.M" + (i) + ".numThreads");
+      var threadsM1 = JMXProperties.getInstance().getProperty("member.M" + (i) + ".numThreads");
       assertEquals(threadsM1, ThreadsM1);
 
-      String SocketsM1 = getWebDriver()
+      var SocketsM1 = getWebDriver()
           .findElement(
               By.xpath("//div[@id='_tooltip']/div/div/div[2]/div[" + (j + 4) + "]/div[2]/div"))
           .getText();
-      String socketsM1 =
+      var socketsM1 =
           JMXProperties.getInstance().getProperty("member.M" + (i) + ".totalFileDescriptorOpen");
       assertEquals(socketsM1, SocketsM1);
       builder.moveToElement(TreeMapMember).release().perform();
@@ -745,23 +743,23 @@ public abstract class PulseBase {
   public void testDataViewTreeMapPopUpData() {
     searchByLinkAndClick(CLUSTER_VIEW_LABEL);
     searchByLinkAndClick(DATA_DROPDOWN_ID);
-    WebElement TreeMapMember = getWebDriver().findElement(By.id("GraphTreeMapClusterData-canvas"));
-    Actions builder = new Actions(getWebDriver());
+    var TreeMapMember = getWebDriver().findElement(By.id("GraphTreeMapClusterData-canvas"));
+    var builder = new Actions(getWebDriver());
     builder.clickAndHold(TreeMapMember).perform();
-    String RegionType = getWebDriver()
+    var RegionType = getWebDriver()
         .findElement(By.xpath("//div[@id='_tooltip']/div/div/div[2]/div/div[2]/div")).getText();
-    String regionType = JMXProperties.getInstance().getProperty("region.R2.regionType");
+    var regionType = JMXProperties.getInstance().getProperty("region.R2.regionType");
     assertEquals(regionType, RegionType);
 
-    String EntryCount = getWebDriver()
+    var EntryCount = getWebDriver()
         .findElement(By.xpath("//div[@id='_tooltip']/div/div/div[2]/div[2]/div[2]/div")).getText();
-    String entryCount = JMXProperties.getInstance().getProperty("region.R2.systemRegionEntryCount");
+    var entryCount = JMXProperties.getInstance().getProperty("region.R2.systemRegionEntryCount");
     assertEquals(entryCount, EntryCount);
 
-    String EntrySizetemp = getWebDriver()
+    var EntrySizetemp = getWebDriver()
         .findElement(By.xpath("//div[@id='_tooltip']/div/div/div[2]/div[3]/div[2]/div")).getText();
-    float EntrySize = Float.parseFloat(EntrySizetemp);
-    float entrySize =
+    var EntrySize = Float.parseFloat(EntrySizetemp);
+    var entrySize =
         Float.parseFloat(JMXProperties.getInstance().getProperty("region.R2.entrySize"));
     entrySize = entrySize / 1024 / 1024;
     entrySize = Float.parseFloat(new DecimalFormat("##.####").format(entrySize));
@@ -773,7 +771,7 @@ public abstract class PulseBase {
   public void testRegionViewTreeMapPopUpData() {
     searchByLinkAndClick(CLUSTER_VIEW_LABEL);
     searchByLinkAndClick(DATA_DROPDOWN_ID);
-    WebElement TreeMapMember = getWebDriver().findElement(By.id("GraphTreeMapClusterData-canvas"));
+    var TreeMapMember = getWebDriver().findElement(By.id("GraphTreeMapClusterData-canvas"));
     TreeMapMember.click();
   }
 

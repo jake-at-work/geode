@@ -21,7 +21,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.Serializable;
 import java.util.Properties;
-import java.util.Set;
 import java.util.stream.Stream;
 
 import org.junit.BeforeClass;
@@ -33,7 +32,6 @@ import org.junit.experimental.categories.Category;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.execute.FunctionService;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.examples.SimpleSecurityManager;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.management.internal.security.ResourceConstants;
@@ -61,21 +59,21 @@ public class ExecuteFunctionCommandSecurityTest implements Serializable {
 
   @BeforeClass
   public static void beforeClass() {
-    Properties locatorProps = new Properties();
+    var locatorProps = new Properties();
     locatorProps.setProperty(SECURITY_MANAGER, SimpleSecurityManager.class.getName());
     locator = lsRule.startLocatorVM(0, locatorProps);
 
-    Properties serverProps = new Properties();
+    var serverProps = new Properties();
     serverProps.setProperty(ResourceConstants.USER_NAME, "clusterManage");
     serverProps.setProperty(ResourceConstants.PASSWORD, "clusterManage");
-    MemberVM server1 = lsRule.startServerVM(1, serverProps, locator.getPort());
-    MemberVM server2 = lsRule.startServerVM(2, serverProps, locator.getPort());
+    var server1 = lsRule.startServerVM(1, serverProps, locator.getPort());
+    var server2 = lsRule.startServerVM(2, serverProps, locator.getPort());
 
     Stream.of(server1, server2).forEach(server -> server.invoke(() -> {
       FunctionService.registerFunction(new ReadFunction());
       FunctionService.registerFunction(new WriteFunction());
 
-      InternalCache cache = ClusterStartupRule.getCache();
+      var cache = ClusterStartupRule.getCache();
       assertThat(cache).isNotNull();
       cache.createRegionFactory(RegionShortcut.REPLICATE).create(REPLICATED_REGION);
       cache.createRegionFactory(RegionShortcut.PARTITION).create(PARTITIONED_REGION);
@@ -154,7 +152,7 @@ public class ExecuteFunctionCommandSecurityTest implements Serializable {
 
   private static void waitUntilRegionMBeansAreRegistered() {
     await().untilAsserted(() -> {
-      Set<DistributedMember> regionMembers =
+      var regionMembers =
           ManagementUtils.getRegionAssociatedMembers(REPLICATED_REGION,
               (InternalCache) CacheFactory.getAnyInstance(), true);
       assertThat(regionMembers).hasSize(2);

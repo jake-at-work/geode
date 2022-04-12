@@ -15,18 +15,13 @@
 package org.apache.geode.management.internal.cli.functions;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.logging.log4j.Logger;
 
-import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.execute.FunctionService;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.internal.cache.execute.InternalFunction;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.management.internal.functions.CliFunctionResult;
@@ -47,14 +42,14 @@ public class ListFunctionFunction implements InternalFunction<Object[]> {
   @Override
   public void execute(FunctionContext<Object[]> context) {
     // Declared here so that it's available when returning a Throwable
-    String memberId = "";
+    var memberId = "";
 
     try {
-      final Object[] args = context.getArguments();
-      final String stringPattern = (String) args[0];
+      final var args = context.getArguments();
+      final var stringPattern = (String) args[0];
 
-      Cache cache = context.getCache();
-      DistributedMember member = cache.getDistributedSystem().getDistributedMember();
+      var cache = context.getCache();
+      var member = cache.getDistributedSystem().getDistributedMember();
 
       memberId = member.getId();
       // If they set a name use it instead
@@ -63,15 +58,15 @@ public class ListFunctionFunction implements InternalFunction<Object[]> {
       }
 
       @SuppressWarnings("rawtypes")
-      final Map<String, Function> functions = FunctionService.getRegisteredFunctions();
+      final var functions = FunctionService.getRegisteredFunctions();
       CliFunctionResult result;
       if (stringPattern == null || stringPattern.isEmpty()) {
         result = new CliFunctionResult(memberId, new HashSet<>(functions.keySet()), null);
       } else {
-        Pattern pattern = Pattern.compile(stringPattern);
+        var pattern = Pattern.compile(stringPattern);
         Set<String> resultSet = new HashSet<>();
-        for (String functionId : functions.keySet()) {
-          Matcher matcher = pattern.matcher(functionId);
+        for (var functionId : functions.keySet()) {
+          var matcher = pattern.matcher(functionId);
           if (matcher.matches()) {
             resultSet.add(functionId);
           }
@@ -82,7 +77,7 @@ public class ListFunctionFunction implements InternalFunction<Object[]> {
 
     } catch (Exception cce) {
       logger.error(cce.getMessage(), cce);
-      CliFunctionResult result = new CliFunctionResult(memberId, false, cce.getMessage());
+      var result = new CliFunctionResult(memberId, false, cce.getMessage());
       context.getResultSender().lastResult(result);
     }
   }

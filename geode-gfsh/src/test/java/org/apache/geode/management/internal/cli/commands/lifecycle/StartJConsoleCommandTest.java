@@ -49,7 +49,7 @@ public class StartJConsoleCommandTest {
     doReturn(gfsh).when(command).getGfsh();
     doReturn(null).when(command).getJmxServiceUrl();
 
-    Process process = mock(Process.class);
+    var process = mock(Process.class);
     doReturn(process).when(command).getProcess(any(String[].class));
     doReturn("some output").when(command).getProcessOutput(process);
 
@@ -63,7 +63,7 @@ public class StartJConsoleCommandTest {
 
     verify(command, times(1)).getProcess(argumentCaptor.capture());
 
-    String[] commandString = argumentCaptor.getValue();
+    var commandString = argumentCaptor.getValue();
     assertThat(commandString).hasSize(2);
     assertThat(commandString[0]).contains("jconsole");
     assertThat(commandString[1]).isEqualTo("-interval=4");
@@ -72,7 +72,7 @@ public class StartJConsoleCommandTest {
 
   @Test
   public void succcessOutputWithVersion() throws Exception {
-    StringBuilder builder = new StringBuilder();
+    var builder = new StringBuilder();
     builder.append("some error message");
     doReturn(builder).when(command).getErrorStringBuilder(any());
 
@@ -81,7 +81,7 @@ public class StartJConsoleCommandTest {
 
     verify(command, times(1)).getProcess(argumentCaptor.capture());
 
-    String[] commandString = argumentCaptor.getValue();
+    var commandString = argumentCaptor.getValue();
     assertThat(commandString).hasSize(2);
     assertThat(commandString[0]).contains("jconsole");
     assertThat(commandString[1]).isEqualTo("-version");
@@ -95,7 +95,7 @@ public class StartJConsoleCommandTest {
         .containsOutput("some output");
 
     verify(command, times(1)).getProcess(argumentCaptor.capture());
-    String[] commandString = argumentCaptor.getValue();
+    var commandString = argumentCaptor.getValue();
     assertThat(commandString).hasSize(3);
     assertThat(commandString[0]).contains("jconsole");
     assertThat(commandString[1]).isEqualTo("-interval=4");

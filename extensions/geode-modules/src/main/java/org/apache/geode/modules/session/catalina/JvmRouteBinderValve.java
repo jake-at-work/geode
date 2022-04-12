@@ -18,8 +18,6 @@ import java.io.IOException;
 
 import javax.servlet.ServletException;
 
-import org.apache.catalina.Manager;
-import org.apache.catalina.Session;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.valves.ValveBase;
@@ -30,12 +28,12 @@ public class JvmRouteBinderValve extends ValveBase {
   public void invoke(Request request, Response response) throws IOException, ServletException {
 
     // Get the Manager
-    Manager manager = request.getContext().getManager();
+    var manager = request.getContext().getManager();
 
     // If it is an AbstractManager, handle possible failover
     if (manager instanceof DeltaSessionManager) {
-      DeltaSessionManager absMgr = (DeltaSessionManager) manager;
-      String localJvmRoute = absMgr.getJvmRoute();
+      var absMgr = (DeltaSessionManager) manager;
+      var localJvmRoute = absMgr.getJvmRoute();
       if (localJvmRoute != null) {
         handlePossibleFailover(request, absMgr, localJvmRoute);
       }
@@ -47,11 +45,11 @@ public class JvmRouteBinderValve extends ValveBase {
 
   private void handlePossibleFailover(Request request, DeltaSessionManager manager,
       String localJvmRoute) {
-    String sessionId = request.getRequestedSessionId();
+    var sessionId = request.getRequestedSessionId();
     if (sessionId != null) {
       // Get request JVM route
       String requestJvmRoute = null;
-      int index = sessionId.indexOf(".");
+      var index = sessionId.indexOf(".");
       if (index > 0) {
         requestJvmRoute = sessionId.substring(index + 1);
       }
@@ -59,20 +57,20 @@ public class JvmRouteBinderValve extends ValveBase {
       // If the requested JVM route doesn't equal the session's JVM route, handle failover
       if (requestJvmRoute != null && !requestJvmRoute.equals(localJvmRoute)) {
         if (manager.getLogger().isDebugEnabled()) {
-          String builder = this + ": Handling failover of session " + sessionId
+          var builder = this + ": Handling failover of session " + sessionId
               + " from " + requestJvmRoute + " to " + localJvmRoute;
           manager.getLogger().debug(builder);
         }
         // Get the original session
-        final Session session = manager.findSession(sessionId);
+        final var session = manager.findSession(sessionId);
         if (session == null) {
-          String builder = this + ": Did not find session " + sessionId
+          var builder = this + ": Did not find session " + sessionId
               + " to failover in " + manager;
           manager.getLogger().warn(builder);
         } else {
           // Change its session id. This removes the previous session and creates the new one.
-          String baseSessionId = sessionId.substring(0, index);
-          String newSessionId = baseSessionId + "." + localJvmRoute;
+          var baseSessionId = sessionId.substring(0, index);
+          var newSessionId = baseSessionId + "." + localJvmRoute;
           session.setId(newSessionId);
 
           // Change the request's session id

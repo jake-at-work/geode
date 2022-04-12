@@ -23,8 +23,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.management.remote.JMXServiceURL;
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
@@ -33,7 +31,6 @@ import org.apache.geode.internal.util.IOUtils;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.internal.cli.GfshParser;
 import org.apache.geode.management.internal.cli.commands.OfflineGfshCommand;
-import org.apache.geode.management.internal.cli.result.model.InfoResultModel;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
 import org.apache.geode.management.internal.cli.util.JdkTool;
 import org.apache.geode.management.internal.i18n.CliStrings;
@@ -57,17 +54,17 @@ public class StartJConsoleCommand extends OfflineGfshCommand {
       @CliOption(key = CliStrings.START_JCONSOLE__J, optionContext = GfshParser.J_OPTION_CONTEXT,
           help = CliStrings.START_JCONSOLE__J__HELP) final String[] jvmArgs)
       throws InterruptedException, IOException {
-    String[] jconsoleCommandLine =
+    var jconsoleCommandLine =
         createJConsoleCommandLine(interval, notile, pluginpath, version, jvmArgs);
 
-    ResultModel resultModel = new ResultModel();
-    InfoResultModel infoResult = resultModel.addInfo();
+    var resultModel = new ResultModel();
+    var infoResult = resultModel.addInfo();
     if (isDebugging()) {
       getGfsh().printAsInfo(
           String.format("JConsole command-line ($1%s)", Arrays.toString(jconsoleCommandLine)));
     }
 
-    Process jconsoleProcess = getProcess(jconsoleCommandLine);
+    var jconsoleProcess = getProcess(jconsoleCommandLine);
 
     StringBuilder message;
 
@@ -78,7 +75,7 @@ public class StartJConsoleCommand extends OfflineGfshCommand {
       message = new StringBuilder();
       getGfsh().printAsInfo(CliStrings.START_JCONSOLE__RUN);
 
-      String jconsoleProcessOutput = getProcessOutput(jconsoleProcess);
+      var jconsoleProcessOutput = getProcessOutput(jconsoleProcess);
 
       if (StringUtils.isNotBlank(jconsoleProcessOutput)) {
         message.append(System.lineSeparator());
@@ -94,10 +91,10 @@ public class StartJConsoleCommand extends OfflineGfshCommand {
   StringBuilder getErrorStringBuilder(Process jconsoleProcess) throws IOException {
     StringBuilder message;
     message = new StringBuilder();
-    BufferedReader reader =
+    var reader =
         new BufferedReader(new InputStreamReader(jconsoleProcess.getErrorStream()));
 
-    for (String line = reader.readLine(); line != null; line = reader.readLine()) {
+    for (var line = reader.readLine(); line != null; line = reader.readLine()) {
       message.append(line);
       message.append(System.lineSeparator());
     }
@@ -136,12 +133,12 @@ public class StartJConsoleCommand extends OfflineGfshCommand {
       }
 
       if (jvmArgs != null) {
-        for (final String arg : jvmArgs) {
+        for (final var arg : jvmArgs) {
           commandLine.add("-J" + arg);
         }
       }
 
-      JMXServiceURL jmxServiceUrl = getJmxServiceUrl();
+      var jmxServiceUrl = getJmxServiceUrl();
       if (isConnectedAndReady() && jmxServiceUrl != null) {
         commandLine.add(jmxServiceUrl.toString());
       }

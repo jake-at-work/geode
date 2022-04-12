@@ -183,11 +183,11 @@ public class HashIndexSet implements Set {
    * @return the indexSlot of the given key/object combination
    */
   protected int index(Object key, Object obj, int ignoreThisSlot) {
-    HashIndexSetProperties metaData = hashIndexSetProperties;
+    var metaData = hashIndexSetProperties;
     int hash;
     int pos;
-    Object[] set = metaData.set;
-    int mask = metaData.mask;
+    var set = metaData.set;
+    var mask = metaData.mask;
     Object curr;
     hash = computeHash(key);
 
@@ -240,12 +240,12 @@ public class HashIndexSet implements Set {
    * @return true if object was added
    */
   private boolean addObjectToSet(Object[] set, int index, Object newObject) {
-    boolean added = true;
+    var added = true;
     if (index < 0) {
       throw new ArrayIndexOutOfBoundsException(
           "Cannot add:" + newObject + " into array position:" + index);
     }
-    Object oldObject = set[index];
+    var oldObject = set[index];
     if (oldObject == null || oldObject == REMOVED) {
       set[index] = newObject;
     }
@@ -284,10 +284,10 @@ public class HashIndexSet implements Set {
 
     // grow/shrink capacity if needed
     preInsertHook();
-    HashIndexSetProperties metaData = hashIndexSetProperties;
-    int indexSlot = insertionIndex(indexKey, metaData);
+    var metaData = hashIndexSetProperties;
+    var indexSlot = insertionIndex(indexKey, metaData);
 
-    Object old = metaData.set[indexSlot];
+    var old = metaData.set[indexSlot];
     addObjectToSet(metaData.set, indexSlot, obj);
     hashIndexSetProperties = metaData;
     // only call this now if we are adding to an actual empty slot, otherwise we
@@ -305,12 +305,12 @@ public class HashIndexSet implements Set {
   protected int insertionIndex(Object indexKey, HashIndexSetProperties metaData) {
     int hash;
     int pos;
-    int mask = metaData.mask;
+    var mask = metaData.mask;
     Object curr;
-    final Object[] array = metaData.set;
+    final var array = metaData.set;
     hash = computeHash(indexKey);
 
-    long start = -1L;
+    var start = -1L;
     if (cacheStats != null) {
       start = cacheStats.getTime();
       cacheStats.incQueryResultsHashCollisions();
@@ -342,7 +342,7 @@ public class HashIndexSet implements Set {
     if (!(other instanceof HashIndexSet)) {
       return false;
     }
-    Set that = (Set) other;
+    var that = (Set) other;
     if (that.size() != size()) {
       return false;
     }
@@ -351,9 +351,9 @@ public class HashIndexSet implements Set {
 
   @Override
   public int hashCode() {
-    int hash = 0;
-    Object[] set = hashIndexSetProperties.set;
-    for (int i = set.length; i-- > 0;) {
+    var hash = 0;
+    var set = hashIndexSetProperties.set;
+    for (var i = set.length; i-- > 0;) {
       if (set[i] != null && set[i] != REMOVED) {
         hash += set[i].hashCode();
       }
@@ -367,33 +367,31 @@ public class HashIndexSet implements Set {
    * @param newN the expected size
    */
   protected void rehash(int newN) {
-    HashIndexSetProperties metaData = hashIndexSetProperties;
+    var metaData = hashIndexSetProperties;
     if (TEST_ALWAYS_REHASH) {
       Thread.yield();
     }
-    Object[] oldSet = metaData.set;
-    int oldCapacity = oldSet.length;
+    var oldSet = metaData.set;
+    var oldCapacity = oldSet.length;
 
-
-
-    int mask = newN - 1;
-    int _maxSize = computeMaxSize(newN, _loadFactor);
-    Object[] newSet = new Object[newN + 1];
-    HashIndexSetProperties newHashIndexProperties = new HashIndexSetProperties(newSet, mask);
+    var mask = newN - 1;
+    var _maxSize = computeMaxSize(newN, _loadFactor);
+    var newSet = new Object[newN + 1];
+    var newHashIndexProperties = new HashIndexSetProperties(newSet, mask);
     newHashIndexProperties.size = metaData.size;
     newHashIndexProperties.free = hashIndexSetProperties.computeNumFree();
     newHashIndexProperties.removedTokens = 0;
     newHashIndexProperties.n = newN;
     newHashIndexProperties.maxSize = _maxSize;
-    for (int i = oldCapacity; i-- > 0;) {
+    for (var i = oldCapacity; i-- > 0;) {
       if (oldSet[i] != null && oldSet[i] != REMOVED) {
-        Object o = oldSet[i];
+        var o = oldSet[i];
 
-        Object key = _imqEvaluator.evaluateKey(o);
+        var key = _imqEvaluator.evaluateKey(o);
         if (key == null) {
           key = IndexManager.NULL;
         }
-        int index = insertionIndex(key, newHashIndexProperties);
+        var index = insertionIndex(key, newHashIndexProperties);
         if (index >= 0) {
           addObjectToSet(newHashIndexProperties.set, index, o);
         }
@@ -430,12 +428,12 @@ public class HashIndexSet implements Set {
    */
   @Override
   public void clear() {
-    HashIndexSetProperties metaData = hashIndexSetProperties;
+    var metaData = hashIndexSetProperties;
     metaData.size = 0;
     metaData.free = capacity();
     metaData.removedTokens = 0;
-    Object[] set = metaData.set;
-    for (int i = set.length; i-- > 0;) {
+    var set = metaData.set;
+    for (var i = set.length; i-- > 0;) {
       set[i] = null;
     }
     hashIndexSetProperties = metaData;
@@ -464,8 +462,8 @@ public class HashIndexSet implements Set {
    * @return true if object was removed, false otherwise
    */
   public synchronized boolean remove(Object key, Object obj, int newIndexSlot) {
-    int indexSlot = index(key, obj, newIndexSlot);
-    boolean removed = false;
+    var indexSlot = index(key, obj, newIndexSlot);
+    var removed = false;
     // The check for newIndexSlot != indexSlot is incase of in place modification.
     // When inplace occurs, oldkey == newkey and we end up wiping out the "new key" slow rather
     // than the old key slot. Instead let's get to the else portion
@@ -474,9 +472,9 @@ public class HashIndexSet implements Set {
       return removed;
     } else if (!IndexManager.isObjectModificationInplace()) {
       // object could not be found so it's possible there was an inplace modification
-      HashIndexSetIterator iterator = (HashIndexSetIterator) getAll();
+      var iterator = (HashIndexSetIterator) getAll();
       while (iterator.hasNext()) {
-        Object indexedObject = iterator.next();
+        var indexedObject = iterator.next();
         if (areObjectsEqual(indexedObject, obj) && iterator.currentObjectIndex() != newIndexSlot) {
           iterator.remove();
           return true;
@@ -515,7 +513,7 @@ public class HashIndexSet implements Set {
    */
   @Override
   public boolean containsAll(Collection collection) {
-    for (final Object o : collection) {
+    for (final var o : collection) {
       if (!contains(o)) {
         return false;
       }
@@ -539,10 +537,10 @@ public class HashIndexSet implements Set {
    */
   @Override
   public boolean removeAll(Collection collection) {
-    boolean changed = false;
-    int size = collection.size();
+    var changed = false;
+    var size = collection.size();
 
-    Iterator it = collection.iterator();
+    var it = collection.iterator();
     while (size-- > 0) {
       if (remove(it.next())) {
         changed = true;
@@ -559,12 +557,12 @@ public class HashIndexSet implements Set {
    */
   @Override
   public boolean retainAll(Collection collection) {
-    boolean changed = false;
-    int size = size();
+    var changed = false;
+    var size = size();
 
-    Iterator it = iterator();
+    var it = iterator();
     while (it.hasNext()) {
-      Object object = it.next();
+      var object = it.next();
       if (!collection.contains(object)) {
         it.remove();
         changed = true;
@@ -608,7 +606,7 @@ public class HashIndexSet implements Set {
   }
 
   public boolean trimToSize(final int n) {
-    final int l = HashCommon.nextPowerOfTwo((int) Math.ceil(n / _loadFactor));
+    final var l = HashCommon.nextPowerOfTwo((int) Math.ceil(n / _loadFactor));
     if (hashIndexSetProperties.n <= l) {
       return true;
     }
@@ -627,7 +625,7 @@ public class HashIndexSet implements Set {
    */
   protected boolean removeAt(int index) {
     Object cur;
-    HashIndexSetProperties metaData = hashIndexSetProperties;
+    var metaData = hashIndexSetProperties;
     cur = metaData.set[index];
     if (cur == null || cur == REMOVED) {
       // nothing removed
@@ -646,12 +644,12 @@ public class HashIndexSet implements Set {
    * initializes this index set
    */
   protected int setUp(final int expectedCapacity, final float loadFactor) {
-    int n = arraySize(expectedCapacity, loadFactor);
+    var n = arraySize(expectedCapacity, loadFactor);
     _loadFactor = loadFactor;
-    int _maxSize = computeMaxSize(n, loadFactor);
-    int mask = n - 1;
-    Object[] set = new Object[n + 1];
-    HashIndexSetProperties metaData = new HashIndexSetProperties(set, mask);
+    var _maxSize = computeMaxSize(n, loadFactor);
+    var mask = n - 1;
+    var set = new Object[n + 1];
+    var metaData = new HashIndexSetProperties(set, mask);
     metaData.n = n;
     metaData.maxSize = _maxSize;
     hashIndexSetProperties = metaData;
@@ -760,7 +758,7 @@ public class HashIndexSet implements Set {
     }
 
     private boolean notMatchingAnyKeyToRemove(Collection keysToRemove, Object current) {
-      for (final Object keyToMatch : keysToRemove) {
+      for (final var keyToMatch : keysToRemove) {
         if (objectMatchesIndexKey(keyToMatch, current)) {
           return false;
         }
@@ -770,7 +768,7 @@ public class HashIndexSet implements Set {
 
     @Override
     public Object next() throws NoSuchElementException {
-      Object obj = current;
+      var obj = current;
       if (keysToRemove != null) {
         // for Not equals we need to continue looking
         // so increment the index here
@@ -793,7 +791,7 @@ public class HashIndexSet implements Set {
 
 
     public boolean objectMatchesIndexKey(Object indexKey, Object o) {
-      Object fieldValue = _imqEvaluator.evaluateKey(o);
+      var fieldValue = _imqEvaluator.evaluateKey(o);
 
       if (fieldValue == IndexManager.NULL && indexKey == IndexManager.NULL) {
         return true;

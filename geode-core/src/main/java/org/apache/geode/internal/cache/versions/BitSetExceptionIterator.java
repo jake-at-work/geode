@@ -54,9 +54,9 @@ public class BitSetExceptionIterator implements Iterator<RVVException> {
    * @return the next clear bit, or -1 if there is no next clear bit within the range.
    */
   private int findNextClearBit(BitSet bitSet, int fromIndex) {
-    int nextClearBit = bitSet.nextClearBit(fromIndex);
+    var nextClearBit = bitSet.nextClearBit(fromIndex);
 
-    long maxmimumClearBit = maximumVersion - bitSetVersion;
+    var maxmimumClearBit = maximumVersion - bitSetVersion;
     if (nextClearBit >= maxmimumClearBit) {
       // We found empty bits, but past the offset we are interested in
       // Ignore these
@@ -77,11 +77,11 @@ public class BitSetExceptionIterator implements Iterator<RVVException> {
       return null;
     }
 
-    int nextSetBit = bitSet.nextSetBit((int) Math.min(Integer.MAX_VALUE, nextClearBit));
+    var nextSetBit = bitSet.nextSetBit((int) Math.min(Integer.MAX_VALUE, nextClearBit));
 
-    long nextSetVersion = nextSetBit == -1 ? maximumVersion : nextSetBit + bitSetVersion;
+    var nextSetVersion = nextSetBit == -1 ? maximumVersion : nextSetBit + bitSetVersion;
 
-    RVVException exception =
+    var exception =
         RVVException.createException(nextClearBit + bitSetVersion - 1, nextSetVersion);
 
     nextClearBit = nextSetBit == -1 ? -1 : findNextClearBit(bitSet, nextSetBit);

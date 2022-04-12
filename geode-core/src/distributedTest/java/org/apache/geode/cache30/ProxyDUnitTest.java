@@ -24,7 +24,6 @@ import java.util.Map;
 import org.junit.Test;
 
 import org.apache.geode.cache.AttributesFactory;
-import org.apache.geode.cache.AttributesMutator;
 import org.apache.geode.cache.CacheEvent;
 import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.CacheListener;
@@ -66,12 +65,12 @@ public class ProxyDUnitTest extends JUnit4CacheTestCase {
   }
 
   private VM getOtherVm() {
-    Host host = Host.getHost(0);
+    var host = Host.getHost(0);
     return host.getVM(0);
   }
 
   private void initOtherId() {
-    VM vm = getOtherVm();
+    var vm = getOtherVm();
     vm.invoke(new CacheSerializableRunnable("Connect") {
       @Override
       public void run2() throws CacheException {
@@ -82,11 +81,11 @@ public class ProxyDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void doCreateOtherVm() {
-    VM vm = getOtherVm();
+    var vm = getOtherVm();
     vm.invoke(new CacheSerializableRunnable("create root") {
       @Override
       public void run2() throws CacheException {
-        AttributesFactory af = new AttributesFactory();
+        var af = new AttributesFactory();
         af.setDataPolicy(DataPolicy.REPLICATE);
         af.setScope(Scope.DISTRIBUTED_ACK);
         createRootRegion("ProxyDUnitTest", af.create());
@@ -101,11 +100,11 @@ public class ProxyDUnitTest extends JUnit4CacheTestCase {
    */
   private void distributedOps(DataPolicy dp, InterestPolicy ip) throws CacheException {
     initOtherId();
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setDataPolicy(dp);
     af.setSubscriptionAttributes(new SubscriptionAttributes(ip));
     af.setScope(Scope.DISTRIBUTED_ACK);
-    Region r = createRootRegion("ProxyDUnitTest", af.create());
+    var r = createRootRegion("ProxyDUnitTest", af.create());
 
     doCreateOtherVm();
 
@@ -186,7 +185,7 @@ public class ProxyDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() throws CacheException {
         Region r = getRootRegion("ProxyDUnitTest");
-        AttributesMutator am = r.getAttributesMutator();
+        var am = r.getAttributesMutator();
         CacheWriter cw = new CacheWriterAdapter() {
           @Override
           public void beforeCreate(EntryEvent event) throws CacheWriterException {
@@ -214,9 +213,9 @@ public class ProxyDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() throws CacheException {
         Region r = getRootRegion("ProxyDUnitTest");
-        AttributesMutator am = r.getAttributesMutator();
+        var am = r.getAttributesMutator();
         am.setCacheWriter(null); // clear csche writer
-        CacheLoader cl = new CacheLoader() {
+        var cl = new CacheLoader() {
           @Override
           public Object load(LoaderHelper helper) throws CacheLoaderException {
             if (helper.getKey().equals("loadkey")) {
@@ -263,11 +262,11 @@ public class ProxyDUnitTest extends JUnit4CacheTestCase {
    */
   private void remoteOriginOps(DataPolicy dp, InterestPolicy ip) throws CacheException {
     initOtherId();
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setDataPolicy(dp);
     af.setSubscriptionAttributes(new SubscriptionAttributes(ip));
     af.setScope(Scope.DISTRIBUTED_ACK);
-    CacheListener cl1 = new CacheListener() {
+    var cl1 = new CacheListener() {
       @Override
       public void afterUpdate(EntryEvent e) {
         clLastEvent = e;
@@ -320,13 +319,13 @@ public class ProxyDUnitTest extends JUnit4CacheTestCase {
       public void close() {}
     };
     af.addCacheListener(cl1);
-    Region r = createRootRegion("ProxyDUnitTest", af.create());
+    var r = createRootRegion("ProxyDUnitTest", af.create());
     clInvokeCount = 0;
 
     doCreateOtherVm();
 
-    DMStats stats = getDMStats();
-    long receivedMsgs = stats.getReceivedMessages();
+    var stats = getDMStats();
+    var receivedMsgs = stats.getReceivedMessages();
 
     if (ip.isAll()) {
       getOtherVm().invoke(new CacheSerializableRunnable("do put") {
@@ -464,8 +463,8 @@ public class ProxyDUnitTest extends JUnit4CacheTestCase {
     }
 
     {
-      AttributesMutator am = r.getAttributesMutator();
-      CacheLoader cl = new CacheLoader() {
+      var am = r.getAttributesMutator();
+      var cl = new CacheLoader() {
         @Override
         public Object load(LoaderHelper helper) throws CacheLoaderException {
           if (helper.getKey().equals("loadkey")) {
@@ -511,7 +510,7 @@ public class ProxyDUnitTest extends JUnit4CacheTestCase {
     }
 
     {
-      AttributesMutator am = r.getAttributesMutator();
+      var am = r.getAttributesMutator();
       am.setCacheLoader(null);
       CacheWriter cw = new CacheWriterAdapter() {
         @Override
@@ -535,7 +534,7 @@ public class ProxyDUnitTest extends JUnit4CacheTestCase {
     });
     assertTrue(stats.getReceivedMessages() > receivedMsgs);
     {
-      AttributesMutator am = r.getAttributesMutator();
+      var am = r.getAttributesMutator();
       am.setCacheWriter(null);
     }
     assertEquals(0, clInvokeCount);

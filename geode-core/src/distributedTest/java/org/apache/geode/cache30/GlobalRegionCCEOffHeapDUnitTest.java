@@ -39,7 +39,7 @@ public class GlobalRegionCCEOffHeapDUnitTest extends GlobalRegionCCEDUnitTest {
 
   @After
   public void tearDown() throws Exception {
-    SerializableRunnable checkOrphans = new SerializableRunnable() {
+    var checkOrphans = new SerializableRunnable() {
 
       @Override
       public void run() {
@@ -54,14 +54,14 @@ public class GlobalRegionCCEOffHeapDUnitTest extends GlobalRegionCCEDUnitTest {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties props = super.getDistributedSystemProperties();
+    var props = super.getDistributedSystemProperties();
     props.setProperty(OFF_HEAP_MEMORY_SIZE, "10m");
     return props;
   }
 
   private <K, V> RegionAttributes<K, V> getBasicAttributes(
       RegionAttributes<K, V> regionAttributes) {
-    AttributesFactory<K, V> factory = new AttributesFactory<>(regionAttributes);
+    var factory = new AttributesFactory<K, V>(regionAttributes);
     if (!regionAttributes.getDataPolicy().withStorage()) {
       factory.setOffHeap(true);
     }

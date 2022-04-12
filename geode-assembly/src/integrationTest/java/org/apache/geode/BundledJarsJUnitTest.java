@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -53,7 +52,7 @@ public class BundledJarsJUnitTest {
 
   @Before
   public void loadExpectedJars() throws IOException {
-    String expectedJarFile =
+    var expectedJarFile =
         createTempFileFromResource(BundledJarsJUnitTest.class, "/expected_jars.txt")
             .getAbsolutePath();
 
@@ -62,8 +61,8 @@ public class BundledJarsJUnitTest {
 
   @Test
   public void verifyBundledJarsHaveNotChanged() throws IOException {
-    Map<String, String> sortedJars = getBundledJars();
-    Stream<String> lines =
+    var sortedJars = getBundledJars();
+    var lines =
         sortedJars.entrySet().stream().map(entry -> removeVersion(entry.getKey()));
     Set<String> bundledJarNames = new TreeSet<>(lines.collect(Collectors.toSet()));
 
@@ -75,7 +74,7 @@ public class BundledJarsJUnitTest {
     Set<String> missingJars = new TreeSet<>(expectedJars);
     missingJars.removeAll(bundledJarNames);
 
-    String message =
+    var message =
         "The bundled jars have changed. Please make sure you update the licence and notice"
             + System.lineSeparator()
             + "as described in https://cwiki.apache.org/confluence/display/GEODE/License+Guide+for+Contributors"
@@ -97,17 +96,17 @@ public class BundledJarsJUnitTest {
    * Find all of the jars bundled with the project. Key is the name of the jar, value is the path.
    */
   private Map<String, String> getBundledJars() {
-    File geodeHomeDirectory = new File(GEODE_HOME);
+    var geodeHomeDirectory = new File(GEODE_HOME);
 
     assertTrue(
         "Please set the GEODE_HOME environment variable to the product installation directory.",
         geodeHomeDirectory.isDirectory());
 
-    Collection<File> jars = FileUtils.listFiles(geodeHomeDirectory, new String[] {"jar"}, true);
+    var jars = FileUtils.listFiles(geodeHomeDirectory, new String[] {"jar"}, true);
     Map<String, String> sortedJars = new TreeMap<>();
     jars.forEach(jar -> sortedJars.put(jar.getName(), jar.getPath()));
 
-    Collection<File> wars = FileUtils.listFiles(geodeHomeDirectory, new String[] {"war"}, true);
+    var wars = FileUtils.listFiles(geodeHomeDirectory, new String[] {"war"}, true);
     Set<File> sortedWars = new TreeSet<>(wars);
     sortedWars.stream().flatMap(BundledJarsJUnitTest::extractJarNames)
         .forEach(jar -> sortedJars.put(jar.getName(), jar.getPath()));
@@ -124,7 +123,7 @@ public class BundledJarsJUnitTest {
    * Find of of the jar files embedded within a war
    */
   private static Stream<File> extractJarNames(File war) {
-    try (JarFile warContents = new JarFile(war)) {
+    try (var warContents = new JarFile(war)) {
       return warContents.stream()
           // Look for jars in the war
           .filter(entry -> entry.getName().endsWith(".jar"))

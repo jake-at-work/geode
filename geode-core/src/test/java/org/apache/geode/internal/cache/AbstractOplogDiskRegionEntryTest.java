@@ -26,9 +26,9 @@ public class AbstractOplogDiskRegionEntryTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    AbstractOplogDiskRegionEntry mockAbstractOplogDiskRegionEntry =
+    var mockAbstractOplogDiskRegionEntry =
         mock(AbstractOplogDiskRegionEntry.class);
-    LocalRegion mockLocalRegion = mock(LocalRegion.class);
+    var mockLocalRegion = mock(LocalRegion.class);
 
     mockAbstractOplogDiskRegionEntry.removePhase1(mockLocalRegion, true);
 

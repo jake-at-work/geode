@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -81,31 +80,31 @@ public class ConfigurationResponse implements DataSerializableFixedID {
   }
 
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    Set<String> configNames = requestedConfiguration.keySet();
-    for (String configName : configNames) {
+    var sb = new StringBuilder();
+    var configNames = requestedConfiguration.keySet();
+    for (var configName : configNames) {
       sb.append("\n" + requestedConfiguration.get(configName));
     }
     return sb.toString();
   }
 
   public String describeConfig() {
-    StringBuilder sb = new StringBuilder();
+    var sb = new StringBuilder();
     if (requestedConfiguration.isEmpty()) {
       sb.append("Received an empty shared configuration");
     } else {
-      Set<Entry<String, Configuration>> entries = requestedConfiguration.entrySet();
+      var entries = requestedConfiguration.entrySet();
 
-      for (final Entry<String, Configuration> entry : entries) {
-        String configType = entry.getKey();
-        Configuration config = entry.getValue();
+      for (final var entry : entries) {
+        var configType = entry.getKey();
+        var config = entry.getValue();
 
         if (config != null) {
           sb.append("\n***************************************************************");
           sb.append("\nConfiguration for  '" + configType + "'");
           sb.append("\n\nJar files to be deployed:");
 
-          Set<String> jarNames = config.getJarNames();
+          var jarNames = config.getJarNames();
           if (jarNames.size() == 0) {
             sb.append("\n  None");
           } else {
@@ -113,7 +112,7 @@ public class ConfigurationResponse implements DataSerializableFixedID {
           }
 
           try {
-            String cacheXmlContent = config.getCacheXmlContent();
+            var cacheXmlContent = config.getCacheXmlContent();
             if (StringUtils.isNotBlank(cacheXmlContent)) {
               sb.append("\n" + XmlUtils.prettyXml(cacheXmlContent));
             }

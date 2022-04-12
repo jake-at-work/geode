@@ -69,7 +69,7 @@ public class RemoteClearMessage extends RemoteOperationMessageWithDirectReply {
   }
 
   public void distribute() throws RemoteOperationException {
-    RemoteOperationResponse p = (RemoteOperationResponse) processor;
+    var p = (RemoteOperationResponse) processor;
 
     Set<?> failures = region.getDistributionManager().putOutgoing(this);
     if (failures != null && failures.size() > 0) {
@@ -135,7 +135,7 @@ public class RemoteClearMessage extends RemoteOperationMessageWithDirectReply {
     public static void send(InternalDistributedMember recipient, int processorId,
         ReplySender replySender) {
       Assert.assertTrue(recipient != null, "RemoteClearReplyMessage NULL recipient");
-      RemoteClearReplyMessage m = new RemoteClearReplyMessage(processorId);
+      var m = new RemoteClearReplyMessage(processorId);
       m.setRecipient(recipient);
       replySender.putOutgoing(m);
     }
@@ -147,7 +147,7 @@ public class RemoteClearMessage extends RemoteOperationMessageWithDirectReply {
      */
     @Override
     public void process(final DistributionManager dm, ReplyProcessor21 processor) {
-      final long startTime = getTimestamp();
+      final var startTime = getTimestamp();
 
       if (processor == null) {
         if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {

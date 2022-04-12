@@ -55,7 +55,7 @@ class NonBlockingProcessStreamReader extends ProcessStreamReader {
 
   @Override
   public void run() {
-    try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+    try (var reader = new BufferedReader(new InputStreamReader(inputStream))) {
       while (character != -1) {
         readWhileReady(reader);
         if (shouldTerminate()) {

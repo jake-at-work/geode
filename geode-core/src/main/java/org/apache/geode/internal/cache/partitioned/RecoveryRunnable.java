@@ -16,7 +16,6 @@ package org.apache.geode.internal.cache.partitioned;
 
 import org.apache.logging.log4j.Logger;
 
-import org.apache.geode.CancelCriterion;
 import org.apache.geode.InternalGemFireError;
 import org.apache.geode.SystemFailure;
 import org.apache.geode.distributed.DistributedSystem;
@@ -48,7 +47,7 @@ public abstract class RecoveryRunnable implements Runnable {
 
   @Override
   public void run() {
-    CancelCriterion stopper =
+    var stopper =
         redundancyProvider.getPartitionedRegion().getGemFireCache().getDistributedSystem()
             .getCancelCriterion();
     DistributedSystem.setThreadsSocketPolicy(true /* conserve sockets */);

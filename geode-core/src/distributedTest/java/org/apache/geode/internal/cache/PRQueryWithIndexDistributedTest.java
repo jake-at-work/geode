@@ -82,18 +82,18 @@ public class PRQueryWithIndexDistributedTest implements Serializable {
   @Parameters({"OnLocalThrowsIndexInvalidException", "OnRemoteThrowsInternalGemFireException"})
   @TestCaseName("{method}({params})")
   public void failureToCreateIndex(VmThrows whichVmAndException) {
-    VM vmToFailCreationOn = getVM(whichVmAndException.vmIndex());
-    Class<? extends Exception> exceptionClass = whichVmAndException.exceptionClass();
+    var vmToFailCreationOn = getVM(whichVmAndException.vmIndex());
+    var exceptionClass = whichVmAndException.exceptionClass();
 
     vm0.invoke(() -> {
       cacheRule.createCache();
-      PartitionAttributesFactory paf = new PartitionAttributesFactory().setTotalNumBuckets(10);
+      var paf = new PartitionAttributesFactory().setTotalNumBuckets(10);
       cacheRule.getCache().createRegionFactory(RegionShortcut.PARTITION)
           .setPartitionAttributes(paf.create()).create(regionName);
     });
     vm1.invoke(() -> {
       cacheRule.createCache();
-      PartitionAttributesFactory paf = new PartitionAttributesFactory().setTotalNumBuckets(10);
+      var paf = new PartitionAttributesFactory().setTotalNumBuckets(10);
       cacheRule.getCache().createRegionFactory(RegionShortcut.PARTITION)
           .setPartitionAttributes(paf.create()).create(regionName);
     });
@@ -112,7 +112,7 @@ public class PRQueryWithIndexDistributedTest implements Serializable {
 
     vm1.invoke(() -> {
       Region region = cacheRule.getCache().getRegion(regionName);
-      AbstractIndex index = (AbstractIndex) cacheRule.getCache().getQueryService().getIndex(region,
+      var index = (AbstractIndex) cacheRule.getCache().getQueryService().getIndex(region,
           "ContractDocumentIndex");
       if (index != null) {
         assertThat(index.isPopulated()).isFalse();

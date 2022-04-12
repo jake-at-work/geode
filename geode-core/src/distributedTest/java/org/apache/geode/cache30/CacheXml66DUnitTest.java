@@ -54,20 +54,17 @@ import org.xml.sax.SAXException;
 import org.apache.geode.DataSerializable;
 import org.apache.geode.DataSerializer;
 import org.apache.geode.cache.AttributesFactory;
-import org.apache.geode.cache.AttributesMutator;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.CacheListener;
 import org.apache.geode.cache.CacheLoader;
 import org.apache.geode.cache.CacheLoaderException;
-import org.apache.geode.cache.CacheTransactionManager;
 import org.apache.geode.cache.CacheWriter;
 import org.apache.geode.cache.CacheXmlException;
 import org.apache.geode.cache.CustomExpiry;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Declarable;
-import org.apache.geode.cache.DiskStore;
 import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.DiskWriteAttributesFactory;
 import org.apache.geode.cache.DynamicRegionFactory;
@@ -82,7 +79,6 @@ import org.apache.geode.cache.LoaderHelper;
 import org.apache.geode.cache.LossAction;
 import org.apache.geode.cache.MembershipAttributes;
 import org.apache.geode.cache.MirrorType;
-import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.Region.Entry;
@@ -93,16 +89,12 @@ import org.apache.geode.cache.ResumptionAction;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.SubscriptionAttributes;
 import org.apache.geode.cache.TransactionListener;
-import org.apache.geode.cache.TransactionWriter;
 import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
-import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionService;
 import org.apache.geode.cache.server.CacheServer;
-import org.apache.geode.cache.server.ClientSubscriptionConfig;
 import org.apache.geode.cache.server.ServerLoad;
 import org.apache.geode.cache.server.ServerLoadProbeAdapter;
 import org.apache.geode.cache.server.ServerMetrics;
@@ -139,7 +131,6 @@ import org.apache.geode.test.dunit.IgnoredException;
 import org.apache.geode.test.dunit.LogWriterUtils;
 import org.apache.geode.test.dunit.NetworkUtils;
 import org.apache.geode.test.dunit.SerializableCallable;
-import org.apache.geode.test.dunit.VM;
 
 /**
  * Tests 7.0 cache.xml feature : Fixed Partitioning.
@@ -156,15 +147,15 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
   private static final String ALIAS2;
 
   static {
-    String tmp_alias1 = "localhost";
-    String tmp_alias2 = "localhost";
+    var tmp_alias1 = "localhost";
+    var tmp_alias2 = "localhost";
     ALIAS1 = tmp_alias1;
     ALIAS2 = tmp_alias2;
   }
 
   private static InetSocketAddress createINSA(String host, int port) {
     try {
-      InetAddress hostAddr = InetAddress.getByName(host);
+      var hostAddr = InetAddress.getByName(host);
       return new InetSocketAddress(hostAddr, port);
     } catch (UnknownHostException cause) {
       throw new IllegalArgumentException("Unknown host " + host, cause);
@@ -178,11 +169,11 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
   @Test
   public void testDefaultConnectionPool() throws Exception {
     getSystem();
-    CacheCreation cache = new CacheCreation();
-    PoolFactory f = cache.createPoolFactory();
+    var cache = new CacheCreation();
+    var f = cache.createPoolFactory();
     f.addLocator(ALIAS2, 3777);
     f.create("mypool");
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var attrs = new RegionAttributesCreation(cache);
     attrs.setPoolName("mypool");
     cache.createVMRegion("rootNORMAL", attrs);
     testXml(cache);
@@ -191,7 +182,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
     Region r = c.getRegion("rootNORMAL");
     assertNotNull(r);
     assertEquals("mypool", r.getAttributes().getPoolName());
-    Pool cp = PoolManager.find("mypool");
+    var cp = PoolManager.find("mypool");
     assertNotNull(cp);
     assertEquals(1, cp.getLocators().size());
     assertEquals(0, cp.getServers().size());
@@ -220,38 +211,38 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testDiskStore() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
-    File[] dirs1 = new File[] {new File("").getAbsoluteFile()};
-    DiskStore ds1 =
+    var cache = new CacheCreation();
+    var dsf = cache.createDiskStoreFactory();
+    var dirs1 = new File[] {new File("").getAbsoluteFile()};
+    var ds1 =
         dsf.setAllowForceCompaction(true).setAutoCompact(true).setCompactionThreshold(100)
             .setMaxOplogSize(2).setTimeInterval(10).setWriteBufferSize(15).setQueueSize(12)
             .setDiskDirsAndSizes(dirs1, new int[] {1024 * 20}).create(getUniqueName() + 1);
-    File[] dirs2 = new File[] {new File("").getAbsoluteFile()};
-    DiskStore ds2 =
+    var dirs2 = new File[] {new File("").getAbsoluteFile()};
+    var ds2 =
         dsf.setAllowForceCompaction(false).setAutoCompact(false).setCompactionThreshold(99)
             .setMaxOplogSize(1).setTimeInterval(9).setWriteBufferSize(14).setQueueSize(11)
             .setDiskDirsAndSizes(dirs2, new int[] {1024 * 40}).create(getUniqueName() + 2);
 
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var attrs = new RegionAttributesCreation(cache);
     attrs.setScope(Scope.DISTRIBUTED_ACK);
     attrs.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
     attrs.setDiskStoreName(getUniqueName() + 1);
     attrs.setDiskSynchronous(true);
-    RegionCreation root = (RegionCreation) cache.createRegion("root", attrs);
+    var root = (RegionCreation) cache.createRegion("root", attrs);
     {
       attrs = new RegionAttributesCreation(cache);
       attrs.setScope(Scope.DISTRIBUTED_ACK);
       attrs.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
       attrs.setDiskStoreName(getUniqueName() + 2);
-      Region subwithdiskstore = root.createSubregion("subwithdiskstore", attrs);
+      var subwithdiskstore = root.createSubregion("subwithdiskstore", attrs);
     }
 
     {
       attrs = new RegionAttributesCreation(cache);
       attrs.setScope(Scope.DISTRIBUTED_ACK);
       attrs.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
-      Region subwithdefaultdiskstore = root.createSubregion("subwithdefaultdiskstore", attrs);
+      var subwithdefaultdiskstore = root.createSubregion("subwithdefaultdiskstore", attrs);
     }
 
     testXml(cache);
@@ -263,8 +254,8 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
   @Test
   public void testExplicitConnectionPool() throws Exception {
     getSystem();
-    CacheCreation cache = new CacheCreation();
-    PoolFactory f = cache.createPoolFactory();
+    var cache = new CacheCreation();
+    var f = cache.createPoolFactory();
     f.addServer(ALIAS2, 3777).addServer(ALIAS1, 3888);
     f.setFreeConnectionTimeout(12345).setServerConnectionTimeout(111)
         .setLoadConditioningInterval(12345).setSocketBufferSize(12345)
@@ -277,7 +268,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
         .setSubscriptionRedundancy(12345).setSubscriptionMessageTrackingTimeout(12345)
         .setSubscriptionAckInterval(333).setMultiuserAuthentication(true);
     f.create("mypool");
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var attrs = new RegionAttributesCreation(cache);
     attrs.setPoolName("mypool");
     attrs.setDataPolicy(DataPolicy.EMPTY); // required for multiuser mode
     cache.createVMRegion("rootNORMAL", attrs);
@@ -288,7 +279,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
     Region r = c.getRegion("rootNORMAL");
     assertNotNull(r);
     assertEquals("mypool", r.getAttributes().getPoolName());
-    Pool cp = PoolManager.find("mypool");
+    var cp = PoolManager.find("mypool");
     assertNotNull(cp);
     assertEquals(0, cp.getLocators().size());
     assertEquals(2, cp.getServers().size());
@@ -318,11 +309,11 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testDiskStoreValidation() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
-    DiskStore ds1 = dsf.create(getUniqueName());
+    var cache = new CacheCreation();
+    var dsf = cache.createDiskStoreFactory();
+    var ds1 = dsf.create(getUniqueName());
 
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var attrs = new RegionAttributesCreation(cache);
     attrs.setScope(Scope.DISTRIBUTED_ACK);
     attrs.setDataPolicy(DataPolicy.REPLICATE);
     attrs.setDiskStoreName(getUniqueName());
@@ -335,21 +326,21 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
           "Only regions with persistence or overflow to disk can specify DiskStore"));
     }
 
-    EvictionAttributes ea =
+    var ea =
         EvictionAttributes.createLRUEntryAttributes(1000, EvictionAction.OVERFLOW_TO_DISK);
     attrs.setEvictionAttributes(ea);
     root = (RegionCreation) cache.createRegion("root", attrs);
 
-    File dir = new File("testDiskStoreValidation");
+    var dir = new File("testDiskStoreValidation");
     dir.mkdir();
     dir.deleteOnExit();
 
-    File[] dirs2 = new File[] {dir, new File("").getAbsoluteFile()};
+    var dirs2 = new File[] {dir, new File("").getAbsoluteFile()};
     try {
-      AttributesFactory factory = new AttributesFactory();
+      var factory = new AttributesFactory();
       factory.setDiskDirs(dirs2);
       factory.setDiskStoreName(getUniqueName());
-      RegionAttributes ra = factory.create();
+      var ra = factory.create();
       fail("Expected IllegalStateException to be thrown");
     } catch (IllegalStateException e) {
       assertTrue(e.getMessage()
@@ -358,10 +349,10 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
     }
 
     try {
-      AttributesFactory factory = new AttributesFactory();
+      var factory = new AttributesFactory();
       factory.setDiskStoreName(getUniqueName());
       factory.setDiskDirs(dirs2);
-      RegionAttributes ra = factory.create();
+      var ra = factory.create();
       fail("Expected IllegalStateException to be thrown");
     } catch (IllegalStateException e) {
       assertTrue(e.getMessage()
@@ -374,23 +365,23 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testDiskStoreFactory() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
+    var cache = new CacheCreation();
+    var dsf = cache.createDiskStoreFactory();
 
     dsf.setDiskDirs(new File[] {new File("non_exist_dir")});
-    DiskStore ds1 = dsf.create(getUniqueName());
+    var ds1 = dsf.create(getUniqueName());
 
     dsf.setDiskDirs(new File[] {new File(".")});
     ds1 = dsf.create(getUniqueName());
 
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var attrs = new RegionAttributesCreation(cache);
     attrs.setScope(Scope.DISTRIBUTED_ACK);
     attrs.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
     attrs.setDiskStoreName(getUniqueName());
-    AttributesFactory factory = new AttributesFactory(attrs);
-    RegionAttributes ra = factory.create();
+    var factory = new AttributesFactory(attrs);
+    var ra = factory.create();
 
-    RegionCreation root = (RegionCreation) cache.createRegion("root", ra);
+    var root = (RegionCreation) cache.createRegion("root", ra);
 
     factory = new AttributesFactory();
     factory.setDiskStoreName(getUniqueName());
@@ -399,7 +390,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
     ra = factory.create();
 
-    RegionCreation root2 = (RegionCreation) cache.createRegion("root2", ra);
+    var root2 = (RegionCreation) cache.createRegion("root2", ra);
 
     factory = new AttributesFactory();
     factory.setDiskStoreName(null);
@@ -408,32 +399,32 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
     ra = factory.create();
 
-    RegionCreation root3 = (RegionCreation) cache.createRegion("root3", ra);
+    var root3 = (RegionCreation) cache.createRegion("root3", ra);
 
     testXml(cache);
   }
 
   @Test
   public void testRedefineOfDefaultDiskStore() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
+    var cache = new CacheCreation();
+    var dsf = cache.createDiskStoreFactory();
     dsf.setAutoCompact(!DiskStoreFactory.DEFAULT_AUTO_COMPACT);
-    DiskStore ds1 = dsf.create(DiskStoreFactory.DEFAULT_DISK_STORE_NAME);
+    var ds1 = dsf.create(DiskStoreFactory.DEFAULT_DISK_STORE_NAME);
 
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var attrs = new RegionAttributesCreation(cache);
     attrs.setScope(Scope.DISTRIBUTED_ACK);
     attrs.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
-    AttributesFactory factory = new AttributesFactory(attrs);
-    RegionAttributes ra = factory.create();
+    var factory = new AttributesFactory(attrs);
+    var ra = factory.create();
 
-    RegionCreation root = (RegionCreation) cache.createRegion("root", ra);
+    var root = (RegionCreation) cache.createRegion("root", ra);
 
     testXml(cache);
 
     Cache c = getCache();
     assertNotNull(c);
 
-    DiskStore ds2 = c.findDiskStore(DiskStoreFactory.DEFAULT_DISK_STORE_NAME);
+    var ds2 = c.findDiskStore(DiskStoreFactory.DEFAULT_DISK_STORE_NAME);
     assertNotNull(ds2);
     assertEquals(ds1.getAutoCompact(), ds2.getAutoCompact());
   }
@@ -443,13 +434,13 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testPersistentPartition() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var cache = new CacheCreation();
+    var attrs = new RegionAttributesCreation(cache);
     attrs.setDataPolicy(DataPolicy.PERSISTENT_PARTITION);
 
     cache.createRegion("parRoot", attrs);
 
-    Region r = cache.getRegion("parRoot");
+    var r = cache.getRegion("parRoot");
     assertEquals(DataPolicy.PERSISTENT_PARTITION, r.getAttributes().getDataPolicy());
 
     testXml(cache);
@@ -467,19 +458,19 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testBridgeAttributesRelatedToHAOverFlow65() throws Exception {
-    CacheCreation cache = new CacheCreation();
+    var cache = new CacheCreation();
     cache.setMessageSyncInterval(3445);
-    CacheServer bs = cache.addCacheServer();
-    ClientSubscriptionConfig csc = bs.getClientSubscriptionConfig();
+    var bs = cache.addCacheServer();
+    var csc = bs.getClientSubscriptionConfig();
     csc.setEvictionPolicy("entry");
     cache.getLogger().config("EvictionPolicy : " + csc.getEvictionPolicy());
     csc.setCapacity(501);
     cache.getLogger().config("EvictionCapacity : " + csc.getCapacity());
-    File overflowDirectory = new File("overFlow");
+    var overflowDirectory = new File("overFlow");
     overflowDirectory.mkdirs();
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
-    File[] dirs1 = new File[] {overflowDirectory};
-    DiskStore ds1 = dsf.setDiskDirs(dirs1).create(getUniqueName());
+    var dsf = cache.createDiskStoreFactory();
+    var dirs1 = new File[] {overflowDirectory};
+    var ds1 = dsf.setDiskDirs(dirs1).create(getUniqueName());
     csc.setDiskStoreName(getUniqueName());
     try {
       csc.setOverflowDirectory("overFlow");
@@ -491,27 +482,27 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
     cache.getLogger().config("Eviction disk store : " + csc.getDiskStoreName());
     bs.setPort(AvailablePortHelper.getRandomAvailableTCPPort());
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var attrs = new RegionAttributesCreation(cache);
     attrs.setDataPolicy(DataPolicy.NORMAL);
     cache.createVMRegion("rootNORMAL", attrs);
     testXml(cache);
     Cache c = getCache();
     assertNotNull(c);
-    CacheServer server = cache.getCacheServers().iterator().next();
+    var server = cache.getCacheServers().iterator().next();
     assertNotNull(server);
-    ClientSubscriptionConfig chaqf = server.getClientSubscriptionConfig();
+    var chaqf = server.getClientSubscriptionConfig();
     assertEquals("entry", chaqf.getEvictionPolicy());
     assertEquals(501, chaqf.getCapacity());
-    DiskStore dsi = cache.findDiskStore(chaqf.getDiskStoreName());
+    var dsi = cache.findDiskStore(chaqf.getDiskStoreName());
     assertEquals("overFlow", dsi.getDiskDirs()[0].toString());
   }
 
   @Test
   public void testClientSubscriptionQueueUsingDefaultDS() throws Exception {
-    CacheCreation cache = new CacheCreation();
+    var cache = new CacheCreation();
     cache.setMessageSyncInterval(3445);
-    CacheServer bs = cache.addCacheServer();
-    ClientSubscriptionConfig csc = bs.getClientSubscriptionConfig();
+    var bs = cache.addCacheServer();
+    var csc = bs.getClientSubscriptionConfig();
     csc.setEvictionPolicy("entry");
     cache.getLogger().config("EvictionPolicy : " + csc.getEvictionPolicy());
     csc.setCapacity(501);
@@ -519,19 +510,19 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
     cache.getLogger().config("EvictionCapacity : " + csc.getCapacity());
     cache.getLogger().config("Eviction disk store : " + csc.getDiskStoreName());
     bs.setPort(AvailablePortHelper.getRandomAvailableTCPPort());
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var attrs = new RegionAttributesCreation(cache);
     attrs.setDataPolicy(DataPolicy.NORMAL);
     cache.createVMRegion("rootNORMAL", attrs);
     testXml(cache);
     Cache c = getCache();
     assertNotNull(c);
-    CacheServer server = cache.getCacheServers().iterator().next();
+    var server = cache.getCacheServers().iterator().next();
     assertNotNull(server);
-    ClientSubscriptionConfig chaqf = server.getClientSubscriptionConfig();
+    var chaqf = server.getClientSubscriptionConfig();
     assertEquals("entry", chaqf.getEvictionPolicy());
     assertEquals(501, chaqf.getCapacity());
-    File defaultDiskDir = DefaultDiskDirs.getDefaultDiskDirs()[0].getAbsoluteFile();
-    File lockFile =
+    var defaultDiskDir = DefaultDiskDirs.getDefaultDiskDirs()[0].getAbsoluteFile();
+    var lockFile =
         new File(defaultDiskDir, "DRLK_IF" + GemFireCacheImpl.getDefaultDiskStoreName() + ".lk");
     assertTrue(lockFile.exists());
   }
@@ -542,8 +533,8 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testTransactionWriter() throws Exception {
-    CacheCreation creation = new CacheCreation();
-    CacheTransactionManagerCreation ctmc = new CacheTransactionManagerCreation();
+    var creation = new CacheCreation();
+    var ctmc = new CacheTransactionManagerCreation();
     ctmc.setWriter(new TestTransactionWriter());
     creation.addCacheTransactionManagerCreation(ctmc);
     testXml(creation);
@@ -552,7 +543,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
     assertTrue(c instanceof GemFireCacheImpl);
     c.loadCacheXml(generate(creation));
 
-    TransactionWriter tw = c.getCacheTransactionManager().getWriter();
+    var tw = c.getCacheTransactionManager().getWriter();
     assertTrue("tw should be TransactionWriter, but it is:" + tw,
         tw instanceof TestTransactionWriter);
   }
@@ -562,7 +553,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testDiskStoreInTemplates() throws Exception {
-    File dir = new File("west");
+    var dir = new File("west");
     dir.mkdir();
     dir.deleteOnExit();
 
@@ -572,16 +563,16 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
     setXmlFile(findFile("ewtest.xml"));
 
-    String regionName_west = "orders" + SEPARATOR + "west";
-    String regionName_east = "orders" + SEPARATOR + "east";
+    var regionName_west = "orders" + SEPARATOR + "west";
+    var regionName_east = "orders" + SEPARATOR + "east";
 
     Cache cache = getCache();
 
     // verify diskstores
-    DiskStore ds = cache.findDiskStore("persistentDiskStore1");
+    var ds = cache.findDiskStore("persistentDiskStore1");
     assertNotNull(ds);
     assertEquals(500, ds.getQueueSize());
-    File[] dirs = ds.getDiskDirs();
+    var dirs = ds.getDiskDirs();
     assertEquals("west", dirs[0].getPath());
 
     ds = cache.findDiskStore("persistentDiskStore2");
@@ -615,11 +606,11 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
     assertEquals("persistentDiskStore2", attrs.getDiskStoreName());
 
     // bug 41934
-    String regionName_datap = "data-p";
+    var regionName_datap = "data-p";
     region = cache.getRegion(regionName_datap);
     assertNotNull(region);
     attrs = region.getAttributes();
-    PartitionAttributes pa = attrs.getPartitionAttributes();
+    var pa = attrs.getPartitionAttributes();
     assertEquals(1, pa.getRedundantCopies());
     assertEquals(3, pa.getTotalNumBuckets());
     assertEquals(DataPolicy.PERSISTENT_PARTITION, attrs.getDataPolicy());
@@ -627,25 +618,25 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testBackupFiles() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    File backup1 = new File("/back/me/up");
-    File backup2 = new File("/me/too/please");
+    var cache = new CacheCreation();
+    var backup1 = new File("/back/me/up");
+    var backup2 = new File("/me/too/please");
     cache.addBackup(backup1);
     cache.addBackup(backup2);
     testXml(cache);
-    GemFireCacheImpl c = (GemFireCacheImpl) getCache();
+    var c = (GemFireCacheImpl) getCache();
     assertEquals(Arrays.asList(backup1, backup2), c.getBackupFiles());
   }
 
   @Test
   public void testClientCache() throws Exception {
-    ClientCacheCreation cache = new ClientCacheCreation();
+    var cache = new ClientCacheCreation();
     cache.setCopyOnRead(true);
     testXml(cache);
-    GemFireCacheImpl c = (GemFireCacheImpl) getCache();
+    var c = (GemFireCacheImpl) getCache();
     assertEquals(true, c.getCopyOnRead());
     assertEquals(true, c.isClient());
-    for (ClientRegionShortcut pra : ClientRegionShortcut.values()) {
+    for (var pra : ClientRegionShortcut.values()) {
       assertNotNull(c.getRegionAttributes(pra.name()));
     }
     assertEquals(ClientRegionShortcut.values().length, c.listRegionAttributes().size());
@@ -653,13 +644,13 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testNormalCache() throws Exception {
-    CacheCreation cache = new CacheCreation();
+    var cache = new CacheCreation();
     cache.setCopyOnRead(true);
     testXml(cache);
-    GemFireCacheImpl c = (GemFireCacheImpl) getCache();
+    var c = (GemFireCacheImpl) getCache();
     assertEquals(true, c.getCopyOnRead());
     assertEquals(false, c.isClient());
-    for (RegionShortcut pra : RegionShortcut.values()) {
+    for (var pra : RegionShortcut.values()) {
       assertNotNull(c.getRegionAttributes(pra.name()));
     }
     assertEquals(RegionShortcut.values().length, c.listRegionAttributes().size());
@@ -667,13 +658,13 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testPARTITION() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    RegionCreation root = (RegionCreation) cache.createRegion("partition", "PARTITION");
+    var cache = new CacheCreation();
+    var root = (RegionCreation) cache.createRegion("partition", "PARTITION");
     testXml(cache);
-    GemFireCacheImpl c = (GemFireCacheImpl) getCache();
+    var c = (GemFireCacheImpl) getCache();
     Region r = c.getRegion("partition");
     assertNotNull(r);
-    RegionAttributes ra = r.getAttributes();
+    var ra = r.getAttributes();
     assertEquals(DataPolicy.PARTITION, ra.getDataPolicy());
     assertNotNull(ra.getPartitionAttributes());
     assertEquals(0, ra.getPartitionAttributes().getRedundantCopies());
@@ -681,13 +672,13 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testPARTITION_REDUNDANT() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    RegionCreation root = (RegionCreation) cache.createRegion("rpartition", "PARTITION_REDUNDANT");
+    var cache = new CacheCreation();
+    var root = (RegionCreation) cache.createRegion("rpartition", "PARTITION_REDUNDANT");
     testXml(cache);
-    GemFireCacheImpl c = (GemFireCacheImpl) getCache();
+    var c = (GemFireCacheImpl) getCache();
     Region r = c.getRegion("rpartition");
     assertNotNull(r);
-    RegionAttributes ra = r.getAttributes();
+    var ra = r.getAttributes();
     assertEquals(DataPolicy.PARTITION, ra.getDataPolicy());
     assertNotNull(ra.getPartitionAttributes());
     assertEquals(1, ra.getPartitionAttributes().getRedundantCopies());
@@ -695,13 +686,13 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testPARTITION_PERSISTENT() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    RegionCreation root = (RegionCreation) cache.createRegion("ppartition", "PARTITION_PERSISTENT");
+    var cache = new CacheCreation();
+    var root = (RegionCreation) cache.createRegion("ppartition", "PARTITION_PERSISTENT");
     testXml(cache);
-    GemFireCacheImpl c = (GemFireCacheImpl) getCache();
+    var c = (GemFireCacheImpl) getCache();
     Region r = c.getRegion("ppartition");
     assertNotNull(r);
-    RegionAttributes ra = r.getAttributes();
+    var ra = r.getAttributes();
     assertEquals(DataPolicy.PERSISTENT_PARTITION, ra.getDataPolicy());
     assertNotNull(ra.getPartitionAttributes());
     assertEquals(0, ra.getPartitionAttributes().getRedundantCopies());
@@ -709,14 +700,14 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testPARTITION_REDUNDANT_PERSISTENT() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    RegionCreation root =
+    var cache = new CacheCreation();
+    var root =
         (RegionCreation) cache.createRegion("prpartition", "PARTITION_REDUNDANT_PERSISTENT");
     testXml(cache);
-    GemFireCacheImpl c = (GemFireCacheImpl) getCache();
+    var c = (GemFireCacheImpl) getCache();
     Region r = c.getRegion("prpartition");
     assertNotNull(r);
-    RegionAttributes ra = r.getAttributes();
+    var ra = r.getAttributes();
     assertEquals(DataPolicy.PERSISTENT_PARTITION, ra.getDataPolicy());
     assertNotNull(ra.getPartitionAttributes());
     assertEquals(1, ra.getPartitionAttributes().getRedundantCopies());
@@ -724,18 +715,18 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testPARTITION_OVERFLOW() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    ResourceManagerCreation rmc = new ResourceManagerCreation();
+    var cache = new CacheCreation();
+    var rmc = new ResourceManagerCreation();
     rmc.setEvictionHeapPercentage(55.0f);
     rmc.setCriticalHeapPercentage(80.0f);
     cache.setResourceManagerCreation(rmc);
-    RegionCreation root =
+    var root =
         (RegionCreation) cache.createRegion("partitionoverflow", "PARTITION_OVERFLOW");
     testXml(cache);
-    GemFireCacheImpl c = (GemFireCacheImpl) getCache();
+    var c = (GemFireCacheImpl) getCache();
     Region r = c.getRegion("partitionoverflow");
     assertNotNull(r);
-    RegionAttributes ra = r.getAttributes();
+    var ra = r.getAttributes();
     assertEquals(DataPolicy.PARTITION, ra.getDataPolicy());
     assertNotNull(ra.getPartitionAttributes());
     assertEquals(0, ra.getPartitionAttributes().getRedundantCopies());
@@ -747,14 +738,14 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testPARTITION_REDUNDANT_OVERFLOW() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    RegionCreation root =
+    var cache = new CacheCreation();
+    var root =
         (RegionCreation) cache.createRegion("rpartitionoverflow", "PARTITION_REDUNDANT_OVERFLOW");
     testXml(cache);
-    GemFireCacheImpl c = (GemFireCacheImpl) getCache();
+    var c = (GemFireCacheImpl) getCache();
     Region r = c.getRegion("rpartitionoverflow");
     assertNotNull(r);
-    RegionAttributes ra = r.getAttributes();
+    var ra = r.getAttributes();
     assertEquals(DataPolicy.PARTITION, ra.getDataPolicy());
     assertNotNull(ra.getPartitionAttributes());
     assertEquals(1, ra.getPartitionAttributes().getRedundantCopies());
@@ -766,17 +757,17 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testPARTITION_PERSISTENT_OVERFLOW() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    ResourceManagerCreation rmc = new ResourceManagerCreation();
+    var cache = new CacheCreation();
+    var rmc = new ResourceManagerCreation();
     rmc.setCriticalHeapPercentage(80.0f);
     cache.setResourceManagerCreation(rmc);
-    RegionCreation root =
+    var root =
         (RegionCreation) cache.createRegion("ppartitionoverflow", "PARTITION_PERSISTENT_OVERFLOW");
     testXml(cache);
-    GemFireCacheImpl c = (GemFireCacheImpl) getCache();
+    var c = (GemFireCacheImpl) getCache();
     Region r = c.getRegion("ppartitionoverflow");
     assertNotNull(r);
-    RegionAttributes ra = r.getAttributes();
+    var ra = r.getAttributes();
     assertEquals(DataPolicy.PERSISTENT_PARTITION, ra.getDataPolicy());
     assertNotNull(ra.getPartitionAttributes());
     assertEquals(0, ra.getPartitionAttributes().getRedundantCopies());
@@ -788,17 +779,17 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testPARTITION_REDUNDANT_PERSISTENT_OVERFLOW() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    ResourceManagerCreation rmc = new ResourceManagerCreation();
+    var cache = new CacheCreation();
+    var rmc = new ResourceManagerCreation();
     rmc.setEvictionHeapPercentage(0.0f); // test bug 42130
     cache.setResourceManagerCreation(rmc);
-    RegionCreation root = (RegionCreation) cache.createRegion("prpartitionoverflow",
+    var root = (RegionCreation) cache.createRegion("prpartitionoverflow",
         "PARTITION_REDUNDANT_PERSISTENT_OVERFLOW");
     testXml(cache);
-    GemFireCacheImpl c = (GemFireCacheImpl) getCache();
+    var c = (GemFireCacheImpl) getCache();
     Region r = c.getRegion("prpartitionoverflow");
     assertNotNull(r);
-    RegionAttributes ra = r.getAttributes();
+    var ra = r.getAttributes();
     assertEquals(DataPolicy.PERSISTENT_PARTITION, ra.getDataPolicy());
     assertNotNull(ra.getPartitionAttributes());
     assertEquals(1, ra.getPartitionAttributes().getRedundantCopies());
@@ -809,13 +800,13 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testPARTITION_HEAP_LRU() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    RegionCreation root = (RegionCreation) cache.createRegion("partitionlru", "PARTITION_HEAP_LRU");
+    var cache = new CacheCreation();
+    var root = (RegionCreation) cache.createRegion("partitionlru", "PARTITION_HEAP_LRU");
     testXml(cache);
-    GemFireCacheImpl c = (GemFireCacheImpl) getCache();
+    var c = (GemFireCacheImpl) getCache();
     Region r = c.getRegion("partitionlru");
     assertNotNull(r);
-    RegionAttributes ra = r.getAttributes();
+    var ra = r.getAttributes();
     assertEquals(DataPolicy.PARTITION, ra.getDataPolicy());
     assertNotNull(ra.getPartitionAttributes());
     assertEquals(0, ra.getPartitionAttributes().getRedundantCopies());
@@ -826,14 +817,14 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testPARTITION_REDUNDANT_HEAP_LRU() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    RegionCreation root =
+    var cache = new CacheCreation();
+    var root =
         (RegionCreation) cache.createRegion("rpartitionlru", "PARTITION_REDUNDANT_HEAP_LRU");
     testXml(cache);
-    GemFireCacheImpl c = (GemFireCacheImpl) getCache();
+    var c = (GemFireCacheImpl) getCache();
     Region r = c.getRegion("rpartitionlru");
     assertNotNull(r);
-    RegionAttributes ra = r.getAttributes();
+    var ra = r.getAttributes();
     assertEquals(DataPolicy.PARTITION, ra.getDataPolicy());
     assertNotNull(ra.getPartitionAttributes());
     assertEquals(1, ra.getPartitionAttributes().getRedundantCopies());
@@ -844,40 +835,40 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testREPLICATE() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    RegionCreation root = (RegionCreation) cache.createRegion("replicate", "REPLICATE");
+    var cache = new CacheCreation();
+    var root = (RegionCreation) cache.createRegion("replicate", "REPLICATE");
     testXml(cache);
-    GemFireCacheImpl c = (GemFireCacheImpl) getCache();
+    var c = (GemFireCacheImpl) getCache();
     Region r = c.getRegion("replicate");
     assertNotNull(r);
-    RegionAttributes ra = r.getAttributes();
+    var ra = r.getAttributes();
     assertEquals(DataPolicy.REPLICATE, ra.getDataPolicy());
     assertEquals(Scope.DISTRIBUTED_ACK, ra.getScope());
   }
 
   @Test
   public void testREPLICATE_PERSISTENT() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    RegionCreation root = (RegionCreation) cache.createRegion("preplicate", "REPLICATE_PERSISTENT");
+    var cache = new CacheCreation();
+    var root = (RegionCreation) cache.createRegion("preplicate", "REPLICATE_PERSISTENT");
     testXml(cache);
-    GemFireCacheImpl c = (GemFireCacheImpl) getCache();
+    var c = (GemFireCacheImpl) getCache();
     Region r = c.getRegion("preplicate");
     assertNotNull(r);
-    RegionAttributes ra = r.getAttributes();
+    var ra = r.getAttributes();
     assertEquals(DataPolicy.PERSISTENT_REPLICATE, ra.getDataPolicy());
     assertEquals(Scope.DISTRIBUTED_ACK, ra.getScope());
   }
 
   @Test
   public void testREPLICATE_OVERFLOW() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    RegionCreation root =
+    var cache = new CacheCreation();
+    var root =
         (RegionCreation) cache.createRegion("replicateoverflow", "REPLICATE_OVERFLOW");
     testXml(cache);
-    GemFireCacheImpl c = (GemFireCacheImpl) getCache();
+    var c = (GemFireCacheImpl) getCache();
     Region r = c.getRegion("replicateoverflow");
     assertNotNull(r);
-    RegionAttributes ra = r.getAttributes();
+    var ra = r.getAttributes();
     assertEquals(DataPolicy.REPLICATE, ra.getDataPolicy());
     assertEquals(Scope.DISTRIBUTED_ACK, ra.getScope());
     assertEquals(EvictionAttributes.createLRUHeapAttributes(null, EvictionAction.OVERFLOW_TO_DISK),
@@ -888,14 +879,14 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testREPLICATE_PERSISTENT_OVERFLOW() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    RegionCreation root =
+    var cache = new CacheCreation();
+    var root =
         (RegionCreation) cache.createRegion("preplicateoverflow", "REPLICATE_PERSISTENT_OVERFLOW");
     testXml(cache);
-    GemFireCacheImpl c = (GemFireCacheImpl) getCache();
+    var c = (GemFireCacheImpl) getCache();
     Region r = c.getRegion("preplicateoverflow");
     assertNotNull(r);
-    RegionAttributes ra = r.getAttributes();
+    var ra = r.getAttributes();
     assertEquals(DataPolicy.PERSISTENT_REPLICATE, ra.getDataPolicy());
     assertEquals(Scope.DISTRIBUTED_ACK, ra.getScope());
     assertEquals(EvictionAttributes.createLRUHeapAttributes(null, EvictionAction.OVERFLOW_TO_DISK),
@@ -906,13 +897,13 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testREPLICATE_HEAP_LRU() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    RegionCreation root = (RegionCreation) cache.createRegion("replicatelru", "REPLICATE_HEAP_LRU");
+    var cache = new CacheCreation();
+    var root = (RegionCreation) cache.createRegion("replicatelru", "REPLICATE_HEAP_LRU");
     testXml(cache);
-    GemFireCacheImpl c = (GemFireCacheImpl) getCache();
+    var c = (GemFireCacheImpl) getCache();
     Region r = c.getRegion("replicatelru");
     assertNotNull(r);
-    RegionAttributes ra = r.getAttributes();
+    var ra = r.getAttributes();
     assertEquals(DataPolicy.PRELOADED, ra.getDataPolicy());
     assertEquals(new SubscriptionAttributes(InterestPolicy.ALL), ra.getSubscriptionAttributes());
     assertEquals(Scope.DISTRIBUTED_ACK, ra.getScope());
@@ -923,39 +914,39 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testLOCAL() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    RegionCreation root = (RegionCreation) cache.createRegion("local", "LOCAL");
+    var cache = new CacheCreation();
+    var root = (RegionCreation) cache.createRegion("local", "LOCAL");
     testXml(cache);
-    GemFireCacheImpl c = (GemFireCacheImpl) getCache();
+    var c = (GemFireCacheImpl) getCache();
     Region r = c.getRegion("local");
     assertNotNull(r);
-    RegionAttributes ra = r.getAttributes();
+    var ra = r.getAttributes();
     assertEquals(DataPolicy.NORMAL, ra.getDataPolicy());
     assertEquals(Scope.LOCAL, ra.getScope());
   }
 
   @Test
   public void testLOCAL_PERSISTENT() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    RegionCreation root = (RegionCreation) cache.createRegion("plocal", "LOCAL_PERSISTENT");
+    var cache = new CacheCreation();
+    var root = (RegionCreation) cache.createRegion("plocal", "LOCAL_PERSISTENT");
     testXml(cache);
-    GemFireCacheImpl c = (GemFireCacheImpl) getCache();
+    var c = (GemFireCacheImpl) getCache();
     Region r = c.getRegion("plocal");
     assertNotNull(r);
-    RegionAttributes ra = r.getAttributes();
+    var ra = r.getAttributes();
     assertEquals(DataPolicy.PERSISTENT_REPLICATE, ra.getDataPolicy());
     assertEquals(Scope.LOCAL, ra.getScope());
   }
 
   @Test
   public void testLOCAL_HEAP_LRU() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    RegionCreation root = (RegionCreation) cache.createRegion("locallru", "LOCAL_HEAP_LRU");
+    var cache = new CacheCreation();
+    var root = (RegionCreation) cache.createRegion("locallru", "LOCAL_HEAP_LRU");
     testXml(cache);
-    GemFireCacheImpl c = (GemFireCacheImpl) getCache();
+    var c = (GemFireCacheImpl) getCache();
     Region r = c.getRegion("locallru");
     assertNotNull(r);
-    RegionAttributes ra = r.getAttributes();
+    var ra = r.getAttributes();
     assertEquals(DataPolicy.NORMAL, ra.getDataPolicy());
     assertEquals(Scope.LOCAL, ra.getScope());
     assertEquals(EvictionAttributes.createLRUHeapAttributes(), ra.getEvictionAttributes());
@@ -965,13 +956,13 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testLOCAL_OVERFLOW() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    RegionCreation root = (RegionCreation) cache.createRegion("localoverflow", "LOCAL_OVERFLOW");
+    var cache = new CacheCreation();
+    var root = (RegionCreation) cache.createRegion("localoverflow", "LOCAL_OVERFLOW");
     testXml(cache);
-    GemFireCacheImpl c = (GemFireCacheImpl) getCache();
+    var c = (GemFireCacheImpl) getCache();
     Region r = c.getRegion("localoverflow");
     assertNotNull(r);
-    RegionAttributes ra = r.getAttributes();
+    var ra = r.getAttributes();
     assertEquals(DataPolicy.NORMAL, ra.getDataPolicy());
     assertEquals(Scope.LOCAL, ra.getScope());
     assertEquals(EvictionAttributes.createLRUHeapAttributes(null, EvictionAction.OVERFLOW_TO_DISK),
@@ -982,14 +973,14 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testLOCAL_PERSISTENT_OVERFLOW() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    RegionCreation root =
+    var cache = new CacheCreation();
+    var root =
         (RegionCreation) cache.createRegion("cpolocal", "LOCAL_PERSISTENT_OVERFLOW");
     testXml(cache);
-    GemFireCacheImpl c = (GemFireCacheImpl) getCache();
+    var c = (GemFireCacheImpl) getCache();
     Region r = c.getRegion("cpolocal");
     assertNotNull(r);
-    RegionAttributes ra = r.getAttributes();
+    var ra = r.getAttributes();
     assertEquals(DataPolicy.PERSISTENT_REPLICATE, ra.getDataPolicy());
     assertEquals(Scope.LOCAL, ra.getScope());
     assertEquals(EvictionAttributes.createLRUHeapAttributes(null, EvictionAction.OVERFLOW_TO_DISK),
@@ -1000,13 +991,13 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testPARTITION_PROXY() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    RegionCreation root = (RegionCreation) cache.createRegion("partitionProxy", "PARTITION_PROXY");
+    var cache = new CacheCreation();
+    var root = (RegionCreation) cache.createRegion("partitionProxy", "PARTITION_PROXY");
     testXml(cache);
-    GemFireCacheImpl c = (GemFireCacheImpl) getCache();
+    var c = (GemFireCacheImpl) getCache();
     Region r = c.getRegion("partitionProxy");
     assertNotNull(r);
-    RegionAttributes ra = r.getAttributes();
+    var ra = r.getAttributes();
     assertEquals(DataPolicy.PARTITION, ra.getDataPolicy());
     assertNotNull(ra.getPartitionAttributes());
     assertEquals(0, ra.getPartitionAttributes().getRedundantCopies());
@@ -1015,14 +1006,14 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testPARTITION_PROXY_REDUNDANT() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    RegionCreation root =
+    var cache = new CacheCreation();
+    var root =
         (RegionCreation) cache.createRegion("rpartitionProxy", "PARTITION_PROXY_REDUNDANT");
     testXml(cache);
-    GemFireCacheImpl c = (GemFireCacheImpl) getCache();
+    var c = (GemFireCacheImpl) getCache();
     Region r = c.getRegion("rpartitionProxy");
     assertNotNull(r);
-    RegionAttributes ra = r.getAttributes();
+    var ra = r.getAttributes();
     assertEquals(DataPolicy.PARTITION, ra.getDataPolicy());
     assertNotNull(ra.getPartitionAttributes());
     assertEquals(1, ra.getPartitionAttributes().getRedundantCopies());
@@ -1031,27 +1022,27 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testREPLICATE_PROXY() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    RegionCreation root = (RegionCreation) cache.createRegion("replicateProxy", "REPLICATE_PROXY");
+    var cache = new CacheCreation();
+    var root = (RegionCreation) cache.createRegion("replicateProxy", "REPLICATE_PROXY");
     testXml(cache);
-    GemFireCacheImpl c = (GemFireCacheImpl) getCache();
+    var c = (GemFireCacheImpl) getCache();
     Region r = c.getRegion("replicateProxy");
     assertNotNull(r);
-    RegionAttributes ra = r.getAttributes();
+    var ra = r.getAttributes();
     assertEquals(DataPolicy.EMPTY, ra.getDataPolicy());
     assertEquals(Scope.DISTRIBUTED_ACK, ra.getScope());
   }
 
   @Test
   public void testPROXY() throws Exception {
-    ClientCacheCreation cache = new ClientCacheCreation();
-    RegionCreation root = (RegionCreation) cache.createRegion("proxy", "PROXY");
+    var cache = new ClientCacheCreation();
+    var root = (RegionCreation) cache.createRegion("proxy", "PROXY");
     testXml(cache);
-    GemFireCacheImpl c = (GemFireCacheImpl) getCache();
+    var c = (GemFireCacheImpl) getCache();
     assertEquals(true, c.isClient());
     Region r = c.getRegion("proxy");
     assertNotNull(r);
-    RegionAttributes ra = r.getAttributes();
+    var ra = r.getAttributes();
     assertEquals(DataPolicy.EMPTY, ra.getDataPolicy());
     assertEquals(Scope.LOCAL, ra.getScope());
     assertEquals("DEFAULT", ra.getPoolName());
@@ -1059,14 +1050,14 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testCACHING_PROXY() throws Exception {
-    ClientCacheCreation cache = new ClientCacheCreation();
-    RegionCreation root = (RegionCreation) cache.createRegion("cproxy", "CACHING_PROXY");
+    var cache = new ClientCacheCreation();
+    var root = (RegionCreation) cache.createRegion("cproxy", "CACHING_PROXY");
     testXml(cache);
-    GemFireCacheImpl c = (GemFireCacheImpl) getCache();
+    var c = (GemFireCacheImpl) getCache();
     assertEquals(true, c.isClient());
     Region r = c.getRegion("cproxy");
     assertNotNull(r);
-    RegionAttributes ra = r.getAttributes();
+    var ra = r.getAttributes();
     assertEquals(DataPolicy.NORMAL, ra.getDataPolicy());
     assertEquals(Scope.LOCAL, ra.getScope());
     assertEquals("DEFAULT", ra.getPoolName());
@@ -1074,15 +1065,15 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testCACHING_PROXY_HEAP_LRU() throws Exception {
-    ClientCacheCreation cache = new ClientCacheCreation();
-    RegionCreation root =
+    var cache = new ClientCacheCreation();
+    var root =
         (RegionCreation) cache.createRegion("cproxylru", "CACHING_PROXY_HEAP_LRU");
     testXml(cache);
-    GemFireCacheImpl c = (GemFireCacheImpl) getCache();
+    var c = (GemFireCacheImpl) getCache();
     assertEquals(true, c.isClient());
     Region r = c.getRegion("cproxylru");
     assertNotNull(r);
-    RegionAttributes ra = r.getAttributes();
+    var ra = r.getAttributes();
     assertEquals(DataPolicy.NORMAL, ra.getDataPolicy());
     assertEquals(Scope.LOCAL, ra.getScope());
     assertEquals("DEFAULT", ra.getPoolName());
@@ -1093,15 +1084,15 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testCACHING_PROXY_OVERFLOW() throws Exception {
-    ClientCacheCreation cache = new ClientCacheCreation();
-    RegionCreation root =
+    var cache = new ClientCacheCreation();
+    var root =
         (RegionCreation) cache.createRegion("cproxyoverflow", "CACHING_PROXY_OVERFLOW");
     testXml(cache);
-    GemFireCacheImpl c = (GemFireCacheImpl) getCache();
+    var c = (GemFireCacheImpl) getCache();
     assertEquals(true, c.isClient());
     Region r = c.getRegion("cproxyoverflow");
     assertNotNull(r);
-    RegionAttributes ra = r.getAttributes();
+    var ra = r.getAttributes();
     assertEquals(DataPolicy.NORMAL, ra.getDataPolicy());
     assertEquals(Scope.LOCAL, ra.getScope());
     assertEquals("DEFAULT", ra.getPoolName());
@@ -1113,14 +1104,14 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testClientLOCAL() throws Exception {
-    ClientCacheCreation cache = new ClientCacheCreation();
-    RegionCreation root = (RegionCreation) cache.createRegion("local", "LOCAL");
+    var cache = new ClientCacheCreation();
+    var root = (RegionCreation) cache.createRegion("local", "LOCAL");
     testXml(cache);
-    GemFireCacheImpl c = (GemFireCacheImpl) getCache();
+    var c = (GemFireCacheImpl) getCache();
     assertEquals(true, c.isClient());
     Region r = c.getRegion("local");
     assertNotNull(r);
-    RegionAttributes ra = r.getAttributes();
+    var ra = r.getAttributes();
     assertEquals(DataPolicy.NORMAL, ra.getDataPolicy());
     assertEquals(Scope.LOCAL, ra.getScope());
     assertEquals(null, ra.getPoolName());
@@ -1128,14 +1119,14 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testClientLOCAL_HEAP_LRU() throws Exception {
-    ClientCacheCreation cache = new ClientCacheCreation();
-    RegionCreation root = (RegionCreation) cache.createRegion("locallru", "LOCAL_HEAP_LRU");
+    var cache = new ClientCacheCreation();
+    var root = (RegionCreation) cache.createRegion("locallru", "LOCAL_HEAP_LRU");
     testXml(cache);
-    GemFireCacheImpl c = (GemFireCacheImpl) getCache();
+    var c = (GemFireCacheImpl) getCache();
     assertEquals(true, c.isClient());
     Region r = c.getRegion("locallru");
     assertNotNull(r);
-    RegionAttributes ra = r.getAttributes();
+    var ra = r.getAttributes();
     assertEquals(DataPolicy.NORMAL, ra.getDataPolicy());
     assertEquals(Scope.LOCAL, ra.getScope());
     assertEquals(null, ra.getPoolName());
@@ -1146,14 +1137,14 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testClientLOCAL_OVERFLOW() throws Exception {
-    ClientCacheCreation cache = new ClientCacheCreation();
-    RegionCreation root = (RegionCreation) cache.createRegion("localoverflow", "LOCAL_OVERFLOW");
+    var cache = new ClientCacheCreation();
+    var root = (RegionCreation) cache.createRegion("localoverflow", "LOCAL_OVERFLOW");
     testXml(cache);
-    GemFireCacheImpl c = (GemFireCacheImpl) getCache();
+    var c = (GemFireCacheImpl) getCache();
     assertEquals(true, c.isClient());
     Region r = c.getRegion("localoverflow");
     assertNotNull(r);
-    RegionAttributes ra = r.getAttributes();
+    var ra = r.getAttributes();
     assertEquals(DataPolicy.NORMAL, ra.getDataPolicy());
     assertEquals(Scope.LOCAL, ra.getScope());
     assertEquals(null, ra.getPoolName());
@@ -1165,14 +1156,14 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testClientLOCAL_PERSISTENT() throws Exception {
-    ClientCacheCreation cache = new ClientCacheCreation();
-    RegionCreation root = (RegionCreation) cache.createRegion("cplocal", "LOCAL_PERSISTENT");
+    var cache = new ClientCacheCreation();
+    var root = (RegionCreation) cache.createRegion("cplocal", "LOCAL_PERSISTENT");
     testXml(cache);
-    GemFireCacheImpl c = (GemFireCacheImpl) getCache();
+    var c = (GemFireCacheImpl) getCache();
     assertEquals(true, c.isClient());
     Region r = c.getRegion("cplocal");
     assertNotNull(r);
-    RegionAttributes ra = r.getAttributes();
+    var ra = r.getAttributes();
     assertEquals(DataPolicy.PERSISTENT_REPLICATE, ra.getDataPolicy());
     assertEquals(Scope.LOCAL, ra.getScope());
     assertEquals(null, ra.getPoolName());
@@ -1180,15 +1171,15 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testClientLOCAL_PERSISTENT_OVERFLOW() throws Exception {
-    ClientCacheCreation cache = new ClientCacheCreation();
-    RegionCreation root =
+    var cache = new ClientCacheCreation();
+    var root =
         (RegionCreation) cache.createRegion("cpolocal", "LOCAL_PERSISTENT_OVERFLOW");
     testXml(cache);
-    GemFireCacheImpl c = (GemFireCacheImpl) getCache();
+    var c = (GemFireCacheImpl) getCache();
     assertEquals(true, c.isClient());
     Region r = c.getRegion("cpolocal");
     assertNotNull(r);
-    RegionAttributes ra = r.getAttributes();
+    var ra = r.getAttributes();
     assertEquals(DataPolicy.PERSISTENT_REPLICATE, ra.getDataPolicy());
     assertEquals(Scope.LOCAL, ra.getScope());
     assertEquals(null, ra.getPoolName());
@@ -1205,28 +1196,28 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
   @Test
   public void testFixedPartitioning() throws Exception {
 
-    CacheCreation cache = new CacheCreation();
-    RegionAttributesCreation attrs = new RegionAttributesCreation();
-    FixedPartitionAttributes fpa1 = FixedPartitionAttributes.createFixedPartition("Q1");
-    FixedPartitionAttributes fpa2 = FixedPartitionAttributes.createFixedPartition("Q2", true);
-    FixedPartitionAttributes fpa3 = FixedPartitionAttributes.createFixedPartition("Q3", 3);
-    FixedPartitionAttributes fpa4 = FixedPartitionAttributes.createFixedPartition("Q4", false, 3);
+    var cache = new CacheCreation();
+    var attrs = new RegionAttributesCreation();
+    var fpa1 = FixedPartitionAttributes.createFixedPartition("Q1");
+    var fpa2 = FixedPartitionAttributes.createFixedPartition("Q2", true);
+    var fpa3 = FixedPartitionAttributes.createFixedPartition("Q3", 3);
+    var fpa4 = FixedPartitionAttributes.createFixedPartition("Q4", false, 3);
     List<FixedPartitionAttributes> fpattrsList = new ArrayList<>();
     fpattrsList.add(fpa1);
     fpattrsList.add(fpa2);
     fpattrsList.add(fpa3);
     fpattrsList.add(fpa4);
 
-    QuarterPartitionResolver resolver = new QuarterPartitionResolver();
+    var resolver = new QuarterPartitionResolver();
 
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setRedundantCopies(1).setPartitionResolver(resolver).addFixedPartitionAttributes(fpa1)
         .addFixedPartitionAttributes(fpa2).addFixedPartitionAttributes(fpa3)
         .addFixedPartitionAttributes(fpa4);
 
     attrs.setPartitionAttributes(paf.create());
     cache.createRegion("Quarter", attrs);
-    Region r = cache.getRegion("Quarter");
+    var r = cache.getRegion("Quarter");
     validateAttributes(r, fpattrsList, resolver, false);
 
     testXml(cache);
@@ -1240,23 +1231,23 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testFixedPartitioning_colocation_WithAttributes() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    FixedPartitionAttributes fpa1 = FixedPartitionAttributes.createFixedPartition("Q1");
-    FixedPartitionAttributes fpa2 = FixedPartitionAttributes.createFixedPartition("Q2", true);
-    FixedPartitionAttributes fpa3 = FixedPartitionAttributes.createFixedPartition("Q3", 3);
-    FixedPartitionAttributes fpa4 = FixedPartitionAttributes.createFixedPartition("Q4", false, 3);
+    var cache = new CacheCreation();
+    var fpa1 = FixedPartitionAttributes.createFixedPartition("Q1");
+    var fpa2 = FixedPartitionAttributes.createFixedPartition("Q2", true);
+    var fpa3 = FixedPartitionAttributes.createFixedPartition("Q3", 3);
+    var fpa4 = FixedPartitionAttributes.createFixedPartition("Q4", false, 3);
     List<FixedPartitionAttributes> fpattrsList = new ArrayList<>();
     fpattrsList.add(fpa1);
     fpattrsList.add(fpa2);
     fpattrsList.add(fpa3);
     fpattrsList.add(fpa4);
-    QuarterPartitionResolver resolver = new QuarterPartitionResolver();
+    var resolver = new QuarterPartitionResolver();
     Region customerRegion = null;
     Region orderRegion = null;
 
     {
-      RegionAttributesCreation attrs = new RegionAttributesCreation();
-      PartitionAttributesFactory paf = new PartitionAttributesFactory();
+      var attrs = new RegionAttributesCreation();
+      var paf = new PartitionAttributesFactory();
       paf.setRedundantCopies(1).setPartitionResolver(resolver).addFixedPartitionAttributes(fpa1)
           .addFixedPartitionAttributes(fpa2).addFixedPartitionAttributes(fpa3)
           .addFixedPartitionAttributes(fpa4);
@@ -1267,8 +1258,8 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
     validateAttributes(customerRegion, fpattrsList, resolver, false);
 
     try {
-      RegionAttributesCreation attrs = new RegionAttributesCreation();
-      PartitionAttributesFactory paf = new PartitionAttributesFactory();
+      var attrs = new RegionAttributesCreation();
+      var paf = new PartitionAttributesFactory();
       paf.setRedundantCopies(1).setPartitionResolver(resolver).addFixedPartitionAttributes(fpa1)
           .addFixedPartitionAttributes(fpa2).addFixedPartitionAttributes(fpa3)
           .addFixedPartitionAttributes(fpa4).setColocatedWith("Customer");
@@ -1284,8 +1275,8 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
         Assert.fail("Expected IllegalStateException ", illegal);
       }
 
-      RegionAttributesCreation attrs = new RegionAttributesCreation();
-      PartitionAttributesFactory paf = new PartitionAttributesFactory();
+      var attrs = new RegionAttributesCreation();
+      var paf = new PartitionAttributesFactory();
       paf.setRedundantCopies(1).setPartitionResolver(resolver).setColocatedWith("Customer");
 
       attrs.setPartitionAttributes(paf.create());
@@ -1309,8 +1300,8 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   private void validateAttributes(Region region, List<FixedPartitionAttributes> fpattrsList,
       QuarterPartitionResolver resolver, boolean isColocated) {
-    RegionAttributes regionAttrs = region.getAttributes();
-    PartitionAttributes pa = regionAttrs.getPartitionAttributes();
+    var regionAttrs = region.getAttributes();
+    var pa = regionAttrs.getPartitionAttributes();
 
     assertEquals(pa.getRedundantCopies(), 1);
     assertNotNull(pa.getPartitionResolver().getClass());
@@ -1346,7 +1337,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testPdxDefaults() throws Exception {
-    CacheCreation creation = new CacheCreation();
+    var creation = new CacheCreation();
     testXml(creation);
 
     Cache c = getCache();
@@ -1362,13 +1353,13 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testPdxAttributes() throws Exception {
-    CacheCreation creation = new CacheCreation();
+    var creation = new CacheCreation();
     creation.setPdxPersistent(true);
     creation.setPdxReadSerialized(true);
     creation.setPdxIgnoreUnreadFields(true);
     creation.setPdxDiskStore("my_disk_store");
-    TestPdxSerializer serializer = new TestPdxSerializer();
-    Properties props = new Properties();
+    var serializer = new TestPdxSerializer();
+    var props = new Properties();
     props.setProperty("hello", "there");
     serializer.init(props);
     creation.setPdxSerializer(serializer);
@@ -1387,7 +1378,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
     // test that we can override the cache.xml attributes
     {
       closeCache();
-      CacheFactory cf = new CacheFactory();
+      var cf = new CacheFactory();
       cf.setPdxDiskStore("new disk store");
       c = getCache(cf);
       assertTrue(c instanceof GemFireCacheImpl);
@@ -1402,7 +1393,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
     {
       closeCache();
-      CacheFactory cf = new CacheFactory();
+      var cf = new CacheFactory();
       cf.setPdxPersistent(false);
       cf.setPdxIgnoreUnreadFields(false);
       c = getCache(cf);
@@ -1418,7 +1409,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
     {
       closeCache();
-      CacheFactory cf = new CacheFactory();
+      var cf = new CacheFactory();
       cf.setPdxSerializer(null);
       c = getCache(cf);
       assertTrue(c instanceof GemFireCacheImpl);
@@ -1433,7 +1424,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
     {
       closeCache();
-      CacheFactory cf = new CacheFactory();
+      var cf = new CacheFactory();
       cf.setPdxReadSerialized(false);
       c = getCache(cf);
       assertTrue(c instanceof GemFireCacheImpl);
@@ -1450,9 +1441,9 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testTXManagerOnClientCache() throws Exception {
-    ClientCacheCreation cc = new ClientCacheCreation();
+    var cc = new ClientCacheCreation();
     // CacheCreation cc = new CacheCreation();
-    CacheTransactionManagerCreation txMgrCreation = new CacheTransactionManagerCreation();
+    var txMgrCreation = new CacheTransactionManagerCreation();
     txMgrCreation.addListener(new TestTXListener());
     cc.addCacheTransactionManagerCreation(txMgrCreation);
     testXml(cc);
@@ -1461,8 +1452,8 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
     assertTrue(c instanceof ClientCache);
     c.loadCacheXml(generate(cc));
 
-    ClientCache clientC = (ClientCache) c;
-    CacheTransactionManager mgr = clientC.getCacheTransactionManager();
+    var clientC = (ClientCache) c;
+    var mgr = clientC.getCacheTransactionManager();
     assertNotNull(mgr);
     assertTrue(mgr.getListeners()[0] instanceof TestTXListener);
 
@@ -1471,11 +1462,11 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
   @Test
   public void testNoTXWriterOnClient() throws Exception {
     // test writer is not created
-    ClientCacheCreation cc = new ClientCacheCreation();
-    CacheTransactionManagerCreation txMgrCreation = new CacheTransactionManagerCreation();
+    var cc = new ClientCacheCreation();
+    var txMgrCreation = new CacheTransactionManagerCreation();
     txMgrCreation.setWriter(new TestTransactionWriter());
     cc.addCacheTransactionManagerCreation(txMgrCreation);
-    IgnoredException expectedException =
+    var expectedException =
         addIgnoredException("A TransactionWriter cannot be registered on a client");
     try {
       testXml(cc);
@@ -1502,12 +1493,12 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testRegionAttributesForRegionEntryCloning() throws Exception {
-    final String rNameBase = getUniqueName();
-    final String r1 = rNameBase + "1";
+    final var rNameBase = getUniqueName();
+    final var r1 = rNameBase + "1";
 
     // Setting multi-cast via nested region attributes
-    CacheCreation creation = new CacheCreation();
-    RegionAttributesCreation attrs = new RegionAttributesCreation(creation);
+    var creation = new CacheCreation();
+    var attrs = new RegionAttributesCreation(creation);
     attrs.setScope(Scope.LOCAL);
     attrs.setEarlyAck(false);
     attrs.setCloningEnable(false);
@@ -1535,11 +1526,11 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
     assertFalse(reg1.getAttributes().getCloningEnabled());
 
     // for sub region - a child attribute should be inherited
-    String sub = "subRegion";
-    RegionAttributesCreation attrsSub = new RegionAttributesCreation(creation);
+    var sub = "subRegion";
+    var attrsSub = new RegionAttributesCreation(creation);
     attrsSub.setScope(Scope.LOCAL);
     reg1.createSubregion(sub, attrsSub);
-    Region subRegion = reg1.getSubregion(sub);
+    var subRegion = reg1.getSubregion(sub);
     assertFalse(subRegion.getAttributes().getCloningEnabled());
     subRegion.getAttributesMutator().setCloningEnabled(true);
     assertTrue(subRegion.getAttributes().getCloningEnabled());
@@ -1551,10 +1542,10 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testRecoveryDelayAttributes() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var cache = new CacheCreation();
+    var attrs = new RegionAttributesCreation(cache);
 
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setRedundantCopies(1);
     paf.setTotalMaxMemory(500);
     paf.setLocalMaxMemory(100);
@@ -1565,7 +1556,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
     cache.createRegion("parRoot", attrs);
 
-    Region r = cache.getRegion("parRoot");
+    var r = cache.getRegion("parRoot");
     assertEquals(r.getAttributes().getPartitionAttributes().getRedundantCopies(), 1);
     assertEquals(r.getAttributes().getPartitionAttributes().getLocalMaxMemory(), 100);
     assertEquals(r.getAttributes().getPartitionAttributes().getTotalMaxMemory(), 500);
@@ -1580,8 +1571,8 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
     Region region = c.getRegion("parRoot");
     assertNotNull(region);
 
-    RegionAttributes regionAttrs = region.getAttributes();
-    PartitionAttributes pa = regionAttrs.getPartitionAttributes();
+    var regionAttrs = region.getAttributes();
+    var pa = regionAttrs.getPartitionAttributes();
 
     assertEquals(pa.getRedundantCopies(), 1);
     assertEquals(pa.getLocalMaxMemory(), 100);
@@ -1596,10 +1587,10 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testDefaultRecoveryDelayAttributes() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var cache = new CacheCreation();
+    var attrs = new RegionAttributesCreation(cache);
 
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setRedundantCopies(1);
     paf.setTotalMaxMemory(500);
     paf.setLocalMaxMemory(100);
@@ -1607,7 +1598,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
     cache.createRegion("parRoot", attrs);
 
-    Region r = cache.getRegion("parRoot");
+    var r = cache.getRegion("parRoot");
     assertEquals(r.getAttributes().getPartitionAttributes().getRedundantCopies(), 1);
     assertEquals(r.getAttributes().getPartitionAttributes().getLocalMaxMemory(), 100);
     assertEquals(r.getAttributes().getPartitionAttributes().getTotalMaxMemory(), 500);
@@ -1622,8 +1613,8 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
     Region region = c.getRegion("parRoot");
     assertNotNull(region);
 
-    RegionAttributes regionAttrs = region.getAttributes();
-    PartitionAttributes pa = regionAttrs.getPartitionAttributes();
+    var regionAttrs = region.getAttributes();
+    var pa = regionAttrs.getPartitionAttributes();
 
     assertEquals(pa.getRedundantCopies(), 1);
     assertEquals(pa.getLocalMaxMemory(), 100);
@@ -1638,12 +1629,12 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testResourceManagerThresholds() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    final float low = 90.0f;
-    final float high = 95.0f;
+    var cache = new CacheCreation();
+    final var low = 90.0f;
+    final var high = 95.0f;
 
     Cache c;
-    ResourceManagerCreation rmc = new ResourceManagerCreation();
+    var rmc = new ResourceManagerCreation();
     rmc.setEvictionHeapPercentage(low);
     rmc.setCriticalHeapPercentage(high);
     cache.setResourceManagerCreation(rmc);
@@ -1672,7 +1663,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
     rmc.setEvictionHeapPercentage(high);
     rmc.setCriticalHeapPercentage(low);
     cache.setResourceManagerCreation(rmc);
-    IgnoredException expectedException = addIgnoredException(
+    var expectedException = addIgnoredException(
         "Eviction percentage must be less than the critical percentage.");
     try {
       testXml(cache);
@@ -1788,8 +1779,8 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testSerializationRegistration() throws Exception {
-    CacheCreation cc = new CacheCreation();
-    SerializerCreation sc = new SerializerCreation();
+    var cc = new CacheCreation();
+    var sc = new SerializerCreation();
 
     cc.setSerializerCreation(sc);
 
@@ -1809,7 +1800,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
     closeCache();
     cc.setSerializerCreation(sc);
 
-    IgnoredException expectedException =
+    var expectedException =
         addIgnoredException("While reading Cache XML file");
     try {
       testXml(cc);
@@ -1824,7 +1815,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
     closeCache();
     cc.setSerializerCreation(sc);
 
-    IgnoredException expectedException1 =
+    var expectedException1 =
         addIgnoredException("While reading Cache XML file");
     try {
       testXml(cc);
@@ -1841,16 +1832,16 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testPartitionedRegionAttributesForCustomPartitioning() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var cache = new CacheCreation();
+    var attrs = new RegionAttributesCreation(cache);
 
-    CacheXMLPartitionResolver partitionResolver = new CacheXMLPartitionResolver();
-    Properties params = new Properties();
+    var partitionResolver = new CacheXMLPartitionResolver();
+    var params = new Properties();
     params.setProperty("initial-index-value", "1000");
     params.setProperty("secondary-index-value", "5000");
     partitionResolver.init(params);
 
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setRedundantCopies(1);
     paf.setTotalMaxMemory(500);
     paf.setLocalMaxMemory(100);
@@ -1860,7 +1851,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
     cache.createRegion("parRoot", attrs);
 
-    Region r = cache.getRegion("parRoot");
+    var r = cache.getRegion("parRoot");
     assertEquals(r.getAttributes().getPartitionAttributes().getRedundantCopies(), 1);
     assertEquals(r.getAttributes().getPartitionAttributes().getLocalMaxMemory(), 100);
     assertEquals(r.getAttributes().getPartitionAttributes().getTotalMaxMemory(), 500);
@@ -1875,8 +1866,8 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
     Region region = c.getRegion("parRoot");
     assertNotNull(region);
 
-    RegionAttributes regionAttrs = region.getAttributes();
-    PartitionAttributes pa = regionAttrs.getPartitionAttributes();
+    var regionAttrs = region.getAttributes();
+    var pa = regionAttrs.getPartitionAttributes();
 
     assertEquals(pa.getRedundantCopies(), 1);
     assertEquals(pa.getLocalMaxMemory(), 100);
@@ -1891,11 +1882,11 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testCacheCreationWithFunctionService() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    FunctionServiceCreation fsc = new FunctionServiceCreation();
-    TestFunction function1 = new TestFunction(true, TestFunction.TEST_FUNCTION2);
-    TestFunction function2 = new TestFunction(true, TestFunction.TEST_FUNCTION3);
-    TestFunction function3 = new TestFunction(true, TestFunction.TEST_FUNCTION4);
+    var cache = new CacheCreation();
+    var fsc = new FunctionServiceCreation();
+    var function1 = new TestFunction(true, TestFunction.TEST_FUNCTION2);
+    var function2 = new TestFunction(true, TestFunction.TEST_FUNCTION3);
+    var function3 = new TestFunction(true, TestFunction.TEST_FUNCTION4);
     fsc.registerFunction(function1);
     fsc.registerFunction(function2);
     fsc.registerFunction(function3);
@@ -1904,7 +1895,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
     testXml(cache);
     getCache();
-    Map<String, Function> functionIdMap = FunctionService.getRegisteredFunctions();
+    var functionIdMap = FunctionService.getRegisteredFunctions();
     assertEquals(3, functionIdMap.size());
 
     assertTrue(function1.equals(functionIdMap.get(function1.getId())));
@@ -1918,25 +1909,25 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testPartitionedRegionAttributesForExpiration() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var cache = new CacheCreation();
+    var attrs = new RegionAttributesCreation(cache);
     attrs.setStatisticsEnabled(true);
     RegionAttributes rootAttrs = null;
-    ExpirationAttributes expiration = new ExpirationAttributes(60, ExpirationAction.DESTROY);
+    var expiration = new ExpirationAttributes(60, ExpirationAction.DESTROY);
 
-    CacheXMLPartitionResolver partitionResolver = new CacheXMLPartitionResolver();
-    Properties params = new Properties();
+    var partitionResolver = new CacheXMLPartitionResolver();
+    var params = new Properties();
     params.setProperty("initial-index-value", "1000");
     params.setProperty("secondary-index-value", "5000");
     partitionResolver.init(params);
 
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setRedundantCopies(1);
     paf.setTotalMaxMemory(500);
     paf.setLocalMaxMemory(100);
     paf.setPartitionResolver(partitionResolver);
 
-    AttributesFactory fac = new AttributesFactory(attrs);
+    var fac = new AttributesFactory(attrs);
     fac.setEntryTimeToLive(expiration);
     fac.setEntryIdleTimeout(expiration);
 
@@ -1944,7 +1935,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
     rootAttrs = fac.create();
     cache.createRegion("parRoot", rootAttrs);
 
-    Region r = cache.getRegion("parRoot");
+    var r = cache.getRegion("parRoot");
     assertNotNull(r);
     assertEquals(r.getAttributes().getPartitionAttributes().getRedundantCopies(), 1);
     assertEquals(r.getAttributes().getPartitionAttributes().getLocalMaxMemory(), 100);
@@ -1963,8 +1954,8 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
     Region region = c.getRegion("parRoot");
     assertNotNull(region);
 
-    RegionAttributes regionAttrs = region.getAttributes();
-    PartitionAttributes pa = regionAttrs.getPartitionAttributes();
+    var regionAttrs = region.getAttributes();
+    var pa = regionAttrs.getPartitionAttributes();
 
     assertEquals(pa.getRedundantCopies(), 1);
     assertEquals(pa.getLocalMaxMemory(), 100);
@@ -1982,32 +1973,32 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testPartitionedRegionAttributesForEviction() throws Exception {
-    final int redundantCopies = 1;
-    CacheCreation cache = new CacheCreation();
+    final var redundantCopies = 1;
+    var cache = new CacheCreation();
     if (getGemFireVersion().equals(CacheXml.VERSION_6_0)) {
-      ResourceManagerCreation rm = new ResourceManagerCreation();
+      var rm = new ResourceManagerCreation();
       rm.setCriticalHeapPercentage(95);
       cache.setResourceManagerCreation(rm);
     }
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var attrs = new RegionAttributesCreation(cache);
     attrs.setStatisticsEnabled(true);
     RegionAttributes rootAttrs = null;
 
-    ExpirationAttributes expiration = new ExpirationAttributes(60, ExpirationAction.DESTROY);
+    var expiration = new ExpirationAttributes(60, ExpirationAction.DESTROY);
 
-    CacheXMLPartitionResolver partitionResolver = new CacheXMLPartitionResolver();
-    Properties params = new Properties();
+    var partitionResolver = new CacheXMLPartitionResolver();
+    var params = new Properties();
     params.setProperty("initial-index-value", "1000");
     params.setProperty("secondary-index-value", "5000");
     partitionResolver.init(params);
 
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setRedundantCopies(redundantCopies);
     paf.setTotalMaxMemory(500);
     paf.setLocalMaxMemory(100);
     paf.setPartitionResolver(partitionResolver);
 
-    AttributesFactory fac = new AttributesFactory(attrs);
+    var fac = new AttributesFactory(attrs);
 
     // TODO: Move test back to using LRUHeap when config issues have settled
     // if (getGemFireVersion().equals(CacheXml.GEMFIRE_6_0)) {
@@ -2021,14 +2012,14 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
     fac.setEntryTimeToLive(expiration);
     fac.setEntryIdleTimeout(expiration);
 
-    DiskWriteAttributesFactory dwaf = new DiskWriteAttributesFactory();
+    var dwaf = new DiskWriteAttributesFactory();
     dwaf.setSynchronous(true);
 
     fac.setPartitionAttributes(paf.create());
     rootAttrs = fac.create();
     cache.createRegion("parRoot", rootAttrs);
 
-    Region r = cache.getRegion("parRoot");
+    var r = cache.getRegion("parRoot");
     assertNotNull(r);
     assertEquals(r.getAttributes().getPartitionAttributes().getRedundantCopies(), redundantCopies);
     assertEquals(r.getAttributes().getPartitionAttributes().getLocalMaxMemory(), 100);
@@ -2047,9 +2038,9 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
     Region region = c.getRegion("parRoot");
     assertNotNull(region);
 
-    RegionAttributes regionAttrs = region.getAttributes();
-    PartitionAttributes pa = regionAttrs.getPartitionAttributes();
-    EvictionAttributes ea = regionAttrs.getEvictionAttributes();
+    var regionAttrs = region.getAttributes();
+    var pa = regionAttrs.getPartitionAttributes();
+    var ea = regionAttrs.getEvictionAttributes();
 
     assertEquals(pa.getRedundantCopies(), 1);
     assertEquals(pa.getLocalMaxMemory(), 100);
@@ -2071,11 +2062,11 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
   @Test
   public void testPartitionedRegionAttributesForCoLocation() throws Exception {
     closeCache();
-    CacheCreation cache = new CacheCreation();
-    RegionAttributesCreation custAttrs = new RegionAttributesCreation(cache);
-    RegionAttributesCreation orderAttrs = new RegionAttributesCreation(cache);
-    PartitionAttributesFactory custPaf = new PartitionAttributesFactory();
-    PartitionAttributesFactory orderPaf = new PartitionAttributesFactory();
+    var cache = new CacheCreation();
+    var custAttrs = new RegionAttributesCreation(cache);
+    var orderAttrs = new RegionAttributesCreation(cache);
+    var custPaf = new PartitionAttributesFactory();
+    var orderPaf = new PartitionAttributesFactory();
     custPaf.setRedundantCopies(1);
     custPaf.setTotalMaxMemory(500);
     custPaf.setLocalMaxMemory(100);
@@ -2098,7 +2089,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
     assertNotNull(cust);
     Region order = c.getRegion(SEPARATOR + "Order");
     assertNotNull(order);
-    String coLocatedRegion = order.getAttributes().getPartitionAttributes().getColocatedWith();
+    var coLocatedRegion = order.getAttributes().getPartitionAttributes().getColocatedWith();
     assertEquals("Customer", coLocatedRegion);
   }
 
@@ -2120,17 +2111,17 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testPartitionedRegionAttributesForMemLruWithoutMaxMem() throws Exception {
-    final int redundantCopies = 1;
-    CacheCreation cache = new CacheCreation();
+    final var redundantCopies = 1;
+    var cache = new CacheCreation();
 
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var attrs = new RegionAttributesCreation(cache);
     attrs.setStatisticsEnabled(true);
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setRedundantCopies(redundantCopies);
     paf.setTotalMaxMemory(500);
     paf.setLocalMaxMemory(100);
 
-    AttributesFactory fac = new AttributesFactory(attrs);
+    var fac = new AttributesFactory(attrs);
     fac.setEvictionAttributes(
         EvictionAttributes.createLRUMemoryAttributes(null, EvictionAction.LOCAL_DESTROY));
     fac.setPartitionAttributes(paf.create());
@@ -2144,9 +2135,9 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
     Region region = c.getRegion("parRoot");
     assertNotNull(region);
 
-    RegionAttributes regionAttrs = region.getAttributes();
-    PartitionAttributes pa = regionAttrs.getPartitionAttributes();
-    EvictionAttributes ea = regionAttrs.getEvictionAttributes();
+    var regionAttrs = region.getAttributes();
+    var pa = regionAttrs.getPartitionAttributes();
+    var ea = regionAttrs.getEvictionAttributes();
 
     assertEquals(pa.getRedundantCopies(), 1);
     assertEquals(pa.getLocalMaxMemory(), 100);
@@ -2159,18 +2150,18 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testPartitionedRegionAttributesForMemLruWithMaxMem() throws Exception {
-    final int redundantCopies = 1;
-    final int maxMem = 25;
-    CacheCreation cache = new CacheCreation();
+    final var redundantCopies = 1;
+    final var maxMem = 25;
+    var cache = new CacheCreation();
 
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var attrs = new RegionAttributesCreation(cache);
     attrs.setStatisticsEnabled(true);
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setRedundantCopies(redundantCopies);
     paf.setTotalMaxMemory(500);
     paf.setLocalMaxMemory(100);
 
-    AttributesFactory fac = new AttributesFactory(attrs);
+    var fac = new AttributesFactory(attrs);
     fac.setEvictionAttributes(
         EvictionAttributes.createLRUMemoryAttributes(maxMem, null, EvictionAction.LOCAL_DESTROY));
     fac.setPartitionAttributes(paf.create());
@@ -2184,9 +2175,9 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
     Region region = c.getRegion("parRoot");
     assertNotNull(region);
 
-    RegionAttributes regionAttrs = region.getAttributes();
-    PartitionAttributes pa = regionAttrs.getPartitionAttributes();
-    EvictionAttributes ea = regionAttrs.getEvictionAttributes();
+    var regionAttrs = region.getAttributes();
+    var pa = regionAttrs.getPartitionAttributes();
+    var ea = regionAttrs.getEvictionAttributes();
 
     assertEquals(pa.getRedundantCopies(), 1);
     assertEquals(pa.getLocalMaxMemory(), 100);
@@ -2200,10 +2191,10 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testReplicatedRegionAttributesForMemLruWithoutMaxMem() throws Exception {
-    final int redundantCopies = 1;
-    CacheCreation cache = new CacheCreation();
+    final var redundantCopies = 1;
+    var cache = new CacheCreation();
 
-    AttributesFactory fac = new AttributesFactory();
+    var fac = new AttributesFactory();
     fac.setDataPolicy(DataPolicy.REPLICATE);
     fac.setEvictionAttributes(
         EvictionAttributes.createLRUMemoryAttributes(null, EvictionAction.OVERFLOW_TO_DISK));
@@ -2217,8 +2208,8 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
     Region region = c.getRegion("parRoot");
     assertNotNull(region);
 
-    RegionAttributes regionAttrs = region.getAttributes();
-    EvictionAttributes ea = regionAttrs.getEvictionAttributes();
+    var regionAttrs = region.getAttributes();
+    var ea = regionAttrs.getEvictionAttributes();
 
     assertEquals(ea.getAlgorithm(), EvictionAlgorithm.LRU_MEMORY);
     assertEquals(ea.getAction(), EvictionAction.OVERFLOW_TO_DISK);
@@ -2227,11 +2218,11 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testReplicatedRegionAttributesForMemLruWithMaxMem() throws Exception {
-    final int redundantCopies = 1;
-    final int maxMem = 25;
-    CacheCreation cache = new CacheCreation();
+    final var redundantCopies = 1;
+    final var maxMem = 25;
+    var cache = new CacheCreation();
 
-    AttributesFactory fac = new AttributesFactory();
+    var fac = new AttributesFactory();
     fac.setDataPolicy(DataPolicy.REPLICATE);
     fac.setEvictionAttributes(EvictionAttributes.createLRUMemoryAttributes(maxMem, null,
         EvictionAction.OVERFLOW_TO_DISK));
@@ -2245,8 +2236,8 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
     Region region = c.getRegion("parRoot");
     assertNotNull(region);
 
-    RegionAttributes regionAttrs = region.getAttributes();
-    EvictionAttributes ea = regionAttrs.getEvictionAttributes();
+    var regionAttrs = region.getAttributes();
+    var ea = regionAttrs.getEvictionAttributes();
     assertEquals(ea.getAlgorithm(), EvictionAlgorithm.LRU_MEMORY);
     assertEquals(ea.getAction(), EvictionAction.OVERFLOW_TO_DISK);
     assertEquals(ea.getMaximum(), maxMem);
@@ -2257,88 +2248,88 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testDefaultCacheServerGroups() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    CacheServer bs = cache.addCacheServer();
+    var cache = new CacheCreation();
+    var bs = cache.addCacheServer();
     bs.setPort(AvailablePortHelper.getRandomAvailableTCPPort());
     bs.setGroups(CacheServer.DEFAULT_GROUPS);
     testXml(cache);
     Cache c = getCache();
     assertNotNull(c);
-    CacheServer server = cache.getCacheServers().iterator().next();
+    var server = cache.getCacheServers().iterator().next();
     assertNotNull(server);
     assertEquals(CacheServer.DEFAULT_GROUPS, server.getGroups());
   }
 
   @Test
   public void testOneCacheServerGroups() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    CacheServer bs = cache.addCacheServer();
+    var cache = new CacheCreation();
+    var bs = cache.addCacheServer();
     bs.setPort(AvailablePortHelper.getRandomAvailableTCPPort());
-    String[] groups = new String[] {"group1"};
+    var groups = new String[] {"group1"};
     bs.setGroups(groups);
     testXml(cache);
     Cache c = getCache();
     assertNotNull(c);
-    CacheServer server = cache.getCacheServers().iterator().next();
+    var server = cache.getCacheServers().iterator().next();
     assertNotNull(server);
     assertEquals(Arrays.asList(groups), Arrays.asList(server.getGroups()));
   }
 
   @Test
   public void testTwoCacheServerGroups() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    CacheServer bs = cache.addCacheServer();
+    var cache = new CacheCreation();
+    var bs = cache.addCacheServer();
     bs.setPort(AvailablePortHelper.getRandomAvailableTCPPort());
-    String[] groups = new String[] {"group1", "group2"};
+    var groups = new String[] {"group1", "group2"};
     bs.setGroups(groups);
     testXml(cache);
     Cache c = getCache();
     assertNotNull(c);
-    CacheServer server = cache.getCacheServers().iterator().next();
+    var server = cache.getCacheServers().iterator().next();
     assertNotNull(server);
     assertEquals(Arrays.asList(groups), Arrays.asList(server.getGroups()));
   }
 
   @Test
   public void testDefaultCacheServerBindAddress() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    CacheServer bs = cache.addCacheServer();
+    var cache = new CacheCreation();
+    var bs = cache.addCacheServer();
     bs.setPort(AvailablePortHelper.getRandomAvailableTCPPort());
     testXml(cache);
     Cache c = getCache();
     assertNotNull(c);
-    CacheServer server = cache.getCacheServers().iterator().next();
+    var server = cache.getCacheServers().iterator().next();
     assertNotNull(server);
     assertEquals(CacheServer.DEFAULT_BIND_ADDRESS, server.getBindAddress());
   }
 
   @Test
   public void testCacheServerBindAddress() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    CacheServer bs = cache.addCacheServer();
+    var cache = new CacheCreation();
+    var bs = cache.addCacheServer();
     bs.setPort(AvailablePortHelper.getRandomAvailableTCPPort());
-    final String BA = ALIAS1;
+    final var BA = ALIAS1;
     bs.setBindAddress(BA);
     testXml(cache);
     Cache c = getCache();
     assertNotNull(c);
-    CacheServer server = cache.getCacheServers().iterator().next();
+    var server = cache.getCacheServers().iterator().next();
     assertNotNull(server);
     assertEquals(BA, server.getBindAddress());
   }
 
   @Test
   public void testCacheServerHostnameForClients() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    CacheServer bs = cache.addCacheServer();
+    var cache = new CacheCreation();
+    var bs = cache.addCacheServer();
     bs.setPort(AvailablePortHelper.getRandomAvailableTCPPort());
-    final String BA = ALIAS1;
+    final var BA = ALIAS1;
     bs.setBindAddress(BA);
     bs.setHostnameForClients("clientHostName");
     testXml(cache);
     Cache c = getCache();
     assertNotNull(c);
-    CacheServer server = cache.getCacheServers().iterator().next();
+    var server = cache.getCacheServers().iterator().next();
     assertNotNull(server);
     assertEquals(BA, server.getBindAddress());
     assertEquals("clientHostName", server.getHostnameForClients());
@@ -2347,8 +2338,8 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
   @Test
   public void testTwoConnectionPools() throws Exception {
     getSystem();
-    CacheCreation cache = new CacheCreation();
-    PoolFactory f = cache.createPoolFactory();
+    var cache = new CacheCreation();
+    var f = cache.createPoolFactory();
     f.addLocator(ALIAS2, 3777).create("mypool");
     f.reset().addLocator(ALIAS1, 3888).create("mypool2");
     try {
@@ -2361,7 +2352,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
       fail("expected IllegalStateException");
     } catch (IllegalStateException ignored) {
     }
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var attrs = new RegionAttributesCreation(cache);
     attrs.setPoolName("mypool");
     cache.createVMRegion("rootNORMAL", attrs);
     testXml(cache);
@@ -2370,7 +2361,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
     Region r = c.getRegion("rootNORMAL");
     assertNotNull(r);
     assertEquals("mypool", r.getAttributes().getPoolName());
-    Pool cp = PoolManager.find("mypool");
+    var cp = PoolManager.find("mypool");
     assertNotNull(cp);
     assertEquals(0, cp.getServers().size());
     assertEquals(1, cp.getLocators().size());
@@ -2384,11 +2375,11 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testNoConnectionPools() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var cache = new CacheCreation();
+    var attrs = new RegionAttributesCreation(cache);
     attrs.setPoolName("mypool");
     cache.createVMRegion("rootNORMAL", attrs);
-    IgnoredException expectedException = addIgnoredException(
+    var expectedException = addIgnoredException(
         String.format("The connection pool %s has not been created",
             "mypool"));
     try {
@@ -2403,13 +2394,13 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
   @Test
   public void testAlreadyExistingPool() throws Exception {
     getSystem();
-    PoolFactoryImpl f = (PoolFactoryImpl) PoolManager.createFactory();
+    var f = (PoolFactoryImpl) PoolManager.createFactory();
     f.setStartDisabled(true).addLocator(ALIAS2, 12345).create("mypool");
     try {
       // now make sure declarative cache can't create the same pool
-      CacheCreation cache = new CacheCreation();
+      var cache = new CacheCreation();
       cache.createPoolFactory().addLocator(ALIAS2, 12345).create("mypool");
-      IgnoredException expectedException = addIgnoredException(
+      var expectedException = addIgnoredException(
           String.format("A pool named %s already exists", "mypool"));
       try {
         testXml(cache);
@@ -2430,26 +2421,26 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
     addIgnoredException("ServerConnectivityException");
     addIgnoredException("Socket Closed");
     getSystem();
-    VM vm0 = Host.getHost(0).getVM(0);
-    final int port = getRandomAvailableTCPPort();
+    var vm0 = Host.getHost(0).getVM(0);
+    final var port = getRandomAvailableTCPPort();
     vm0.invoke(new SerializableCallable("Create cache server") {
       @Override
       public Object call() throws IOException {
         DynamicRegionFactory.get().open();
         Cache cache = getCache();
-        CacheServer bridge = cache.addCacheServer();
+        var bridge = cache.addCacheServer();
         bridge.setPort(port);
         bridge.setNotifyBySubscription(true);
         bridge.start();
         return null;
       }
     });
-    CacheCreation cache = new CacheCreation();
+    var cache = new CacheCreation();
     cache.createPoolFactory().addServer(NetworkUtils.getServerHostName(vm0.getHost()), port)
         .setSubscriptionEnabled(true).create("connectionPool");
     cache.setDynamicRegionFactoryConfig(
         new DynamicRegionFactory.Config(null, "connectionPool", false, false));
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var attrs = new RegionAttributesCreation(cache);
     cache.createRegion("root", attrs);
     // note that testXml can't check if they are same because enabling
     // dynamic regions causes a meta region to be produced.
@@ -2474,10 +2465,10 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testBridgeAttributesRelatedToHAOverFlow() throws Exception {
-    CacheCreation cache = new CacheCreation();
+    var cache = new CacheCreation();
     cache.setMessageSyncInterval(3445);
-    CacheServer bs = cache.addCacheServer();
-    ClientSubscriptionConfig csc = bs.getClientSubscriptionConfig();
+    var bs = cache.addCacheServer();
+    var csc = bs.getClientSubscriptionConfig();
     csc.setEvictionPolicy("entry");
     cache.getLogger().config("EvictionPolicy : " + csc.getEvictionPolicy());
     csc.setCapacity(501);
@@ -2485,15 +2476,15 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
     csc.setOverflowDirectory("overFlow");
     cache.getLogger().config("EvictionOverflowDirectory : " + csc.getOverflowDirectory());
     bs.setPort(AvailablePortHelper.getRandomAvailableTCPPort());
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var attrs = new RegionAttributesCreation(cache);
     attrs.setDataPolicy(DataPolicy.NORMAL);
     cache.createVMRegion("rootNORMAL", attrs);
     testXml(cache);
     Cache c = getCache();
     assertNotNull(c);
-    CacheServer server = cache.getCacheServers().iterator().next();
+    var server = cache.getCacheServers().iterator().next();
     assertNotNull(server);
-    ClientSubscriptionConfig chaqf = server.getClientSubscriptionConfig();
+    var chaqf = server.getClientSubscriptionConfig();
     assertEquals("entry", chaqf.getEvictionPolicy());
     assertEquals(501, chaqf.getCapacity());
     assertEquals("overFlow", chaqf.getOverflowDirectory());
@@ -2501,8 +2492,8 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testBridgeLoadProbe() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    CacheServer server = cache.addCacheServer();
+    var cache = new CacheCreation();
+    var server = cache.addCacheServer();
     server.setPort(AvailablePortHelper.getRandomAvailableTCPPort());
     server.setLoadProbe(new MyLoadProbe());
 
@@ -2515,8 +2506,8 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testLoadPollInterval() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    CacheServer server = cache.addCacheServer();
+    var cache = new CacheCreation();
+    var server = cache.addCacheServer();
     server.setPort(AvailablePortHelper.getRandomAvailableTCPPort());
     server.setLoadPollInterval(12345);
 
@@ -2608,7 +2599,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
     @Override
     public Properties getConfig() {
-      Properties p = new Properties();
+      var p = new Properties();
       p.put("prop1", "val1");
       p.put("prop2", "val2");
       return p;
@@ -2620,12 +2611,12 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testCustomEntryXml() throws Exception {
-    CacheCreation cache = new CacheCreation();
+    var cache = new CacheCreation();
 
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var attrs = new RegionAttributesCreation(cache);
     attrs.setScope(Scope.DISTRIBUTED_NO_ACK);
 
-    RegionCreation root = (RegionCreation) cache.createRegion("root", attrs);
+    var root = (RegionCreation) cache.createRegion("root", attrs);
 
     {
       attrs = new RegionAttributesCreation(cache);
@@ -2646,7 +2637,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
       attrs.setStatisticsEnabled(true);
       attrs.setCustomEntryIdleTimeout(new Expiry2());
 
-      Region region = root.createSubregion("two", attrs);
+      var region = root.createSubregion("two", attrs);
 
       {
         attrs = new RegionAttributesCreation(cache);
@@ -2665,42 +2656,42 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testPreloadDataPolicy() throws Exception {
-    CacheCreation cache = new CacheCreation();
+    var cache = new CacheCreation();
 
     {
-      RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+      var attrs = new RegionAttributesCreation(cache);
       attrs.setDataPolicy(DataPolicy.NORMAL);
       cache.createRegion("rootNORMAL", attrs);
     }
     {
-      RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+      var attrs = new RegionAttributesCreation(cache);
       attrs.setDataPolicy(DataPolicy.NORMAL);
       attrs.setSubscriptionAttributes(new SubscriptionAttributes(InterestPolicy.ALL));
       cache.createRegion("rootNORMAL_ALL", attrs);
     }
     {
-      RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+      var attrs = new RegionAttributesCreation(cache);
       attrs.setMirrorType(MirrorType.KEYS_VALUES);
       cache.createRegion("rootREPLICATE", attrs);
     }
     {
-      RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+      var attrs = new RegionAttributesCreation(cache);
       attrs.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
       cache.createRegion("rootPERSISTENT_REPLICATE", attrs);
     }
     {
-      RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+      var attrs = new RegionAttributesCreation(cache);
       attrs.setDataPolicy(DataPolicy.EMPTY);
       cache.createRegion("rootEMPTY", attrs);
     }
     {
-      RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+      var attrs = new RegionAttributesCreation(cache);
       attrs.setDataPolicy(DataPolicy.EMPTY);
       attrs.setSubscriptionAttributes(new SubscriptionAttributes(InterestPolicy.ALL));
       cache.createRegion("rootEMPTY_ALL", attrs);
     }
     {
-      RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+      var attrs = new RegionAttributesCreation(cache);
       attrs.setDataPolicy(DataPolicy.PRELOADED);
       attrs.setSubscriptionAttributes(new SubscriptionAttributes(InterestPolicy.ALL));
       cache.createRegion("rootPRELOADED_ALL", attrs);
@@ -2716,8 +2707,8 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testEnableSubscriptionConflationAttribute() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var cache = new CacheCreation();
+    var attrs = new RegionAttributesCreation(cache);
     attrs.setEnableSubscriptionConflation(true);
     cache.createRegion("root", attrs);
     testXml(cache);
@@ -2730,17 +2721,17 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
   @Test
   public void testPartitionedRegionXML() throws Exception {
     setXmlFile(findFile("partitionedRegion51.xml"));
-    final String regionName = "pRoot";
+    final var regionName = "pRoot";
 
     Cache cache = getCache();
     Region region = cache.getRegion(regionName);
     assertNotNull(region);
 
-    Host host = Host.getHost(0);
-    final VM vm0 = host.getVM(0);
-    final VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    final var vm0 = host.getVM(0);
+    final var vm1 = host.getVM(1);
 
-    CacheSerializableRunnable init =
+    var init =
         new CacheSerializableRunnable("initUsingPartitionedRegionXML") {
           @Override
           public void run2() throws CacheException {
@@ -2753,10 +2744,10 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
             }
             Region r = c.getRegion(regionName);
             assertNotNull(r);
-            RegionAttributes attrs = r.getAttributes();
+            var attrs = r.getAttributes();
             assertNotNull(attrs.getPartitionAttributes());
 
-            PartitionAttributes pa = attrs.getPartitionAttributes();
+            var pa = attrs.getPartitionAttributes();
             assertEquals(pa.getRedundantCopies(), 1);
             assertEquals(pa.getLocalMaxMemory(), 32);
             assertEquals(pa.getTotalMaxMemory(), 96);
@@ -2774,7 +2765,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
     vm0.invoke(new CacheSerializableRunnable("putUsingPartitionedRegionXML1") {
       @Override
       public void run2() throws CacheException {
-        final String val = "prValue0";
+        final var val = "prValue0";
         final Integer key = 10;
         Cache c = getCache();
         Region r = c.getRegion(regionName);
@@ -2786,7 +2777,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
     vm1.invoke(new CacheSerializableRunnable("putUsingPartitionedRegionXML2") {
       @Override
       public void run2() throws CacheException {
-        final String val = "prValue1";
+        final var val = "prValue1";
         final Integer key = 14;
         Cache c = getCache();
         Region r = c.getRegion(regionName);
@@ -2805,9 +2796,9 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testMessageSyncInterval() throws Exception {
-    CacheCreation cache = new CacheCreation();
+    var cache = new CacheCreation();
     cache.setMessageSyncInterval(123);
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var attrs = new RegionAttributesCreation(cache);
     attrs.setDataPolicy(DataPolicy.NORMAL);
     cache.createVMRegion("rootNORMAL", attrs);
     testXml(cache);
@@ -2822,19 +2813,19 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testBridgeAttributesRelatedToClientQueuesHA() throws Exception {
-    CacheCreation cache = new CacheCreation();
+    var cache = new CacheCreation();
     cache.setMessageSyncInterval(3445);
-    CacheServer bs = cache.addCacheServer();
+    var bs = cache.addCacheServer();
     bs.setMaximumMessageCount(12345);
     bs.setMessageTimeToLive(56789);
     bs.setPort(AvailablePortHelper.getRandomAvailableTCPPort());
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var attrs = new RegionAttributesCreation(cache);
     attrs.setDataPolicy(DataPolicy.NORMAL);
     cache.createVMRegion("rootNORMAL", attrs);
     testXml(cache);
     Cache c = getCache();
     assertNotNull(c);
-    CacheServer server = cache.getCacheServers().iterator().next();
+    var server = cache.getCacheServers().iterator().next();
     assertNotNull(server);
     assertEquals(12345, server.getMaximumMessageCount());
     assertEquals(56789, server.getMessageTimeToLive());
@@ -2850,10 +2841,10 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testPartitionedRegionInstantiation() {
-    CacheCreation cache = new CacheCreation();
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var cache = new CacheCreation();
+    var attrs = new RegionAttributesCreation(cache);
 
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
 
     paf.setLocalMaxMemory(4).setTotalNumBuckets(17).setTotalMaxMemory(8);
     attrs.setPartitionAttributes(paf.create());
@@ -2865,13 +2856,13 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testBridgeMaxThreads() throws Exception {
-    CacheCreation cache = new CacheCreation();
+    var cache = new CacheCreation();
 
-    CacheServer bs = cache.addCacheServer();
+    var bs = cache.addCacheServer();
     bs.setMaxThreads(37);
     bs.setMaxConnections(999);
     bs.setPort(AvailablePortHelper.getRandomAvailableTCPPort());
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var attrs = new RegionAttributesCreation(cache);
     attrs.setDataPolicy(DataPolicy.NORMAL);
     cache.createVMRegion("rootNORMAL", attrs);
     testXml(cache);
@@ -2882,21 +2873,21 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testRegionMulticastSetViaCacheXml() throws Exception {
-    final String rNameBase = getUniqueName();
-    final String r1 = rNameBase + "1";
-    final String r2 = rNameBase + "2";
-    final String r3 = rNameBase + "3";
+    final var rNameBase = getUniqueName();
+    final var r1 = rNameBase + "1";
+    final var r2 = rNameBase + "2";
+    final var r3 = rNameBase + "3";
 
     // Setting multi-cast via nested region attributes
-    CacheCreation creation = new CacheCreation();
-    RegionAttributesCreation attrs = new RegionAttributesCreation(creation);
+    var creation = new CacheCreation();
+    var attrs = new RegionAttributesCreation(creation);
     attrs.setScope(Scope.LOCAL);
     attrs.setEarlyAck(false);
     attrs.setMulticastEnabled(true);
     creation.createRegion(r1, attrs);
 
     // Setting multi-cast via named region attributes
-    final String attrId = "region_attrs_with_multicast";
+    final var attrId = "region_attrs_with_multicast";
     attrs = new RegionAttributesCreation(creation);
     attrs.setId(attrId);
     attrs.setScope(Scope.DISTRIBUTED_NO_ACK);
@@ -2947,16 +2938,16 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testRollOplogs() throws Exception {
-    CacheCreation cache = new CacheCreation();
+    var cache = new CacheCreation();
     // Set properties for Asynch writes
 
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var attrs = new RegionAttributesCreation(cache);
 
-    RegionCreation root = (RegionCreation) cache.createRegion("root", attrs);
+    var root = (RegionCreation) cache.createRegion("root", attrs);
 
     {
       attrs = new RegionAttributesCreation(cache);
-      DiskWriteAttributesFactory dwaf = new DiskWriteAttributesFactory();
+      var dwaf = new DiskWriteAttributesFactory();
       dwaf.setSynchronous(true);
       dwaf.setRollOplogs(true);
       attrs.setDiskWriteAttributes(dwaf.create());
@@ -2965,7 +2956,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
     {
       attrs = new RegionAttributesCreation(cache);
-      DiskWriteAttributesFactory dwaf = new DiskWriteAttributesFactory();
+      var dwaf = new DiskWriteAttributesFactory();
       dwaf.setTimeInterval(123L);
       dwaf.setBytesThreshold(456L);
       dwaf.setRollOplogs(false);
@@ -2978,16 +2969,16 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testMaxOplogSize() throws Exception {
-    CacheCreation cache = new CacheCreation();
+    var cache = new CacheCreation();
     // Set properties for Asynch writes
 
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var attrs = new RegionAttributesCreation(cache);
 
-    RegionCreation root = (RegionCreation) cache.createRegion("root", attrs);
+    var root = (RegionCreation) cache.createRegion("root", attrs);
 
     {
       attrs = new RegionAttributesCreation(cache);
-      DiskWriteAttributesFactory dwaf = new DiskWriteAttributesFactory();
+      var dwaf = new DiskWriteAttributesFactory();
       dwaf.setSynchronous(true);
       dwaf.setMaxOplogSize(1);
       attrs.setDiskWriteAttributes(dwaf.create());
@@ -2996,7 +2987,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
     {
       attrs = new RegionAttributesCreation(cache);
-      DiskWriteAttributesFactory dwaf = new DiskWriteAttributesFactory();
+      var dwaf = new DiskWriteAttributesFactory();
       dwaf.setTimeInterval(123L);
       dwaf.setBytesThreshold(456L);
       dwaf.setMaxOplogSize(1);
@@ -3009,36 +3000,36 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testDataPolicy() throws Exception {
-    CacheCreation cache = new CacheCreation();
+    var cache = new CacheCreation();
 
     {
-      RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+      var attrs = new RegionAttributesCreation(cache);
       attrs.setDataPolicy(DataPolicy.NORMAL);
       cache.createRegion("rootNORMAL", attrs);
     }
     {
-      RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+      var attrs = new RegionAttributesCreation(cache);
       attrs.setDataPolicy(DataPolicy.NORMAL);
       attrs.setSubscriptionAttributes(new SubscriptionAttributes(InterestPolicy.ALL));
       cache.createRegion("rootNORMAL_ALL", attrs);
     }
     {
-      RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+      var attrs = new RegionAttributesCreation(cache);
       attrs.setMirrorType(MirrorType.KEYS_VALUES);
       cache.createRegion("rootREPLICATE", attrs);
     }
     {
-      RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+      var attrs = new RegionAttributesCreation(cache);
       attrs.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
       cache.createRegion("rootPERSISTENT_REPLICATE", attrs);
     }
     {
-      RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+      var attrs = new RegionAttributesCreation(cache);
       attrs.setDataPolicy(DataPolicy.EMPTY);
       cache.createRegion("rootEMPTY", attrs);
     }
     {
-      RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+      var attrs = new RegionAttributesCreation(cache);
       attrs.setDataPolicy(DataPolicy.EMPTY);
       attrs.setSubscriptionAttributes(new SubscriptionAttributes(InterestPolicy.ALL));
       cache.createRegion("rootEMPTY_ALL", attrs);
@@ -3054,12 +3045,12 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties props = super.getDistributedSystemProperties();
+    var props = super.getDistributedSystemProperties();
     if (xmlProps != null) {
-      for (final Map.Entry<Object, Object> objectObjectEntry : xmlProps.entrySet()) {
-        Map.Entry entry = (Map.Entry) objectObjectEntry;
-        String key = (String) entry.getKey();
-        String value = (String) entry.getValue();
+      for (final var objectObjectEntry : xmlProps.entrySet()) {
+        var entry = (Map.Entry) objectObjectEntry;
+        var key = (String) entry.getKey();
+        var value = (String) entry.getValue();
         props.setProperty(key, value);
       }
     }
@@ -3071,32 +3062,32 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testMembershipAttributes() throws Exception {
-    final String MY_ROLES = "Foo, Bip, BAM";
-    final String[][] roles = new String[][] {{"Foo"}, {"Bip", "BAM"}};
+    final var MY_ROLES = "Foo, Bip, BAM";
+    final var roles = new String[][] {{"Foo"}, {"Bip", "BAM"}};
 
-    final LossAction[] policies =
+    final var policies =
         (LossAction[]) LossAction.VALUES.toArray(new LossAction[LossAction.VALUES.size()]);
 
-    final ResumptionAction[] actions = (ResumptionAction[]) ResumptionAction.VALUES
+    final var actions = (ResumptionAction[]) ResumptionAction.VALUES
         .toArray(new ResumptionAction[ResumptionAction.VALUES.size()]);
 
-    CacheCreation cache = new CacheCreation();
+    var cache = new CacheCreation();
 
     // for each policy, try each action and each role...
-    for (int policy = 0; policy < policies.length; policy++) {
-      for (int action = 0; action < actions.length; action++) {
-        for (int role = 0; role < roles.length; role++) {
-          String[] theRoles = roles[role];
-          LossAction thePolicy = policies[policy];
-          ResumptionAction theAction = actions[action];
+    for (var policy = 0; policy < policies.length; policy++) {
+      for (var action = 0; action < actions.length; action++) {
+        for (var role = 0; role < roles.length; role++) {
+          var theRoles = roles[role];
+          var thePolicy = policies[policy];
+          var theAction = actions[action];
 
           // if (theRoles.length == 0 && (thePolicy != LossAction.NONE || theAction !=
           // ResumptionAction.NONE
 
-          RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
-          MembershipAttributes ra = new MembershipAttributes(theRoles, thePolicy, theAction);
+          var attrs = new RegionAttributesCreation(cache);
+          var ra = new MembershipAttributes(theRoles, thePolicy, theAction);
           attrs.setMembershipAttributes(ra);
-          String region = "rootMEMBERSHIP_ATTRIBUTES_" + policy + "_" + action + "_" + role;
+          var region = "rootMEMBERSHIP_ATTRIBUTES_" + policy + "_" + action + "_" + role;
           cache.createRegion(region, attrs);
         }
       }
@@ -3105,7 +3096,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
     {
       // make our system play the roles used by this test so the create regions
       // will not think the a required role is missing
-      Properties config = new Properties();
+      var config = new Properties();
       config.setProperty(ROLES, MY_ROLES);
       xmlProps = config;
     }
@@ -3129,8 +3120,8 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testMultipleCacheListener() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var cache = new CacheCreation();
+    var attrs = new RegionAttributesCreation(cache);
 
     CacheListener l1 = new MyTestCacheListener();
     CacheListener l2 = new MySecondTestCacheListener();
@@ -3145,7 +3136,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
       Region r = c.getRegion("root");
       assertEquals(Arrays.asList(l1, l2),
           Arrays.asList(r.getAttributes().getCacheListeners()));
-      AttributesMutator am = r.getAttributesMutator();
+      var am = r.getAttributesMutator();
       am.removeCacheListener(l2);
       assertEquals(Arrays.asList(l1),
           Arrays.asList(r.getAttributes().getCacheListeners()));
@@ -3189,11 +3180,11 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testHeapLRUEviction() throws Exception {
-    final String name = getUniqueName();
+    final var name = getUniqueName();
     beginCacheXml();
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
-    EvictionAttributes ev =
+    var ev =
         EvictionAttributes.createLRUHeapAttributes(null, EvictionAction.OVERFLOW_TO_DISK);
     factory.setEvictionAttributes(ev);
     // RegionAttributes atts = factory.create();
@@ -3202,7 +3193,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
         getGemFireVersion());
     Region r = getRootRegion().getSubregion(name);
 
-    EvictionAttributes hlea = r.getAttributes().getEvictionAttributes();
+    var hlea = r.getAttributes().getEvictionAttributes();
     assertEquals(EvictionAction.OVERFLOW_TO_DISK, hlea.getAction());
   }
 
@@ -3213,8 +3204,8 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testMultipleTXListener() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    CacheTransactionManagerCreation txMgrCreation = new CacheTransactionManagerCreation();
+    var cache = new CacheCreation();
+    var txMgrCreation = new CacheTransactionManagerCreation();
     TransactionListener l1 = new MyTestTransactionListener();
     TransactionListener l2 = new MySecondTestTransactionListener();
     txMgrCreation.addListener(l1);
@@ -3222,7 +3213,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
     cache.addCacheTransactionManagerCreation(txMgrCreation);
     testXml(cache);
     {
-      CacheTransactionManager tm = getCache().getCacheTransactionManager();
+      var tm = getCache().getCacheTransactionManager();
       assertEquals(Arrays.asList(l1, l2),
           Arrays.asList(tm.getListeners()));
       tm.removeListener(l2);
@@ -3274,23 +3265,23 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testRegisteringNamedRegionAttributes() throws Exception {
-    CacheCreation cache = new CacheCreation();
+    var cache = new CacheCreation();
     RegionAttributesCreation attrs;
 
-    String id1 = "id1";
+    var id1 = "id1";
     attrs = new RegionAttributesCreation(cache);
     attrs.setScope(Scope.DISTRIBUTED_ACK);
     attrs.setMirrorType(MirrorType.KEYS);
     cache.setRegionAttributes(id1, attrs);
 
-    String id2 = "id2";
+    var id2 = "id2";
     attrs = new RegionAttributesCreation(cache);
     attrs.setScope(Scope.DISTRIBUTED_NO_ACK);
     attrs.setMirrorType(MirrorType.KEYS_VALUES);
     attrs.setConcurrencyLevel(15);
     cache.setRegionAttributes(id2, attrs);
 
-    String id3 = "id3";
+    var id3 = "id3";
     attrs = new RegionAttributesCreation(cache);
     attrs.setScope(Scope.LOCAL);
     attrs.setValueConstraint(Integer.class);
@@ -3308,8 +3299,8 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
     Class keyConstraint = String.class;
     Class valueConstraint = Integer.class;
-    String id = "id1";
-    String regionName = "root";
+    var id = "id1";
+    var regionName = "root";
 
     Cache cache = getCache();
     RegionAttributes attrs = cache.getRegionAttributes(id);
@@ -3328,7 +3319,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
     assertEquals(ExpirationAction.INVALIDATE, attrs.getEntryIdleTimeout().getAction());
 
     // Make sure that attributes can be "overridden"
-    Region subregion = region.getSubregion("subregion");
+    var subregion = region.getSubregion("subregion");
     assertNotNull(subregion);
 
     attrs = subregion.getAttributes();
@@ -3350,7 +3341,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
   public void testUnknownNamedAttributes() throws Exception {
     setXmlFile(findFile("unknownNamedAttributes.xml"));
 
-    IgnoredException expectedException = addIgnoredException(
+    var expectedException = addIgnoredException(
         "Cannot reference non-existing region attributes named");
     try {
       getCache();
@@ -3369,9 +3360,9 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testCreateSameRegionTwice() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
-    String name = "root";
+    var cache = new CacheCreation();
+    var attrs = new RegionAttributesCreation(cache);
+    var name = "root";
 
     cache.createRegion(name, attrs);
 
@@ -3392,7 +3383,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
       fail("Should have thrown a CacheXmlException");
 
     } catch (CacheXmlException ex) {
-      Throwable cause = ex.getCause();
+      var cause = ex.getCause();
       assertTrue(cause instanceof SAXException);
       cause = ((SAXException) cause).getException();
       if (!(cause instanceof RegionExistsException)) {
@@ -3409,11 +3400,11 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testCreateSameSubregionTwice() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
-    String name = getUniqueName();
+    var cache = new CacheCreation();
+    var attrs = new RegionAttributesCreation(cache);
+    var name = getUniqueName();
 
-    Region root = cache.createRegion("root", attrs);
+    var root = cache.createRegion("root", attrs);
 
     root.createSubregion(name, attrs);
 
@@ -3434,7 +3425,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
       fail("Should have thrown a CacheXmlException");
 
     } catch (CacheXmlException ex) {
-      Throwable cause = ex.getCause();
+      var cause = ex.getCause();
       assertTrue(cause instanceof SAXException);
       cause = ((SAXException) cause).getException();
       if (!(cause instanceof RegionExistsException)) {
@@ -3450,15 +3441,15 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    * reading that XML.
    */
   public InputStream generate(CacheCreation creation) {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    var baos = new ByteArrayOutputStream();
 
-    final String version = getGemFireVersion();
+    final var version = getGemFireVersion();
 
-    PrintWriter pw = new PrintWriter(new OutputStreamWriter(baos), true);
+    var pw = new PrintWriter(new OutputStreamWriter(baos), true);
     CacheXmlGenerator.generate(creation, pw, getUseSchema(), version);
     pw.close();
 
-    byte[] bytes = baos.toByteArray();
+    var bytes = baos.toByteArray();
     return new ByteArrayInputStream(bytes);
   }
 
@@ -3467,13 +3458,13 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testModifyCacheAttributes() throws Exception {
-    boolean copyOnRead1 = false;
-    boolean isServer1 = true;
-    int lockLease1 = 123;
-    int lockTimeout1 = 345;
-    int searchTimeout1 = 567;
+    var copyOnRead1 = false;
+    var isServer1 = true;
+    var lockLease1 = 123;
+    var lockTimeout1 = 345;
+    var searchTimeout1 = 567;
 
-    CacheCreation creation = new CacheCreation();
+    var creation = new CacheCreation();
     creation.setCopyOnRead(copyOnRead1);
     creation.setIsServer(isServer1);
     creation.setLockLease(lockLease1);
@@ -3489,11 +3480,11 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
     assertEquals(lockTimeout1, cache.getLockTimeout());
     assertEquals(searchTimeout1, cache.getSearchTimeout());
 
-    boolean copyOnRead2 = true;
-    boolean isServer2 = false;
-    int lockLease2 = 234;
-    int lockTimeout2 = 456;
-    int searchTimeout2 = 678;
+    var copyOnRead2 = true;
+    var isServer2 = false;
+    var lockLease2 = 234;
+    var lockTimeout2 = 456;
+    var searchTimeout2 = 678;
 
     creation = new CacheCreation();
     creation.setCopyOnRead(copyOnRead2);
@@ -3516,7 +3507,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testAddRegionViaCacheXml() throws Exception {
-    CacheCreation creation = new CacheCreation();
+    var creation = new CacheCreation();
 
     testXml(creation);
 
@@ -3525,17 +3516,17 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
     creation = new CacheCreation();
 
-    RegionAttributesCreation attrs = new RegionAttributesCreation(creation);
+    var attrs = new RegionAttributesCreation(creation);
     attrs.setScope(Scope.GLOBAL);
     attrs.setKeyConstraint(Integer.class);
     attrs.setCacheListener(new MyTestCacheListener());
-    Region root = creation.createRegion("root", attrs);
+    var root = creation.createRegion("root", attrs);
 
     attrs = new RegionAttributesCreation(creation);
     attrs.setScope(Scope.LOCAL);
     attrs.setEarlyAck(true);
     attrs.setValueConstraint(String.class);
-    Region subregion = root.createSubregion("subregion", attrs);
+    var subregion = root.createSubregion("subregion", attrs);
 
     cache.loadCacheXml(generate(creation));
 
@@ -3562,7 +3553,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
     attrs.setScope(Scope.DISTRIBUTED_ACK);
     attrs.setEarlyAck(false);
     attrs.setValueConstraint(Long.class);
-    Region subregion2 = root.createSubregion("subregion2", attrs);
+    var subregion2 = root.createSubregion("subregion2", attrs);
 
     cache.loadCacheXml(generate(creation));
 
@@ -3578,22 +3569,22 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testModifyRegionViaCacheXml() throws Exception {
-    CacheCreation creation = new CacheCreation();
+    var creation = new CacheCreation();
 
-    int timeout1a = 123;
-    ExpirationAction action1a = ExpirationAction.LOCAL_DESTROY;
-    int timeout1b = 456;
-    ExpirationAction action1b = ExpirationAction.DESTROY;
+    var timeout1a = 123;
+    var action1a = ExpirationAction.LOCAL_DESTROY;
+    var timeout1b = 456;
+    var action1b = ExpirationAction.DESTROY;
 
-    RegionAttributesCreation attrs = new RegionAttributesCreation(creation);
+    var attrs = new RegionAttributesCreation(creation);
     attrs.setStatisticsEnabled(true);
     attrs.setEntryIdleTimeout(new ExpirationAttributes(timeout1a, action1a));
-    Region root = creation.createRegion("root", attrs);
+    var root = creation.createRegion("root", attrs);
 
     attrs = new RegionAttributesCreation(creation);
     attrs.setStatisticsEnabled(true);
     attrs.setEntryIdleTimeout(new ExpirationAttributes(timeout1b, action1b));
-    Region subregion = root.createSubregion("subregion", attrs);
+    var subregion = root.createSubregion("subregion", attrs);
 
     testXml(creation);
 
@@ -3609,10 +3600,10 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
     creation = new CacheCreation();
 
-    int timeout2a = 234;
-    ExpirationAction action2a = ExpirationAction.LOCAL_INVALIDATE;
-    int timeout2b = 567;
-    ExpirationAction action2b = ExpirationAction.INVALIDATE;
+    var timeout2a = 234;
+    var action2a = ExpirationAction.LOCAL_INVALIDATE;
+    var timeout2b = 567;
+    var action2b = ExpirationAction.INVALIDATE;
 
     attrs = new RegionAttributesCreation(creation);
     attrs.setStatisticsEnabled(true);
@@ -3643,15 +3634,15 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testAddEntriesViaCacheXml() throws Exception {
-    String key1 = "KEY1";
-    String value1 = "VALUE1";
+    var key1 = "KEY1";
+    var value1 = "VALUE1";
 
-    CacheCreation creation = new CacheCreation();
+    var creation = new CacheCreation();
 
-    RegionAttributesCreation attrs = new RegionAttributesCreation(creation);
+    var attrs = new RegionAttributesCreation(creation);
     attrs.setScope(Scope.LOCAL);
 
-    Region root = creation.createRegion("root", attrs);
+    var root = creation.createRegion("root", attrs);
     root.put(key1, value1);
 
     testXml(creation);
@@ -3666,9 +3657,9 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
     attrs = new RegionAttributesCreation(creation);
     attrs.setScope(Scope.LOCAL);
 
-    String value2 = "VALUE2";
-    String key2 = "KEY2";
-    String value3 = "VALUE3";
+    var value2 = "VALUE2";
+    var key2 = "KEY2";
+    var value3 = "VALUE3";
 
     root = creation.createRegion("root", attrs);
     root.put(key1, value2);
@@ -3689,8 +3680,8 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testEnableBridgeConflationAttribute() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var cache = new CacheCreation();
+    var attrs = new RegionAttributesCreation(cache);
     attrs.setEnableBridgeConflation(true);
     cache.createRegion("root", attrs);
     testXml(cache);
@@ -3704,8 +3695,8 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testEnableAsyncConflationAttribute() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var cache = new CacheCreation();
+    var attrs = new RegionAttributesCreation(cache);
     attrs.setEnableAsyncConflation(true);
     cache.createRegion("root", attrs);
     testXml(cache);
@@ -3717,9 +3708,9 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testDynamicRegionFactoryDefault() throws Exception {
-    CacheCreation cache = new CacheCreation();
+    var cache = new CacheCreation();
     cache.setDynamicRegionFactoryConfig(new DynamicRegionFactory.Config());
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var attrs = new RegionAttributesCreation(cache);
     cache.createRegion("root", attrs);
     // note that testXml can't check if they are same because enabling
     // dynamic regions causes a meta region to be produced.
@@ -3736,10 +3727,10 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testDynamicRegionFactoryNonDefault() throws Exception {
-    CacheCreation cache = new CacheCreation();
+    var cache = new CacheCreation();
     cache.setDynamicRegionFactoryConfig(
         new DynamicRegionFactory.Config(null, null, false, false));
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var attrs = new RegionAttributesCreation(cache);
     cache.createRegion("root", attrs);
     // note that testXml can't check if they are same because enabling
     // dynamic regions causes a meta region to be produced.
@@ -3759,11 +3750,11 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testDynamicRegionFactoryDiskDir() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    File f = new File("diskDir");
+    var cache = new CacheCreation();
+    var f = new File("diskDir");
     f.mkdirs();
     cache.setDynamicRegionFactoryConfig(new DynamicRegionFactory.Config(f, null, true, true));
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var attrs = new RegionAttributesCreation(cache);
     cache.createRegion("root", attrs);
     // note that testXml can't check if they are same because enabling
     // dynamic regions causes a meta region to be produced.
@@ -3783,7 +3774,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testServer() throws Exception {
-    CacheCreation cache = new CacheCreation();
+    var cache = new CacheCreation();
     cache.setIsServer(true);
     assertTrue(cache.isServer());
 
@@ -3797,12 +3788,12 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testBridgeServers() throws Exception {
-    CacheCreation cache = new CacheCreation();
+    var cache = new CacheCreation();
 
-    CacheServer bridge1 = cache.addCacheServer();
+    var bridge1 = cache.addCacheServer();
     setBridgeAttributes(bridge1);
 
-    CacheServer bridge2 = cache.addCacheServer();
+    var bridge2 = cache.addCacheServer();
     setBridgeAttributes(bridge2);
 
     testXml(cache);
@@ -3813,8 +3804,8 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testIsLockGrantorAttribute() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var cache = new CacheCreation();
+    var attrs = new RegionAttributesCreation(cache);
 
     attrs.setLockGrantor(true);
     attrs.setScope(Scope.GLOBAL);
@@ -3833,8 +3824,8 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testTransactionListener() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    CacheTransactionManagerCreation txMgrCreation = new CacheTransactionManagerCreation();
+    var cache = new CacheCreation();
+    var txMgrCreation = new CacheTransactionManagerCreation();
     txMgrCreation.setListener(new MyTestTransactionListener());
     cache.addCacheTransactionManagerCreation(txMgrCreation);
     testXml(cache);
@@ -3847,8 +3838,8 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testCacheTransactionManager() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    CacheTransactionManagerCreation txMgrCreation = new CacheTransactionManagerCreation();
+    var cache = new CacheCreation();
+    var txMgrCreation = new CacheTransactionManagerCreation();
     cache.addCacheTransactionManagerCreation(txMgrCreation);
     testXml(cache);
   }
@@ -3860,8 +3851,8 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testConstrainedValues() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var cache = new CacheCreation();
+    var attrs = new RegionAttributesCreation(cache);
     attrs.setValueConstraint(String.class);
 
     cache.createRegion("root", attrs);
@@ -3875,13 +3866,13 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
   @Test
   public void testNonExistentFile() {
     // System.out.println("testNonExistentFile - start: " + System.currentTimeMillis());
-    File nonExistent = new File(getName() + ".xml");
+    var nonExistent = new File(getName() + ".xml");
     nonExistent.delete();
     // System.out.println("testNonExistentFile - deleted: " + System.currentTimeMillis());
     setXmlFile(nonExistent);
     // System.out.println("testNonExistentFile - set: " + System.currentTimeMillis());
 
-    IgnoredException expectedException = addIgnoredException(
+    var expectedException = addIgnoredException(
         String.format("Declarative Cache XML file/resource %s does not exist.",
             nonExistent.getPath()));
     try {
@@ -3901,12 +3892,12 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testXmlFileIsDirectory() {
-    File dir = new File(getName() + "dir");
+    var dir = new File(getName() + "dir");
     dir.mkdirs();
     dir.deleteOnExit();
     setXmlFile(dir);
 
-    IgnoredException expectedException = addIgnoredException(
+    var expectedException = addIgnoredException(
         String.format("Declarative XML file %s is not a file.", dir));
     try {
       getCache();
@@ -3924,7 +3915,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testDefaultCache() throws Exception {
-    CacheCreation cache = new CacheCreation();
+    var cache = new CacheCreation();
 
     testXml(cache);
   }
@@ -3934,7 +3925,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testNonDefaultCache() throws Exception {
-    CacheCreation cache = new CacheCreation();
+    var cache = new CacheCreation();
     cache.setLockTimeout(42);
     cache.setLockLease(43);
     cache.setSearchTimeout(44);
@@ -3951,8 +3942,8 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testEntriesInRootRegion() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    RegionCreation root =
+    var cache = new CacheCreation();
+    var root =
         (RegionCreation) cache.createRegion("root", new RegionAttributesCreation(cache));
     root.put("KEY1", "VALUE1");
     root.put("KEY2", "VALUE2");
@@ -3966,8 +3957,8 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testConstrainedKeys() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var cache = new CacheCreation();
+    var attrs = new RegionAttributesCreation(cache);
     attrs.setKeyConstraint(String.class);
     cache.createRegion("root", attrs);
 
@@ -3979,27 +3970,27 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testExpirationAttriubutes() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var cache = new CacheCreation();
+    var attrs = new RegionAttributesCreation(cache);
     attrs.setStatisticsEnabled(true);
 
     {
-      ExpirationAttributes expire = new ExpirationAttributes(42, ExpirationAction.INVALIDATE);
+      var expire = new ExpirationAttributes(42, ExpirationAction.INVALIDATE);
       attrs.setRegionTimeToLive(expire);
     }
 
     {
-      ExpirationAttributes expire = new ExpirationAttributes(43, ExpirationAction.DESTROY);
+      var expire = new ExpirationAttributes(43, ExpirationAction.DESTROY);
       attrs.setRegionIdleTimeout(expire);
     }
 
     {
-      ExpirationAttributes expire = new ExpirationAttributes(44, ExpirationAction.LOCAL_INVALIDATE);
+      var expire = new ExpirationAttributes(44, ExpirationAction.LOCAL_INVALIDATE);
       attrs.setEntryTimeToLive(expire);
     }
 
     {
-      ExpirationAttributes expire = new ExpirationAttributes(45, ExpirationAction.LOCAL_DESTROY);
+      var expire = new ExpirationAttributes(45, ExpirationAction.LOCAL_DESTROY);
       attrs.setEntryIdleTimeout(expire);
     }
 
@@ -4013,10 +4004,10 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testCacheLoaderWithDeclarables() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var cache = new CacheCreation();
+    var attrs = new RegionAttributesCreation(cache);
 
-    CacheLoaderWithDeclarables loader = new CacheLoaderWithDeclarables();
+    var loader = new CacheLoaderWithDeclarables();
     attrs.setCacheLoader(loader);
 
     cache.createRegion("root", attrs);
@@ -4029,8 +4020,8 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testCacheWriter() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var cache = new CacheCreation();
+    var attrs = new RegionAttributesCreation(cache);
 
     CacheWriter writer = new MyTestCacheWriter();
     attrs.setCacheWriter(writer);
@@ -4045,8 +4036,8 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testCacheListener() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var cache = new CacheCreation();
+    var attrs = new RegionAttributesCreation(cache);
 
     CacheListener listener = new MyTestCacheListener();
     attrs.setCacheListener(listener);
@@ -4061,8 +4052,8 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testNonDefaultRegionAttributes() throws Exception {
-    CacheCreation cache = new CacheCreation();
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var cache = new CacheCreation();
+    var attrs = new RegionAttributesCreation(cache);
 
     attrs.setScope(Scope.DISTRIBUTED_NO_ACK);
     attrs.setMirrorType(MirrorType.KEYS_VALUES);
@@ -4082,7 +4073,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
   public void testMalformed() throws Exception {
     setXmlFile(findFile("malformed.xml"));
 
-    IgnoredException expectedException =
+    var expectedException =
         addIgnoredException("While reading Cache XML file");
     try {
       getCache();
@@ -4102,14 +4093,14 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
   public void testBadInt() throws Exception {
     setXmlFile(findFile("badInt.xml"));
 
-    IgnoredException expectedException =
+    var expectedException =
         addIgnoredException("While reading Cache XML file");
     try {
       getCache();
       fail("Should have thrown a CacheXmlException");
 
     } catch (CacheXmlException ex) {
-      Throwable cause = ex.getCause();
+      var cause = ex.getCause();
       assertNotNull("Expected a cause", cause);
       assertTrue("Didn't expect cause:" + cause + " (a " + cause.getClass().getName() + ")",
           cause instanceof NumberFormatException);
@@ -4125,7 +4116,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
   public void testBadFloat() throws Exception {
     setXmlFile(findFile("badFloat.xml"));
 
-    IgnoredException expectedException =
+    var expectedException =
         addIgnoredException("While reading Cache XML file");
     try {
       getCache();
@@ -4145,7 +4136,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
   public void testBadScope() throws Exception {
     setXmlFile(findFile("badScope.xml"));
 
-    IgnoredException expectedException =
+    var expectedException =
         addIgnoredException("While reading Cache XML file");
     try {
       getCache();
@@ -4165,7 +4156,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
   public void testBadKeyConstraintClass() throws Exception {
     setXmlFile(findFile("badKeyConstraintClass.xml"));
 
-    IgnoredException expectedException =
+    var expectedException =
         addIgnoredException("While reading Cache XML file");
     try {
       getCache();
@@ -4196,7 +4187,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
   public void testCallbackWithException() throws Exception {
     setXmlFile(findFile("callbackWithException.xml"));
 
-    IgnoredException expectedException =
+    var expectedException =
         addIgnoredException("While reading Cache XML file");
     try {
       getCache();
@@ -4219,14 +4210,14 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
   public void testLoaderNotLoader() throws Exception {
     setXmlFile(findFile("loaderNotLoader.xml"));
 
-    IgnoredException expectedException =
+    var expectedException =
         addIgnoredException("While reading Cache XML file");
     try {
       getCache();
       fail("Should have thrown a CacheXmlException");
 
     } catch (CacheXmlException ex) {
-      Throwable cause = ex.getCause();
+      var cause = ex.getCause();
       assertNull("Didn't expect a " + cause, cause);
     } finally {
       expectedException.remove();
@@ -4238,12 +4229,12 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testNestedRegions() throws Exception {
-    CacheCreation cache = new CacheCreation();
+    var cache = new CacheCreation();
 
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var attrs = new RegionAttributesCreation(cache);
     attrs.setScope(Scope.DISTRIBUTED_NO_ACK);
 
-    RegionCreation root = (RegionCreation) cache.createRegion("root", attrs);
+    var root = (RegionCreation) cache.createRegion("root", attrs);
 
     {
       attrs = new RegionAttributesCreation(cache);
@@ -4262,7 +4253,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
       attrs.setMirrorType(MirrorType.KEYS);
       attrs.setInitialCapacity(242);
 
-      Region region = root.createSubregion("two", attrs);
+      var region = root.createSubregion("two", attrs);
 
       {
         attrs = new RegionAttributesCreation(cache);
@@ -4290,17 +4281,17 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testDiskDirs() throws Exception {
-    CacheCreation cache = new CacheCreation();
+    var cache = new CacheCreation();
 
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
-    File[] dirs = new File[] {new File(getUniqueName() + "-dir1"),
+    var attrs = new RegionAttributesCreation(cache);
+    var dirs = new File[] {new File(getUniqueName() + "-dir1"),
         new File(getUniqueName() + "-dir2")};
-    for (final File dir : dirs) {
+    for (final var dir : dirs) {
       dir.mkdirs();
       dir.deleteOnExit();
     }
 
-    int[] diskSizes = {DiskWriteAttributesImpl.DEFAULT_DISK_DIR_SIZE,
+    var diskSizes = new int[] {DiskWriteAttributesImpl.DEFAULT_DISK_DIR_SIZE,
         DiskWriteAttributesImpl.DEFAULT_DISK_DIR_SIZE};
     attrs.setDiskDirsAndSize(dirs, diskSizes);
     cache.createRegion("root", attrs);
@@ -4313,9 +4304,9 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testOverflowAndBackup() throws Exception {
-    CacheCreation cache = new CacheCreation();
+    var cache = new CacheCreation();
 
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var attrs = new RegionAttributesCreation(cache);
     attrs.setMirrorType(MirrorType.KEYS_VALUES);
     attrs.setPersistBackup(true);
 
@@ -4329,16 +4320,16 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
    */
   @Test
   public void testDiskWriteAttributes() throws Exception {
-    CacheCreation cache = new CacheCreation();
+    var cache = new CacheCreation();
     // Set properties for Asynch writes
 
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    var attrs = new RegionAttributesCreation(cache);
 
-    RegionCreation root = (RegionCreation) cache.createRegion("root", attrs);
+    var root = (RegionCreation) cache.createRegion("root", attrs);
 
     {
       attrs = new RegionAttributesCreation(cache);
-      DiskWriteAttributesFactory dwaf = new DiskWriteAttributesFactory();
+      var dwaf = new DiskWriteAttributesFactory();
       dwaf.setSynchronous(true);
       attrs.setDiskWriteAttributes(dwaf.create());
       root.createSubregion("sync", attrs);
@@ -4346,7 +4337,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
     {
       attrs = new RegionAttributesCreation(cache);
-      DiskWriteAttributesFactory dwaf = new DiskWriteAttributesFactory();
+      var dwaf = new DiskWriteAttributesFactory();
       dwaf.setTimeInterval(123L);
       dwaf.setBytesThreshold(456L);
       attrs.setDiskWriteAttributes(dwaf.create());
@@ -4366,7 +4357,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
   @Ignore // TODO: why is testExampleCacheXmlFile @Ignored?
   public void testExampleCacheXmlFile() throws Exception {
     // Check for old example files
-    String dirName = "examples_" + getGemFireVersion();
+    var dirName = "examples_" + getGemFireVersion();
     File dir = null;
     try {
       dir = findFile(dirName);
@@ -4374,28 +4365,28 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
       // ignore, no directory.
     }
     if (dir != null && dir.exists()) {
-      File[] xmlFiles = dir.listFiles((dir1, name) -> name.endsWith(".xml"));
+      var xmlFiles = dir.listFiles((dir1, name) -> name.endsWith(".xml"));
       assertTrue("No XML files in " + dirName, xmlFiles.length > 0);
-      for (File xmlFile : xmlFiles) {
+      for (var xmlFile : xmlFiles) {
         LogWriterUtils.getLogWriter().info("Parsing " + xmlFile);
 
-        FileInputStream fis = new FileInputStream(xmlFile);
+        var fis = new FileInputStream(xmlFile);
         CacheXmlParser.parse(fis);
       }
 
     } else {
 
-      File example = new File(createTempFileFromResource(getClass(),
+      var example = new File(createTempFileFromResource(getClass(),
           "/org/apache/geode/cache/doc-files/example-cache.xml").getAbsolutePath());
-      FileInputStream fis = new FileInputStream(example);
+      var fis = new FileInputStream(example);
       CacheXmlParser.parse(fis);
 
-      File example2 = new File(createTempFileFromResource(getClass(),
+      var example2 = new File(createTempFileFromResource(getClass(),
           "/org/apache/geode/cache/doc-files/example2-cache.xml").getAbsolutePath());
       fis = new FileInputStream(example2);
       CacheXmlParser.parse(fis);
 
-      File example3 = new File(createTempFileFromResource(getClass(),
+      var example3 = new File(createTempFileFromResource(getClass(),
           "/org/apache/geode/cache/doc-files/example3-cache.xml").getAbsolutePath());
       fis = new FileInputStream(example3);
       CacheXmlParser.parse(fis);
@@ -4404,9 +4395,9 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testEvictionLRUEntryAttributes() throws Exception {
-    final String rName = getUniqueName();
-    CacheCreation cache = new CacheCreation();
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    final var rName = getUniqueName();
+    var cache = new CacheCreation();
+    var attrs = new RegionAttributesCreation(cache);
     attrs.setEvictionAttributes(
         EvictionAttributes.createLRUEntryAttributes(80, EvictionAction.LOCAL_DESTROY));
     cache.createRegion(rName, attrs);
@@ -4443,16 +4434,16 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
       if (!(obj instanceof EvictionObjectSizer)) {
         return false;
       }
-      EvictionObjectSizer other = (EvictionObjectSizer) obj;
+      var other = (EvictionObjectSizer) obj;
       return props.equals(other.props);
     }
   }
 
   @Test
   public void testEvictionLRUMemoryAttributes() throws Exception {
-    final String rName = getUniqueName();
-    CacheCreation cache = new CacheCreation();
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    final var rName = getUniqueName();
+    var cache = new CacheCreation();
+    var attrs = new RegionAttributesCreation(cache);
     attrs.setEvictionAttributes(
         EvictionAttributes.createLRUMemoryAttributes(10, new EvictionObjectSizer()));
     cache.createRegion(rName, attrs);
@@ -4461,9 +4452,9 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
   @Test
   public void testEvictionLRUHeapAttributes() throws Exception {
-    final String rName = getUniqueName();
-    CacheCreation cache = new CacheCreation();
-    RegionAttributesCreation attrs = new RegionAttributesCreation(cache);
+    final var rName = getUniqueName();
+    var cache = new CacheCreation();
+    var attrs = new RegionAttributesCreation(cache);
     attrs.setEvictionAttributes(EvictionAttributes
         .createLRUHeapAttributes(new EvictionObjectSizer(), EvictionAction.LOCAL_DESTROY));
     cache.createRegion(rName, attrs);
@@ -4588,7 +4579,7 @@ public abstract class CacheXml66DUnitTest extends CacheXmlTestCase {
 
     public boolean equals(Object o) {
       if (o instanceof CacheLoaderWithDeclarables) {
-        CacheLoaderWithDeclarables other = (CacheLoaderWithDeclarables) o;
+        var other = (CacheLoaderWithDeclarables) o;
         return props.equals(other.props);
 
       } else {

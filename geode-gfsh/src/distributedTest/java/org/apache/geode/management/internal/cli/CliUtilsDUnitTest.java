@@ -50,7 +50,7 @@ public class CliUtilsDUnitTest {
     locator = lsRule.startLocatorVM(0);
     gfsh.connectAndVerify(locator);
 
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(ConfigurationProperties.NAME, "member1");
     properties.setProperty(ConfigurationProperties.GROUPS, "group1");
     lsRule.startServerVM(1, properties, locator.getPort());

@@ -97,7 +97,7 @@ public class JdbcWriterTest {
   @SuppressWarnings("unchecked")
   @Test
   public void beforeCreateWithNewPdxInstanceWritesToSqlHandler() throws Exception {
-    PdxInstance newPdxInstance = mock(PdxInstance.class);
+    var newPdxInstance = mock(PdxInstance.class);
     when(entryEvent.getNewValue()).thenReturn(newPdxInstance);
     when(entryEvent.getSerializedNewValue()).thenReturn(null);
     writer.beforeCreate(entryEvent);

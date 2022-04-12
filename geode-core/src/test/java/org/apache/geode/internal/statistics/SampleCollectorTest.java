@@ -23,18 +23,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
-import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import org.apache.geode.StatisticDescriptor;
-import org.apache.geode.Statistics;
-import org.apache.geode.StatisticsType;
 import org.apache.geode.internal.NanoTimer;
 import org.apache.geode.internal.io.MainWithChildrenRollingFileHandler;
-import org.apache.geode.internal.statistics.TestSampleHandler.Info;
 import org.apache.geode.internal.statistics.TestSampleHandler.ResourceInstanceInfo;
 import org.apache.geode.internal.statistics.TestSampleHandler.ResourceTypeInfo;
 import org.apache.geode.internal.statistics.TestSampleHandler.SampledInfo;
@@ -51,10 +47,10 @@ public class SampleCollectorTest {
 
   @Before
   public void setUp() throws Exception {
-    final long startTime = System.currentTimeMillis();
+    final var startTime = System.currentTimeMillis();
     manager = new TestStatisticsManager(1, getClass().getSimpleName(), startTime);
 
-    final StatArchiveHandlerConfig mockStatArchiveHandlerConfig =
+    final var mockStatArchiveHandlerConfig =
         mock(StatArchiveHandlerConfig.class,
             getClass().getSimpleName() + "$" + StatArchiveHandlerConfig.class.getSimpleName());
     when(mockStatArchiveHandlerConfig.getArchiveFileName()).thenReturn(new File(""));
@@ -83,29 +79,29 @@ public class SampleCollectorTest {
 
   @Test
   public void testAddHandlerBeforeSample() {
-    TestSampleHandler handler = new TestSampleHandler();
+    var handler = new TestSampleHandler();
     sampleCollector.addSampleHandler(handler);
 
-    StatisticDescriptor[] statsST1 = new StatisticDescriptor[] {
+    var statsST1 = new StatisticDescriptor[] {
         manager.createIntCounter("ST1_1_name", "ST1_1_desc", "ST1_1_units")};
-    StatisticsType ST1 = manager.createType("ST1_name", "ST1_desc", statsST1);
-    Statistics st1_1 = manager.createAtomicStatistics(ST1, "st1_1_text", 1);
+    var ST1 = manager.createType("ST1_name", "ST1_desc", statsST1);
+    var st1_1 = manager.createAtomicStatistics(ST1, "st1_1_text", 1);
 
     sampleCollector.sample(NanoTimer.getTime());
 
     assertEquals(3, handler.getNotificationCount());
-    List<Info> notifications = handler.getNotifications();
+    var notifications = handler.getNotifications();
 
     // validate the allocatedResourceType notification
     assertTrue(notifications.get(0) instanceof ResourceTypeInfo);
-    ResourceTypeInfo allocatedResourceTypeInfo = (ResourceTypeInfo) notifications.get(0);
+    var allocatedResourceTypeInfo = (ResourceTypeInfo) notifications.get(0);
     assertNotNull(allocatedResourceTypeInfo);
     assertEquals("allocatedResourceType", allocatedResourceTypeInfo.getName());
-    ResourceType resourceType = allocatedResourceTypeInfo.getResourceType();
+    var resourceType = allocatedResourceTypeInfo.getResourceType();
     assertNotNull(resourceType);
     assertEquals(0, resourceType.getId());
     assertEquals(1, resourceType.getStatisticDescriptors().length);
-    StatisticsType statisticsType = resourceType.getStatisticsType();
+    var statisticsType = resourceType.getStatisticsType();
     assertNotNull(statisticsType);
     assertTrue(statisticsType == ST1);
     assertEquals("ST1_name", statisticsType.getName());
@@ -114,16 +110,16 @@ public class SampleCollectorTest {
 
     // validate the allocatedResourceInstance notification
     assertTrue(notifications.get(1) instanceof ResourceInstanceInfo);
-    ResourceInstanceInfo allocatedResourceInstanceInfo =
+    var allocatedResourceInstanceInfo =
         (ResourceInstanceInfo) notifications.get(1);
     assertNotNull(allocatedResourceInstanceInfo);
     assertEquals("allocatedResourceInstance", allocatedResourceInstanceInfo.getName());
-    ResourceInstance resourceInstance = allocatedResourceInstanceInfo.getResourceInstance();
+    var resourceInstance = allocatedResourceInstanceInfo.getResourceInstance();
     assertNotNull(resourceInstance);
     assertEquals(0, resourceInstance.getId());
     assertEquals(1, resourceInstance.getUpdatedStats().length);
     assertEquals(1, resourceInstance.getLatestStatValues().length); // TODO: is this correct?
-    Statistics statistics = resourceInstance.getStatistics();
+    var statistics = resourceInstance.getStatistics();
     assertNotNull(statistics);
     assertTrue(statistics == st1_1);
     assertEquals(1, statistics.getUniqueId());
@@ -134,7 +130,7 @@ public class SampleCollectorTest {
 
     // validate the sampled notification
     assertTrue(notifications.get(2) instanceof SampledInfo);
-    SampledInfo sampledInfo = (SampledInfo) notifications.get(2);
+    var sampledInfo = (SampledInfo) notifications.get(2);
     assertNotNull(sampledInfo);
     assertEquals("sampled", sampledInfo.getName());
     assertEquals(1, sampledInfo.getResourceCount());
@@ -142,21 +138,21 @@ public class SampleCollectorTest {
 
   @Test
   public void testAddHandlerAfterSamples() {
-    StatisticDescriptor[] statsST1 = new StatisticDescriptor[] {
+    var statsST1 = new StatisticDescriptor[] {
         manager.createIntCounter("ST1_1_name", "ST1_1_desc", "ST1_1_units")};
-    StatisticsType ST1 = manager.createType("ST1_name", "ST1_desc", statsST1);
-    Statistics st1_1 = manager.createAtomicStatistics(ST1, "st1_1_text", 1);
-    Statistics st1_2 = manager.createAtomicStatistics(ST1, "st1_2_text", 1);
+    var ST1 = manager.createType("ST1_name", "ST1_desc", statsST1);
+    var st1_1 = manager.createAtomicStatistics(ST1, "st1_1_text", 1);
+    var st1_2 = manager.createAtomicStatistics(ST1, "st1_2_text", 1);
 
-    StatisticDescriptor[] statsST2 = new StatisticDescriptor[] {
+    var statsST2 = new StatisticDescriptor[] {
         manager.createIntCounter("ST2_1_name", "ST2_1_desc", "ST2_1_units")};
-    StatisticsType ST2 = manager.createType("ST2_name", "ST2_desc", statsST2);
-    Statistics st2_1 = manager.createAtomicStatistics(ST2, "st2_1_text", 1);
+    var ST2 = manager.createType("ST2_name", "ST2_desc", statsST2);
+    var st2_1 = manager.createAtomicStatistics(ST2, "st2_1_text", 1);
 
     st1_1.incInt("ST1_1_name", 1);
     st1_2.incInt("ST1_1_name", 1);
     st2_1.incInt("ST2_1_name", 1);
-    long sampleTime = NanoTimer.getTime();
+    var sampleTime = NanoTimer.getTime();
     sampleCollector.sample(sampleTime);
 
     st1_1.incInt("ST1_1_name", 2);
@@ -169,7 +165,7 @@ public class SampleCollectorTest {
     sampleTime += NanoTimer.millisToNanos(1000);
     sampleCollector.sample(sampleTime);
 
-    TestSampleHandler handler = new TestSampleHandler();
+    var handler = new TestSampleHandler();
     sampleCollector.addSampleHandler(handler);
 
     assertEquals("TestSampleHandler = " + handler, 0, handler.getNotificationCount());
@@ -180,20 +176,20 @@ public class SampleCollectorTest {
     sampleCollector.sample(sampleTime);
 
     assertEquals(6, handler.getNotificationCount());
-    List<Info> notifications = handler.getNotifications();
+    var notifications = handler.getNotifications();
 
     // validate the allocatedResourceType notification for ST1
-    int notificationIdx = 0;
+    var notificationIdx = 0;
     assertTrue(notifications.get(notificationIdx) instanceof ResourceTypeInfo);
-    ResourceTypeInfo allocatedResourceTypeInfo =
+    var allocatedResourceTypeInfo =
         (ResourceTypeInfo) notifications.get(notificationIdx);
     assertNotNull(allocatedResourceTypeInfo);
     assertEquals("allocatedResourceType", allocatedResourceTypeInfo.getName());
-    ResourceType resourceType = allocatedResourceTypeInfo.getResourceType();
+    var resourceType = allocatedResourceTypeInfo.getResourceType();
     assertNotNull(resourceType);
     assertEquals(0, resourceType.getId());
     assertEquals(1, resourceType.getStatisticDescriptors().length);
-    StatisticsType statisticsType = resourceType.getStatisticsType();
+    var statisticsType = resourceType.getStatisticsType();
     assertNotNull(statisticsType);
     assertTrue(statisticsType == ST1);
     assertEquals("ST1_name", statisticsType.getName());
@@ -203,16 +199,16 @@ public class SampleCollectorTest {
     // validate the allocatedResourceInstance notification for st1_1
     notificationIdx++;
     assertTrue(notifications.get(notificationIdx) instanceof ResourceInstanceInfo);
-    ResourceInstanceInfo allocatedResourceInstanceInfo =
+    var allocatedResourceInstanceInfo =
         (ResourceInstanceInfo) notifications.get(notificationIdx);
     assertNotNull(allocatedResourceInstanceInfo);
     assertEquals("allocatedResourceInstance", allocatedResourceInstanceInfo.getName());
-    ResourceInstance resourceInstance = allocatedResourceInstanceInfo.getResourceInstance();
+    var resourceInstance = allocatedResourceInstanceInfo.getResourceInstance();
     assertNotNull(resourceInstance);
     assertEquals(0, resourceInstance.getId());
     assertEquals(1, resourceInstance.getUpdatedStats().length);
     assertEquals(1, resourceInstance.getLatestStatValues().length); // TODO: is this correct?
-    Statistics statistics = resourceInstance.getStatistics();
+    var statistics = resourceInstance.getStatistics();
     assertNotNull(statistics);
     assertTrue(statistics == st1_1);
     assertEquals(1, statistics.getUniqueId());
@@ -281,7 +277,7 @@ public class SampleCollectorTest {
     // validate the sampled notification
     notificationIdx++;
     assertTrue(notifications.get(notificationIdx) instanceof SampledInfo);
-    SampledInfo sampledInfo = (SampledInfo) notifications.get(notificationIdx);
+    var sampledInfo = (SampledInfo) notifications.get(notificationIdx);
     assertNotNull(sampledInfo);
     assertEquals("sampled", sampledInfo.getName());
     assertEquals(3, sampledInfo.getResourceCount());
@@ -289,7 +285,7 @@ public class SampleCollectorTest {
 
   @Test
   public void testGetStatMonitorHandler() {
-    StatMonitorHandler handler = SampleCollector.getStatMonitorHandler();
+    var handler = SampleCollector.getStatMonitorHandler();
     assertNotNull(handler);
     assertTrue(handler.getMonitorsSnapshot().isEmpty());
     assertNull(handler.getStatMonitorNotifier());
@@ -309,7 +305,7 @@ public class SampleCollectorTest {
 
   @Test
   public void testGetStatMonitorHandlerBeforeAndAfterClose() {
-    StatMonitorHandler handler = SampleCollector.getStatMonitorHandler();
+    var handler = SampleCollector.getStatMonitorHandler();
     assertNotNull(handler);
     sampleCollector.close();
     try {
@@ -323,7 +319,7 @@ public class SampleCollectorTest {
 
   @Test
   public void testGetStatArchiveHandler() {
-    StatArchiveHandler handler = sampleCollector.getStatArchiveHandler();
+    var handler = sampleCollector.getStatArchiveHandler();
     assertNotNull(handler);
   }
 }

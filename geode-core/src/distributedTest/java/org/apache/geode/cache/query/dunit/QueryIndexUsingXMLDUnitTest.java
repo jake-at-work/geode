@@ -25,7 +25,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -38,12 +37,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.LogWriter;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.Index;
-import org.apache.geode.cache.query.Query;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.cache.query.functional.StructSetOrResultsSet;
@@ -56,7 +52,6 @@ import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.test.dunit.AsyncInvocation;
 import org.apache.geode.test.dunit.Host;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.cache.internal.JUnit4CacheTestCase;
 import org.apache.geode.test.junit.categories.OQLIndexTest;
 import org.apache.geode.test.junit.rules.serializable.SerializableTemporaryFolder;
@@ -113,7 +108,7 @@ public class QueryIndexUsingXMLDUnitTest extends JUnit4CacheTestCase {
   public void before() throws Exception {
     addIgnoredException("Failed to create index");
 
-    URL url = getClass().getResource(CACHE_XML_FILE_NAME);
+    var url = getClass().getResource(CACHE_XML_FILE_NAME);
     assertThat(url).isNotNull(); // precondition
 
     cacheXmlFile = temporaryFolder.newFile(CACHE_XML_FILE_NAME);
@@ -132,9 +127,9 @@ public class QueryIndexUsingXMLDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testCreateIndexThroughXML() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
     getLogWriter().info("Creating index using an xml file name : " + CACHE_XML_FILE_NAME);
 
@@ -186,9 +181,9 @@ public class QueryIndexUsingXMLDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testCreateIndexWhileDoingGII() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
     getLogWriter().info("Creating index using an xml file name : " + CACHE_XML_FILE_NAME);
 
@@ -234,9 +229,9 @@ public class QueryIndexUsingXMLDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testReplicatedRegionCreateIndexWhileDoingGII() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
     getLogWriter().info("Creating index using an xml file name : " + CACHE_XML_FILE_NAME);
 
@@ -277,9 +272,9 @@ public class QueryIndexUsingXMLDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testPersistentPRRegionCreateIndexWhileDoingGII() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
     getLogWriter().info("Creating index using an xml file name : " + CACHE_XML_FILE_NAME);
 
@@ -329,9 +324,9 @@ public class QueryIndexUsingXMLDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testCreateIndexWhileDoingGIIWithEmptyPRRegion() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
     getLogWriter().info("### in testCreateIndexWhileDoingGIIWithEmptyPRRegion.");
 
@@ -359,9 +354,9 @@ public class QueryIndexUsingXMLDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testCreateAsyncIndexWhileDoingGII() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
     getLogWriter().info("Creating index using an xml file name : " + CACHE_XML_FILE_NAME);
 
@@ -390,9 +385,9 @@ public class QueryIndexUsingXMLDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testCreateIndexWhileDoingGIIAndCompareQueryResults() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
     getLogWriter().info("Creating index using an xml file name : " + CACHE_XML_FILE_NAME);
 
@@ -445,9 +440,9 @@ public class QueryIndexUsingXMLDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testCreateAsyncIndexWhileDoingGIIAndQuery() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
     getLogWriter().info("Creating index using an xml file name : " + CACHE_XML_FILE_NAME);
 
@@ -478,9 +473,9 @@ public class QueryIndexUsingXMLDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testCreateAsyncIndexWhileDoingGIIAndCompareQueryResults() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
     getLogWriter().info("Creating index using an xml file name : " + CACHE_XML_FILE_NAME);
 
@@ -519,9 +514,9 @@ public class QueryIndexUsingXMLDUnitTest extends JUnit4CacheTestCase {
 
   public void validateIndexSize() {
     await().untilAsserted(() -> {
-      boolean indexSizeCheck_NAME = validateIndexSizeForRegion(NAME);
-      boolean indexSizeCheck_REP_REG_NAME = validateIndexSizeForRegion(REP_REG_NAME);
-      boolean indexSizeCheck_PERSISTENT_REG_NAME = validateIndexSizeForRegion(PERSISTENT_REG_NAME);
+      var indexSizeCheck_NAME = validateIndexSizeForRegion(NAME);
+      var indexSizeCheck_REP_REG_NAME = validateIndexSizeForRegion(REP_REG_NAME);
+      var indexSizeCheck_PERSISTENT_REG_NAME = validateIndexSizeForRegion(PERSISTENT_REG_NAME);
       assertEquals("Index does not contain all the entries after 60 seconds have elapsed ", true,
           (indexSizeCheck_NAME && indexSizeCheck_REP_REG_NAME
               && indexSizeCheck_PERSISTENT_REG_NAME));
@@ -530,7 +525,7 @@ public class QueryIndexUsingXMLDUnitTest extends JUnit4CacheTestCase {
 
   private boolean validateIndexSizeForRegion(final String regionName) {
     Region region = getCache().getRegion(regionName);
-    QueryService queryService = getCache().getQueryService();
+    var queryService = getCache().getQueryService();
     return queryService.getIndex(region, "statusIndex").getStatistics().getNumberOfValues() == 500
         && queryService.getIndex(region, "idIndex").getStatistics().getNumberOfValues() == 500
         && queryService.getIndex(region, "statusIndex").getStatistics().getNumberOfValues() == 500;
@@ -538,8 +533,8 @@ public class QueryIndexUsingXMLDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testIndexCreationForReplicatedPersistentOverFlowRegionOnRestart() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
 
     getLogWriter().info("Creating index using an xml file name : " + CACHE_XML_FILE_NAME);
 
@@ -588,7 +583,7 @@ public class QueryIndexUsingXMLDUnitTest extends JUnit4CacheTestCase {
     return new CacheSerializableRunnable("RegionCreator") {
       @Override
       public void run2() {
-        Properties properties = new Properties();
+        var properties = new Properties();
         properties.setProperty(CACHE_XML_FILE, cacheXmlFile.getAbsolutePath());
         getSystem(properties);
         Cache cache = getCache();
@@ -606,9 +601,9 @@ public class QueryIndexUsingXMLDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() {
         Cache cache = getCache();
-        LogWriter logger = cache.getLogger();
-        PartitionedRegion region = (PartitionedRegion) cache.getRegion(regionName);
-        PartitionedIndex index = (PartitionedIndex) region.getIndex().get(indexName);
+        var logger = cache.getLogger();
+        var region = (PartitionedRegion) cache.getRegion(regionName);
+        var index = (PartitionedIndex) region.getIndex().get(indexName);
         assertThat(index).isNotNull();
 
         logger.info("Current number of buckets indexed: " + index.getNumberOfIndexedBuckets());
@@ -627,8 +622,8 @@ public class QueryIndexUsingXMLDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() {
         Cache cache = getCache();
-        LocalRegion region = (LocalRegion) cache.getRegion(regionName);
-        Index index = region.getIndexManager().getIndex(indexName);
+        var region = (LocalRegion) cache.getRegion(regionName);
+        var index = region.getIndexManager().getIndex(indexName);
         assertThat(index).isNotNull();
       }
     };
@@ -644,7 +639,7 @@ public class QueryIndexUsingXMLDUnitTest extends JUnit4CacheTestCase {
       public void run2() {
         Cache cache = getCache();
         Region region = cache.getRegion(name);
-        for (int i = 0; i < 100; i++) {
+        for (var i = 0; i < 100; i++) {
           region.put(i, new Portfolio(i));
         }
       }
@@ -657,7 +652,7 @@ public class QueryIndexUsingXMLDUnitTest extends JUnit4CacheTestCase {
       public void run2() {
         Cache cache = getCache();
         Region region = cache.getRegion(name);
-        for (int i = 0; i < size; i++) {
+        for (var i = 0; i < size; i++) {
           region.put(i, new Portfolio(i));
         }
       }
@@ -668,11 +663,11 @@ public class QueryIndexUsingXMLDUnitTest extends JUnit4CacheTestCase {
     return new CacheSerializableRunnable("execute query on " + regionName) {
       @Override
       public void run2() {
-        QueryService qs = getCache().getQueryService();
-        QueryObserverImpl observer = new QueryObserverImpl();
+        var qs = getCache().getQueryService();
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
-        String queryString = "Select * from " + SEPARATOR + regionName + " where ID > 10";
-        Query query = qs.newQuery(queryString);
+        var queryString = "Select * from " + SEPARATOR + regionName + " where ID > 10";
+        var query = qs.newQuery(queryString);
         try {
           query.execute();
         } catch (Exception ex) {
@@ -687,23 +682,23 @@ public class QueryIndexUsingXMLDUnitTest extends JUnit4CacheTestCase {
     return new CacheSerializableRunnable("execute query and compare results.") {
       @Override
       public void run2() {
-        QueryService qs = getCache().getQueryService();
+        var qs = getCache().getQueryService();
 
-        StructSetOrResultsSet resultsSet = new StructSetOrResultsSet();
-        SelectResults[][] selectResults = new SelectResults[1][2];
-        String[] queryStrings = new String[2];
+        var resultsSet = new StructSetOrResultsSet();
+        var selectResults = new SelectResults[1][2];
+        var queryStrings = new String[2];
 
-        int numQueries = QUERY_STR.length;
-        for (int j = 0; j < numQueries; j++) {
-          String[] queryArray = QUERY_STR[j];
-          int numQueriesToCheck = compareHash ? queryArray.length : 3;
-          for (int i = 0; i < numQueriesToCheck; i++) {
-            QueryObserverImpl observer = new QueryObserverImpl();
+        var numQueries = QUERY_STR.length;
+        for (var j = 0; j < numQueries; j++) {
+          var queryArray = QUERY_STR[j];
+          var numQueriesToCheck = compareHash ? queryArray.length : 3;
+          for (var i = 0; i < numQueriesToCheck; i++) {
+            var observer = new QueryObserverImpl();
             QueryObserverHolder.setInstance(observer);
             // Query using index.
             queryStrings[0] = QUERY_STR[j][i];
             // Execute query with index.
-            Query query = qs.newQuery(queryStrings[0]);
+            var query = qs.newQuery(queryStrings[0]);
 
             try {
               selectResults[0][0] = (SelectResults) query.execute();

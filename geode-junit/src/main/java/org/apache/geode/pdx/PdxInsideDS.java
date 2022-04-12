@@ -61,8 +61,8 @@ class PdxInsideDS implements DataSerializable {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
+    final var prime = 31;
+    var result = 1;
     result = prime * result + (int) (myLong ^ (myLong >>> 32));
     result = prime * result + ((myString1 == null) ? 0 : myString1.hashCode());
     result = prime * result + ((myString2 == null) ? 0 : myString2.hashCode());
@@ -81,7 +81,7 @@ class PdxInsideDS implements DataSerializable {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    PdxInsideDS other = (PdxInsideDS) obj;
+    var other = (PdxInsideDS) obj;
     if (myLong != other.myLong) {
       return false;
     }

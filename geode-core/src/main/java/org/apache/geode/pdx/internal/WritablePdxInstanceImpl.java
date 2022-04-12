@@ -14,7 +14,6 @@
  */
 package org.apache.geode.pdx.internal;
 
-import java.nio.ByteBuffer;
 import java.util.Date;
 
 import org.apache.geode.InternalGemFireException;
@@ -50,7 +49,7 @@ public class WritablePdxInstanceImpl extends PdxInstanceImpl implements Writable
   @Override
   protected synchronized PdxReaderImpl getUnmodifiableReader(String fieldName) {
     if (dirtyFields != null) {
-      PdxField f = getPdxType().getPdxField(fieldName);
+      var f = getPdxType().getPdxField(fieldName);
       if (f != null) {
         if (dirtyFields[f.getFieldIndex()] != null) {
           return getUnmodifiableReader();
@@ -76,23 +75,23 @@ public class WritablePdxInstanceImpl extends PdxInstanceImpl implements Writable
   @Override
   protected synchronized PdxReaderImpl getUnmodifiableReader() {
     if (dirtyFields != null) {
-      PdxOutputStream os = new PdxOutputStream(basicSize() + PdxWriterImpl.HEADER_SIZE);
+      var os = new PdxOutputStream(basicSize() + PdxWriterImpl.HEADER_SIZE);
       PdxWriterImpl writer;
       if (getPdxType().getHasDeletedField()) {
         // Need a new type that does not have the deleted field
-        PdxType pt = new PdxType(getPdxType().getClassName(), !getPdxType().getNoDomainClass());
+        var pt = new PdxType(getPdxType().getClassName(), !getPdxType().getNoDomainClass());
         InternalCache cache = GemFireCacheImpl
             .getForPdx("PDX registry is unavailable because the Cache has been closed.");
-        TypeRegistry tr = cache.getPdxRegistry();
+        var tr = cache.getPdxRegistry();
         writer = new PdxWriterImpl(pt, tr, os);
       } else {
         writer = new PdxWriterImpl(getPdxType(), os);
       }
-      for (PdxField f : getPdxType().getFields()) {
+      for (var f : getPdxType().getFields()) {
         if (f.isDeleted()) {
           continue;
         }
-        Object dv = dirtyFields[f.getFieldIndex()];
+        var dv = dirtyFields[f.getFieldIndex()];
         if (dv != null) {
           if (dv == NULL_TOKEN) {
             dv = null;
@@ -103,7 +102,7 @@ public class WritablePdxInstanceImpl extends PdxInstanceImpl implements Writable
         }
       }
       writer.completeByteStreamGeneration();
-      ByteBuffer bb = os.toByteBuffer();
+      var bb = os.toByteBuffer();
       bb.position(PdxWriterImpl.HEADER_SIZE);
       basicSetBuffer(bb.slice());
       dirtyFields = null;
@@ -113,7 +112,7 @@ public class WritablePdxInstanceImpl extends PdxInstanceImpl implements Writable
 
   @Override
   public void setField(String fieldName, Object value) {
-    PdxField f = getPdxType().getPdxField(fieldName);
+    var f = getPdxType().getPdxField(fieldName);
     if (f == null) {
       throw new PdxFieldDoesNotExistException(
           "A field named " + fieldName + " does not exist on " + getPdxType());

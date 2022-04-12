@@ -50,56 +50,56 @@ public class OffHeapWriteObjectAsByteArrayJUnitTest {
   }
 
   private DataInputStream createInput(HeapDataOutputStream hdos) {
-    ByteArrayInputStream bais = new ByteArrayInputStream(hdos.toByteArray());
+    var bais = new ByteArrayInputStream(hdos.toByteArray());
     return new DataInputStream(bais);
   }
 
   @Test
   public void testByteArrayChunk() throws IOException, ClassNotFoundException {
-    byte[] expected = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-    StoredObject so = createStoredObject(expected, false, false);
+    var expected = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+    var so = createStoredObject(expected, false, false);
     assertTrue(so instanceof OffHeapStoredObject);
-    HeapDataOutputStream hdos = new HeapDataOutputStream(new byte[1024]);
+    var hdos = new HeapDataOutputStream(new byte[1024]);
     DataSerializer.writeObjectAsByteArray(so, hdos);
-    DataInputStream in = createInput(hdos);
-    byte[] actual = DataSerializer.readByteArray(in);
+    var in = createInput(hdos);
+    var actual = DataSerializer.readByteArray(in);
     assertArrayEquals(expected, actual);
   }
 
   @Test
   public void testByteArrayDataAsAddress() throws IOException, ClassNotFoundException {
-    byte[] expected = new byte[] {1, 2, 3};
-    StoredObject so = createStoredObject(expected, false, false);
+    var expected = new byte[] {1, 2, 3};
+    var so = createStoredObject(expected, false, false);
     assertTrue(so instanceof TinyStoredObject);
-    HeapDataOutputStream hdos = new HeapDataOutputStream(new byte[1024]);
+    var hdos = new HeapDataOutputStream(new byte[1024]);
     DataSerializer.writeObjectAsByteArray(so, hdos);
-    DataInputStream in = createInput(hdos);
-    byte[] actual = DataSerializer.readByteArray(in);
+    var in = createInput(hdos);
+    var actual = DataSerializer.readByteArray(in);
     assertArrayEquals(expected, actual);
   }
 
   @Test
   public void testStringChunk() throws IOException, ClassNotFoundException {
-    byte[] expected = EntryEventImpl.serialize("1234567890");
-    StoredObject so = createStoredObject(expected, true, false);
+    var expected = EntryEventImpl.serialize("1234567890");
+    var so = createStoredObject(expected, true, false);
     assertTrue(so instanceof OffHeapStoredObject);
-    HeapDataOutputStream hdos = new HeapDataOutputStream(new byte[1024]);
+    var hdos = new HeapDataOutputStream(new byte[1024]);
     DataSerializer.writeObjectAsByteArray(so, hdos);
-    DataInputStream in = createInput(hdos);
-    byte[] actual = DataSerializer.readByteArray(in);
+    var in = createInput(hdos);
+    var actual = DataSerializer.readByteArray(in);
     assertArrayEquals(expected, actual);
     assertNoMoreInput(in);
   }
 
   @Test
   public void testStringDataAsAddress() throws IOException, ClassNotFoundException {
-    byte[] expected = EntryEventImpl.serialize("1234");
-    StoredObject so = createStoredObject(expected, true, false);
+    var expected = EntryEventImpl.serialize("1234");
+    var so = createStoredObject(expected, true, false);
     assertTrue(so instanceof TinyStoredObject);
-    HeapDataOutputStream hdos = new HeapDataOutputStream(new byte[1024]);
+    var hdos = new HeapDataOutputStream(new byte[1024]);
     DataSerializer.writeObjectAsByteArray(so, hdos);
-    DataInputStream in = createInput(hdos);
-    byte[] actual = DataSerializer.readByteArray(in);
+    var in = createInput(hdos);
+    var actual = DataSerializer.readByteArray(in);
     assertArrayEquals(expected, actual);
   }
 

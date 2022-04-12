@@ -24,8 +24,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -34,7 +32,6 @@ import org.junit.runners.Parameterized;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.execute.FunctionService;
@@ -78,7 +75,7 @@ public class RestAPIOnRegionFunctionExecutionDUnitTest extends RestAPITestBase {
 
 
   private void createPeer(DataPolicy policy) {
-    Region<Object, Object> region = CacheFactory.getAnyInstance()
+    var region = CacheFactory.getAnyInstance()
         .createRegionFactory()
         .setDataPolicy(policy)
         .setScope(Scope.DISTRIBUTED_ACK)
@@ -88,12 +85,12 @@ public class RestAPIOnRegionFunctionExecutionDUnitTest extends RestAPITestBase {
   }
 
   private boolean createPeerWithPR() {
-    RegionAttributes ra = PartitionedRegionTestHelper.createRegionAttrsForPR(0, 10);
-    PartitionAttributesImpl pa = new PartitionAttributesImpl();
+    var ra = PartitionedRegionTestHelper.createRegionAttrsForPR(0, 10);
+    var pa = new PartitionAttributesImpl();
     pa.setAll(ra.getPartitionAttributes());
     pa.setTotalNumBuckets(17);
 
-    Region<Object, Object> region = CacheFactory.getAnyInstance()
+    var region = CacheFactory.getAnyInstance()
         .createRegionFactory()
         .setPartitionAttributes(pa)
         .create(PR_REGION_NAME);
@@ -103,15 +100,15 @@ public class RestAPIOnRegionFunctionExecutionDUnitTest extends RestAPITestBase {
   }
 
   private void populatePRRegion() {
-    PartitionedRegion pr =
+    var pr =
         (PartitionedRegion) CacheFactory.getAnyInstance().getRegion(PR_REGION_NAME);
     DistributedSystem.setThreadsSocketPolicy(false);
 
-    for (int i = (pr.getTotalNumberOfBuckets() * 3); i > 0; i--) {
+    for (var i = (pr.getTotalNumberOfBuckets() * 3); i > 0; i--) {
       pr.put("execKey-" + i, i + 1);
     }
     // Assert there is data in each bucket
-    for (int bid = 0; bid < pr.getTotalNumberOfBuckets(); bid++) {
+    for (var bid = 0; bid < pr.getTotalNumberOfBuckets(); bid++) {
       assertThat(pr.getBucketKeys(bid).size()).isGreaterThan(0);
     }
   }
@@ -120,12 +117,12 @@ public class RestAPIOnRegionFunctionExecutionDUnitTest extends RestAPITestBase {
     Region<String, Integer> region = CacheFactory.getAnyInstance().getRegion(REPLICATE_REGION_NAME);
     assertThat(region).isNotNull();
 
-    final HashSet<String> testKeys = new HashSet<>();
-    for (int i = 17 * 3; i > 0; i--) {
+    final var testKeys = new HashSet<String>();
+    for (var i = 17 * 3; i > 0; i--) {
       testKeys.add("execKey-" + i);
     }
-    int j = 0;
-    for (final String testKey : testKeys) {
+    var j = 0;
+    for (final var testKey : testKeys) {
       region.put(testKey, j++);
     }
 
@@ -162,7 +159,7 @@ public class RestAPIOnRegionFunctionExecutionDUnitTest extends RestAPITestBase {
 
     vm3.invoke("populateRRRegion", this::populateRRRegion);
 
-    CloseableHttpResponse response = executeFunctionThroughRestCall("SampleFunction",
+    var response = executeFunctionThroughRestCall("SampleFunction",
         REPLICATE_REGION_NAME, null, null, null, null);
     assertThat(response.getStatusLine().getStatusCode()).isEqualTo(200);
     assertThat(response.getEntity()).isNotNull();
@@ -181,7 +178,7 @@ public class RestAPIOnRegionFunctionExecutionDUnitTest extends RestAPITestBase {
 
     vm3.invoke("populatePRRegion", this::populatePRRegion);
 
-    CloseableHttpResponse response =
+    var response =
         executeFunctionThroughRestCall("SampleFunction", PR_REGION_NAME, null, null, null, null);
     assertThat(response.getStatusLine().getStatusCode()).isEqualTo(200);
     assertThat(response.getEntity()).isNotNull();
@@ -199,7 +196,7 @@ public class RestAPIOnRegionFunctionExecutionDUnitTest extends RestAPITestBase {
 
     vm3.invoke("populatePRRegion", this::populatePRRegion);
 
-    CloseableHttpResponse response =
+    var response =
         executeFunctionThroughRestCall("SampleFunction", PR_REGION_NAME, "key2", null, null, null);
     assertThat(response.getStatusLine().getStatusCode()).isEqualTo(200);
     assertThat(response.getEntity()).isNotNull();
@@ -210,7 +207,7 @@ public class RestAPIOnRegionFunctionExecutionDUnitTest extends RestAPITestBase {
   }
 
   private void createPeersWithPR(VM... vms) {
-    for (final VM vm : vms) {
+    for (final var vm : vms) {
       vm.invoke("createPeerWithPR", this::createPeerWithPR);
     }
   }
@@ -223,12 +220,12 @@ public class RestAPIOnRegionFunctionExecutionDUnitTest extends RestAPITestBase {
 
     vm3.invoke("populatePRRegion", this::populatePRRegion);
 
-    String jsonBody = "[" + "{\"@type\": \"double\",\"@value\": 210}"
+    var jsonBody = "[" + "{\"@type\": \"double\",\"@value\": 210}"
         + ",{\"@type\":\"org.apache.geode.rest.internal.web.controllers.Item\","
         + "\"itemNo\":\"599\",\"description\":\"Part X Free on Bumper Offer\","
         + "\"quantity\":\"2\"," + "\"unitprice\":\"5\"," + "\"totalprice\":\"10.00\"}" + "]";
 
-    CloseableHttpResponse response = executeFunctionThroughRestCall("SampleFunction",
+    var response = executeFunctionThroughRestCall("SampleFunction",
         PR_REGION_NAME, null, jsonBody, null, null);
     assertThat(response.getStatusLine().getStatusCode()).isEqualTo(200);
     assertThat(response.getEntity()).isNotNull();
@@ -265,7 +262,7 @@ public class RestAPIOnRegionFunctionExecutionDUnitTest extends RestAPITestBase {
     public void execute(FunctionContext context) {
       invocationCount++;
       if (context instanceof RegionFunctionContext) {
-        RegionFunctionContext rfContext = (RegionFunctionContext) context;
+        var rfContext = (RegionFunctionContext) context;
         rfContext.getCache().getLogger()
             .info("Executing function :  SampleFunction.execute(hasResult=true) with filter: "
                 + rfContext.getFilter() + "  " + rfContext);
@@ -287,7 +284,7 @@ public class RestAPIOnRegionFunctionExecutionDUnitTest extends RestAPITestBase {
             }
           }
         } else if (rfContext.getArguments() instanceof String) {
-          String key = (String) rfContext.getArguments();
+          var key = (String) rfContext.getArguments();
           if (key.equals("TestingTimeOut")) { // for test
             // PRFunctionExecutionDUnitTest#testRemoteMultiKeyExecution_timeout
             try {
@@ -309,10 +306,10 @@ public class RestAPIOnRegionFunctionExecutionDUnitTest extends RestAPITestBase {
           }
           /* return (Serializable)rfContext.getDataSet().get(key); */
         } else if (rfContext.getArguments() instanceof Set) {
-          Set origKeys = (Set) rfContext.getArguments();
-          ArrayList vals = new ArrayList();
-          for (Object key : origKeys) {
-            Object val = PartitionRegionHelper.getLocalDataForContext(rfContext).get(key);
+          var origKeys = (Set) rfContext.getArguments();
+          var vals = new ArrayList();
+          for (var key : origKeys) {
+            var val = PartitionRegionHelper.getLocalDataForContext(rfContext).get(key);
             if (val != null) {
               vals.add(val);
             }
@@ -320,9 +317,9 @@ public class RestAPIOnRegionFunctionExecutionDUnitTest extends RestAPITestBase {
           rfContext.getResultSender().lastResult(vals);
           /* return vals; */
         } else if (rfContext.getArguments() instanceof HashMap) {
-          HashMap putData = (HashMap) rfContext.getArguments();
-          for (Object o : putData.entrySet()) {
-            Map.Entry me = (Map.Entry) o;
+          var putData = (HashMap) rfContext.getArguments();
+          for (var o : putData.entrySet()) {
+            var me = (Map.Entry) o;
             rfContext.getDataSet().put(me.getKey(), me.getValue());
           }
           rfContext.getResultSender().lastResult(Boolean.TRUE);
@@ -335,7 +332,7 @@ public class RestAPIOnRegionFunctionExecutionDUnitTest extends RestAPITestBase {
         } else {
           DistributedSystem ds = InternalDistributedSystem.getAnyInstance();
           assertThat(ds).isNotNull();
-          Logger logger = LogService.getLogger();
+          var logger = LogService.getLogger();
           logger.info("Executing in SampleFunction on Server : " + ds.getDistributedMember()
               + "with Context : " + context);
           while (ds.isConnected()) {

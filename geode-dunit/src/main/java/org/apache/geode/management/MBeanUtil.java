@@ -50,9 +50,9 @@ public class MBeanUtil {
    */
   public static MemberMXBean getMemberMbeanProxy(DistributedMember member) throws Exception {
     MemberMXBean bean = null;
-    final SystemManagementService service =
+    final var service =
         (SystemManagementService) ManagementTestBase.getManagementService();
-    final ObjectName memberMBeanName = service.getMemberMBeanName(member);
+    final var memberMBeanName = service.getMemberMBeanName(member);
     Wait.waitForCriterion(new WaitCriterion() {
       MemberMXBean bean = null;
 
@@ -64,7 +64,7 @@ public class MBeanUtil {
       @Override
       public boolean done() {
         bean = service.getMBeanProxy(memberMBeanName, MemberMXBean.class);
-        boolean done = bean != null;
+        var done = bean != null;
         return done;
       }
 
@@ -91,9 +91,9 @@ public class MBeanUtil {
   public static CacheServerMXBean getCacheServerMbeanProxy(DistributedMember member, int port)
       throws Exception {
     CacheServerMXBean bean = null;
-    final SystemManagementService service =
+    final var service =
         (SystemManagementService) ManagementTestBase.getManagementService();
-    final ObjectName cacheServerMBeanName = service.getCacheServerMBeanName(port, member);
+    final var cacheServerMBeanName = service.getCacheServerMBeanName(port, member);
 
     Wait.waitForCriterion(new WaitCriterion() {
       CacheServerMXBean bean = null;
@@ -105,10 +105,10 @@ public class MBeanUtil {
 
       @Override
       public boolean done() {
-        GemFireCacheImpl cache = GemFireCacheImpl.getInstance();
-        GemFireCacheImpl cacheImpl = cache;
+        var cache = GemFireCacheImpl.getInstance();
+        var cacheImpl = cache;
         bean = service.getMBeanProxy(cacheServerMBeanName, CacheServerMXBean.class);
-        boolean done = bean != null;
+        var done = bean != null;
         return done;
       }
 
@@ -137,9 +137,9 @@ public class MBeanUtil {
   public static LockServiceMXBean getLockServiceMbeanProxy(DistributedMember member,
       String lockServiceName) throws Exception {
     LockServiceMXBean bean = null;
-    final SystemManagementService service =
+    final var service =
         (SystemManagementService) ManagementTestBase.getManagementService();
-    final ObjectName lockServiceMBeanName =
+    final var lockServiceMBeanName =
         service.getLockServiceMBeanName(member, lockServiceName);
 
     Wait.waitForCriterion(new WaitCriterion() {
@@ -152,10 +152,10 @@ public class MBeanUtil {
 
       @Override
       public boolean done() {
-        GemFireCacheImpl cache = GemFireCacheImpl.getInstance();
-        GemFireCacheImpl cacheImpl = cache;
+        var cache = GemFireCacheImpl.getInstance();
+        var cacheImpl = cache;
         bean = service.getMBeanProxy(lockServiceMBeanName, LockServiceMXBean.class);
-        boolean done = bean != null;
+        var done = bean != null;
         return done;
       }
 
@@ -182,10 +182,10 @@ public class MBeanUtil {
   public static RegionMXBean getRegionMbeanProxy(DistributedMember member, String regionPath)
       throws Exception {
 
-    final SystemManagementService service =
+    final var service =
         (SystemManagementService) ManagementTestBase.getManagementService();
 
-    final ObjectName regionMBeanName = service.getRegionMBeanName(member, regionPath);
+    final var regionMBeanName = service.getRegionMBeanName(member, regionPath);
 
     Wait.waitForCriterion(new WaitCriterion() {
 
@@ -198,9 +198,9 @@ public class MBeanUtil {
 
       @Override
       public boolean done() {
-        GemFireCacheImpl cache = GemFireCacheImpl.getInstance();
+        var cache = GemFireCacheImpl.getInstance();
         bean = service.getMBeanProxy(regionMBeanName, RegionMXBean.class);
-        boolean done = (bean != null);
+        var done = (bean != null);
         return done;
       }
 
@@ -232,10 +232,10 @@ public class MBeanUtil {
   public static GatewaySenderMXBean getGatewaySenderMbeanProxy(DistributedMember member,
       String gatwaySenderId) throws Exception {
 
-    final SystemManagementService service =
+    final var service =
         (SystemManagementService) ManagementTestBase.getManagementService();
 
-    final ObjectName senderMBeanName = service.getGatewaySenderMBeanName(member, gatwaySenderId);
+    final var senderMBeanName = service.getGatewaySenderMBeanName(member, gatwaySenderId);
 
     Wait.waitForCriterion(new WaitCriterion() {
 
@@ -248,9 +248,9 @@ public class MBeanUtil {
 
       @Override
       public boolean done() {
-        GemFireCacheImpl cache = GemFireCacheImpl.getInstance();
+        var cache = GemFireCacheImpl.getInstance();
         bean = service.getMBeanProxy(senderMBeanName, GatewaySenderMXBean.class);
-        boolean done = (bean != null);
+        var done = (bean != null);
         return done;
       }
 
@@ -281,10 +281,10 @@ public class MBeanUtil {
   public static AsyncEventQueueMXBean getAsyncEventQueueMBeanProxy(DistributedMember member,
       String queueId) throws Exception {
 
-    final SystemManagementService service =
+    final var service =
         (SystemManagementService) ManagementTestBase.getManagementService();
 
-    final ObjectName queueMBeanName = service.getAsyncEventQueueMBeanName(member, queueId);
+    final var queueMBeanName = service.getAsyncEventQueueMBeanName(member, queueId);
 
     Wait.waitForCriterion(new WaitCriterion() {
 
@@ -297,9 +297,9 @@ public class MBeanUtil {
 
       @Override
       public boolean done() {
-        GemFireCacheImpl cache = GemFireCacheImpl.getInstance();
+        var cache = GemFireCacheImpl.getInstance();
         bean = service.getMBeanProxy(queueMBeanName, AsyncEventQueueMXBean.class);
-        boolean done = (bean != null);
+        var done = (bean != null);
         return done;
       }
 
@@ -328,10 +328,10 @@ public class MBeanUtil {
   public static GatewayReceiverMXBean getGatewayReceiverMbeanProxy(DistributedMember member)
       throws Exception {
 
-    final SystemManagementService service =
+    final var service =
         (SystemManagementService) ManagementTestBase.getManagementService();
 
-    final ObjectName receiverMBeanName = service.getGatewayReceiverMBeanName(member);
+    final var receiverMBeanName = service.getGatewayReceiverMBeanName(member);
 
     Wait.waitForCriterion(new WaitCriterion() {
 
@@ -344,9 +344,9 @@ public class MBeanUtil {
 
       @Override
       public boolean done() {
-        GemFireCacheImpl cache = GemFireCacheImpl.getInstance();
+        var cache = GemFireCacheImpl.getInstance();
         bean = service.getMBeanProxy(receiverMBeanName, GatewayReceiverMXBean.class);
-        boolean done = (bean != null);
+        var done = (bean != null);
         return done;
       }
 
@@ -376,7 +376,7 @@ public class MBeanUtil {
       final int expectedMembers) throws Exception {
     DistributedRegionMXBean bean = null;
 
-    final ManagementService service = ManagementTestBase.getManagementService();
+    final var service = ManagementTestBase.getManagementService();
 
     Wait.waitForCriterion(new WaitCriterion() {
 
@@ -390,10 +390,10 @@ public class MBeanUtil {
 
       @Override
       public boolean done() {
-        GemFireCacheImpl cache = GemFireCacheImpl.getInstance();
+        var cache = GemFireCacheImpl.getInstance();
         bean = service.getDistributedRegionMXBean(regionName);
 
-        boolean done = (bean != null && bean.getMemberCount() == expectedMembers);
+        var done = (bean != null && bean.getMemberCount() == expectedMembers);
         return done;
       }
 
@@ -413,7 +413,7 @@ public class MBeanUtil {
       final int expectedMembers) throws Exception {
     DistributedLockServiceMXBean bean = null;
 
-    final ManagementService service = ManagementTestBase.getManagementService();
+    final var service = ManagementTestBase.getManagementService();
     Wait.waitForCriterion(new WaitCriterion() {
 
       DistributedLockServiceMXBean bean = null;
@@ -425,9 +425,9 @@ public class MBeanUtil {
 
       @Override
       public boolean done() {
-        GemFireCacheImpl cache = GemFireCacheImpl.getInstance();
+        var cache = GemFireCacheImpl.getInstance();
         bean = service.getDistributedLockServiceMXBean(lockServiceName);
-        boolean done = (bean != null && bean.getMemberCount() == expectedMembers);
+        var done = (bean != null && bean.getMemberCount() == expectedMembers);
         return done;
       }
 
@@ -446,10 +446,10 @@ public class MBeanUtil {
    */
   public static LocatorMXBean getLocatorMbeanProxy(DistributedMember member) throws Exception {
 
-    final SystemManagementService service =
+    final var service =
         (SystemManagementService) ManagementTestBase.getManagementService();
 
-    final ObjectName locatorMBeanName = service.getLocatorMBeanName(member);
+    final var locatorMBeanName = service.getLocatorMBeanName(member);
 
     Wait.waitForCriterion(new WaitCriterion() {
 
@@ -462,9 +462,9 @@ public class MBeanUtil {
 
       @Override
       public boolean done() {
-        GemFireCacheImpl cache = GemFireCacheImpl.getInstance();
+        var cache = GemFireCacheImpl.getInstance();
         bean = service.getMBeanProxy(locatorMBeanName, LocatorMXBean.class);
-        boolean done = (bean != null);
+        var done = (bean != null);
         return done;
       }
 
@@ -498,7 +498,7 @@ public class MBeanUtil {
       fail("Could not obtain Sender Proxy Details");
     }
     attributeInfos = info.getAttributes();
-    for (MBeanAttributeInfo attributeInfo : attributeInfos) {
+    for (var attributeInfo : attributeInfos) {
 
       Object propertyValue = null;
       String propertyName = null;

@@ -38,7 +38,7 @@ public class CoreOnlyUsesMembershipAPIArchUnitTest {
 
   @Test
   public void distributedAndInternalClassesDoNotUseMembershipInternals() {
-    JavaClasses importedClasses = getClassFileImporter().importPackages(
+    var importedClasses = getClassFileImporter().importPackages(
         "org.apache.geode.distributed..",
         "org.apache.geode.internal..");
 
@@ -47,7 +47,7 @@ public class CoreOnlyUsesMembershipAPIArchUnitTest {
 
   @Test
   public void geodeClassesDoNotUseMembershipInternals() {
-    ClassFileImporter classFileImporter = getClassFileImporter();
+    var classFileImporter = getClassFileImporter();
     // create an ImportOption that only allows org.apache.geode classes and
     // membership classes. Prepackaged ImportOptions always cause a package's
     // subpackages to be walked with walkFileTree so you can't examine a single
@@ -61,7 +61,7 @@ public class CoreOnlyUsesMembershipAPIArchUnitTest {
             || !location.matches(matcher);
       }
     });
-    JavaClasses importedClasses = classFileImporter.importPackages(
+    var importedClasses = classFileImporter.importPackages(
         "org.apache.geode",
         "org.apache.geode.distributed.internal.membership..");
     checkMembershipAPIUse(importedClasses);
@@ -69,7 +69,7 @@ public class CoreOnlyUsesMembershipAPIArchUnitTest {
 
   @Test
   public void cacheClassesDoNotUseMembershipInternals() {
-    JavaClasses importedClasses = getClassFileImporter().importPackages(
+    var importedClasses = getClassFileImporter().importPackages(
         "org.apache.geode.cache..",
         "org.apache.geode.distributed.internal.membership..");
 
@@ -78,7 +78,7 @@ public class CoreOnlyUsesMembershipAPIArchUnitTest {
 
   @Test
   public void managementClassesDoNotUseMembershipInternals() {
-    JavaClasses importedClasses = getClassFileImporter().importPackages(
+    var importedClasses = getClassFileImporter().importPackages(
         "org.apache.geode.management..",
         "org.apache.geode.admin..",
         "org.apache.geode.distributed.internal.membership..");
@@ -88,7 +88,7 @@ public class CoreOnlyUsesMembershipAPIArchUnitTest {
 
   @Test
   public void securityClassesDoNotUseMembershipInternals() {
-    JavaClasses importedClasses = getClassFileImporter().importPackages(
+    var importedClasses = getClassFileImporter().importPackages(
         "org.apache.geode.security..",
         "org.apache.geode.distributed.internal.membership..");
 
@@ -97,7 +97,7 @@ public class CoreOnlyUsesMembershipAPIArchUnitTest {
 
   @Test
   public void pdxClassesDoNotUseMembershipInternals() {
-    JavaClasses importedClasses = getClassFileImporter().importPackages(
+    var importedClasses = getClassFileImporter().importPackages(
         "org.apache.geode.pdx..",
         "org.apache.geode.distributed.internal.membership..");
 
@@ -106,7 +106,7 @@ public class CoreOnlyUsesMembershipAPIArchUnitTest {
 
   @Test
   public void exampleClassesDoNotUseMembershipInternals() {
-    JavaClasses importedClasses = getClassFileImporter().importPackages(
+    var importedClasses = getClassFileImporter().importPackages(
         "org.apache.geode.examples..",
         "org.apache.geode.distributed.internal.membership..");
 
@@ -115,7 +115,7 @@ public class CoreOnlyUsesMembershipAPIArchUnitTest {
 
   @Test
   public void miscCoreClassesDoNotUseMembershipInternals() {
-    JavaClasses importedClasses = getClassFileImporter().importPackages(
+    var importedClasses = getClassFileImporter().importPackages(
         "org.apache.geode.alerting..",
         "org.apache.geode.compression..",
         "org.apache.geode.datasource..",
@@ -140,8 +140,9 @@ public class CoreOnlyUsesMembershipAPIArchUnitTest {
   }
 
   private ClassFileImporter getClassFileImporter() {
-    ImportOption ignoreTestFacets =
-        location -> !location.contains("/test/") && !location.contains("/integrationTest/");
+    var ignoreTestFacets =
+        (ImportOption) location -> !location.contains("/test/")
+            && !location.contains("/integrationTest/");
     return new ClassFileImporter(
         new ImportOptions()
             .with(ignoreTestFacets));

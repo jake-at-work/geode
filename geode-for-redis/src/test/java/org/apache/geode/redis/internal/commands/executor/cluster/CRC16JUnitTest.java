@@ -26,7 +26,7 @@ public class CRC16JUnitTest {
 
   @Test
   public void testBasicCRC16_sameAsRedis() {
-    byte[] data = new byte[] {0};
+    var data = new byte[] {0};
     assertThat(CRC16.calculate(data, 0, 1))
         .isEqualTo((short) JedisClusterCRC16.getCRC16(data));
 

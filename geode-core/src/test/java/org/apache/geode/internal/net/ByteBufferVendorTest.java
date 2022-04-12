@@ -54,7 +54,7 @@ public class ByteBufferVendorTest {
   @Test
   public void balancedCloseOwnerIsLastReferenceHolder() throws InterruptedException {
     resourceOwnerIsLastReferenceHolder("client with balanced close calls", () -> {
-      try (final ByteBufferSharing _unused = sharingVendor.open()) {
+      try (final var _unused = sharingVendor.open()) {
       }
     });
   }
@@ -62,7 +62,7 @@ public class ByteBufferVendorTest {
   @Test
   public void extraCloseOwnerIsLastReferenceHolder() throws InterruptedException {
     resourceOwnerIsLastReferenceHolder("client with extra close calls", () -> {
-      final ByteBufferSharing sharing2 = sharingVendor.open();
+      final var sharing2 = sharingVendor.open();
       sharing2.close();
       verify(poolMock, times(0)).releaseBuffer(any(), any());
       assertThatThrownBy(sharing2::close).isInstanceOf(IllegalMonitorStateException.class);
@@ -73,7 +73,7 @@ public class ByteBufferVendorTest {
   @Test
   public void balancedCloseClientIsLastReferenceHolder() throws InterruptedException {
     clientIsLastReferenceHolder("client with balanced close calls", () -> {
-      try (final ByteBufferSharing _unused = sharingVendor.open()) {
+      try (final var _unused = sharingVendor.open()) {
         clientHasOpenedResource.countDown();
         blockClient();
       }
@@ -83,7 +83,7 @@ public class ByteBufferVendorTest {
   @Test
   public void extraCloseClientIsLastReferenceHolder() throws InterruptedException {
     clientIsLastReferenceHolder("client with extra close calls", () -> {
-      final ByteBufferSharing sharing2 = sharingVendor.open();
+      final var sharing2 = sharingVendor.open();
       clientHasOpenedResource.countDown();
       blockClient();
       sharing2.close();
@@ -94,7 +94,7 @@ public class ByteBufferVendorTest {
 
   @Test
   public void extraCloseDoesNotPrematurelyReturnBufferToPool() throws IOException {
-    final ByteBufferSharing sharing2 = sharingVendor.open();
+    final var sharing2 = sharingVendor.open();
     sharing2.close();
     assertThatThrownBy(sharing2::close).isInstanceOf(IllegalMonitorStateException.class);
     verify(poolMock, times(0)).releaseBuffer(any(), any());
@@ -104,10 +104,10 @@ public class ByteBufferVendorTest {
 
   @Test
   public void extraCloseDoesNotDecrementRefCount() throws IOException {
-    final ByteBufferSharing sharing2 = sharingVendor.open();
+    final var sharing2 = sharingVendor.open();
     sharing2.close();
     assertThatThrownBy(sharing2::close).isInstanceOf(IllegalMonitorStateException.class);
-    final ByteBufferSharing sharing3 = sharingVendor.open();
+    final var sharing3 = sharingVendor.open();
     sharingVendor.destruct();
     verify(poolMock, times(0)).releaseBuffer(any(), any());
   }
@@ -128,7 +128,7 @@ public class ByteBufferVendorTest {
     /*
      * clientThread thread is playing the role of the client (of the resource owner)
      */
-    final Thread clientThread = new Thread(asRunnable(client), name);
+    final var clientThread = new Thread(asRunnable(client), name);
     clientThread.start();
     clientThread.join();
 
@@ -148,7 +148,7 @@ public class ByteBufferVendorTest {
     /*
      * clientThread thread is playing the role of the client (of the resource owner)
      */
-    final Thread clientThread = new Thread(asRunnable(client), name);
+    final var clientThread = new Thread(asRunnable(client), name);
     clientThread.start();
 
     clientHasOpenedResource.await();

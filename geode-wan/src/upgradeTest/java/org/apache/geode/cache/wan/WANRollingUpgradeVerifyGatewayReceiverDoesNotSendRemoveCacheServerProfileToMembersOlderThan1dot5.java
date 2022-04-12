@@ -25,7 +25,6 @@ import org.apache.geode.test.dunit.DistributedTestUtils;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.IgnoredException;
 import org.apache.geode.test.dunit.NetworkUtils;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.version.VersionManager;
 
 public class WANRollingUpgradeVerifyGatewayReceiverDoesNotSendRemoveCacheServerProfileToMembersOlderThan1dot5
@@ -33,18 +32,18 @@ public class WANRollingUpgradeVerifyGatewayReceiverDoesNotSendRemoveCacheServerP
 
   @Test
   public void VerifyGatewayReceiverDoesNotSendRemoveCacheServerProfileToMembersOlderThan1dot5() {
-    final Host host = Host.getHost(0);
-    VM oldLocator = host.getVM(oldVersion, 0);
-    VM oldServer = host.getVM(oldVersion, 1);
-    VM currentServer = host.getVM(VersionManager.CURRENT_VERSION, 2);
+    final var host = Host.getHost(0);
+    var oldLocator = host.getVM(oldVersion, 0);
+    var oldServer = host.getVM(oldVersion, 1);
+    var currentServer = host.getVM(VersionManager.CURRENT_VERSION, 2);
 
     // Start locator
-    final int port = getRandomAvailableTCPPort();
+    final var port = getRandomAvailableTCPPort();
     oldLocator.invoke(() -> DistributedTestUtils.deleteLocatorStateFile(port));
-    final String locators = NetworkUtils.getServerHostName(host) + "[" + port + "]";
+    final var locators = NetworkUtils.getServerHostName(host) + "[" + port + "]";
     oldLocator.invoke(() -> startLocator(port, 0, locators, ""));
 
-    IgnoredException ie =
+    var ie =
         IgnoredException.addIgnoredException("could not get remote locator information");
     try {
       // Start old server

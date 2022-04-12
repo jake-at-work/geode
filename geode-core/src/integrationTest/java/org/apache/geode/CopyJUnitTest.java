@@ -26,7 +26,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +38,6 @@ import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.CacheTransactionManager;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionEvent;
@@ -65,12 +63,12 @@ public class CopyJUnitTest {
   protected Object newValue;
 
   private void createCache(boolean copyOnRead) throws CacheException {
-    Properties p = new Properties();
+    var p = new Properties();
     p.setProperty(MCAST_PORT, "0"); // loner
     cache = CacheFactory.create(DistributedSystem.connect(p));
     cache.setCopyOnRead(copyOnRead);
 
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setScope(Scope.LOCAL);
     af.setCacheListener(new CacheListenerAdapter() {
       @Override
@@ -119,7 +117,7 @@ public class CopyJUnitTest {
   private void closeCache() {
     if (cache != null) {
       region = null;
-      Cache c = cache;
+      var c = cache;
       cache = null;
       c.close();
     }
@@ -154,10 +152,10 @@ public class CopyJUnitTest {
       assertTrue("expected listener getOldValue to return reference to ov", oldValue == ov);
       assertTrue("expected listener getNewValue to return reference to v", newValue == v);
       assertTrue("expected get to return reference to v", region.get("key") == v);
-      Region.Entry re = region.getEntry("key");
+      var re = region.getEntry("key");
       assertTrue("expected Entry.getValue to return reference to v", re.getValue() == v);
-      Collection c = region.values();
-      Object[] cArray = c.toArray();
+      var c = region.values();
+      var cArray = c.toArray();
       assertTrue("expected values().toArray() to return reference to v", cArray[0] == v);
       assertTrue("expected values().iterator().next() to return reference to v",
           c.iterator().next() == v);
@@ -176,8 +174,8 @@ public class CopyJUnitTest {
 
     @Override
     public int hashCode() {
-      final int prime = 31;
-      int result = 1;
+      final var prime = 31;
+      var result = 1;
       result = prime * result + v;
       return result;
     }
@@ -193,7 +191,7 @@ public class CopyJUnitTest {
       if (getClass() != obj.getClass()) {
         return false;
       }
-      ModifiableInteger other = (ModifiableInteger) obj;
+      var other = (ModifiableInteger) obj;
       return v == other.v;
     }
   }
@@ -212,11 +210,11 @@ public class CopyJUnitTest {
       assertEquals(v, newValue);
       assertTrue("expected get to return copy of v", region.get("key") != v);
       assertEquals(v, region.get("key"));
-      Region.Entry re = region.getEntry("key");
+      var re = region.getEntry("key");
       assertTrue("expected Entry.getValue to return copy of v", re.getValue() != v);
       assertEquals(v, re.getValue());
-      Collection c = region.values();
-      Object[] cArray = c.toArray();
+      var c = region.values();
+      var cArray = c.toArray();
       assertTrue("expected values().toArray() to return copy of v", cArray[0] != v);
       assertEquals(v, cArray[0]);
 
@@ -240,10 +238,10 @@ public class CopyJUnitTest {
       assertSame(ov, oldValue);
       assertSame(v, newValue);
       assertSame(v, region.get("key"));
-      Region.Entry re = region.getEntry("key");
+      var re = region.getEntry("key");
       assertSame(v, re.getValue());
-      Collection c = region.values();
-      Object[] cArray = c.toArray();
+      var c = region.values();
+      var cArray = c.toArray();
       assertSame(v, cArray[0]);
 
       assertSame(v, c.iterator().next());
@@ -255,8 +253,8 @@ public class CopyJUnitTest {
   @Test
   public void testPrimitiveArrays() {
     {
-      byte[] ba1 = new byte[] {1, 2, 3};
-      byte[] ba2 = CopyHelper.copy(ba1);
+      var ba1 = new byte[] {1, 2, 3};
+      var ba2 = CopyHelper.copy(ba1);
       if (ba1 == ba2) {
         fail("expected new instance of primitive array");
       }
@@ -265,8 +263,8 @@ public class CopyJUnitTest {
       }
     }
     {
-      boolean[] ba1 = new boolean[] {true, false, true};
-      boolean[] ba2 = CopyHelper.copy(ba1);
+      var ba1 = new boolean[] {true, false, true};
+      var ba2 = CopyHelper.copy(ba1);
       if (ba1 == ba2) {
         fail("expected new instance of primitive array");
       }
@@ -275,8 +273,8 @@ public class CopyJUnitTest {
       }
     }
     {
-      char[] ba1 = new char[] {1, 2, 3};
-      char[] ba2 = CopyHelper.copy(ba1);
+      var ba1 = new char[] {1, 2, 3};
+      var ba2 = CopyHelper.copy(ba1);
       if (ba1 == ba2) {
         fail("expected new instance of primitive array");
       }
@@ -285,8 +283,8 @@ public class CopyJUnitTest {
       }
     }
     {
-      short[] ba1 = new short[] {1, 2, 3};
-      short[] ba2 = CopyHelper.copy(ba1);
+      var ba1 = new short[] {1, 2, 3};
+      var ba2 = CopyHelper.copy(ba1);
       if (ba1 == ba2) {
         fail("expected new instance of primitive array");
       }
@@ -295,8 +293,8 @@ public class CopyJUnitTest {
       }
     }
     {
-      int[] ba1 = new int[] {1, 2, 3};
-      int[] ba2 = CopyHelper.copy(ba1);
+      var ba1 = new int[] {1, 2, 3};
+      var ba2 = CopyHelper.copy(ba1);
       if (ba1 == ba2) {
         fail("expected new instance of primitive array");
       }
@@ -305,8 +303,8 @@ public class CopyJUnitTest {
       }
     }
     {
-      long[] ba1 = new long[] {1, 2, 3};
-      long[] ba2 = CopyHelper.copy(ba1);
+      var ba1 = new long[] {1, 2, 3};
+      var ba2 = CopyHelper.copy(ba1);
       if (ba1 == ba2) {
         fail("expected new instance of primitive array");
       }
@@ -315,8 +313,8 @@ public class CopyJUnitTest {
       }
     }
     {
-      float[] ba1 = new float[] {1, 2, 3};
-      float[] ba2 = CopyHelper.copy(ba1);
+      var ba1 = new float[] {1, 2, 3};
+      var ba2 = CopyHelper.copy(ba1);
       if (ba1 == ba2) {
         fail("expected new instance of primitive array");
       }
@@ -325,8 +323,8 @@ public class CopyJUnitTest {
       }
     }
     {
-      double[] ba1 = new double[] {1, 2, 3};
-      double[] ba2 = CopyHelper.copy(ba1);
+      var ba1 = new double[] {1, 2, 3};
+      var ba2 = CopyHelper.copy(ba1);
       if (ba1 == ba2) {
         fail("expected new instance of primitive array");
       }
@@ -338,8 +336,8 @@ public class CopyJUnitTest {
 
   @Test
   public void testObjectArray() {
-    Object[] oa1 = new Object[] {1, 2, 3};
-    Object[] oa2 = CopyHelper.copy(oa1);
+    var oa1 = new Object[] {1, 2, 3};
+    var oa2 = CopyHelper.copy(oa1);
     if (oa1 == oa2) {
       fail("expected new instance of object array");
     }
@@ -361,7 +359,7 @@ public class CopyJUnitTest {
     assertEquals(true, CopyHelper.isWellKnownImmutableInstance(new BigInteger("1234")));
     assertEquals(true, CopyHelper.isWellKnownImmutableInstance(new BigDecimal("123.4556")));
     assertEquals(true, CopyHelper.isWellKnownImmutableInstance(new UUID(1L, 2L)));
-    PdxInstance pi = new PdxInstance() {
+    var pi = new PdxInstance() {
       @Override
       public Object getObject() {
         return null;
@@ -406,7 +404,7 @@ public class CopyJUnitTest {
         return false;
       }
     };
-    WritablePdxInstance wpi = new WritablePdxInstance() {
+    var wpi = new WritablePdxInstance() {
       @Override
       public Object getObject() {
         return null;
@@ -462,13 +460,13 @@ public class CopyJUnitTest {
   @Test
   public void testTxReferences() throws Exception {
     createCache(false);
-    final CacheTransactionManager txMgr = cache.getCacheTransactionManager();
+    final var txMgr = cache.getCacheTransactionManager();
     txMgr.begin();
     try {
       final Object v = 7;
       region.put("key", v);
       assertTrue("expected get to return reference to v", region.get("key") == v);
-      Region.Entry re = region.getEntry("key");
+      var re = region.getEntry("key");
       assertTrue("expected Entry.getValue to return reference to v", re.getValue() == v);
       txMgr.rollback();
     } finally {
@@ -483,14 +481,14 @@ public class CopyJUnitTest {
   @Test
   public void testTxCopies() throws Exception {
     createCache(true);
-    final CacheTransactionManager txMgr = cache.getCacheTransactionManager();
+    final var txMgr = cache.getCacheTransactionManager();
     txMgr.begin();
     try {
       final Object v = new ModifiableInteger(7);
       region.put("key", v);
       assertTrue("expected get to return copy of v", region.get("key") != v);
       assertEquals(v, region.get("key"));
-      Region.Entry re = region.getEntry("key");
+      var re = region.getEntry("key");
       assertTrue("expected Entry.getValue to return copy of v", re.getValue() != v);
       assertEquals(v, re.getValue());
       txMgr.rollback();
@@ -505,12 +503,12 @@ public class CopyJUnitTest {
 
   @Test
   public void testComplexObjectDeepCopy() {
-    Complex1 in1 = new Complex1();
+    var in1 = new Complex1();
     in1.hashMap.put(Season.SUMMER, 2);
-    Complex2 out1 = new Complex2();
+    var out1 = new Complex2();
     out1.innerList.add(in1);
 
-    Complex2 out2 = CopyHelper.deepCopy(out1);
+    var out2 = CopyHelper.deepCopy(out1);
 
     assertEquals(out1, out2);
 
@@ -518,11 +516,11 @@ public class CopyJUnitTest {
     assertNotSame(out1, out2);
     assertNotSame(out1.str, out2.str);
     assertNotSame(out1.innerList, out2.innerList);
-    Complex1 i1 = out1.innerList.get(0);
-    Complex1 i2 = out2.innerList.get(0);
+    var i1 = out1.innerList.get(0);
+    var i2 = out2.innerList.get(0);
     assertNotSame(i1, i2);
 
-    Complex1 in2 = new Complex1();
+    var in2 = new Complex1();
     out2.innerList.add(in2);
 
     assertEquals(out1.innerList.size(), 1);
@@ -532,16 +530,16 @@ public class CopyJUnitTest {
   @Test
   public void testMapDeepCopy() {
     Map<Season, Complex1> map1 = new HashMap<>();
-    Complex1 in1 = new Complex1();
+    var in1 = new Complex1();
     in1.hashMap.put(Season.SUMMER, 2);
     map1.put(Season.SUMMER, in1);
 
-    Map<Season, Complex1> map2 = CopyHelper.deepCopy(map1);
+    var map2 = CopyHelper.deepCopy(map1);
 
     assertEquals(map1, map2);
 
-    Complex1 data1 = map1.get(Season.SUMMER);
-    Complex1 data2 = map2.get(Season.SUMMER);
+    var data1 = map1.get(Season.SUMMER);
+    var data2 = map2.get(Season.SUMMER);
 
     assertEquals(data1, data2);
     assertNotSame(data1, data2);
@@ -549,9 +547,9 @@ public class CopyJUnitTest {
 
   @Test
   public void testNonSerializableDeepCopy() {
-    NonSerializable n = new NonSerializable();
+    var n = new NonSerializable();
     try {
-      NonSerializable m = CopyHelper.deepCopy(n);
+      var m = CopyHelper.deepCopy(n);
       fail("expected a CopyException for a non serializable");
     } catch (final CopyException ignored) {
     }
@@ -572,8 +570,8 @@ public class CopyJUnitTest {
 
     @Override
     public int hashCode() {
-      final int prime = 31;
-      int result = 1;
+      final var prime = 31;
+      var result = 1;
       result = prime * result + ((hashMap == null) ? 0 : hashMap.hashCode());
       result = prime * result + ((season == null) ? 0 : season.hashCode());
       return result;
@@ -590,7 +588,7 @@ public class CopyJUnitTest {
       if (getClass() != obj.getClass()) {
         return false;
       }
-      Complex1 other = (Complex1) obj;
+      var other = (Complex1) obj;
       if (hashMap == null) {
         if (other.hashMap != null) {
           return false;
@@ -610,8 +608,8 @@ public class CopyJUnitTest {
 
     @Override
     public int hashCode() {
-      final int prime = 31;
-      int result = 1;
+      final var prime = 31;
+      var result = 1;
       result = prime * result + id;
       result = prime * result + ((innerList == null) ? 0 : innerList.hashCode());
       result = prime * result + ((str == null) ? 0 : str.hashCode());
@@ -629,7 +627,7 @@ public class CopyJUnitTest {
       if (getClass() != obj.getClass()) {
         return false;
       }
-      Complex2 other = (Complex2) obj;
+      var other = (Complex2) obj;
       if (id != other.id) {
         return false;
       }

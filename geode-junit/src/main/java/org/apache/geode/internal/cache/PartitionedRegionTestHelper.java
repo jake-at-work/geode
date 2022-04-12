@@ -68,12 +68,12 @@ public class PartitionedRegionTestHelper
    */
   public static Region createPartionedRegion(String regionname, PartitionAttributes prattribs)
       throws RegionExistsException {
-    AttributesFactory attribFactory = new AttributesFactory();
+    var attribFactory = new AttributesFactory();
     attribFactory.setDataPolicy(DataPolicy.PARTITION);
     attribFactory.setPartitionAttributes(prattribs);
-    RegionAttributes regionAttribs = attribFactory.create();
+    var regionAttribs = attribFactory.create();
 
-    Region partitionedregion = createCache().createRegion(regionname, regionAttribs);
+    var partitionedregion = createCache().createRegion(regionname, regionAttribs);
     return partitionedregion;
   }
 
@@ -85,10 +85,10 @@ public class PartitionedRegionTestHelper
 
   public static Region createLocalRegion(String regionName) throws RegionExistsException {
 
-    AttributesFactory attr = new AttributesFactory();
+    var attr = new AttributesFactory();
 
     attr.setScope(Scope.LOCAL);
-    Region localRegion = createCache().createRegion(regionName, attr.create());
+    var localRegion = createCache().createRegion(regionName, attr.create());
 
     return localRegion;
   }
@@ -159,8 +159,8 @@ public class PartitionedRegionTestHelper
       int redundancy) {
     Region pr = null;
     PartitionAttributes pa;
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
-    AttributesFactory af = new AttributesFactory();
+    var paf = new PartitionAttributesFactory();
+    var af = new AttributesFactory();
     RegionAttributes ra;
     // setting property
     // setting partition attributes to partitionAttributesFactory
@@ -202,10 +202,10 @@ public class PartitionedRegionTestHelper
    */
   public static synchronized InternalCache createCache() {
     if (cache == null) {
-      Properties dsp = new Properties();
+      var dsp = new Properties();
       dsp.setProperty(MCAST_PORT, "0");
       dsp.setProperty(LOCATORS, "");
-      DistributedSystem sys = DistributedSystem.connect(dsp);
+      var sys = DistributedSystem.connect(dsp);
       try {
         cache = (InternalCache) CacheFactory.create(sys);
       } catch (CacheExistsException exp) {
@@ -272,9 +272,9 @@ public class PartitionedRegionTestHelper
   public static RegionAttributes createRegionAttrsForPR(int red, int localMaxMem,
       long recoveryDelay, EvictionAttributes evictionAttrs, PartitionResolver resolver) {
 
-    AttributesFactory attr = new AttributesFactory();
+    var attr = new AttributesFactory();
     attr.setDataPolicy(DataPolicy.PARTITION);
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setRedundantCopies(red).setLocalMaxMemory(localMaxMem).setRecoveryDelay(recoveryDelay);
     if (resolver != null) {
       paf.setPartitionResolver(resolver);

@@ -77,11 +77,11 @@ public abstract class AbstractLogFileAssert<SELF extends AbstractLogFileAssert<S
     }
     files.assertIsFile(info, actual);
     try {
-      List<String> actualLines = FileUtils.readLines(actual, charset);
-      List<String> expectedLines = nonBlankStrings(Arrays.asList(values));
+      var actualLines = FileUtils.readLines(actual, charset);
+      var expectedLines = nonBlankStrings(Arrays.asList(values));
 
       List<String> notFound = new ArrayList<>();
-      for (String expectedLine : expectedLines) {
+      for (var expectedLine : expectedLines) {
         if (!actualLinesContain(actualLines, expectedLine)) {
           notFound.add(expectedLine);
         }
@@ -93,7 +93,7 @@ public abstract class AbstractLogFileAssert<SELF extends AbstractLogFileAssert<S
             "but could not find:" + lineSeparator() + " " + printLines(notFound));
       }
     } catch (IOException e) {
-      String msg = String.format("Unable to verify text contents of file:<%s>", actual);
+      var msg = String.format("Unable to verify text contents of file:<%s>", actual);
       throw new UncheckedIOException(msg, e);
     }
   }
@@ -105,12 +105,12 @@ public abstract class AbstractLogFileAssert<SELF extends AbstractLogFileAssert<S
     }
     files.assertIsFile(info, actual);
     try {
-      List<String> actualLines = FileUtils.readLines(actual, charset);
-      List<String> expectedLines = nonBlankStrings(Arrays.asList(values));
+      var actualLines = FileUtils.readLines(actual, charset);
+      var expectedLines = nonBlankStrings(Arrays.asList(values));
 
       List<String> notFound = new ArrayList<>();
       List<String> moreThanOnce = new ArrayList<>();
-      for (String expectedLine : expectedLines) {
+      for (var expectedLine : expectedLines) {
         if (actualLinesContain(actualLines, expectedLine)) {
           if (Collections.frequency(actualLines, expectedLine) > 1) {
             moreThanOnce.add(expectedLine);
@@ -134,7 +134,7 @@ public abstract class AbstractLogFileAssert<SELF extends AbstractLogFileAssert<S
       }
 
     } catch (IOException e) {
-      String msg = String.format("Unable to verify text contents of file:<%s>", actual);
+      var msg = String.format("Unable to verify text contents of file:<%s>", actual);
       throw new UncheckedIOException(msg, e);
     }
   }
@@ -146,12 +146,12 @@ public abstract class AbstractLogFileAssert<SELF extends AbstractLogFileAssert<S
     }
     files.assertIsFile(info, actual);
     try {
-      List<String> actualLines = FileUtils.readLines(actual, charset);
-      List<String> unexpectedLines = nonBlankStrings(Arrays.asList(values));
+      var actualLines = FileUtils.readLines(actual, charset);
+      var unexpectedLines = nonBlankStrings(Arrays.asList(values));
 
       List<String> found = new ArrayList<>();
-      for (String actualLine : actualLines) {
-        for (String unexpectedLine : unexpectedLines) {
+      for (var actualLine : actualLines) {
+        for (var unexpectedLine : unexpectedLines) {
           if (actualLine.contains(unexpectedLine)) {
             found.add(actualLine);
           }
@@ -165,7 +165,7 @@ public abstract class AbstractLogFileAssert<SELF extends AbstractLogFileAssert<S
             + "but found:" + lineSeparator() + " " + printLines(found));
       }
     } catch (IOException e) {
-      String msg = String.format("Unable to verify text contents of file:<%s>", actual);
+      var msg = String.format("Unable to verify text contents of file:<%s>", actual);
       throw new UncheckedIOException(msg, e);
     }
   }
@@ -189,7 +189,7 @@ public abstract class AbstractLogFileAssert<SELF extends AbstractLogFileAssert<S
   }
 
   private boolean actualLinesContain(List<String> actualLines, String value) {
-    for (String actualLine : actualLines) {
+    for (var actualLine : actualLines) {
       if (actualLine.contains(value)) {
         return true;
       }
@@ -198,8 +198,8 @@ public abstract class AbstractLogFileAssert<SELF extends AbstractLogFileAssert<S
   }
 
   private String printLines(List<String> lines) {
-    StringBuilder stringBuilder = new StringBuilder();
-    for (String line : lines) {
+    var stringBuilder = new StringBuilder();
+    for (var line : lines) {
       stringBuilder.append(line).append(lineSeparator());
     }
     return stringBuilder.toString();

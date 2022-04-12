@@ -34,13 +34,11 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.Source;
 import javax.xml.transform.sax.SAXSource;
-import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
 import org.apache.commons.lang3.StringUtils;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 import org.apache.geode.cache.configuration.XSDRootElement;
@@ -55,14 +53,14 @@ public class JAXBService {
 
   public JAXBService(Class<?>... xsdRootClasses) {
     try {
-      JAXBContext jaxbContext = JAXBContext.newInstance(xsdRootClasses);
+      var jaxbContext = JAXBContext.newInstance(xsdRootClasses);
       marshaller = jaxbContext.createMarshaller();
       unmarshaller = jaxbContext.createUnmarshaller();
       marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
       marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
 
-      String schemas = Arrays.stream(xsdRootClasses).map(c -> {
-        XSDRootElement element = c.getAnnotation(XSDRootElement.class);
+      var schemas = Arrays.stream(xsdRootClasses).map(c -> {
+        var element = c.getAnnotation(XSDRootElement.class);
         if (element != null && StringUtils.isNotEmpty(element.namespace())
             && StringUtils.isNotEmpty(element.schemaLocation())) {
           return element.namespace() + " " + element.schemaLocation();
@@ -72,7 +70,7 @@ public class JAXBService {
 
       marshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, schemas);
       // use a custom Filter so that we can unmarshall older namespace or no namespace xml
-      XMLReader reader = XMLReaderFactory.createXMLReader();
+      var reader = XMLReaderFactory.createXMLReader();
       nameSpaceFilter = new NameSpaceFilter();
       nameSpaceFilter.setParent(reader);
     } catch (Exception e) {
@@ -89,14 +87,14 @@ public class JAXBService {
   }
 
   public static JAXBService createWithValidation(Class<?>... xsdClasses) {
-    JAXBService jaxbService = create(xsdClasses);
+    var jaxbService = create(xsdClasses);
     jaxbService.validateWithLocalCacheXSD();
     return jaxbService;
   }
 
   static Set<String> getPackagesToScan() {
     Set<String> packages = new HashSet<>();
-    String sysProperty = getProperty(PACKAGES_TO_SCAN);
+    var sysProperty = getProperty(PACKAGES_TO_SCAN);
     if (sysProperty != null) {
       packages = Arrays.stream(sysProperty.split(",")).collect(Collectors.toSet());
     } else {
@@ -107,17 +105,17 @@ public class JAXBService {
 
   private static Set<Class<?>> scanForClasses() {
     // scan the classpath to find all the classes annotated with XSDRootElement
-    Set<String> packages = getPackagesToScan();
-    try (ClasspathScanLoadHelper scanner = new ClasspathScanLoadHelper(packages)) {
+    var packages = getPackagesToScan();
+    try (var scanner = new ClasspathScanLoadHelper(packages)) {
       return scanner.scanClasspathForAnnotation(XSDRootElement.class,
           packages.toArray(new String[] {}));
     }
   }
 
   private void validateWith(URL url) {
-    SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+    var factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
     try {
-      Schema schema = factory.newSchema(url);
+      var schema = factory.newSchema(url);
       marshaller.setSchema(schema);
     } catch (SAXException e) {
       throw new RuntimeException(e.getMessage(), e);
@@ -126,13 +124,13 @@ public class JAXBService {
 
   public void validateWithLocalCacheXSD() {
     // find the local Cache-1.0.xsd
-    URL local_cache_xsd = ClassPathLoader.getLatest()
+    var local_cache_xsd = ClassPathLoader.getLatest()
         .getResource("META-INF/schemas/geode.apache.org/schema/cache/cache-1.0.xsd");
     validateWith(local_cache_xsd);
   }
 
   public String marshall(Object object) {
-    StringWriter sw = new StringWriter();
+    var sw = new StringWriter();
     try {
       sw.write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>");
       marshaller.marshal(object, sw);

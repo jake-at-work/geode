@@ -22,9 +22,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.test.dunit.AsyncInvocation;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.VM;
@@ -52,9 +50,9 @@ public class ClientUnregisterInterestAuthDUnitTest extends JUnit4DistributedTest
   public void testUnregisterInterest() throws Exception {
     // client2 connects to user as a user authorized to use AuthRegion region
     AsyncInvocation ai1 = client2.invokeAsync(() -> {
-      ClientCache cache = createClientCache("authRegionUser", "1234567", server.getPort());
+      var cache = createClientCache("authRegionUser", "1234567", server.getPort());
 
-      Region region = createProxyRegion(cache, REGION_NAME);
+      var region = createProxyRegion(cache, REGION_NAME);
       region.registerInterest("key3");
       region.unregisterInterest("key3"); // DATA:READ:AuthRegion:key3;
     });

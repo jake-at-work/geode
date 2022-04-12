@@ -37,10 +37,8 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.Query;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.test.junit.categories.OQLIndexTest;
 
@@ -49,15 +47,15 @@ public class IndexUsageInNestedQueryWithParamsJUnitTest {
   @Before
   public void setUp() throws java.lang.Exception {
     CacheUtils.startCache();
-    Region portfolioRegion =
+    var portfolioRegion =
         CacheUtils.createRegion("portfolio", PortfolioForParameterizedQueries.class);
-    Region intBoundRegion = CacheUtils.createRegion("intBound", IntermediateBound.class);
-    QueryService queryService = CacheUtils.getQueryService();
+    var intBoundRegion = CacheUtils.createRegion("intBound", IntermediateBound.class);
+    var queryService = CacheUtils.getQueryService();
     queryService.defineIndex("portfolioIdIndex", "p.ID", SEPARATOR + "portfolio p");
     queryService.defineIndex("temporaryOriginalBoundIdIdx", "ib.originalId",
         SEPARATOR + "intBound ib");
     queryService.createDefinedIndexes();
-    PortfolioForParameterizedQueries p = new PortfolioForParameterizedQueries(1L);
+    var p = new PortfolioForParameterizedQueries(1L);
     p.setDataList(Arrays
         .asList(new PortfolioData(Arrays.asList(new Bound(11L), new Bound(12L))),
             new PortfolioData(Arrays.asList(new Bound(21L), new Bound(22L)))));
@@ -75,13 +73,13 @@ public class IndexUsageInNestedQueryWithParamsJUnitTest {
   public void whenParameterizedQueryExecutedThenItShouldReturnCorrectResultsAndNotThrowException()
       throws Exception {
 
-    QueryService queryService = CacheUtils.getQueryService();
-    Query query = queryService.newQuery(
+    var queryService = CacheUtils.getQueryService();
+    var query = queryService.newQuery(
         "<TRACE>select l.ID from " + SEPARATOR
             + "portfolio p, p.dataList dl, ($1).getConcatenatedBoundsAndIntermediateBounds(dl) l WHERE p.ID IN SET(1L,2L)");
-    QueryParameterProvider querySupportService = new QueryParameterProvider(CacheUtils.getCache());
-    Object[] params = new Object[] {querySupportService.createQueryParameter()};
-    SelectResults result = (SelectResults) query.execute(params);
+    var querySupportService = new QueryParameterProvider(CacheUtils.getCache());
+    var params = new Object[] {querySupportService.createQueryParameter()};
+    var result = (SelectResults) query.execute(params);
     assertEquals("The query returned a wrong result set = " + result.asList(), true,
         result.containsAll(new ArrayList<>(Arrays.asList(21L, 22L, 92L, 12L, 11L, 91L))));
   }
@@ -207,9 +205,9 @@ public class IndexUsageInNestedQueryWithParamsJUnitTest {
         }
 
         if (infos != null) {
-          for (final IntermediateBound info : infos) {
+          for (final var info : infos) {
             if (info != null) {
-              final Bound intLimit = info.getBound();
+              final var intLimit = info.getBound();
               if (intLimit != null) {
                 intermediateBounds.add(intLimit);
               }
@@ -221,7 +219,7 @@ public class IndexUsageInNestedQueryWithParamsJUnitTest {
 
       public Collection<Bound> getConcatenatedBoundsAndIntermediateBounds(
           final PortfolioData portfolioData) {
-        final Map<Long, Bound> boundMap = getBounds(portfolioData);
+        final var boundMap = getBounds(portfolioData);
         return Lists.newArrayList(
             Iterables.concat(boundMap.values(), getIntermediateBounds(boundMap.keySet())));
       }
@@ -229,7 +227,7 @@ public class IndexUsageInNestedQueryWithParamsJUnitTest {
       private Map<Long, Bound> getBounds(final PortfolioData portfolioData) {
         final Map<Long, Bound> boundsMap = new HashMap<>();
         if (portfolioData != null) {
-          for (final Bound bound : portfolioData.bounds) {
+          for (final var bound : portfolioData.bounds) {
             if (bound != null) {
               boundsMap.put(bound.ID, bound);
             }

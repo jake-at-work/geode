@@ -30,7 +30,6 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import org.apache.geode.internal.lang.SystemProperty;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.DistributedDiskDirRule;
 import org.apache.geode.test.dunit.rules.DistributedRule;
 
@@ -48,9 +47,9 @@ public class DistributedDiskDirRuleDistributedTest implements Serializable {
 
   @Test
   public void setsDefaultDiskDirsPropertyInEveryVm() {
-    for (VM vm : toArray(getAllVMs(), getController())) {
+    for (var vm : toArray(getAllVMs(), getController())) {
       vm.invoke(() -> {
-        String propertyValue =
+        var propertyValue =
             System.getProperty(SystemProperty.DEFAULT_PREFIX + DEFAULT_DISK_DIRS_PROPERTY);
 
         assertThat(propertyValue)
@@ -63,8 +62,8 @@ public class DistributedDiskDirRuleDistributedTest implements Serializable {
   public void everyVmHasUniqueDefaultDiskDirsValue() {
     List<String> propertyValues = new ArrayList<>();
 
-    for (VM vm : toArray(getAllVMs(), getController())) {
-      String propertyValue =
+    for (var vm : toArray(getAllVMs(), getController())) {
+      var propertyValue =
           vm.invoke(
               () -> System.getProperty(SystemProperty.DEFAULT_PREFIX + DEFAULT_DISK_DIRS_PROPERTY));
       assertThat(propertyValues).doesNotContain(propertyValue);
@@ -76,9 +75,9 @@ public class DistributedDiskDirRuleDistributedTest implements Serializable {
 
   @Test
   public void defaultDiskDirsPropertyIsSetInNewVm() {
-    VM newVM = getVM(getVMCount());
+    var newVM = getVM(getVMCount());
 
-    String propertyValue =
+    var propertyValue =
         newVM.invoke(
             () -> System.getProperty(SystemProperty.DEFAULT_PREFIX + DEFAULT_DISK_DIRS_PROPERTY));
 
@@ -87,13 +86,13 @@ public class DistributedDiskDirRuleDistributedTest implements Serializable {
 
   @Test
   public void defaultDiskDirsPropertyIsKeptInBouncedVm() {
-    String propertyValueBeforeBounce =
+    var propertyValueBeforeBounce =
         getVM(0).invoke(
             () -> System.getProperty(SystemProperty.DEFAULT_PREFIX + DEFAULT_DISK_DIRS_PROPERTY));
 
     getVM(0).bounce();
 
-    String propertyValueAfterBounce =
+    var propertyValueAfterBounce =
         getVM(0).invoke(
             () -> System.getProperty(SystemProperty.DEFAULT_PREFIX + DEFAULT_DISK_DIRS_PROPERTY));
     assertThat(propertyValueAfterBounce).isEqualTo(propertyValueBeforeBounce);

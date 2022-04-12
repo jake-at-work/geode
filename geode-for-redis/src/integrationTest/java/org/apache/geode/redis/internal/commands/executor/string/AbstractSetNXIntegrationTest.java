@@ -78,12 +78,12 @@ public abstract class AbstractSetNXIntegrationTest implements RedisIntegrationTe
 
   @Test
   public void testSetNX() {
-    String key1 = "some-random-string";
-    String key2 = "some-other-random-string";
+    var key1 = "some-random-string";
+    var key2 = "some-other-random-string";
 
-    long response1 = jedis.setnx(key1, key1);
-    long response2 = jedis.setnx(key2, key2);
-    long response3 = jedis.setnx(key1, key2);
+    var response1 = jedis.setnx(key1, key1);
+    var response2 = jedis.setnx(key2, key2);
+    var response3 = jedis.setnx(key1, key2);
 
     assertThat(response1).isEqualTo(1);
     assertThat(response2).isEqualTo(1);
@@ -92,8 +92,8 @@ public abstract class AbstractSetNXIntegrationTest implements RedisIntegrationTe
 
   @Test
   public void testSetNX_whenCalledConcurrently() {
-    AtomicLong updateCount = new AtomicLong(0);
-    int iterations = 10000;
+    var updateCount = new AtomicLong(0);
+    var iterations = 10000;
 
     new ConcurrentLoopingThreads(iterations,
         (i) -> updateCount.getAndAdd(jedis.setnx("key-" + i, "value-" + i)),

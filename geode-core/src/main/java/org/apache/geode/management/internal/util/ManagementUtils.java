@@ -38,7 +38,6 @@ import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.execute.Execution;
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionService;
@@ -52,7 +51,6 @@ import org.apache.geode.internal.cache.execute.AbstractExecution;
 import org.apache.geode.internal.classloader.ClassPathLoader;
 import org.apache.geode.internal.serialization.KnownVersion;
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.management.DistributedRegionMXBean;
 import org.apache.geode.management.ManagementService;
 import org.apache.geode.management.internal.MBeanJMXAdapter;
 import org.apache.geode.management.internal.exceptions.UserErrorException;
@@ -129,7 +127,7 @@ public class ManagementUtils {
     Class<K> loadedClass = null;
     try {
       // Set Constraints
-      ClassPathLoader classPathLoader = ClassPathLoader.getLatest();
+      var classPathLoader = ClassPathLoader.getLatest();
       if (classToLoadName != null && !classToLoadName.isEmpty()) {
         loadedClass = (Class<K>) classPathLoader.forName(classToLoadName);
       }
@@ -153,20 +151,20 @@ public class ManagementUtils {
       return null;
     }
 
-    Set<DistributedMember> memberSet = getAllMembers(cache);
+    var memberSet = getAllMembers(cache);
     return memberSet.stream().filter(member -> memberNameOrId.equalsIgnoreCase(member.getId())
         || memberNameOrId.equalsIgnoreCase(member.getName())).findFirst().orElse(null);
   }
 
   public static Set<String> getAllRegionNames(Cache cache) {
     Set<String> regionNames = new HashSet<>();
-    Set<Region<?, ?>> rootRegions = cache.rootRegions();
+    var rootRegions = cache.rootRegions();
 
-    for (Region<?, ?> rootRegion : rootRegions) {
+    for (var rootRegion : rootRegions) {
       try {
-        Set<Region<?, ?>> subRegions = rootRegion.subregions(true);
+        var subRegions = rootRegion.subregions(true);
 
-        for (Region<?, ?> subRegion : subRegions) {
+        for (var subRegion : subRegions) {
           regionNames.add(subRegion.getFullPath().substring(1));
         }
 
@@ -188,16 +186,16 @@ public class ManagementUtils {
     FileOutputStream fos = null;
     File file = null;
 
-    File parentDir = new File(parentDirPath);
+    var parentDir = new File(parentDirPath);
     if (!parentDir.exists() && !parentDir.mkdirs()) {
       throw new UnsupportedOperationException(
           "Couldn't create required directory structure for " + parentDirPath);
     }
-    for (int i = 0; i < fileData.length; i++) {
-      byte[] bytes = ArrayUtils.toPrimitive(fileData[i]);
+    for (var i = 0; i < fileData.length; i++) {
+      var bytes = ArrayUtils.toPrimitive(fileData[i]);
       if (i % 2 == 0) {
         // Expect file name as bytes at even index
-        String fileName = new String(bytes);
+        var fileName = new String(bytes);
         file = new File(parentDir, fileName);
         fos = new FileOutputStream(file);
       } else {
@@ -230,21 +228,21 @@ public class ManagementUtils {
       region = SEPARATOR + region;
     }
 
-    DistributedRegionMXBean regionMXBean =
+    var regionMXBean =
         ManagementService.getManagementService(cache).getDistributedRegionMXBean(region);
 
     if (regionMXBean == null) {
       return Collections.emptySet();
     }
 
-    String[] regionAssociatedMemberNames = regionMXBean.getMembers();
+    var regionAssociatedMemberNames = regionMXBean.getMembers();
     Set<DistributedMember> matchedMembers = new HashSet<>();
     Set<DistributedMember> allClusterMembers = new HashSet<>(cache.getMembers());
     allClusterMembers.add(cache.getDistributedSystem().getDistributedMember());
 
-    for (DistributedMember member : allClusterMembers) {
-      List<String> regionAssociatedMemberNamesList = Arrays.asList(regionAssociatedMemberNames);
-      String name = MBeanJMXAdapter.getMemberNameOrUniqueId(member);
+    for (var member : allClusterMembers) {
+      var regionAssociatedMemberNamesList = Arrays.asList(regionAssociatedMemberNames);
+      var name = MBeanJMXAdapter.getMemberNameOrUniqueId(member);
       if (regionAssociatedMemberNamesList.contains(name)) {
         matchedMembers.add(member);
         if (!returnAll) {
@@ -262,7 +260,7 @@ public class ManagementUtils {
    */
   public static Set<DistributedMember> getQueryRegionsAssociatedMembers(Set<String> regions,
       final InternalCache cache, boolean returnAll) {
-    Set<DistributedMember> results = regions.stream()
+    var results = regions.stream()
         .map(region -> getRegionAssociatedMembers(region, cache, true)).reduce((s1, s2) -> {
           s1.retainAll(s2);
           return s1;
@@ -296,8 +294,8 @@ public class ManagementUtils {
 
     Set<DistributedMember> matchingMembers = new HashSet<>();
     // it will either go into this loop or the following loop, not both.
-    for (String memberNameOrId : members) {
-      for (DistributedMember member : membersToConsider) {
+    for (var memberNameOrId : members) {
+      for (var member : membersToConsider) {
         if (memberNameOrId.equalsIgnoreCase(member.getId())
             || memberNameOrId.equalsIgnoreCase(member.getName())) {
           matchingMembers.add(member);
@@ -305,8 +303,8 @@ public class ManagementUtils {
       }
     }
 
-    for (String group : groups) {
-      for (DistributedMember member : membersToConsider) {
+    for (var group : groups) {
+      for (var member : membersToConsider) {
         if (member.getGroups().contains(group)) {
           matchingMembers.add(member);
         }
@@ -321,7 +319,7 @@ public class ManagementUtils {
    */
   public static Set<DistributedMember> findMembersIncludingLocators(String[] groups,
       String[] members, InternalCache cache) {
-    Set<DistributedMember> allMembers = getAllMembers(cache);
+    var allMembers = getAllMembers(cache);
     return findMembers(allMembers, groups, members);
   }
 
@@ -331,7 +329,7 @@ public class ManagementUtils {
    */
   public static Set<DistributedMember> findMembers(String[] groups, String[] members,
       InternalCache cache) {
-    Set<DistributedMember> allNormalMembers = getAllNormalMembers(cache);
+    var allNormalMembers = getAllNormalMembers(cache);
 
     return findMembers(allNormalMembers, groups, members);
   }
@@ -358,16 +356,16 @@ public class ManagementUtils {
   public static Byte[][] filesToBytes(List<String> fileNames) throws IOException {
     List<byte[]> filesDataList = new ArrayList<>();
 
-    for (String fileName : fileNames) {
-      File file = new File(fileName);
+    for (var fileName : fileNames) {
+      var file = new File(fileName);
 
       if (!file.exists()) {
         throw new FileNotFoundException("Could not find " + file.getCanonicalPath());
       }
 
       if (file.isDirectory()) {
-        File[] childrenFiles = file.listFiles(JAR_FILE_FILTER);
-        for (File childrenFile : childrenFiles) {
+        var childrenFiles = file.listFiles(JAR_FILE_FILTER);
+        for (var childrenFile : childrenFiles) {
           // 1. add name of the file as bytes at even index
           filesDataList.add(childrenFile.getName().getBytes());
           // 2. add file contents as bytes at odd index
@@ -383,9 +381,9 @@ public class ManagementUtils {
   }
 
   public static byte[] toByteArray(InputStream input) throws IOException {
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    var output = new ByteArrayOutputStream();
     int n;
-    byte[] buffer = new byte[4096];
+    var buffer = new byte[4096];
     while (-1 != (n = input.read(buffer))) {
       output.write(buffer, 0, n);
     }
@@ -402,7 +400,7 @@ public class ManagementUtils {
 
     @Override
     public boolean accept(File pathname) {
-      String name = pathname.getName();
+      var name = pathname.getName();
       return name.endsWith(extensionWithDot);
     }
   }

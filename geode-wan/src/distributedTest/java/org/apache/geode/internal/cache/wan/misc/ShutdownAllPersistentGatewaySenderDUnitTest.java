@@ -16,8 +16,6 @@ package org.apache.geode.internal.cache.wan.misc;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Set;
-
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -61,9 +59,9 @@ public class ShutdownAllPersistentGatewaySenderDUnitTest extends WANTestBase {
   public void testGatewaySender() throws Exception {
     IgnoredException.addIgnoredException("Cache is shutting down");
 
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
 
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     vm2.invoke(() -> WANTestBase.createCache(nyPort));
     vm3.invoke(() -> WANTestBase.createCache(nyPort));
@@ -84,7 +82,7 @@ public class ShutdownAllPersistentGatewaySenderDUnitTest extends WANTestBase {
         "ln", 1, 100, isOffHeap()));
 
     // set the CacheObserver to block the ShutdownAll
-    SerializableRunnable waitAtShutdownAll = new SerializableRunnable() {
+    var waitAtShutdownAll = new SerializableRunnable() {
       @Override
       public void run() {
         LocalRegion.ISSUE_CALLBACKS_TO_CACHE_OBSERVER = true;
@@ -114,7 +112,7 @@ public class ShutdownAllPersistentGatewaySenderDUnitTest extends WANTestBase {
         vm4.invokeAsync(() -> WANTestBase.doPuts(getTestMethodName() + "_PR", NUM_KEYS));
 
     // ShutdownAll will be suspended at observer, so puts will continue
-    AsyncInvocation future = shutDownAllMembers(vm2, 2, MAX_WAIT);
+    var future = shutDownAllMembers(vm2, 2, MAX_WAIT);
     future.join(MAX_WAIT);
 
     // now restart vm1 with gatewayHub
@@ -156,7 +154,7 @@ public class ShutdownAllPersistentGatewaySenderDUnitTest extends WANTestBase {
         GeodeAwaitility.await().untilAsserted(new WaitCriterion() {
           @Override
           public boolean done() {
-            Object lastValue = region.get(NUM_KEYS - 1);
+            var lastValue = region.get(NUM_KEYS - 1);
             if (lastValue != null && lastValue.equals(NUM_KEYS - 1)) {
               region.getCache().getLogger()
                   .info("Last key has arrived, its value is " + lastValue + ", end of wait.");
@@ -191,8 +189,8 @@ public class ShutdownAllPersistentGatewaySenderDUnitTest extends WANTestBase {
           adminDS = (AdminDistributedSystemImpl) AdminDistributedSystemFactory
               .getDistributedSystem(config);
           adminDS.connect();
-          Set members = adminDS.shutDownAllMembers(timeout);
-          int num = members == null ? 0 : members.size();
+          var members = adminDS.shutDownAllMembers(timeout);
+          var num = members == null ? 0 : members.size();
           assertEquals(expectedNumber, num);
         } catch (AdminException e) {
           throw new RuntimeException(e);

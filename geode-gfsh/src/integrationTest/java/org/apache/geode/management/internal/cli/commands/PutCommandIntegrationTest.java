@@ -168,14 +168,14 @@ public class PutCommandIntegrationTest {
 
   @Test
   public void putWithComplicatedJson() {
-    String keyJson = "('id':'1','name':'name1')";
-    String stateJson =
+    var keyJson = "('id':'1','name':'name1')";
+    var stateJson =
         "('stateName':'State1','population':10,'capitalCity':'capital1','areaInSqKm':100)";
-    String carJson =
+    var carJson =
         "\"('attributes':?map,'make':'make1','model':'modle1','colors':?list,'attributeSet':?set)\"";
 
     // put the state json
-    String command =
+    var command =
         "put --region=testRegion --key=" + keyJson + " --value=" + stateJson + " --key-class="
             + Key1.class.getCanonicalName() + " --value-class=" + Value2.class.getCanonicalName();
     gfsh.executeAndAssertThat(command)
@@ -184,10 +184,10 @@ public class PutCommandIntegrationTest {
         .containsEntry("Result", "true");
 
     // put the car json
-    String list = "['red','white','blue']";
-    String set = "['red','white','blue']";
-    String map = "{'power':'90hp'}";
-    String valueJson = carJson.replaceAll("\\?list", list);
+    var list = "['red','white','blue']";
+    var set = "['red','white','blue']";
+    var map = "{'power':'90hp'}";
+    var valueJson = carJson.replaceAll("\\?list", list);
     valueJson = valueJson.replaceAll("\\?set", set);
     valueJson = valueJson.replaceAll("\\?map", map);
     command = "put --region=testRegion --key=" + keyJson + " --value=" + valueJson + " --key-class="

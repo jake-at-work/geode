@@ -50,7 +50,7 @@ public class PrimaryAckOp {
      */
     public PrimaryAckOpImpl(List events) {
       super(MessageType.PERIODIC_ACK, events.size());
-      for (final Object event : events) {
+      for (final var event : events) {
         getMessage().addObjPart(event);
       }
     }

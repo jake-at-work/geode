@@ -59,16 +59,16 @@ public abstract class RegionAttributesTestCase extends RegionTestCase {
     final Exception created = new Exception();
 
     public String toString() {
-      final StringBuilder sb = new StringBuilder();
+      final var sb = new StringBuilder();
       sb.append("CustomExpiry from: <");
-      OutputStream os = new OutputStream() {
+      var os = new OutputStream() {
 
         @Override
         public void write(int b) throws IOException {
           sb.append((char) b);
         }
       };
-      PrintStream ps = new PrintStream(os);
+      var ps = new PrintStream(os);
       created.printStackTrace(ps);
       sb.append(">");
       return sb.toString();
@@ -93,10 +93,10 @@ public abstract class RegionAttributesTestCase extends RegionTestCase {
    */
   @Test
   public void testAttributesMutator() throws CacheException {
-    String name = getUniqueName();
-    AttributesFactory fac = new AttributesFactory(getRegionAttributes());
+    var name = getUniqueName();
+    var fac = new AttributesFactory(getRegionAttributes());
     fac.setStatisticsEnabled(true);
-    Region region = createRegion(name, fac.create());
+    var region = createRegion(name, fac.create());
 
     CacheListener listener = new TestCacheListener() {};
     CacheLoader loader = new TestCacheLoader() {
@@ -109,12 +109,12 @@ public abstract class RegionAttributesTestCase extends RegionTestCase {
     CacheWriter writer = new TestCacheWriter() {};
     CustomExpiry customEntryIdle = new TestExpiry();
     CustomExpiry customTtl = new TestExpiry();
-    ExpirationAttributes entryIdle = new ExpirationAttributes(5, ExpirationAction.DESTROY);
-    ExpirationAttributes entryTTL = new ExpirationAttributes(6, ExpirationAction.INVALIDATE);
-    ExpirationAttributes regionIdle = new ExpirationAttributes(7, ExpirationAction.DESTROY);
-    ExpirationAttributes regionTTL = new ExpirationAttributes(8, ExpirationAction.INVALIDATE);
+    var entryIdle = new ExpirationAttributes(5, ExpirationAction.DESTROY);
+    var entryTTL = new ExpirationAttributes(6, ExpirationAction.INVALIDATE);
+    var regionIdle = new ExpirationAttributes(7, ExpirationAction.DESTROY);
+    var regionTTL = new ExpirationAttributes(8, ExpirationAction.INVALIDATE);
 
-    AttributesMutator mutator = region.getAttributesMutator();
+    var mutator = region.getAttributesMutator();
     assertEquals(region, mutator.getRegion());
     assertSame(region, mutator);
 
@@ -128,7 +128,7 @@ public abstract class RegionAttributesTestCase extends RegionTestCase {
     mutator.setRegionIdleTimeout(regionIdle);
     mutator.setRegionTimeToLive(regionTTL);
 
-    RegionAttributes attrs = region.getAttributes();
+    var attrs = region.getAttributes();
     assertSame(region, attrs);
 
     assertEquals(listener, attrs.getCacheListener());
@@ -150,10 +150,10 @@ public abstract class RegionAttributesTestCase extends RegionTestCase {
     CacheWriter writer2 = new TestCacheWriter() {};
     CustomExpiry customEntryIdle2 = new TestExpiry();
     CustomExpiry customTtl2 = new TestExpiry();
-    ExpirationAttributes entryIdle2 = new ExpirationAttributes(5, ExpirationAction.DESTROY);
-    ExpirationAttributes entryTTL2 = new ExpirationAttributes(6, ExpirationAction.INVALIDATE);
-    ExpirationAttributes regionIdle2 = new ExpirationAttributes(7, ExpirationAction.DESTROY);
-    ExpirationAttributes regionTTL2 = new ExpirationAttributes(8, ExpirationAction.INVALIDATE);
+    var entryIdle2 = new ExpirationAttributes(5, ExpirationAction.DESTROY);
+    var entryTTL2 = new ExpirationAttributes(6, ExpirationAction.INVALIDATE);
+    var regionIdle2 = new ExpirationAttributes(7, ExpirationAction.DESTROY);
+    var regionTTL2 = new ExpirationAttributes(8, ExpirationAction.INVALIDATE);
 
     mutator.initCacheListeners(new CacheListener[] {listener2});
     assertEquals(listener2, attrs.getCacheListener());
@@ -172,9 +172,9 @@ public abstract class RegionAttributesTestCase extends RegionTestCase {
    */
   @Test
   public void testAttributesMutatorBogus() throws CacheException {
-    String name = getUniqueName();
+    var name = getUniqueName();
     Region region = createRegion(name);
-    AttributesMutator mutator = region.getAttributesMutator();
+    var mutator = region.getAttributesMutator();
 
     try {
       mutator.setEntryIdleTimeout(null);
@@ -247,13 +247,13 @@ public abstract class RegionAttributesTestCase extends RegionTestCase {
   @Test
   public void testRegionAttributes() throws CacheException {
     // @todo for now just test concurrencyLevel, add tests for the rest
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setConcurrencyLevel(60);
     factory.setConcurrencyChecksEnabled(true);
     factory.setScope(Scope.DISTRIBUTED_ACK);
-    RegionAttributes attrs = factory.create();
-    String name = getUniqueName();
-    Region region = createRegion(name, attrs);
+    var attrs = factory.create();
+    var name = getUniqueName();
+    var region = createRegion(name, attrs);
     assertEquals(60, region.getAttributes().getConcurrencyLevel());
     assertTrue("expected concurrencyChecksEnabled to be true",
         region.getAttributes().getConcurrencyChecksEnabled());

@@ -24,10 +24,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Set;
 
 import org.junit.Test;
 
@@ -46,22 +43,22 @@ public class ResultsBagLimitBehaviourJUnitTest {
 
   @Test
   public void testAsListAndAsSetMethod() {
-    ResultsBag bag = getBagObject(String.class);
+    var bag = getBagObject(String.class);
     bag.add(wrap("one", bag.getCollectionType().getElementType()));
     bag.add(wrap("two", bag.getCollectionType().getElementType()));
     bag.add(wrap("three", bag.getCollectionType().getElementType()));
     bag.add(wrap("four", bag.getCollectionType().getElementType()));
     assertEquals(4, bag.size());
     bag.applyLimit(2);
-    List list = bag.asList();
+    var list = bag.asList();
     assertEquals(2, list.size());
-    Set set = bag.asSet();
+    var set = bag.asSet();
     assertEquals(2, set.size());
   }
 
   @Test
   public void testOccurrence() {
-    ResultsBag bag = getBagObject(String.class);
+    var bag = getBagObject(String.class);
     bag.add(wrap(null, bag.getCollectionType().getElementType()));
     bag.add(wrap(null, bag.getCollectionType().getElementType()));
     bag.add(wrap("one", bag.getCollectionType().getElementType()));
@@ -76,7 +73,7 @@ public class ResultsBagLimitBehaviourJUnitTest {
     bag.add(wrap("four", bag.getCollectionType().getElementType()));
     assertEquals(12, bag.size());
     bag.applyLimit(6);
-    int total = bag.occurrences(wrap(null, bag.getCollectionType().getElementType()));
+    var total = bag.occurrences(wrap(null, bag.getCollectionType().getElementType()));
     total += bag.occurrences(wrap("one", bag.getCollectionType().getElementType()));
     total += bag.occurrences(wrap("two", bag.getCollectionType().getElementType()));
     total += bag.occurrences(wrap("three", bag.getCollectionType().getElementType()));
@@ -86,7 +83,7 @@ public class ResultsBagLimitBehaviourJUnitTest {
 
   @Test
   public void testIteratorType() {
-    ResultsBag bag = getBagObject(String.class);
+    var bag = getBagObject(String.class);
     bag.add(wrap("one", bag.getCollectionType().getElementType()));
     bag.add(wrap("two", bag.getCollectionType().getElementType()));
     bag.add(wrap("two", bag.getCollectionType().getElementType()));
@@ -114,7 +111,7 @@ public class ResultsBagLimitBehaviourJUnitTest {
 
   @Test
   public void testContains() {
-    ResultsBag bag = getBagObject(Integer.class);
+    var bag = getBagObject(Integer.class);
     bag.add(wrap(1, bag.getCollectionType().getElementType()));
     bag.add(wrap(2, bag.getCollectionType().getElementType()));
     bag.add(wrap(3, bag.getCollectionType().getElementType()));
@@ -134,9 +131,9 @@ public class ResultsBagLimitBehaviourJUnitTest {
     bag.add(wrap(15, bag.getCollectionType().getElementType()));
     bag.add(wrap(16, bag.getCollectionType().getElementType()));
     bag.applyLimit(6);
-    List temp = bag.asList();
+    var temp = bag.asList();
     assertEquals(6, bag.size());
-    for (int i = 1; i < 17; ++i) {
+    for (var i = 1; i < 17; ++i) {
       Integer intg = i;
       assertTrue(temp.contains(wrap(intg, bag.getCollectionType().getElementType())) == bag
           .contains(wrap(intg, bag.getCollectionType().getElementType())));
@@ -147,7 +144,7 @@ public class ResultsBagLimitBehaviourJUnitTest {
 
   @Test
   public void testAddExceptionIfLimitApplied() {
-    ResultsBag bag = getBagObject(String.class);
+    var bag = getBagObject(String.class);
     bag.add(wrap("one", bag.getCollectionType().getElementType()));
     bag.add(wrap("two", bag.getCollectionType().getElementType()));
     bag.add(wrap("two", bag.getCollectionType().getElementType()));
@@ -164,9 +161,9 @@ public class ResultsBagLimitBehaviourJUnitTest {
   // only up till the limit
   @Test
   public void testAddAndGetOccurrence() {
-    ResultsBag bag = getBagObject(String.class);
+    var bag = getBagObject(String.class);
     bag = getBagObject(String.class);
-    ObjectType elementType = bag.getCollectionType().getElementType();
+    var elementType = bag.getCollectionType().getElementType();
     assertEquals(1, bag.addAndGetOccurence(elementType instanceof StructType
         ? ((Struct) wrap("one", elementType)).getFieldValues() : wrap("one", elementType)));
     bag.add(wrap("two", elementType));
@@ -186,7 +183,7 @@ public class ResultsBagLimitBehaviourJUnitTest {
 
   @Test
   public void testSizeWithLimitApplied() {
-    ResultsBag bag = getBagObject(String.class);
+    var bag = getBagObject(String.class);
     bag.add(wrap("two", bag.getCollectionType().getElementType()));
     bag.add(wrap("three", bag.getCollectionType().getElementType()));
     bag.add(wrap("three", bag.getCollectionType().getElementType()));
@@ -206,7 +203,7 @@ public class ResultsBagLimitBehaviourJUnitTest {
   @Test
   public void testRemove() {
     // Test when actual size in resultset is less than the limit
-    ResultsBag bag = getBagObject(String.class);
+    var bag = getBagObject(String.class);
     bag.add(wrap(null, bag.getCollectionType().getElementType()));
     bag.add(wrap(null, bag.getCollectionType().getElementType()));
     bag.add(wrap("one", bag.getCollectionType().getElementType()));
@@ -242,13 +239,13 @@ public class ResultsBagLimitBehaviourJUnitTest {
     bag.add(wrap(4, bag.getCollectionType().getElementType()));
     bag.add(wrap(4, bag.getCollectionType().getElementType()));
     bag.applyLimit(8);
-    List temp = bag.asList();
-    int currSize = 8;
+    var temp = bag.asList();
+    var currSize = 8;
     assertEquals(currSize, 8);
-    for (int i = 1; i < 5; ++i) {
+    for (var i = 1; i < 5; ++i) {
       Integer intg = i;
       if (temp.contains(wrap(intg, bag.getCollectionType().getElementType()))) {
-        int occurrence = bag.occurrences(wrap(intg, bag.getCollectionType().getElementType()));
+        var occurrence = bag.occurrences(wrap(intg, bag.getCollectionType().getElementType()));
         assertTrue(bag.remove(wrap(intg, bag.getCollectionType().getElementType())));
         assertEquals(--occurrence,
             bag.occurrences(wrap(intg, bag.getCollectionType().getElementType())));
@@ -259,7 +256,7 @@ public class ResultsBagLimitBehaviourJUnitTest {
       }
     }
     if (temp.contains(wrap(null, bag.getCollectionType().getElementType()))) {
-      int occurrence = bag.occurrences(wrap(null, bag.getCollectionType().getElementType()));
+      var occurrence = bag.occurrences(wrap(null, bag.getCollectionType().getElementType()));
       assertTrue(bag.remove(wrap(null, bag.getCollectionType().getElementType())));
       assertEquals(--occurrence,
           bag.occurrences(wrap(null, bag.getCollectionType().getElementType())));
@@ -269,18 +266,18 @@ public class ResultsBagLimitBehaviourJUnitTest {
 
     // Test null removal
     bag = getBagObject(Object.class);
-    for (int i = 0; i < 20; ++i) {
+    for (var i = 0; i < 20; ++i) {
       bag.add(wrap(null, bag.getCollectionType().getElementType()));
     }
     bag.applyLimit(4);
 
-    for (int i = 0; i < 3; ++i) {
+    for (var i = 0; i < 3; ++i) {
       bag.remove(wrap(null, bag.getCollectionType().getElementType()));
     }
 
     assertEquals(1, bag.size());
     assertTrue(bag.contains(wrap(null, bag.getCollectionType().getElementType())));
-    Iterator itr = bag.iterator();
+    var itr = bag.iterator();
     assertEquals(wrap(null, bag.getCollectionType().getElementType()), itr.next());
     assertFalse(itr.hasNext());
     bag.remove(wrap(null, bag.getCollectionType().getElementType()));
@@ -293,7 +290,7 @@ public class ResultsBagLimitBehaviourJUnitTest {
 
   @Test
   public void testAddAllExceptionIfLimitApplied() {
-    ResultsBag bag = getBagObject(Object.class);
+    var bag = getBagObject(Object.class);
     bag.applyLimit(6);
     try {
       bag.addAll(new HashSet());
@@ -306,7 +303,7 @@ public class ResultsBagLimitBehaviourJUnitTest {
   @Test
   public void testToDataFromData() throws Exception {
     // Test with limit specified & limit less than internal size
-    ResultsBag toBag = getBagObject(String.class);
+    var toBag = getBagObject(String.class);
     toBag.add(wrap(null, toBag.getCollectionType().getElementType()));
     toBag.add(wrap(null, toBag.getCollectionType().getElementType()));
     toBag.add(wrap(null, toBag.getCollectionType().getElementType()));
@@ -322,14 +319,14 @@ public class ResultsBagLimitBehaviourJUnitTest {
     toBag.add(wrap("four", toBag.getCollectionType().getElementType()));
     toBag.applyLimit(9);
     assertEquals(9, toBag.size());
-    ByteArrayOutputStream baos = new ByteArrayOutputStream(10240);
-    DataOutputStream dos = new DataOutputStream(baos);
+    var baos = new ByteArrayOutputStream(10240);
+    var dos = new DataOutputStream(baos);
     toBag.toData(dos, InternalDataSerializer.createSerializationContext(dos));
-    byte[] data = baos.toByteArray();
-    ByteArrayInputStream bis = new ByteArrayInputStream(data);
-    DataInputStream dis = new DataInputStream(bis);
+    var data = baos.toByteArray();
+    var bis = new ByteArrayInputStream(data);
+    var dis = new DataInputStream(bis);
     // Create a From ResultBag
-    ResultsBag fromBag = getBagObject(String.class);
+    var fromBag = getBagObject(String.class);
     fromBag.fromData(dis, InternalDataSerializer.createDeserializationContext(dis));
     assertEquals(toBag.size(), fromBag.size());
     assertEquals(toBag.occurrences(wrap(null, toBag.getCollectionType().getElementType())),
@@ -349,7 +346,7 @@ public class ResultsBagLimitBehaviourJUnitTest {
 
   @Test
   public void testLimitResultsBagIterator_1() {
-    ResultsBag bag = getBagObject(Integer.class);
+    var bag = getBagObject(Integer.class);
     bag.add(wrap(null, bag.getCollectionType().getElementType()));
     bag.add(wrap(null, bag.getCollectionType().getElementType()));
     bag.add(wrap(null, bag.getCollectionType().getElementType()));
@@ -369,14 +366,14 @@ public class ResultsBagLimitBehaviourJUnitTest {
     bag.add(wrap(5, bag.getCollectionType().getElementType()));
     bag.add(wrap(5, bag.getCollectionType().getElementType()));
     bag.applyLimit(8);
-    Iterator itr = bag.iterator();
+    var itr = bag.iterator();
     if (!(bag instanceof StructBag)) {
       assertTrue(bag.iterator() instanceof Bag.LimitBagIterator);
     }
-    List asList = bag.asList();
+    var asList = bag.asList();
 
     // Check repetition
-    int i = 0;
+    var i = 0;
     while (itr.hasNext()) {
       assertEquals(itr.next(), asList.get(i++));
     }
@@ -401,19 +398,19 @@ public class ResultsBagLimitBehaviourJUnitTest {
 
   @Test
   public void testLimitResultsBagIterator_2() {
-    ResultsBag bag = getBagObject(Object.class);
-    for (int i = 0; i < 20; ++i) {
+    var bag = getBagObject(Object.class);
+    for (var i = 0; i < 20; ++i) {
       bag.add(wrap(null, bag.getCollectionType().getElementType()));
     }
     bag.applyLimit(8);
-    Iterator itr = bag.iterator();
+    var itr = bag.iterator();
     if (!(bag instanceof StructBag)) {
       assertTrue(bag.iterator() instanceof Bag.LimitBagIterator);
     }
-    List asList = bag.asList();
+    var asList = bag.asList();
 
     // Check repetition
-    int i = 0;
+    var i = 0;
     while (itr.hasNext()) {
       assertEquals(itr.next(), asList.get(i++));
     }
@@ -442,7 +439,7 @@ public class ResultsBagLimitBehaviourJUnitTest {
 
   @Test
   public void testValidExceptionThrown() {
-    ResultsBag bag = getBagObject(Integer.class);
+    var bag = getBagObject(Integer.class);
     bag.add(wrap(1, bag.getCollectionType().getElementType()));
     bag.add(wrap(2, bag.getCollectionType().getElementType()));
     bag.add(wrap(2, bag.getCollectionType().getElementType()));
@@ -452,15 +449,15 @@ public class ResultsBagLimitBehaviourJUnitTest {
     bag.applyLimit(3);
     assertEquals(3, bag.size());
 
-    Iterator itr = bag.iterator();
+    var itr = bag.iterator();
     try {
       itr.remove();
       fail("should have thrown a IllegalStateException");
     } catch (IllegalStateException e) {
       // pass
     }
-    for (int i = 0; i < 3; i++) {
-      Object n = itr.next();
+    for (var i = 0; i < 3; i++) {
+      var n = itr.next();
     }
     try {
       itr.next();
@@ -471,8 +468,8 @@ public class ResultsBagLimitBehaviourJUnitTest {
 
     // test with removes
     itr = bag.iterator();
-    for (int i = 0; i < 3; i++) {
-      Object n = itr.next();
+    for (var i = 0; i < 3; i++) {
+      var n = itr.next();
       itr.remove();
     }
     assertEquals(0, bag.size());
@@ -486,7 +483,7 @@ public class ResultsBagLimitBehaviourJUnitTest {
 
   @Test
   public void testRemoveAll() {
-    ResultsBag bag = getBagObject(Integer.class);
+    var bag = getBagObject(Integer.class);
     // Add Integer & null Objects
     bag.add(wrap(1, bag.getCollectionType().getElementType()));
     bag.add(wrap(2, bag.getCollectionType().getElementType()));
@@ -497,25 +494,25 @@ public class ResultsBagLimitBehaviourJUnitTest {
     bag.add(wrap(null, bag.getCollectionType().getElementType()));
     bag.add(wrap(null, bag.getCollectionType().getElementType()));
     bag.applyLimit(4);
-    List asList = bag.asList();
+    var asList = bag.asList();
     asList.add(wrap(13, bag.getCollectionType().getElementType()));
     assertEquals(4, bag.size());
     assertEquals(5, asList.size());
     // Remove all the elements from the list which match the
     // first element pf the list and also
     // Get the number of occurnce of first element of List, in the bag
-    int occurrence = bag.occurrences(asList.get(0));
+    var occurrence = bag.occurrences(asList.get(0));
     // Now remove the this element from the list totally
-    Object toRemove = asList.get(0);
-    for (int i = 0; i < occurrence; ++i) {
+    var toRemove = asList.get(0);
+    for (var i = 0; i < occurrence; ++i) {
       asList.remove(toRemove);
     }
     // So we have added one element in thje list which does not exist in the bag
     // and removeed one element from list which exists in the bag.
     bag.removeAll(asList);
     assertEquals(occurrence, bag.size());
-    Iterator itr = bag.iterator();
-    for (int i = 0; i < occurrence; ++i) {
+    var itr = bag.iterator();
+    for (var i = 0; i < occurrence; ++i) {
       itr.next();
     }
     assertFalse(itr.hasNext());
@@ -523,7 +520,7 @@ public class ResultsBagLimitBehaviourJUnitTest {
 
   @Test
   public void testRetainAll() {
-    ResultsBag bag = getBagObject(Integer.class);
+    var bag = getBagObject(Integer.class);
     // Add Integer & null Objects
     bag.add(wrap(1, bag.getCollectionType().getElementType()));
     bag.add(wrap(2, bag.getCollectionType().getElementType()));
@@ -534,7 +531,7 @@ public class ResultsBagLimitBehaviourJUnitTest {
     bag.add(wrap(null, bag.getCollectionType().getElementType()));
     bag.add(wrap(null, bag.getCollectionType().getElementType()));
     bag.applyLimit(4);
-    List asList = bag.asList();
+    var asList = bag.asList();
     // Asif :Just add an arbit data which is not contained in the bag
     asList.add(wrap(13, bag.getCollectionType().getElementType()));
     bag.retainAll(asList);
@@ -543,18 +540,18 @@ public class ResultsBagLimitBehaviourJUnitTest {
     // Remove all the elements from the list which match the
     // first element pf the list and also
     // Get the number of occurnce of first element of List, in the bag
-    int occurrence = bag.occurrences(asList.get(0));
+    var occurrence = bag.occurrences(asList.get(0));
     // Now remove the this element from the list totally
-    Object toRemove = asList.get(0);
-    for (int i = 0; i < occurrence; ++i) {
+    var toRemove = asList.get(0);
+    for (var i = 0; i < occurrence; ++i) {
       asList.remove(toRemove);
     }
     // So we have added one element in thje list which does not exist in the bag
     // and removeed one element from list which exists in the bag.
     bag.retainAll(asList);
     assertEquals((4 - occurrence), bag.size());
-    Iterator itr = bag.iterator();
-    for (int i = 0; i < (4 - occurrence); ++i) {
+    var itr = bag.iterator();
+    for (var i = 0; i < (4 - occurrence); ++i) {
       itr.next();
     }
     assertFalse(itr.hasNext());
@@ -562,7 +559,7 @@ public class ResultsBagLimitBehaviourJUnitTest {
 
   @Test
   public void testContainAll() {
-    ResultsBag bag = getBagObject(Integer.class);
+    var bag = getBagObject(Integer.class);
     // Add Integer & null Objects
     bag.add(wrap(1, bag.getCollectionType().getElementType()));
     bag.add(wrap(2, bag.getCollectionType().getElementType()));
@@ -573,7 +570,7 @@ public class ResultsBagLimitBehaviourJUnitTest {
     bag.add(wrap(null, bag.getCollectionType().getElementType()));
     bag.add(wrap(null, bag.getCollectionType().getElementType()));
     bag.applyLimit(4);
-    List asList = bag.asList();
+    var asList = bag.asList();
     // Asif :Just add an arbit data which is not contained in the bag
     // asList.add(wrap(new
     // Integer(13),bag.getCollectionType().getElementType()));
@@ -581,10 +578,10 @@ public class ResultsBagLimitBehaviourJUnitTest {
     // assertIndexDetailsEquals(5,asList.size());
     // Remove all the elements from the list which match the
     // first element pf the list
-    int occurrence = bag.occurrences(asList.get(0));
+    var occurrence = bag.occurrences(asList.get(0));
     // Now remove the this element from the list totally
-    Object toRemove = asList.get(0);
-    for (int i = 0; i < occurrence; ++i) {
+    var toRemove = asList.get(0);
+    for (var i = 0; i < occurrence; ++i) {
       asList.remove(toRemove);
     }
     assertTrue(bag.containsAll(asList));

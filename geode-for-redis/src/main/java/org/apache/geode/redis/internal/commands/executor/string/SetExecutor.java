@@ -32,7 +32,6 @@ import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.BaseSetOptions;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
 import org.apache.geode.redis.internal.commands.executor.RedisResponse;
-import org.apache.geode.redis.internal.data.RedisData;
 import org.apache.geode.redis.internal.data.RedisKey;
 import org.apache.geode.redis.internal.data.RedisString;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
@@ -45,11 +44,11 @@ public class SetExecutor implements CommandExecutor {
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
 
-    RedisKey keyToSet = command.getKey();
-    List<byte[]> commandElementsBytes = command.getProcessedCommand();
+    var keyToSet = command.getKey();
+    var commandElementsBytes = command.getProcessedCommand();
 
     SetOptions setOptions;
-    List<byte[]> optionalParameters =
+    var optionalParameters =
         commandElementsBytes.subList(VALUE_INDEX + 1, commandElementsBytes.size());
     try {
       setOptions = parseOptionalParameters(optionalParameters);
@@ -63,10 +62,10 @@ public class SetExecutor implements CommandExecutor {
   private SetOptions parseOptionalParameters(List<byte[]> optionalParameters)
       throws IllegalArgumentException {
 
-    SetExecutorState executorState = new SetExecutorState();
+    var executorState = new SetExecutorState();
 
     // Iterate the list in reverse order to allow similar error reporting behaviour to native redis
-    for (int index = optionalParameters.size() - 1; index >= 0; --index) {
+    for (var index = optionalParameters.size() - 1; index >= 0; --index) {
       if (equalsIgnoreCaseBytes(optionalParameters.get(index), XX)) {
         handleXX(executorState);
       } else if (equalsIgnoreCaseBytes(optionalParameters.get(index), NX)) {
@@ -109,7 +108,7 @@ public class SetExecutor implements CommandExecutor {
   private void handleNumber(SetExecutorState executorState, List<byte[]> parameters, int index) {
     doBasicValidation(executorState, index);
 
-    byte[] previousParameter = parameters.get(index - 1);
+    var previousParameter = parameters.get(index - 1);
     throwIfNotExpirationParameter(previousParameter);
 
     long expiration;
@@ -205,7 +204,7 @@ public class SetExecutor implements CommandExecutor {
     if (regionProvider.getRedisData(key).exists()) {
       return false;
     }
-    RedisString redisString = new RedisString(value);
+    var redisString = new RedisString(value);
     redisString.handleSetExpiration(options);
     regionProvider.getDataRegion().put(key, redisString);
     return true;
@@ -214,7 +213,7 @@ public class SetExecutor implements CommandExecutor {
   static void setRedisString(RegionProvider regionProvider, RedisKey key, byte[] value,
       SetOptions options) {
     RedisString redisString;
-    RedisData redisData = regionProvider.getRedisData(key);
+    var redisData = regionProvider.getRedisData(key);
 
     if (redisData.isNull() || redisData.getType() != REDIS_STRING) {
       redisString = new RedisString(value);

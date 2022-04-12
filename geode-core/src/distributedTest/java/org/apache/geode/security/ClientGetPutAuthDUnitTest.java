@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -33,7 +32,6 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.test.dunit.AsyncInvocation;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.VM;
@@ -62,7 +60,7 @@ public class ClientGetPutAuthDUnitTest extends JUnit4DistributedTestCase {
   public void before() throws Exception {
     Region region =
         server.getCache().createRegionFactory(RegionShortcut.REPLICATE).create(REGION_NAME);
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       region.put("key" + i, "value" + i);
     }
   }
@@ -79,8 +77,8 @@ public class ClientGetPutAuthDUnitTest extends JUnit4DistributedTestCase {
 
     // client1 connects to server as a user not authorized to do any operations
     AsyncInvocation ai1 = client1.invokeAsync(() -> {
-      ClientCache cache = createClientCache("stranger", "1234567", server.getPort());
-      Region region = createProxyRegion(cache, REGION_NAME);
+      var cache = createClientCache("stranger", "1234567", server.getPort());
+      var region = createProxyRegion(cache, REGION_NAME);
 
       assertNotAuthorized(() -> region.put("key3", "value3"), "DATA:WRITE:AuthRegion:key3");
       assertNotAuthorized(() -> region.get("key3"), "DATA:READ:AuthRegion:key3");
@@ -89,7 +87,7 @@ public class ClientGetPutAuthDUnitTest extends JUnit4DistributedTestCase {
       assertNotAuthorized(() -> region.putAll(allValues), "DATA:WRITE:AuthRegion");
 
       // not authorized for either keys, get no record back
-      Map keyValues = region.getAll(keys);
+      var keyValues = region.getAll(keys);
       assertEquals(0, keyValues.size());
 
       assertNotAuthorized(region::keySetOnServer, "DATA:READ:AuthRegion");
@@ -98,8 +96,8 @@ public class ClientGetPutAuthDUnitTest extends JUnit4DistributedTestCase {
 
     // client2 connects to user as a user authorized to use AuthRegion region
     AsyncInvocation ai2 = client2.invokeAsync(() -> {
-      ClientCache cache = createClientCache("authRegionUser", "1234567", server.getPort());
-      Region region = createProxyRegion(cache, REGION_NAME);
+      var cache = createClientCache("authRegionUser", "1234567", server.getPort());
+      var region = createProxyRegion(cache, REGION_NAME);
 
       region.put("key3", "value3");
       assertEquals("value3", region.get("key3"));
@@ -108,18 +106,18 @@ public class ClientGetPutAuthDUnitTest extends JUnit4DistributedTestCase {
       region.putAll(allValues);
 
       // get all
-      Map keyValues = region.getAll(keys);
+      var keyValues = region.getAll(keys);
       assertEquals(2, keyValues.size());
 
       // keyset
-      Set keySet = region.keySetOnServer();
+      var keySet = region.keySetOnServer();
       assertEquals(5, keySet.size());
     });
 
     // client3 connects to user as a user authorized to use key1 in AuthRegion region
     AsyncInvocation ai3 = client3.invokeAsync(() -> {
-      ClientCache cache = createClientCache("key1User", "1234567", server.getPort());
-      Region region = createProxyRegion(cache, REGION_NAME);
+      var cache = createClientCache("key1User", "1234567", server.getPort());
+      var region = createProxyRegion(cache, REGION_NAME);
 
       assertNotAuthorized(() -> region.put("key2", "value1"), "DATA:WRITE:AuthRegion:key2");
       assertNotAuthorized(() -> region.get("key2"), "DATA:READ:AuthRegion:key2");
@@ -127,7 +125,7 @@ public class ClientGetPutAuthDUnitTest extends JUnit4DistributedTestCase {
       assertNotAuthorized(() -> region.putAll(allValues), "DATA:WRITE:AuthRegion");
 
       // only authorized for one recrod
-      Map keyValues = region.getAll(keys);
+      var keyValues = region.getAll(keys);
       assertEquals(1, keyValues.size());
 
       // keyset

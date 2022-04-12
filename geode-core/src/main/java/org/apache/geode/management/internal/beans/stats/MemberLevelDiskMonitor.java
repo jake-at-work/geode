@@ -17,10 +17,8 @@ package org.apache.geode.management.internal.beans.stats;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.Statistics;
 import org.apache.geode.distributed.ConfigurationProperties;
-import org.apache.geode.internal.statistics.StatisticId;
 import org.apache.geode.internal.statistics.StatisticNotFoundException;
 import org.apache.geode.internal.statistics.StatisticsListener;
 import org.apache.geode.internal.statistics.StatisticsNotification;
@@ -102,49 +100,49 @@ public class MemberLevelDiskMonitor extends MBeanStatsMonitor {
 
   Number computeDelta(Map<String, Number> statsMap, String name, Number currentValue) {
     if (name.equals(StatsKey.DISK_READ_BYTES)) {
-      Number prevValue = statsMap.getOrDefault(StatsKey.DISK_READ_BYTES, 0);
+      var prevValue = statsMap.getOrDefault(StatsKey.DISK_READ_BYTES, 0);
       return currentValue.longValue() - prevValue.longValue();
     }
 
     if (name.equals(StatsKey.DISK_RECOVERED_BYTES)) {
-      Number prevValue = statsMap.getOrDefault(StatsKey.DISK_RECOVERED_BYTES, 0);
+      var prevValue = statsMap.getOrDefault(StatsKey.DISK_RECOVERED_BYTES, 0);
       return currentValue.longValue() - prevValue.longValue();
     }
 
     if (name.equals(StatsKey.DISK_WRITEN_BYTES)) {
-      Number prevValue = statsMap.getOrDefault(StatsKey.DISK_WRITEN_BYTES, 0);
+      var prevValue = statsMap.getOrDefault(StatsKey.DISK_WRITEN_BYTES, 0);
       return currentValue.longValue() - prevValue.longValue();
     }
 
     if (name.equals(StatsKey.BACKUPS_IN_PROGRESS)) {
       // A negative value is also OK. previous backup_in_progress = 5 curr_backup_in_progress = 2
       // delta = -3 delta should be added to aggregate backup in progress
-      Number prevValue = statsMap.getOrDefault(StatsKey.BACKUPS_IN_PROGRESS, 0);
+      var prevValue = statsMap.getOrDefault(StatsKey.BACKUPS_IN_PROGRESS, 0);
       return currentValue.intValue() - prevValue.intValue();
     }
 
     if (name.equals(StatsKey.BACKUPS_COMPLETED)) {
-      Number prevValue = statsMap.getOrDefault(StatsKey.BACKUPS_COMPLETED, 0);
+      var prevValue = statsMap.getOrDefault(StatsKey.BACKUPS_COMPLETED, 0);
       return currentValue.intValue() - prevValue.intValue();
     }
 
     if (name.equals(StatsKey.FLUSHED_BYTES)) {
-      Number prevValue = statsMap.getOrDefault(StatsKey.FLUSHED_BYTES, 0);
+      var prevValue = statsMap.getOrDefault(StatsKey.FLUSHED_BYTES, 0);
       return currentValue.longValue() - prevValue.longValue();
     }
 
     if (name.equals(StatsKey.NUM_FLUSHES)) {
-      Number prevValue = statsMap.getOrDefault(StatsKey.NUM_FLUSHES, 0);
+      var prevValue = statsMap.getOrDefault(StatsKey.NUM_FLUSHES, 0);
       return currentValue.longValue() - prevValue.longValue();
     }
 
     if (name.equals(StatsKey.TOTAL_FLUSH_TIME)) {
-      Number prevValue = statsMap.getOrDefault(StatsKey.TOTAL_FLUSH_TIME, 0);
+      var prevValue = statsMap.getOrDefault(StatsKey.TOTAL_FLUSH_TIME, 0);
       return currentValue.longValue() - prevValue.longValue();
     }
 
     if (name.equals(StatsKey.DISK_QUEUE_SIZE)) {
-      Number prevValue = statsMap.getOrDefault(StatsKey.DISK_QUEUE_SIZE, 0);
+      var prevValue = statsMap.getOrDefault(StatsKey.DISK_QUEUE_SIZE, 0);
       return currentValue.intValue() - prevValue.intValue();
     }
 
@@ -232,8 +230,8 @@ public class MemberLevelDiskMonitor extends MBeanStatsMonitor {
 
   @Override
   public void addStatisticsToMonitor(Statistics stats) {
-    ValueMonitor diskMonitor = new ValueMonitor();
-    MemberLevelDiskStatisticsListener listener = new MemberLevelDiskStatisticsListener();
+    var diskMonitor = new ValueMonitor();
+    var listener = new MemberLevelDiskStatisticsListener();
     diskMonitor.addListener(listener);
     diskMonitor.addStatistics(stats);
 
@@ -243,8 +241,8 @@ public class MemberLevelDiskMonitor extends MBeanStatsMonitor {
 
   @Override
   public void stopListener() {
-    for (Statistics stat : listeners.keySet()) {
-      ValueMonitor monitor = monitors.get(stat);
+    for (var stat : listeners.keySet()) {
+      var monitor = monitors.get(stat);
       monitor.removeListener(listeners.get(stat));
       monitor.removeStatistics(stat);
     }
@@ -255,12 +253,12 @@ public class MemberLevelDiskMonitor extends MBeanStatsMonitor {
 
   @Override
   public void removeStatisticsFromMonitor(Statistics stats) {
-    ValueMonitor monitor = monitors.remove(stats);
+    var monitor = monitors.remove(stats);
     if (monitor != null) {
       monitor.removeStatistics(stats);
     }
 
-    MemberLevelDiskStatisticsListener listener = listeners.remove(stats);
+    var listener = listeners.remove(stats);
     if (listener != null) {
       if (monitor != null) {
         monitor.removeListener(listener);
@@ -281,9 +279,9 @@ public class MemberLevelDiskMonitor extends MBeanStatsMonitor {
           return;
         }
 
-        for (StatisticId statId : notification) {
-          StatisticDescriptor descriptor = statId.getStatisticDescriptor();
-          String name = descriptor.getName();
+        for (var statId : notification) {
+          var descriptor = statId.getStatisticDescriptor();
+          var name = descriptor.getName();
           Number value;
 
           try {
@@ -293,7 +291,7 @@ public class MemberLevelDiskMonitor extends MBeanStatsMonitor {
           }
 
           log(name, value);
-          Number deltaValue = computeDelta(statsMap, name, value);
+          var deltaValue = computeDelta(statsMap, name, value);
           statsMap.put(name, value);
           increaseStats(name, deltaValue);
         }

@@ -57,12 +57,12 @@ public abstract class PassWithExpectedProblemTestCase extends GoldenTestCase
    */
   @Test
   public void testPassWithExpectedProblem() throws Exception {
-    final String goldenString =
+    final var goldenString =
         "Begin " + name() + ".main" + "\n" + "Press Enter to continue." + "\n" + "\n"
             + expectedProblemLines()[problemLine] + "\n" + "End " + name() + ".main" + "\n";
     GoldenTestCase.debug(goldenString, "GOLDEN");
 
-    final ProcessWrapper process = createProcessWrapper(new ProcessWrapper.Builder(), getClass());
+    final var process = createProcessWrapper(new ProcessWrapper.Builder(), getClass());
     process.execute(createProperties());
     process.waitForOutputToMatch("Begin " + name() + "\\.main");
     process.waitForOutputToMatch("Press Enter to continue\\.");

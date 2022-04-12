@@ -25,7 +25,6 @@ import org.junit.Test;
 
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.internal.cache.control.InternalResourceManager;
@@ -59,21 +58,21 @@ public class PartitionedRegionDelayedRecoveryDUnitTest extends JUnit4CacheTestCa
 
   @Test
   public void testNoRecovery() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
 
-    SerializableRunnable createPrRegions = new SerializableRunnable("createRegions") {
+    var createPrRegions = new SerializableRunnable("createRegions") {
       @Override
       public void run() {
         Cache cache = getCache();
-        AttributesFactory attr = new AttributesFactory();
-        PartitionAttributesFactory paf = new PartitionAttributesFactory();
+        var attr = new AttributesFactory();
+        var paf = new PartitionAttributesFactory();
         paf.setRecoveryDelay(-1);
         paf.setStartupRecoveryDelay(-1);
         paf.setRedundantCopies(1);
-        PartitionAttributes prAttr = paf.create();
+        var prAttr = paf.create();
         attr.setPartitionAttributes(prAttr);
         cache.createRegion("region1", attr.create());
       }
@@ -88,7 +87,7 @@ public class PartitionedRegionDelayedRecoveryDUnitTest extends JUnit4CacheTestCa
       @Override
       public void run() {
         Cache cache = getCache();
-        PartitionedRegion region1 = (PartitionedRegion) cache.getRegion("region1");
+        var region1 = (PartitionedRegion) cache.getRegion("region1");
         region1.put("A", "B");
       }
     });
@@ -101,7 +100,7 @@ public class PartitionedRegionDelayedRecoveryDUnitTest extends JUnit4CacheTestCa
       @Override
       public void run() {
         Cache cache = getCache();
-        PartitionedRegion region1 = (PartitionedRegion) cache.getRegion("region1");
+        var region1 = (PartitionedRegion) cache.getRegion("region1");
         region1.localDestroyRegion();
       }
     });
@@ -109,11 +108,11 @@ public class PartitionedRegionDelayedRecoveryDUnitTest extends JUnit4CacheTestCa
 
 
     // check to make sure we didn't make a copy of the low redundancy bucket
-    SerializableRunnable checkNoBucket = new SerializableRunnable("Check for bucket") {
+    var checkNoBucket = new SerializableRunnable("Check for bucket") {
       @Override
       public void run() {
         Cache cache = getCache();
-        PartitionedRegion region1 = (PartitionedRegion) cache.getRegion("region1");
+        var region1 = (PartitionedRegion) cache.getRegion("region1");
         assertEquals(0, region1.getDataStore().getBucketsManaged());
       }
     };
@@ -135,15 +134,15 @@ public class PartitionedRegionDelayedRecoveryDUnitTest extends JUnit4CacheTestCa
 
   @Test
   public void testDelay() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
 
-    SerializableRunnable createPrRegions = new SerializableRunnable("createRegions") {
+    var createPrRegions = new SerializableRunnable("createRegions") {
       @Override
       public void run() {
-        final CountDownLatch rebalancingFinished = new CountDownLatch(1);
+        final var rebalancingFinished = new CountDownLatch(1);
         InternalResourceManager.setResourceObserver(new ResourceObserverAdapter() {
           @Override
           public void rebalancingOrRecoveryFinished(Region region) {
@@ -152,11 +151,11 @@ public class PartitionedRegionDelayedRecoveryDUnitTest extends JUnit4CacheTestCa
         });
         try {
           Cache cache = getCache();
-          AttributesFactory attr = new AttributesFactory();
-          PartitionAttributesFactory paf = new PartitionAttributesFactory();
+          var attr = new AttributesFactory();
+          var paf = new PartitionAttributesFactory();
           paf.setRecoveryDelay(5000);
           paf.setRedundantCopies(1);
-          PartitionAttributes prAttr = paf.create();
+          var prAttr = paf.create();
           attr.setPartitionAttributes(prAttr);
           cache.createRegion("region1", attr.create());
           if (!rebalancingFinished.await(60000, TimeUnit.MILLISECONDS)) {
@@ -179,7 +178,7 @@ public class PartitionedRegionDelayedRecoveryDUnitTest extends JUnit4CacheTestCa
       @Override
       public void run() {
         Cache cache = getCache();
-        PartitionedRegion region1 = (PartitionedRegion) cache.getRegion("region1");
+        var region1 = (PartitionedRegion) cache.getRegion("region1");
         region1.put("A", "B");
       }
     });
@@ -187,7 +186,7 @@ public class PartitionedRegionDelayedRecoveryDUnitTest extends JUnit4CacheTestCa
     // create the region in a third VM, which won't have any buckets
     vm2.invoke(createPrRegions);
 
-    final long begin = System.currentTimeMillis();
+    final var begin = System.currentTimeMillis();
 
     // close 1 cache, which should make the bucket drop below
     // the expected redundancy level.
@@ -199,28 +198,28 @@ public class PartitionedRegionDelayedRecoveryDUnitTest extends JUnit4CacheTestCa
       }
     });
 
-    long elapsed = waitForBucketRecovery(vm2, 1, begin);
+    var elapsed = waitForBucketRecovery(vm2, 1, begin);
     assertTrue("Did not wait at least 5 seconds to create the bucket. Elapsed=" + elapsed,
         elapsed >= 5000);
   }
 
   @Test
   public void testStartupDelay() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
 
-    SerializableRunnable createPrRegions = new SerializableRunnable("createRegions") {
+    var createPrRegions = new SerializableRunnable("createRegions") {
       @Override
       public void run() {
         Cache cache = getCache();
         InternalResourceManager.setResourceObserver(new MyResourceObserver());
-        AttributesFactory attr = new AttributesFactory();
-        PartitionAttributesFactory paf = new PartitionAttributesFactory();
+        var attr = new AttributesFactory();
+        var paf = new PartitionAttributesFactory();
         paf.setStartupRecoveryDelay(5000);
         paf.setRedundantCopies(1);
-        PartitionAttributes prAttr = paf.create();
+        var prAttr = paf.create();
         attr.setPartitionAttributes(prAttr);
         cache.createRegion("region1", attr.create());
       }
@@ -235,7 +234,7 @@ public class PartitionedRegionDelayedRecoveryDUnitTest extends JUnit4CacheTestCa
       @Override
       public void run() {
         Cache cache = getCache();
-        PartitionedRegion region1 = (PartitionedRegion) cache.getRegion("region1");
+        var region1 = (PartitionedRegion) cache.getRegion("region1");
         region1.put(1, "B");
         region1.put(2, "B");
         region1.put(3, "B");
@@ -254,10 +253,10 @@ public class PartitionedRegionDelayedRecoveryDUnitTest extends JUnit4CacheTestCa
       }
     });
 
-    final long begin = System.currentTimeMillis();
+    final var begin = System.currentTimeMillis();
     // create the region in a third VM, which won't have any buckets
     vm2.invoke(createPrRegions);
-    long elapsed = System.currentTimeMillis() - begin;
+    var elapsed = System.currentTimeMillis() - begin;
     assertTrue("Create region should not have waited to recover redundancy. Elapsed=" + elapsed,
         elapsed < 5000);
 
@@ -271,11 +270,11 @@ public class PartitionedRegionDelayedRecoveryDUnitTest extends JUnit4CacheTestCa
       @Override
       public Object call() throws Exception {
         Cache cache = getCache();
-        MyResourceObserver observer =
+        var observer =
             (MyResourceObserver) InternalResourceManager.getResourceObserver();
         observer.waitForRecovery(30, TimeUnit.SECONDS);
 
-        PartitionedRegion region1 = (PartitionedRegion) cache.getRegion("region1");
+        var region1 = (PartitionedRegion) cache.getRegion("region1");
         assertEquals(2, region1.getDataStore().getNumberOfPrimaryBucketsManaged());
         return null;
       }
@@ -285,11 +284,11 @@ public class PartitionedRegionDelayedRecoveryDUnitTest extends JUnit4CacheTestCa
 
   private long waitForBucketRecovery(VM vm2, final int numBuckets, final long begin) {
     // wait for the bucket to be copied
-    Long elapsed = (Long) vm2.invoke(new SerializableCallable("putData") {
+    var elapsed = (Long) vm2.invoke(new SerializableCallable("putData") {
       @Override
       public Object call() {
         Cache cache = getCache();
-        PartitionedRegion region1 = (PartitionedRegion) cache.getRegion("region1");
+        var region1 = (PartitionedRegion) cache.getRegion("region1");
         while (System.currentTimeMillis() - begin < 30000) {
           int bucketsManaged = region1.getDataStore().getBucketsManaged();
           if (bucketsManaged == numBuckets) {
@@ -305,7 +304,7 @@ public class PartitionedRegionDelayedRecoveryDUnitTest extends JUnit4CacheTestCa
         }
         assertEquals("Did not start managing the bucket within 30 seconds", numBuckets,
             region1.getDataStore().getBucketsManaged());
-        long elapsed = System.currentTimeMillis() - begin;
+        var elapsed = System.currentTimeMillis() - begin;
         return elapsed;
       }
     });

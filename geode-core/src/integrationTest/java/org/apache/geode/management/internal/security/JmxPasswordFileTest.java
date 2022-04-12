@@ -17,7 +17,6 @@ package org.apache.geode.management.internal.security;
 
 import static org.apache.geode.test.junit.rules.GfshCommandRule.PortType.jmxManager;
 
-import java.io.File;
 import java.util.Collections;
 
 import org.apache.commons.io.FileUtils;
@@ -41,7 +40,7 @@ public class JmxPasswordFileTest {
 
   @Test
   public void connectWhenJmxManagerSecuredWithPasswordFile() throws Exception {
-    File passwordFile = temporaryFolder.newFile("password.properties");
+    var passwordFile = temporaryFolder.newFile("password.properties");
     FileUtils.writeLines(passwordFile, Collections.singleton("user user"));
     locator.withProperty("jmx-manager-password-file", passwordFile.getAbsolutePath());
 

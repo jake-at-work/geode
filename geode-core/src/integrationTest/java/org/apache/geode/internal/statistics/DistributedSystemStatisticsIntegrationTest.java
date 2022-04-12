@@ -33,7 +33,6 @@ import org.junit.rules.TestName;
 import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.Statistics;
 import org.apache.geode.StatisticsFactory;
-import org.apache.geode.StatisticsType;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.test.junit.categories.StatisticsTest;
 
@@ -57,7 +56,7 @@ public class DistributedSystemStatisticsIntegrationTest {
 
   @Before
   public void setUp() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     props.setProperty(NAME, getUniqueName());
@@ -83,10 +82,10 @@ public class DistributedSystemStatisticsIntegrationTest {
    */
   @Test
   public void testIntStatistics() {
-    Statistics stats = setUpIntStatistics(3);
+    var stats = setUpIntStatistics(3);
 
-    for (String statName : statNames) {
-      for (int i = 0; i < 10; i++) {
+    for (var statName : statNames) {
+      for (var i = 0; i < 10; i++) {
         stats.setInt(statName, i);
         stats.incInt(statName, 1);
         assertThat(stats.getInt(statName)).isEqualTo(i + 1);
@@ -99,22 +98,22 @@ public class DistributedSystemStatisticsIntegrationTest {
    */
   @Test
   public void testLongStatistics() {
-    Statistics stats = setUpLongStatistics(3);
+    var stats = setUpLongStatistics(3);
 
     // Set/get some random long values
-    for (int i = 0; i < 100; i++) {
-      for (String statName : statNames) {
-        long value = random.nextLong();
+    for (var i = 0; i < 100; i++) {
+      for (var statName : statNames) {
+        var value = random.nextLong();
         stats.setLong(statName, value);
         assertThat(stats.getLong(statName)).isEqualTo(value);
       }
     }
 
     // Increment by some random values
-    for (int i = 0; i < 100; i++) {
-      for (String statName : statNames) {
-        long inc = random.nextLong();
-        long before = stats.getLong(statName);
+    for (var i = 0; i < 100; i++) {
+      for (var statName : statNames) {
+        var inc = random.nextLong();
+        var before = stats.getLong(statName);
         stats.incLong(statName, inc);
         assertThat(stats.getLong(statName)).isEqualTo(before + inc);
       }
@@ -126,22 +125,22 @@ public class DistributedSystemStatisticsIntegrationTest {
    */
   @Test
   public void testDoubleStatistics() {
-    Statistics stats = setUpDoubleStatistics(3);
+    var stats = setUpDoubleStatistics(3);
 
     // Set/get some random double values
-    for (int i = 0; i < 100; i++) {
-      for (String statName : statNames) {
-        double value = random.nextDouble();
+    for (var i = 0; i < 100; i++) {
+      for (var statName : statNames) {
+        var value = random.nextDouble();
         stats.setDouble(statName, value);
         assertThat(stats.getDouble(statName)).isEqualTo(value);
       }
     }
 
     // Increment by some random values
-    for (int i = 0; i < 100; i++) {
-      for (String statName : statNames) {
-        double inc = random.nextDouble();
-        double before = stats.getDouble(statName);
+    for (var i = 0; i < 100; i++) {
+      for (var statName : statNames) {
+        var inc = random.nextDouble();
+        var before = stats.getDouble(statName);
         stats.incDouble(statName, inc);
         assertThat(stats.getDouble(statName)).isEqualTo(before + inc);
       }
@@ -153,7 +152,7 @@ public class DistributedSystemStatisticsIntegrationTest {
    */
   @Test
   public void testAccessingIntStat() {
-    Statistics stats = setUpIntStatistics(1);
+    var stats = setUpIntStatistics(1);
 
     assertThat(stats.getInt(statName1)).isEqualTo(0);
     assertThat(stats.getLong(statName1)).isEqualTo(0);
@@ -180,7 +179,7 @@ public class DistributedSystemStatisticsIntegrationTest {
    */
   @Test
   public void testAccessingLongStat() {
-    Statistics stats = setUpLongStatistics(1);
+    var stats = setUpLongStatistics(1);
 
     assertThat(stats.getLong(statName1)).isEqualTo(0L);
     assertThat(stats.getInt(statName1)).isEqualTo(0);
@@ -207,7 +206,7 @@ public class DistributedSystemStatisticsIntegrationTest {
    */
   @Test
   public void testAccessingDoubleStat() {
-    Statistics stats = setUpDoubleStatistics(1);
+    var stats = setUpDoubleStatistics(1);
 
     assertThat(stats.getDouble(statName1)).isEqualTo(0.0);
     assertThatThrownBy(() -> stats.getInt(statName1))
@@ -233,48 +232,48 @@ public class DistributedSystemStatisticsIntegrationTest {
   }
 
   private Statistics setUpIntStatistics(final int count) {
-    String[] descriptions = new String[] {"ONE", "TWO", "THREE"};
-    StatisticDescriptor[] descriptors = new StatisticDescriptor[count];
-    for (int i = 0; i < count; i++) {
+    var descriptions = new String[] {"ONE", "TWO", "THREE"};
+    var descriptors = new StatisticDescriptor[count];
+    for (var i = 0; i < count; i++) {
       descriptors[i] = factory().createIntGauge(statNames[i], descriptions[i], "x");
     }
 
-    StatisticsType type = factory().createType(getUniqueName(), "", descriptors);
-    Statistics stats = factory().createStatistics(type, "Display");
+    var type = factory().createType(getUniqueName(), "", descriptors);
+    var stats = factory().createStatistics(type, "Display");
 
-    for (int i = 0; i < count; i++) {
+    for (var i = 0; i < count; i++) {
       stats.setInt(statNames[i], 0);
     }
     return stats;
   }
 
   private Statistics setUpLongStatistics(final int count) {
-    String[] descriptions = new String[] {"ONE", "TWO", "THREE"};
-    StatisticDescriptor[] descriptors = new StatisticDescriptor[count];
-    for (int i = 0; i < count; i++) {
+    var descriptions = new String[] {"ONE", "TWO", "THREE"};
+    var descriptors = new StatisticDescriptor[count];
+    for (var i = 0; i < count; i++) {
       descriptors[i] = factory().createLongGauge(statNames[i], descriptions[i], "x");
     }
 
-    StatisticsType type = factory().createType(getUniqueName(), "", descriptors);
-    Statistics stats = factory().createStatistics(type, "Display");
+    var type = factory().createType(getUniqueName(), "", descriptors);
+    var stats = factory().createStatistics(type, "Display");
 
-    for (int i = 0; i < count; i++) {
+    for (var i = 0; i < count; i++) {
       stats.setLong(statNames[i], 0L);
     }
     return stats;
   }
 
   private Statistics setUpDoubleStatistics(final int count) {
-    String[] descriptions = new String[] {"ONE", "TWO", "THREE"};
-    StatisticDescriptor[] descriptors = new StatisticDescriptor[count];
-    for (int i = 0; i < count; i++) {
+    var descriptions = new String[] {"ONE", "TWO", "THREE"};
+    var descriptors = new StatisticDescriptor[count];
+    for (var i = 0; i < count; i++) {
       descriptors[i] = factory().createDoubleGauge(statNames[i], descriptions[i], "x");
     }
 
-    StatisticsType type = factory().createType(getUniqueName(), "", descriptors);
-    Statistics stats = factory().createStatistics(type, "Display");
+    var type = factory().createType(getUniqueName(), "", descriptors);
+    var stats = factory().createStatistics(type, "Display");
 
-    for (int i = 0; i < count; i++) {
+    for (var i = 0; i < count; i++) {
       stats.setDouble(statNames[i], 0.0);
     }
     return stats;

@@ -22,10 +22,7 @@ import org.apache.geode.admin.MemberHealthConfig;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.distributed.internal.DMStats;
 import org.apache.geode.distributed.internal.DistributionManager;
-import org.apache.geode.distributed.internal.InternalDistributedSystem;
-import org.apache.geode.internal.cache.CachePerfStats;
 import org.apache.geode.internal.cache.InternalCache;
-import org.apache.geode.internal.statistics.GemFireStatSampler;
 import org.apache.geode.internal.statistics.platform.ProcessStats;
 import org.apache.geode.logging.internal.OSProcess;
 
@@ -60,9 +57,9 @@ class MemberHealthEvaluator extends AbstractHealthEvaluator {
     super(config, dm);
 
     this.config = config;
-    InternalDistributedSystem system = dm.getSystem();
+    var system = dm.getSystem();
 
-    GemFireStatSampler sampler = system.getStatSampler();
+    var sampler = system.getStatSampler();
     if (sampler != null) {
       // Sampling is enabled
       processStats = sampler.getProcessStats();
@@ -70,10 +67,10 @@ class MemberHealthEvaluator extends AbstractHealthEvaluator {
 
     dmStats = dm.getStats();
 
-    StringBuilder sb = new StringBuilder();
+    var sb = new StringBuilder();
     sb.append("Application VM member ");
     sb.append(dm.getId());
-    int pid = OSProcess.getId();
+    var pid = OSProcess.getId();
     if (pid != 0) {
       sb.append(" with pid ");
       sb.append(pid);
@@ -97,10 +94,10 @@ class MemberHealthEvaluator extends AbstractHealthEvaluator {
       return;
     }
 
-    long vmSize = processStats.getProcessSize();
-    long threshold = config.getMaxVMProcessSize();
+    var vmSize = processStats.getProcessSize();
+    var threshold = config.getMaxVMProcessSize();
     if (vmSize > threshold) {
-      String s =
+      var s =
           String.format("The size of this VM (%s megabytes) exceeds the threshold (%s megabytes)",
               vmSize, threshold);
       status.add(okayHealth(s));
@@ -114,10 +111,10 @@ class MemberHealthEvaluator extends AbstractHealthEvaluator {
    * health.
    */
   private void checkMessageQueueSize(List<HealthStatus> status) {
-    long threshold = config.getMaxMessageQueueSize();
-    long overflowSize = dmStats.getOverflowQueueSize();
+    var threshold = config.getMaxMessageQueueSize();
+    var overflowSize = dmStats.getOverflowQueueSize();
     if (overflowSize > threshold) {
-      String s =
+      var s =
           String.format("The size of the overflow queue (%s) exceeds the threshold (%s).",
               overflowSize, threshold);
       status.add(okayHealth(s));
@@ -134,10 +131,10 @@ class MemberHealthEvaluator extends AbstractHealthEvaluator {
       return;
     }
 
-    long threshold = config.getMaxReplyTimeouts();
-    long deltaReplyTimeouts = dmStats.getReplyTimeouts() - prevReplyTimeouts;
+    var threshold = config.getMaxReplyTimeouts();
+    var deltaReplyTimeouts = dmStats.getReplyTimeouts() - prevReplyTimeouts;
     if (deltaReplyTimeouts > threshold) {
-      String s =
+      var s =
           String.format("The number of message reply timeouts (%s) exceeds the threshold (%s)",
               deltaReplyTimeouts, threshold);
       status.add(okayHealth(s));
@@ -152,26 +149,26 @@ class MemberHealthEvaluator extends AbstractHealthEvaluator {
     // will have to call here okayHealth() or poorHealth()
 
     try {
-      InternalCache cache = (InternalCache) CacheFactory.getAnyInstance();
-      CachePerfStats cPStats = cache.getCachePerfStats();
+      var cache = (InternalCache) CacheFactory.getAnyInstance();
+      var cPStats = cache.getCachePerfStats();
 
       if (cPStats.getReliableRegionsMissingFullAccess() > 0) {
         // health is okay.
-        long numRegions = cPStats.getReliableRegionsMissingFullAccess();
+        var numRegions = cPStats.getReliableRegionsMissingFullAccess();
         status.add(okayHealth(
             String.format(
                 "There are %s regions missing required roles; however, they are configured for full access.",
                 numRegions)));
       } else if (cPStats.getReliableRegionsMissingLimitedAccess() > 0) {
         // health is poor
-        long numRegions = cPStats.getReliableRegionsMissingLimitedAccess();
+        var numRegions = cPStats.getReliableRegionsMissingLimitedAccess();
         status.add(poorHealth(
             String.format(
                 "There are %s regions missing required roles and configured with limited access.",
                 numRegions)));
       } else if (cPStats.getReliableRegionsMissingNoAccess() > 0) {
         // health is poor
-        long numRegions = cPStats.getReliableRegionsMissingNoAccess();
+        var numRegions = cPStats.getReliableRegionsMissingNoAccess();
         status.add(poorHealth(
             String.format(
                 "There are %s regions missing required roles and configured without access.",

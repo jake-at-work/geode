@@ -46,8 +46,8 @@ public class BackupServiceTest {
   public void setUp() throws Exception {
     cache = mock(InternalCache.class);
     distributionManager = mock(DistributionManager.class);
-    InternalDistributedSystem distributedSystem = mock(InternalDistributedSystem.class);
-    InternalDistributedMember distributedMember = mock(InternalDistributedMember.class);
+    var distributedSystem = mock(InternalDistributedSystem.class);
+    var distributedMember = mock(InternalDistributedMember.class);
 
     when(cache.getDistributionManager()).thenReturn(distributionManager);
     when(distributedSystem.getDistributedMember()).thenReturn(distributedMember);
@@ -61,14 +61,14 @@ public class BackupServiceTest {
 
   @Test
   public void throwsExceptionWhenBackupRequesterHasLeftDistributedSystem() {
-    InternalDistributedMember oldSender = new InternalDistributedMember("localhost", 5556);
+    var oldSender = new InternalDistributedMember("localhost", 5556);
     assertThatThrownBy(() -> backupService.validateRequestingSender(oldSender))
         .isInstanceOf(IllegalStateException.class);
   }
 
   @Test
   public void startBackupThrowsExceptionWhenAnotherBackupInProgress() throws Exception {
-    BackupTask backupTask = mock(BackupTask.class);
+    var backupTask = mock(BackupTask.class);
     backupService.setCurrentTask(backupTask);
     assertThatThrownBy(() -> backupService.prepareBackup(sender, null))
         .isInstanceOf(IOException.class);

@@ -106,7 +106,7 @@ public class Subscriptions {
       if (o == null || getClass() != o.getClass()) {
         return false;
       }
-      PatternSubscriptions that = (PatternSubscriptions) o;
+      var that = (PatternSubscriptions) o;
       if (!Arrays.equals(pattern, that.pattern)) {
         return false;
       }
@@ -118,7 +118,7 @@ public class Subscriptions {
 
     @Override
     public int hashCode() {
-      int result = Objects.hash(subscriptions);
+      var result = Objects.hash(subscriptions);
       result = 31 * result + Arrays.hashCode(pattern);
       return result;
     }
@@ -201,14 +201,14 @@ public class Subscriptions {
   }
 
   public SubscribeResult subscribe(byte[] channel, Client client) {
-    Subscription createdSubscription = addChannel(channel, client);
-    long channelCount = client.getSubscriptionCount();
+    var createdSubscription = addChannel(channel, client);
+    var channelCount = client.getSubscriptionCount();
     return new SubscribeResult(createdSubscription, channelCount, channel);
   }
 
   public SubscribeResult psubscribe(byte[] patternBytes, Client client) {
-    Subscription createdSubscription = addPattern(patternBytes, client);
-    long channelCount = client.getSubscriptionCount();
+    var createdSubscription = addPattern(patternBytes, client);
+    var channelCount = client.getSubscriptionCount();
     return new SubscribeResult(createdSubscription, channelCount, patternBytes);
   }
 
@@ -220,8 +220,8 @@ public class Subscriptions {
       }
     }
     Collection<Collection<?>> response = new ArrayList<>(channels.size());
-    for (byte[] channel : channels) {
-      long subscriptionCount = unsubscribe(channel, client);
+    for (var channel : channels) {
+      var subscriptionCount = unsubscribe(channel, client);
       response.add(createUnsubscribeItem(true, channel, subscriptionCount));
     }
     return response;
@@ -235,8 +235,8 @@ public class Subscriptions {
       }
     }
     Collection<Collection<?>> response = new ArrayList<>(patterns.size());
-    for (byte[] pattern : patterns) {
-      long subscriptionCount = punsubscribe(pattern, client);
+    for (var pattern : patterns) {
+      var subscriptionCount = punsubscribe(pattern, client);
       response.add(createUnsubscribeItem(false, pattern, subscriptionCount));
     }
     return response;

@@ -49,7 +49,7 @@ public class LoggingProviderLoaderTest {
   public void createProviderAgent_usesSystemPropertySetTo_NullProviderAgent() {
     System.setProperty(LOGGING_PROVIDER_NAME_PROPERTY, SimpleLoggingProvider.class.getName());
 
-    LoggingProvider value = loggingProviderLoader.load();
+    var value = loggingProviderLoader.load();
 
     assertThat(value).isInstanceOf(SimpleLoggingProvider.class);
   }
@@ -58,7 +58,7 @@ public class LoggingProviderLoaderTest {
   public void createProviderAgent_usesSystemPropertySetTo_SimpleProviderAgent() {
     System.setProperty(LOGGING_PROVIDER_NAME_PROPERTY, TestLoggingProvider.class.getName());
 
-    LoggingProvider value = loggingProviderLoader.load();
+    var value = loggingProviderLoader.load();
 
     assertThat(value).isInstanceOf(TestLoggingProvider.class);
   }
@@ -67,7 +67,7 @@ public class LoggingProviderLoaderTest {
   public void createProviderAgent_usesNullProviderAgent_whenClassNotFoundException() {
     System.setProperty(LOGGING_PROVIDER_NAME_PROPERTY, TestLoggingProvider.class.getSimpleName());
 
-    LoggingProvider value = loggingProviderLoader.load();
+    var value = loggingProviderLoader.load();
 
     assertThat(value).isInstanceOf(SimpleLoggingProvider.class);
   }
@@ -76,14 +76,14 @@ public class LoggingProviderLoaderTest {
   public void createProviderAgent_usesNullProviderAgent_whenClassCastException() {
     System.setProperty(LOGGING_PROVIDER_NAME_PROPERTY, NotProviderAgent.class.getName());
 
-    LoggingProvider value = loggingProviderLoader.load();
+    var value = loggingProviderLoader.load();
 
     assertThat(value).isInstanceOf(SimpleLoggingProvider.class);
   }
 
   @Test
   public void getLoggingProviderReturnsSimpleLoggingProviderByDefault() {
-    LoggingProvider loggingProvider = new LoggingProviderLoader().load();
+    var loggingProvider = new LoggingProviderLoader().load();
 
     assertThat(loggingProvider).isInstanceOf(SimpleLoggingProvider.class);
   }

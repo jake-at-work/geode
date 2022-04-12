@@ -35,7 +35,7 @@ public class AdminFailureResponse extends AdminResponse {
    * message will contains a copy of the local manager's system config.
    */
   public static AdminFailureResponse create(InternalDistributedMember recipient, Exception cause) {
-    AdminFailureResponse message = new AdminFailureResponse();
+    var message = new AdminFailureResponse();
     message.setRecipient(recipient);
     message.cause = cause;
     return message;

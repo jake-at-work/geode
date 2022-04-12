@@ -33,7 +33,7 @@ import org.apache.geode.test.junit.categories.SecurityTest;
 public class ResourcePermissionTest {
   @Test
   public void testEmptyConstructor() {
-    ResourcePermission context = new ResourcePermission();
+    var context = new ResourcePermission();
     assertThat(Resource.NULL).isEqualTo(context.getResource());
     assertThat(Operation.NULL).isEqualTo(context.getOperation());
     assertThat(ResourcePermission.ALL).isEqualTo(context.getTarget());
@@ -41,13 +41,13 @@ public class ResourcePermissionTest {
 
   @Test
   public void testIsPermission() {
-    ResourcePermission context = new ResourcePermission();
+    var context = new ResourcePermission();
     assertTrue(context instanceof WildcardPermission);
   }
 
   @Test
   public void testConstructor() {
-    ResourcePermission permission = new ResourcePermission();
+    var permission = new ResourcePermission();
     assertThat(Resource.NULL).isEqualTo(permission.getResource());
     assertThat(Operation.NULL).isEqualTo(permission.getOperation());
     assertThat(ResourcePermission.ALL).isEqualTo(permission.getTarget());
@@ -147,7 +147,7 @@ public class ResourcePermissionTest {
 
   @Test
   public void regionNameIsStripped() {
-    ResourcePermission permission = new ResourcePermission("DATA", "READ", SEPARATOR + "regionA");
+    var permission = new ResourcePermission("DATA", "READ", SEPARATOR + "regionA");
     assertThat(permission.getResource()).isEqualTo(Resource.DATA);
     assertThat(permission.getOperation()).isEqualTo(Operation.READ);
     assertThat(permission.getTarget()).isEqualTo("regionA");
@@ -156,7 +156,7 @@ public class ResourcePermissionTest {
 
   @Test
   public void allImplies() {
-    ResourcePermission permission = ResourcePermissions.ALL;
+    var permission = ResourcePermissions.ALL;
     assertThat(permission.implies(new ResourcePermission("DATA", "READ"))).isTrue();
     assertThat(permission.implies(new ResourcePermission("DATA", "WRITE"))).isTrue();
     assertThat(permission.implies(new ResourcePermission("DATA", "MANAGE"))).isTrue();
@@ -183,7 +183,7 @@ public class ResourcePermissionTest {
 
   @Test
   public void testToString() {
-    ResourcePermission context = new ResourcePermission();
+    var context = new ResourcePermission();
     assertThat("NULL:NULL").isEqualTo(context.toString());
 
     context = new ResourcePermission("data", "manage");
@@ -216,7 +216,7 @@ public class ResourcePermissionTest {
     // If caseSensitive=false, the permission string becomes lower-case, which will cause failures
     // when testing implication against our (case sensitive) resources, e.g., DATA
 
-    WildcardPermission context = new WildcardPermission("*:READ", true);
+    var context = new WildcardPermission("*:READ", true);
     assertThat(context.implies(new ResourcePermission(Resource.DATA, Operation.READ))).isTrue();
     assertThat(context.implies(new ResourcePermission(Resource.CLUSTER, Operation.READ))).isTrue();
 

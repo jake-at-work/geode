@@ -66,7 +66,7 @@ public class EntryLogger {
   }
 
   private static String getEdgeName(String transition) {
-    String sourceType = SOURCE_TYPE.get();
+    var sourceType = SOURCE_TYPE.get();
     if (sourceType == null) {
       sourceType = "";
     } else {
@@ -77,7 +77,7 @@ public class EntryLogger {
 
   public static void logInvalidate(EntryEventImpl event) {
     if (isEnabled()) {
-      final String invalidationType = event.getOperation().isLocal() ? "local_invalid" : "invalid";
+      final var invalidationType = event.getOperation().isLocal() ? "local_invalid" : "invalid";
       GRAPH_LOGGER.logTransition(GraphType.KEY, getGraphName(event), getEdgeName("invalidate"),
           invalidationType, getSource(), getDest());
     }
@@ -177,12 +177,12 @@ public class EntryLogger {
   }
 
   private static Object hash(byte[] rawNewValue) {
-    int hash = 17;
-    int length = rawNewValue.length;
+    var hash = 17;
+    var length = rawNewValue.length;
     if (length > 100) {
       length = 100;
     }
-    for (int i = 0; i < length; i++) {
+    for (var i = 0; i < length; i++) {
       hash = 31 * hash + rawNewValue[i];
     }
 

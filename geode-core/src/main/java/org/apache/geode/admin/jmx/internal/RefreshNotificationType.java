@@ -103,7 +103,7 @@ public class RefreshNotificationType implements java.io.Serializable {
     if (!(other instanceof RefreshNotificationType)) {
       return false;
     }
-    final RefreshNotificationType that = (RefreshNotificationType) other;
+    final var that = (RefreshNotificationType) other;
 
     if (!StringUtils.equals(type, that.type)) {
       return false;
@@ -119,8 +119,8 @@ public class RefreshNotificationType implements java.io.Serializable {
    */
   @Override
   public int hashCode() {
-    int result = 17;
-    final int mult = 37;
+    var result = 17;
+    final var mult = 37;
 
     result = mult * result + (type == null ? 0 : type.hashCode());
     result = mult * result + (msg == null ? 0 : msg.hashCode());

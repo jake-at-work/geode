@@ -87,15 +87,15 @@ public class AsynchIndexMaintenanceJUnitTest {
         .put(GEMFIRE_PREFIX + "AsynchIndexMaintenanceThreshold", "50");
     getProperties().put(GEMFIRE_PREFIX + "AsynchIndexMaintenanceInterval",
         "0");
-    final Index ri =
+    final var ri =
         qs.createIndex("statusIndex", FUNCTIONAL, "p.getID", SEPARATOR + "portfolio p");
-    for (int i = 0; i < 49; ++i) {
+    for (var i = 0; i < 49; ++i) {
       region.put("" + (i + 1), new Portfolio(i + 1));
       idSet.add((i + 1) + "");
     }
     // assertIndexDetailsEquals(0, getIndexSize(ri));
     region.put("50", new Portfolio(50));
-    WaitCriterion ev = new WaitCriterion() {
+    var ev = new WaitCriterion() {
       @Override
       public boolean done() {
         return (getIndexSize(ri) == 50);
@@ -115,18 +115,18 @@ public class AsynchIndexMaintenanceJUnitTest {
         .put(GEMFIRE_PREFIX + "AsynchIndexMaintenanceThreshold", "-1");
     getProperties().put(GEMFIRE_PREFIX + "AsynchIndexMaintenanceInterval",
         "10000");
-    final Index ri =
+    final var ri =
         qs.createIndex("statusIndex", FUNCTIONAL, "p.getID", SEPARATOR + "portfolio p");
 
-    final int size = 5;
-    for (int i = 0; i < size; ++i) {
+    final var size = 5;
+    for (var i = 0; i < size; ++i) {
       region.put("" + (i + 1), new Portfolio(i + 1));
       idSet.add((i + 1) + "");
     }
 
     // assertIndexDetailsEquals(0, getIndexSize(ri));
 
-    WaitCriterion evSize = new WaitCriterion() {
+    var evSize = new WaitCriterion() {
       @Override
       public boolean done() {
         return (getIndexSize(ri) == size);
@@ -143,7 +143,7 @@ public class AsynchIndexMaintenanceJUnitTest {
     // clear region.
     region.clear();
 
-    WaitCriterion evClear = new WaitCriterion() {
+    var evClear = new WaitCriterion() {
       @Override
       public boolean done() {
         return (getIndexSize(ri) == 0);
@@ -157,7 +157,7 @@ public class AsynchIndexMaintenanceJUnitTest {
     GeodeAwaitility.await().untilAsserted(evClear);
 
     // Add to region.
-    for (int i = 0; i < size; ++i) {
+    for (var i = 0; i < size; ++i) {
       region.put("" + (i + 1), new Portfolio(i + 1));
       idSet.add((i + 1) + "");
     }
@@ -171,14 +171,14 @@ public class AsynchIndexMaintenanceJUnitTest {
         .put(GEMFIRE_PREFIX + "AsynchIndexMaintenanceThreshold", "0");
     getProperties().put(GEMFIRE_PREFIX + "AsynchIndexMaintenanceInterval",
         "60000");
-    final Index ri =
+    final var ri =
         qs.createIndex("statusIndex", FUNCTIONAL, "p.getID", SEPARATOR + "portfolio p");
-    for (int i = 0; i < 3; ++i) {
+    for (var i = 0; i < 3; ++i) {
       region.put("" + (i + 1), new Portfolio(i + 1));
       idSet.add((i + 1) + "");
     }
 
-    WaitCriterion ev = new WaitCriterion() {
+    var ev = new WaitCriterion() {
       @Override
       public boolean done() {
         return (getIndexSize(ri) == 3);
@@ -198,13 +198,13 @@ public class AsynchIndexMaintenanceJUnitTest {
         .put(GeodeGlossary.GEMFIRE_PREFIX + "AsynchIndexMaintenanceThreshold", "-1");
     System.getProperties().put(GeodeGlossary.GEMFIRE_PREFIX + "AsynchIndexMaintenanceInterval",
         "0");
-    Index ri =
+    var ri =
         qs.createIndex("statusIndex", IndexType.FUNCTIONAL, "p.getID",
             SEPARATOR + "portfolio p");
 
-    int size = getIndexSize(ri);
+    var size = getIndexSize(ri);
 
-    for (int i = 0; i < 3; ++i) {
+    for (var i = 0; i < 3; ++i) {
       region.put("" + (i + 1), new Portfolio(i + 1));
       idSet.add((i + 1) + "");
     }
@@ -218,16 +218,16 @@ public class AsynchIndexMaintenanceJUnitTest {
     System.getProperties().put(GeodeGlossary.GEMFIRE_PREFIX + "AsynchIndexMaintenanceInterval",
         "500");
     qs.createIndex("statusIndex", IndexType.FUNCTIONAL, "p.getID", SEPARATOR + "portfolio p");
-    final int TOTAL_THREADS = 25;
-    final int NUM_UPDATES = 25;
-    final CyclicBarrier barrier = new CyclicBarrier(TOTAL_THREADS);
-    Thread[] threads = new Thread[TOTAL_THREADS];
-    for (int i = 0; i < TOTAL_THREADS; ++i) {
-      final int k = i;
+    final var TOTAL_THREADS = 25;
+    final var NUM_UPDATES = 25;
+    final var barrier = new CyclicBarrier(TOTAL_THREADS);
+    var threads = new Thread[TOTAL_THREADS];
+    for (var i = 0; i < TOTAL_THREADS; ++i) {
+      final var k = i;
       threads[i] = new Thread(() -> {
         try {
           barrier.await();
-          for (int i1 = 0; i1 < NUM_UPDATES; ++i1) {
+          for (var i1 = 0; i1 < NUM_UPDATES; ++i1) {
             try {
               region.put("" + (k + 1), new Portfolio(k + 1));
               Thread.sleep(10);
@@ -247,11 +247,11 @@ public class AsynchIndexMaintenanceJUnitTest {
         }
       });
     }
-    for (int i = 0; i < TOTAL_THREADS; ++i) {
+    for (var i = 0; i < TOTAL_THREADS; ++i) {
       threads[i].start();
     }
     try {
-      for (int i = 0; i < TOTAL_THREADS; ++i) {
+      for (var i = 0; i < TOTAL_THREADS; ++i) {
         ThreadUtils.join(threads[i], 30 * 1000);
       }
     } catch (Exception e) {

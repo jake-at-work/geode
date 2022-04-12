@@ -15,7 +15,6 @@
 
 package org.apache.geode.redis.internal.commands.executor.pubsub;
 
-import java.util.List;
 
 import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
@@ -29,10 +28,10 @@ public class PublishExecutor implements CommandExecutor {
       ExecutionHandlerContext context) {
     context.checkForLowMemory(command.getCommandType());
 
-    List<byte[]> args = command.getCommandArguments();
-    byte[] channelName = args.get(0);
-    byte[] message = args.get(1);
-    long publishCount = context.getPubSub()
+    var args = command.getCommandArguments();
+    var channelName = args.get(0);
+    var message = args.get(1);
+    var publishCount = context.getPubSub()
         .publish(channelName, message, context.getClient());
 
     return RedisResponse.integer(publishCount);

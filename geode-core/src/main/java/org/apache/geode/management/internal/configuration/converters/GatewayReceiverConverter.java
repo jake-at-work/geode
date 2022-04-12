@@ -20,7 +20,6 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
-import org.apache.geode.cache.configuration.DeclarableType;
 import org.apache.geode.cache.configuration.GatewayReceiverConfig;
 import org.apache.geode.management.configuration.ClassName;
 import org.apache.geode.management.configuration.GatewayReceiver;
@@ -31,7 +30,7 @@ public class GatewayReceiverConverter
 
   @Override
   protected GatewayReceiver fromNonNullXmlObject(GatewayReceiverConfig xmlObject) {
-    GatewayReceiver receiver = new GatewayReceiver();
+    var receiver = new GatewayReceiver();
     receiver.setEndPort(stringToInt(xmlObject.getEndPort()));
     receiver.setManualStart(xmlObject.isManualStart());
     receiver.setMaximumTimeBetweenPings(stringToInt(xmlObject.getMaximumTimeBetweenPings()));
@@ -39,7 +38,7 @@ public class GatewayReceiverConverter
     receiver.setStartPort(stringToInt(xmlObject.getStartPort()));
     if (!xmlObject.getGatewayTransportFilters().isEmpty()) {
       List<ClassName> configFilters = new ArrayList<>();
-      for (DeclarableType xmlFilter : xmlObject.getGatewayTransportFilters()) {
+      for (var xmlFilter : xmlObject.getGatewayTransportFilters()) {
         configFilters.add(classNameConverter.fromXmlObject(xmlFilter));
       }
       receiver.setGatewayTransportFilters(configFilters);
@@ -49,15 +48,15 @@ public class GatewayReceiverConverter
 
   @Override
   protected GatewayReceiverConfig fromNonNullConfigObject(GatewayReceiver configObject) {
-    GatewayReceiverConfig receiver = new GatewayReceiverConfig();
+    var receiver = new GatewayReceiverConfig();
     receiver.setEndPort(intToString(configObject.getEndPort()));
     receiver.setStartPort(intToString(configObject.getStartPort()));
     receiver.setManualStart(configObject.isManualStart());
     receiver.setMaximumTimeBetweenPings(intToString(configObject.getMaximumTimeBetweenPings()));
     receiver.setSocketBufferSize(intToString(configObject.getSocketBufferSize()));
     if (configObject.getGatewayTransportFilters() != null) {
-      List<DeclarableType> xmlFilters = receiver.getGatewayTransportFilters();
-      for (ClassName configFilter : configObject.getGatewayTransportFilters()) {
+      var xmlFilters = receiver.getGatewayTransportFilters();
+      for (var configFilter : configObject.getGatewayTransportFilters()) {
         xmlFilters.add(classNameConverter.fromConfigObject(configFilter));
       }
     }

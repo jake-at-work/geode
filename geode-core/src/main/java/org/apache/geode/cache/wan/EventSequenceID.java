@@ -45,7 +45,7 @@ public class EventSequenceID {
   public EventSequenceID(byte[] membershipID, long threadID, long sequenceID) {
     // convert the byte array of membershipID to a readable string
     Object mbr;
-    try (ByteArrayDataInput byteArrayDataInput = new ByteArrayDataInput(membershipID)) {
+    try (var byteArrayDataInput = new ByteArrayDataInput(membershipID)) {
       mbr = InternalDistributedMember.readEssentialData(byteArrayDataInput);
     } catch (Exception e) {
       mbr = Arrays.toString(membershipID); // punt and use the bytes
@@ -72,13 +72,13 @@ public class EventSequenceID {
       return false;
     }
 
-    EventSequenceID obj2 = (EventSequenceID) obj;
+    var obj2 = (EventSequenceID) obj;
     return (membershipID.equals(obj2.getMembershipID()) && threadID == obj2.getThreadID()
         && sequenceID == obj2.getSequenceID());
   }
 
   public int hashCode() {
-    final String builder = membershipID
+    final var builder = membershipID
         + threadID
         + sequenceID;
     return builder.hashCode();

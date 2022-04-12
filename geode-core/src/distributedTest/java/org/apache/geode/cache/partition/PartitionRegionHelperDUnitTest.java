@@ -36,15 +36,12 @@ import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.FixedPartitionAttributes;
-import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.Region.Entry;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache30.CacheSerializableRunnable;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
-import org.apache.geode.internal.cache.BucketRegion;
 import org.apache.geode.internal.cache.ForceReattemptException;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.PartitionedRegionHelper;
@@ -67,20 +64,20 @@ public class PartitionRegionHelperDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testAssignBucketsToPartitions() throws Throwable {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
 
-    SerializableRunnable createPrRegion = new SerializableRunnable("createRegion") {
+    var createPrRegion = new SerializableRunnable("createRegion") {
       @Override
       public void run() {
         Cache cache = getCache();
-        AttributesFactory attr = new AttributesFactory();
-        PartitionAttributesFactory paf = new PartitionAttributesFactory();
+        var attr = new AttributesFactory();
+        var paf = new PartitionAttributesFactory();
         paf.setRedundantCopies(1);
         paf.setTotalNumBuckets(12);
-        PartitionAttributes prAttr = paf.create();
+        var prAttr = paf.create();
         attr.setPartitionAttributes(prAttr);
         cache.createRegion("region1", attr.create());
       }
@@ -89,7 +86,7 @@ public class PartitionRegionHelperDUnitTest extends JUnit4CacheTestCase {
     vm1.invoke(createPrRegion);
     vm2.invoke(createPrRegion);
 
-    SerializableRunnable assignBuckets = new SerializableRunnable("assign partitions") {
+    var assignBuckets = new SerializableRunnable("assign partitions") {
       @Override
       public void run() {
         Cache cache = getCache();
@@ -114,15 +111,15 @@ public class PartitionRegionHelperDUnitTest extends JUnit4CacheTestCase {
       throw future3.getException();
     }
 
-    SerializableRunnable checkAssignment = new SerializableRunnable("check assignment") {
+    var checkAssignment = new SerializableRunnable("check assignment") {
       @Override
       public void run() {
         Cache cache = getCache();
         Region region = cache.getRegion("region1");
-        PartitionRegionInfo info = PartitionRegionHelper.getPartitionRegionInfo(region);
+        var info = PartitionRegionHelper.getPartitionRegionInfo(region);
         assertEquals(12, info.getCreatedBucketCount());
         assertEquals(0, info.getLowRedundancyBucketCount());
-        for (PartitionMemberInfo member : info.getPartitionMemberInfo()) {
+        for (var member : info.getPartitionMemberInfo()) {
           assertEquals(8, member.getBucketCount());
           // TODO unfortunately, with redundancy, we can end up
           // not balancing primaries in favor of balancing buckets. The problem
@@ -141,77 +138,77 @@ public class PartitionRegionHelperDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testAssignBucketsToPartitions_FPR() throws Throwable {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
 
-    SerializableRunnable createPrRegion1 = new SerializableRunnable("createRegion") {
+    var createPrRegion1 = new SerializableRunnable("createRegion") {
       @Override
       public void run() {
         Cache cache = getCache();
-        FixedPartitionAttributes fpa1 =
+        var fpa1 =
             FixedPartitionAttributes.createFixedPartition("Q1", true, 3);
-        FixedPartitionAttributes fpa2 =
+        var fpa2 =
             FixedPartitionAttributes.createFixedPartition("Q2", false, 3);
-        AttributesFactory attr = new AttributesFactory();
-        PartitionAttributesFactory paf = new PartitionAttributesFactory();
+        var attr = new AttributesFactory();
+        var paf = new PartitionAttributesFactory();
         paf.addFixedPartitionAttributes(fpa1);
         paf.addFixedPartitionAttributes(fpa2);
         paf.setPartitionResolver(new QuarterPartitionResolver());
         paf.setRedundantCopies(1);
         paf.setTotalNumBuckets(12);
-        PartitionAttributes prAttr = paf.create();
+        var prAttr = paf.create();
         attr.setPartitionAttributes(prAttr);
         cache.createRegion("region1", attr.create());
       }
     };
     vm0.invoke(createPrRegion1);
-    SerializableRunnable createPrRegion2 = new SerializableRunnable("createRegion") {
+    var createPrRegion2 = new SerializableRunnable("createRegion") {
       @Override
       public void run() {
         Cache cache = getCache();
-        FixedPartitionAttributes fpa1 =
+        var fpa1 =
             FixedPartitionAttributes.createFixedPartition("Q2", true, 3);
-        FixedPartitionAttributes fpa2 =
+        var fpa2 =
             FixedPartitionAttributes.createFixedPartition("Q3", false, 3);
-        AttributesFactory attr = new AttributesFactory();
-        PartitionAttributesFactory paf = new PartitionAttributesFactory();
+        var attr = new AttributesFactory();
+        var paf = new PartitionAttributesFactory();
         paf.addFixedPartitionAttributes(fpa1);
         paf.addFixedPartitionAttributes(fpa2);
         paf.setPartitionResolver(new QuarterPartitionResolver());
         paf.setRedundantCopies(1);
         paf.setTotalNumBuckets(12);
-        PartitionAttributes prAttr = paf.create();
+        var prAttr = paf.create();
         attr.setPartitionAttributes(prAttr);
         cache.createRegion("region1", attr.create());
       }
     };
     vm1.invoke(createPrRegion2);
-    SerializableRunnable createPrRegion3 = new SerializableRunnable("createRegion") {
+    var createPrRegion3 = new SerializableRunnable("createRegion") {
       @Override
       public void run() {
         Cache cache = getCache();
-        FixedPartitionAttributes fpa1 =
+        var fpa1 =
             FixedPartitionAttributes.createFixedPartition("Q3", true, 3);
-        FixedPartitionAttributes fpa2 =
+        var fpa2 =
             FixedPartitionAttributes.createFixedPartition("Q1", false, 3);
-        AttributesFactory attr = new AttributesFactory();
-        PartitionAttributesFactory paf = new PartitionAttributesFactory();
+        var attr = new AttributesFactory();
+        var paf = new PartitionAttributesFactory();
         paf.addFixedPartitionAttributes(fpa1);
         paf.addFixedPartitionAttributes(fpa2);
         paf.setPartitionResolver(new QuarterPartitionResolver());
         paf.setRedundantCopies(1);
         paf.setTotalNumBuckets(12);
-        PartitionAttributes prAttr = paf.create();
+        var prAttr = paf.create();
         attr.setPartitionAttributes(prAttr);
         cache.createRegion("region1", attr.create());
       }
     };
     vm2.invoke(createPrRegion3);
 
-    SerializableRunnable assignBuckets = new SerializableRunnable("assign partitions") {
+    var assignBuckets = new SerializableRunnable("assign partitions") {
       @Override
       public void run() {
         Cache cache = getCache();
@@ -236,68 +233,67 @@ public class PartitionRegionHelperDUnitTest extends JUnit4CacheTestCase {
       throw future3.getException();
     }
 
-    SerializableRunnable checkAssignment = new SerializableRunnable("check assignment") {
+    var checkAssignment = new SerializableRunnable("check assignment") {
       @Override
       public void run() {
         Cache cache = getCache();
         Region region = cache.getRegion("region1");
-        PartitionRegionInfo info = PartitionRegionHelper.getPartitionRegionInfo(region);
+        var info = PartitionRegionHelper.getPartitionRegionInfo(region);
         assertEquals(9, info.getCreatedBucketCount());
         assertEquals(0, info.getLowRedundancyBucketCount());
-        for (PartitionMemberInfo member : info.getPartitionMemberInfo()) {
+        for (var member : info.getPartitionMemberInfo()) {
           assertEquals(6, member.getBucketCount());
         }
       }
     };
     vm0.invoke(checkAssignment);
 
-
-    SerializableRunnable createPrRegion4 = new SerializableRunnable("createRegion") {
+    var createPrRegion4 = new SerializableRunnable("createRegion") {
       @Override
       public void run() {
         Cache cache = getCache();
-        AttributesFactory attr = new AttributesFactory();
-        PartitionAttributesFactory paf = new PartitionAttributesFactory();
+        var attr = new AttributesFactory();
+        var paf = new PartitionAttributesFactory();
         paf.setPartitionResolver(new QuarterPartitionResolver());
         paf.setLocalMaxMemory(0);
         paf.setRedundantCopies(1);
         paf.setTotalNumBuckets(12);
-        PartitionAttributes prAttr = paf.create();
+        var prAttr = paf.create();
         attr.setPartitionAttributes(prAttr);
-        Region region = cache.createRegion("region1", attr.create());
-        for (Months_Accessor month : Months_Accessor.values()) {
-          String dateString = 10 + "-" + month + "-" + "2009";
-          String DATE_FORMAT = "dd-MMM-yyyy";
-          SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT, Locale.US);
+        var region = cache.createRegion("region1", attr.create());
+        for (var month : Months_Accessor.values()) {
+          var dateString = 10 + "-" + month + "-" + "2009";
+          var DATE_FORMAT = "dd-MMM-yyyy";
+          var sdf = new SimpleDateFormat(DATE_FORMAT, Locale.US);
           Date date = null;
           try {
             date = sdf.parse(dateString);
           } catch (ParseException e) {
             Assert.fail("Exception Occurred while parseing date", e);
           }
-          String value = month.toString() + 10;
+          var value = month.toString() + 10;
           region.put(date, value);
         }
       }
     };
     vm3.invoke(createPrRegion4);
 
-    SerializableRunnable checkMembers = new SerializableRunnable("createRegion") {
+    var checkMembers = new SerializableRunnable("createRegion") {
       @Override
       public void run() {
         Cache cache = getCache();
         Region region = cache.getRegion("region1");
-        for (Months_Accessor month : Months_Accessor.values()) {
-          String dateString = 10 + "-" + month + "-" + "2009";
-          String DATE_FORMAT = "dd-MMM-yyyy";
-          SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT, Locale.US);
+        for (var month : Months_Accessor.values()) {
+          var dateString = 10 + "-" + month + "-" + "2009";
+          var DATE_FORMAT = "dd-MMM-yyyy";
+          var sdf = new SimpleDateFormat(DATE_FORMAT, Locale.US);
           Date date = null;
           try {
             date = sdf.parse(dateString);
           } catch (ParseException e) {
             Assert.fail("Exception Occurred while parseing date", e);
           }
-          DistributedMember key1Pri = PartitionRegionHelper.getPrimaryMemberForKey(region, date);
+          var key1Pri = PartitionRegionHelper.getPrimaryMemberForKey(region, date);
           assertNotNull(key1Pri);
           Set<DistributedMember> buk0AllMems =
               PartitionRegionHelper.getAllMembersForKey(region, date);
@@ -314,39 +310,39 @@ public class PartitionRegionHelperDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testMembersForKey() throws Exception {
-    Host host = Host.getHost(0);
-    VM accessor = host.getVM(0);
-    VM ds1 = host.getVM(1);
-    VM ds2 = host.getVM(2);
-    VM ds3 = host.getVM(3);
-    final String prName = getUniqueName();
-    final int tb = 11;
-    final int rc = 1;
+    var host = Host.getHost(0);
+    var accessor = host.getVM(0);
+    var ds1 = host.getVM(1);
+    var ds2 = host.getVM(2);
+    var ds3 = host.getVM(3);
+    final var prName = getUniqueName();
+    final var tb = 11;
+    final var rc = 1;
 
     accessor.invoke(new SerializableRunnable("createAccessor") {
       @Override
       public void run() {
         Cache cache = getCache();
-        AttributesFactory attr = new AttributesFactory();
+        var attr = new AttributesFactory();
         attr.setPartitionAttributes(new PartitionAttributesFactory().setLocalMaxMemory(0)
             .setRedundantCopies(rc).setTotalNumBuckets(tb).create());
         cache.createRegion(prName, attr.create());
       }
     });
 
-    HashMap<DistributedMember, VM> d2v = new HashMap<>();
-    SerializableCallable createPrRegion = new SerializableCallable("createDataStore") {
+    var d2v = new HashMap<DistributedMember, VM>();
+    var createPrRegion = new SerializableCallable("createDataStore") {
       @Override
       public Object call() throws Exception {
         Cache cache = getCache();
-        AttributesFactory attr = new AttributesFactory();
+        var attr = new AttributesFactory();
         attr.setPartitionAttributes(new PartitionAttributesFactory().setRedundantCopies(rc)
             .setTotalNumBuckets(tb).create());
         cache.createRegion(prName, attr.create());
         return cache.getDistributedSystem().getDistributedMember();
       }
     };
-    DistributedMember dm = (DistributedMember) ds1.invoke(createPrRegion);
+    var dm = (DistributedMember) ds1.invoke(createPrRegion);
     d2v.put(dm, ds1);
     dm = (DistributedMember) ds2.invoke(createPrRegion);
     d2v.put(dm, ds2);
@@ -361,10 +357,10 @@ public class PartitionRegionHelperDUnitTest extends JUnit4CacheTestCase {
       @SuppressWarnings("unchecked")
       @Override
       public void run2() throws CacheException {
-        AttributesFactory attr = new AttributesFactory();
+        var attr = new AttributesFactory();
         {
           attr.setScope(Scope.LOCAL);
-          Region lr = getCache().createRegion(prName + "lr", attr.create());
+          var lr = getCache().createRegion(prName + "lr", attr.create());
           try {
             // no-pr check
             nonPRMemberForKey(lr, buk0Key1);
@@ -376,7 +372,7 @@ public class PartitionRegionHelperDUnitTest extends JUnit4CacheTestCase {
         {
           attr = new AttributesFactory();
           attr.setScope(Scope.DISTRIBUTED_ACK);
-          Region dr = getCache().createRegion(prName + "dr", attr.create());
+          var dr = getCache().createRegion(prName + "dr", attr.create());
           try {
             // no-pr check
             nonPRMemberForKey(dr, buk0Key1);
@@ -405,7 +401,7 @@ public class PartitionRegionHelperDUnitTest extends JUnit4CacheTestCase {
       }
     });
 
-    Object[] noKeyThenKeyStuff =
+    var noKeyThenKeyStuff =
         (Object[]) accessor.invoke(new SerializableCallable("noKeyThenKey") {
           @Override
           public Object call() throws Exception {
@@ -439,15 +435,15 @@ public class PartitionRegionHelperDUnitTest extends JUnit4CacheTestCase {
 
             r.put(buk0Key1, "zero");
             // buk0, key1
-            DistributedMember key1Pri = PartitionRegionHelper.getPrimaryMemberForKey(r, buk0Key1);
+            var key1Pri = PartitionRegionHelper.getPrimaryMemberForKey(r, buk0Key1);
             assertNotNull(key1Pri);
-            Set<DistributedMember> buk0AllMems =
+            var buk0AllMems =
                 PartitionRegionHelper.getAllMembersForKey(r, buk0Key1);
             assertEquals(rc + 1, buk0AllMems.size());
-            Set<DistributedMember> buk0RedundantMems =
+            var buk0RedundantMems =
                 PartitionRegionHelper.getRedundantMembersForKey(r, buk0Key1);
             assertEquals(rc, buk0RedundantMems.size());
-            DistributedMember me = r.getCache().getDistributedSystem().getDistributedMember();
+            var me = r.getCache().getDistributedSystem().getDistributedMember();
             try {
               buk0AllMems.add(me);
               fail();
@@ -473,7 +469,7 @@ public class PartitionRegionHelperDUnitTest extends JUnit4CacheTestCase {
             assertTrue(!buk0RedundantMems.contains(key1Pri));
 
             // buk0, key2
-            DistributedMember key2Pri = PartitionRegionHelper.getPrimaryMemberForKey(r, buk0Key2);
+            var key2Pri = PartitionRegionHelper.getPrimaryMemberForKey(r, buk0Key2);
             assertNotNull(key2Pri);
             buk0AllMems = PartitionRegionHelper.getAllMembersForKey(r, buk0Key2);
             assertEquals(rc + 1, buk0AllMems.size());
@@ -490,19 +486,19 @@ public class PartitionRegionHelperDUnitTest extends JUnit4CacheTestCase {
             return new Object[] {key1Pri, buk0AllMems, buk0RedundantMems};
           }
         });
-    final DistributedMember buk0Key1Pri = (DistributedMember) noKeyThenKeyStuff[0];
-    final Set<DistributedMember> buk0AllMems = (Set<DistributedMember>) noKeyThenKeyStuff[1];
-    final Set<DistributedMember> buk0Redundants = (Set<DistributedMember>) noKeyThenKeyStuff[2];
+    final var buk0Key1Pri = (DistributedMember) noKeyThenKeyStuff[0];
+    final var buk0AllMems = (Set<DistributedMember>) noKeyThenKeyStuff[1];
+    final var buk0Redundants = (Set<DistributedMember>) noKeyThenKeyStuff[2];
 
-    VM buk0Key1PriVM = d2v.get(buk0Key1Pri);
+    var buk0Key1PriVM = d2v.get(buk0Key1Pri);
     buk0Key1PriVM.invoke(new CacheSerializableRunnable("assertPrimaryness") {
       @Override
       public void run2() throws CacheException {
-        PartitionedRegion pr = (PartitionedRegion) getCache().getRegion(prName);
+        var pr = (PartitionedRegion) getCache().getRegion(prName);
         Integer bucketId =
             PartitionedRegionHelper.getHashKey(pr, null, buk0Key1, null, null);
         try {
-          BucketRegion buk0 = pr.getDataStore().getInitializedBucketForId(buk0Key1, bucketId);
+          var buk0 = pr.getDataStore().getInitializedBucketForId(buk0Key1, bucketId);
           assertNotNull(buk0);
           assertTrue(buk0.getBucketAdvisor().isPrimary());
         } catch (ForceReattemptException e) {
@@ -511,17 +507,17 @@ public class PartitionRegionHelperDUnitTest extends JUnit4CacheTestCase {
         }
       }
     });
-    CacheSerializableRunnable assertHasBucket =
+    var assertHasBucket =
         new CacheSerializableRunnable("assertHasBucketAndKey") {
           @Override
           public void run2() throws CacheException {
-            PartitionedRegion pr = (PartitionedRegion) getCache().getRegion(prName);
+            var pr = (PartitionedRegion) getCache().getRegion(prName);
             Integer bucketId =
                 PartitionedRegionHelper.getHashKey(pr, null, buk0Key1, null, null);
             try {
-              BucketRegion buk0 = pr.getDataStore().getInitializedBucketForId(buk0Key1, bucketId);
+              var buk0 = pr.getDataStore().getInitializedBucketForId(buk0Key1, bucketId);
               assertNotNull(buk0);
-              Entry k1e = buk0.getEntry(buk0Key1);
+              var k1e = buk0.getEntry(buk0Key1);
               assertNotNull(k1e);
             } catch (ForceReattemptException e) {
               LogWriterUtils.getLogWriter().severe(e);
@@ -529,21 +525,21 @@ public class PartitionRegionHelperDUnitTest extends JUnit4CacheTestCase {
             }
           }
         };
-    for (DistributedMember bom : buk0AllMems) {
-      VM v = d2v.get(bom);
+    for (var bom : buk0AllMems) {
+      var v = d2v.get(bom);
       LogWriterUtils.getLogWriter()
           .info("Visiting bucket owner member " + bom + " for key " + buk0Key1);
       v.invoke(assertHasBucket);
     }
 
-    CacheSerializableRunnable assertRed = new CacheSerializableRunnable("assertRedundant") {
+    var assertRed = new CacheSerializableRunnable("assertRedundant") {
       @Override
       public void run2() throws CacheException {
-        PartitionedRegion pr = (PartitionedRegion) getCache().getRegion(prName);
+        var pr = (PartitionedRegion) getCache().getRegion(prName);
         Integer bucketId =
             PartitionedRegionHelper.getHashKey(pr, null, buk0Key1, null, null);
         try {
-          BucketRegion buk0 = pr.getDataStore().getInitializedBucketForId(buk0Key1, bucketId);
+          var buk0 = pr.getDataStore().getInitializedBucketForId(buk0Key1, bucketId);
           assertNotNull(buk0);
           assertFalse(buk0.getBucketAdvisor().isPrimary());
         } catch (ForceReattemptException e) {
@@ -552,8 +548,8 @@ public class PartitionRegionHelperDUnitTest extends JUnit4CacheTestCase {
         }
       }
     };
-    for (DistributedMember redm : buk0Redundants) {
-      VM v = d2v.get(redm);
+    for (var redm : buk0Redundants) {
+      var v = d2v.get(redm);
       LogWriterUtils.getLogWriter()
           .info("Visiting redundant member " + redm + " for key " + buk0Key1);
       v.invoke(assertRed);
@@ -562,47 +558,47 @@ public class PartitionRegionHelperDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testMoveSingleBucket() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
 
-    SerializableCallable createPrRegion = new SerializableCallable("createRegion") {
+    var createPrRegion = new SerializableCallable("createRegion") {
       @Override
       public Object call() {
         Cache cache = getCache();
-        AttributesFactory attr = new AttributesFactory();
-        PartitionAttributesFactory paf = new PartitionAttributesFactory();
+        var attr = new AttributesFactory();
+        var paf = new PartitionAttributesFactory();
         paf.setRedundantCopies(1);
         paf.setTotalNumBuckets(12);
-        PartitionAttributes prAttr = paf.create();
+        var prAttr = paf.create();
         attr.setPartitionAttributes(prAttr);
         cache.createRegion("region1", attr.create());
         return cache.getDistributedSystem().getDistributedMember();
       }
     };
-    final DistributedMember member0 = (DistributedMember) vm0.invoke(createPrRegion);
-    final DistributedMember member1 = (DistributedMember) vm1.invoke(createPrRegion);
+    final var member0 = (DistributedMember) vm0.invoke(createPrRegion);
+    final var member1 = (DistributedMember) vm1.invoke(createPrRegion);
 
     // populate the region with data so we have some buckets
     vm0.invoke(new SerializableRunnable("create data") {
       @Override
       public void run() {
-        for (int i = 0; i < 8; i++) {
-          Region<Object, Object> region = getCache().getRegion("region1");
+        for (var i = 0; i < 8; i++) {
+          var region = getCache().getRegion("region1");
           region.put(i, "one");
         }
       }
     });
 
     // Create VM 2 later so that it doesn't have any buckets
-    final DistributedMember member2 = (DistributedMember) vm2.invoke(createPrRegion);
+    final var member2 = (DistributedMember) vm2.invoke(createPrRegion);
 
     // Try some explicit moves
     vm0.invoke(new SerializableRunnable("create data") {
       @Override
       public void run() {
-        Region<Object, Object> region = getCache().getRegion("region1");
+        var region = getCache().getRegion("region1");
 
         assertHasMembers(PartitionRegionHelper.getAllMembersForKey(region, 1), member0, member1);
 
@@ -662,47 +658,47 @@ public class PartitionRegionHelperDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testMovePercentage() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
 
-    SerializableCallable createPrRegion = new SerializableCallable("createRegion") {
+    var createPrRegion = new SerializableCallable("createRegion") {
       @Override
       public Object call() {
         Cache cache = getCache();
-        AttributesFactory attr = new AttributesFactory();
-        PartitionAttributesFactory paf = new PartitionAttributesFactory();
+        var attr = new AttributesFactory();
+        var paf = new PartitionAttributesFactory();
         paf.setRedundantCopies(1);
         paf.setTotalNumBuckets(12);
-        PartitionAttributes prAttr = paf.create();
+        var prAttr = paf.create();
         attr.setPartitionAttributes(prAttr);
         cache.createRegion("region1", attr.create());
         return cache.getDistributedSystem().getDistributedMember();
       }
     };
-    final DistributedMember member0 = (DistributedMember) vm0.invoke(createPrRegion);
-    final DistributedMember member1 = (DistributedMember) vm1.invoke(createPrRegion);
+    final var member0 = (DistributedMember) vm0.invoke(createPrRegion);
+    final var member1 = (DistributedMember) vm1.invoke(createPrRegion);
 
     // populate the region with data so we have some buckets
     vm0.invoke(new SerializableRunnable("create data") {
       @Override
       public void run() {
-        for (int i = 0; i < 8; i++) {
-          Region<Object, Object> region = getCache().getRegion("region1");
+        for (var i = 0; i < 8; i++) {
+          var region = getCache().getRegion("region1");
           region.put(i, "one");
         }
       }
     });
 
     // Create VM 2 later so that it doesn't have any buckets
-    final DistributedMember member2 = (DistributedMember) vm2.invoke(createPrRegion);
+    final var member2 = (DistributedMember) vm2.invoke(createPrRegion);
 
     // Try some percentage moves
     vm0.invoke(new SerializableRunnable("create data") {
       @Override
       public void run() {
-        Region<Object, Object> region = getCache().getRegion("region1");
+        var region = getCache().getRegion("region1");
 
         assertHasMembers(PartitionRegionHelper.getAllMembersForKey(region, 1), member0, member1);
 
@@ -785,7 +781,7 @@ public class PartitionRegionHelperDUnitTest extends JUnit4CacheTestCase {
   }
 
   public void assertHasMembers(Set<DistributedMember> got, DistributedMember... expected) {
-    HashSet expectedSet = new HashSet(Arrays.asList(expected));
+    var expectedSet = new HashSet(Arrays.asList(expected));
     assertEquals(expectedSet, got);
   }
 

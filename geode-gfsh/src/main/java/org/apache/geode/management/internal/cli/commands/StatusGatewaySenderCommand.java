@@ -15,15 +15,11 @@
 
 package org.apache.geode.management.internal.cli.commands;
 
-import java.util.Set;
 
-import javax.management.ObjectName;
 
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
-import org.apache.geode.cache.Cache;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.management.GatewaySenderMXBean;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.ConverterHint;
@@ -56,29 +52,29 @@ public class StatusGatewaySenderCommand extends GfshCommand {
       senderId = senderId.trim();
     }
 
-    Cache cache = getCache();
+    var cache = getCache();
     SystemManagementService service = getManagementService();
 
     GatewaySenderMXBean bean;
 
-    ResultModel crd = new ResultModel();
-    Set<DistributedMember> dsMembers = findMembers(onGroup, onMember);
+    var crd = new ResultModel();
+    var dsMembers = findMembers(onGroup, onMember);
 
     if (dsMembers.isEmpty()) {
       return ResultModel.createError(CliStrings.NO_MEMBERS_FOUND_MESSAGE);
     }
 
-    TabularResultModel availableSenderData =
+    var availableSenderData =
         crd.addTable(CliStrings.SECTION_GATEWAY_SENDER_AVAILABLE);
 
-    TabularResultModel notAvailableSenderData =
+    var notAvailableSenderData =
         crd.addTable(CliStrings.SECTION_GATEWAY_SENDER_NOT_AVAILABLE);
 
-    for (DistributedMember member : dsMembers) {
+    for (var member : dsMembers) {
       if (cache.getDistributedSystem().getDistributedMember().getId().equals(member.getId())) {
         bean = service.getLocalGatewaySenderMXBean(senderId);
       } else {
-        ObjectName objectName = service.getGatewaySenderMBeanName(member, senderId);
+        var objectName = service.getGatewaySenderMBeanName(member, senderId);
         bean = service.getMBeanProxy(objectName, GatewaySenderMXBean.class);
       }
       if (bean != null) {

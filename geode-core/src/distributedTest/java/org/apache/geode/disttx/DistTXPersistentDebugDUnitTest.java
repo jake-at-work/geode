@@ -20,9 +20,7 @@ import org.junit.Test;
 
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.CacheTransactionManager;
 import org.apache.geode.cache.DataPolicy;
-import org.apache.geode.cache.DiskStore;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionAttributes;
@@ -77,12 +75,12 @@ public class DistTXPersistentDebugDUnitTest extends DistTXDebugDUnitTest {
 
   private static RegionAttributes getPersistentPRAttributes(final int redundancy,
       final int recoveryDelay, Cache cache, int numBuckets, boolean synchronous) {
-    DiskStore ds = cache.findDiskStore("disk");
+    var ds = cache.findDiskStore("disk");
     if (ds == null) {
       ds = cache.createDiskStoreFactory().setDiskDirs(getDiskDirs()).create("disk");
     }
-    AttributesFactory af = new AttributesFactory();
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var af = new AttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setRedundantCopies(redundancy);
     paf.setRecoveryDelay(recoveryDelay);
     paf.setTotalNumBuckets(numBuckets);
@@ -97,26 +95,26 @@ public class DistTXPersistentDebugDUnitTest extends DistTXDebugDUnitTest {
   @Test
   public void testBasicDistributedTX() throws Exception {
     createCacheInAllVms();
-    final String regionName = "persistentCustomerPRRegion";
-    Object[] attrs = new Object[] {regionName};
+    final var regionName = "persistentCustomerPRRegion";
+    var attrs = new Object[] {regionName};
     createPersistentPR(attrs);
 
-    SerializableCallable TxOps = new SerializableCallable() {
+    var TxOps = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        CacheTransactionManager mgr = basicGetCache().getCacheTransactionManager();
+        var mgr = basicGetCache().getCacheTransactionManager();
         mgr.setDistributed(true);
         LogWriterUtils.getLogWriter().fine("SJ:TX BEGIN");
         mgr.begin();
         Region<CustId, Customer> prRegion = basicGetCache().getRegion(regionName);
 
-        CustId custIdOne = new CustId(1);
-        Customer customerOne = new Customer("name1", "addr1");
+        var custIdOne = new CustId(1);
+        var customerOne = new Customer("name1", "addr1");
         LogWriterUtils.getLogWriter().fine("SJ:TX PUT 1");
         prRegion.put(custIdOne, customerOne);
 
-        CustId custIdTwo = new CustId(2);
-        Customer customerTwo = new Customer("name2", "addr2");
+        var custIdTwo = new CustId(2);
+        var customerTwo = new Customer("name2", "addr2");
         LogWriterUtils.getLogWriter().fine("SJ:TX PUT 2");
         prRegion.put(custIdTwo, customerTwo);
 

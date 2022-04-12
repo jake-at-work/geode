@@ -59,7 +59,7 @@ public class PdxInstanceSortedHelper implements JSONToPdxMapper {
 
   public void initializeIdentityFields(String... identityFields) {
     this.identityFields = new HashSet<>();
-    for (String identityField : identityFields) {
+    for (var identityField : identityFields) {
       this.identityFields.add(identityField);
     }
   }
@@ -226,8 +226,8 @@ public class PdxInstanceSortedHelper implements JSONToPdxMapper {
 
   private PdxInstance createPdxInstance() {
     Collections.sort(fieldList);
-    PdxInstanceFactory factory = createPdxInstanceFactory();
-    for (JSONFieldHolder<?> f : fieldList) {
+    var factory = createPdxInstanceFactory();
+    for (var f : fieldList) {
       filldata(factory, f);
       addIdentityField(factory, f.fieldName);
     }
@@ -273,7 +273,7 @@ public class PdxInstanceSortedHelper implements JSONToPdxMapper {
   }
 
   private PdxInstanceFactory createPdxInstanceFactory() {
-    InternalCache cache = getCache();
+    var cache = getCache();
     return cache.createPdxInstanceFactory(JSONFormatter.JSON_CLASSNAME, false);
   }
 

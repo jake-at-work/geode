@@ -27,7 +27,7 @@ public class CommandAvailabilityIndicatorTest {
 
   @Test
   public void allOnlineCommandsHaveAvailabilityIndicator() {
-    CommandManager manager = new CommandManager();
+    var manager = new CommandManager();
     CommandAvailabilityIndicatorTestHelper.assertOnlineCommandsHasAvailabilityIndicator(manager);
   }
 

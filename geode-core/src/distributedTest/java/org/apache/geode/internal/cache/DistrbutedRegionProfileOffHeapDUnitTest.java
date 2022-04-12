@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.CacheException;
-import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
@@ -43,7 +42,7 @@ public class DistrbutedRegionProfileOffHeapDUnitTest extends JUnit4CacheTestCase
 
   @Override
   public final void preTearDownAssertions() throws Exception {
-    SerializableRunnable checkOrphans = new SerializableRunnable() {
+    var checkOrphans = new SerializableRunnable() {
 
       @Override
       public void run() {
@@ -63,7 +62,7 @@ public class DistrbutedRegionProfileOffHeapDUnitTest extends JUnit4CacheTestCase
    */
   @Test
   public void testPartitionedRegionProfileWithConflict() throws Exception {
-    final String regionName = getTestMethodName() + "Region";
+    final var regionName = getTestMethodName() + "Region";
 
     Host.getHost(0).getVM(0).invoke(new CacheSerializableRunnable("createRegionNoException") {
       private static final long serialVersionUID = 1L;
@@ -71,14 +70,14 @@ public class DistrbutedRegionProfileOffHeapDUnitTest extends JUnit4CacheTestCase
       @Override
       public void run2() throws CacheException {
         disconnectFromDS();
-        Properties properties = new Properties();
+        var properties = new Properties();
         properties.put(OFF_HEAP_MEMORY_SIZE, "2m");
         getSystem(properties);
 
-        GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
+        var cache = (GemFireCacheImpl) getCache();
         RegionFactory regionFactory = cache.createRegionFactory(RegionShortcut.PARTITION);
         regionFactory.setOffHeap(true);
-        Region region = regionFactory.create(regionName);
+        var region = regionFactory.create(regionName);
 
         assertNotNull("Region is null", region);
         assertNotNull("Cache does not contain region", cache.getRegion(regionName));
@@ -92,7 +91,7 @@ public class DistrbutedRegionProfileOffHeapDUnitTest extends JUnit4CacheTestCase
       @Override
       public void run2() throws CacheException {
         disconnectFromDS();
-        final GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
+        final var cache = (GemFireCacheImpl) getCache();
         final RegionFactory regionFactory = cache.createRegionFactory(RegionShortcut.PARTITION);
         Region region = null;
 
@@ -118,24 +117,24 @@ public class DistrbutedRegionProfileOffHeapDUnitTest extends JUnit4CacheTestCase
    */
   @Test
   public void testPartitionedRegionProfileWithoutConflict() throws Exception {
-    final String offHeapRegionName = getTestMethodName() + "OffHeapRegion";
-    final String onHeapRegionName = getTestMethodName() + "OnHeapRegion";
+    final var offHeapRegionName = getTestMethodName() + "OffHeapRegion";
+    final var onHeapRegionName = getTestMethodName() + "OnHeapRegion";
 
-    for (int vmId = 0; vmId <= 1; vmId++) {
+    for (var vmId = 0; vmId <= 1; vmId++) {
       Host.getHost(0).getVM(vmId).invoke(new CacheSerializableRunnable("createRegionNoException") {
         private static final long serialVersionUID = 1L;
 
         @Override
         public void run2() throws CacheException {
           disconnectFromDS();
-          Properties properties = new Properties();
+          var properties = new Properties();
           properties.put(OFF_HEAP_MEMORY_SIZE, "2m");
           getSystem(properties);
 
-          GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
+          var cache = (GemFireCacheImpl) getCache();
           RegionFactory regionFactory = cache.createRegionFactory(RegionShortcut.PARTITION);
           regionFactory.setOffHeap(true);
-          Region region = regionFactory.create(offHeapRegionName);
+          var region = regionFactory.create(offHeapRegionName);
 
           assertNotNull("Region is null", region);
           assertNotNull("Cache does not contain region", cache.getRegion(offHeapRegionName));
@@ -156,7 +155,7 @@ public class DistrbutedRegionProfileOffHeapDUnitTest extends JUnit4CacheTestCase
    */
   @Test
   public void testPartitionedRegionProfileWithAccessor() throws Exception {
-    final String regionName = getTestMethodName() + "Region";
+    final var regionName = getTestMethodName() + "Region";
 
     // Create a region using off-heap
     Host.getHost(0).getVM(0).invoke(new CacheSerializableRunnable("createRegionNoException") {
@@ -165,14 +164,14 @@ public class DistrbutedRegionProfileOffHeapDUnitTest extends JUnit4CacheTestCase
       @Override
       public void run2() throws CacheException {
         disconnectFromDS();
-        Properties properties = new Properties();
+        var properties = new Properties();
         properties.put(OFF_HEAP_MEMORY_SIZE, "2m");
         getSystem(properties);
 
-        GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
+        var cache = (GemFireCacheImpl) getCache();
         RegionFactory regionFactory = cache.createRegionFactory(RegionShortcut.PARTITION);
         regionFactory.setOffHeap(true);
-        Region region = regionFactory.create(regionName);
+        var region = regionFactory.create(regionName);
 
         assertNotNull("Region is null", region);
         assertNotNull("Cache does not contain region", cache.getRegion(regionName));
@@ -186,18 +185,18 @@ public class DistrbutedRegionProfileOffHeapDUnitTest extends JUnit4CacheTestCase
       @Override
       public void run2() throws CacheException {
         disconnectFromDS();
-        Properties properties = new Properties();
+        var properties = new Properties();
         properties.put(OFF_HEAP_MEMORY_SIZE, "2m");
         getSystem(properties);
 
-        GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
+        var cache = (GemFireCacheImpl) getCache();
         RegionFactory regionFactory = cache.createRegionFactory(RegionShortcut.PARTITION);
 
-        PartitionAttributes partitionAttributes =
+        var partitionAttributes =
             new PartitionAttributesFactory().setLocalMaxMemory(0).create();
         regionFactory.setPartitionAttributes(partitionAttributes);
 
-        Region region = regionFactory.create(regionName);
+        var region = regionFactory.create(regionName);
 
         assertNotNull("Region is null", region);
         assertNotNull("Cache does not contain region", cache.getRegion(regionName));
@@ -211,7 +210,7 @@ public class DistrbutedRegionProfileOffHeapDUnitTest extends JUnit4CacheTestCase
    */
   @Test
   public void testPartitionedRegionProfileWithProxy() throws Exception {
-    final String regionName = getTestMethodName() + "Region";
+    final var regionName = getTestMethodName() + "Region";
 
     // Create a region using off-heap
     Host.getHost(0).getVM(0).invoke(new CacheSerializableRunnable("createRegionNoException") {
@@ -220,14 +219,14 @@ public class DistrbutedRegionProfileOffHeapDUnitTest extends JUnit4CacheTestCase
       @Override
       public void run2() throws CacheException {
         disconnectFromDS();
-        Properties properties = new Properties();
+        var properties = new Properties();
         properties.put(OFF_HEAP_MEMORY_SIZE, "2m");
         getSystem(properties);
 
-        GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
+        var cache = (GemFireCacheImpl) getCache();
         RegionFactory regionFactory = cache.createRegionFactory(RegionShortcut.PARTITION);
         regionFactory.setOffHeap(true);
-        Region region = regionFactory.create(regionName);
+        var region = regionFactory.create(regionName);
 
         assertNotNull("Region is null", region);
         assertNotNull("Cache does not contain region", cache.getRegion(regionName));
@@ -241,13 +240,13 @@ public class DistrbutedRegionProfileOffHeapDUnitTest extends JUnit4CacheTestCase
       @Override
       public void run2() throws CacheException {
         disconnectFromDS();
-        Properties properties = new Properties();
+        var properties = new Properties();
         properties.put(OFF_HEAP_MEMORY_SIZE, "2m");
         getSystem(properties);
 
-        GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
+        var cache = (GemFireCacheImpl) getCache();
         RegionFactory regionFactory = cache.createRegionFactory(RegionShortcut.PARTITION_PROXY);
-        Region region = regionFactory.create(regionName);
+        var region = regionFactory.create(regionName);
 
         assertNotNull("Region is null", region);
         assertNotNull("Cache does not contain region", cache.getRegion(regionName));

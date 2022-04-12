@@ -34,24 +34,24 @@ public class ClusterOperationExecutorsTest {
   public void setup() {
     stats = mock(DistributionStats.class);
     system = mock(InternalDistributedSystem.class);
-    DistributionConfig config = mock(DistributionConfig.class);
+    var config = mock(DistributionConfig.class);
     when(system.getConfig()).thenReturn(config);
   }
 
   @Test
   public void numOfThreadsIsAtLeast300() {
-    int minNumberOfThreads = 300;
+    var minNumberOfThreads = 300;
 
-    ClusterOperationExecutors executors = new ClusterOperationExecutors(stats, system);
+    var executors = new ClusterOperationExecutors(stats, system);
 
     assertThat(executors.MAX_THREADS).isGreaterThanOrEqualTo(minNumberOfThreads);
   }
 
   @Test
   public void numOfFEThreadsIsAtLeast100() {
-    int minNumberOfFunctionExecutionThreads = 100;
+    var minNumberOfFunctionExecutionThreads = 100;
 
-    ClusterOperationExecutors executors = new ClusterOperationExecutors(stats, system);
+    var executors = new ClusterOperationExecutors(stats, system);
 
     assertThat(executors.MAX_FE_THREADS)
         .isGreaterThanOrEqualTo(minNumberOfFunctionExecutionThreads);
@@ -59,10 +59,10 @@ public class ClusterOperationExecutorsTest {
 
   @Test
   public void numOfPRThreadsIsAtLeast200() {
-    int minNumberOfPartitionedRegionThreads = 200;
+    var minNumberOfPartitionedRegionThreads = 200;
 
-    ClusterOperationExecutors executors = new ClusterOperationExecutors(stats, system);
-    int threads = ((ThreadPoolExecutor) executors.getExecutor(PARTITIONED_REGION_EXECUTOR,
+    var executors = new ClusterOperationExecutors(stats, system);
+    var threads = ((ThreadPoolExecutor) executors.getExecutor(PARTITIONED_REGION_EXECUTOR,
         mock(InternalDistributedMember.class))).getMaximumPoolSize();
 
     assertThat(threads).isGreaterThanOrEqualTo(minNumberOfPartitionedRegionThreads);

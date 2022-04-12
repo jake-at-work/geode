@@ -166,7 +166,7 @@ public class JvmRouteBinderValveIntegrationTest extends AbstractSessionValveInte
     when(request.getContext().getManager()).thenReturn(deltaSessionManager);
 
     jvmRouteBinderValve.invoke(request, response);
-    String expectedFailoverSessionId =
+    var expectedFailoverSessionId =
         TEST_SESSION_ID.substring(0, TEST_SESSION_ID.indexOf(".") + 1) + "jvmRoute";
     assertThat(testValve.invocations.get()).isEqualTo(1);
     verify(request, times(1)).changeSessionId(expectedFailoverSessionId);

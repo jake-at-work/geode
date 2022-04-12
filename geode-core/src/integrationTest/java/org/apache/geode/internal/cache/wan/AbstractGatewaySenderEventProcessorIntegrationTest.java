@@ -49,22 +49,22 @@ public class AbstractGatewaySenderEventProcessorIntegrationTest {
   @Test
   public void verifyThresholdExceededAlertLogDoesNotThrowException() {
     // Mock the sender
-    AbstractGatewaySender sender = mock(AbstractGatewaySender.class);
+    var sender = mock(AbstractGatewaySender.class);
     when(sender.getAlertThreshold()).thenReturn(1);
     when(sender.getStatistics()).thenReturn(mock(GatewaySenderStats.class));
 
     // Mock the processor
-    AbstractGatewaySenderEventProcessor eventProcessor =
+    var eventProcessor =
         mock(AbstractGatewaySenderEventProcessor.class);
     when(eventProcessor.getSender()).thenReturn(sender);
 
     // Mock the region
-    LocalRegion lr = mock(LocalRegion.class);
+    var lr = mock(LocalRegion.class);
     when(lr.getCache()).thenReturn(cache);
 
     // Create the events
     List<GatewaySenderEventImpl> events = new ArrayList<>();
-    GatewaySenderEventImpl gsei1 = mock(GatewaySenderEventImpl.class);
+    var gsei1 = mock(GatewaySenderEventImpl.class);
     when(gsei1.getValueAsString(true)).thenThrow(new IllegalStateException("test"));
     events.add(gsei1);
 

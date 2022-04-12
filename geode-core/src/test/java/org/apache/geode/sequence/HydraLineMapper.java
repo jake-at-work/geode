@@ -21,7 +21,6 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
@@ -32,24 +31,24 @@ public class HydraLineMapper implements LineMapper {
   private final DefaultLineMapper defaultMapper = new DefaultLineMapper();
 
   public HydraLineMapper(File[] graphFiles) {
-    File firstFile = graphFiles[0];
-    File directory = firstFile.getParentFile();
+    var firstFile = graphFiles[0];
+    var directory = firstFile.getParentFile();
     if (directory == null || !new File(directory, "latest.prop").exists()) {
       directory = new File(".");
     }
-    String[] files = directory.list();
-    for (String file : files) {
-      Matcher matcher = VM_NAME_PATTERN.matcher(file);
+    var files = directory.list();
+    for (var file : files) {
+      var matcher = VM_NAME_PATTERN.matcher(file);
       if (matcher.matches()) {
         processIdToVMName.put(matcher.group(2), matcher.group(1));
       }
     }
 
-    for (String file : files) {
-      Matcher matcher = DISK_DIR_PATTERN.matcher(file);
+    for (var file : files) {
+      var matcher = DISK_DIR_PATTERN.matcher(file);
       if (matcher.matches()) {
 
-        String storeId = getDiskStoreId(file);
+        var storeId = getDiskStoreId(file);
         if (storeId != null) {
           processIdToVMName.put(storeId, "disk_" + matcher.group(1));
         }
@@ -60,9 +59,9 @@ public class HydraLineMapper implements LineMapper {
   }
 
   private String getDiskStoreId(String diskStoreDir) {
-    File dir = new File(diskStoreDir);
-    String[] files = dir.list();
-    for (String fileName : files) {
+    var dir = new File(diskStoreDir);
+    var files = dir.list();
+    for (var fileName : files) {
       if (fileName.endsWith(".if")) {
         try {
           return getDiskStoreIdFromInitFile(dir, fileName);
@@ -77,16 +76,16 @@ public class HydraLineMapper implements LineMapper {
 
   private String getDiskStoreIdFromInitFile(File dir, String fileName)
       throws IOException {
-    FileInputStream fis = new FileInputStream(new File(dir, fileName));
+    var fis = new FileInputStream(new File(dir, fileName));
     try {
-      byte[] bytes = new byte[1 + 8 + 8];
+      var bytes = new byte[1 + 8 + 8];
       fis.read(bytes);
-      ByteBuffer buffer = ByteBuffer.wrap(bytes);
+      var buffer = ByteBuffer.wrap(bytes);
       // Skip the record type.
       buffer.get();
-      long least = buffer.getLong();
-      long most = buffer.getLong();
-      UUID id = new UUID(most, least);
+      var least = buffer.getLong();
+      var most = buffer.getLong();
+      var id = new UUID(most, least);
       return id.toString();
     } finally {
       fis.close();
@@ -95,7 +94,7 @@ public class HydraLineMapper implements LineMapper {
 
   @Override
   public String getShortNameForLine(String lineName) {
-    String name = defaultMapper.getShortNameForLine(lineName);
+    var name = defaultMapper.getShortNameForLine(lineName);
     if (processIdToVMName.containsKey(name)) {
       return processIdToVMName.get(name);
     } else {
@@ -107,9 +106,9 @@ public class HydraLineMapper implements LineMapper {
     if (graphFiles.length == 0) {
       return false;
     }
-    File firstFile = graphFiles[0];
-    File parentFile = firstFile.getParentFile();
-    for (File file : graphFiles) {
+    var firstFile = graphFiles[0];
+    var parentFile = firstFile.getParentFile();
+    for (var file : graphFiles) {
       if (parentFile == null && file.getParentFile() == null) {
         return true;
       }

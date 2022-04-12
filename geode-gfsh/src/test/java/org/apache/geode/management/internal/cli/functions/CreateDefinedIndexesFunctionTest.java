@@ -109,7 +109,7 @@ public class CreateDefinedIndexesFunctionTest {
 
     assertThat(results).isNotNull();
     assertThat(results.size()).isEqualTo(2);
-    Object firstResult = results.get(0);
+    var firstResult = results.get(0);
     assertThat(firstResult).isInstanceOf(CliFunctionResult.class);
     assertThat(((CliFunctionResult) firstResult).isSuccessful()).isTrue();
     assertThat(((CliFunctionResult) firstResult).getMessage()).isNotEmpty();
@@ -127,7 +127,7 @@ public class CreateDefinedIndexesFunctionTest {
 
     assertThat(results).isNotNull();
     assertThat(results.size()).isEqualTo(2);
-    Object firstResult = results.get(0);
+    var firstResult = results.get(0);
     assertThat(firstResult).isInstanceOf(CliFunctionResult.class);
     assertThat(((CliFunctionResult) firstResult).isSuccessful()).isTrue();
     assertThat(((CliFunctionResult) firstResult).getMessage()).isNotEmpty();
@@ -136,7 +136,7 @@ public class CreateDefinedIndexesFunctionTest {
 
   @Test
   public void multiIndexCreationExceptionThrowByQueryService() throws Exception {
-    HashMap<String, Exception> exceptions = new HashMap<>();
+    var exceptions = new HashMap<String, Exception>();
     exceptions.put("index1", new IndexCreationException("Mock Failure."));
     exceptions.put("index3", new IndexCreationException("Another Mock Failure."));
     when(queryService.createDefinedIndexes())
@@ -149,16 +149,16 @@ public class CreateDefinedIndexesFunctionTest {
     assertThat(results).isNotNull();
     assertThat(results.size()).isEqualTo(4);
 
-    CliFunctionResult result1 = (CliFunctionResult) results.get(0);
+    var result1 = (CliFunctionResult) results.get(0);
     assertThat(result1.isSuccessful()).isTrue();
     assertThat(result1.getStatusMessage()).isEqualTo("Created index index2");
 
-    CliFunctionResult result2 = (CliFunctionResult) results.get(1);
+    var result2 = (CliFunctionResult) results.get(1);
     assertThat(result2.isSuccessful()).isFalse();
     assertThat(result2.getStatusMessage())
         .isEqualTo("Failed to create index index1: Mock Failure.");
 
-    CliFunctionResult result3 = (CliFunctionResult) results.get(2);
+    var result3 = (CliFunctionResult) results.get(2);
     assertThat(result3.isSuccessful()).isFalse();
     assertThat(result3.getStatusMessage())
         .isEqualTo("Failed to create index index3: Another Mock Failure.");
@@ -174,7 +174,7 @@ public class CreateDefinedIndexesFunctionTest {
 
     assertThat(results).isNotNull();
     assertThat(results.size()).isEqualTo(2);
-    CliFunctionResult firstResult = (CliFunctionResult) results.get(0);
+    var firstResult = (CliFunctionResult) results.get(0);
 
     assertThat(firstResult.isSuccessful()).isFalse();
     assertThat(firstResult.getStatusMessage()).isEqualTo("Mock Exception");
@@ -205,7 +205,7 @@ public class CreateDefinedIndexesFunctionTest {
     assertThat(results).isNotNull();
     assertThat(results.size()).isEqualTo(4);
 
-    Object firstIndex = results.get(0);
+    var firstIndex = results.get(0);
     assertThat(firstIndex).isNotNull();
     assertThat(firstIndex).isInstanceOf(CliFunctionResult.class);
     assertThat(((CliFunctionResult) firstIndex).isSuccessful());

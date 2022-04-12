@@ -17,7 +17,6 @@
 
 package org.apache.geode.tools.pulse.internal.data;
 
-import java.util.ResourceBundle;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -90,7 +89,7 @@ public class PulseVersion {
   }
 
   public String getPulseVersionLogMessage() {
-    ResourceBundle resourceBundle = repository.getResourceBundle();
+    var resourceBundle = repository.getResourceBundle();
     return resourceBundle.getString("LOG_MSG_PULSE_VERSION") + " "
         + getPulseVersion() + " " + getPulseBuildId();
   }

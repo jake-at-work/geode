@@ -22,7 +22,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
-import java.net.URL;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.junit.LoggerContextRule;
@@ -75,7 +74,7 @@ public class SecurityLogWriterAppenderIntegrationTest {
 
   @BeforeClass
   public static void setUpLogConfigFile() {
-    URL resource = getResource(CONFIG_FILE_NAME);
+    var resource = getResource(CONFIG_FILE_NAME);
     configFilePath = createFileFromResource(resource, temporaryFolder.getRoot(), CONFIG_FILE_NAME)
         .getAbsolutePath();
   }
@@ -85,10 +84,10 @@ public class SecurityLogWriterAppenderIntegrationTest {
     securityLogWriterAppender = loggerContextRule.getAppender(SECURITY_APPENDER_NAME,
         LogWriterAppender.class);
 
-    String name = testName.getMethodName();
+    var name = testName.getMethodName();
     securityLogFile = new File(temporaryFolder.getRoot(), name + "-security.log");
 
-    LogConfig logConfig = mock(LogConfig.class);
+    var logConfig = mock(LogConfig.class);
     when(logConfig.getName()).thenReturn(name);
     when(logConfig.getSecurityLogFile()).thenReturn(securityLogFile);
 

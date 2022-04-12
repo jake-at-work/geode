@@ -27,7 +27,7 @@ class SensitiveSubstringDictionary implements SensitiveDataDictionary {
     if (string == null) {
       return false;
     }
-    for (String substring : sensitiveSubstrings) {
+    for (var substring : sensitiveSubstrings) {
       if (string.toLowerCase().contains(substring)) {
         return true;
       }

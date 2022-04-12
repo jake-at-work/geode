@@ -34,15 +34,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.InterestResultPolicy;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
-import org.apache.geode.cache.server.CacheServer;
-import org.apache.geode.cache.server.ClientSubscriptionConfig;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.test.dunit.Host;
@@ -93,7 +90,7 @@ public class ClientServerRegisterInterestsDUnitTest extends JUnit4DistributedTes
   }
 
   private void setupGemFireCacheServer() {
-    Host localhost = Host.getHost(0);
+    var localhost = Host.getHost(0);
 
     gemfireServerVm = localhost.getVM(0);
     serverPort.set(AvailablePortHelper.getRandomAvailableTCPPort());
@@ -102,7 +99,7 @@ public class ClientServerRegisterInterestsDUnitTest extends JUnit4DistributedTes
       @Override
       public void run() {
         try {
-          Cache cache = new CacheFactory()
+          var cache = new CacheFactory()
               .set("name", "ClientServerRegisterInterestsTestGemFireServer").set(MCAST_PORT, "0")
               .set(LOG_FILE, "clientServerRegisterInterestsTest.log").set(LOG_LEVEL, "config")
               // .set("jmx-manager", "true")
@@ -117,7 +114,7 @@ public class ClientServerRegisterInterestsDUnitTest extends JUnit4DistributedTes
           regionFactory.setKeyConstraint(String.class);
           regionFactory.setValueConstraint(String.class);
 
-          Region<String, String> example = regionFactory.create("Example");
+          var example = regionFactory.create("Example");
 
           assertNotNull("The 'Example' Region was not properly configured and initialized!",
               example);
@@ -130,12 +127,12 @@ public class ClientServerRegisterInterestsDUnitTest extends JUnit4DistributedTes
           assertFalse(example.isEmpty());
           assertEquals(1, example.size());
 
-          CacheServer cacheServer = cache.addCacheServer();
+          var cacheServer = cache.addCacheServer();
 
           cacheServer.setPort(serverPort.get());
           cacheServer.setMaxConnections(10);
 
-          ClientSubscriptionConfig clientSubscriptionConfig =
+          var clientSubscriptionConfig =
               cacheServer.getClientSubscriptionConfig();
 
           clientSubscriptionConfig.setCapacity(100);
@@ -156,10 +153,10 @@ public class ClientServerRegisterInterestsDUnitTest extends JUnit4DistributedTes
   }
 
   private ClientCache setupGemFireClientCache() {
-    ClientCache clientCache =
+    var clientCache =
         new ClientCacheFactory().set(DURABLE_CLIENT_ID, "TestDurableClientId").create();
 
-    PoolFactory poolFactory = PoolManager.createFactory();
+    var poolFactory = PoolManager.createFactory();
 
     poolFactory.setMaxConnections(10);
     poolFactory.setMinConnections(1);
@@ -167,7 +164,7 @@ public class ClientServerRegisterInterestsDUnitTest extends JUnit4DistributedTes
     poolFactory.setSubscriptionEnabled(true);
     poolFactory.addServer(LOCALHOST, serverPort.get());
 
-    Pool pool = poolFactory.create("serverConnectionPool");
+    var pool = poolFactory.create("serverConnectionPool");
 
     assertNotNull("The 'serverConnectionPool' was not properly configured and initialized!", pool);
 
@@ -179,7 +176,7 @@ public class ClientServerRegisterInterestsDUnitTest extends JUnit4DistributedTes
     regionFactory.setKeyConstraint(String.class);
     regionFactory.setValueConstraint(String.class);
 
-    Region<String, String> exampleCachingProxy = regionFactory.create("Example");
+    var exampleCachingProxy = regionFactory.create("Example");
 
     assertNotNull("The 'Example' Client Region was not properly configured and initialized",
         exampleCachingProxy);
@@ -196,7 +193,7 @@ public class ClientServerRegisterInterestsDUnitTest extends JUnit4DistributedTes
     return (V) gemfireServerVm.invoke(new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        Cache cache = CacheFactory.getAnyInstance();
+        var cache = CacheFactory.getAnyInstance();
         cache.getRegion(regionName).put(key, value);
         return cache.getRegion(regionName).get(key);
       }
@@ -204,7 +201,7 @@ public class ClientServerRegisterInterestsDUnitTest extends JUnit4DistributedTes
   }
 
   protected void waitOnEvent(final long waitTimeMilliseconds) {
-    final long timeout = (System.currentTimeMillis() + waitTimeMilliseconds);
+    final var timeout = (System.currentTimeMillis() + waitTimeMilliseconds);
 
     while (entryEvents.empty() && (System.currentTimeMillis() < timeout)) {
       synchronized (this) {
@@ -218,7 +215,7 @@ public class ClientServerRegisterInterestsDUnitTest extends JUnit4DistributedTes
 
   @Test
   public void testClientRegisterInterests() {
-    ClientCache clientCache = setupGemFireClientCache();
+    var clientCache = setupGemFireClientCache();
 
     try {
       Region<String, String> example = clientCache.getRegion(SEPARATOR + "Example");
@@ -229,7 +226,7 @@ public class ClientServerRegisterInterestsDUnitTest extends JUnit4DistributedTes
       assertEquals("ONE", example.get("1"));
       assertTrue(entryEvents.empty());
 
-      String value = put(SEPARATOR + "Example", "2", "TWO");
+      var value = put(SEPARATOR + "Example", "2", "TWO");
 
       assertEquals("TWO", value);
 
@@ -237,7 +234,7 @@ public class ClientServerRegisterInterestsDUnitTest extends JUnit4DistributedTes
 
       assertFalse(entryEvents.empty());
 
-      EntryEvent entryEvent = (EntryEvent) entryEvents.pop();
+      var entryEvent = (EntryEvent) entryEvents.pop();
 
       assertEquals("2", entryEvent.getKey());
       assertEquals("TWO", entryEvent.getNewValue());

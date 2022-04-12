@@ -57,7 +57,7 @@ public class LocatorLauncherStartupRule extends SerializableExternalResource {
 
   public LocatorLauncherStartupRule withSSL(String components, boolean requireAuth,
       boolean endPointIdentification) {
-    Properties sslProps = getSSLProperties(components, requireAuth, endPointIdentification);
+    var sslProps = getSSLProperties(components, requireAuth, endPointIdentification);
     properties.putAll(sslProps);
     return this;
   }
@@ -76,7 +76,7 @@ public class LocatorLauncherStartupRule extends SerializableExternalResource {
   }
 
   public void start() {
-    LocatorLauncher.Builder builder = new LocatorLauncher.Builder()
+    var builder = new LocatorLauncher.Builder()
         .setPort(0)
         .set(properties)
         .set(ConfigurationProperties.LOG_LEVEL, "config");
@@ -116,8 +116,8 @@ public class LocatorLauncherStartupRule extends SerializableExternalResource {
    * By default, assign available HTTP and JMX ports.
    */
   private static Properties defaultProperties() {
-    Properties props = new Properties();
-    int[] ports = getRandomAvailableTCPPorts(2);
+    var props = new Properties();
+    var ports = getRandomAvailableTCPPorts(2);
     props.setProperty(HTTP_SERVICE_PORT, String.valueOf(ports[0]));
     props.setProperty(JMX_MANAGER_PORT, String.valueOf(ports[1]));
     return props;

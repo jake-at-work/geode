@@ -14,22 +14,19 @@
  */
 package org.apache.geode.redis.internal.commands.executor.list;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
 import org.apache.geode.redis.internal.commands.executor.RedisResponse;
-import org.apache.geode.redis.internal.data.RedisData;
-import org.apache.geode.redis.internal.data.RedisKey;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
 
 public class RPopExecutor implements CommandExecutor {
 
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
-    Region<RedisKey, RedisData> region = context.getRegion();
-    RedisKey key = command.getKey();
+    var region = context.getRegion();
+    var key = command.getKey();
 
-    byte[] popped = context.listLockedExecute(key, false,
+    var popped = context.listLockedExecute(key, false,
         list -> list.rpop(region, key));
 
     return RedisResponse.bulkString(popped);

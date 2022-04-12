@@ -43,12 +43,12 @@ public class MemberRealizer
 
   @Override
   public MemberInformation get(Member config, InternalCache cache) {
-    GetMemberInformationFunction getMemberInfoFunction = new GetMemberInformationFunction();
-    InternalDistributedSystem system = (InternalDistributedSystem) cache.getDistributedSystem();
+    var getMemberInfoFunction = new GetMemberInformationFunction();
+    var system = (InternalDistributedSystem) cache.getDistributedSystem();
     DistributedMember member = system.getDistributedMember();
 
     try {
-      MemberInformation memberInformation =
+      var memberInformation =
           getMemberInfoFunction.getMemberInformation(cache, system.getConfig(), member);
       if (member.getId().equals(getCoordinatorId((cache)))) {
         memberInformation.setCoordinator(true);

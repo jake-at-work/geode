@@ -17,7 +17,6 @@ package org.apache.geode.internal.cache.backup;
 import static org.apache.geode.internal.cache.backup.AbstractBackupWriterConfig.TIMESTAMP;
 
 import java.io.File;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
 
@@ -28,13 +27,13 @@ enum BackupWriterFactory {
     BackupWriter createWriter(Properties properties, String memberId) {
       // Remove chars that are illegal in Windows paths
       memberId = memberId.replaceAll("[:()]", "-");
-      FileSystemBackupWriterConfig config = new FileSystemBackupWriterConfig(properties);
-      Path targetDir = Paths.get(config.getTargetDirectory())
+      var config = new FileSystemBackupWriterConfig(properties);
+      var targetDir = Paths.get(config.getTargetDirectory())
           .resolve(properties.getProperty(TIMESTAMP)).resolve(memberId);
-      String baselineDir = config.getBaselineDirectory();
+      var baselineDir = config.getBaselineDirectory();
       FileSystemIncrementalBackupLocation incrementalBackupLocation = null;
       if (baselineDir != null) {
-        File baseline = new File(baselineDir).getAbsoluteFile();
+        var baseline = new File(baselineDir).getAbsoluteFile();
         incrementalBackupLocation = new FileSystemIncrementalBackupLocation(baseline, memberId);
       }
       return new FileSystemBackupWriter(targetDir, incrementalBackupLocation);
@@ -52,7 +51,7 @@ enum BackupWriterFactory {
   }
 
   static BackupWriterFactory getFactoryForType(String type) {
-    for (BackupWriterFactory factory : BackupWriterFactory.values()) {
+    for (var factory : BackupWriterFactory.values()) {
       if (factory.type.equals(type)) {
         return factory;
       }

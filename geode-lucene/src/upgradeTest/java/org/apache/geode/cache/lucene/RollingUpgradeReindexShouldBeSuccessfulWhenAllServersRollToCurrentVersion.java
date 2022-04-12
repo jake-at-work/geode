@@ -30,7 +30,6 @@ import org.apache.geode.test.dunit.AsyncInvocation;
 import org.apache.geode.test.dunit.DistributedTestUtils;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.NetworkUtils;
-import org.apache.geode.test.dunit.VM;
 
 public class RollingUpgradeReindexShouldBeSuccessfulWhenAllServersRollToCurrentVersion
     extends LuceneSearchWithRollingUpgradeDUnit {
@@ -40,20 +39,20 @@ public class RollingUpgradeReindexShouldBeSuccessfulWhenAllServersRollToCurrentV
     Assume.assumeFalse("minor versions should be different",
         majorMinor(oldVersion).equals(majorMinor(KnownVersion.CURRENT.getName())));
 
-    final Host host = Host.getHost(0);
-    VM locator1 = host.getVM(oldVersion, 0);
-    VM server1 = host.getVM(oldVersion, 1);
-    VM server2 = host.getVM(oldVersion, 2);
+    final var host = Host.getHost(0);
+    var locator1 = host.getVM(oldVersion, 0);
+    var server1 = host.getVM(oldVersion, 1);
+    var server2 = host.getVM(oldVersion, 2);
 
-    final String regionName = "aRegion";
-    RegionShortcut shortcut = RegionShortcut.PARTITION_REDUNDANT;
+    final var regionName = "aRegion";
+    var shortcut = RegionShortcut.PARTITION_REDUNDANT;
 
-    int locatorPort = AvailablePortHelper.getRandomAvailableTCPPort();
+    var locatorPort = AvailablePortHelper.getRandomAvailableTCPPort();
     locator1.invoke(() -> DistributedTestUtils.deleteLocatorStateFile(locatorPort));
 
-    String hostName = NetworkUtils.getServerHostName(host);
-    String locatorString = getLocatorString(locatorPort);
-    String regionType = "partitionedRedundant";
+    var hostName = NetworkUtils.getServerHostName(host);
+    var locatorString = getLocatorString(locatorPort);
+    var regionType = "partitionedRedundant";
     try {
       locator1.invoke(
           invokeStartLocator(hostName, locatorPort, getLocatorPropertiesPre91(locatorString)));
@@ -86,7 +85,7 @@ public class RollingUpgradeReindexShouldBeSuccessfulWhenAllServersRollToCurrentV
         }
       }
 
-      int expectedRegionSize = 10;
+      var expectedRegionSize = 10;
       putSerializableObject(server1, regionName, 0, expectedRegionSize);
 
       server2 = rollServerToCurrentAndCreateRegionOnly(server2, regionType, null, shortcut.name(),
@@ -119,7 +118,7 @@ public class RollingUpgradeReindexShouldBeSuccessfulWhenAllServersRollToCurrentV
    * returns the major.minor prefix of a semver
    */
   private static String majorMinor(String version) {
-    String[] parts = version.split("\\.");
+    var parts = version.split("\\.");
     Assertions.assertThat(parts.length).isGreaterThanOrEqualTo(2);
     return parts[0] + "." + parts[1];
   }

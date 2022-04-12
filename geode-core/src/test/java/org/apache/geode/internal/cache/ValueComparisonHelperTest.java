@@ -215,8 +215,8 @@ public class ValueComparisonHelperTest {
 
   @Test
   public void checkEqualsReturnsFalseWhenComparingNotSerializedCacheDeserializableWithPdxInstance() {
-    PdxInstance pdxInstance1 = mock(PdxInstance.class);
-    CachedDeserializable object = mock(CachedDeserializable.class);
+    var pdxInstance1 = mock(PdxInstance.class);
+    var object = mock(CachedDeserializable.class);
     when(object.isSerialized()).thenReturn(false);
 
     assertThat(
@@ -226,9 +226,9 @@ public class ValueComparisonHelperTest {
 
   @Test
   public void checkEqualsReturnsFalseWhenComparingPdxInstanceWithNonPdxCacheDeserializable() {
-    int[] value = {0, 1, 2, 3};
+    var value = new int[] {0, 1, 2, 3};
     Object object = new VMCachedDeserializable(EntryEventImpl.serialize(value));
-    PdxInstance pdxInstance1 = mock(PdxInstance.class);
+    var pdxInstance1 = mock(PdxInstance.class);
 
     assertThat(
         ValueComparisonHelper.checkEquals(pdxInstance1, object, false, mock(InternalCache.class)))
@@ -237,7 +237,7 @@ public class ValueComparisonHelperTest {
 
   @Test
   public void checkEqualsReturnsTrueWhenComparingPdxInstanceWithItsCacheDeserializable() {
-    PdxInstance pdxInstance1 = mock(PdxInstance.class);
+    var pdxInstance1 = mock(PdxInstance.class);
     Object object = new VMCachedDeserializable(pdxInstance1, 1);
 
     assertThat(
@@ -247,8 +247,8 @@ public class ValueComparisonHelperTest {
 
   @Test
   public void checkEqualsReturnsFalseWhenComparingTwoNonEqualStoredObject() {
-    StoredObject object1 = mock(StoredObject.class);
-    StoredObject object2 = mock(StoredObject.class);
+    var object1 = mock(StoredObject.class);
+    var object2 = mock(StoredObject.class);
 
     when(object1.checkDataEquals(object2)).thenReturn(false);
 
@@ -259,8 +259,8 @@ public class ValueComparisonHelperTest {
 
   @Test
   public void checkEqualsReturnsTrueWhenComparingTwoEqualStoredObject() {
-    StoredObject object1 = mock(StoredObject.class);
-    StoredObject object2 = mock(StoredObject.class);
+    var object1 = mock(StoredObject.class);
+    var object2 = mock(StoredObject.class);
 
     when(object1.checkDataEquals(object2)).thenReturn(true);
 
@@ -271,9 +271,9 @@ public class ValueComparisonHelperTest {
 
   @Test
   public void checkEqualsReturnsFalseWhenComparingStoredObjectWithByteArrayAsCacheDeserializable() {
-    StoredObject storedObject = mock(StoredObject.class);
+    var storedObject = mock(StoredObject.class);
     when(storedObject.isSerialized()).thenReturn(false);
-    CachedDeserializable cachedDeserializable = mock(CachedDeserializable.class);
+    var cachedDeserializable = mock(CachedDeserializable.class);
     when(cachedDeserializable.isSerialized()).thenReturn(true);
 
     assertThat(
@@ -284,9 +284,9 @@ public class ValueComparisonHelperTest {
 
   @Test
   public void checkEqualsReturnsFalseWhenComparingNonSerializedStoredObjectWithCacheDeserializable() {
-    StoredObject storedObject = mock(StoredObject.class);
+    var storedObject = mock(StoredObject.class);
     when(storedObject.isSerialized()).thenReturn(false);
-    CachedDeserializable cachedDeserializable = mock(CachedDeserializable.class);
+    var cachedDeserializable = mock(CachedDeserializable.class);
     when(cachedDeserializable.isSerialized()).thenReturn(true);
 
     assertThat(
@@ -297,10 +297,10 @@ public class ValueComparisonHelperTest {
 
   @Test
   public void checkEqualsCanCompareStoredObjectWithCacheDeserializable() {
-    StoredObject storedObject = mock(StoredObject.class);
+    var storedObject = mock(StoredObject.class);
     when(storedObject.isSerialized()).thenReturn(true);
-    CachedDeserializable cachedDeserializable = mock(CachedDeserializable.class);
-    byte[] serializedObj = new byte[1];
+    var cachedDeserializable = mock(CachedDeserializable.class);
+    var serializedObj = new byte[1];
     when(cachedDeserializable.getSerializedValue()).thenReturn(serializedObj);
 
     ValueComparisonHelper.checkEquals(storedObject, cachedDeserializable, false,
@@ -311,9 +311,9 @@ public class ValueComparisonHelperTest {
 
   @Test
   public void checkEqualsReturnsFalseWhenComparingSerializedStoredObjectWithByteArray() {
-    StoredObject storedObject = mock(StoredObject.class);
+    var storedObject = mock(StoredObject.class);
     when(storedObject.isSerialized()).thenReturn(true);
-    byte[] object = new byte[1];
+    var object = new byte[1];
 
     assertThat(
         ValueComparisonHelper.checkEquals(storedObject, object, false, mock(InternalCache.class)))
@@ -322,9 +322,9 @@ public class ValueComparisonHelperTest {
 
   @Test
   public void checkEqualsCanCompareNonSerializedStoredObjectWithByteArray() {
-    StoredObject storedObject = mock(StoredObject.class);
+    var storedObject = mock(StoredObject.class);
     when(storedObject.isSerialized()).thenReturn(false);
-    byte[] object = new byte[1];
+    var object = new byte[1];
 
     ValueComparisonHelper.checkEquals(storedObject, object, false, mock(InternalCache.class));
 
@@ -333,10 +333,10 @@ public class ValueComparisonHelperTest {
 
   @Test
   public void checkEqualsReturnsFalseWhenComparingNonSerializedStoredObjectWithAnObject() {
-    StoredObject storedObject = mock(StoredObject.class);
+    var storedObject = mock(StoredObject.class);
     // storeObject is a byte[]
     when(storedObject.isSerialized()).thenReturn(false);
-    Object object = new Object();
+    var object = new Object();
 
     assertThat(
         ValueComparisonHelper.checkEquals(storedObject, object, false, mock(InternalCache.class)))
@@ -346,7 +346,7 @@ public class ValueComparisonHelperTest {
 
   @Test
   public void checkEqualsReturnsFalseWhenComparingSerializedStoredObjectWithANullObject() {
-    StoredObject storedObject = mock(StoredObject.class);
+    var storedObject = mock(StoredObject.class);
     when(storedObject.isSerialized()).thenReturn(true);
 
     assertThat(
@@ -357,7 +357,7 @@ public class ValueComparisonHelperTest {
 
   @Test
   public void checkEqualsReturnsFalseWhenComparingSerializedStoredObjectWithNotAvailableToken() {
-    StoredObject storedObject = mock(StoredObject.class);
+    var storedObject = mock(StoredObject.class);
     when(storedObject.isSerialized()).thenReturn(true);
 
     assertThat(
@@ -369,7 +369,7 @@ public class ValueComparisonHelperTest {
 
   @Test
   public void checkEqualsReturnsFalseWhenComparingSerializedStoredObjectWithInvalidToken() {
-    StoredObject storedObject = mock(StoredObject.class);
+    var storedObject = mock(StoredObject.class);
     when(storedObject.isSerialized()).thenReturn(true);
 
     assertThat(
@@ -385,7 +385,7 @@ public class ValueComparisonHelperTest {
 
   @Test
   public void checkEqualsReturnsFalseWhenComparingSerializedStoredObjectWithRemovedToken() {
-    StoredObject storedObject = mock(StoredObject.class);
+    var storedObject = mock(StoredObject.class);
     when(storedObject.isSerialized()).thenReturn(true);
 
     assertThat(
@@ -409,7 +409,7 @@ public class ValueComparisonHelperTest {
 
   @Test
   public void checkEqualsCanCompareSerializedStoredObjectWithAnObject() {
-    StoredObject storedObject = mock(StoredObject.class);
+    var storedObject = mock(StoredObject.class);
     when(storedObject.isSerialized()).thenReturn(true);
     Object object = mock(Serializable.class);
 
@@ -420,9 +420,9 @@ public class ValueComparisonHelperTest {
 
   @Test
   public void checkEqualsReturnsTrueWhenComparingTwoEqualNotSerializedCacheDeserializable() {
-    CachedDeserializable cachedDeserializable = mock(CachedDeserializable.class);
+    var cachedDeserializable = mock(CachedDeserializable.class);
     when(cachedDeserializable.isSerialized()).thenReturn(false);
-    CachedDeserializable object = mock(CachedDeserializable.class);
+    var object = mock(CachedDeserializable.class);
     when(object.isSerialized()).thenReturn(false);
     when(cachedDeserializable.getDeserializedForReading()).thenReturn(BYTE_ARRAY);
     when(object.getDeserializedForReading()).thenReturn(STRING.getBytes());
@@ -433,9 +433,9 @@ public class ValueComparisonHelperTest {
 
   @Test
   public void checkEqualsReturnsTrueWhenComparingNotSerializedDeserializableWithAByteArray() {
-    CachedDeserializable cachedDeserializable = mock(CachedDeserializable.class);
+    var cachedDeserializable = mock(CachedDeserializable.class);
     when(cachedDeserializable.isSerialized()).thenReturn(false);
-    byte[] object = STRING.getBytes();
+    var object = STRING.getBytes();
     when(cachedDeserializable.getDeserializedForReading()).thenReturn(BYTE_ARRAY);
 
     assertThat(ValueComparisonHelper.checkEquals(object, cachedDeserializable, false,
@@ -444,9 +444,9 @@ public class ValueComparisonHelperTest {
 
   @Test
   public void checkEqualsReturnsFalseWhenComparingNotSerializedCacheDeserializableWithAnObject() {
-    CachedDeserializable cachedDeserializable = mock(CachedDeserializable.class);
+    var cachedDeserializable = mock(CachedDeserializable.class);
     when(cachedDeserializable.isSerialized()).thenReturn(false);
-    Object object = new Object();
+    var object = new Object();
 
     assertThat(ValueComparisonHelper.checkEquals(object, cachedDeserializable, false,
         mock(InternalCache.class))).isFalse();
@@ -454,9 +454,9 @@ public class ValueComparisonHelperTest {
 
   @Test
   public void checkEqualsCanCompareNotSerializedCacheDeserializableWithSerializedOne() {
-    CachedDeserializable cachedDeserializable = mock(CachedDeserializable.class);
+    var cachedDeserializable = mock(CachedDeserializable.class);
     when(cachedDeserializable.isSerialized()).thenReturn(false);
-    CachedDeserializable object = mock(CachedDeserializable.class);
+    var object = mock(CachedDeserializable.class);
     when(object.isSerialized()).thenReturn(true);
 
     assertThat(ValueComparisonHelper.checkEquals(cachedDeserializable, object, false,
@@ -465,10 +465,10 @@ public class ValueComparisonHelperTest {
 
   @Test
   public void checkEqualsCanCompareCacheDeserializableIfIsCompressedOffheap() {
-    CachedDeserializable cachedDeserializable = mock(CachedDeserializable.class);
+    var cachedDeserializable = mock(CachedDeserializable.class);
     when(cachedDeserializable.isSerialized()).thenReturn(true);
     when(cachedDeserializable.getValue()).thenReturn(BYTE_ARRAY);
-    CachedDeserializable object = mock(CachedDeserializable.class);
+    var object = mock(CachedDeserializable.class);
     when(object.getSerializedValue()).thenReturn(STRING.getBytes());
 
     assertThat(ValueComparisonHelper.checkEquals(cachedDeserializable, object, true,
@@ -477,7 +477,7 @@ public class ValueComparisonHelperTest {
 
   @Test
   public void checkEqualsCanCompareCacheDeserializableWithAnObjectIfIsCompressedOffheap() {
-    CachedDeserializable cachedDeserializable = mock(CachedDeserializable.class);
+    var cachedDeserializable = mock(CachedDeserializable.class);
     when(cachedDeserializable.isSerialized()).thenReturn(true);
     when(cachedDeserializable.getValue()).thenReturn(EntryEventImpl.serialize(STRING));
 
@@ -487,11 +487,11 @@ public class ValueComparisonHelperTest {
 
   @Test
   public void checkEqualsCanCompareCacheDeserializable() {
-    CachedDeserializable cachedDeserializable = mock(CachedDeserializable.class);
+    var cachedDeserializable = mock(CachedDeserializable.class);
     when(cachedDeserializable.isSerialized()).thenReturn(true);
     when(cachedDeserializable.getValue()).thenReturn(BYTE_ARRAY);
     when(cachedDeserializable.getDeserializedForReading()).thenReturn(STRING);
-    CachedDeserializable object = mock(CachedDeserializable.class);
+    var object = mock(CachedDeserializable.class);
     when(object.getDeserializedForReading()).thenReturn(STRING);
 
     assertThat(ValueComparisonHelper.checkEquals(cachedDeserializable, object, false,
@@ -502,7 +502,7 @@ public class ValueComparisonHelperTest {
 
   @Test
   public void checkEqualsReturnsFalseWhenComparingCacheDeserializableWithANullObject() {
-    CachedDeserializable cachedDeserializable = mock(CachedDeserializable.class);
+    var cachedDeserializable = mock(CachedDeserializable.class);
     when(cachedDeserializable.isSerialized()).thenReturn(true);
     when(cachedDeserializable.getValue()).thenReturn(BYTE_ARRAY);
 
@@ -518,7 +518,7 @@ public class ValueComparisonHelperTest {
 
   @Test
   public void checkEqualsReturnsFalseWhenComparingCacheDeserializableWithNotAvailableToken() {
-    CachedDeserializable cachedDeserializable = mock(CachedDeserializable.class);
+    var cachedDeserializable = mock(CachedDeserializable.class);
     when(cachedDeserializable.isSerialized()).thenReturn(true);
     when(cachedDeserializable.getValue()).thenReturn(BYTE_ARRAY);
 
@@ -534,7 +534,7 @@ public class ValueComparisonHelperTest {
 
   @Test
   public void checkEqualsReturnsFalseWhenComparingCacheDeserializableWithInvalidToken() {
-    CachedDeserializable cachedDeserializable = mock(CachedDeserializable.class);
+    var cachedDeserializable = mock(CachedDeserializable.class);
     when(cachedDeserializable.isSerialized()).thenReturn(true);
     when(cachedDeserializable.getValue()).thenReturn(BYTE_ARRAY);
 
@@ -558,7 +558,7 @@ public class ValueComparisonHelperTest {
 
   @Test
   public void checkEqualsReturnsFalseWhenComparingCacheDeserializableWithRemovedToken() {
-    CachedDeserializable cachedDeserializable = mock(CachedDeserializable.class);
+    var cachedDeserializable = mock(CachedDeserializable.class);
     when(cachedDeserializable.isSerialized()).thenReturn(true);
     when(cachedDeserializable.getValue()).thenReturn(BYTE_ARRAY);
 
@@ -582,7 +582,7 @@ public class ValueComparisonHelperTest {
 
   @Test
   public void checkEqualsCanCompareCacheDeserializableWithAnObject() {
-    CachedDeserializable cachedDeserializable = mock(CachedDeserializable.class);
+    var cachedDeserializable = mock(CachedDeserializable.class);
     when(cachedDeserializable.isSerialized()).thenReturn(true);
     when(cachedDeserializable.getValue()).thenReturn(BYTE_ARRAY);
     when(cachedDeserializable.getDeserializedForReading()).thenReturn(STRING);
@@ -593,10 +593,10 @@ public class ValueComparisonHelperTest {
 
   @Test
   public void checkEqualsCanCompareObjectAsValueCacheDeserializableWithCacheDeserializable() {
-    CachedDeserializable cachedDeserializable = mock(CachedDeserializable.class);
+    var cachedDeserializable = mock(CachedDeserializable.class);
     when(cachedDeserializable.isSerialized()).thenReturn(true);
     when(cachedDeserializable.getValue()).thenReturn(STRING);
-    CachedDeserializable object = mock(CachedDeserializable.class);
+    var object = mock(CachedDeserializable.class);
     when(object.getDeserializedForReading()).thenReturn(STRING);
 
     assertThat(ValueComparisonHelper.checkEquals(cachedDeserializable, object, false,
@@ -605,7 +605,7 @@ public class ValueComparisonHelperTest {
 
   @Test
   public void checkEqualsCanCompareObjectAsValueCacheDeserializableWithAnObject() {
-    CachedDeserializable cachedDeserializable = mock(CachedDeserializable.class);
+    var cachedDeserializable = mock(CachedDeserializable.class);
     when(cachedDeserializable.isSerialized()).thenReturn(true);
     when(cachedDeserializable.getValue()).thenReturn(STRING);
 

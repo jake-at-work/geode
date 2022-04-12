@@ -32,7 +32,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.FunctionDomainException;
 import org.apache.geode.cache.query.Query;
@@ -51,7 +50,7 @@ public class FunctionJUnitTest {
   @Before
   public void setUp() throws java.lang.Exception {
     CacheUtils.startCache();
-    Region region = CacheUtils.createRegion("Portfolios", Portfolio.class);
+    var region = CacheUtils.createRegion("Portfolios", Portfolio.class);
     region.put("0", new Portfolio(0));
     region.put("1", new Portfolio(1));
     region.put("2", new Portfolio(2));
@@ -71,17 +70,17 @@ public class FunctionJUnitTest {
     CompiledValue cv4 = new CompiledLiteral(null);
     CompiledValue cv5 = new CompiledLiteral(10);
     CompiledValue cv6 = new CompiledLiteral(5);
-    CompiledValue[][] cvArr = new CompiledValue[][] {{cv1, cv2, cv3, cv4, cv5, cv6},
+    var cvArr = new CompiledValue[][] {{cv1, cv2, cv3, cv4, cv5, cv6},
         {cv6, cv5, cv3, cv4, cv2, cv1}, {cv1, cv3, cv5, cv2, cv4, cv6}, {cv1}, {cv3}, {cv5}};
 
-    String[] canonicalizedArgs =
-        {"('str1','str2',null,null,10,5)", "(5,10,null,null,'str2','str1')",
+    var canonicalizedArgs =
+        new String[] {"('str1','str2',null,null,10,5)", "(5,10,null,null,'str2','str1')",
             "('str1',null,10,'str2',null,5)", "('str1')", "(null)", "(10)"};
 
     ExecutionContext context = null;
-    for (int i = 0; i < 6; i++) {
+    for (var i = 0; i < 6; i++) {
       CompiledValue cf = new CompiledFunction(cvArr[i], OQLLexerTokenTypes.LITERAL_nvl);
-      StringBuilder clauseBuffer = new StringBuilder();
+      var clauseBuffer = new StringBuilder();
       cf.generateCanonicalizedExpression(clauseBuffer, context);
       if (!clauseBuffer.toString().equals("NVL" + canonicalizedArgs[i])) {
         fail("Canonicalization not done properly");
@@ -98,21 +97,21 @@ public class FunctionJUnitTest {
 
   @Test
   public void testIS_DEFINED() throws Exception {
-    Query query = CacheUtils.getQueryService()
+    var query = CacheUtils.getQueryService()
         .newQuery("SELECT DISTINCT * FROM " + SEPARATOR + "Portfolios where IS_DEFINED(P2.secId)");
-    Object result = query.execute();
+    var result = query.execute();
     if (result instanceof Collection) {
-      for (final Object o : (Collection) result) {
-        Portfolio p = (Portfolio) o;
+      for (final var o : (Collection) result) {
+        var p = (Portfolio) o;
         if (p.getP2() == null) {
           fail(query.getQueryString());
         }
       }
     }
-    Object[][] testData = {{"string", Boolean.TRUE}, {0, Boolean.TRUE},
+    var testData = new Object[][] {{"string", Boolean.TRUE}, {0, Boolean.TRUE},
         {QueryService.UNDEFINED, Boolean.FALSE}, {null, Boolean.TRUE}};
 
-    for (final Object[] testDatum : testData) {
+    for (final var testDatum : testData) {
       query = CacheUtils.getQueryService().newQuery("IS_DEFINED($1)");
       result = query.execute(testDatum);
       if (!result.equals(testDatum[1])) {
@@ -123,22 +122,22 @@ public class FunctionJUnitTest {
 
   @Test
   public void testIS_UNDEFINED() throws Exception {
-    Query query = CacheUtils.getQueryService()
+    var query = CacheUtils.getQueryService()
         .newQuery(
             "SELECT DISTINCT * FROM " + SEPARATOR + "Portfolios where IS_UNDEFINED(P2.secId)");
-    Object result = query.execute();
+    var result = query.execute();
     if (result instanceof Collection) {
-      for (final Object o : (Collection) result) {
-        Portfolio p = (Portfolio) o;
+      for (final var o : (Collection) result) {
+        var p = (Portfolio) o;
         if (p.getP2() != null) {
           fail(query.getQueryString());
         }
       }
     }
-    Object[][] testData = {{"string", Boolean.FALSE}, {0, Boolean.FALSE},
+    var testData = new Object[][] {{"string", Boolean.FALSE}, {0, Boolean.FALSE},
         {QueryService.UNDEFINED, Boolean.TRUE}, {null, Boolean.FALSE}};
 
-    for (final Object[] testDatum : testData) {
+    for (final var testDatum : testData) {
       query = CacheUtils.getQueryService().newQuery("IS_UNDEFINED($1)");
       result = query.execute(testDatum);
       if (!result.equals(testDatum[1])) {
@@ -149,9 +148,9 @@ public class FunctionJUnitTest {
 
   @Test
   public void testELEMENT() throws Exception {
-    Query query = CacheUtils.getQueryService()
+    var query = CacheUtils.getQueryService()
         .newQuery("ELEMENT(SELECT DISTINCT * FROM " + SEPARATOR + "Portfolios where ID =1).status");
-    Object result = query.execute();
+    var result = query.execute();
     if (!result.equals("inactive")) {
       fail(query.getQueryString());
     }
@@ -168,8 +167,8 @@ public class FunctionJUnitTest {
 
   @Test
   public void testNVL() throws Exception {
-    Query query = CacheUtils.getQueryService().newQuery("nvl(NULL, 'foundNull')");
-    Object result = query.execute();
+    var query = CacheUtils.getQueryService().newQuery("nvl(NULL, 'foundNull')");
+    var result = query.execute();
     if (!result.equals("foundNull")) {
       fail(query.getQueryString());
     }
@@ -201,48 +200,52 @@ public class FunctionJUnitTest {
 
   @Test
   public void testTo_Date() throws Exception {
-    String[] queries = {"to_date('10/09/05', 'MM/dd/yy')", "to_date('09/10/05', 'dd/MM/yy')",
-        "to_date('05/10/09', 'yy/MM/dd')", "to_date('05/09/10', 'yy/dd/MM')",
-        "to_date('10/05/09', 'MM/yy/dd')", "to_date('09/05/10', 'dd/yy/MM')",
+    var queries =
+        new String[] {"to_date('10/09/05', 'MM/dd/yy')", "to_date('09/10/05', 'dd/MM/yy')",
+            "to_date('05/10/09', 'yy/MM/dd')", "to_date('05/09/10', 'yy/dd/MM')",
+            "to_date('10/05/09', 'MM/yy/dd')", "to_date('09/05/10', 'dd/yy/MM')",
 
-        "to_date('10/09/2005', 'MM/dd/yy')", "to_date('09/10/2005', 'dd/MM/yy')",
-        "to_date('2005/10/09', 'yy/MM/dd')", "to_date('2005/09/10', 'yy/dd/MM')",
-        "to_date('10/2005/09', 'MM/yy/dd')", "to_date('09/2005/10', 'dd/yy/MM')",
+            "to_date('10/09/2005', 'MM/dd/yy')", "to_date('09/10/2005', 'dd/MM/yy')",
+            "to_date('2005/10/09', 'yy/MM/dd')", "to_date('2005/09/10', 'yy/dd/MM')",
+            "to_date('10/2005/09', 'MM/yy/dd')", "to_date('09/2005/10', 'dd/yy/MM')",
 
-        "to_date('10/09/2005', 'MM/dd/yyyy')", "to_date('09/10/2005', 'dd/MM/yyyy')",
-        "to_date('2005/10/09', 'yyyy/MM/dd')", "to_date('2005/09/10', 'yyyy/dd/MM')",
-        "to_date('10/2005/09', 'MM/yyyy/dd')", "to_date('09/2005/10', 'dd/yyyy/MM')",
-        ////////////////////////////////////////////////////////////////////
+            "to_date('10/09/2005', 'MM/dd/yyyy')", "to_date('09/10/2005', 'dd/MM/yyyy')",
+            "to_date('2005/10/09', 'yyyy/MM/dd')", "to_date('2005/09/10', 'yyyy/dd/MM')",
+            "to_date('10/2005/09', 'MM/yyyy/dd')", "to_date('09/2005/10', 'dd/yyyy/MM')",
+            ////////////////////////////////////////////////////////////////////
 
-        "to_date('100905', 'MMddyy')", "to_date('091005', 'ddMMyy')", "to_date('051009', 'yyMMdd')",
-        "to_date('050910', 'yyddMM')", "to_date('100509', 'MMyydd')", "to_date('090510', 'ddyyMM')",
+            "to_date('100905', 'MMddyy')", "to_date('091005', 'ddMMyy')",
+            "to_date('051009', 'yyMMdd')",
+            "to_date('050910', 'yyddMM')", "to_date('100509', 'MMyydd')",
+            "to_date('090510', 'ddyyMM')",
 
-        "to_date('10092005', 'MMddyy')", "to_date('09102005', 'ddMMyy')",
+            "to_date('10092005', 'MMddyy')", "to_date('09102005', 'ddMMyy')",
 
-        "to_date('10092005', 'MMddyyyy')", "to_date('09102005', 'ddMMyyyy')",
-        "to_date('20051009', 'yyyyMMdd')", "to_date('20050910', 'yyyyddMM')",
-        "to_date('10200509', 'MMyyyydd')", "to_date('09200510', 'ddyyyyMM')",
+            "to_date('10092005', 'MMddyyyy')", "to_date('09102005', 'ddMMyyyy')",
+            "to_date('20051009', 'yyyyMMdd')", "to_date('20050910', 'yyyyddMM')",
+            "to_date('10200509', 'MMyyyydd')", "to_date('09200510', 'ddyyyyMM')",
         //
 
-    };
+        };
 
-    String[] noCheckQueries = {"to_date('100936', 'MMddyyyy')", "to_date('09/10/05', 'dd/MM/yyyy')",
-        "to_date('05/10/09', 'yyyy/MM/dd')", "to_date('05/09/10', 'yyyy/dd/MM')",
-        "to_date('10/05/09', 'MM/yyyy/dd')", "to_date('09/05/10', 'dd/yyyy/MM')",
+    var noCheckQueries =
+        new String[] {"to_date('100936', 'MMddyyyy')", "to_date('09/10/05', 'dd/MM/yyyy')",
+            "to_date('05/10/09', 'yyyy/MM/dd')", "to_date('05/09/10', 'yyyy/dd/MM')",
+            "to_date('10/05/09', 'MM/yyyy/dd')", "to_date('09/05/10', 'dd/yyyy/MM')",
 
-        "to_date('20051009', 'yyMMdd')", "to_date('20050910', 'yyddMM')",
-        "to_date('10200509', 'MMyydd')", "to_date('09200510', 'ddyyMM')",
+            "to_date('20051009', 'yyMMdd')", "to_date('20050910', 'yyddMM')",
+            "to_date('10200509', 'MMyydd')", "to_date('09200510', 'ddyyMM')",
 
-    };
+        };
 
-    String[][] fineGrainedQueries = {new String[] {"10092005121314", "MMddyyyyHHmmss"},
+    var fineGrainedQueries = new String[][] {new String[] {"10092005121314", "MMddyyyyHHmmss"},
         new String[] {"10092005121314567", "MMddyyyyHHmmssSSS"}};
 
     Query query = null;
     Object result = null;
-    Date date = new Date(105, 9, 9);
-    QueryService qs = CacheUtils.getQueryService();
-    for (final String s : queries) {
+    var date = new Date(105, 9, 9);
+    var qs = CacheUtils.getQueryService();
+    for (final var s : queries) {
       query = qs.newQuery(s);
       result = query.execute();
       // CacheUtils.log(((Date)result));
@@ -251,20 +254,20 @@ public class FunctionJUnitTest {
       }
     }
 
-    for (int i = 0; i < noCheckQueries.length; i++) {
+    for (var i = 0; i < noCheckQueries.length; i++) {
       query = qs.newQuery(queries[i]);
       result = query.execute();
       // CacheUtils.log(((Date)result));
 
     }
 
-    for (String[] dateStringAndFormat : fineGrainedQueries) {
-      String dateString = dateStringAndFormat[0];
-      String format = dateStringAndFormat[1];
-      SimpleDateFormat sdf = new SimpleDateFormat(format);
-      Date sdfDate = sdf.parse(dateString);
+    for (var dateStringAndFormat : fineGrainedQueries) {
+      var dateString = dateStringAndFormat[0];
+      var format = dateStringAndFormat[1];
+      var sdf = new SimpleDateFormat(format);
+      var sdfDate = sdf.parse(dateString);
       query = qs.newQuery("to_date('" + dateString + "', '" + format + "')");
-      Date qsDate = (Date) query.execute();
+      var qsDate = (Date) query.execute();
       assertEquals(sdfDate, qsDate);
     }
 

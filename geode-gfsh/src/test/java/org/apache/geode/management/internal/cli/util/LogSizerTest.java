@@ -49,35 +49,35 @@ public class LogSizerTest {
 
   @Test
   public void nullFileArgs_returnsZeroSize() throws Exception {
-    LogExporter sizer = new LogExporter(logFilter, null, null);
+    var sizer = new LogExporter(logFilter, null, null);
     assertThat(sizer.estimateFilteredSize()).isEqualTo(0L);
   }
 
   @Test
   public void noFiles_returnsZeroSize() throws Exception {
-    File mockStatFile = mock(File.class);
-    File mockLogFile = mock(File.class);
+    var mockStatFile = mock(File.class);
+    var mockLogFile = mock(File.class);
     when(mockLogFile.toPath()).thenReturn(
         new File("root" + separator + "parent" + separator + testName + ".log").toPath());
     when(mockStatFile.toPath()).thenReturn(
         new File("root" + separator + "parent" + separator + testName + ".gfs").toPath());
-    LogExporter sizer = new LogExporter(logFilter, mockLogFile, mockStatFile);
+    var sizer = new LogExporter(logFilter, mockLogFile, mockStatFile);
     assertThat(sizer.estimateFilteredSize()).isEqualTo(0L);
   }
 
   @Test
   public void emptyFiles_returnsZeroSize() throws Exception {
-    File mockStatFile = mock(File.class);
-    File mockLogFile = mock(File.class);
+    var mockStatFile = mock(File.class);
+    var mockLogFile = mock(File.class);
     when(mockLogFile.toPath()).thenReturn(
         new File("root" + separator + "parent" + separator + testName + ".log").toPath());
     when(mockStatFile.toPath()).thenReturn(
         new File("root" + separator + "parent" + separator + testName + ".gfs").toPath());
-    LogFilter logFilter =
+    var logFilter =
         new LogFilter(nonFilteringArgs.getLogLevel(), nonFilteringArgs.isThisLogLevelOnly(),
             nonFilteringArgs.getStartTime(), nonFilteringArgs.getEndTime());
 
-    LogExporter sizer = new LogExporter(logFilter, mockLogFile, mockStatFile);
+    var sizer = new LogExporter(logFilter, mockLogFile, mockStatFile);
     assertThat(sizer.estimateFilteredSize()).isEqualTo(0L);
   }
 }

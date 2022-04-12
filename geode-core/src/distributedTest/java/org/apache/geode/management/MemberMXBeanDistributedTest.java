@@ -20,8 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.Serializable;
 
-import javax.management.ObjectName;
-
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -31,7 +29,6 @@ import org.junit.rules.TestName;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.partition.PartitionRegionHelper;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.categories.GfshTest;
@@ -70,7 +67,7 @@ public class MemberMXBeanDistributedTest implements
 
   @Test
   public void testBucketCount() {
-    String regionName = "testCreateRegion";
+    var regionName = "testCreateRegion";
 
     gfsh.executeAndAssertThat("create region"
         + " --name=" + regionName
@@ -83,15 +80,15 @@ public class MemberMXBeanDistributedTest implements
     server4.invoke(() -> createBuckets(regionName));
 
     await().untilAsserted(() -> {
-      final int sumOfBuckets = server1.invoke(this::getBucketsInitialized) +
+      final var sumOfBuckets = server1.invoke(this::getBucketsInitialized) +
           server2.invoke(this::getBucketsInitialized) +
           server3.invoke(this::getBucketsInitialized) +
           server4.invoke(this::getBucketsInitialized);
       assertThat(sumOfBuckets).isEqualTo(1000);
     });
 
-    for (int i = 1; i < 4; i++) {
-      final String tempRegioName = regionName + i;
+    for (var i = 1; i < 4; i++) {
+      final var tempRegioName = regionName + i;
 
       gfsh.executeAndAssertThat("create region"
           + " --name=" + tempRegioName
@@ -106,7 +103,7 @@ public class MemberMXBeanDistributedTest implements
     }
 
     await().untilAsserted(() -> {
-      final int sumOfBuckets = server1.invoke(this::getBucketsInitialized) +
+      final var sumOfBuckets = server1.invoke(this::getBucketsInitialized) +
           server2.invoke(this::getBucketsInitialized) +
           server3.invoke(this::getBucketsInitialized) +
           server4.invoke(this::getBucketsInitialized);
@@ -118,10 +115,10 @@ public class MemberMXBeanDistributedTest implements
   private int getBucketsInitialized() {
     Cache cache = ClusterStartupRule.getCache();
 
-    DistributedMember member = cache.getDistributedSystem().getDistributedMember();
-    ManagementService mgmtService = ManagementService.getManagementService(cache);
-    ObjectName memberMBeanName = mgmtService.getMemberMBeanName(member);
-    MemberMXBean memberMXBean = mgmtService.getMBeanInstance(memberMBeanName, MemberMXBean.class);
+    var member = cache.getDistributedSystem().getDistributedMember();
+    var mgmtService = ManagementService.getManagementService(cache);
+    var memberMBeanName = mgmtService.getMemberMBeanName(member);
+    var memberMXBean = mgmtService.getMBeanInstance(memberMBeanName, MemberMXBean.class);
 
     return memberMXBean.getTotalBucketCount();
   }

@@ -46,11 +46,11 @@ public class CompanySerializer extends DataSerializer {
   @Override
   public boolean toData(Object o, DataOutput out) throws IOException {
     if (o instanceof Company) {
-      Company company = (Company) o;
+      var company = (Company) o;
       out.writeUTF(company.getName());
 
       // Let's assume that Address is java.io.Serializable
-      Address address = company.getAddress();
+      var address = company.getAddress();
       writeObject(address, out);
       return true;
 
@@ -62,7 +62,7 @@ public class CompanySerializer extends DataSerializer {
   @Override
   public Object fromData(DataInput in) throws IOException, ClassNotFoundException {
 
-    String name = in.readUTF();
+    var name = in.readUTF();
     Address address = readObject(in);
     return new Company(name, address);
   }

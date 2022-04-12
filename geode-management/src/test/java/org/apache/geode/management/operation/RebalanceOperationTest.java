@@ -34,10 +34,10 @@ public class RebalanceOperationTest {
 
   @Test
   public void serializeRebalanceOperation() throws Exception {
-    RebalanceOperation operation = new RebalanceOperation();
+    var operation = new RebalanceOperation();
     operation.setIncludeRegions(Arrays.asList("a", "b"));
-    String json = mapper.writeValueAsString(operation);
-    RebalanceOperation value = mapper.readValue(json, RebalanceOperation.class);
+    var json = mapper.writeValueAsString(operation);
+    var value = mapper.readValue(json, RebalanceOperation.class);
     assertThat(value.getIncludeRegions()).isEqualTo(Arrays.asList("a", "b"));
   }
 }

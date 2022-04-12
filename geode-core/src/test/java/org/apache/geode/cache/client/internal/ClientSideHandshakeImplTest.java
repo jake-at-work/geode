@@ -107,7 +107,7 @@ public class ClientSideHandshakeImplTest {
     when(socket.getOutputStream()).thenReturn(outputStream);
     when(socket.getInputStream()).thenReturn(inputStream);
 
-    ClientSideHandshakeImpl handshake =
+    var handshake =
         new ClientSideHandshakeImpl(proxyId, system, securityService, false);
     assertThatThrownBy(() -> handshake.handshakeWithServer(connection, member, ClientToServer))
         .isInstanceOf(ServerRefusedConnectionException.class);
@@ -127,7 +127,7 @@ public class ClientSideHandshakeImplTest {
     when(socket.getOutputStream()).thenReturn(outputStream);
     when(socket.getInputStream()).thenReturn(inputStream);
 
-    ClientSideHandshakeImpl handshake =
+    var handshake =
         new ClientSideHandshakeImpl(proxyId, system, securityService, false);
     assertThatThrownBy(() -> handshake.handshakeWithServer(connection, member, GatewayToGateway))
         .isInstanceOf(ServerRefusedConnectionException.class);
@@ -147,7 +147,7 @@ public class ClientSideHandshakeImplTest {
     when(socket.getOutputStream()).thenReturn(outputStream);
     when(socket.getInputStream()).thenReturn(inputStream);
 
-    ClientSideHandshakeImpl handshake =
+    var handshake =
         new ClientSideHandshakeImpl(proxyId, system, securityService, false);
     assertThatThrownBy(() -> handshake.handshakeWithServer(connection, member, GatewayToGateway))
         .isInstanceOf(ServerRefusedConnectionException.class);
@@ -155,7 +155,7 @@ public class ClientSideHandshakeImplTest {
 
 
   private ByteBufferInputStream returnRefuseHandshake() throws IOException {
-    HeapDataOutputStream hdos = new HeapDataOutputStream(32, KnownVersion.CURRENT);
+    var hdos = new HeapDataOutputStream(32, KnownVersion.CURRENT);
     // Write refused reply
     hdos.writeByte(REPLY_REFUSED);
     // write dummy endpointType
@@ -168,23 +168,23 @@ public class ClientSideHandshakeImplTest {
         new InternalDistributedMember(InetAddress.getByName("localhost"), 50505, false,
             false);
 
-    HeapDataOutputStream memberDos = new HeapDataOutputStream(KnownVersion.CURRENT);
+    var memberDos = new HeapDataOutputStream(KnownVersion.CURRENT);
     DataSerializer.writeObject(member, memberDos);
     DataSerializer.writeByteArray(memberDos.toByteArray(), hdos);
     memberDos.close();
 
-    String message = "exceeded max-connections 800.";
+    var message = "exceeded max-connections 800.";
     hdos.writeUTF(message);
     hdos.writeBoolean(Boolean.TRUE);
     hdos.toByteArray();
 
-    ByteBufferInputStream bbis = new ByteBufferInputStream(hdos.toByteBuffer());
+    var bbis = new ByteBufferInputStream(hdos.toByteBuffer());
     hdos.close();
     return bbis;
   }
 
   private ByteBufferInputStream returnInvalidHandshake() throws IOException {
-    HeapDataOutputStream hdos = new HeapDataOutputStream(32, KnownVersion.CURRENT);
+    var hdos = new HeapDataOutputStream(32, KnownVersion.CURRENT);
     // Write refused reply
     hdos.writeByte(REPLY_INVALID);
     // write dummy endpointType
@@ -197,17 +197,17 @@ public class ClientSideHandshakeImplTest {
         new InternalDistributedMember(InetAddress.getByName("localhost"), 50505, false,
             false);
 
-    HeapDataOutputStream memberDos = new HeapDataOutputStream(KnownVersion.CURRENT);
+    var memberDos = new HeapDataOutputStream(KnownVersion.CURRENT);
     DataSerializer.writeObject(member, memberDos);
     DataSerializer.writeByteArray(memberDos.toByteArray(), hdos);
     memberDos.close();
 
-    String message = "Received Unknown handshake reply code.";
+    var message = "Received Unknown handshake reply code.";
     hdos.writeUTF(message);
     hdos.writeBoolean(Boolean.TRUE);
     hdos.toByteArray();
 
-    ByteBufferInputStream bbis = new ByteBufferInputStream(hdos.toByteBuffer());
+    var bbis = new ByteBufferInputStream(hdos.toByteBuffer());
     hdos.close();
     return bbis;
   }

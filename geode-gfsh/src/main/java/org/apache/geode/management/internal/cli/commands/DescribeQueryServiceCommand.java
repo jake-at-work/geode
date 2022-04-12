@@ -17,21 +17,16 @@
 
 package org.apache.geode.management.internal.cli.commands;
 
-import java.util.Set;
 
 import org.springframework.shell.core.annotation.CliCommand;
 
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.configuration.CacheConfig;
 import org.apache.geode.cache.query.management.configuration.QueryConfigService;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.InternalConfigurationPersistenceService;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.management.cli.GfshCommand;
 import org.apache.geode.management.internal.cli.functions.DescribeQueryServiceFunction;
-import org.apache.geode.management.internal.cli.result.model.DataResultModel;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.functions.CliFunctionResult;
 import org.apache.geode.management.internal.security.ResourceOperation;
 import org.apache.geode.security.ResourcePermission;
 
@@ -53,15 +48,15 @@ public class DescribeQueryServiceCommand extends GfshCommand {
       operation = ResourcePermission.Operation.READ)
   public ResultModel execute() {
 
-    QueryConfigService queryConfigService = getQueryConfigService();
+    var queryConfigService = getQueryConfigService();
 
     if (queryConfigService != null) {
       return constructResultModelFromQueryService(queryConfigService);
     } else {
-      Set<DistributedMember> targetMembers = findMembers(null, null);
+      var targetMembers = findMembers(null, null);
       if (targetMembers.size() > 0) {
-        for (DistributedMember member : targetMembers) {
-          CliFunctionResult result =
+        for (var member : targetMembers) {
+          var result =
               executeFunctionAndGetFunctionResult(new DescribeQueryServiceFunction(), null, member);
           if (result.isSuccessful()) {
             queryConfigService = (QueryConfigService) result.getResultObject();
@@ -79,7 +74,7 @@ public class DescribeQueryServiceCommand extends GfshCommand {
   QueryConfigService getQueryConfigService() {
     InternalConfigurationPersistenceService configService = getConfigurationPersistenceService();
     if (configService != null) {
-      CacheConfig cacheConfig = configService.getCacheConfig(null);
+      var cacheConfig = configService.getCacheConfig(null);
       if (cacheConfig != null) {
         return cacheConfig.findCustomCacheElement(QueryConfigService.ELEMENT_ID,
             QueryConfigService.class);
@@ -89,7 +84,7 @@ public class DescribeQueryServiceCommand extends GfshCommand {
   }
 
   ResultModel constructResultModelFromQueryService(QueryConfigService queryConfigurationService) {
-    ResultModel result = new ResultModel();
+    var result = new ResultModel();
 
     addMethodAuthorizerToResultModel(queryConfigurationService, result);
 
@@ -98,10 +93,10 @@ public class DescribeQueryServiceCommand extends GfshCommand {
 
   void addMethodAuthorizerToResultModel(QueryConfigService queryConfigurationService,
       ResultModel result) {
-    QueryConfigService.MethodAuthorizer methodAuthorizer =
+    var methodAuthorizer =
         queryConfigurationService.getMethodAuthorizer();
 
-    DataResultModel dataResultModel = result.addData(QUERY_SERVICE_DATA_SECTION);
+    var dataResultModel = result.addData(QUERY_SERVICE_DATA_SECTION);
 
     if (methodAuthorizer != null) {
       if (isSecurityEnabled()) {

@@ -30,12 +30,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.Index;
 import org.apache.geode.cache.query.IndexType;
 import org.apache.geode.cache.query.Query;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.cache.query.internal.QueryObserverAdapter;
@@ -58,14 +56,15 @@ public class IndependentOperandsInWhereClause2JUnitTest {
 
   @Test
   public void testIndependentOperands() throws Exception {
-    Region region = CacheUtils.createRegion("portfolios", Portfolio.class);
-    for (int i = 0; i < 4; i++) {
+    var region = CacheUtils.createRegion("portfolios", Portfolio.class);
+    for (var i = 0; i < 4; i++) {
       region.put("" + i, new Portfolio(i));
     }
-    QueryService qs = CacheUtils.getQueryService();
-    String[] queries = {
+    var qs = CacheUtils.getQueryService();
+    var queries = new String[] {
         /* 1 */ "select distinct * from " + SEPARATOR
-            + "portfolios pf, positions.values pos where  (pf.ID > 1 or status = 'active') or (true AND pos.secId ='IBM')", // size
+            + "portfolios pf, positions.values pos where  (pf.ID > 1 or status = 'active') or (true AND pos.secId ='IBM')",
+        // size
         // 6
         // noi
         // 3
@@ -84,9 +83,9 @@ public class IndependentOperandsInWhereClause2JUnitTest {
             + "pf.key IN (select distinct * from pf.value.collectionHolderMap['0'].arr)) structset "
             + "where structset.sos > 2000", // size 42 numof indexes 0.
         /* 4 */ "select distinct * from " + SEPARATOR + "portfolios pf where true and ID = 0 ", // size
-                                                                                                // 1,
-                                                                                                // noi
-                                                                                                // 1
+        // 1,
+        // noi
+        // 1
         /* 5 */ "select distinct * from " + SEPARATOR
             + "portfolios pf, positions.values pos where true = true and pos.secId ='IBM'", // size
         // 1
@@ -97,24 +96,30 @@ public class IndependentOperandsInWhereClause2JUnitTest {
         // 0
         // noi
         /* 7 */ "select distinct * from " + SEPARATOR + "portfolios pf where true or ID = 0 ", // size
-                                                                                               // 4
+        // 4
         /* 8 */ "select distinct * from " + SEPARATOR
-            + "portfolios pf, positions.values pos  where true = true and pf.ID > 1 and pos.secId ='IBM'", // size
+            + "portfolios pf, positions.values pos  where true = true and pf.ID > 1 and pos.secId ='IBM'",
+        // size
         // 0
         /* 9 */ "select distinct * from " + SEPARATOR
-            + "portfolios pf, positions.values pos where true = false and pf.ID > 1 and pos.secId ='IBM'", // size
+            + "portfolios pf, positions.values pos where true = false and pf.ID > 1 and pos.secId ='IBM'",
+        // size
         // 0
         /* 10 */ "select distinct * from " + SEPARATOR
-            + "portfolios pf, positions.values pos where true = true and pf.ID > 1 or pos.secId ='IBM'", // size
+            + "portfolios pf, positions.values pos where true = true and pf.ID > 1 or pos.secId ='IBM'",
+        // size
         // 5
         /* 11 */ "select distinct * from " + SEPARATOR
-            + "portfolios pf, positions.values pos where true = false and pf.ID > 1 or pos.secId ='IBM'", // size
+            + "portfolios pf, positions.values pos where true = false and pf.ID > 1 or pos.secId ='IBM'",
+        // size
         // 1
         /* 12 */ "select distinct * from " + SEPARATOR
-            + "portfolios pf, positions.values pos where  (true AND pos.secId ='SUN') or (pf.ID > 1 and status != 'active')", // size
+            + "portfolios pf, positions.values pos where  (true AND pos.secId ='SUN') or (pf.ID > 1 and status != 'active')",
+        // size
         // 2
         /* 13 */ "select distinct * from " + SEPARATOR
-            + "portfolios pf, positions.values pos  where  (pf.ID > 1 or status = 'active') or (false AND pos.secId ='IBM')", // size
+            + "portfolios pf, positions.values pos  where  (pf.ID > 1 or status = 'active') or (false AND pos.secId ='IBM')",
+        // size
         // 6
         /* 14 */ "SELECT DISTINCT * FROM " + SEPARATOR
             + "portfolios pf, pf.positions.values position "
@@ -133,20 +138,22 @@ public class IndependentOperandsInWhereClause2JUnitTest {
             + "WHERE (true = null OR position.secId = 'SUN') OR false", // size 1
         /* 19 */ "select distinct * from " + SEPARATOR + "portfolios pf, positions.values pos "
             + "where (pf.ID < 1 and status = 'active') and (false or pos.secId = 'IBM')", // size 1
-        /* 20 */ "select distinct * from " + SEPARATOR + "portfolios pf where false and ID = 0 ", // size
-                                                                                                  // 0
+        /* 20 */ "select distinct * from " + SEPARATOR + "portfolios pf where false and ID = 0 ",
+        // size
+        // 0
         /* 21 */ "select distinct * from " + SEPARATOR + "portfolios pf where false or ID = 0 ", // size
-                                                                                                 // 1
-        /* 22 */ "select distinct * from " + SEPARATOR + "portfolios pf where ID = 0 and false  ", // size
-                                                                                                   // 0
+        // 1
+        /* 22 */ "select distinct * from " + SEPARATOR + "portfolios pf where ID = 0 and false  ",
+        // size
+        // 0
         /* 23 */ "select distinct * from " + SEPARATOR + "portfolios pf where ID = 0 or false", // size
-                                                                                                // 1
+        // 1
         /* 24 */ "select distinct * from " + SEPARATOR + "portfolios pf, positions.values pos "
             + "where (ID = 2 and true) and (status = 'active' or (pos.secId != 'IBM' and true))  ", // size
-                                                                                                    // 2
+        // 2
         /* 25 */ "select distinct * from " + SEPARATOR + "portfolios pf, positions.values pos "
             + "where (ID = 2 or false) or (status = 'active' and (pos.secId != 'IBM' or true))  ", // size
-                                                                                                   // 2
+        // 2
         /* 26 */ "SELECT DISTINCT * FROM " + SEPARATOR + "portfolios pf,"
             + " (SELECT DISTINCT * FROM " + SEPARATOR
             + "portfolios ptf, ptf.positions pos where pf.ID != 1 and pos.value.sharesOutstanding > 2000) as x"
@@ -157,16 +164,17 @@ public class IndependentOperandsInWhereClause2JUnitTest {
             + " WHERE pos.value.secId = 'HP'", // size 3
     };
 
-    int[] sizeOfResult =
-        {6, 6, 42, 1, 1, 0, 4, 0, 0, 5, 1, 2, 6, 1, 1, 6, 8, 1, 1, 0, 1, 0, 1, 2, 4, 0, 3};
-    SelectResults[][] sr = new SelectResults[queries.length][2];
-    for (int i = 0; i < queries.length; i++) {
+    var sizeOfResult =
+        new int[] {6, 6, 42, 1, 1, 0, 4, 0, 0, 5, 1, 2, 6, 1, 1, 6, 8, 1, 1, 0, 1, 0, 1, 2, 4, 0,
+            3};
+    var sr = new SelectResults[queries.length][2];
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       q = CacheUtils.getQueryService().newQuery(queries[i]);
-      QueryObserverImpl observer = new QueryObserverImpl();
+      var observer = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer);
 
-      Object r = q.execute();
+      var r = q.execute();
       sr[i][0] = (SelectResults) r;
       if (!observer.isIndexesUsed) {
         CacheUtils.log("NO INDEX USED");
@@ -186,14 +194,14 @@ public class IndependentOperandsInWhereClause2JUnitTest {
     qs.createIndex("statusIdx", IndexType.FUNCTIONAL, "pf.status",
         SEPARATOR + "portfolios pf, pf.positions.values b");
     qs.createIndex("Idindex2", IndexType.FUNCTIONAL, "pf.ID", SEPARATOR + "portfolios pf");
-    for (int j = 0; j < queries.length; j++) {
+    for (var j = 0; j < queries.length; j++) {
       Query q2 = null;
       q2 = CacheUtils.getQueryService().newQuery(queries[j]);
-      QueryObserverImpl observer2 = new QueryObserverImpl();
+      var observer2 = new QueryObserverImpl();
       QueryObserverHolder.setInstance(observer2);
       try {
 
-        Object r2 = q2.execute();
+        var r2 = q2.execute();
         sr[j][1] = (SelectResults) r2;
         if (((Collection) r2).size() != sizeOfResult[j]) {
           fail("SIZE NOT as expected for QUery no :" + (j + 1));

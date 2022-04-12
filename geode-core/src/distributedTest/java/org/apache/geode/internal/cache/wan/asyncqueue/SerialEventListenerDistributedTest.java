@@ -30,7 +30,6 @@ import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.junit.Before;
@@ -39,13 +38,11 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.Declarable;
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.asyncqueue.AsyncEvent;
 import org.apache.geode.cache.asyncqueue.AsyncEventListener;
 import org.apache.geode.cache.asyncqueue.AsyncEventQueue;
-import org.apache.geode.cache.asyncqueue.AsyncEventQueueFactory;
 import org.apache.geode.cache.asyncqueue.internal.InternalAsyncEventQueue;
 import org.apache.geode.cache.wan.GatewaySender;
 import org.apache.geode.internal.cache.InternalCache;
@@ -89,7 +86,7 @@ public class SerialEventListenerDistributedTest implements Serializable {
     vm1 = getVM(1);
     vm2 = getVM(2);
 
-    String className = getClass().getSimpleName();
+    var className = getClass().getSimpleName();
     replicateRegionName = className + "_RR";
 
     asyncEventQueueId = className;
@@ -191,9 +188,9 @@ public class SerialEventListenerDistributedTest implements Serializable {
     assertThat(diskStoreName).isNotEmpty();
     assertThat(asyncEventQueueId).isNotEmpty();
 
-    File directory = createDirectory(createDiskStoreName(asyncEventQueueId));
+    var directory = createDirectory(createDiskStoreName(asyncEventQueueId));
 
-    DiskStoreFactory diskStoreFactory = getCache().createDiskStoreFactory();
+    var diskStoreFactory = getCache().createDiskStoreFactory();
     diskStoreFactory.setDiskDirs(new File[] {directory});
 
     diskStoreFactory.create(diskStoreName);
@@ -202,7 +199,7 @@ public class SerialEventListenerDistributedTest implements Serializable {
   private File createDirectory(String name) {
     assertThat(name).isNotEmpty();
 
-    File directory = new File(temporaryFolder.getRoot(), name);
+    var directory = new File(temporaryFolder.getRoot(), name);
     if (!directory.exists()) {
       try {
         return temporaryFolder.newFolder(name);
@@ -227,7 +224,7 @@ public class SerialEventListenerDistributedTest implements Serializable {
     assertThat(asyncEventQueueId).isNotEmpty();
     assertThat(asyncEventListener).isNotNull();
 
-    AsyncEventQueueFactory asyncEventQueueFactory = getCache().createAsyncEventQueueFactory();
+    var asyncEventQueueFactory = getCache().createAsyncEventQueueFactory();
     asyncEventQueueFactory.setBatchConflationEnabled(isBatchConflationEnabled);
     asyncEventQueueFactory.setBatchSize(batchSize);
     asyncEventQueueFactory.setDispatcherThreads(1);
@@ -252,7 +249,7 @@ public class SerialEventListenerDistributedTest implements Serializable {
 
     createDiskStore(diskStoreName, asyncEventQueueId);
 
-    AsyncEventQueueFactory asyncEventQueueFactory = getCache().createAsyncEventQueueFactory();
+    var asyncEventQueueFactory = getCache().createAsyncEventQueueFactory();
     asyncEventQueueFactory.setBatchConflationEnabled(isBatchConflationEnabled);
     asyncEventQueueFactory.setBatchSize(batchSize);
     asyncEventQueueFactory.setDiskStoreName(diskStoreName);
@@ -267,7 +264,7 @@ public class SerialEventListenerDistributedTest implements Serializable {
 
   private void doPuts(String regionName, int numPuts) {
     Region<Integer, Integer> region = getCache().getRegion(regionName);
-    for (int i = 0; i < numPuts; i++) {
+    for (var i = 0; i < numPuts; i++) {
       region.put(i, i);
     }
   }
@@ -299,7 +296,7 @@ public class SerialEventListenerDistributedTest implements Serializable {
 
     await().untilAsserted(() -> assertThat(eventsMap).hasSize(expectedSize));
 
-    for (AsyncEvent<?, ?> event : eventsMap.values()) {
+    for (var event : eventsMap.values()) {
       assertThat(event.getPossibleDuplicate()).isTrue();
     }
   }
@@ -314,7 +311,7 @@ public class SerialEventListenerDistributedTest implements Serializable {
   }
 
   private InternalGatewaySender getInternalGatewaySender() {
-    InternalGatewaySender gatewaySender = getInternalAsyncEventQueue().getSender();
+    var gatewaySender = getInternalAsyncEventQueue().getSender();
     assertThat(gatewaySender).isNotNull();
     return gatewaySender;
   }
@@ -328,7 +325,7 @@ public class SerialEventListenerDistributedTest implements Serializable {
   }
 
   private AsyncEventListener getAsyncEventListener() {
-    AsyncEventListener asyncEventListener = getAsyncEventQueue().getAsyncEventListener();
+    var asyncEventListener = getAsyncEventQueue().getAsyncEventListener();
     assertThat(asyncEventListener).isNotNull();
     return asyncEventListener;
   }
@@ -340,8 +337,8 @@ public class SerialEventListenerDistributedTest implements Serializable {
   private AsyncEventQueue getAsyncEventQueue() {
     AsyncEventQueue value = null;
 
-    Set<AsyncEventQueue> asyncEventQueues = getCache().getAsyncEventQueues();
-    for (AsyncEventQueue asyncEventQueue : asyncEventQueues) {
+    var asyncEventQueues = getCache().getAsyncEventQueues();
+    for (var asyncEventQueue : asyncEventQueues) {
       if (asyncEventQueueId.equals(asyncEventQueue.getId())) {
         value = asyncEventQueue;
       }
@@ -385,7 +382,7 @@ public class SerialEventListenerDistributedTest implements Serializable {
 
     @Override
     public synchronized boolean processEvents(List<AsyncEvent> events) {
-      int i = 0;
+      var i = 0;
       for (AsyncEvent<K, V> event : events) {
         i++;
         if (!exceptionThrown && i == 40) {

@@ -44,7 +44,7 @@ public class ClusterNode {
     if (!(o instanceof ClusterNode)) {
       return false;
     }
-    ClusterNode that = (ClusterNode) o;
+    var that = (ClusterNode) o;
     return port == that.port && primary == that.primary && ipAddress.equals(that.ipAddress) &&
         slots.equals(that.slots);
   }
@@ -66,7 +66,7 @@ public class ClusterNode {
   }
 
   public boolean isSlotOnNode(int slot) {
-    for (Pair<Long, Long> slotRange : slots) {
+    for (var slotRange : slots) {
       if (slotRange.getLeft() <= slot && slotRange.getRight() >= slot) {
         return true;
       }

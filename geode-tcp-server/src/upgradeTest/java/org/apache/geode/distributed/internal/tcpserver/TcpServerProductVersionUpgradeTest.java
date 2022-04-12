@@ -21,14 +21,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.Serializable;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
@@ -104,12 +100,12 @@ public class TcpServerProductVersionUpgradeTest implements Serializable {
    */
   private static TestVersion getOldProductVersion() {
 
-    final Map<Boolean, List<TestVersion>> groups =
+    final var groups =
         VersionManager.getInstance().getVersionsWithoutCurrent().stream()
             .map(TestVersion::valueOf)
             .collect(Collectors.partitioningBy(v -> v.lessThan(FIRST_NEW_VERSION)));
 
-    final List<TestVersion> olderVersions = groups.get(true);
+    final var olderVersions = groups.get(true);
 
     if (olderVersions.size() < 1) {
       throw new AssertionError("Time to decommission TcpServerProductVersionUpgradeTest "
@@ -150,16 +146,16 @@ public class TcpServerProductVersionUpgradeTest implements Serializable {
 
   @Test
   public void testAllMessageTypes() {
-    int clientVMNumber =
+    var clientVMNumber =
         versions.clientProductVersion.equals(TestVersion.CURRENT_VERSION)
             ? DUnitLauncher.DEBUGGING_VM_NUM : 0;
-    int locatorVMNumber =
+    var locatorVMNumber =
         versions.locatorProductVersion.equals(TestVersion.CURRENT_VERSION)
             ? DUnitLauncher.DEBUGGING_VM_NUM : 0;
-    VM clientVM = Host.getHost(0).getVM(versions.clientProductVersion.toString(), clientVMNumber);
-    VM locatorVM =
+    var clientVM = Host.getHost(0).getVM(versions.clientProductVersion.toString(), clientVMNumber);
+    var locatorVM =
         Host.getHost(0).getVM(versions.locatorProductVersion.toString(), locatorVMNumber);
-    int locatorPort = createLocator(locatorVM);
+    var locatorPort = createLocator(locatorVM);
 
     clientVM.invoke("issue version request",
         createRequestResponseFunction(locatorPort, VersionRequest.class.getName(),
@@ -169,7 +165,7 @@ public class TcpServerProductVersionUpgradeTest implements Serializable {
         createRequestResponseFunction(locatorPort, ShutdownRequest.class.getName(),
             ShutdownResponse.class.getName()));
     locatorVM.invoke("wait for locator to stop", () -> {
-      Locator locator = Locator.getLocator();
+      var locator = Locator.getLocator();
       if (locator != null) {
         ((InternalLocator) locator).stop(false, false, false);
         GeodeAwaitility.await().until(((InternalLocator) locator)::isStopped);
@@ -178,7 +174,7 @@ public class TcpServerProductVersionUpgradeTest implements Serializable {
   }
 
   private int createLocator(VM memberVM) {
-    final int port = AvailablePortHelper.getRandomAvailableTCPPort();
+    final var port = AvailablePortHelper.getRandomAvailableTCPPort();
 
     return memberVM.invoke("create locator", () -> {
       System.setProperty(GMSJoinLeave.BYPASS_DISCOVERY_PROPERTY, "true");
@@ -209,8 +205,8 @@ public class TcpServerProductVersionUpgradeTest implements Serializable {
 
     return () -> {
 
-      final Class<?> requestClass = Class.forName(requestClassName);
-      final Object requestMessage = requestClass.newInstance();
+      final var requestClass = Class.forName(requestClassName);
+      final var requestMessage = requestClass.newInstance();
 
       final TcpClient tcpClient;
       if (versions.clientProductVersion.greaterThanOrEqualTo(FIRST_NEW_VERSION)) {
@@ -221,10 +217,10 @@ public class TcpServerProductVersionUpgradeTest implements Serializable {
 
       @SuppressDeprecationForBackwardsCompatibilityTesting
       @SuppressWarnings("deprecation")
-      final InetAddress localHost = SocketCreator.getLocalHost();
+      final var localHost = SocketCreator.getLocalHost();
       Object response;
       try {
-        Method requestToServer =
+        var requestToServer =
             TcpClient.class.getMethod("requestToServer", InetAddress.class, int.class, Object.class,
                 int.class);
         response = requestToServer.invoke(tcpClient, localHost, locatorPort,
@@ -235,7 +231,7 @@ public class TcpServerProductVersionUpgradeTest implements Serializable {
                 requestMessage, 1000, true);
       }
 
-      final Class<?> responseClass = Class.forName(responseClassName);
+      final var responseClass = Class.forName(responseClassName);
 
       assertThat(response).isInstanceOf(responseClass);
     };
@@ -251,7 +247,7 @@ public class TcpServerProductVersionUpgradeTest implements Serializable {
   private TcpClient getLegacyTcpClient()
       throws NoSuchMethodException, IllegalAccessException, InvocationTargetException,
       InstantiationException {
-    final Constructor<TcpClient> constructor = TcpClient.class.getConstructor(Properties.class);
+    final var constructor = TcpClient.class.getConstructor(Properties.class);
     return constructor.newInstance(getDistributedSystemProperties());
   }
 
@@ -269,11 +265,11 @@ public class TcpServerProductVersionUpgradeTest implements Serializable {
   }
 
   public Properties getDistributedSystemProperties() {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(ENABLE_CLUSTER_CONFIGURATION, "false");
     properties.setProperty(USE_CLUSTER_CONFIGURATION, "false");
     @SuppressWarnings("deprecation")
-    final int currentVMNum = VM.getCurrentVMNum();
+    final var currentVMNum = VM.getCurrentVMNum();
     properties.setProperty(NAME, "vm" + currentVMNum);
     return properties;
   }

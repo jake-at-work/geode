@@ -63,7 +63,7 @@ public class BucketServerLocation66 extends ServerLocation {
     numServerGroups = in.readByte();
     serverGroups = new String[numServerGroups];
     if (numServerGroups > 0) {
-      for (int i = 0; i < numServerGroups; i++) {
+      for (var i = 0; i < numServerGroups; i++) {
         serverGroups[i] = DataSerializer.readString(in);
       }
     }
@@ -77,7 +77,7 @@ public class BucketServerLocation66 extends ServerLocation {
     DataSerializer.writeByte(version, out);
     out.writeByte(numServerGroups);
     if (numServerGroups > 0) {
-      for (String s : serverGroups) {
+      for (var s : serverGroups) {
         DataSerializer.writeString(s, out);
       }
     }

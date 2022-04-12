@@ -48,13 +48,13 @@ public class SystemFailureJUnitTest {
   public void testStopThreads() {
     SystemFailure.signalCacheCreate();
     SystemFailure.startThreads();
-    long start = System.nanoTime();
-    Thread watchDog = SystemFailure.getWatchDogForTest();
-    Thread proctor = SystemFailure.getProctorForTest();
+    var start = System.nanoTime();
+    var watchDog = SystemFailure.getWatchDogForTest();
+    var proctor = SystemFailure.getProctorForTest();
     await().until(watchDog::isAlive);
     await().until(proctor::isAlive);
     SystemFailure.stopThreads();
-    long elapsed = System.nanoTime() - start;
+    var elapsed = System.nanoTime() - start;
     assertTrue("Waited too long to shutdown: " + elapsed,
         elapsed < TimeUnit.MILLISECONDS.toNanos(LONG_WAIT));
     assertFalse(watchDog.isAlive());

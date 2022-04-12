@@ -46,10 +46,10 @@ public class PassJUnitTest extends GoldenTestCase implements ExecutableProcess {
    */
   @Test
   public void testPass() throws Exception {
-    final String goldenString = "Begin " + name() + ".main" + "\n" + "Press Enter to continue."
+    final var goldenString = "Begin " + name() + ".main" + "\n" + "Press Enter to continue."
         + "\n" + "End " + name() + ".main" + "\n";
 
-    final ProcessWrapper process = createProcessWrapper(new ProcessWrapper.Builder(), getClass());
+    final var process = createProcessWrapper(new ProcessWrapper.Builder(), getClass());
     process.execute(createProperties());
     assertTrue(process.isAlive());
 

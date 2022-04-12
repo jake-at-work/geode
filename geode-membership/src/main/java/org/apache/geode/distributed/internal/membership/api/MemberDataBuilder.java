@@ -54,9 +54,9 @@ public interface MemberDataBuilder {
     if (csv == null || csv.length() == 0) {
       return;
     }
-    StringTokenizer st = new StringTokenizer(csv, ",");
+    var st = new StringTokenizer(csv, ",");
     while (st.hasMoreTokens()) {
-      String groupName = st.nextToken().trim();
+      var groupName = st.nextToken().trim();
       if (!groups.contains(groupName)) { // only add each group once
         groups.add(groupName);
       }

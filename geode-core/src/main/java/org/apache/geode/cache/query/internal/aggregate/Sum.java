@@ -32,7 +32,7 @@ public class Sum extends AbstractAggregator {
   @Override
   public void accumulate(Object value) {
     if (value != null && value != QueryService.UNDEFINED) {
-      Number number = (Number) value;
+      var number = (Number) value;
       result += number.doubleValue();
     }
   }

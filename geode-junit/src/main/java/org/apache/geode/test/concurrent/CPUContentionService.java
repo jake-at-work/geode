@@ -106,7 +106,7 @@ public class CPUContentionService {
           + " can be in progress at a time");
     }
     stopWatcher.set(executor.submit(watchForStop(stopCondition)));
-    for (int i = 1; i < threadCount; i++) {
+    for (var i = 1; i < threadCount; i++) {
       tasks.add(executor.submit(generateProbablePrimes()));
     }
   }
@@ -133,12 +133,12 @@ public class CPUContentionService {
 
   private static Callable<BigInteger> generateProbablePrimes() {
     return () -> {
-      Random random = new Random();
+      var random = new Random();
       // To keep the CPU busy, we must prevent the Java and JIT compilers from optimizing this loop
       // out of existence. To do that, we save the the most recently generated prime, and return it
       // when the task is cancelled. Our assumption is that the compilers can't predict that the
       // return value is unused, and is therefore forced to calculate a new prime on each iteration.
-      BigInteger prime = BigInteger.valueOf(0);
+      var prime = BigInteger.valueOf(0);
       while (!Thread.currentThread().isInterrupted()) {
         prime = BigInteger.probablePrime(1000, random);
       }

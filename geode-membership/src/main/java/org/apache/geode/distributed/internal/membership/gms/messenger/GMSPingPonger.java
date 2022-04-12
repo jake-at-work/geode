@@ -59,7 +59,7 @@ public class GMSPingPonger {
   }
 
   private Message createJGMessage(byte[] msgBytes, Address src, Address dest, short version) {
-    Message msg = new Message();
+    var msg = new Message();
     msg.setDest(dest);
     msg.setSrc(src);
     msg.setObject(msgBytes);

@@ -37,9 +37,9 @@ public class StatMonitorHandlerTest {
 
   @Test
   public void testAddNewMonitor() throws Exception {
-    StatMonitorHandler handler = new StatMonitorHandler();
+    var handler = new StatMonitorHandler();
     assertTrue(handler.getMonitorsSnapshot().isEmpty());
-    TestStatisticsMonitor monitor = new TestStatisticsMonitor();
+    var monitor = new TestStatisticsMonitor();
     assertTrue(handler.addMonitor(monitor));
     assertFalse(handler.getMonitorsSnapshot().isEmpty());
     assertTrue(handler.getMonitorsSnapshot().contains(monitor));
@@ -50,7 +50,7 @@ public class StatMonitorHandlerTest {
 
   @Test
   public void testAddExistingMonitorReturnsFalse() throws Exception {
-    StatMonitorHandler handler = new StatMonitorHandler();
+    var handler = new StatMonitorHandler();
     assertTrue(handler.getMonitorsSnapshot().isEmpty());
     StatisticsMonitor monitor = new TestStatisticsMonitor();
     assertTrue(handler.addMonitor(monitor));
@@ -61,9 +61,9 @@ public class StatMonitorHandlerTest {
 
   @Test
   public void testRemoveExistingMonitor() throws Exception {
-    StatMonitorHandler handler = new StatMonitorHandler();
+    var handler = new StatMonitorHandler();
     assertTrue(handler.getMonitorsSnapshot().isEmpty());
-    TestStatisticsMonitor monitor = new TestStatisticsMonitor();
+    var monitor = new TestStatisticsMonitor();
     assertTrue(handler.addMonitor(monitor));
     assertFalse(handler.getMonitorsSnapshot().isEmpty());
     assertTrue(handler.getMonitorsSnapshot().contains(monitor));
@@ -76,7 +76,7 @@ public class StatMonitorHandlerTest {
 
   @Test
   public void testRemoveMissingMonitorReturnsFalse() throws Exception {
-    StatMonitorHandler handler = new StatMonitorHandler();
+    var handler = new StatMonitorHandler();
     assertTrue(handler.getMonitorsSnapshot().isEmpty());
     StatisticsMonitor monitor = new TestStatisticsMonitor();
     assertFalse(handler.getMonitorsSnapshot().contains(monitor));
@@ -86,12 +86,12 @@ public class StatMonitorHandlerTest {
 
   @Test
   public void testNotificationSampleFrequencyDefault() throws Exception {
-    final int sampleFrequency = 1;
-    StatMonitorHandler handler = new StatMonitorHandler();
-    TestStatisticsMonitor monitor = new TestStatisticsMonitor();
+    final var sampleFrequency = 1;
+    var handler = new StatMonitorHandler();
+    var monitor = new TestStatisticsMonitor();
     handler.addMonitor(monitor);
-    final int sampleCount = 100;
-    for (int i = 0; i < sampleCount; i++) {
+    final var sampleCount = 100;
+    for (var i = 0; i < sampleCount; i++) {
       handler.sampled(NanoTimer.getTime(), Collections.emptyList());
       waitForNotificationCount(monitor, 1 + i, 2 * 1000, 10, false);
     }
@@ -100,11 +100,11 @@ public class StatMonitorHandlerTest {
 
   @Test
   public void testNotificationSampleTimeMillis() throws Exception {
-    final long currentTime = System.currentTimeMillis();
-    StatMonitorHandler handler = new StatMonitorHandler();
-    TestStatisticsMonitor monitor = new TestStatisticsMonitor();
+    final var currentTime = System.currentTimeMillis();
+    var handler = new StatMonitorHandler();
+    var monitor = new TestStatisticsMonitor();
     handler.addMonitor(monitor);
-    long nanoTimeStamp = NanoTimer.getTime();
+    var nanoTimeStamp = NanoTimer.getTime();
     handler.sampled(nanoTimeStamp, Collections.emptyList());
     waitForNotificationCount(monitor, 1, 2 * 1000, 10, false);
     assertTrue(monitor.getTimeStamp() != nanoTimeStamp);
@@ -113,26 +113,26 @@ public class StatMonitorHandlerTest {
 
   @Test
   public void testNotificationResourceInstances() throws Exception {
-    final int resourceInstanceCount = 100;
+    final var resourceInstanceCount = 100;
     final List<ResourceInstance> resourceInstances = new ArrayList<>();
-    for (int i = 0; i < resourceInstanceCount; i++) {
+    for (var i = 0; i < resourceInstanceCount; i++) {
       resourceInstances.add(new ResourceInstance(i, null, null));
     }
 
-    StatMonitorHandler handler = new StatMonitorHandler();
-    TestStatisticsMonitor monitor = new TestStatisticsMonitor();
+    var handler = new StatMonitorHandler();
+    var monitor = new TestStatisticsMonitor();
     handler.addMonitor(monitor);
     handler.sampled(NanoTimer.getTime(), Collections.unmodifiableList(resourceInstances));
 
     waitForNotificationCount(monitor, 1, 2 * 1000, 10, false);
 
-    final List<ResourceInstance> notificationResourceInstances = monitor.getResourceInstances();
+    final var notificationResourceInstances = monitor.getResourceInstances();
     assertNotNull(notificationResourceInstances);
     assertEquals(resourceInstances, notificationResourceInstances);
     assertEquals(resourceInstanceCount, notificationResourceInstances.size());
 
-    int i = 0;
-    for (ResourceInstance resourceInstance : notificationResourceInstances) {
+    var i = 0;
+    for (var resourceInstance : notificationResourceInstances) {
       assertEquals(i, resourceInstance.getId());
       i++;
     }
@@ -141,8 +141,8 @@ public class StatMonitorHandlerTest {
   private static void waitForNotificationCount(final TestStatisticsMonitor monitor,
       final int expected, long ms, long interval, boolean throwOnTimeout)
       throws InterruptedException {
-    boolean done = false;
-    for (StopWatch time = new StopWatch(true); !done && time.elapsedTimeMillis() < ms; done =
+    var done = false;
+    for (var time = new StopWatch(true); !done && time.elapsedTimeMillis() < ms; done =
         (monitor.getNotificationCount() >= expected)) {
       Thread.sleep(interval);
     }

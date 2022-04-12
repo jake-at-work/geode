@@ -18,21 +18,20 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import org.apache.geode.cache.server.ServerLoad;
 
 public class ConnectionCountProbeJUnitTest {
 
   @Test
   public void test() {
-    ConnectionCountProbe probe = new ConnectionCountProbe();
-    ServerMetricsImpl metrics = new ServerMetricsImpl(800);
-    ServerLoad load = probe.getLoad(metrics);
+    var probe = new ConnectionCountProbe();
+    var metrics = new ServerMetricsImpl(800);
+    var load = probe.getLoad(metrics);
     assertEquals(0f, load.getConnectionLoad(), .0001f);
     assertEquals(0f, load.getSubscriptionConnectionLoad(), .0001f);
     assertEquals(1 / 800f, load.getLoadPerConnection(), .0001f);
     assertEquals(1f, load.getLoadPerSubscriptionConnection(), .0001f);
 
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       metrics.incConnectionCount();
     }
 

@@ -33,9 +33,9 @@ public class DeltaSessionUpdateAttributeEventIntegrationTest
   @Test
   public void toDataAndFromDataShouldWorkProperly()
       throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
-    DeltaSessionUpdateAttributeEvent originalEvent =
+    var originalEvent =
         new DeltaSessionUpdateAttributeEvent(FIRST_ATTRIBUTE_KEY, FIRST_ATTRIBUTE_VALUE);
-    DeltaSessionUpdateAttributeEvent deserializeEvent =
+    var deserializeEvent =
         (DeltaSessionUpdateAttributeEvent) serializeDeserializeObject(originalEvent);
 
     assertThat(deserializeEvent.getAttributeName()).isEqualTo(originalEvent.getAttributeName());
@@ -47,11 +47,11 @@ public class DeltaSessionUpdateAttributeEventIntegrationTest
   public void applyShouldUpdateTheSessionAttributeWithinTheLocalCacheEntry(
       RegionShortcut regionShortcut) {
     parameterizedSetUp(regionShortcut);
-    DeltaSessionUpdateAttributeEvent updateAttributeEvent =
+    var updateAttributeEvent =
         new DeltaSessionUpdateAttributeEvent(FIRST_ATTRIBUTE_KEY, SECOND_ATTRIBUTE_VALUE);
 
     // Apply event and verify local session entry is modified.
-    DeltaSession deltaSessionInterface = (DeltaSession) httpSessionRegion.get(TEST_SESSION_ID);
+    var deltaSessionInterface = (DeltaSession) httpSessionRegion.get(TEST_SESSION_ID);
     updateAttributeEvent.apply(deltaSessionInterface);
     assertThat(httpSessionRegion.get(TEST_SESSION_ID).getAttribute(FIRST_ATTRIBUTE_KEY))
         .isEqualTo(SECOND_ATTRIBUTE_VALUE);

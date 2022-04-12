@@ -81,9 +81,9 @@ public class ClientRegionEventImpl extends RegionEventImpl {
 
   @Override
   public String toString() {
-    String superStr = super.toString();
-    StringBuilder buffer = new StringBuilder();
-    String str = superStr.substring(0, superStr.length() - 1);
+    var superStr = super.toString();
+    var buffer = new StringBuilder();
+    var str = superStr.substring(0, superStr.length() - 1);
     buffer.append(str).append(";context=").append(getContext()).append(']');
     return buffer.toString();
   }

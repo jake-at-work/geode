@@ -125,8 +125,8 @@ public class AvailablePid {
    * (inclusive).
    */
   public int findAvailablePid() throws TimeoutException {
-    Stopwatch stopwatch = Stopwatch.createStarted();
-    int pid = random();
+    var stopwatch = Stopwatch.createStarted();
+    var pid = random();
     while (isProcessAlive(pid)) {
       if (stopwatch.elapsed(MILLISECONDS) > timeoutMillis) {
         throw new TimeoutException(
@@ -144,7 +144,7 @@ public class AvailablePid {
   public int[] findAvailablePids(final int number) throws TimeoutException {
     Set<Integer> pids = new HashSet<>();
     while (pids.size() < number) {
-      int pid = new AvailablePid().findAvailablePid();
+      var pid = new AvailablePid().findAvailablePid();
       pids.add(pid);
     }
     return Arrays.stream(pids.toArray(new Integer[0])).mapToInt(Integer::intValue).toArray();

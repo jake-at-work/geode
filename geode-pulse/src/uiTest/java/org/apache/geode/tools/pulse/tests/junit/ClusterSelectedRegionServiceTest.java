@@ -24,12 +24,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URI;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.util.EntityUtils;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -93,28 +89,28 @@ public class ClusterSelectedRegionServiceTest extends BaseServiceTest {
         "ClusterSelectedRegionServiceTest ::  ------TESTCASE BEGIN : NULL RESPONSE CHECK FOR CLUSTER REGIONS------");
     if (httpclient != null) {
       try {
-        HttpUriRequest pulseupdate = RequestBuilder.post().setUri(new URI(PULSE_UPDATE_URL))
+        var pulseupdate = RequestBuilder.post().setUri(new URI(PULSE_UPDATE_URL))
             .addParameter(PULSE_UPDATE_PARAM, PULSE_UPDATE_1_VALUE).build();
-        CloseableHttpResponse response = httpclient.execute(pulseupdate);
+        var response = httpclient.execute(pulseupdate);
         try {
-          HttpEntity entity = response.getEntity();
+          var entity = response.getEntity();
 
           System.out.println("ClusterSelectedRegionServiceTest :: HTTP request status : "
               + response.getStatusLine());
-          BufferedReader respReader =
+          var respReader =
               new BufferedReader(new InputStreamReader(entity.getContent()));
-          StringWriter sw = new StringWriter();
-          PrintWriter pw = new PrintWriter(sw);
+          var sw = new StringWriter();
+          var pw = new PrintWriter(sw);
           String sz = null;
           while ((sz = respReader.readLine()) != null) {
             pw.print(sz);
           }
-          String jsonResp = sw.getBuffer().toString();
+          var jsonResp = sw.getBuffer().toString();
           System.out
               .println("ClusterSelectedRegionServiceTest :: JSON response returned : " + jsonResp);
           EntityUtils.consume(entity);
 
-          JSONObject jsonObj = new JSONObject(jsonResp);
+          var jsonObj = new JSONObject(jsonResp);
           Assert.assertNotNull(
               "ClusterSelectedRegionServiceTest :: Server returned null response for ClusterSelectedRegion",
               jsonObj.getJSONObject("ClusterSelectedRegion"));
@@ -143,34 +139,34 @@ public class ClusterSelectedRegionServiceTest extends BaseServiceTest {
         "ClusterSelectedRegionServiceTest ::  ------TESTCASE BEGIN : NULL USERNAME IN RESPONSE CHECK FOR CLUSTER REGIONS------");
     if (httpclient != null) {
       try {
-        HttpUriRequest pulseupdate = RequestBuilder.post().setUri(new URI(PULSE_UPDATE_URL))
+        var pulseupdate = RequestBuilder.post().setUri(new URI(PULSE_UPDATE_URL))
             .addParameter(PULSE_UPDATE_PARAM, PULSE_UPDATE_1_VALUE).build();
-        CloseableHttpResponse response = httpclient.execute(pulseupdate);
+        var response = httpclient.execute(pulseupdate);
         try {
-          HttpEntity entity = response.getEntity();
+          var entity = response.getEntity();
 
           System.out.println("ClusterSelectedRegionServiceTest :: HTTP request status : "
               + response.getStatusLine());
 
-          BufferedReader respReader =
+          var respReader =
               new BufferedReader(new InputStreamReader(entity.getContent()));
-          StringWriter sw = new StringWriter();
-          PrintWriter pw = new PrintWriter(sw);
+          var sw = new StringWriter();
+          var pw = new PrintWriter(sw);
           String sz = null;
           while ((sz = respReader.readLine()) != null) {
             pw.print(sz);
           }
-          String jsonResp = sw.getBuffer().toString();
+          var jsonResp = sw.getBuffer().toString();
           System.out
               .println("ClusterSelectedRegionServiceTest :: JSON response returned : " + jsonResp);
           EntityUtils.consume(entity);
 
-          JSONObject jsonObj = new JSONObject(jsonResp);
-          JSONObject clusterSelectedRegionObj = jsonObj.getJSONObject("ClusterSelectedRegion");
+          var jsonObj = new JSONObject(jsonResp);
+          var clusterSelectedRegionObj = jsonObj.getJSONObject("ClusterSelectedRegion");
           Assert.assertNotNull(
               "ClusterSelectedRegionServiceTest :: Server returned null response for ClusterSelectedRegion",
               clusterSelectedRegionObj);
-          String szUser = clusterSelectedRegionObj.getString("userName");
+          var szUser = clusterSelectedRegionObj.getString("userName");
           Assert.assertEquals(
               "ClusterSelectedRegionServiceTest :: Server returned wrong user name. Expected was admin. Server returned = "
                   + szUser,
@@ -203,41 +199,41 @@ public class ClusterSelectedRegionServiceTest extends BaseServiceTest {
         "ClusterSelectedRegionServiceTest ::  ------TESTCASE BEGIN : REGION PATH IN RESPONSE CHECK FOR CLUSTER REGIONS------");
     if (httpclient != null) {
       try {
-        HttpUriRequest pulseupdate = RequestBuilder.post().setUri(new URI(PULSE_UPDATE_URL))
+        var pulseupdate = RequestBuilder.post().setUri(new URI(PULSE_UPDATE_URL))
             .addParameter(PULSE_UPDATE_PARAM, PULSE_UPDATE_1_VALUE).build();
-        CloseableHttpResponse response = httpclient.execute(pulseupdate);
+        var response = httpclient.execute(pulseupdate);
         try {
-          HttpEntity entity = response.getEntity();
+          var entity = response.getEntity();
 
           System.out.println("ClusterSelectedRegionServiceTest :: HTTP request status : "
               + response.getStatusLine());
 
-          BufferedReader respReader =
+          var respReader =
               new BufferedReader(new InputStreamReader(entity.getContent()));
-          StringWriter sw = new StringWriter();
-          PrintWriter pw = new PrintWriter(sw);
+          var sw = new StringWriter();
+          var pw = new PrintWriter(sw);
           String sz = null;
           while ((sz = respReader.readLine()) != null) {
             pw.print(sz);
           }
-          String jsonResp = sw.getBuffer().toString();
+          var jsonResp = sw.getBuffer().toString();
           System.out
               .println("ClusterSelectedRegionServiceTest :: JSON response returned : " + jsonResp);
           EntityUtils.consume(entity);
 
-          JSONObject jsonObj = new JSONObject(jsonResp);
-          JSONObject clusterSelectedRegionObj = jsonObj.getJSONObject("ClusterSelectedRegion");
+          var jsonObj = new JSONObject(jsonResp);
+          var clusterSelectedRegionObj = jsonObj.getJSONObject("ClusterSelectedRegion");
           Assert.assertNotNull(
               "ClusterSelectedRegionServiceTest :: Server returned null response for ClusterSelectedRegion",
               clusterSelectedRegionObj);
-          JSONObject jsonObjRegion = clusterSelectedRegionObj.getJSONObject("selectedRegion");
+          var jsonObjRegion = clusterSelectedRegionObj.getJSONObject("selectedRegion");
           Assert.assertNotNull(
               "ClusterSelectedRegionServiceTest :: Server returned null response for selectedRegion",
               jsonObjRegion);
           Assert.assertTrue(
               "ClusterSelectedRegionServiceTest :: Server did not return 'path' of region",
               jsonObjRegion.has("path"));
-          String szPath = jsonObjRegion.getString("path");
+          var szPath = jsonObjRegion.getString("path");
           Assert.assertEquals(
               "ClusterSelectedRegionServiceTest :: Server returned wrong region path. Expected region path = "
                   + SEPARATOR + "GlobalVilage_2" + SEPARATOR
@@ -272,34 +268,34 @@ public class ClusterSelectedRegionServiceTest extends BaseServiceTest {
         "ClusterSelectedRegionServiceTest ::  ------TESTCASE BEGIN : NON-EXISTENT REGION CHECK FOR CLUSTER REGIONS------");
     if (httpclient != null) {
       try {
-        HttpUriRequest pulseupdate = RequestBuilder.post().setUri(new URI(PULSE_UPDATE_URL))
+        var pulseupdate = RequestBuilder.post().setUri(new URI(PULSE_UPDATE_URL))
             .addParameter(PULSE_UPDATE_PARAM, PULSE_UPDATE_2_VALUE).build();
-        CloseableHttpResponse response = httpclient.execute(pulseupdate);
+        var response = httpclient.execute(pulseupdate);
         try {
-          HttpEntity entity = response.getEntity();
+          var entity = response.getEntity();
 
           System.out.println("ClusterSelectedRegionServiceTest :: HTTP request status : "
               + response.getStatusLine());
 
-          BufferedReader respReader =
+          var respReader =
               new BufferedReader(new InputStreamReader(entity.getContent()));
-          StringWriter sw = new StringWriter();
-          PrintWriter pw = new PrintWriter(sw);
+          var sw = new StringWriter();
+          var pw = new PrintWriter(sw);
           String sz = null;
           while ((sz = respReader.readLine()) != null) {
             pw.print(sz);
           }
-          String jsonResp = sw.getBuffer().toString();
+          var jsonResp = sw.getBuffer().toString();
           System.out
               .println("ClusterSelectedRegionServiceTest :: JSON response returned : " + jsonResp);
           EntityUtils.consume(entity);
 
-          JSONObject jsonObj = new JSONObject(jsonResp);
-          JSONObject clusterSelectedRegionObj = jsonObj.getJSONObject("ClusterSelectedRegion");
+          var jsonObj = new JSONObject(jsonResp);
+          var clusterSelectedRegionObj = jsonObj.getJSONObject("ClusterSelectedRegion");
           Assert.assertNotNull(
               "ClusterSelectedRegionServiceTest :: Server returned null response for ClusterSelectedRegion",
               clusterSelectedRegionObj);
-          JSONObject jsonObjRegion = clusterSelectedRegionObj.getJSONObject("selectedRegion");
+          var jsonObjRegion = clusterSelectedRegionObj.getJSONObject("selectedRegion");
           Assert.assertNotNull(
               "ClusterSelectedRegionServiceTest :: Server returned null response for selectedRegion",
               jsonObjRegion);
@@ -334,49 +330,49 @@ public class ClusterSelectedRegionServiceTest extends BaseServiceTest {
         "ClusterSelectedRegionServiceTest ::  ------TESTCASE BEGIN : MISMATCHED MEMBERCOUNT FOR REGION CHECK FOR CLUSTER REGIONS------");
     if (httpclient != null) {
       try {
-        HttpUriRequest pulseupdate = RequestBuilder.post().setUri(new URI(PULSE_UPDATE_URL))
+        var pulseupdate = RequestBuilder.post().setUri(new URI(PULSE_UPDATE_URL))
             .addParameter(PULSE_UPDATE_PARAM, PULSE_UPDATE_1_VALUE).build();
-        CloseableHttpResponse response = httpclient.execute(pulseupdate);
+        var response = httpclient.execute(pulseupdate);
         try {
-          HttpEntity entity = response.getEntity();
+          var entity = response.getEntity();
 
           System.out.println("ClusterSelectedRegionServiceTest :: HTTP request status : "
               + response.getStatusLine());
 
-          BufferedReader respReader =
+          var respReader =
               new BufferedReader(new InputStreamReader(entity.getContent()));
-          StringWriter sw = new StringWriter();
-          PrintWriter pw = new PrintWriter(sw);
+          var sw = new StringWriter();
+          var pw = new PrintWriter(sw);
           String sz = null;
           while ((sz = respReader.readLine()) != null) {
             pw.print(sz);
           }
-          String jsonResp = sw.getBuffer().toString();
+          var jsonResp = sw.getBuffer().toString();
           System.out
               .println("ClusterSelectedRegionServiceTest :: JSON response returned : " + jsonResp);
           EntityUtils.consume(entity);
 
-          JSONObject jsonObj = new JSONObject(jsonResp);
-          JSONObject clusterSelectedRegionObj = jsonObj.getJSONObject("ClusterSelectedRegion");
+          var jsonObj = new JSONObject(jsonResp);
+          var clusterSelectedRegionObj = jsonObj.getJSONObject("ClusterSelectedRegion");
           Assert.assertNotNull(
               "ClusterSelectedRegionServiceTest :: Server returned null ClusterSelectedRegion",
               clusterSelectedRegionObj);
-          JSONObject jsonObjRegion = clusterSelectedRegionObj.getJSONObject("selectedRegion");
+          var jsonObjRegion = clusterSelectedRegionObj.getJSONObject("selectedRegion");
           Assert.assertNotNull(
               "ClusterSelectedRegionServiceTest :: Server returned null for selectedRegion",
               jsonObjRegion);
           Assert.assertTrue(
               "ClusterSelectedRegionServiceTest :: Server did not return 'memberCount' of region",
               jsonObjRegion.has("memberCount"));
-          int memberCount = jsonObjRegion.getInt("memberCount");
+          var memberCount = jsonObjRegion.getInt("memberCount");
           Assert.assertTrue(
               "ClusterSelectedRegionServiceTest :: Server did not return 'members' of region",
               jsonObjRegion.has("members"));
-          JSONArray arrMembers = jsonObjRegion.getJSONArray("members");
+          var arrMembers = jsonObjRegion.getJSONArray("members");
           Assert.assertNotNull(
               "ClusterSelectedRegionServiceTest :: Server returned null response in selectedRegion",
               arrMembers);
-          int members = arrMembers.length();
+          var members = arrMembers.length();
           Assert.assertEquals(
               "ClusterSelectedRegionServiceTest :: Server returned mismatched member count and region members",
               members, memberCount);

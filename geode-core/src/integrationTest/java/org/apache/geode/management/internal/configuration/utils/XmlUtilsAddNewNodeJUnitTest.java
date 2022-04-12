@@ -92,18 +92,18 @@ public class XmlUtilsAddNewNodeJUnitTest {
    */
   @Test
   public void testAddNewNodeNewNamed() throws Exception {
-    final String xPath = "/cache:cache/cache:region[@name='r3']";
-    NodeList nodes = XmlUtils.query(config, xPath, xPathContext);
+    final var xPath = "/cache:cache/cache:region[@name='r3']";
+    var nodes = XmlUtils.query(config, xPath, xPathContext);
     assertEquals(0, nodes.getLength());
 
-    final Document changes = XmlUtils.createDocumentFromReader(new InputStreamReader(getClass()
+    final var changes = XmlUtils.createDocumentFromReader(new InputStreamReader(getClass()
         .getResourceAsStream("XmlUtilsAddNewNodeJUnitTest.testAddNewNodeNewNamed.xml")));
     nodes = XmlUtils.query(changes, xPath, xPathContext);
     assertEquals(1, nodes.getLength());
-    Element element = (Element) nodes.item(0);
+    var element = (Element) nodes.item(0);
     assertEquals(CacheXml.GEODE_NAMESPACE, element.getNamespaceURI());
 
-    final XmlEntity xmlEntity = XmlEntity.builder().withType("region").withAttribute("name", "r3")
+    final var xmlEntity = XmlEntity.builder().withType("region").withAttribute("name", "r3")
         .withConfig(changes).build();
     XmlUtils.addNewNode(config, xmlEntity);
 
@@ -112,7 +112,7 @@ public class XmlUtilsAddNewNodeJUnitTest {
     element = (Element) nodes.item(0);
     assertEquals(CacheXml.GEODE_NAMESPACE, element.getNamespaceURI());
 
-    final List<Node> childNodes = getElementNodes(config.getFirstChild().getChildNodes());
+    final var childNodes = getElementNodes(config.getFirstChild().getChildNodes());
 
     assertEquals("r2", childNodes.get(4).getAttributes().getNamedItem("name").getNodeValue());
     assertEquals("r3", childNodes.get(5).getAttributes().getNamedItem("name").getNodeValue());
@@ -123,9 +123,9 @@ public class XmlUtilsAddNewNodeJUnitTest {
    * Return just the nodes from a nodelist that are of type element.
    */
   private List<Node> getElementNodes(NodeList nodes) {
-    ArrayList<Node> result = new ArrayList<>();
-    for (int i = 0; i < nodes.getLength(); i++) {
-      Node node = nodes.item(i);
+    var result = new ArrayList<Node>();
+    for (var i = 0; i < nodes.getLength(); i++) {
+      var node = nodes.item(i);
       if (node.getNodeType() == Node.ELEMENT_NODE) {
         result.add(node);
       }
@@ -143,18 +143,18 @@ public class XmlUtilsAddNewNodeJUnitTest {
    */
   @Test
   public void testAddNewNodeNewUnnamed() throws Exception {
-    final String xPath = "/cache:cache/cache:jndi-bindings";
-    NodeList nodes = XmlUtils.query(config, xPath, xPathContext);
+    final var xPath = "/cache:cache/cache:jndi-bindings";
+    var nodes = XmlUtils.query(config, xPath, xPathContext);
     assertEquals(0, nodes.getLength());
 
-    final Document changes = XmlUtils.createDocumentFromReader(new InputStreamReader(getClass()
+    final var changes = XmlUtils.createDocumentFromReader(new InputStreamReader(getClass()
         .getResourceAsStream("XmlUtilsAddNewNodeJUnitTest.testAddNewNodeNewUnnamed.xml")));
     nodes = XmlUtils.query(changes, xPath, xPathContext);
     assertEquals(1, nodes.getLength());
-    Element element = (Element) nodes.item(0);
+    var element = (Element) nodes.item(0);
     assertEquals(CacheXml.GEODE_NAMESPACE, element.getNamespaceURI());
 
-    final XmlEntity xmlEntity =
+    final var xmlEntity =
         XmlEntity.builder().withType("jndi-bindings").withConfig(changes).build();
     XmlUtils.addNewNode(config, xmlEntity);
 
@@ -163,7 +163,7 @@ public class XmlUtilsAddNewNodeJUnitTest {
     element = (Element) nodes.item(0);
     assertEquals(CacheXml.GEODE_NAMESPACE, element.getNamespaceURI());
 
-    final List<Node> childElements = getElementNodes(config.getFirstChild().getChildNodes());
+    final var childElements = getElementNodes(config.getFirstChild().getChildNodes());
     assertEquals("pdx", childElements.get(2).getNodeName());
     assertEquals("jndi-bindings", childElements.get(3).getNodeName());
     assertEquals("region", childElements.get(4).getNodeName());
@@ -179,19 +179,19 @@ public class XmlUtilsAddNewNodeJUnitTest {
    */
   @Test
   public void testAddNewNodeNewUnnamedExtension() throws Exception {
-    final String xPath = "/cache:cache/test:region";
-    NodeList nodes = XmlUtils.query(config, xPath, xPathContext);
+    final var xPath = "/cache:cache/test:region";
+    var nodes = XmlUtils.query(config, xPath, xPathContext);
     assertEquals(0, nodes.getLength());
 
-    final Document changes = XmlUtils.createDocumentFromReader(new InputStreamReader(getClass()
+    final var changes = XmlUtils.createDocumentFromReader(new InputStreamReader(getClass()
         .getResourceAsStream("XmlUtilsAddNewNodeJUnitTest.testAddNewNodeNewUnnamedExtension.xml")));
     nodes = XmlUtils.query(changes, xPath, xPathContext);
     assertEquals(1, nodes.getLength());
-    Element element = (Element) nodes.item(0);
+    var element = (Element) nodes.item(0);
     assertEquals(TEST_NAMESPACE, element.getNamespaceURI());
     assertEquals("test:region", element.getNodeName());
 
-    final XmlEntity xmlEntity = XmlEntity.builder().withType("region")
+    final var xmlEntity = XmlEntity.builder().withType("region")
         .withNamespace(TEST_PREFIX, TEST_NAMESPACE).withConfig(changes).build();
     XmlUtils.addNewNode(config, xmlEntity);
 
@@ -201,7 +201,7 @@ public class XmlUtilsAddNewNodeJUnitTest {
     assertEquals(TEST_NAMESPACE, element.getNamespaceURI());
     assertEquals("test:region", element.getNodeName());
 
-    final List<Node> childElements = getElementNodes(config.getFirstChild().getChildNodes());
+    final var childElements = getElementNodes(config.getFirstChild().getChildNodes());
 
 
     assertEquals("test:cache", childElements.get(5).getNodeName());
@@ -218,14 +218,14 @@ public class XmlUtilsAddNewNodeJUnitTest {
    */
   @Test
   public void testAddNewNodeReplaceNamed() throws Exception {
-    final String xPath = "/cache:cache/cache:region[@name='r1']";
-    NodeList nodes = XmlUtils.query(config, xPath, xPathContext);
+    final var xPath = "/cache:cache/cache:region[@name='r1']";
+    var nodes = XmlUtils.query(config, xPath, xPathContext);
     assertEquals(1, nodes.getLength());
-    Element element = (Element) nodes.item(0);
+    var element = (Element) nodes.item(0);
     assertEquals(1, getElementNodes(element.getChildNodes()).size());
     assertEquals(CacheXml.GEODE_NAMESPACE, element.getNamespaceURI());
 
-    final Document changes = XmlUtils.createDocumentFromReader(new InputStreamReader(getClass()
+    final var changes = XmlUtils.createDocumentFromReader(new InputStreamReader(getClass()
         .getResourceAsStream("XmlUtilsAddNewNodeJUnitTest.testAddNewNodeReplaceNamed.xml")));
     nodes = XmlUtils.query(changes, xPath, xPathContext);
     assertEquals(1, nodes.getLength());
@@ -233,7 +233,7 @@ public class XmlUtilsAddNewNodeJUnitTest {
     assertEquals(0, element.getChildNodes().getLength());
     assertEquals(CacheXml.GEODE_NAMESPACE, element.getNamespaceURI());
 
-    final XmlEntity xmlEntity = XmlEntity.builder().withType("region").withAttribute("name", "r1")
+    final var xmlEntity = XmlEntity.builder().withType("region").withAttribute("name", "r1")
         .withConfig(changes).build();
     XmlUtils.addNewNode(config, xmlEntity);
 
@@ -252,14 +252,14 @@ public class XmlUtilsAddNewNodeJUnitTest {
    */
   @Test
   public void testAddNewNodeReplaceUnnamed() throws Exception {
-    final String xPath = "/cache:cache/cache:pdx";
-    NodeList nodes = XmlUtils.query(config, xPath, xPathContext);
+    final var xPath = "/cache:cache/cache:pdx";
+    var nodes = XmlUtils.query(config, xPath, xPathContext);
     assertEquals(1, nodes.getLength());
-    Element element = (Element) nodes.item(0);
+    var element = (Element) nodes.item(0);
     assertEquals("foo", XmlUtils.getAttribute(element, "disk-store-name"));
     assertEquals(CacheXml.GEODE_NAMESPACE, element.getNamespaceURI());
 
-    final Document changes = XmlUtils.createDocumentFromReader(new InputStreamReader(getClass()
+    final var changes = XmlUtils.createDocumentFromReader(new InputStreamReader(getClass()
         .getResourceAsStream("XmlUtilsAddNewNodeJUnitTest.testAddNewNodeReplaceUnnamed.xml")));
     nodes = XmlUtils.query(changes, xPath, xPathContext);
     assertEquals(1, nodes.getLength());
@@ -267,7 +267,7 @@ public class XmlUtilsAddNewNodeJUnitTest {
     assertEquals("bar", XmlUtils.getAttribute(element, "disk-store-name"));
     assertEquals(CacheXml.GEODE_NAMESPACE, element.getNamespaceURI());
 
-    final XmlEntity xmlEntity = XmlEntity.builder().withType("pdx").withConfig(changes).build();
+    final var xmlEntity = XmlEntity.builder().withType("pdx").withConfig(changes).build();
     XmlUtils.addNewNode(config, xmlEntity);
 
     nodes = XmlUtils.query(config, xPath, xPathContext);
@@ -286,14 +286,14 @@ public class XmlUtilsAddNewNodeJUnitTest {
    */
   @Test
   public void testAddNewNodeReplaceUnnamedExtension() throws Exception {
-    final String xPath = "/cache:cache/test:cache";
-    NodeList nodes = XmlUtils.query(config, xPath, xPathContext);
+    final var xPath = "/cache:cache/test:cache";
+    var nodes = XmlUtils.query(config, xPath, xPathContext);
     assertEquals(1, nodes.getLength());
-    Element element = (Element) nodes.item(0);
+    var element = (Element) nodes.item(0);
     assertEquals("1", XmlUtils.getAttribute(element, "value"));
     assertEquals(TEST_NAMESPACE, element.getNamespaceURI());
 
-    final org.w3c.dom.Document changes =
+    final var changes =
         XmlUtils.createDocumentFromReader(new InputStreamReader(getClass().getResourceAsStream(
             "XmlUtilsAddNewNodeJUnitTest.testAddNewNodeReplaceUnnamedExtension.xml")));
     nodes = XmlUtils.query(changes, xPath, xPathContext);
@@ -302,7 +302,7 @@ public class XmlUtilsAddNewNodeJUnitTest {
     assertEquals("2", XmlUtils.getAttribute(element, "value"));
     assertEquals(TEST_NAMESPACE, element.getNamespaceURI());
 
-    final XmlEntity xmlEntity = XmlEntity.builder().withType("cache")
+    final var xmlEntity = XmlEntity.builder().withType("cache")
         .withNamespace(TEST_PREFIX, TEST_NAMESPACE).withConfig(changes).build();
     XmlUtils.addNewNode(config, xmlEntity);
 
@@ -322,19 +322,19 @@ public class XmlUtilsAddNewNodeJUnitTest {
    */
   @Test
   public void testDeleteNodeNamed() throws Exception {
-    final String xPath = "/cache:cache/cache:region[@name='r1']";
-    NodeList nodes = XmlUtils.query(config, xPath, xPathContext);
+    final var xPath = "/cache:cache/cache:region[@name='r1']";
+    var nodes = XmlUtils.query(config, xPath, xPathContext);
     assertEquals(1, nodes.getLength());
-    Element element = (Element) nodes.item(0);
+    var element = (Element) nodes.item(0);
     assertEquals(1, getElementNodes(element.getChildNodes()).size());
     assertEquals(CacheXml.GEODE_NAMESPACE, element.getNamespaceURI());
 
-    final Document changes = XmlUtils.createDocumentFromReader(new InputStreamReader(getClass()
+    final var changes = XmlUtils.createDocumentFromReader(new InputStreamReader(getClass()
         .getResourceAsStream("XmlUtilsAddNewNodeJUnitTest.testDeleteNodeNamed.xml")));
     nodes = XmlUtils.query(changes, xPath, xPathContext);
     assertEquals(0, nodes.getLength());
 
-    final XmlEntity xmlEntity = XmlEntity.builder().withType("region").withAttribute("name", "r1")
+    final var xmlEntity = XmlEntity.builder().withType("region").withAttribute("name", "r1")
         .withConfig(changes).build();
     XmlUtils.deleteNode(config, xmlEntity);
 
@@ -351,19 +351,19 @@ public class XmlUtilsAddNewNodeJUnitTest {
    */
   @Test
   public void testDeleteNodeUnnamed() throws Exception {
-    final String xPath = "/cache:cache/cache:pdx";
-    NodeList nodes = XmlUtils.query(config, xPath, xPathContext);
+    final var xPath = "/cache:cache/cache:pdx";
+    var nodes = XmlUtils.query(config, xPath, xPathContext);
     assertEquals(1, nodes.getLength());
-    Element element = (Element) nodes.item(0);
+    var element = (Element) nodes.item(0);
     assertEquals("foo", XmlUtils.getAttribute(element, "disk-store-name"));
     assertEquals(CacheXml.GEODE_NAMESPACE, element.getNamespaceURI());
 
-    final Document changes = XmlUtils.createDocumentFromReader(new InputStreamReader(getClass()
+    final var changes = XmlUtils.createDocumentFromReader(new InputStreamReader(getClass()
         .getResourceAsStream("XmlUtilsAddNewNodeJUnitTest.testDeleteNodeUnnamed.xml")));
     nodes = XmlUtils.query(changes, xPath, xPathContext);
     assertEquals(0, nodes.getLength());
 
-    final XmlEntity xmlEntity = XmlEntity.builder().withType("pdx").withConfig(changes).build();
+    final var xmlEntity = XmlEntity.builder().withType("pdx").withConfig(changes).build();
     XmlUtils.deleteNode(config, xmlEntity);
 
     nodes = XmlUtils.query(config, xPath, xPathContext);
@@ -379,19 +379,19 @@ public class XmlUtilsAddNewNodeJUnitTest {
    */
   @Test
   public void testDeleteNodeUnnamedExtension() throws Exception {
-    final String xPath = "/cache:cache/test:cache";
-    NodeList nodes = XmlUtils.query(config, xPath, xPathContext);
+    final var xPath = "/cache:cache/test:cache";
+    var nodes = XmlUtils.query(config, xPath, xPathContext);
     assertEquals(1, nodes.getLength());
-    Element element = (Element) nodes.item(0);
+    var element = (Element) nodes.item(0);
     assertEquals("1", XmlUtils.getAttribute(element, "value"));
     assertEquals(TEST_NAMESPACE, element.getNamespaceURI());
 
-    final Document changes = XmlUtils.createDocumentFromReader(new InputStreamReader(getClass()
+    final var changes = XmlUtils.createDocumentFromReader(new InputStreamReader(getClass()
         .getResourceAsStream("XmlUtilsAddNewNodeJUnitTest.testDeleteNodeUnnamedExtension.xml")));
     nodes = XmlUtils.query(changes, xPath, xPathContext);
     assertEquals(0, nodes.getLength());
 
-    final XmlEntity xmlEntity = XmlEntity.builder().withType("cache")
+    final var xmlEntity = XmlEntity.builder().withType("cache")
         .withNamespace(TEST_PREFIX, TEST_NAMESPACE).withConfig(changes).build();
     XmlUtils.deleteNode(config, xmlEntity);
 

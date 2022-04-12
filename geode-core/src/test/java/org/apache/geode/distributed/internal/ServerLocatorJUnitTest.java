@@ -45,9 +45,9 @@ public class ServerLocatorJUnitTest {
 
   @Test
   public void testProcessRequestProcessesLocatorStatusRequest() throws IOException {
-    final ServerLocator serverLocator = createServerLocator();
+    final var serverLocator = createServerLocator();
 
-    final Object response = serverLocator.processRequest(new LocatorStatusRequest());
+    final var response = serverLocator.processRequest(new LocatorStatusRequest());
     System.out.println("response=" + response);
     assertTrue(response instanceof LocatorStatusResponse);
   }

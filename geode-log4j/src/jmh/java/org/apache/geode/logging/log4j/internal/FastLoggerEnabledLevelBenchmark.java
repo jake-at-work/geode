@@ -21,9 +21,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.config.Configuration;
-import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -59,12 +56,12 @@ public class FastLoggerEnabledLevelBenchmark {
 
     FastLogger.setDelegating(false);
 
-    org.apache.logging.log4j.core.Logger coreLogger =
+    var coreLogger =
         (org.apache.logging.log4j.core.Logger) LogManager.getRootLogger();
-    LoggerContext context = coreLogger.getContext();
+    var context = coreLogger.getContext();
 
-    Configuration configuration = context.getConfiguration();
-    LoggerConfig loggerConfig = configuration.getLoggerConfig(coreLogger.getName());
+    var configuration = context.getConfiguration();
+    var loggerConfig = configuration.getLoggerConfig(coreLogger.getName());
 
     loggerConfig.removeAppender("STDOUT");
     loggerConfig.setLevel(INFO);

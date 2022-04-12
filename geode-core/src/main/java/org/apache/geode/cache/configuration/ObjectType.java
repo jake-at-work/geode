@@ -103,7 +103,7 @@ public class ObjectType implements Serializable {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    ObjectType that = (ObjectType) o;
+    var that = (ObjectType) o;
     return Objects.equals(string, that.string) && Objects.equals(declarable, that.declarable);
   }
 

@@ -139,20 +139,20 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
   // }
 
   public InternalDistributedMember getDistributedMemberID(VM vm) {
-    SerializableCallable getID = new SerializableCallable("get member id") {
+    var getID = new SerializableCallable("get member id") {
       @Override
       public Object call() {
         return getCache().getDistributedSystem().getDistributedMember();
       }
     };
-    InternalDistributedMember id = (InternalDistributedMember) vm.invoke(getID);
+    var id = (InternalDistributedMember) vm.invoke(getID);
     return id;
   }
 
   protected void prepareForEachTest() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
     createDistributedRegion(vm0);
     createDistributedRegion(vm1);
@@ -175,7 +175,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
 
     createConflictOperationsP2R3();
 
-    for (int i = 3; i <= p_version; i++) {
+    for (var i = 3; i <= p_version; i++) {
       switch (i) {
         case 3:
           doOneDestroy(P, 3, "key1");
@@ -196,14 +196,14 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void createConflictOperationsP2R3() {
-    final DiskStoreID memberP = getMemberID(P);
-    final DiskStoreID memberR = getMemberID(R);
+    final var memberP = getMemberID(P);
+    final var memberR = getMemberID(R);
     final long[] blocklist = {2, 3};
 
     P.invoke(() -> GIIDeltaDUnitTest.slowGII(blocklist));
     R.invoke(() -> GIIDeltaDUnitTest.slowGII(blocklist));
-    AsyncInvocation async1 = doOnePutAsync(P, 2, "key1");
-    AsyncInvocation async2 = doOnePutAsync(R, 3, "key1");
+    var async1 = doOnePutAsync(P, 2, "key1");
+    var async2 = doOnePutAsync(R, 3, "key1");
 
     // wait for the local puts are done at P & R before distribution
     waitForToVerifyRVV(P, memberP, 2, null, 0); // P's rvv=p2, gc=0
@@ -231,16 +231,16 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void createUnfinishedOperationsR4R5() {
-    final DiskStoreID memberP = getMemberID(P);
-    final DiskStoreID memberR = getMemberID(R);
+    final var memberP = getMemberID(P);
+    final var memberR = getMemberID(R);
     final long[] exceptionlist = {4, 5};
 
     // let r6 to succeed, r4,r5 to be blocked
     R.invoke(() -> GIIDeltaDUnitTest.slowGII(exceptionlist));
-    AsyncInvocation async1 = doOnePutAsync(R, 4, "key4");
+    var async1 = doOnePutAsync(R, 4, "key4");
     waitForToVerifyRVV(R, memberR, 4, null, 0); // P's rvv=r4, gc=0
 
-    AsyncInvocation async2 = doOneDestroyAsync(R, 5, "key5");
+    var async2 = doOneDestroyAsync(R, 5, "key5");
     waitForToVerifyRVV(R, memberR, 5, null, 0); // P's rvv=r5, gc=0
 
     doOnePut(R, 6, "key1"); // r6 will pass
@@ -258,8 +258,8 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testDeltaGIIWithSameRVV() throws Throwable {
     prepareForEachTest();
-    final DiskStoreID memberP = getMemberID(P);
-    final DiskStoreID memberR = getMemberID(R);
+    final var memberP = getMemberID(P);
+    final var memberR = getMemberID(R);
 
     assertEquals(0, DistributedCacheOperation.SLOW_DISTRIBUTION_MS);
     prepareCommonTestData(6);
@@ -285,7 +285,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     // now the rvv and rvvgc at P and R should be the same
 
     // save R's rvv in byte array, check if it will be fullGII
-    byte[] R_rvv_bytes = getRVVByteArray(R, REGION_NAME);
+    var R_rvv_bytes = getRVVByteArray(R, REGION_NAME);
     // shutdown R and restart
     closeCache(R);
 
@@ -294,8 +294,8 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     waitForToVerifyRVV(R, memberP, 7, null, 4); // P's rvv=p7, gc=4
     waitForToVerifyRVV(R, memberR, 6, null, 0); // P's rvv=r6, gc=0
 
-    RegionVersionVector p_rvv = getRVV(P);
-    RegionVersionVector r_rvv = getRVV(R);
+    var p_rvv = getRVV(P);
+    var r_rvv = getRVV(R);
     assertSameRVV(p_rvv, r_rvv); // after gii, rvv should be the same
 
     // If fullGII, the key size in gii chunk is 4, i.e. key1,key3,key4,key5(tombstone). key2 is
@@ -313,13 +313,13 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testDeltaGIIWithExceptionList() throws Throwable {
     prepareForEachTest();
-    final DiskStoreID memberP = getMemberID(P);
-    final DiskStoreID memberR = getMemberID(R);
+    final var memberP = getMemberID(P);
+    final var memberR = getMemberID(R);
     final long[] exceptionlist = {4, 5};
 
     assertEquals(0, DistributedCacheOperation.SLOW_DISTRIBUTION_MS);
     prepareCommonTestData(6);
-    VersionTag expect_tag = getVersionTag(R, "key5");
+    var expect_tag = getVersionTag(R, "key5");
 
     // force tombstone GC to let RVVGC to become P4:R0
     forceGC(P, 2);
@@ -329,7 +329,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     createUnfinishedOperationsR4R5();
 
     // now P's cache still only has key1, key3, key5
-    byte[] R_rvv_bytes = getRVVByteArray(R, REGION_NAME);
+    var R_rvv_bytes = getRVVByteArray(R, REGION_NAME);
     closeCache(R);
     // p7 only apply at P
     doOnePut(P, 7, "key1");
@@ -342,8 +342,8 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     waitForToVerifyRVV(R, memberP, 7, null, 4); // R's rvv=p7, gc=4
     waitForToVerifyRVV(R, memberR, 6, exceptionlist, 0); // R's rvv=r6, gc=0
 
-    RegionVersionVector p_rvv = getRVV(P);
-    RegionVersionVector r_rvv = getRVV(R);
+    var p_rvv = getRVV(P);
+    var r_rvv = getRVV(R);
     assertSameRVV(p_rvv, r_rvv);
 
     // If fullGII, the key size in gii chunk is 3, i.e. key1,key3,key5. key2 is GCed.
@@ -352,7 +352,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     verifyDeltaSizeFromStats(R, 2, 1);
     // verify unfinished op for key5 is revoked
     waitToVerifyKey(R, "key5", generateValue(R));
-    VersionTag tag = getVersionTag(R, "key5");
+    var tag = getVersionTag(R, "key5");
     assertTrue(expect_tag.equals(tag));
 
     // restart P, since R has received exceptionlist R4,R5 from P
@@ -374,13 +374,13 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testDeltaGIIWithOnlyUnfinishedOp() throws Throwable {
     prepareForEachTest();
-    final DiskStoreID memberP = getMemberID(P);
-    final DiskStoreID memberR = getMemberID(R);
+    final var memberP = getMemberID(P);
+    final var memberR = getMemberID(R);
     final long[] exceptionlist = {4, 5};
 
     assertEquals(0, DistributedCacheOperation.SLOW_DISTRIBUTION_MS);
     prepareCommonTestData(6);
-    VersionTag expect_tag = getVersionTag(R, "key5");
+    var expect_tag = getVersionTag(R, "key5");
 
     // force tombstone GC to let RVVGC to become P4:R0
     forceGC(P, 2);
@@ -390,7 +390,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     createUnfinishedOperationsR4R5();
 
     // now P's cache still only has key1, key3, key5
-    byte[] R_rvv_bytes = getRVVByteArray(R, REGION_NAME);
+    var R_rvv_bytes = getRVVByteArray(R, REGION_NAME);
     closeCache(R);
 
     // restart and gii
@@ -401,8 +401,8 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     waitForToVerifyRVV(R, memberP, 6, null, 4); // R's rvv=p6, gc=4
     waitForToVerifyRVV(R, memberR, 6, exceptionlist, 0); // R's rvv=r6, gc=0
 
-    RegionVersionVector p_rvv = getRVV(P);
-    RegionVersionVector r_rvv = getRVV(R);
+    var p_rvv = getRVV(P);
+    var r_rvv = getRVV(R);
     assertSameRVV(p_rvv, r_rvv);
 
     // If fullGII, the key size in gii chunk is 3, i.e. key1,key3,key5. key2 is GCed.
@@ -410,7 +410,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     verifyDeltaSizeFromStats(R, 1, 1);
     // verify unfinished op for key5 is revoked
     waitToVerifyKey(R, "key5", generateValue(R));
-    VersionTag tag = getVersionTag(R, "key5");
+    var tag = getVersionTag(R, "key5");
     assertTrue(expect_tag.equals(tag));
 
     // restart P, since R has received exceptionlist R4,R5 from P
@@ -449,13 +449,13 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testDeltaGIIWithOnlyUnfinishedOp_GCAtR() throws Throwable {
     prepareForEachTest();
-    final DiskStoreID memberP = getMemberID(P);
-    final DiskStoreID memberR = getMemberID(R);
+    final var memberP = getMemberID(P);
+    final var memberR = getMemberID(R);
     final long[] exceptionlist = {4, 5};
 
     assertEquals(0, DistributedCacheOperation.SLOW_DISTRIBUTION_MS);
     prepareCommonTestData(6);
-    VersionTag expect_tag = getVersionTag(R, "key5");
+    var expect_tag = getVersionTag(R, "key5");
 
     // force tombstone GC to let RVVGC to become P4:R0
     forceGC(P, 2);
@@ -469,18 +469,18 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     R.invoke(new SerializableRunnable() {
       @Override
       public void run() {
-        Mycallback myAfterRequestRVV = new Mycallback(GIITestHookType.AfterRequestRVV, REGION_NAME);
+        var myAfterRequestRVV = new Mycallback(GIITestHookType.AfterRequestRVV, REGION_NAME);
         InitialImageOperation.setGIITestHook(myAfterRequestRVV);
       }
     });
 
     // now P's cache still only has key1, key3, key5
-    byte[] R_rvv_bytes = getRVVByteArray(R, REGION_NAME);
+    var R_rvv_bytes = getRVVByteArray(R, REGION_NAME);
     closeCache(R);
 
     // restart and gii
     checkIfFullGII(P, REGION_NAME, R_rvv_bytes, false);
-    AsyncInvocation async3 = createDistributedRegionAsync(R);
+    var async3 = createDistributedRegionAsync(R);
 
     // 2
     waitForCallbackStarted(R, GIITestHookType.AfterRequestRVV);
@@ -491,7 +491,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
 
     // verify unfinished op for key5 is revoked
     waitToVerifyKey(R, "key5", generateValue(R));
-    VersionTag tag = getVersionTag(R, "key5");
+    var tag = getVersionTag(R, "key5");
     assertTrue(expect_tag.equals(tag));
     verifyTombstoneExist(R, "key5", false, false);
 
@@ -509,20 +509,20 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testDeltaGIIWithDifferentRVVGC() throws Throwable {
-    final String testcase = "testDeltaGIIWithExceptionList";
+    final var testcase = "testDeltaGIIWithExceptionList";
     prepareForEachTest();
-    final DiskStoreID memberP = getMemberID(P);
-    final DiskStoreID memberR = getMemberID(R);
+    final var memberP = getMemberID(P);
+    final var memberR = getMemberID(R);
     final long[] exceptionlist = {4, 5};
 
     assertEquals(0, DistributedCacheOperation.SLOW_DISTRIBUTION_MS);
     prepareCommonTestData(6);
     waitForToVerifyRVV(P, memberP, 6, null, 0); // P's rvv=p6, gc=0
-    VersionTag expect_tag = getVersionTag(R, "key5");
+    var expect_tag = getVersionTag(R, "key5");
 
     createUnfinishedOperationsR4R5();
 
-    byte[] R_rvv_bytes = getRVVByteArray(R, REGION_NAME);
+    var R_rvv_bytes = getRVVByteArray(R, REGION_NAME);
     closeCache(R);
 
     // force tombstone GC to let RVVGC to become P4:R0
@@ -543,8 +543,8 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     waitForToVerifyRVV(R, memberP, 7, null, 4); // R's rvv=p7, gc=4
     waitForToVerifyRVV(R, memberR, 6, exceptionlist, 0); // R's rvv=r6, gc=0
 
-    RegionVersionVector p_rvv = getRVV(P);
-    RegionVersionVector r_rvv = getRVV(R);
+    var p_rvv = getRVV(P);
+    var r_rvv = getRVV(R);
     assertSameRVV(p_rvv, r_rvv);
 
     // If fullGII, the key size in gii chunk is 3, i.e. key1,key3,key5. key2 is GCed.
@@ -553,7 +553,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     verifyDeltaSizeFromStats(R, 2, 1);
     // verify unfinished op for key5 is revoked
     waitToVerifyKey(R, "key5", generateValue(R));
-    VersionTag tag = getVersionTag(R, "key5");
+    var tag = getVersionTag(R, "key5");
     assertTrue(expect_tag.equals(tag));
     verifyTombstoneExist(R, "key2", false, false);
     verifyTombstoneExist(P, "key2", false, false);
@@ -570,8 +570,8 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testFullGIITriggeredByHigherRVVGC() throws Throwable {
     prepareForEachTest();
-    final DiskStoreID memberP = getMemberID(P);
-    final DiskStoreID memberR = getMemberID(R);
+    final var memberP = getMemberID(P);
+    final var memberR = getMemberID(R);
     final long[] exceptionlist = {4, 5};
 
     assertEquals(0, DistributedCacheOperation.SLOW_DISTRIBUTION_MS);
@@ -581,7 +581,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     createUnfinishedOperationsR4R5();
     waitForToVerifyRVV(R, memberP, 3, null, 0); // R's rvv=p3, gc=0
 
-    byte[] R_rvv_bytes = getRVVByteArray(R, REGION_NAME);
+    var R_rvv_bytes = getRVVByteArray(R, REGION_NAME);
     closeCache(R);
 
     // p4-7 only apply at P
@@ -596,14 +596,14 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     P.invoke(new SerializableRunnable() {
       @Override
       public void run() {
-        Mycallback myAfterReceivedRequestImage =
+        var myAfterReceivedRequestImage =
             new Mycallback(GIITestHookType.AfterReceivedRequestImage, REGION_NAME);
         InitialImageOperation.setGIITestHook(myAfterReceivedRequestImage);
       }
     });
 
     // restart R and gii, it will be blocked at test hook
-    AsyncInvocation async3 = createDistributedRegionAsync(R);
+    var async3 = createDistributedRegionAsync(R);
     // 7
     waitForCallbackStarted(P, GIITestHookType.AfterReceivedRequestImage);
 
@@ -622,8 +622,8 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     waitForToVerifyRVV(R, memberP, 7, null, 4); // R's rvv=p7, gc=4
     waitForToVerifyRVV(R, memberR, 6, exceptionlist, 0); // R's rvv=r6, gc=0
 
-    RegionVersionVector p_rvv = getRVV(P);
-    RegionVersionVector r_rvv = getRVV(R);
+    var p_rvv = getRVV(P);
+    var r_rvv = getRVV(R);
     assertSameRVV(p_rvv, r_rvv);
 
     // In fullGII, the key size in gii chunk is 3, i.e. key1,key3,key5. key2 is GCed.
@@ -639,14 +639,14 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testSavingRVVGC() throws Throwable {
     prepareForEachTest();
-    final DiskStoreID memberP = getMemberID(P);
-    final DiskStoreID memberR = getMemberID(R);
+    final var memberP = getMemberID(P);
+    final var memberR = getMemberID(R);
     final long[] exceptionlist = {4, 5};
 
-    Host host = Host.getHost(0);
-    VM T = host.getVM(2);
+    var host = Host.getHost(0);
+    var T = host.getVM(2);
     createDistributedRegion(T);
-    final DiskStoreID memberT = getMemberID(T);
+    final var memberT = getMemberID(T);
 
     assertEquals(0, DistributedCacheOperation.SLOW_DISTRIBUTION_MS);
     prepareCommonTestData(3);
@@ -707,20 +707,20 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testDeltaGIIWithoutRVVGC() throws Throwable {
     prepareForEachTest();
-    final DiskStoreID memberP = getMemberID(P);
-    final DiskStoreID memberR = getMemberID(R);
+    final var memberP = getMemberID(P);
+    final var memberR = getMemberID(R);
     final long[] exceptionlist = {4, 5};
 
     assertEquals(0, DistributedCacheOperation.SLOW_DISTRIBUTION_MS);
     prepareCommonTestData(6);
     waitForToVerifyRVV(P, memberP, 6, null, 0); // P's rvv=p6, gc=0
     waitForToVerifyRVV(P, memberR, 3, null, 0); // P's rvv=r3, gc=0
-    VersionTag expect_tag = getVersionTag(R, "key5");
+    var expect_tag = getVersionTag(R, "key5");
 
     createUnfinishedOperationsR4R5();
 
     // now P's cache still only has key1, key3
-    byte[] R_rvv_bytes = getRVVByteArray(R, REGION_NAME);
+    var R_rvv_bytes = getRVVByteArray(R, REGION_NAME);
     closeCache(R);
     // p7 only apply at P
     doOnePut(P, 7, "key1");
@@ -734,8 +734,8 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     waitForToVerifyRVV(R, memberP, 7, null, 0); // R's rvv=p7, gc=0
     waitForToVerifyRVV(R, memberR, 6, exceptionlist, 0); // R's rvv=r6, gc=0
 
-    RegionVersionVector p_rvv = getRVV(P);
-    RegionVersionVector r_rvv = getRVV(R);
+    var p_rvv = getRVV(P);
+    var r_rvv = getRVV(R);
     assertSameRVV(p_rvv, r_rvv);
 
     // If fullGII, the key size in gii chunk is 4.
@@ -744,7 +744,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     verifyDeltaSizeFromStats(R, 2, 1);
     // verify unfinished op for key5 is revoked
     waitToVerifyKey(R, "key5", generateValue(R));
-    VersionTag tag = getVersionTag(R, "key5");
+    var tag = getVersionTag(R, "key5");
     assertTrue(expect_tag.equals(tag));
   }
 
@@ -756,8 +756,8 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testFullGIINotDorminatedByProviderRVVGC() throws Throwable {
     prepareForEachTest();
-    final DiskStoreID memberP = getMemberID(P);
-    final DiskStoreID memberR = getMemberID(R);
+    final var memberP = getMemberID(P);
+    final var memberR = getMemberID(R);
     final long[] exceptionlist = {4, 5};
 
     assertEquals(0, DistributedCacheOperation.SLOW_DISTRIBUTION_MS);
@@ -779,13 +779,13 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     final long[] exceptionlist2 = {8};
     // let p9 to succeed, p8 to be blocked
     P.invoke(() -> GIIDeltaDUnitTest.slowGII(exceptionlist2));
-    AsyncInvocation async1 = doOneDestroyAsync(P, 8, "key1");
+    var async1 = doOneDestroyAsync(P, 8, "key1");
     waitForToVerifyRVV(P, memberP, 8, null, 0);
     doOnePut(P, 9, "key3");
     waitForToVerifyRVV(P, memberP, 9, null, 0);
     waitForToVerifyRVV(R, memberP, 9, exceptionlist2, 0);
 
-    byte[] R_rvv_bytes = getRVVByteArray(R, REGION_NAME);
+    var R_rvv_bytes = getRVVByteArray(R, REGION_NAME);
     closeCache(R);
     forceGC(P, 3);
     // now P's RVV=P9,R6(3-6), RVVGC=P8,R0, R's RVV=P9(7-9), R6
@@ -799,8 +799,8 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     waitForToVerifyRVV(R, memberP, 9, null, 8); // R's rvv=p9, gc=8
     waitForToVerifyRVV(R, memberR, 6, exceptionlist, 0); // R's rvv=r6, gc=0
 
-    RegionVersionVector p_rvv = getRVV(P);
-    RegionVersionVector r_rvv = getRVV(R);
+    var p_rvv = getRVV(P);
+    var r_rvv = getRVV(R);
     assertSameRVV(p_rvv, r_rvv); // after gii, rvv should be the same
 
     // In fullGII, the key size in gii chunk is 2. They are: key3, key5
@@ -814,19 +814,19 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testUnfinishedOpsWithoutExceptionList() throws Throwable {
     prepareForEachTest();
-    final DiskStoreID memberP = getMemberID(P);
-    final DiskStoreID memberR = getMemberID(R);
+    final var memberP = getMemberID(P);
+    final var memberR = getMemberID(R);
 
     assertEquals(0, DistributedCacheOperation.SLOW_DISTRIBUTION_MS);
     prepareCommonTestData(6);
-    VersionTag expect_tag = getVersionTag(R, "key5");
+    var expect_tag = getVersionTag(R, "key5");
 
     final long[] exceptionlist = {4, 5};
     R.invoke(() -> GIIDeltaDUnitTest.slowGII(exceptionlist));
-    AsyncInvocation async1 = doOnePutAsync(R, 4, "key4");
+    var async1 = doOnePutAsync(R, 4, "key4");
     waitForToVerifyRVV(R, memberR, 4, null, 0); // P's rvv=r4, gc=0
 
-    AsyncInvocation async2 = doOneDestroyAsync(R, 5, "key5");
+    var async2 = doOneDestroyAsync(R, 5, "key5");
     waitForToVerifyRVV(R, memberR, 5, null, 0); // P's rvv=r5, gc=0
 
     // P should have unfinished ops R4,R5, but they did not show up in exception list
@@ -842,7 +842,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
 
     // now P's rvv=P7,R3, R's RVV=P7,R5
     // shutdown R and restart
-    byte[] R_rvv_bytes = getRVVByteArray(R, REGION_NAME);
+    var R_rvv_bytes = getRVVByteArray(R, REGION_NAME);
     closeCache(R);
     checkIfFullGII(P, REGION_NAME, R_rvv_bytes, false);
     createDistributedRegion(R);
@@ -850,8 +850,8 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     waitForToVerifyRVV(R, memberP, 7, null, 0); // P's rvv=p7, gc=0
     waitForToVerifyRVV(R, memberR, 3, exceptionlist, 0); // P's rvv=r3, gc=0
 
-    RegionVersionVector p_rvv = getRVV(P);
-    RegionVersionVector r_rvv = getRVV(R);
+    var p_rvv = getRVV(P);
+    var r_rvv = getRVV(R);
     assertSameRVV(p_rvv, r_rvv); // after gii, rvv should be the same
 
     // full GII chunk has 4 keys: key1,2(tombstone),3,5
@@ -859,7 +859,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     verifyDeltaSizeFromStats(R, 1, 1);
     // verify unfinished op for key5 is revoked
     waitToVerifyKey(R, "key5", generateValue(R));
-    VersionTag tag = getVersionTag(R, "key5");
+    var tag = getVersionTag(R, "key5");
     assertTrue(expect_tag.equals(tag));
 
     // shutdown R again and restart, to verify localVersion=5 will be saved and recovered
@@ -879,7 +879,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
   public void testRecoveredFromDiskBitAfterFullGII() {
     prepareForEachTest();
     getMemberID(P);
-    final DiskStoreID memberR = getMemberID(R);
+    final var memberR = getMemberID(R);
     assertEquals(0, DistributedCacheOperation.SLOW_DISTRIBUTION_MS);
 
     verifyRecoveredFromDiskBitAfterGII(memberR, true);
@@ -892,7 +892,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
   public void testRecoveredFromDiskBitAfterDeltaGII() {
     prepareForEachTest();
     getMemberID(P);
-    final DiskStoreID memberR = getMemberID(R);
+    final var memberR = getMemberID(R);
     assertEquals(0, DistributedCacheOperation.SLOW_DISTRIBUTION_MS);
 
     verifyRecoveredFromDiskBitAfterGII(memberR, false);
@@ -925,11 +925,11 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
 
   private void verifyRecoveredFromDiskBit(String key, boolean isFullGII,
       boolean versionTagBeenChanged) {
-    LocalRegion lr = (LocalRegion) getCache().getRegion(REGION_NAME);
-    DiskEntry re = (DiskEntry) lr.getRegionEntry(key);
-    DiskId id = re.getDiskId();
+    var lr = (LocalRegion) getCache().getRegion(REGION_NAME);
+    var re = (DiskEntry) lr.getRegionEntry(key);
+    var id = re.getDiskId();
 
-    byte usebits = id.getUserBits();
+    var usebits = id.getUserBits();
     if (!versionTagBeenChanged && !isFullGII) {
       // in delta gii, versionTag not changed entry should kept the recoveredFromDisk bit
       assertTrue(EntryBits.isRecoveredFromDisk(usebits));
@@ -947,8 +947,8 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testFillSpecialException() throws Throwable {
     prepareForEachTest();
-    final DiskStoreID memberP = getMemberID(P);
-    final DiskStoreID memberR = getMemberID(R);
+    final var memberP = getMemberID(P);
+    final var memberR = getMemberID(R);
     final long[] exceptionlist = {4, 5};
 
     doOnePut(P, 1, "key1");
@@ -960,7 +960,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     R.invoke(new SerializableRunnable() {
       @Override
       public void run() {
-        Mycallback myBeforeSavedReceivedRVV =
+        var myBeforeSavedReceivedRVV =
             new Mycallback(GIITestHookType.BeforeSavedReceivedRVV, REGION_NAME);
         InitialImageOperation.setGIITestHook(myBeforeSavedReceivedRVV);
       }
@@ -969,7 +969,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     R.invoke(new SerializableRunnable() {
       @Override
       public void run() {
-        Mycallback myAfterSavedReceivedRVV =
+        var myAfterSavedReceivedRVV =
             new Mycallback(GIITestHookType.AfterSavedReceivedRVV, REGION_NAME);
         InitialImageOperation.setGIITestHook(myAfterSavedReceivedRVV);
       }
@@ -977,7 +977,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
 
     closeCache(R);
     changeForceFullGII(R, true, false);
-    AsyncInvocation async3 = createDistributedRegionAsync(R);
+    var async3 = createDistributedRegionAsync(R);
     waitForCallbackStarted(R, GIITestHookType.BeforeSavedReceivedRVV);
 
     doOneDestroy(P, 4, "key2");
@@ -1006,8 +1006,8 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testFillSpecialException2() throws Throwable {
     prepareForEachTest();
-    final DiskStoreID memberP = getMemberID(P);
-    final DiskStoreID memberR = getMemberID(R);
+    final var memberP = getMemberID(P);
+    final var memberR = getMemberID(R);
     final long[] exceptionlist = {4, 5};
 
     doOnePut(P, 1, "key1");
@@ -1019,7 +1019,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     R.invoke(new SerializableRunnable() {
       @Override
       public void run() {
-        Mycallback myAfterCalculatedUnfinishedOps =
+        var myAfterCalculatedUnfinishedOps =
             new Mycallback(GIITestHookType.AfterCalculatedUnfinishedOps, REGION_NAME);
         InitialImageOperation.setGIITestHook(myAfterCalculatedUnfinishedOps);
       }
@@ -1028,14 +1028,14 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     R.invoke(new SerializableRunnable() {
       @Override
       public void run() {
-        Mycallback myAfterSavedReceivedRVV =
+        var myAfterSavedReceivedRVV =
             new Mycallback(GIITestHookType.AfterSavedReceivedRVV, REGION_NAME);
         InitialImageOperation.setGIITestHook(myAfterSavedReceivedRVV);
       }
     });
 
     closeCache(R);
-    AsyncInvocation async3 = createDistributedRegionAsync(R);
+    var async3 = createDistributedRegionAsync(R);
     waitForCallbackStarted(R, GIITestHookType.AfterCalculatedUnfinishedOps);
 
     doOneDestroy(P, 4, "key2");
@@ -1059,19 +1059,19 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testHooks() throws Throwable {
     prepareForEachTest();
-    final DiskStoreID memberP = getMemberID(P);
-    final DiskStoreID memberR = getMemberID(R);
+    final var memberP = getMemberID(P);
+    final var memberR = getMemberID(R);
 
     assertEquals(0, DistributedCacheOperation.SLOW_DISTRIBUTION_MS);
     prepareCommonTestData(6);
-    VersionTag expect_tag = getVersionTag(R, "key5");
+    var expect_tag = getVersionTag(R, "key5");
 
     final long[] exceptionlist = {4, 5};
     R.invoke(() -> GIIDeltaDUnitTest.slowGII(exceptionlist));
-    AsyncInvocation async1 = doOnePutAsync(R, 4, "key4");
+    var async1 = doOnePutAsync(R, 4, "key4");
     waitForToVerifyRVV(R, memberR, 4, null, 0); // P's rvv=r4, gc=0
 
-    AsyncInvocation async2 = doOneDestroyAsync(R, 5, "key5");
+    var async2 = doOneDestroyAsync(R, 5, "key5");
     waitForToVerifyRVV(R, memberR, 5, null, 0); // P's rvv=r5, gc=0
 
     // P should have unfinished ops R4,R5, but they did not show up in exception list
@@ -1083,7 +1083,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     R.invoke(new SerializableRunnable() {
       @Override
       public void run() {
-        Mycallback myBeforeRequestRVV =
+        var myBeforeRequestRVV =
             new Mycallback(GIITestHookType.BeforeRequestRVV, REGION_NAME);
         InitialImageOperation.setGIITestHook(myBeforeRequestRVV);
       }
@@ -1093,7 +1093,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     R.invoke(new SerializableRunnable() {
       @Override
       public void run() {
-        Mycallback myAfterRequestRVV = new Mycallback(GIITestHookType.AfterRequestRVV, REGION_NAME);
+        var myAfterRequestRVV = new Mycallback(GIITestHookType.AfterRequestRVV, REGION_NAME);
         InitialImageOperation.setGIITestHook(myAfterRequestRVV);
       }
     });
@@ -1102,7 +1102,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     R.invoke(new SerializableRunnable() {
       @Override
       public void run() {
-        Mycallback myAfterCalculatedUnfinishedOps =
+        var myAfterCalculatedUnfinishedOps =
             new Mycallback(GIITestHookType.AfterCalculatedUnfinishedOps, REGION_NAME);
         InitialImageOperation.setGIITestHook(myAfterCalculatedUnfinishedOps);
       }
@@ -1112,7 +1112,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     R.invoke(new SerializableRunnable() {
       @Override
       public void run() {
-        Mycallback myBeforeSavedReceivedRVV =
+        var myBeforeSavedReceivedRVV =
             new Mycallback(GIITestHookType.BeforeSavedReceivedRVV, REGION_NAME);
         InitialImageOperation.setGIITestHook(myBeforeSavedReceivedRVV);
       }
@@ -1122,7 +1122,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     R.invoke(new SerializableRunnable() {
       @Override
       public void run() {
-        Mycallback myAfterSavedReceivedRVV =
+        var myAfterSavedReceivedRVV =
             new Mycallback(GIITestHookType.AfterSavedReceivedRVV, REGION_NAME);
         InitialImageOperation.setGIITestHook(myAfterSavedReceivedRVV);
       }
@@ -1132,7 +1132,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     R.invoke(new SerializableRunnable() {
       @Override
       public void run() {
-        Mycallback myAfterSentRequestImage =
+        var myAfterSentRequestImage =
             new Mycallback(GIITestHookType.AfterSentRequestImage, REGION_NAME);
         InitialImageOperation.setGIITestHook(myAfterSentRequestImage);
       }
@@ -1142,7 +1142,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     P.invoke(new SerializableRunnable() {
       @Override
       public void run() {
-        Mycallback myAfterReceivedRequestImage =
+        var myAfterReceivedRequestImage =
             new Mycallback(GIITestHookType.AfterReceivedRequestImage, REGION_NAME);
         InitialImageOperation.setGIITestHook(myAfterReceivedRequestImage);
       }
@@ -1152,7 +1152,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     P.invoke(new SerializableRunnable() {
       @Override
       public void run() {
-        Mycallback myDuringPackingImage =
+        var myDuringPackingImage =
             new Mycallback(GIITestHookType.DuringPackingImage, REGION_NAME);
         InitialImageOperation.setGIITestHook(myDuringPackingImage);
       }
@@ -1162,7 +1162,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     P.invoke(new SerializableRunnable() {
       @Override
       public void run() {
-        Mycallback myAfterSentImageReply =
+        var myAfterSentImageReply =
             new Mycallback(GIITestHookType.AfterSentImageReply, REGION_NAME);
         InitialImageOperation.setGIITestHook(myAfterSentImageReply);
       }
@@ -1172,7 +1172,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     R.invoke(new SerializableRunnable() {
       @Override
       public void run() {
-        Mycallback myAfterReceivedImageReply =
+        var myAfterReceivedImageReply =
             new Mycallback(GIITestHookType.AfterReceivedImageReply, REGION_NAME);
         InitialImageOperation.setGIITestHook(myAfterReceivedImageReply);
       }
@@ -1182,7 +1182,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     R.invoke(new SerializableRunnable() {
       @Override
       public void run() {
-        Mycallback myDuringApplyDelta =
+        var myDuringApplyDelta =
             new Mycallback(GIITestHookType.DuringApplyDelta, REGION_NAME);
         InitialImageOperation.setGIITestHook(myDuringApplyDelta);
       }
@@ -1192,7 +1192,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     R.invoke(new SerializableRunnable() {
       @Override
       public void run() {
-        Mycallback myBeforeCleanExpiredTombstones =
+        var myBeforeCleanExpiredTombstones =
             new Mycallback(GIITestHookType.BeforeCleanExpiredTombstones, REGION_NAME);
         InitialImageOperation.setGIITestHook(myBeforeCleanExpiredTombstones);
       }
@@ -1202,7 +1202,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     R.invoke(new SerializableRunnable() {
       @Override
       public void run() {
-        Mycallback myAfterSavedRVVEnd =
+        var myAfterSavedRVVEnd =
             new Mycallback(GIITestHookType.AfterSavedRVVEnd, REGION_NAME);
         InitialImageOperation.setGIITestHook(myAfterSavedRVVEnd);
       }
@@ -1212,7 +1212,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     // shutdown R and restart
     waitForToVerifyRVV(R, memberP, 6, null, 0); // R's rvv=p6, gc=0
     waitForToVerifyRVV(R, memberR, 5, null, 0); // R's rvv=r3, gc=0
-    byte[] R_rvv_bytes = getRVVByteArray(R, REGION_NAME);
+    var R_rvv_bytes = getRVVByteArray(R, REGION_NAME);
     closeCache(R);
 
     // let p7 to succeed
@@ -1222,7 +1222,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     waitForToVerifyRVV(P, memberR, 3, null, 0); // P's rvv=r3, gc=0
     // now P's rvv=P7,R3, R's RVV=P6,R5
     checkIfFullGII(P, REGION_NAME, R_rvv_bytes, false);
-    AsyncInvocation async3 = createDistributedRegionAsync(R);
+    var async3 = createDistributedRegionAsync(R);
 
     // 1
     waitForCallbackStarted(R, GIITestHookType.BeforeRequestRVV);
@@ -1281,8 +1281,8 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     waitForToVerifyRVV(R, memberP, 7, null, 0); // P's rvv=p7, gc=0
     waitForToVerifyRVV(R, memberR, 3, exceptionlist, 0); // P's rvv=r3, gc=0
 
-    RegionVersionVector p_rvv = getRVV(P);
-    RegionVersionVector r_rvv = getRVV(R);
+    var p_rvv = getRVV(P);
+    var r_rvv = getRVV(R);
     assertSameRVV(p_rvv, r_rvv); // after gii, rvv should be the same
 
     // full gii chunk has 4 entries: key1,2(tombstone),3,5
@@ -1290,7 +1290,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     verifyDeltaSizeFromStats(R, 2, 1);
     // verify unfinished op for key5 is revoked
     waitToVerifyKey(R, "key5", generateValue(R));
-    VersionTag tag = getVersionTag(R, "key5");
+    var tag = getVersionTag(R, "key5");
     assertTrue(expect_tag.equals(tag));
 
     // P will receive R6 and have exception R6(3-6)
@@ -1315,24 +1315,24 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testTombstoneGCInMiddleOfGII() throws Throwable {
     prepareForEachTest();
-    final DiskStoreID memberP = getMemberID(P);
-    final DiskStoreID memberR = getMemberID(R);
+    final var memberP = getMemberID(P);
+    final var memberR = getMemberID(R);
     final long[] exceptionlist = {4, 5};
 
-    Host host = getHost(0);
-    VM T = host.getVM(2);
+    var host = getHost(0);
+    var T = host.getVM(2);
     createDistributedRegion(T);
-    final DiskStoreID memberT = getMemberID(T);
+    final var memberT = getMemberID(T);
     closeCache(T);
 
     assertEquals(0, SLOW_DISTRIBUTION_MS);
     prepareCommonTestData(3);
     waitForToVerifyRVV(P, memberP, 3, null, 0); // P's rvv=p3, gc=0
-    VersionTag expect_tag = getVersionTag(R, "key5");
+    var expect_tag = getVersionTag(R, "key5");
 
     createUnfinishedOperationsR4R5();
     waitForToVerifyRVV(R, memberP, 3, null, 0); // R's rvv=p3, gc=0
-    byte[] R_rvv_bytes = getRVVByteArray(R, REGION_NAME);
+    var R_rvv_bytes = getRVVByteArray(R, REGION_NAME);
     closeCache(R);
 
     // p4-7 only apply at P
@@ -1346,7 +1346,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     P.invoke(new SerializableRunnable() {
       @Override
       public void run() {
-        Mycallback myDuringPackingImage =
+        var myDuringPackingImage =
             new Mycallback(DuringPackingImage, REGION_NAME);
         setGIITestHook(myDuringPackingImage);
       }
@@ -1355,15 +1355,15 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     checkIfFullGII(P, REGION_NAME, R_rvv_bytes, false);
 
     // restart R and gii, it will be blocked at test hook
-    AsyncInvocation async3 = createDistributedRegionAsync(R);
+    var async3 = createDistributedRegionAsync(R);
     // restart R and gii, it will be blocked at test hook
-    AsyncInvocation async4 = createDistributedRegionAsync(T);
+    var async4 = createDistributedRegionAsync(T);
     // 8
     waitForCallbackStarted(P, DuringPackingImage);
-    WaitCriterion ev = new WaitCriterion() {
+    var ev = new WaitCriterion() {
       @Override
       public boolean done() {
-        int count = getDeltaGIICount(P);
+        var count = getDeltaGIICount(P);
         return (count == 2);
       }
 
@@ -1374,7 +1374,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     };
 
     GeodeAwaitility.await().untilAsserted(ev);
-    int count = getDeltaGIICount(P);
+    var count = getDeltaGIICount(P);
     assertEquals(2, count);
 
     // force tombstone GC to let RVVGC to become P4:R0, but R already sent its old RVV/RVVGC over
@@ -1393,10 +1393,10 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     P.invoke(
         () -> resetGIITestHook(DuringPackingImage, true));
 
-    WaitCriterion ev2 = new WaitCriterion() {
+    var ev2 = new WaitCriterion() {
       @Override
       public boolean done() {
-        int count = getDeltaGIICount(P);
+        var count = getDeltaGIICount(P);
         return (count == 0);
       }
 
@@ -1433,9 +1433,9 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     // do a put from T
     doOnePut(T, 1, "key1");
 
-    RegionVersionVector p_rvv = getRVV(P);
-    RegionVersionVector r_rvv = getRVV(R);
-    RegionVersionVector t_rvv = getRVV(R);
+    var p_rvv = getRVV(P);
+    var r_rvv = getRVV(R);
+    var t_rvv = getRVV(R);
     assertSameRVV(p_rvv, r_rvv);
     assertSameRVV(t_rvv, r_rvv);
 
@@ -1444,7 +1444,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     verifyDeltaSizeFromStats(R, 4, 1);
     // verify unfinished op for key5 is revoked
     waitToVerifyKey(R, "key5", generateValue(R));
-    VersionTag tag = getVersionTag(R, "key5");
+    var tag = getVersionTag(R, "key5");
     assertTrue(expect_tag.equals(tag));
     // P.invoke(() -> InitialImageOperation.resetAllGIITestHooks());
   }
@@ -1460,8 +1460,8 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testExpiredTombstoneSkippedGC() throws Throwable {
     prepareForEachTest();
-    final DiskStoreID memberP = getMemberID(P);
-    final DiskStoreID memberR = getMemberID(R);
+    final var memberP = getMemberID(P);
+    final var memberR = getMemberID(R);
 
     assertEquals(0, SLOW_DISTRIBUTION_MS);
     prepareCommonTestData(6);
@@ -1476,7 +1476,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     // now the rvv and rvvgc at P and R should be the same
 
     // save R's rvv in byte array, check if it will be fullGII
-    byte[] R_rvv_bytes = getRVVByteArray(R, REGION_NAME);
+    var R_rvv_bytes = getRVVByteArray(R, REGION_NAME);
     // shutdown R and restart
     closeCache(R);
 
@@ -1490,7 +1490,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     P.invoke(new SerializableRunnable() {
       @Override
       public void run() {
-        Mycallback myDuringPackingImage =
+        var myDuringPackingImage =
             new Mycallback(DuringPackingImage, REGION_NAME);
         setGIITestHook(myDuringPackingImage);
       }
@@ -1499,13 +1499,13 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     checkIfFullGII(P, REGION_NAME, R_rvv_bytes, false);
 
     // restart R and gii, it will be blocked at test hook
-    AsyncInvocation async3 = createDistributedRegionAsync(R);
+    var async3 = createDistributedRegionAsync(R);
     // 8
     waitForCallbackStarted(P, DuringPackingImage);
-    WaitCriterion ev = new WaitCriterion() {
+    var ev = new WaitCriterion() {
       @Override
       public boolean done() {
-        int count = getDeltaGIICount(P);
+        var count = getDeltaGIICount(P);
         return (count == 1);
       }
 
@@ -1516,7 +1516,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     };
 
     GeodeAwaitility.await().untilAsserted(ev);
-    int count = getDeltaGIICount(P);
+    var count = getDeltaGIICount(P);
     assertEquals(1, count);
 
     // let tombstone expired at P & R to trigger tombstoneGC.
@@ -1541,8 +1541,8 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     verifyTombstoneExist(P, "key2", true, true);
     verifyTombstoneExist(P, "key5", true, true);
 
-    RegionVersionVector p_rvv = getRVV(P);
-    RegionVersionVector r_rvv = getRVV(R);
+    var p_rvv = getRVV(P);
+    var r_rvv = getRVV(R);
     out.println("p_rvv=" + p_rvv.fullToString() + ":r_rvv=" + r_rvv.fullToString());
 
     waitForToVerifyRVV(R, memberP, 7, null, 0); // R's rvv=p7, gc=0
@@ -1562,8 +1562,8 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testExpiredTombstoneSkippedGCAtRequesterOnly() throws Throwable {
     prepareForEachTest();
-    final DiskStoreID memberP = getMemberID(P);
-    final DiskStoreID memberR = getMemberID(R);
+    final var memberP = getMemberID(P);
+    final var memberR = getMemberID(R);
 
     assertEquals(0, SLOW_DISTRIBUTION_MS);
     prepareCommonTestData(6);
@@ -1578,7 +1578,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     // now the rvv and rvvgc at P and R should be the same
 
     // save R's rvv in byte array, check if it will be fullGII
-    byte[] R_rvv_bytes = getRVVByteArray(R, REGION_NAME);
+    var R_rvv_bytes = getRVVByteArray(R, REGION_NAME);
     // shutdown R and restart
     closeCache(R);
 
@@ -1592,7 +1592,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     P.invoke(new SerializableRunnable() {
       @Override
       public void run() {
-        Mycallback myDuringPackingImage =
+        var myDuringPackingImage =
             new Mycallback(GIITestHookType.AfterReceivedRequestImage, REGION_NAME);
         setGIITestHook(myDuringPackingImage);
       }
@@ -1601,10 +1601,10 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     checkIfFullGII(P, REGION_NAME, R_rvv_bytes, false);
 
     // restart R and gii, it will be blocked at test hook
-    AsyncInvocation async3 = createDistributedRegionAsync(R);
+    var async3 = createDistributedRegionAsync(R);
     // 8
     waitForCallbackStarted(P, GIITestHookType.AfterReceivedRequestImage);
-    int count = getDeltaGIICount(P);
+    var count = getDeltaGIICount(P);
     assertEquals(0, count);
 
     // let tombstone expired at both P & R to trigger tombstoneGC.
@@ -1630,8 +1630,8 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     verifyTombstoneExist(P, "key2", false, true);
     verifyTombstoneExist(P, "key5", false, true);
 
-    RegionVersionVector p_rvv = getRVV(P);
-    RegionVersionVector r_rvv = getRVV(R);
+    var p_rvv = getRVV(P);
+    var r_rvv = getRVV(R);
     out.println("p_rvv=" + p_rvv.fullToString() + ":r_rvv=" + r_rvv.fullToString());
 
     waitForToVerifyRVV(R, memberP, 7, null, 4); // R's rvv=p7, gc=4
@@ -1648,8 +1648,8 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testRequesterHasHigherRVVGC() throws Throwable {
     prepareForEachTest();
-    final DiskStoreID memberP = getMemberID(P);
-    final DiskStoreID memberR = getMemberID(R);
+    final var memberP = getMemberID(P);
+    final var memberR = getMemberID(R);
 
     assertEquals(0, DistributedCacheOperation.SLOW_DISTRIBUTION_MS);
     prepareCommonTestData(6);
@@ -1672,7 +1672,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     verifyTombstoneExist(R, "key5", false, false);
     verifyTombstoneExist(P, "key5", true, true);
 
-    byte[] R_rvv_bytes = getRVVByteArray(R, REGION_NAME);
+    var R_rvv_bytes = getRVVByteArray(R, REGION_NAME);
     closeCache(R);
     // let p7 to succeed
     doOnePut(P, 7, "key1");
@@ -1700,8 +1700,8 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testDeltaGIIAfterClear() throws Throwable {
     prepareForEachTest();
-    final DiskStoreID memberP = getMemberID(P);
-    final DiskStoreID memberR = getMemberID(R);
+    final var memberP = getMemberID(P);
+    final var memberR = getMemberID(R);
     final long[] exceptionlist = {4, 5};
 
     assertEquals(0, DistributedCacheOperation.SLOW_DISTRIBUTION_MS);
@@ -1729,7 +1729,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     waitForToVerifyRVV(R, memberR, 6, null, 6); // R's rvv=r6, gc=6
 
     // shutdown R
-    byte[] R_rvv_bytes = getRVVByteArray(R, REGION_NAME);
+    var R_rvv_bytes = getRVVByteArray(R, REGION_NAME);
     closeCache(R);
 
     // do a put at P to get some delta
@@ -1750,8 +1750,8 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     waitForToVerifyRVV(R, memberP, 9, null, 8);
     waitForToVerifyRVV(R, memberR, 6, null, 6);
 
-    RegionVersionVector p_rvv = getRVV(P);
-    RegionVersionVector r_rvv = getRVV(R);
+    var p_rvv = getRVV(P);
+    var r_rvv = getRVV(R);
     assertSameRVV(p_rvv, r_rvv); // after gii, rvv should be the same
 
     verifyDeltaSizeFromStats(R, 1, 1);
@@ -1765,8 +1765,8 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testClearAfterChunkEntries() throws Throwable {
     prepareForEachTest();
-    final DiskStoreID memberP = getMemberID(P);
-    final DiskStoreID memberR = getMemberID(R);
+    final var memberP = getMemberID(P);
+    final var memberR = getMemberID(R);
     final long[] exceptionlist = {4, 5};
 
     assertEquals(0, DistributedCacheOperation.SLOW_DISTRIBUTION_MS);
@@ -1785,14 +1785,14 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     R.invoke(new SerializableRunnable() {
       @Override
       public void run() {
-        Mycallback myAfterReceivedImageReply =
+        var myAfterReceivedImageReply =
             new Mycallback(GIITestHookType.AfterReceivedImageReply, REGION_NAME);
         InitialImageOperation.setGIITestHook(myAfterReceivedImageReply);
       }
     });
 
     // shutdown R
-    byte[] R_rvv_bytes = getRVVByteArray(R, REGION_NAME);
+    var R_rvv_bytes = getRVVByteArray(R, REGION_NAME);
     closeCache(R);
 
     // key1 will be the delta
@@ -1800,7 +1800,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
 
     // retart R
     checkIfFullGII(P, REGION_NAME, R_rvv_bytes, false);
-    AsyncInvocation async3 = createDistributedRegionAsync(R);
+    var async3 = createDistributedRegionAsync(R);
 
     // when chunk arrived, do clear()
     waitForCallbackStarted(R, GIITestHookType.AfterReceivedImageReply);
@@ -1819,8 +1819,8 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     closeCache(R);
     createDistributedRegion(R);
 
-    RegionVersionVector p_rvv = getRVV(P);
-    RegionVersionVector r_rvv = getRVV(R);
+    var p_rvv = getRVV(P);
+    var r_rvv = getRVV(R);
     assertSameRVV(p_rvv, r_rvv); // after gii, rvv should be the same
 
     waitForToVerifyRVV(R, memberP, 8, null, 8); // R's rvv=r8, gc=8
@@ -1838,8 +1838,8 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testClearAfterSavedRVV() throws Throwable {
     prepareForEachTest();
-    final DiskStoreID memberP = getMemberID(P);
-    final DiskStoreID memberR = getMemberID(R);
+    final var memberP = getMemberID(P);
+    final var memberR = getMemberID(R);
     final long[] exceptionlist = {4, 5};
 
     assertEquals(0, DistributedCacheOperation.SLOW_DISTRIBUTION_MS);
@@ -1858,7 +1858,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     R.invoke(new SerializableRunnable() {
       @Override
       public void run() {
-        Mycallback myAfterSavedReceivedRVV =
+        var myAfterSavedReceivedRVV =
             new Mycallback(GIITestHookType.AfterSavedReceivedRVV, REGION_NAME);
         InitialImageOperation.setGIITestHook(myAfterSavedReceivedRVV);
       }
@@ -1871,7 +1871,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     doOnePut(P, 7, "key1");
 
     // retart R
-    AsyncInvocation async3 = createDistributedRegionAsync(R);
+    var async3 = createDistributedRegionAsync(R);
 
     // when chunk arrived, do clear()
     waitForCallbackStarted(R, GIITestHookType.AfterSavedReceivedRVV);
@@ -1886,8 +1886,8 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     waitForToVerifyRVV(P, memberP, 8, null, 8); // P's rvv=r8, gc=8
     waitForToVerifyRVV(P, memberR, 6, null, 6); // P's rvv=r6, gc=6
 
-    RegionVersionVector p_rvv = getRVV(P);
-    RegionVersionVector r_rvv = getRVV(R);
+    var p_rvv = getRVV(P);
+    var r_rvv = getRVV(R);
     assertSameRVV(p_rvv, r_rvv); // after gii, rvv should be the same
 
     waitForToVerifyRVV(R, memberP, 8, null, 8); // R's rvv=r8, gc=8
@@ -1905,8 +1905,8 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testFullGIIAfterClear() throws Throwable {
     prepareForEachTest();
-    final DiskStoreID memberP = getMemberID(P);
-    final DiskStoreID memberR = getMemberID(R);
+    final var memberP = getMemberID(P);
+    final var memberR = getMemberID(R);
     final long[] exceptionlist = {4, 5};
 
     assertEquals(0, DistributedCacheOperation.SLOW_DISTRIBUTION_MS);
@@ -1921,7 +1921,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     waitForToVerifyRVV(R, memberR, 6, null, 0); // R's rvv=r6, gc=0
 
     // shutdown R before clear
-    byte[] R_rvv_bytes = getRVVByteArray(R, REGION_NAME);
+    var R_rvv_bytes = getRVVByteArray(R, REGION_NAME);
     closeCache(R);
 
     doOneClear(P, 8);
@@ -1941,8 +1941,8 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     waitForToVerifyRVV(R, memberP, 9, null, 8);
     waitForToVerifyRVV(R, memberR, 6, null, 6);
 
-    RegionVersionVector p_rvv = getRVV(P);
-    RegionVersionVector r_rvv = getRVV(R);
+    var p_rvv = getRVV(P);
+    var r_rvv = getRVV(R);
     assertSameRVV(p_rvv, r_rvv); // after gii, rvv should be the same
 
     verifyDeltaSizeFromStats(R, 1, 0);
@@ -1956,8 +1956,8 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testFullGIITriggeredByTooManyUnfinishedOps() throws Throwable {
     prepareForEachTest();
-    final DiskStoreID memberP = getMemberID(P);
-    final DiskStoreID memberR = getMemberID(R);
+    final var memberP = getMemberID(P);
+    final var memberR = getMemberID(R);
     final long[] exceptionlist = {4, 5};
 
     assertEquals(0, DistributedCacheOperation.SLOW_DISTRIBUTION_MS);
@@ -1991,8 +1991,8 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testRestartWithOnlyGIIBegion() throws Throwable {
     prepareForEachTest();
-    final DiskStoreID memberP = getMemberID(P);
-    final DiskStoreID memberR = getMemberID(R);
+    final var memberP = getMemberID(P);
+    final var memberR = getMemberID(R);
     final long[] exceptionlist = {4, 5};
 
     assertEquals(0, DistributedCacheOperation.SLOW_DISTRIBUTION_MS);
@@ -2011,7 +2011,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     R.invoke(new SerializableRunnable() {
       @Override
       public void run() {
-        Mycallback myAfterSavedReceivedRVV =
+        var myAfterSavedReceivedRVV =
             new Mycallback(GIITestHookType.AfterSavedReceivedRVV, REGION_NAME);
         InitialImageOperation.setGIITestHook(myAfterSavedReceivedRVV);
       }
@@ -2024,7 +2024,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     doOnePut(P, 7, "key1");
 
     // retart R
-    AsyncInvocation async3 = createDistributedRegionAsync(R);
+    var async3 = createDistributedRegionAsync(R);
 
     // when chunk arrived, do clear()
     waitForCallbackStarted(R, GIITestHookType.AfterSavedReceivedRVV);
@@ -2040,8 +2040,8 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     waitForToVerifyRVV(P, memberP, 7, null, 0); // P's rvv=r8, gc=0
     waitForToVerifyRVV(P, memberR, 6, null, 0); // P's rvv=r6, gc=0
 
-    RegionVersionVector p_rvv = getRVV(P);
-    RegionVersionVector r_rvv = getRVV(R);
+    var p_rvv = getRVV(P);
+    var r_rvv = getRVV(R);
     assertSameRVV(p_rvv, r_rvv); // after gii, rvv should be the same
 
     waitForToVerifyRVV(R, memberP, 7, null, 0); // R's rvv=r7, gc=0
@@ -2059,8 +2059,8 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void testRecoverFromUntrustedRVV() throws Throwable {
     prepareForEachTest();
-    final DiskStoreID memberP = getMemberID(P);
-    final DiskStoreID memberR = getMemberID(R);
+    final var memberP = getMemberID(P);
+    final var memberR = getMemberID(R);
 
     assertEquals(0, DistributedCacheOperation.SLOW_DISTRIBUTION_MS);
     prepareCommonTestData(6);
@@ -2079,10 +2079,10 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run() {
         // Add hooks before and after receiving the RVV
-        Mycallback myBeforeSavedReceivedRVV =
+        var myBeforeSavedReceivedRVV =
             new Mycallback(GIITestHookType.BeforeSavedReceivedRVV, REGION_NAME);
         InitialImageOperation.setGIITestHook(myBeforeSavedReceivedRVV);
-        Mycallback myAfterSavedReceivedRVV =
+        var myAfterSavedReceivedRVV =
             new Mycallback(GIITestHookType.AfterSavedReceivedRVV, REGION_NAME);
         InitialImageOperation.setGIITestHook(myAfterSavedReceivedRVV);
       }
@@ -2094,7 +2094,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
 
 
     // retart R
-    AsyncInvocation async3 = createDistributedRegionAsync(R);
+    var async3 = createDistributedRegionAsync(R);
 
     // when chunk arrived, do clear()
     waitForCallbackStarted(R, GIITestHookType.BeforeSavedReceivedRVV);
@@ -2137,11 +2137,11 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     prepareForEachTest();
 
     // Create the region in 1 more VM to to a tombstone GC.
-    VM vm2 = Host.getHost(0).getVM(2);
+    var vm2 = Host.getHost(0).getVM(2);
     createDistributedRegion(vm2);
 
-    final DiskStoreID memberP = getMemberID(P);
-    final DiskStoreID memberR = getMemberID(R);
+    final var memberP = getMemberID(P);
+    final var memberR = getMemberID(R);
 
     assertEquals(0, DistributedCacheOperation.SLOW_DISTRIBUTION_MS);
     prepareCommonTestData(6);
@@ -2150,7 +2150,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     // shutdown R
     closeCache(R);
 
-    final VM vmR = R;
+    final var vmR = R;
 
     // Destroy key5, this will leave a tombstone
     doOneDestroy(P, 7, "key5");
@@ -2160,7 +2160,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run() {
         // Add hooks before and after receiving the RVV
-        Mycallback myAfterSavedReceivedRVV =
+        var myAfterSavedReceivedRVV =
             new Mycallback(GIITestHookType.AfterCalculatedUnfinishedOps, REGION_NAME);
         InitialImageOperation.setGIITestHook(myAfterSavedReceivedRVV);
       }
@@ -2183,7 +2183,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
                 && ((TombstoneMessage) message).regionPath.contains(REGION_NAME)) {
               System.err.println("DAN DEBUG  about to send tombstone message, starting up R - "
                   + message.getSender());
-              AsyncInvocation async3 = createDistributedRegionAsync(vmR);
+              var async3 = createDistributedRegionAsync(vmR);
 
               // Wait for R to finish requesting the RVV before letting the tombstone GC proceeed.
               waitForCallbackStarted(vmR, GIITestHookType.AfterCalculatedUnfinishedOps);
@@ -2220,7 +2220,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     vm2.invoke(new SerializableRunnable() {
       @Override
       public void run() {
-        GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
+        var cache = (GemFireCacheImpl) getCache();
         try {
           cache.getTombstoneService().forceBatchExpirationForTests(20);
         } catch (InterruptedException e) {
@@ -2245,7 +2245,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
    * Returns region attributes for a <code>GLOBAL</code> region
    */
   protected <K, V> RegionAttributes<K, V> getRegionAttributes() {
-    AttributesFactory<K, V> factory = new AttributesFactory<>();
+    var factory = new AttributesFactory<K, V>();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
     factory.setConcurrencyChecksEnabled(true);
@@ -2253,7 +2253,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
   }
 
   protected void createDistributedRegion(VM vm) {
-    AsyncInvocation future = createDistributedRegionAsync(vm);
+    var future = createDistributedRegionAsync(vm);
     try {
       future.join(MAX_WAIT);
     } catch (InterruptedException e) {
@@ -2268,16 +2268,16 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
   }
 
   protected AsyncInvocation createDistributedRegionAsync(VM vm) {
-    SerializableRunnable createRegion = new SerializableRunnable("Create Region") {
+    var createRegion = new SerializableRunnable("Create Region") {
       @Override
       public void run() {
         try {
-          String value =
+          var value =
               System.getProperty(GeodeGlossary.GEMFIRE_PREFIX + "no-flush-on-close");
           assertNull(value);
           RegionFactory f = getCache().createRegionFactory(getRegionAttributes());
           // CCRegion = (LocalRegion)f.create(REGION_NAME);
-          LocalRegion lr = (LocalRegion) f.create(REGION_NAME);
+          var lr = (LocalRegion) f.create(REGION_NAME);
           LogWriterUtils.getLogWriter()
               .info("In createDistributedRegion, using hydra.getLogWriter()");
           LogWriterUtils.getLogWriter()
@@ -2291,7 +2291,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
   }
 
   protected void closeCache(VM vm) {
-    SerializableRunnable close = new SerializableRunnable() {
+    var close = new SerializableRunnable() {
       @Override
       public void run() {
         try {
@@ -2307,10 +2307,10 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
   }
 
   protected void destroyRegion(VM vm) {
-    SerializableRunnable destroy = new SerializableRunnable() {
+    var destroy = new SerializableRunnable() {
       @Override
       public void run() {
-        LocalRegion lr = (LocalRegion) getCache().getRegion(REGION_NAME);
+        var lr = (LocalRegion) getCache().getRegion(REGION_NAME);
         lr.localDestroyRegion();
       }
     };
@@ -2318,7 +2318,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
   }
 
   protected void changeUnfinishedOperationLimit(VM vm, final int value) {
-    SerializableRunnable change = new SerializableRunnable() {
+    var change = new SerializableRunnable() {
       @Override
       public void run() {
         InitialImageOperation.MAXIMUM_UNFINISHED_OPERATIONS = value;
@@ -2328,7 +2328,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
   }
 
   protected void changeTombstoneTimout(VM vm, final long value) {
-    SerializableRunnable change = new SerializableRunnable() {
+    var change = new SerializableRunnable() {
       @Override
       public void run() {
         TombstoneService.REPLICATE_TOMBSTONE_TIMEOUT = value;
@@ -2338,7 +2338,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
   }
 
   protected void changeForceFullGII(VM vm, final boolean value, final boolean checkOnly) {
-    SerializableRunnable change = new SerializableRunnable() {
+    var change = new SerializableRunnable() {
       @Override
       public void run() {
         if (checkOnly) {
@@ -2352,7 +2352,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
   }
 
   protected void removeSystemPropertiesInVM(VM vm, final String prop) {
-    SerializableRunnable change = new SerializableRunnable() {
+    var change = new SerializableRunnable() {
       @Override
       public void run() {
         LogWriterUtils.getLogWriter()
@@ -2366,20 +2366,20 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
 
   protected void verifyDeltaSizeFromStats(VM vm, final int expectedKeyNum,
       final int expectedDeltaGIINum) {
-    SerializableRunnable verify = new SerializableRunnable() {
+    var verify = new SerializableRunnable() {
       @Override
       public void run() {
         Cache cache = getCache();
         // verify from CachePerfStats that certain amount of keys in delta
-        LocalRegion lr = (LocalRegion) getCache().getRegion(REGION_NAME);
-        CachePerfStats stats = lr.getRegionPerfStats();
+        var lr = (LocalRegion) getCache().getRegion(REGION_NAME);
+        var stats = lr.getRegionPerfStats();
 
         // we saved GII completed count in RegionPerfStats only
-        long size = stats.getGetInitialImageKeysReceived();
+        var size = stats.getGetInitialImageKeysReceived();
         cache.getLogger().info("Delta contains: " + size + " keys");
         assertEquals(expectedKeyNum, size);
 
-        long num = stats.getDeltaGetInitialImagesCompleted();
+        var num = stats.getDeltaGetInitialImagesCompleted();
         cache.getLogger().info("Delta GII completed: " + num + " times");
         assertEquals(expectedDeltaGIINum, num);
       }
@@ -2389,9 +2389,9 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
 
   // P should have smaller diskstore ID than R's
   protected void assignVMsToPandR(final VM vm0, final VM vm1) {
-    DiskStoreID dsid0 = getMemberID(vm0);
-    DiskStoreID dsid1 = getMemberID(vm1);
-    int compare = dsid0.compareTo(dsid1);
+    var dsid0 = getMemberID(vm0);
+    var dsid1 = getMemberID(vm1);
+    var compare = dsid0.compareTo(dsid1);
     LogWriterUtils.getLogWriter().info("Before assignVMsToPandR, dsid0 is " + dsid0 + ",dsid1 is "
         + dsid1 + ",compare=" + compare);
     if (compare > 0) {
@@ -2406,12 +2406,12 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
   }
 
   private DiskStoreID getMemberID(VM vm) {
-    SerializableCallable getDiskStoreID = new SerializableCallable("get DiskStoreID as member id") {
+    var getDiskStoreID = new SerializableCallable("get DiskStoreID as member id") {
       @Override
       public Object call() {
-        LocalRegion lr = (LocalRegion) getCache().getRegion(REGION_NAME);
+        var lr = (LocalRegion) getCache().getRegion(REGION_NAME);
         assertTrue(lr != null && lr.getDiskStore() != null);
-        DiskStoreID dsid = lr.getDiskStore().getDiskStoreID();
+        var dsid = lr.getDiskStore().getDiskStoreID();
         return dsid;
       }
     };
@@ -2442,7 +2442,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     vm.invoke(new SerializableCallable("assert progressingDeltaGIICount == 0") {
       @Override
       public Object call() throws Exception {
-        int count = getCache().getTombstoneService().getGCBlockCount();
+        var count = getCache().getTombstoneService().getGCBlockCount();
         assertEquals(0, count);
         return null;
       }
@@ -2451,13 +2451,13 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
 
   public void waitForToVerifyRVV(final VM vm, final DiskStoreID member,
       final long expectedRegionVersion, final long[] exceptionList, final long expectedGCVersion) {
-    SerializableRunnable waitForVerifyRVV = new SerializableRunnable() {
+    var waitForVerifyRVV = new SerializableRunnable() {
 
       private boolean verifyExceptionList(final DiskStoreID member, final long regionversion,
           final RegionVersionVector rvv, final long[] exceptionList) {
-        boolean exceptionListVerified = true;
+        var exceptionListVerified = true;
         if (exceptionList != null) {
-          for (long i : exceptionList) {
+          for (var i : exceptionList) {
             exceptionListVerified = !rvv.contains(member, i);
             if (!exceptionListVerified) {
               LogWriterUtils.getLogWriter().finer("DeltaGII:missing exception " + i + ":" + rvv);
@@ -2479,22 +2479,22 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
 
       @Override
       public void run() {
-        WaitCriterion ev = new WaitCriterion() {
+        var ev = new WaitCriterion() {
           @Override
           public boolean done() {
-            RegionVersionVector rvv = ((LocalRegion) getCache().getRegion(REGION_NAME))
+            var rvv = ((LocalRegion) getCache().getRegion(REGION_NAME))
                 .getVersionVector().getCloneForTransmission();
-            long regionversion = getRegionVersionForMember(rvv, member, false);
-            long gcversion = getRegionVersionForMember(rvv, member, true);
+            var regionversion = getRegionVersionForMember(rvv, member, false);
+            var gcversion = getRegionVersionForMember(rvv, member, true);
 
-            boolean exceptionListVerified =
+            var exceptionListVerified =
                 verifyExceptionList(member, regionversion, rvv, exceptionList);
             getLogWriter()
                 .info("DeltaGII:expected:" + expectedRegionVersion + ":" + expectedGCVersion);
             getLogWriter().info("DeltaGII:actual:" + regionversion + ":" + gcversion
                 + ":" + exceptionListVerified + ":" + rvv);
 
-            boolean match = true;
+            var match = true;
             if (expectedRegionVersion != -1) {
               match = match && (regionversion == expectedRegionVersion);
             }
@@ -2506,27 +2506,27 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
 
           @Override
           public String description() {
-            RegionVersionVector rvv = ((LocalRegion) getCache().getRegion(REGION_NAME))
+            var rvv = ((LocalRegion) getCache().getRegion(REGION_NAME))
                 .getVersionVector().getCloneForTransmission();
-            long regionversion = getRegionVersionForMember(rvv, member, false);
-            long gcversion = getRegionVersionForMember(rvv, member, true);
+            var regionversion = getRegionVersionForMember(rvv, member, false);
+            var gcversion = getRegionVersionForMember(rvv, member, true);
             return "expected (rv" + expectedRegionVersion + ", gc" + expectedGCVersion + ")"
                 + " got (rv" + regionversion + ", gc" + gcversion + ")";
           }
         };
 
         GeodeAwaitility.await().untilAsserted(ev);
-        RegionVersionVector rvv = ((LocalRegion) getCache().getRegion(REGION_NAME))
+        var rvv = ((LocalRegion) getCache().getRegion(REGION_NAME))
             .getVersionVector().getCloneForTransmission();
-        long regionversion = getRegionVersionForMember(rvv, member, false);
-        long gcversion = getRegionVersionForMember(rvv, member, true);
+        var regionversion = getRegionVersionForMember(rvv, member, false);
+        var gcversion = getRegionVersionForMember(rvv, member, true);
         if (expectedRegionVersion != -1) {
           assertEquals(expectedRegionVersion, regionversion);
         }
         if (expectedGCVersion != -1) {
           assertEquals(expectedGCVersion, gcversion);
         }
-        boolean exceptionListVerified =
+        var exceptionListVerified =
             verifyExceptionList(member, regionversion, rvv, exceptionList);
         assertTrue(exceptionListVerified);
       }
@@ -2535,13 +2535,13 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
   }
 
   public void waitForCallbackStarted(final VM vm, final GIITestHookType callbacktype) {
-    SerializableRunnable waitForCallbackStarted = new SerializableRunnable() {
+    var waitForCallbackStarted = new SerializableRunnable() {
       @Override
       public void run() {
 
-        final GIITestHook callback =
+        final var callback =
             getGIITestHookForCheckingPurpose(callbacktype);
-        WaitCriterion ev = new WaitCriterion() {
+        var ev = new WaitCriterion() {
 
           @Override
           public boolean done() {
@@ -2564,10 +2564,10 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
   }
 
   private VersionTag getVersionTag(VM vm, final String key) {
-    SerializableCallable getVersionTag = new SerializableCallable("get version tag") {
+    var getVersionTag = new SerializableCallable("get version tag") {
       @Override
       public Object call() {
-        VersionTag tag = ((LocalRegion) getCache().getRegion(REGION_NAME)).getVersionTag(key);
+        var tag = ((LocalRegion) getCache().getRegion(REGION_NAME)).getVersionTag(key);
         return tag;
 
       }
@@ -2576,14 +2576,14 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
   }
 
   public void waitToVerifyKey(final VM vm, final String key, final String expect_value) {
-    SerializableRunnable waitToVerifyKey = new SerializableRunnable() {
+    var waitToVerifyKey = new SerializableRunnable() {
       @Override
       public void run() {
 
-        WaitCriterion ev = new WaitCriterion() {
+        var ev = new WaitCriterion() {
           @Override
           public boolean done() {
-            String value = (String) getCache().getRegion(REGION_NAME).get(key);
+            var value = (String) getCache().getRegion(REGION_NAME).get(key);
             if (expect_value == null && value == null) {
               return true;
             } else {
@@ -2598,7 +2598,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
         };
 
         GeodeAwaitility.await().untilAsserted(ev);
-        String value = (String) getCache().getRegion(REGION_NAME).get(key);
+        var value = (String) getCache().getRegion(REGION_NAME).get(key);
         assertEquals(expect_value, value);
       }
     };
@@ -2607,15 +2607,15 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
 
   protected byte[] getRVVByteArray(VM vm, final String regionName)
       throws IOException, ClassNotFoundException {
-    SerializableCallable getRVVByteArray = new SerializableCallable("getRVVByteArray") {
+    var getRVVByteArray = new SerializableCallable("getRVVByteArray") {
 
       @Override
       public Object call() throws Exception {
         Cache cache = getCache();
-        LocalRegion region = (LocalRegion) cache.getRegion(regionName);
-        RegionVersionVector rvv = region.getVersionVector();
+        var region = (LocalRegion) cache.getRegion(regionName);
+        var rvv = region.getVersionVector();
         rvv = rvv.getCloneForTransmission();
-        HeapDataOutputStream hdos = new HeapDataOutputStream(KnownVersion.CURRENT);
+        var hdos = new HeapDataOutputStream(KnownVersion.CURRENT);
 
         // Using gemfire serialization because
         // RegionVersionVector is not java serializable
@@ -2623,26 +2623,26 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
         return hdos.toByteArray();
       }
     };
-    byte[] result = (byte[]) vm.invoke(getRVVByteArray);
+    var result = (byte[]) vm.invoke(getRVVByteArray);
     return result;
   }
 
   protected RegionVersionVector getRVV(VM vm) throws IOException, ClassNotFoundException {
-    byte[] result = getRVVByteArray(vm, REGION_NAME);
-    ByteArrayInputStream bais = new ByteArrayInputStream(result);
+    var result = getRVVByteArray(vm, REGION_NAME);
+    var bais = new ByteArrayInputStream(result);
     return DataSerializer.readObject(new DataInputStream(bais));
   }
 
   protected RegionVersionVector getDiskRVV(VM vm) throws IOException, ClassNotFoundException {
-    SerializableCallable createData = new SerializableCallable("getRVV") {
+    var createData = new SerializableCallable("getRVV") {
 
       @Override
       public Object call() throws Exception {
         Cache cache = getCache();
-        LocalRegion region = (LocalRegion) cache.getRegion(REGION_NAME);
-        RegionVersionVector rvv = region.getDiskRegion().getRegionVersionVector();
+        var region = (LocalRegion) cache.getRegion(REGION_NAME);
+        var rvv = region.getDiskRegion().getRegionVersionVector();
         rvv = rvv.getCloneForTransmission();
-        HeapDataOutputStream hdos = new HeapDataOutputStream(KnownVersion.CURRENT);
+        var hdos = new HeapDataOutputStream(KnownVersion.CURRENT);
 
         // Using gemfire serialization because
         // RegionVersionVector is not java serializable
@@ -2650,18 +2650,18 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
         return hdos.toByteArray();
       }
     };
-    byte[] result = (byte[]) vm.invoke(createData);
-    ByteArrayInputStream bais = new ByteArrayInputStream(result);
+    var result = (byte[]) vm.invoke(createData);
+    var bais = new ByteArrayInputStream(result);
     return DataSerializer.readObject(new DataInputStream(bais));
   }
 
   private void checkIfFullGII(VM vm, final String regionName, final byte[] remote_rvv_bytearray,
       final boolean expectFullGII) {
-    SerializableRunnable checkIfFullGII = new SerializableRunnable("check if full gii") {
+    var checkIfFullGII = new SerializableRunnable("check if full gii") {
       @Override
       public void run() {
-        DistributedRegion rr = (DistributedRegion) getCache().getRegion(regionName);
-        ByteArrayInputStream bais = new ByteArrayInputStream(remote_rvv_bytearray);
+        var rr = (DistributedRegion) getCache().getRegion(regionName);
+        var bais = new ByteArrayInputStream(remote_rvv_bytearray);
         RegionVersionVector remote_rvv = null;
         try {
           remote_rvv = DataSerializer.readObject(new DataInputStream(bais));
@@ -2670,9 +2670,9 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
         } catch (ClassNotFoundException e) {
           Assert.fail("Unexpected exception", e);
         }
-        RequestImageMessage rim = new RequestImageMessage();
+        var rim = new RequestImageMessage();
         rim.setSender(R_ID);
-        boolean isFullGII = rim.goWithFullGII(rr, remote_rvv);
+        var isFullGII = rim.goWithFullGII(rr, remote_rvv);
         assertEquals(expectFullGII, isFullGII);
       }
     };
@@ -2680,19 +2680,19 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void doOneClear(final VM vm, final long regionVersionForThisOp) {
-    SerializableRunnable clearOp = oneClearOp(regionVersionForThisOp, getMemberID(vm));
+    var clearOp = oneClearOp(regionVersionForThisOp, getMemberID(vm));
     vm.invoke(clearOp);
   }
 
   private SerializableRunnable oneClearOp(final long regionVersionForThisOp,
       final DiskStoreID memberID) {
-    SerializableRunnable clearOp = new SerializableRunnable("clear now") {
+    var clearOp = new SerializableRunnable("clear now") {
       @Override
       public void run() {
-        DistributedRegion rr = (DistributedRegion) getCache().getRegion(REGION_NAME);
+        var rr = (DistributedRegion) getCache().getRegion(REGION_NAME);
         rr.clear();
-        long region_version = getRegionVersionForMember(rr.getVersionVector(), memberID, false);
-        long region_gc_version = getRegionVersionForMember(rr.getVersionVector(), memberID, true);
+        var region_version = getRegionVersionForMember(rr.getVersionVector(), memberID, false);
+        var region_gc_version = getRegionVersionForMember(rr.getVersionVector(), memberID, true);
         assertEquals(regionVersionForThisOp, region_version);
         assertEquals(region_version, region_gc_version);
       }
@@ -2702,12 +2702,12 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
 
   private SerializableRunnable onePutOp(final String key, final String value,
       final long regionVersionForThisOp, final DiskStoreID memberID, final boolean syncInvocation) {
-    SerializableRunnable putOp = new SerializableRunnable("put " + key) {
+    var putOp = new SerializableRunnable("put " + key) {
       @Override
       public void run() {
-        LocalRegion lr = (LocalRegion) getCache().getRegion(REGION_NAME);
+        var lr = (LocalRegion) getCache().getRegion(REGION_NAME);
         lr.put(key, value);
-        long region_version = getRegionVersionForMember(lr.getVersionVector(), memberID, false);
+        var region_version = getRegionVersionForMember(lr.getVersionVector(), memberID, false);
         if (syncInvocation) {
           assertEquals(regionVersionForThisOp, region_version);
         }
@@ -2717,14 +2717,14 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void doOnePut(final VM vm, final long regionVersionForThisOp, final String key) {
-    SerializableRunnable putOp =
+    var putOp =
         onePutOp(key, generateValue(vm), regionVersionForThisOp, getMemberID(vm), true);
     vm.invoke(putOp);
   }
 
   private AsyncInvocation doOnePutAsync(final VM vm, final long regionVersionForThisOp,
       final String key) {
-    SerializableRunnable putOp =
+    var putOp =
         onePutOp(key, generateValue(vm), regionVersionForThisOp, getMemberID(vm), false);
     AsyncInvocation async = vm.invokeAsync(putOp);
     return async;
@@ -2736,12 +2736,12 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
 
   private SerializableRunnable oneDestroyOp(final String key, final String value,
       final long regionVersionForThisOp, final DiskStoreID memberID, final boolean syncInvocation) {
-    SerializableRunnable destroyOp = new SerializableRunnable("destroy " + key) {
+    var destroyOp = new SerializableRunnable("destroy " + key) {
       @Override
       public void run() {
-        LocalRegion lr = (LocalRegion) getCache().getRegion(REGION_NAME);
+        var lr = (LocalRegion) getCache().getRegion(REGION_NAME);
         lr.destroy(key);
-        long region_version = getRegionVersionForMember(lr.getVersionVector(), memberID, false);
+        var region_version = getRegionVersionForMember(lr.getVersionVector(), memberID, false);
         if (syncInvocation) {
           assertEquals(regionVersionForThisOp, region_version);
         }
@@ -2751,14 +2751,14 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void doOneDestroy(final VM vm, final long regionVersionForThisOp, final String key) {
-    SerializableRunnable destroyOp =
+    var destroyOp =
         oneDestroyOp(key, generateValue(vm), regionVersionForThisOp, getMemberID(vm), true);
     vm.invoke(destroyOp);
   }
 
   private AsyncInvocation doOneDestroyAsync(final VM vm, final long regionVersionForThisOp,
       final String key) {
-    SerializableRunnable destroyOp =
+    var destroyOp =
         oneDestroyOp(key, generateValue(vm), regionVersionForThisOp, getMemberID(vm), false);
     AsyncInvocation async = vm.invokeAsync(destroyOp);
     return async;
@@ -2783,11 +2783,11 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
 
   protected void verifyTombstoneExist(VM vm, final String key, final boolean expectExist,
       final boolean expectExpired) {
-    SerializableRunnable verify = new SerializableRunnable() {
+    var verify = new SerializableRunnable() {
       private boolean doneVerify() {
         Cache cache = getCache();
-        LocalRegion lr = (LocalRegion) getCache().getRegion(REGION_NAME);
-        NonTXEntry entry = (NonTXEntry) lr.getEntry(key, true);
+        var lr = (LocalRegion) getCache().getRegion(REGION_NAME);
+        var entry = (NonTXEntry) lr.getEntry(key, true);
         if (expectExist) {
           assertTrue(entry != null && entry.getRegionEntry().isTombstone());
         }
@@ -2795,7 +2795,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
         if (entry == null || !entry.getRegionEntry().isTombstone()) {
           return (false == expectExist);
         } else {
-          long ts = entry.getRegionEntry().getVersionStamp().getVersionTimeStamp();
+          var ts = entry.getRegionEntry().getVersionStamp().getVersionTimeStamp();
           if (expectExpired) {
             return (ts + TombstoneService.REPLICATE_TOMBSTONE_TIMEOUT <= ((GemFireCacheImpl) cache)
                 .cacheTimeMillis()); // use MAX_WAIT as timeout
@@ -2807,7 +2807,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
 
       @Override
       public void run() {
-        WaitCriterion ev = new WaitCriterion() {
+        var ev = new WaitCriterion() {
           @Override
           public boolean done() {
             return doneVerify();
@@ -2827,10 +2827,10 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
   }
 
   protected int getDeltaGIICount(VM vm) {
-    SerializableCallable getDelGIICount = new SerializableCallable("getDelGIICount") {
+    var getDelGIICount = new SerializableCallable("getDelGIICount") {
       @Override
       public Object call() throws Exception {
-        GemFireCacheImpl gfc = (GemFireCacheImpl) getCache();
+        var gfc = (GemFireCacheImpl) getCache();
         return gfc.getTombstoneService().getGCBlockCount();
       }
     };
@@ -2854,7 +2854,7 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
   }
 
   public static void resetSlowGII() {
-    BlockMessageObserver observer =
+    var observer =
         (BlockMessageObserver) DistributionMessageObserver.setInstance(null);
     if (observer != null) {
       observer.cdl.countDown();
@@ -2893,17 +2893,17 @@ public class GIIDeltaDUnitTest extends JUnit4CacheTestCase {
     public void beforeSendMessage(ClusterDistributionManager dm, DistributionMessage message) {
       VersionTag tag = null;
       if (message instanceof UpdateMessage) {
-        UpdateMessage um = (UpdateMessage) message;
+        var um = (UpdateMessage) message;
         tag = um.getVersionTag();
       } else if (message instanceof DestroyMessage) {
-        DestroyMessage um = (DestroyMessage) message;
+        var um = (DestroyMessage) message;
         tag = um.getVersionTag();
       } else {
         return;
       }
       try {
-        boolean toBlock = false;
-        for (long blockversion : versionsToBlock) {
+        var toBlock = false;
+        for (var blockversion : versionsToBlock) {
           if (tag.getRegionVersion() == blockversion) {
             toBlock = true;
             break;

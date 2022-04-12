@@ -64,9 +64,9 @@ class WindowsScriptGenerator implements ScriptGenerator {
   @Override
   public void writeCopyFile(BufferedWriter writer, File source, File destination)
       throws IOException {
-    String fileName = source.getName();
-    String sourcePath = source.getParent() == null ? "." : source.getParent();
-    String destinationPath = destination.getParent() == null ? "." : destination.getParent();
+    var fileName = source.getName();
+    var sourcePath = source.getParent() == null ? "." : source.getParent();
+    var destinationPath = destination.getParent() == null ? "." : destination.getParent();
     writer.write(ROBOCOPY_COMMAND + " \"" + sourcePath + "\" \"" + destinationPath + "\" "
         + fileName + " " + ROBOCOPY_NO_JOB_HEADER + " " + ROBOCOPY_NO_JOB_SUMMARY);
     writer.newLine();

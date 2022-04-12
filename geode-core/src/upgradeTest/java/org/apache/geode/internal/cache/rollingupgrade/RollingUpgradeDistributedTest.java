@@ -20,9 +20,7 @@ import static org.assertj.core.api.Assertions.fail;
 import static org.junit.Assert.assertTrue;
 
 import java.io.Serializable;
-import java.lang.reflect.Constructor;
 import java.util.Collection;
-import java.util.List;
 import java.util.Properties;
 
 import org.junit.Rule;
@@ -34,10 +32,7 @@ import org.junit.runners.Parameterized.UseParametersRunnerFactory;
 
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.InternalLocator;
-import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
-import org.apache.geode.distributed.internal.membership.api.MembershipView;
 import org.apache.geode.internal.serialization.KnownVersion;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
@@ -50,7 +45,7 @@ public abstract class RollingUpgradeDistributedTest implements Serializable {
 
   @Parameters(name = "from_v{0}")
   public static Collection<String> data() {
-    List<String> result = VersionManager.getInstance().getVersionsWithoutCurrent();
+    var result = VersionManager.getInstance().getVersionsWithoutCurrent();
     if (result.size() < 1) {
       throw new RuntimeException("No older versions of Geode were found to test against");
     }
@@ -66,16 +61,14 @@ public abstract class RollingUpgradeDistributedTest implements Serializable {
 
   void doTestRollAll(String regionType, String objectType, String startingVersion)
       throws Exception {
-    MemberVM locator = clusterStartupRule.startLocatorVM(0, startingVersion);
-    int locatorPort = locator.getPort();
-    MemberVM server1 = clusterStartupRule.startServerVM(1, startingVersion,
+    var locator = clusterStartupRule.startLocatorVM(0, startingVersion);
+    var locatorPort = locator.getPort();
+    var server1 = clusterStartupRule.startServerVM(1, startingVersion,
         s -> s.withConnectionToLocator(locatorPort));
-    MemberVM server2 = clusterStartupRule.startServerVM(2, startingVersion,
+    var server2 = clusterStartupRule.startServerVM(2, startingVersion,
         s -> s.withConnectionToLocator(locatorPort));
 
-
-
-    String regionName = "aRegion";
+    var regionName = "aRegion";
     RegionShortcut shortcutName = null;
     switch (regionType) {
       case "replicate":
@@ -101,7 +94,7 @@ public abstract class RollingUpgradeDistributedTest implements Serializable {
                     || InternalLocator.getLocator().isSharedConfigurationRunning())));
 
     // create region
-    RegionShortcut finalShortcutName = shortcutName;
+    var finalShortcutName = shortcutName;
     server1.invoke(() -> {
       ClusterStartupRule.getCache()
           .createRegionFactory(finalShortcutName)
@@ -145,13 +138,13 @@ public abstract class RollingUpgradeDistributedTest implements Serializable {
     verifyValues(objectType, regionName, 5, 15, server2);
     putAndVerify(objectType, server2, regionName, 15, 25, server1);
 
-    final short versionOrdinalAfterUpgrade = KnownVersion.getCurrentVersion().ordinal();
+    final var versionOrdinalAfterUpgrade = KnownVersion.getCurrentVersion().ordinal();
     locator.invoke(() -> {
-      final DistributionManager distributionManager =
+      final var distributionManager =
           ClusterStartupRule.getCache().getDistributionManager();
-      final MembershipView<InternalDistributedMember> view =
+      final var view =
           distributionManager.getDistribution().getView();
-      for (final InternalDistributedMember member : view.getMembers()) {
+      for (final var member : view.getMembers()) {
         assertThat(member.getVersionOrdinal()).isEqualTo(versionOrdinalAfterUpgrade);
       }
     });
@@ -179,9 +172,9 @@ public abstract class RollingUpgradeDistributedTest implements Serializable {
   private void putStringsAndVerify(MemberVM putter, final String regionName, final int start,
       final int end, MemberVM... vms) {
 
-    for (int i = start; i < end; i++) {
-      String key = "" + i;
-      String value = "VALUE(" + i + ")";
+    for (var i = start; i < end; i++) {
+      var key = "" + i;
+      var value = "VALUE(" + i + ")";
       putter.invoke(() -> {
         Region<String, String> region = ClusterStartupRule.getCache().getRegion(regionName);
         region.put(key, value);
@@ -189,9 +182,9 @@ public abstract class RollingUpgradeDistributedTest implements Serializable {
     }
 
     // verify present in others
-    for (MemberVM vm : vms) {
+    for (var vm : vms) {
       vm.invoke(() -> {
-        for (int i = start; i < end; i++) {
+        for (var i = start; i < end; i++) {
           Region<String, String> region = ClusterStartupRule.getCache().getRegion(regionName);
           Object value = region.get("" + i);
           if (value == null) {
@@ -207,10 +200,10 @@ public abstract class RollingUpgradeDistributedTest implements Serializable {
 
   private void putSerializableAndVerify(MemberVM putter, String regionName, int start, int end,
       MemberVM... vms) {
-    for (int i = start; i < end; i++) {
-      String key = "" + i;
+    for (var i = start; i < end; i++) {
+      var key = "" + i;
       putter.invoke(() -> {
-        Region<Object, Object> region = ClusterStartupRule.getCache().getRegion(regionName);
+        var region = ClusterStartupRule.getCache().getRegion(regionName);
         region.put(key, new Properties());
       });
     }
@@ -220,10 +213,10 @@ public abstract class RollingUpgradeDistributedTest implements Serializable {
   }
 
   private void verifyEntryExistsInRegion(MemberVM[] vms, String regionName, int start, int end) {
-    for (MemberVM vm : vms) {
+    for (var vm : vms) {
       vm.invoke(() -> {
-        Region<Object, Object> region = ClusterStartupRule.getCache().getRegion(regionName);
-        for (int i = start; i < end; i++) {
+        var region = ClusterStartupRule.getCache().getRegion(regionName);
+        for (var i = start; i < end; i++) {
           assertThat(region.containsKey("" + i)).withFailMessage(
               "Key:" + i + " does not exist in the region").isTrue();
         }
@@ -233,14 +226,14 @@ public abstract class RollingUpgradeDistributedTest implements Serializable {
 
   private void putDataSerializableAndVerify(MemberVM putter, String regionName, int start, int end,
       MemberVM... vms) throws Exception {
-    for (int i = start; i < end; i++) {
-      Class<?> aClass = Thread.currentThread().getContextClassLoader()
+    for (var i = start; i < end; i++) {
+      var aClass = Thread.currentThread().getContextClassLoader()
           .loadClass("org.apache.geode.cache.ExpirationAttributes");
-      Constructor<?> constructor = aClass.getConstructor(int.class);
-      Object testDataSerializable = constructor.newInstance(i);
-      String key = "" + i;
+      var constructor = aClass.getConstructor(int.class);
+      var testDataSerializable = constructor.newInstance(i);
+      var key = "" + i;
       putter.invoke(() -> {
-        Region<Object, Object> region = ClusterStartupRule.getCache().getRegion(regionName);
+        var region = ClusterStartupRule.getCache().getRegion(regionName);
         region.put(key, testDataSerializable);
       });
     }
@@ -252,11 +245,11 @@ public abstract class RollingUpgradeDistributedTest implements Serializable {
   private void verifyValues(String objectType, String regionName, int start, int end,
       MemberVM... vms) {
     if (objectType.equals("strings")) {
-      for (MemberVM vm : vms) {
+      for (var vm : vms) {
         vm.invoke(() -> {
-          for (int i = start; i < end; i++) {
-            Region<Object, Object> region = ClusterStartupRule.getCache().getRegion(regionName);
-            Object value = region.get("" + i);
+          for (var i = start; i < end; i++) {
+            var region = ClusterStartupRule.getCache().getRegion(regionName);
+            var value = region.get("" + i);
             if (value == null) {
               fail("Region value does not exist for key" + i);
             } else if (!value.equals("VALUE(" + i + ")")) {

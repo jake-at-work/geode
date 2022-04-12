@@ -93,8 +93,8 @@ public class LuceneIndexCreation implements Extension<Region<?, ?>> {
 
   @Override
   public void beforeCreate(Extensible<Region<?, ?>> source, Cache cache) {
-    LuceneServiceImpl service = (LuceneServiceImpl) LuceneServiceProvider.get(cache);
-    Analyzer analyzer = fieldAnalyzers == null ? new StandardAnalyzer()
+    var service = (LuceneServiceImpl) LuceneServiceProvider.get(cache);
+    var analyzer = fieldAnalyzers == null ? new StandardAnalyzer()
         : new PerFieldAnalyzerWrapper(new StandardAnalyzer(), fieldAnalyzers);
     try {
       service.createIndex(getName(), getRegionPath(), analyzer, fieldAnalyzers,

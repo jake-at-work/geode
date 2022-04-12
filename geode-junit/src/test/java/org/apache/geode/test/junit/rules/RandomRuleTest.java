@@ -38,14 +38,14 @@ public class RandomRuleTest {
 
   @Test
   public void serializes() {
-    RandomRule clone = SerializationUtils.clone(randomRule);
+    var clone = SerializationUtils.clone(randomRule);
 
     assertThat(clone.getSeed()).isEqualTo(randomRule.getSeed());
   }
 
   @Test
   public void iterableWithOneElementReturnsThatElement() {
-    String value = randomRule.next(singleton("item"));
+    var value = randomRule.next(singleton("item"));
 
     assertThat(value).isEqualTo("item");
   }
@@ -54,49 +54,49 @@ public class RandomRuleTest {
   public void nullNullIterableThrowsNullPointerException() {
     Iterable<String> input = null;
 
-    Throwable thrown = catchThrowable(() -> randomRule.next(input));
+    var thrown = catchThrowable(() -> randomRule.next(input));
 
     assertThat(thrown).isInstanceOf(NullPointerException.class);
   }
 
   @Test
   public void emptyIterableThrowsIllegalArgumentException() {
-    Throwable thrown = catchThrowable(() -> randomRule.next(emptyList()));
+    var thrown = catchThrowable(() -> randomRule.next(emptyList()));
 
     assertThat(thrown).isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void iterableWithTwoElementsReturnsRandomElement() {
-    String value = randomRule.next(asList("one", "two"));
+    var value = randomRule.next(asList("one", "two"));
 
     assertThat(value).isIn("one", "two");
   }
 
   @Test
   public void iterableWithManyElementsReturnsRandomElement() {
-    String value = randomRule.next(asList("one", "two", "three"));
+    var value = randomRule.next(asList("one", "two", "three"));
 
     assertThat(value).isIn("one", "two", "three");
   }
 
   @Test
   public void varArgsWithOneElementReturnsThatElement() {
-    String value = randomRule.next("item");
+    var value = randomRule.next("item");
 
     assertThat(value).isEqualTo("item");
   }
 
   @Test
   public void varArgsWithTwoElementsReturnsRandomElement() {
-    String value = randomRule.next("one", "two");
+    var value = randomRule.next("one", "two");
 
     assertThat(value).isIn("one", "two");
   }
 
   @Test
   public void varArgsWithManyElementsReturnsRandomElement() {
-    String value = randomRule.next("one", "two", "three");
+    var value = randomRule.next("one", "two", "three");
 
     assertThat(value).isIn("one", "two", "three");
   }
@@ -105,16 +105,16 @@ public class RandomRuleTest {
   public void nullVarArgThrowsNullPointerException() {
     String input = null;
 
-    Throwable thrown = catchThrowable(() -> randomRule.next(input));
+    var thrown = catchThrowable(() -> randomRule.next(input));
 
     assertThat(thrown).isInstanceOf(NullPointerException.class);
   }
 
   @Test
   public void zeroVarArgsThrowsIllegalArgumentException() {
-    String[] input = new String[0];
+    var input = new String[0];
 
-    Throwable thrown = catchThrowable(() -> randomRule.next(input));
+    var thrown = catchThrowable(() -> randomRule.next(input));
 
     assertThat(thrown)
         .isInstanceOf(IllegalArgumentException.class)

@@ -48,7 +48,7 @@ class ReflectiveFacadeGlobalSerialFilter implements GlobalSerialFilter {
   public void setFilter() throws UnableToSetSerialFilterException {
     try {
       // create the ObjectInputFilter to set as the global serial filter
-      Object objectInputFilter = api.createObjectInputFilterProxy(pattern, sanctionedClasses);
+      var objectInputFilter = api.createObjectInputFilterProxy(pattern, sanctionedClasses);
 
       // set the global serial filter
       api.setSerialFilter(objectInputFilter);
@@ -70,7 +70,7 @@ class ReflectiveFacadeGlobalSerialFilter implements GlobalSerialFilter {
 
   private void handleExceptionThrownByApi(ReflectiveOperationException e)
       throws UnableToSetSerialFilterException {
-    String className = getClassName(e);
+    var className = getClassName(e);
     switch (className) {
       case "java.lang.IllegalAccessException":
         throw new UnableToSetSerialFilterException(
@@ -84,7 +84,7 @@ class ReflectiveFacadeGlobalSerialFilter implements GlobalSerialFilter {
               "Unable to configure a global serialization filter because filter has already been set non-null.",
               e);
         }
-        String causeClassName = e.getCause() == null ? getClassName(e) : getClassName(e.getCause());
+        var causeClassName = e.getCause() == null ? getClassName(e) : getClassName(e.getCause());
         throw new UnableToSetSerialFilterException(
             "Unable to configure a global serialization filter because invocation target threw "
                 + causeClassName + ".",

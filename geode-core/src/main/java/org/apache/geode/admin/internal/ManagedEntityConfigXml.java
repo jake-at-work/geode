@@ -14,7 +14,6 @@
  */
 package org.apache.geode.admin.internal;
 
-import java.io.InputStream;
 
 import org.xml.sax.EntityResolver;
 import org.xml.sax.ErrorHandler;
@@ -124,11 +123,11 @@ abstract class ManagedEntityConfigXml implements EntityResolver, ErrorHandler {
     }
 
     // Figure out the location for the publicId.
-    String location = DTD_LOCATION;
+    var location = DTD_LOCATION;
 
     InputSource result;
     {
-      InputStream stream = ClassPathLoader.getLatest().getResourceAsStream(getClass(), location);
+      var stream = ClassPathLoader.getLatest().getResourceAsStream(getClass(), location);
       if (stream != null) {
         result = new InputSource(stream);
       } else {
@@ -153,7 +152,7 @@ abstract class ManagedEntityConfigXml implements EntityResolver, ErrorHandler {
    */
   @Override
   public void error(SAXParseException ex) throws SAXException {
-    IllegalArgumentException ex2 = new IllegalArgumentException(
+    var ex2 = new IllegalArgumentException(
         "Error while parsing XML.", ex);
     throw ex2;
   }
@@ -163,7 +162,7 @@ abstract class ManagedEntityConfigXml implements EntityResolver, ErrorHandler {
    */
   @Override
   public void fatalError(SAXParseException ex) throws SAXException {
-    IllegalArgumentException ex2 = new IllegalArgumentException(
+    var ex2 = new IllegalArgumentException(
         "Fatal error while parsing XML.", ex);
     throw ex2;
   }

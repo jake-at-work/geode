@@ -17,9 +17,7 @@ package org.apache.geode.management.internal.beans.stats;
 import java.lang.management.ManagementFactory;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.distributed.ConfigurationProperties;
-import org.apache.geode.internal.statistics.StatisticId;
 import org.apache.geode.internal.statistics.StatisticNotFoundException;
 import org.apache.geode.internal.statistics.StatisticsNotification;
 import org.apache.geode.management.internal.MBeanJMXAdapter;
@@ -86,7 +84,7 @@ public class VMStatsMonitor extends MBeanStatsMonitor {
    */
   float calculateCpuUsage(long systemTime, long cpuTime) {
     // 10000 = (Nano conversion factor / 100 for percentage)
-    long denom = (systemTime - getLastSystemTime()) * 10000;
+    var denom = (systemTime - getLastSystemTime()) * 10000;
     return (float) (cpuTime - getLastProcessCpuTime()) / denom;
   }
 
@@ -96,7 +94,7 @@ public class VMStatsMonitor extends MBeanStatsMonitor {
    */
   synchronized void refreshStats() {
     if (processCPUTimeAvailable) {
-      Number processCpuTime = statsMap.getOrDefault(StatsKey.VM_PROCESS_CPU_TIME, 0);
+      var processCpuTime = statsMap.getOrDefault(StatsKey.VM_PROCESS_CPU_TIME, 0);
 
       // Some JVM like IBM is not handled by Stats layer properly. Ignoring the attribute for such
       // cases
@@ -110,13 +108,13 @@ public class VMStatsMonitor extends MBeanStatsMonitor {
         return;
       }
 
-      long cpuTime = processCpuTime.longValue();
+      var cpuTime = processCpuTime.longValue();
       if (lastProcessCpuTime == 0) {
         lastProcessCpuTime = cpuTime;
         return;
       }
 
-      long systemTime = currentTimeMillis();
+      var systemTime = currentTimeMillis();
       cpuUsage = calculateCpuUsage(systemTime, cpuTime);
       lastSystemTime = systemTime;
       lastProcessCpuTime = cpuTime;
@@ -125,9 +123,9 @@ public class VMStatsMonitor extends MBeanStatsMonitor {
 
   @Override
   public void handleNotification(StatisticsNotification notification) {
-    for (StatisticId statId : notification) {
-      StatisticDescriptor descriptor = statId.getStatisticDescriptor();
-      String name = descriptor.getName();
+    for (var statId : notification) {
+      var descriptor = statId.getStatisticDescriptor();
+      var name = descriptor.getName();
       Number value;
 
       try {

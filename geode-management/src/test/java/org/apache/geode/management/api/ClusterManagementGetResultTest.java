@@ -19,7 +19,6 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 
 import org.apache.geode.management.configuration.Region;
@@ -30,20 +29,20 @@ public class ClusterManagementGetResultTest {
 
   @Test
   public void serialization() throws JsonProcessingException {
-    Region region = createRegion();
-    RuntimeRegionInfo runtimeRegionInfo = new RuntimeRegionInfo();
+    var region = createRegion();
+    var runtimeRegionInfo = new RuntimeRegionInfo();
 
-    EntityGroupInfo<Region, RuntimeRegionInfo> entityGroupInfo =
-        new EntityGroupInfo<>(region, singletonList(runtimeRegionInfo));
+    var entityGroupInfo =
+        new EntityGroupInfo<Region, RuntimeRegionInfo>(region, singletonList(runtimeRegionInfo));
 
-    EntityInfo<Region, RuntimeRegionInfo> configurationinfo =
-        new EntityInfo<>("my.element", singletonList(entityGroupInfo));
+    var configurationinfo =
+        new EntityInfo<Region, RuntimeRegionInfo>("my.element", singletonList(entityGroupInfo));
 
-    ClusterManagementGetResult<Region, RuntimeRegionInfo> original =
-        new ClusterManagementGetResult<>(configurationinfo);
+    var original =
+        new ClusterManagementGetResult<Region, RuntimeRegionInfo>(configurationinfo);
 
-    ObjectMapper mapper = GeodeJsonMapper.getMapper();
-    String json = mapper.writeValueAsString(original);
+    var mapper = GeodeJsonMapper.getMapper();
+    var json = mapper.writeValueAsString(original);
 
     assertThat(json).containsOnlyOnce("result").containsOnlyOnce("statusCode");
 
@@ -59,7 +58,7 @@ public class ClusterManagementGetResultTest {
   }
 
   public static Region createRegion() {
-    Region region = new Region();
+    var region = new Region();
     region.setName("my.region");
     region.setGroup("my.group");
     return region;

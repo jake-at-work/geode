@@ -27,7 +27,7 @@ public class MemoryThresholdsJUnitTest {
 
   @Test
   public void testDefaults() {
-    MemoryThresholds thresholds = new MemoryThresholds(1000);
+    var thresholds = new MemoryThresholds(1000);
     assertFalse(thresholds.isEvictionThresholdEnabled());
     assertFalse(thresholds.isCriticalThresholdEnabled());
     assertEquals(1000l, thresholds.getMaxMemoryBytes());
@@ -72,7 +72,7 @@ public class MemoryThresholdsJUnitTest {
       // Expected
     }
 
-    MemoryThresholds thresholds = new MemoryThresholds(1000, 84.2f, 49.8f);
+    var thresholds = new MemoryThresholds(1000, 84.2f, 49.8f);
     assertTrue(thresholds.isEvictionThresholdEnabled());
     assertTrue(thresholds.isCriticalThresholdEnabled());
     assertEquals(1000l, thresholds.getMaxMemoryBytes());
@@ -84,7 +84,7 @@ public class MemoryThresholdsJUnitTest {
 
   @Test
   public void testTransitionsNoThresholds() {
-    MemoryThresholds thresholds = new MemoryThresholds(1000, 0f, 0f);
+    var thresholds = new MemoryThresholds(1000, 0f, 0f);
     assertEquals(MemoryState.DISABLED, thresholds.computeNextState(MemoryState.DISABLED, 100));
     assertEquals(MemoryState.DISABLED,
         thresholds.computeNextState(MemoryState.EVICTION_DISABLED, 100));
@@ -103,7 +103,7 @@ public class MemoryThresholdsJUnitTest {
 
   @Test
   public void testTransitionsEvictionSet() {
-    MemoryThresholds thresholds = new MemoryThresholds(1000, 0f, 50f);
+    var thresholds = new MemoryThresholds(1000, 0f, 50f);
 
     assertEquals(MemoryState.CRITICAL_DISABLED,
         thresholds.computeNextState(MemoryState.DISABLED, 499));
@@ -122,7 +122,7 @@ public class MemoryThresholdsJUnitTest {
 
   @Test
   public void testTransitionsCriticalSet() {
-    MemoryThresholds thresholds = new MemoryThresholds(1000, 50f, 0f);
+    var thresholds = new MemoryThresholds(1000, 50f, 0f);
 
     assertEquals(MemoryState.EVICTION_DISABLED,
         thresholds.computeNextState(MemoryState.DISABLED, 499));
@@ -139,7 +139,7 @@ public class MemoryThresholdsJUnitTest {
 
   @Test
   public void testTransitionsEvictionAndCriticalSet() {
-    MemoryThresholds thresholds = new MemoryThresholds(1000, 80f, 50f);
+    var thresholds = new MemoryThresholds(1000, 80f, 50f);
 
     assertEquals(MemoryState.NORMAL, thresholds.computeNextState(MemoryState.DISABLED, 0));
     assertEquals(MemoryState.NORMAL, thresholds.computeNextState(MemoryState.DISABLED, 499));

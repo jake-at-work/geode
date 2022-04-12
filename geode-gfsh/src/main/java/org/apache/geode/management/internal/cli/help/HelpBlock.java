@@ -58,7 +58,7 @@ public class HelpBlock {
   // recursively set the indent level of the decendents
   public void setLevel(int level) {
     this.level = level;
-    for (HelpBlock child : children) {
+    for (var child : children) {
       child.setLevel(level + 1);
     }
   }
@@ -70,13 +70,13 @@ public class HelpBlock {
   }
 
   public String toString(int terminalWidth) {
-    StringBuilder builder = new StringBuilder();
+    var builder = new StringBuilder();
 
     if (data != null) {
       builder.append(Gfsh.wrapText(data, level, terminalWidth));
       builder.append(GfshParser.LINE_SEPARATOR);
     }
-    for (HelpBlock child : children) {
+    for (var child : children) {
       builder.append(child.toString(terminalWidth));
     }
     return builder.toString();

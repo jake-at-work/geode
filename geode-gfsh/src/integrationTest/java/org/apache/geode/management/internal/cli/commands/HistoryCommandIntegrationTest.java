@@ -17,10 +17,8 @@ package org.apache.geode.management.internal.cli.commands;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.List;
 
 import org.junit.After;
 import org.junit.ClassRule;
@@ -66,11 +64,11 @@ public class HistoryCommandIntegrationTest {
   @SuppressWarnings("deprecation")
   public void testHistoryWithFileName() throws IOException {
     gfsh.executeCommand("echo --string=string");
-    File historyFile = temporaryFolder.newFile("history.txt");
+    var historyFile = temporaryFolder.newFile("history.txt");
     Files.deleteIfExists(historyFile.toPath());
     assertThat(historyFile).doesNotExist();
 
-    String command = "history --file=" + historyFile.getAbsolutePath();
+    var command = "history --file=" + historyFile.getAbsolutePath();
     gfsh.executeAndAssertThat(command).statusIsSuccess()
         .containsOutput("Wrote successfully to file");
 
@@ -93,16 +91,16 @@ public class HistoryCommandIntegrationTest {
   @SuppressWarnings("deprecation")
   public void testHistoryContainsRedactedPasswordWithEquals() throws IOException {
     gfsh.executeCommand("connect --password=redacted");
-    File historyFile = temporaryFolder.newFile("history.txt");
+    var historyFile = temporaryFolder.newFile("history.txt");
     Files.deleteIfExists(historyFile.toPath());
     assertThat(historyFile).doesNotExist();
 
-    String command = "history --file=" + historyFile.getAbsolutePath();
+    var command = "history --file=" + historyFile.getAbsolutePath();
     gfsh.executeAndAssertThat(command).statusIsSuccess();
 
     assertThat(historyFile).exists();
 
-    List<String> historyLines = Files.readAllLines(historyFile.toPath());
+    var historyLines = Files.readAllLines(historyFile.toPath());
     assertThat(historyLines.get(0)).isEqualTo("0: connect --password=********");
   }
 
@@ -110,16 +108,16 @@ public class HistoryCommandIntegrationTest {
   @SuppressWarnings("deprecation")
   public void testHistoryContainsRedactedPasswordWithoutEquals() throws IOException {
     gfsh.executeCommand("connect --password redacted");
-    File historyFile = temporaryFolder.newFile("history.txt");
+    var historyFile = temporaryFolder.newFile("history.txt");
     Files.deleteIfExists(historyFile.toPath());
     assertThat(historyFile).doesNotExist();
 
-    String command = "history --file=" + historyFile.getAbsolutePath();
+    var command = "history --file=" + historyFile.getAbsolutePath();
     gfsh.executeAndAssertThat(command).statusIsSuccess();
 
     assertThat(historyFile).exists();
 
-    List<String> historyLines = Files.readAllLines(historyFile.toPath());
+    var historyLines = Files.readAllLines(historyFile.toPath());
     assertThat(historyLines.get(0)).isEqualTo("0: connect --password ********");
   }
 }

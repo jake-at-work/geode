@@ -21,7 +21,6 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 
-import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.xml.sax.Attributes;
@@ -110,9 +109,9 @@ public class GenerateMBeanHTML extends DefaultHandler {
    */
   private static void convert(InputStream in, PrintWriter out) throws Exception {
 
-    SAXParserFactory factory = SAXParserFactory.newInstance();
+    var factory = SAXParserFactory.newInstance();
     factory.setValidating(true);
-    SAXParser parser = factory.newSAXParser();
+    var parser = factory.newSAXParser();
     DefaultHandler handler = new GenerateMBeanHTML(out);
     parser.parse(in, handler);
   }
@@ -141,11 +140,11 @@ public class GenerateMBeanHTML extends DefaultHandler {
     }
 
     // Figure out the location for the publicId.
-    String location = DTD_LOCATION;
+    var location = DTD_LOCATION;
 
     InputSource result;
     {
-      InputStream stream = ClassPathLoader.getLatest().getResourceAsStream(getClass(), location);
+      var stream = ClassPathLoader.getLatest().getResourceAsStream(getClass(), location);
       if (stream != null) {
         result = new InputSource(stream);
       } else {
@@ -209,7 +208,7 @@ public class GenerateMBeanHTML extends DefaultHandler {
    * Generates a heading and a table declaration for an MBean
    */
   private void startMBean(Attributes atts) {
-    String name = atts.getValue(NAME);
+    var name = atts.getValue(NAME);
     /* String description = */ atts.getValue(DESCRIPTION);
     pw.println("<h2><b>" + name + "</b> MBean</h2>");
     pw.println("<table border=\"0\" cellpadding=\"3\">");
@@ -252,10 +251,10 @@ public class GenerateMBeanHTML extends DefaultHandler {
 
     seenAttribute = true;
 
-    String name = atts.getValue(NAME);
-    String description = atts.getValue(DESCRIPTION);
-    String type = atts.getValue(TYPE);
-    String writeable = atts.getValue(WRITEABLE);
+    var name = atts.getValue(NAME);
+    var description = atts.getValue(DESCRIPTION);
+    var type = atts.getValue(TYPE);
+    var writeable = atts.getValue(WRITEABLE);
 
     pw.println("<tr valign=\"top\">");
     pw.println("  <td></td>");
@@ -281,7 +280,7 @@ public class GenerateMBeanHTML extends DefaultHandler {
         pw.println("</tr>");
 
       } else {
-        String title = "Operations and Parameters";
+        var title = "Operations and Parameters";
         pw.println("<tr valign=\"top\">");
         pw.println("  <th align=\"left\" colspan=\"6\">" + title + "</th>");
         pw.println("</tr>");
@@ -290,9 +289,9 @@ public class GenerateMBeanHTML extends DefaultHandler {
 
     seenOperation = true;
 
-    String name = atts.getValue(NAME);
-    String type = atts.getValue(RETURN_TYPE);
-    String description = atts.getValue(DESCRIPTION);
+    var name = atts.getValue(NAME);
+    var type = atts.getValue(RETURN_TYPE);
+    var description = atts.getValue(DESCRIPTION);
 
     pw.println("<tr valign=\"top\">");
     pw.println("  <td></td>");
@@ -307,9 +306,9 @@ public class GenerateMBeanHTML extends DefaultHandler {
    * Generates a table row for the parameter of an MBean operation
    */
   private void startParameter(Attributes atts) {
-    String name = atts.getValue(NAME);
-    String description = atts.getValue(DESCRIPTION);
-    String type = atts.getValue(TYPE);
+    var name = atts.getValue(NAME);
+    var description = atts.getValue(DESCRIPTION);
+    var type = atts.getValue(TYPE);
 
     pw.println("<tr valign=\"top\">");
     pw.println("  <td></td>");
@@ -344,8 +343,8 @@ public class GenerateMBeanHTML extends DefaultHandler {
 
     seenNotifications = true;
 
-    String name = atts.getValue(NAME);
-    String description = atts.getValue(DESCRIPTION);
+    var name = atts.getValue(NAME);
+    var description = atts.getValue(DESCRIPTION);
 
     pw.println("<tr valign=\"top\">");
     pw.println("  <td></td>");
@@ -359,8 +358,8 @@ public class GenerateMBeanHTML extends DefaultHandler {
    * Generates a table row for a descriptor field
    */
   private void startField(Attributes atts) {
-    String name = atts.getValue(NAME);
-    String value = atts.getValue(VALUE);
+    var name = atts.getValue(NAME);
+    var value = atts.getValue(VALUE);
 
     pw.println("<tr valign=\"top\">");
     pw.println("  <td></td>");
@@ -467,7 +466,7 @@ public class GenerateMBeanHTML extends DefaultHandler {
     String xmlFileName = null;
     String htmlFileName = null;
 
-    for (final String arg : args) {
+    for (final var arg : args) {
       if (xmlFileName == null) {
         xmlFileName = arg;
 
@@ -486,15 +485,15 @@ public class GenerateMBeanHTML extends DefaultHandler {
       usage("Missing HTML file name");
     }
 
-    File xmlFile = new File(xmlFileName);
+    var xmlFile = new File(xmlFileName);
     if (!xmlFile.exists()) {
       usage("XML file \"" + xmlFile + "\" does not exist");
     }
 
-    File htmlFile = new File(htmlFileName);
-    try (FileInputStream fileInputStream = new FileInputStream(xmlFile);
-        FileWriter fileWriter = new FileWriter(htmlFile);
-        PrintWriter printWriter = new PrintWriter(fileWriter, true)) {
+    var htmlFile = new File(htmlFileName);
+    try (var fileInputStream = new FileInputStream(xmlFile);
+        var fileWriter = new FileWriter(htmlFile);
+        var printWriter = new PrintWriter(fileWriter, true)) {
       convert(fileInputStream, printWriter);
     }
   }

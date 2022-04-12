@@ -56,8 +56,8 @@ public class RestSecurityService implements ServletContextAware {
   }
 
   public boolean authorize(String operation, String region, String[] keys) {
-    boolean authorized = false;
-    for (String key : keys) {
+    var authorized = false;
+    for (var key : keys) {
       authorized = authorize("DATA", operation, region, key);
       if (!authorized) {
         return false;

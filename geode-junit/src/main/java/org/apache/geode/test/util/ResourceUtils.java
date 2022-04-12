@@ -66,7 +66,7 @@ public class ResourceUtils {
    * @throws ClassNotFoundException wrapped in RuntimeException if the class cannot be located
    */
   public static URL getResource(final String resourceName) {
-    URL resource = getCallerClass(2).getResource(resourceName);
+    var resource = getCallerClass(2).getResource(resourceName);
     assertThat(resource)
         .as("Resource '" + resourceName + "'")
         .isNotNull();
@@ -81,7 +81,7 @@ public class ResourceUtils {
    * @throws AssertionError if the resource cannot be located
    */
   public static URL getResource(final Class<?> classInSamePackage, final String resourceName) {
-    URL resource = classInSamePackage.getResource(resourceName);
+    var resource = classInSamePackage.getResource(resourceName);
     assertThat(resource)
         .as("Resource '" + resourceName + "' associated with Class '" + classInSamePackage.getName()
             + "'")
@@ -97,7 +97,7 @@ public class ResourceUtils {
    * @throws AssertionError if the resource cannot be located
    */
   public static URL getResource(final ClassLoader classLoader, final String resourceName) {
-    URL resource = classLoader.getResource(resourceName);
+    var resource = classLoader.getResource(resourceName);
     assertThat(resource)
         .as("Resource '" + resourceName + "' associated with ClassLoader '" + classLoader + "'")
         .isNotNull();
@@ -118,7 +118,7 @@ public class ResourceUtils {
   public static File createFileFromResource(final URL resource, final File targetFolder,
       final String fileName) {
     try {
-      File targetFile = new File(targetFolder, fileName);
+      var targetFile = new File(targetFolder, fileName);
       IOUtils.copy(resource.openStream(), new FileOutputStream(targetFile));
       return targetFile;
     } catch (IOException e) {
@@ -140,7 +140,7 @@ public class ResourceUtils {
    */
   public static File createFileFromResource(final ClassLoader classLoader,
       final String resourceName, final File targetFolder, final String fileName) {
-    URL resource = getResource(classLoader, resourceName);
+    var resource = getResource(classLoader, resourceName);
     return createFileFromResource(resource, targetFolder, fileName);
   }
 
@@ -157,7 +157,7 @@ public class ResourceUtils {
    */
   public static File createTempFileFromResource(final URL resource, final String fileName) {
     try {
-      File targetFile = File.createTempFile(fileName, null);
+      var targetFile = File.createTempFile(fileName, null);
       targetFile.deleteOnExit();
       IOUtils.copy(resource.openStream(), new FileOutputStream(targetFile));
       return targetFile;
@@ -180,7 +180,7 @@ public class ResourceUtils {
    */
   public static File createTempFileFromResource(final Class<?> classInSamePackage,
       final String resourceName, final String fileName) {
-    URL resource = getResource(classInSamePackage, resourceName);
+    var resource = getResource(classInSamePackage, resourceName);
     return createTempFileFromResource(resource, fileName);
   }
 
@@ -198,7 +198,7 @@ public class ResourceUtils {
    */
   public static File createTempFileFromResource(final ClassLoader classLoader,
       final String resourceName, final String fileName) {
-    URL resource = getResource(classLoader, resourceName);
+    var resource = getResource(classLoader, resourceName);
     return createTempFileFromResource(resource, fileName);
   }
 
@@ -216,8 +216,8 @@ public class ResourceUtils {
    */
   public static File createTempFileFromResource(final Class<?> classInSamePackage,
       final String resourceName) {
-    String fileName = resourceName.replaceFirst(".*/", "");
-    URL resource = getResource(classInSamePackage, resourceName);
+    var fileName = resourceName.replaceFirst(".*/", "");
+    var resource = getResource(classInSamePackage, resourceName);
     return createTempFileFromResource(resource, fileName);
   }
 
@@ -235,8 +235,8 @@ public class ResourceUtils {
    */
   public static File createTempFileFromResource(final ClassLoader classLoader,
       final String resourceName) {
-    String fileName = resourceName.replaceFirst(".*/", "");
-    URL resource = getResource(classLoader, resourceName);
+    var fileName = resourceName.replaceFirst(".*/", "");
+    var resource = getResource(classLoader, resourceName);
     return createTempFileFromResource(resource, fileName);
   }
 
@@ -255,7 +255,7 @@ public class ResourceUtils {
    */
   public static void copyDirectoryResource(final URL resource, final File targetFolder) {
     try {
-      File source = new File(resource.getPath());
+      var source = new File(resource.getPath());
       assertThat(source)
           .as("Resource path '" + resource.getPath() + "'")
           .exists();

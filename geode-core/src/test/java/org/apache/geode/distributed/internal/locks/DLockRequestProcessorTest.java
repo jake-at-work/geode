@@ -65,7 +65,7 @@ public class DLockRequestProcessorTest {
   @Test
   public void sendResponseProcessesLocallyIfRequestedLocally() {
     doReturn(member).when(message).getSender();
-    ReplyProcessor21 processor = mock(ReplyProcessor21.class);
+    var processor = mock(ReplyProcessor21.class);
     doReturn(processor).when(message).getReplyProcessor();
 
     message.sendResponse();

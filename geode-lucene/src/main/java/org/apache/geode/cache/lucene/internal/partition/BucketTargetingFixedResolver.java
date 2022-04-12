@@ -34,7 +34,7 @@ public class BucketTargetingFixedResolver implements FixedPartitionResolver {
   @Override
   public Object getRoutingObject(final EntryOperation opDetails) {
     int targetBucketId = (Integer) opDetails.getCallbackArgument();
-    final Map.Entry<String, Integer[]> targetPartition = getFixedPartition(opDetails);
+    final var targetPartition = getFixedPartition(opDetails);
 
     return targetBucketId - targetPartition.getValue()[0];
   }
@@ -52,12 +52,12 @@ public class BucketTargetingFixedResolver implements FixedPartitionResolver {
   @Override
   public String getPartitionName(final EntryOperation opDetails,
       @Deprecated final Set targetPartitions) {
-    final Map.Entry<String, Integer[]> targetPartition = getFixedPartition(opDetails);
+    final var targetPartition = getFixedPartition(opDetails);
     return targetPartition.getKey();
   }
 
   protected Map.Entry<String, Integer[]> getFixedPartition(final EntryOperation opDetails) {
-    PartitionedRegion region = (PartitionedRegion) opDetails.getRegion();
+    var region = (PartitionedRegion) opDetails.getRegion();
     int targetBucketId = (Integer) opDetails.getCallbackArgument();
     Map<String, Integer[]> partitions = region.getPartitionsMap();
 
@@ -67,7 +67,7 @@ public class BucketTargetingFixedResolver implements FixedPartitionResolver {
 
   private boolean withinPartition(Map.Entry<String, Integer[]> entry, int bucketId) {
     int startingBucket = entry.getValue()[0];
-    int endingBucket = startingBucket + entry.getValue()[1];
+    var endingBucket = startingBucket + entry.getValue()[1];
     return startingBucket <= bucketId && bucketId < endingBucket;
   }
 }

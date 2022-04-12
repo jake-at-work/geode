@@ -31,18 +31,18 @@ public class TextDisplay {
     File[] files;
     if (args.length > 0) {
       files = new File[args.length];
-      for (int i = 0; i < args.length; i++) {
+      for (var i = 0; i < args.length; i++) {
         files[i] = new File(args[i]);
       }
     } else {
       files = new File[] {new File("states.graph")};
     }
 
-    for (File file : files) {
+    for (var file : files) {
       System.out.println("FILE: " + file);
-      try (FileInputStream fileInputStream = new FileInputStream(file);
-          BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream)) {
-        InputStreamReader reader = new InputStreamReader(bufferedInputStream);
+      try (var fileInputStream = new FileInputStream(file);
+          var bufferedInputStream = new BufferedInputStream(fileInputStream)) {
+        var reader = new InputStreamReader(bufferedInputStream);
         reader.addToGraphs(new GraphReaderCallback() {
 
           @Override

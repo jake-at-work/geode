@@ -20,11 +20,9 @@ import static org.apache.geode.internal.cache.LocalRegion.InitializationLevel.BE
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.BlockingQueue;
 
 import org.apache.logging.log4j.Logger;
 
@@ -32,15 +30,12 @@ import org.apache.geode.CancelException;
 import org.apache.geode.DataSerializer;
 import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.EntryNotFoundException;
-import org.apache.geode.cache.wan.GatewayEventFilter;
 import org.apache.geode.cache.wan.GatewayQueueEvent;
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
 import org.apache.geode.distributed.internal.PooledDistributionMessage;
 import org.apache.geode.internal.cache.AbstractBucketRegionQueue;
 import org.apache.geode.internal.cache.ForceReattemptException;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.LocalRegion;
-import org.apache.geode.internal.cache.LocalRegion.InitializationLevel;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.PartitionedRegionHelper;
 import org.apache.geode.internal.cache.wan.AbstractGatewaySender;
@@ -74,35 +69,35 @@ public class ParallelQueueRemovalMessage extends PooledDistributionMessage {
 
   @Override
   public String toString() {
-    String cname = getShortClassName();
+    var cname = getShortClassName();
     return cname + "regionToDispatchedKeysMap=" + regionToDispatchedKeysMap
         + " sender=" + getSender();
   }
 
   @Override
   protected void process(ClusterDistributionManager dm) {
-    final boolean isDebugEnabled = logger.isDebugEnabled();
-    final InternalCache cache = dm.getCache();
+    final var isDebugEnabled = logger.isDebugEnabled();
+    final var cache = dm.getCache();
     if (cache != null) {
-      final InitializationLevel oldLevel =
+      final var oldLevel =
           LocalRegion.setThreadInitLevelRequirement(BEFORE_INITIAL_IMAGE);
       try {
         for (Object name : regionToDispatchedKeysMap.keySet()) {
-          final String regionName = (String) name;
-          final PartitionedRegion region = (PartitionedRegion) cache.getRegion(regionName);
+          final var regionName = (String) name;
+          final var region = (PartitionedRegion) cache.getRegion(regionName);
           if (region == null) {
             continue;
           } else {
-            AbstractGatewaySender abstractSender = region.getParallelGatewaySender();
+            var abstractSender = region.getParallelGatewaySender();
             // Find the map: bucketId to dispatchedKeys
             // Find the bucket
             // Destroy the keys
-            Map bucketIdToDispatchedKeys = (Map) regionToDispatchedKeysMap.get(regionName);
-            for (Object bId : bucketIdToDispatchedKeys.keySet()) {
-              final String bucketFullPath =
+            var bucketIdToDispatchedKeys = (Map) regionToDispatchedKeysMap.get(regionName);
+            for (var bId : bucketIdToDispatchedKeys.keySet()) {
+              final var bucketFullPath =
                   SEPARATOR + PartitionedRegionHelper.PR_ROOT_REGION_NAME + SEPARATOR
                       + region.getBucketName((Integer) bId);
-              AbstractBucketRegionQueue brq =
+              var brq =
                   (AbstractBucketRegionQueue) cache.getInternalRegionByPath(bucketFullPath);
               if (isDebugEnabled) {
                 logger.debug(
@@ -110,9 +105,9 @@ public class ParallelQueueRemovalMessage extends PooledDistributionMessage {
                     bucketFullPath, brq);
               }
 
-              List dispatchedKeys = (List) bucketIdToDispatchedKeys.get(bId);
+              var dispatchedKeys = (List) bucketIdToDispatchedKeys.get(bId);
               if (dispatchedKeys != null) {
-                for (Object key : dispatchedKeys) {
+                for (var key : dispatchedKeys) {
                   // First, clear the Event from tempQueueEvents at AbstractGatewaySender level, if
                   // exists
                   // synchronize on AbstractGatewaySender.queuedEventsSync while doing so
@@ -131,7 +126,7 @@ public class ParallelQueueRemovalMessage extends PooledDistributionMessage {
                     } else {
                       // if bucket is not initialized, the event should either be in bucket or
                       // tempQueue
-                      boolean isDestroyed = false;
+                      var isDestroyed = false;
                       if (isDebugEnabled) {
                         logger.debug(
                             "ParallelQueueRemovalMessage : The bucket {} is not yet initialized.",
@@ -175,8 +170,8 @@ public class ParallelQueueRemovalMessage extends PooledDistributionMessage {
   // fix for #48082
   private void afterAckForSecondary_EventInBucket(AbstractGatewaySender abstractSender,
       AbstractBucketRegionQueue brq, Object key) {
-    for (GatewayEventFilter filter : abstractSender.getGatewayEventFilters()) {
-      GatewayQueueEvent eventForFilter = (GatewayQueueEvent) brq.get(key);
+    for (var filter : abstractSender.getGatewayEventFilters()) {
+      var eventForFilter = (GatewayQueueEvent) brq.get(key);
       try {
         if (eventForFilter != null) {
           filter.afterAcknowledgement(eventForFilter);
@@ -192,7 +187,7 @@ public class ParallelQueueRemovalMessage extends PooledDistributionMessage {
 
   void destroyKeyFromBucketQueue(AbstractBucketRegionQueue brq, Object key,
       PartitionedRegion prQ) {
-    final boolean isDebugEnabled = logger.isDebugEnabled();
+    final var isDebugEnabled = logger.isDebugEnabled();
     try {
       brq.destroyKey(key);
       if (!brq.getBucketAdvisor().isPrimary()) {
@@ -233,16 +228,16 @@ public class ParallelQueueRemovalMessage extends PooledDistributionMessage {
   }
 
   private boolean destroyFromTempQueue(PartitionedRegion qPR, int bId, Object key) {
-    boolean isDestroyed = false;
+    var isDestroyed = false;
     Set queues = qPR.getParallelGatewaySender().getQueues();
     if (queues != null) {
-      ConcurrentParallelGatewaySenderQueue prq =
+      var prq =
           (ConcurrentParallelGatewaySenderQueue) queues.toArray()[0];
-      BlockingQueue<GatewaySenderEventImpl> tempQueue = prq.getBucketTmpQueue(bId);
+      var tempQueue = prq.getBucketTmpQueue(bId);
       if (tempQueue != null) {
-        Iterator<GatewaySenderEventImpl> itr = tempQueue.iterator();
+        var itr = tempQueue.iterator();
         while (itr.hasNext()) {
-          GatewaySenderEventImpl eventForFilter = itr.next();
+          var eventForFilter = itr.next();
           // fix for #48082
           afterAckForSecondary_EventInTempQueue(qPR.getParallelGatewaySender(), eventForFilter);
           if (eventForFilter.getShadowKey().equals(key)) {
@@ -259,7 +254,7 @@ public class ParallelQueueRemovalMessage extends PooledDistributionMessage {
   // fix for #48082
   private void afterAckForSecondary_EventInTempQueue(
       AbstractGatewaySender parallelGatewaySenderImpl, GatewaySenderEventImpl eventForFilter) {
-    for (GatewayEventFilter filter : parallelGatewaySenderImpl.getGatewayEventFilters()) {
+    for (var filter : parallelGatewaySenderImpl.getGatewayEventFilters()) {
       try {
         if (eventForFilter != null) {
           filter.afterAcknowledgement(eventForFilter);

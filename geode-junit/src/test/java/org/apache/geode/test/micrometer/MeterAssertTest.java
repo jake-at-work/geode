@@ -31,7 +31,7 @@ public class MeterAssertTest {
 
   @Test
   public void hasName_doesNotThrow_ifMeterHasGivenName() {
-    String expectedName = "expected-name";
+    var expectedName = "expected-name";
 
     when(meter.getId().getName()).thenReturn(expectedName);
 
@@ -41,8 +41,8 @@ public class MeterAssertTest {
 
   @Test
   public void hasName_failsDescriptively_ifMeterDoesNotHaveGivenName() {
-    String expectedName = "expected-name";
-    String actualName = "actual-name";
+    var expectedName = "expected-name";
+    var actualName = "actual-name";
 
     when(meter.getId().getName()).thenReturn(actualName);
 
@@ -54,7 +54,7 @@ public class MeterAssertTest {
 
   @Test
   public void hasTagWithKey_doesNotThrow_ifMeterHasTagWithGivenKey() {
-    String expectedKey = "expected-key";
+    var expectedKey = "expected-key";
 
     when(meter.getId().getTag(expectedKey)).thenReturn("some-non-null-value");
 
@@ -64,12 +64,12 @@ public class MeterAssertTest {
 
   @Test
   public void hasTagWithKey_failsDescriptively_ifMeterHasNoTagWithGivenKey() {
-    String expectedKey = "expected-key";
+    var expectedKey = "expected-key";
 
     when(meter.getId().getTag(expectedKey)).thenReturn(null);
 
-    Tag actualTag1 = mock(Tag.class, "actual-tag-1");
-    Tag actualTag2 = mock(Tag.class, "actual-tag-2");
+    var actualTag1 = mock(Tag.class, "actual-tag-1");
+    var actualTag2 = mock(Tag.class, "actual-tag-2");
     when(meter.getId().getTags()).thenReturn(asList(actualTag1, actualTag2));
 
     assertThatThrownBy(() -> assertThat(meter).hasTag(expectedKey))
@@ -81,8 +81,8 @@ public class MeterAssertTest {
 
   @Test
   public void hasTagWithKeyAndValue_doesNotThrow_ifMeterHasTagWithGivenKeyAndValue() {
-    String expectedKey = "expected-key";
-    String expectedValue = "expected-value";
+    var expectedKey = "expected-key";
+    var expectedValue = "expected-value";
 
     when(meter.getId().getTag(expectedKey)).thenReturn(expectedValue);
 
@@ -92,12 +92,12 @@ public class MeterAssertTest {
 
   @Test
   public void hasTagWithKeyAndValue_failsDescriptively_ifMeterHasNoTagWithGivenKey() {
-    String expectedKey = "expected-key";
+    var expectedKey = "expected-key";
 
     when(meter.getId().getTag(expectedKey)).thenReturn(null);
 
-    Tag actualTag1 = mock(Tag.class, "actual-tag-1");
-    Tag actualTag2 = mock(Tag.class, "actual-tag-2");
+    var actualTag1 = mock(Tag.class, "actual-tag-1");
+    var actualTag2 = mock(Tag.class, "actual-tag-2");
     when(meter.getId().getTags()).thenReturn(asList(actualTag1, actualTag2));
 
     assertThatThrownBy(() -> assertThat(meter).hasTag(expectedKey, "expected-value"))
@@ -109,9 +109,9 @@ public class MeterAssertTest {
 
   @Test
   public void hasTagWithKeyAndValue_failsDescriptively_ifMeterHasWrongValueForTagWithGivenKey() {
-    String expectedKey = "expected-key";
-    String expectedValue = "expected-value";
-    String wrongValue = "actual-value";
+    var expectedKey = "expected-key";
+    var expectedValue = "expected-value";
+    var wrongValue = "actual-value";
 
     when(meter.getId().getTag(expectedKey)).thenReturn(wrongValue);
 
@@ -124,8 +124,8 @@ public class MeterAssertTest {
 
   @Test
   public void hasNoTagWithKey_failsDescriptively_ifMeterHasTagWithGivenKey() {
-    String unexpectedKey = "unexpected-key";
-    String unexpectedValue = "value-for-unexpected-key";
+    var unexpectedKey = "unexpected-key";
+    var unexpectedValue = "value-for-unexpected-key";
 
     when(meter.getId().getTag(unexpectedKey)).thenReturn(unexpectedValue);
 
@@ -137,7 +137,7 @@ public class MeterAssertTest {
 
   @Test
   public void hasNoTagWithKey_doesNotThrow_ifMeterHasNoTagWithGivenKey() {
-    String unexpectedKey = "unexpected-key";
+    var unexpectedKey = "unexpected-key";
 
     when(meter.getId().getTag(unexpectedKey)).thenReturn(null);
 
@@ -147,7 +147,7 @@ public class MeterAssertTest {
 
   @Test
   public void hasBaseUnit_doesNotThrow_ifMeterHasGivenBaseUnit() {
-    String expectedBaseUnit = "expected-base_unit";
+    var expectedBaseUnit = "expected-base_unit";
 
     when(meter.getId().getBaseUnit()).thenReturn(expectedBaseUnit);
 
@@ -157,8 +157,8 @@ public class MeterAssertTest {
 
   @Test
   public void hasBaseUnit_failsDescriptively_ifMeterDoesNotHaveGivenBaseUnit() {
-    String expectedBaseUnit = "expected-base-unit";
-    String wrongBaseUnit = "actual-base-unit";
+    var expectedBaseUnit = "expected-base-unit";
+    var wrongBaseUnit = "actual-base-unit";
 
     when(meter.getId().getBaseUnit()).thenReturn(wrongBaseUnit);
 

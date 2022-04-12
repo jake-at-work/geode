@@ -49,7 +49,6 @@ import org.junit.Test;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.distributed.DistributedSystemDisconnectedException;
 import org.apache.geode.distributed.Locator;
@@ -59,7 +58,6 @@ import org.apache.geode.distributed.internal.DistributionMessageObserver;
 import org.apache.geode.distributed.internal.membership.gms.membership.GMSJoinLeave;
 import org.apache.geode.internal.cache.UpdateOperation.UpdateMessage;
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.test.dunit.AsyncInvocation;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.DistributedBlackboard;
 import org.apache.geode.test.dunit.rules.DistributedRestoreSystemProperties;
@@ -121,14 +119,14 @@ public class ConnectionCloseSSLTLSDUnitTest implements Serializable {
     blackboard.clearGate(UPDATE_ENTERED_GATE);
     blackboard.clearGate(SUSPEND_UPDATE_GATE);
 
-    final int locatorPort = createLocator(locator);
+    final var locatorPort = createLocator(locator);
     createCacheAndRegion(sender, locatorPort);
     createCacheAndRegion(receiver, locatorPort);
 
     receiver
         .invoke("set up DistributionMessageObserver to 'hang' sender's put (on receiver)",
             () -> {
-              final DistributionMessageObserver observer =
+              final var observer =
                   new DistributionMessageObserver() {
 
                     @Override
@@ -148,8 +146,8 @@ public class ConnectionCloseSSLTLSDUnitTest implements Serializable {
               DistributionMessageObserver.setInstance(observer);
             });
 
-    final AsyncInvocation<Object> putInvocation = sender.invokeAsync("try a put", () -> {
-      final Region<Object, Object> region = cache.getRegion(regionName);
+    final var putInvocation = sender.invokeAsync("try a put", () -> {
+      final var region = cache.getRegion(regionName);
       // test is going to close the cache while we are waiting for our ack
       assertThatThrownBy(() -> {
         region.put("hello", "world");
@@ -180,7 +178,7 @@ public class ConnectionCloseSSLTLSDUnitTest implements Serializable {
   private void guardMessageProcessingHook(final DistributionMessage message,
       final Runnable runnable) {
     if (message instanceof UpdateMessage) {
-      final UpdateMessage updateMessage = (UpdateMessage) message;
+      final var updateMessage = (UpdateMessage) message;
       if (updateMessage.getRegionPath().equals("/" + regionName)) {
         runnable.run();
       }
@@ -207,13 +205,13 @@ public class ConnectionCloseSSLTLSDUnitTest implements Serializable {
   private Cache createCache(int locatorPort) {
     // if you need to debug SSL communications use this property:
     // System.setProperty("javax.net.debug", "all");
-    Properties properties = getDistributedSystemProperties();
+    var properties = getDistributedSystemProperties();
     properties.setProperty(LOCATORS, "localhost[" + locatorPort + "]");
     return new CacheFactory(properties).create();
   }
 
   private Properties getDistributedSystemProperties() {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(ENABLE_CLUSTER_CONFIGURATION, "false");
     properties.setProperty(USE_CLUSTER_CONFIGURATION, "false");
     properties.setProperty(NAME, "vm" + VM.getCurrentVMNum());

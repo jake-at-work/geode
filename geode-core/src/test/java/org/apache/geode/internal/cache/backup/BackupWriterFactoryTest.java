@@ -22,7 +22,6 @@ import static org.apache.geode.internal.cache.backup.FileSystemBackupWriterConfi
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
 
@@ -49,7 +48,7 @@ public class BackupWriterFactoryTest {
 
   @Test
   public void returnsCorrectWriterType() {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(TYPE, FILE_SYSTEM.getType());
     properties.setProperty(TIMESTAMP, "yyyy-MM-dd-HH-mm-ss");
     properties.setProperty(TARGET_DIR, "targetDir");
@@ -61,15 +60,15 @@ public class BackupWriterFactoryTest {
 
   @Test
   public void returnedWriterHasAbsolutePathToBaselineDirectory() {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(TYPE, FILE_SYSTEM.getType());
     properties.setProperty(TIMESTAMP, "yyyy-MM-dd-HH-mm-ss");
     properties.setProperty(TARGET_DIR, "targetDir");
     properties.setProperty(BASELINE_DIR, "baselineDir");
 
-    BackupWriter writer = FILE_SYSTEM.createWriter(properties, "memberId");
+    var writer = FILE_SYSTEM.createWriter(properties, "memberId");
 
-    Path absoluteBaseLineDirectory = Paths.get("baselineDir").toAbsolutePath();
+    var absoluteBaseLineDirectory = Paths.get("baselineDir").toAbsolutePath();
     assertThat(writer.getBaselineDirectory()).isAbsolute().isEqualTo(absoluteBaseLineDirectory);
   }
 }

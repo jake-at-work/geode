@@ -45,7 +45,7 @@ public class FinalStaticArrayShouldNotCauseSegFaultRegressionTest {
   @Test
   public void finalStaticArrayShouldNotCauseSegFault() throws Exception {
     // Iterate enough to cause JIT to compile javax.print.attribute.EnumSyntax::readResolve
-    for (int i = 0; i < 100_000; i++) {
+    for (var i = 0; i < 100_000; i++) {
       // Must execute two or more subclasses with static final arrays of different types.
       doEvictionAlgorithm();
       doEvictionAction();
@@ -53,26 +53,26 @@ public class FinalStaticArrayShouldNotCauseSegFaultRegressionTest {
   }
 
   private void doEvictionAlgorithm() throws IOException, ClassNotFoundException {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    var baos = new ByteArrayOutputStream();
 
-    try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
+    try (var oos = new ObjectOutputStream(baos)) {
       oos.writeObject(EvictionAlgorithm.NONE);
     }
 
-    try (ObjectInputStream ois =
+    try (var ois =
         new ObjectInputStream(new ByteArrayInputStream(baos.toByteArray()))) {
       ois.readObject();
     }
   }
 
   private void doEvictionAction() throws IOException, ClassNotFoundException {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    var baos = new ByteArrayOutputStream();
 
-    try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
+    try (var oos = new ObjectOutputStream(baos)) {
       oos.writeObject(EvictionAction.NONE);
     }
 
-    try (ObjectInputStream ois =
+    try (var ois =
         new ObjectInputStream(new ByteArrayInputStream(baos.toByteArray()))) {
       ois.readObject();
     }

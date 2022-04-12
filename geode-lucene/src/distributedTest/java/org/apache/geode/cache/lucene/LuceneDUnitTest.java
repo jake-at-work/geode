@@ -45,7 +45,7 @@ public abstract class LuceneDUnitTest extends JUnit4CacheTestCase {
 
   @Override
   public void postSetUp() throws Exception {
-    Host host = Host.getHost(0);
+    var host = Host.getHost(0);
     dataStore1 = host.getVM(0);
     dataStore2 = host.getVM(1);
   }
@@ -77,9 +77,9 @@ public abstract class LuceneDUnitTest extends JUnit4CacheTestCase {
   }
 
   protected Object[] parameterCombiner(Object[] aValues, Object[] bValues) {
-    Object[] parameters = new Object[aValues.length * bValues.length];
-    for (int i = 0; i < aValues.length; i++) {
-      for (int j = 0; j < bValues.length; j++) {
+    var parameters = new Object[aValues.length * bValues.length];
+    for (var i = 0; i < aValues.length; i++) {
+      for (var j = 0; j < bValues.length; j++) {
         parameters[i * bValues.length + j] = new Object[] {aValues[i], bValues[j]};
       }
     }
@@ -88,7 +88,7 @@ public abstract class LuceneDUnitTest extends JUnit4CacheTestCase {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties result = super.getDistributedSystemProperties();
+    var result = super.getDistributedSystemProperties();
     result.put(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER,
         "org.apache.geode.cache.lucene.test.TestObject;org.apache.geode.cache.lucene.LuceneQueriesAccessorBase$TestObject"
             + ";org.apache.geode.cache.lucene.LuceneDUnitTest"
@@ -207,7 +207,7 @@ public abstract class LuceneDUnitTest extends JUnit4CacheTestCase {
 
   protected static PartitionAttributes getPartitionAttributes(final boolean isAccessor,
       final int numBuckets) {
-    PartitionAttributesFactory factory = new PartitionAttributesFactory();
+    var factory = new PartitionAttributesFactory();
     if (isAccessor) {
       factory.setLocalMaxMemory(0);
     } else {

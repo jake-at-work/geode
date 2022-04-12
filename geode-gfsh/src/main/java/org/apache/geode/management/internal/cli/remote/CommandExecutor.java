@@ -36,7 +36,6 @@ import org.apache.geode.management.cli.SingleGfshCommand;
 import org.apache.geode.management.cli.UpdateAllConfigurationGroupsMarker;
 import org.apache.geode.management.internal.cli.GfshParseResult;
 import org.apache.geode.management.internal.cli.result.CommandResult;
-import org.apache.geode.management.internal.cli.result.model.InfoResultModel;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
 import org.apache.geode.management.internal.exceptions.EntityNotFoundException;
 import org.apache.geode.management.internal.exceptions.UserErrorException;
@@ -78,23 +77,23 @@ public class CommandExecutor {
   @VisibleForTesting
   @SuppressWarnings("deprecation")
   public Object execute(Object command, GfshParseResult parseResult) {
-    String userInput = parseResult.getUserInput();
+    var userInput = parseResult.getUserInput();
     if (userInput != null) {
       logger.info("Executing command: " + ArgumentRedactor.redact(userInput));
     }
 
-    boolean locked = lockCMS(command);
+    var locked = lockCMS(command);
     try {
-      Object result = invokeCommand(command, parseResult);
+      var result = invokeCommand(command, parseResult);
 
       // if some custom command returns Result instead of ResultModel, we need to turn that
       // into ResultModel in order to be processed later on.
       if (result instanceof CommandResult) {
         result = ((CommandResult) result).getResultData();
       } else if (result instanceof Result) {
-        Result customResult = (Result) result;
+        var customResult = (Result) result;
         result = new ResultModel();
-        InfoResultModel info = ((ResultModel) result).addInfo();
+        var info = ((ResultModel) result).addInfo();
         while (customResult.hasNextLine()) {
           info.addLine(customResult.nextLine());
         }
@@ -158,20 +157,20 @@ public class CommandExecutor {
       command = parseResult.getInstance();
     }
 
-    Object result = callInvokeMethod(command, parseResult);
+    var result = callInvokeMethod(command, parseResult);
 
     if (!(command instanceof SingleGfshCommand)) {
       return result;
     }
 
-    SingleGfshCommand gfshCommand = (SingleGfshCommand) command;
-    ResultModel resultModel = (ResultModel) result;
+    var gfshCommand = (SingleGfshCommand) command;
+    var resultModel = (ResultModel) result;
     if (resultModel.getStatus() == Result.Status.ERROR) {
       return result;
     }
 
     // if command result is ok, we will need to see if we need to update cluster configuration
-    InfoResultModel infoResultModel = resultModel.addInfo(ResultModel.INFO_SECTION);
+    var infoResultModel = resultModel.addInfo(ResultModel.INFO_SECTION);
     InternalConfigurationPersistenceService ccService =
         gfshCommand.getConfigurationPersistenceService();
     if (ccService == null) {
@@ -185,7 +184,7 @@ public class CommandExecutor {
     }
 
     List<String> groupsToUpdate;
-    String groupInput = parseResult.getParamValueAsString("group");
+    var groupInput = parseResult.getParamValueAsString("group");
 
     if (!StringUtils.isBlank(groupInput)) {
       groupsToUpdate = Arrays.asList(groupInput.split(","));
@@ -195,7 +194,7 @@ public class CommandExecutor {
       groupsToUpdate = Collections.singletonList("cluster");
     }
 
-    for (String group : groupsToUpdate) {
+    for (var group : groupsToUpdate) {
       ccService.updateCacheConfig(group, cacheConfig -> {
         try {
           if (gfshCommand.updateConfigForGroup(group, cacheConfig, resultModel.getConfigObject())) {
@@ -206,7 +205,7 @@ public class CommandExecutor {
                 .addLine("Cluster configuration for group '" + group + "' is not updated.");
           }
         } catch (Exception e) {
-          String message = "Failed to update cluster configuration for " + group + ".";
+          var message = "Failed to update cluster configuration for " + group + ".";
           logger.error(message, e);
           // for now, if one cc update failed, we will set this flag. Will change this when we can
           // add lines to the result returned by the command
@@ -234,7 +233,7 @@ public class CommandExecutor {
       return false;
     }
 
-    GfshCommand gfshCommand = (GfshCommand) command;
+    var gfshCommand = (GfshCommand) command;
     // no lock if cluster configuration service is not started
     if (gfshCommand.getConfigurationPersistenceService() == null) {
       return false;

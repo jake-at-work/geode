@@ -64,7 +64,7 @@ public class AuthenticateUserOpTest {
   @Test
   public void constructorWithNoArg() throws Exception {
     doReturn(system).when(impl).getConnectedSystem();
-    Properties properties = new Properties();
+    var properties = new Properties();
     when(system.getSecurityProperties()).thenReturn(properties);
     doReturn(credentialBytes).when(impl).getCredentialBytes(any(), any());
     doReturn(NOT_A_USER_ID).when(impl).getUserId(connection);
@@ -72,14 +72,14 @@ public class AuthenticateUserOpTest {
     impl.sendMessage(connection);
 
     // verify we are using system.getSecurityProperties to get the credential bytes
-    ArgumentCaptor<Properties> captor = ArgumentCaptor.forClass(Properties.class);
+    var captor = ArgumentCaptor.forClass(Properties.class);
     verify(impl).getCredentialBytes(eq(connection), captor.capture());
     assertThat(captor.getValue()).isEqualTo(properties);
   }
 
   @Test
   public void constructorWithProperties() throws Exception {
-    Properties properties = new Properties();
+    var properties = new Properties();
     impl = spy(new AuthenticateUserOp.AuthenticateUserOpImpl(properties));
     doReturn(system).when(impl).getConnectedSystem();
     doReturn(credentialBytes).when(impl).getCredentialBytes(any(), any());
@@ -88,7 +88,7 @@ public class AuthenticateUserOpTest {
     impl.sendMessage(connection);
 
     // verify we are using the properties in constructor to get the credential bytes
-    ArgumentCaptor<Properties> captor = ArgumentCaptor.forClass(Properties.class);
+    var captor = ArgumentCaptor.forClass(Properties.class);
     verify(impl).getCredentialBytes(eq(connection), captor.capture());
     assertThat(captor.getValue()).isEqualTo(properties);
   }

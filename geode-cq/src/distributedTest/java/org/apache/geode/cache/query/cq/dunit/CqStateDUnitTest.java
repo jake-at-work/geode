@@ -29,13 +29,11 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.query.CqQuery;
 import org.apache.geode.cache.query.dunit.CloseCacheAuthorization;
 import org.apache.geode.cache.query.dunit.HelperTestCase;
 import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.security.templates.DummyAuthenticator;
 import org.apache.geode.security.templates.UserPasswordAuthInit;
-import org.apache.geode.test.dunit.AsyncInvocation;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.IgnoredException;
 import org.apache.geode.test.dunit.NetworkUtils;
@@ -55,18 +53,18 @@ public class CqStateDUnitTest extends HelperTestCase {
     // The client can log this when the server shuts down.
     IgnoredException.addIgnoredException("Could not find any server");
     IgnoredException.addIgnoredException("java.net.ConnectException");
-    final String cqName = "theCqInQuestion";
-    final String regionName = "aattbbss";
-    final Host host = Host.getHost(0);
-    VM serverA = host.getVM(1);
-    VM serverB = host.getVM(2);
-    VM client = host.getVM(3);
+    final var cqName = "theCqInQuestion";
+    final var regionName = "aattbbss";
+    final var host = Host.getHost(0);
+    var serverA = host.getVM(1);
+    var serverB = host.getVM(2);
+    var client = host.getVM(3);
 
-    final int[] ports = AvailablePortHelper.getRandomAvailableTCPPorts(2);
+    final var ports = AvailablePortHelper.getRandomAvailableTCPPorts(2);
     startCacheServer(serverA, ports[0], getAuthenticatedServerProperties());
     createReplicatedRegion(serverA, regionName, null);
 
-    final String host0 = NetworkUtils.getServerHostName(serverA.getHost());
+    final var host0 = NetworkUtils.getServerHostName(serverA.getHost());
     startClient(client, new VM[] {serverA, serverB}, ports, 1, getClientProperties());
     createCQ(client, cqName, "select * from " + SEPARATOR + regionName, null);
 
@@ -76,11 +74,11 @@ public class CqStateDUnitTest extends HelperTestCase {
     createReplicatedRegion(serverB, regionName, null);
     startCacheServers(serverB);
 
-    AsyncInvocation async = executeCQ(client, cqName);
+    var async = executeCQ(client, cqName);
     ThreadUtils.join(async, 10000);
 
     client.invoke(() -> {
-      final CqQuery cq = getCache().getQueryService().getCq(cqName);
+      final var cq = getCache().getQueryService().getCq(cqName);
       await("Waiting for CQ to be in running state: " + cq).until(() -> cq.getState().isRunning());
     });
 
@@ -89,10 +87,10 @@ public class CqStateDUnitTest extends HelperTestCase {
     // executed
     // This is the only way bug 51222 would be noticed
     // verify that the cq on the server is still in RUNNING state;
-    Boolean isRunning = (Boolean) serverB.invoke(new SerializableCallable() {
+    var isRunning = (Boolean) serverB.invoke(new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        CqQuery cq = getCache().getQueryService().getCqs()[0];
+        var cq = getCache().getQueryService().getCqs()[0];
         return cq.getState().isRunning();
       }
     });
@@ -101,7 +99,7 @@ public class CqStateDUnitTest extends HelperTestCase {
   }
 
   public Properties getAuthenticatedServerProperties() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.put(MCAST_PORT, "0");
     props.put(SECURITY_CLIENT_ACCESSOR, CloseCacheAuthorization.class.getName() + ".create");
     props.put(SECURITY_CLIENT_ACCESSOR_PP, CloseCacheAuthorization.class.getName() + ".create");
@@ -110,14 +108,14 @@ public class CqStateDUnitTest extends HelperTestCase {
   }
 
   public Properties getServerProperties() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.put(MCAST_PORT, "0");
     return props;
   }
 
   @Override
   public Properties getClientProperties() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.put(SECURITY_CLIENT_AUTH_INIT, UserPasswordAuthInit.class.getName() + ".create");
     props.put("security-username", "root");
     props.put("security-password", "root");

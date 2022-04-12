@@ -20,7 +20,6 @@ import java.io.IOException;
 import org.apache.geode.CancelException;
 import org.apache.geode.DataSerializer;
 import org.apache.geode.Instantiator;
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.snapshot.GFSnapshot;
@@ -54,7 +53,7 @@ public class SnapshotReader {
       throws IOException, ClassNotFoundException {
     TypeRegistry typeRegistry = null;
     try {
-      Cache cache = CacheFactory.getAnyInstance();
+      var cache = CacheFactory.getAnyInstance();
       if (cache != null) {
         typeRegistry = ((InternalCache) cache).getPdxRegistry();
       }

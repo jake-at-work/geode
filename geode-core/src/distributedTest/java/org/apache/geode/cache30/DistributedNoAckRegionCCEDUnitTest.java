@@ -20,14 +20,12 @@ import static org.apache.geode.distributed.ConfigurationProperties.SOCKET_BUFFER
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
-import java.util.Map;
 import java.util.Properties;
 
 import org.junit.Test;
 
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.CacheException;
-import org.apache.geode.cache.CacheListener;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.EntryNotFoundException;
@@ -49,7 +47,7 @@ public class DistributedNoAckRegionCCEDUnitTest extends DistributedNoAckRegionDU
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties p = super.getDistributedSystemProperties();
+    var p = super.getDistributedSystemProperties();
     p.put(CONSERVE_SOCKETS, "false");
     if (distributedSystemID > 0) {
       p.put(DISTRIBUTED_SYSTEM_ID, "" + distributedSystemID);
@@ -63,7 +61,7 @@ public class DistributedNoAckRegionCCEDUnitTest extends DistributedNoAckRegionDU
    */
   @Override
   protected <K, V> RegionAttributes<K, V> getRegionAttributes() {
-    AttributesFactory<K, V> factory = new AttributesFactory<>();
+    var factory = new AttributesFactory<K, V>();
     factory.setScope(Scope.DISTRIBUTED_NO_ACK);
     factory.setDataPolicy(DataPolicy.REPLICATE);
     factory.setConcurrencyChecksEnabled(true);
@@ -76,7 +74,7 @@ public class DistributedNoAckRegionCCEDUnitTest extends DistributedNoAckRegionDU
     if (ra == null) {
       throw new IllegalStateException("The region shortcut " + type + " has been removed.");
     }
-    AttributesFactory<K, V> factory = new AttributesFactory<>(ra);
+    var factory = new AttributesFactory<K, V>(ra);
     factory.setScope(Scope.DISTRIBUTED_NO_ACK);
     factory.setConcurrencyChecksEnabled(true);
     return factory.create();
@@ -96,16 +94,16 @@ public class DistributedNoAckRegionCCEDUnitTest extends DistributedNoAckRegionDU
 
   @Test
   public void testClearWithManyEventsInFlight() {
-    VM vm0 = VM.getVM(0);
-    VM vm1 = VM.getVM(1);
-    VM vm2 = VM.getVM(2);
-    VM vm3 = VM.getVM(3);
+    var vm0 = VM.getVM(0);
+    var vm1 = VM.getVM(1);
+    var vm2 = VM.getVM(2);
+    var vm3 = VM.getVM(3);
 
     // create replicated regions in VM 0 and 1, then perform concurrent ops
     // on the same key while creating the region in VM2. Afterward make
     // sure that all three regions are consistent
 
-    final String name = getUniqueName() + "-CC";
+    final var name = getUniqueName() + "-CC";
     createRegionWithAttribute(vm0, name, false);
     createRegionWithAttribute(vm1, name, false);
     createRegionWithAttribute(vm2, name, false);
@@ -129,21 +127,21 @@ public class DistributedNoAckRegionCCEDUnitTest extends DistributedNoAckRegionDU
 
     Wait.pause(2000);// this test has with noack, thus we should wait before validating entries
     // check consistency of the regions
-    Map r0Contents = vm0.invoke(MultiVMRegionTestCase::getCCRegionContents);
-    Map r1Contents = vm1.invoke(MultiVMRegionTestCase::getCCRegionContents);
-    Map r2Contents = vm2.invoke(MultiVMRegionTestCase::getCCRegionContents);
-    Map r3Contents = vm3.invoke(MultiVMRegionTestCase::getCCRegionContents);
+    var r0Contents = vm0.invoke(MultiVMRegionTestCase::getCCRegionContents);
+    var r1Contents = vm1.invoke(MultiVMRegionTestCase::getCCRegionContents);
+    var r2Contents = vm2.invoke(MultiVMRegionTestCase::getCCRegionContents);
+    var r3Contents = vm3.invoke(MultiVMRegionTestCase::getCCRegionContents);
 
-    for (int i = 0; i < 10; i++) {
-      String key = "cckey" + i;
+    for (var i = 0; i < 10; i++) {
+      var key = "cckey" + i;
       assertThat(r0Contents.get(key)).withFailMessage("region contents are not consistent")
           .isEqualTo(r1Contents.get(key));
       assertThat(r1Contents.get(key)).withFailMessage("region contents are not consistent")
           .isEqualTo(r2Contents.get(key));
       assertThat(r2Contents.get(key)).withFailMessage("region contents are not consistent")
           .isEqualTo(r3Contents.get(key));
-      for (int subi = 1; subi < 3; subi++) {
-        String subkey = key + "-" + subi;
+      for (var subi = 1; subi < 3; subi++) {
+        var subkey = key + "-" + subi;
         assertThat(r0Contents.get(subkey)).withFailMessage("region contents are not consistent")
             .isEqualTo(r1Contents.get(subkey));
         assertThat(r1Contents.get(subkey)).withFailMessage("region contents are not consistent")
@@ -163,7 +161,7 @@ public class DistributedNoAckRegionCCEDUnitTest extends DistributedNoAckRegionDU
       }
 
       private void onEvent(EntryEvent event) {
-        boolean blocked = false;
+        var blocked = false;
         if (event.isOriginRemote()) {
           synchronized (this) {
             while (ListenerBlocking) {
@@ -217,7 +215,7 @@ public class DistributedNoAckRegionCCEDUnitTest extends DistributedNoAckRegionDU
   }
 
   private static void unblockListener() {
-    CacheListener listener = CCRegion.getCacheListener();
+    var listener = CCRegion.getCacheListener();
     ListenerBlocking = false;
     synchronized (listener) {
       listener.notifyAll();
@@ -274,9 +272,9 @@ public class DistributedNoAckRegionCCEDUnitTest extends DistributedNoAckRegionDU
 
   @Test
   public void testOneHopKnownIssues() {
-    VM vm0 = VM.getVM(0);
-    VM vm1 = VM.getVM(1);
-    VM vm2 = VM.getVM(2);
+    var vm0 = VM.getVM(0);
+    var vm1 = VM.getVM(1);
+    var vm2 = VM.getVM(2);
 
     assertThat(vm0).isNotNull();
     assertThat(vm1).isNotNull();
@@ -286,7 +284,7 @@ public class DistributedNoAckRegionCCEDUnitTest extends DistributedNoAckRegionDU
     // on the same key while creating the region in VM2. Afterward make
     // sure that all three regions are consistent
 
-    final String name = getUniqueName() + "-CC";
+    final var name = getUniqueName() + "-CC";
 
     assertThat(vm0.invoke("Create Region", () -> {
       try {
@@ -327,21 +325,21 @@ public class DistributedNoAckRegionCCEDUnitTest extends DistributedNoAckRegionDU
     })).isTrue(); // replicate
 
     // case 1: entry already invalid on vm2 (replicate) is invalidated by vm0 (empty)
-    final String invalidationKey = "invalidationKey";
-    SerializableRunnable test =
+    final var invalidationKey = "invalidationKey";
+    var test =
         new SerializableRunnable() {
           @Override
           public void run() {
             CCRegion.put(invalidationKey, "initialValue");
 
-            long invalidationCount = CCRegion.getCachePerfStats().getInvalidates();
+            var invalidationCount = CCRegion.getCachePerfStats().getInvalidates();
             CCRegion.invalidate(invalidationKey);
             CCRegion.invalidate(invalidationKey);
             assertThat(invalidationCount + 1)
                 .isEqualTo(CCRegion.getCachePerfStats().getInvalidates());
 
             // also test destroy() while we're at it. It should throw an exception
-            long destroyCount = CCRegion.getCachePerfStats().getDestroys();
+            var destroyCount = CCRegion.getCachePerfStats().getDestroys();
             CCRegion.destroy(invalidationKey);
             try {
               CCRegion.destroy(invalidationKey);

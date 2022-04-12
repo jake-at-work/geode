@@ -61,7 +61,7 @@ public class DestroyJndiBindingCommandTest {
 
   @Before
   public void setUp() throws Exception {
-    InternalCache cache = mock(InternalCache.class);
+    var cache = mock(InternalCache.class);
     command = spy(DestroyJndiBindingCommand.class);
     doReturn(cache).when(command).getCache();
     cacheConfig = mock(CacheConfig.class);
@@ -124,7 +124,7 @@ public class DestroyJndiBindingCommandTest {
   @Test
   public void whenNoMembersFoundAndClusterConfigRunningThenUpdateClusterConfig() {
     List<JndiBindingsType.JndiBinding> bindings = new ArrayList<>();
-    JndiBindingsType.JndiBinding jndiBinding = new JndiBindingsType.JndiBinding();
+    var jndiBinding = new JndiBindingsType.JndiBinding();
     jndiBinding.setJndiName("name");
     bindings.add(jndiBinding);
     doReturn(bindings).when(cacheConfig).getJndiBindings();
@@ -143,7 +143,7 @@ public class DestroyJndiBindingCommandTest {
     Set<DistributedMember> members = new HashSet<>();
     members.add(mock(DistributedMember.class));
 
-    CliFunctionResult result =
+    var result =
         new CliFunctionResult("server1", true, "Jndi binding \"name\" destroyed on \"server1\"");
     List<CliFunctionResult> results = new ArrayList<>();
     results.add(result);
@@ -159,17 +159,17 @@ public class DestroyJndiBindingCommandTest {
 
     verify(ccService, times(0)).updateCacheConfig(any(), any());
 
-    ArgumentCaptor<DestroyJndiBindingFunction> function =
+    var function =
         ArgumentCaptor.forClass(DestroyJndiBindingFunction.class);
-    ArgumentCaptor<Object[]> arguments = ArgumentCaptor.forClass(Object[].class);
+    var arguments = ArgumentCaptor.forClass(Object[].class);
 
     @SuppressWarnings("unchecked")
     ArgumentCaptor<Set<DistributedMember>> targetMembers = ArgumentCaptor.forClass(Set.class);
     verify(command, times(1)).executeAndGetFunctionResult(function.capture(), arguments.capture(),
         targetMembers.capture());
 
-    String jndiName = (String) arguments.getValue()[0];
-    boolean destroyingDataSource = (boolean) arguments.getValue()[1];
+    var jndiName = (String) arguments.getValue()[0];
+    var destroyingDataSource = (boolean) arguments.getValue()[1];
 
     assertThat(function.getValue()).isInstanceOf(DestroyJndiBindingFunction.class);
     assertThat(jndiName).isEqualTo("name");
@@ -181,7 +181,7 @@ public class DestroyJndiBindingCommandTest {
   @SuppressWarnings("deprecation")
   public void whenMembersFoundAndClusterConfigRunningThenUpdateClusterConfigAndInvokeFunction() {
     List<JndiBindingsType.JndiBinding> bindings = new ArrayList<>();
-    JndiBindingsType.JndiBinding jndiBinding = new JndiBindingsType.JndiBinding();
+    var jndiBinding = new JndiBindingsType.JndiBinding();
     jndiBinding.setJndiName("name");
     bindings.add(jndiBinding);
     doReturn(bindings).when(cacheConfig).getJndiBindings();
@@ -189,7 +189,7 @@ public class DestroyJndiBindingCommandTest {
     Set<DistributedMember> members = new HashSet<>();
     members.add(mock(DistributedMember.class));
 
-    CliFunctionResult result =
+    var result =
         new CliFunctionResult("server1", true, "Jndi binding \"name\" destroyed on \"server1\"");
     List<CliFunctionResult> results = new ArrayList<>();
     results.add(result);
@@ -205,17 +205,17 @@ public class DestroyJndiBindingCommandTest {
     assertThat(cacheConfig.getJndiBindings().isEmpty()).isTrue();
     verify(command).updateConfigForGroup(eq("cluster"), eq(cacheConfig), any());
 
-    ArgumentCaptor<DestroyJndiBindingFunction> function =
+    var function =
         ArgumentCaptor.forClass(DestroyJndiBindingFunction.class);
-    ArgumentCaptor<Object[]> arguments = ArgumentCaptor.forClass(Object[].class);
+    var arguments = ArgumentCaptor.forClass(Object[].class);
 
     @SuppressWarnings("unchecked")
     ArgumentCaptor<Set<DistributedMember>> targetMembers = ArgumentCaptor.forClass(Set.class);
     verify(command, times(1)).executeAndGetFunctionResult(function.capture(), arguments.capture(),
         targetMembers.capture());
 
-    String jndiName = (String) arguments.getValue()[0];
-    boolean destroyingDataSource = (boolean) arguments.getValue()[1];
+    var jndiName = (String) arguments.getValue()[0];
+    var destroyingDataSource = (boolean) arguments.getValue()[1];
 
     assertThat(function.getValue()).isInstanceOf(DestroyJndiBindingFunction.class);
     assertThat(jndiName).isEqualTo("name");

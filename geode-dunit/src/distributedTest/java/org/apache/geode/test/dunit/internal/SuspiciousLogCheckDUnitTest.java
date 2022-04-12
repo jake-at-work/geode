@@ -19,16 +19,13 @@ import static org.junit.Assert.fail;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.apache.logging.log4j.Logger;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.test.dunit.rules.ClientVM;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.rules.VMProvider;
 import org.apache.geode.test.junit.runners.CategoryWithParameterizedRunnerFactory;
 
@@ -52,23 +49,23 @@ public class SuspiciousLogCheckDUnitTest {
 
   @Test
   public void whenLocatorIsStoppedSuspiciousLogsMustBeChecked() throws Exception {
-    MemberVM locator = clusterStartupRule.startLocatorVM(0);
-    int locatorPort = locator.getPort();
+    var locator = clusterStartupRule.startLocatorVM(0);
+    var locatorPort = locator.getPort();
     VMProvider memberToCheck = null;
-    int vmIndex = -1;
+    var vmIndex = -1;
     switch (memberType) {
       case "locator":
         memberToCheck = locator;
         vmIndex = 0;
         break;
       case "server":
-        MemberVM server =
+        var server =
             clusterStartupRule.startServerVM(1, s -> s.withConnectionToLocator(locatorPort));
         memberToCheck = server;
         vmIndex = 1;
         break;
       case "client":
-        ClientVM client =
+        var client =
             clusterStartupRule.startClientVM(2, c -> c.withLocatorConnection(locatorPort));
         memberToCheck = client;
         vmIndex = 2;
@@ -77,7 +74,7 @@ public class SuspiciousLogCheckDUnitTest {
         fail("Member type parameter is missing (accepted types are: locator,server,client)");
     }
     memberToCheck.invoke(() -> {
-      Logger logger = LogService.getLogger();
+      var logger = LogService.getLogger();
       logger.fatal("Dummy fatal error message");
     });
     try {

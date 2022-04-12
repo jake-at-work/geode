@@ -36,7 +36,7 @@ public class CancelStatListenerRequest extends AdminRequest {
    * Returns a <code>CancelStatListenerRequest</code> to be sent to the specified recipient.
    */
   public static CancelStatListenerRequest create(int listenerId) {
-    CancelStatListenerRequest m = new CancelStatListenerRequest();
+    var m = new CancelStatListenerRequest();
     m.listenerId = listenerId;
     return m;
   }

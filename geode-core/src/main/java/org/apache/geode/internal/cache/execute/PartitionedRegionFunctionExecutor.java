@@ -26,7 +26,6 @@ import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionException;
 import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.distributed.DistributedMember;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.cache.PartitionedRegion;
 
@@ -219,8 +218,8 @@ public class PartitionedRegionFunctionExecutor extends AbstractExecution {
         pr.executeFunction(function, this, null, executeOnBucketSet);
         return NO_RESULT;
       }
-      ResultCollector inRc = (rc == null) ? new DefaultResultCollector() : rc;
-      ResultCollector rcToReturn =
+      var inRc = (rc == null) ? new DefaultResultCollector() : rc;
+      var rcToReturn =
           pr.executeFunction(function, this, inRc, executeOnBucketSet);
       if (timeout > 0) {
         try {
@@ -259,7 +258,7 @@ public class PartitionedRegionFunctionExecutor extends AbstractExecution {
       throw new FunctionException("Bucket IDs list is empty");
     }
 
-    Set<Integer> actualBucketSet = pr.getRegionAdvisor().getBucketSet();
+    var actualBucketSet = pr.getRegionAdvisor().getBucketSet();
 
     bucketIDs.retainAll(actualBucketSet);
 
@@ -340,15 +339,15 @@ public class PartitionedRegionFunctionExecutor extends AbstractExecution {
 
   @Override
   public void validateExecution(Function function, Set targetMembers) {
-    InternalCache cache = pr.getGemFireCache();
+    var cache = pr.getGemFireCache();
     if (cache.getTxManager().getTXState() != null) {
       if (targetMembers.size() > 1) {
         throw new TransactionException(
             "Function inside a transaction cannot execute on more than one node");
       } else {
         assert targetMembers.size() == 1;
-        DistributedMember funcTarget = (DistributedMember) targetMembers.iterator().next();
-        DistributedMember target = cache.getTxManager().getTXState().getTarget();
+        var funcTarget = (DistributedMember) targetMembers.iterator().next();
+        var target = cache.getTxManager().getTXState().getTarget();
         if (target == null) {
           cache.getTxManager().getTXState().setTarget(funcTarget);
         } else if (!target.equals(funcTarget)) {

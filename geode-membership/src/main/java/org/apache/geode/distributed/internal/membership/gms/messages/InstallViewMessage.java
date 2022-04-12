@@ -134,7 +134,7 @@ public class InstallViewMessage<ID extends MemberIdentifier> extends AbstractGMS
     if (getClass() != obj.getClass()) {
       return false;
     }
-    InstallViewMessage<ID> other = (InstallViewMessage<ID>) obj;
+    var other = (InstallViewMessage<ID>) obj;
     if (credentials == null) {
       if (other.credentials != null) {
         return false;

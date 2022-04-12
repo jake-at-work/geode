@@ -91,7 +91,7 @@ public class CacheServerMBeanAuthorizationJUnitTest {
   @Test
   @ConnectionConfiguration(user = "stranger", password = "1234567")
   public void testNoAccess() throws Exception {
-    SoftAssertions softly = new SoftAssertions();
+    var softly = new SoftAssertions();
 
     softly.assertThatThrownBy(() -> bean.removeIndex("foo"))
         .hasMessageContaining(ResourcePermissions.DATA_MANAGE.toString());

@@ -14,7 +14,6 @@
  */
 package org.apache.geode.management.internal.beans;
 
-import java.io.File;
 
 import org.apache.geode.cache.DiskStore;
 import org.apache.geode.internal.cache.DirectoryHolder;
@@ -92,9 +91,9 @@ public class DiskStoreMBeanBridge {
     isForceCompactionAllowed = diskStore.getAllowForceCompaction();
     directoryHolders = diskStore.getDirectoryHolders();
 
-    File[] diskDirs = diskStore.getDiskDirs();
-    String[] diskDirStr = new String[diskDirs.length];
-    for (int i = 0; i < diskDirs.length; i++) {
+    var diskDirs = diskStore.getDiskDirs();
+    var diskDirStr = new String[diskDirs.length];
+    for (var i = 0; i < diskDirs.length; i++) {
       diskDirStr[i] = diskDirs[i].getAbsolutePath();
     }
     diskDirectories = diskDirStr;
@@ -191,7 +190,7 @@ public class DiskStoreMBeanBridge {
 
   private void initializeStats() {
 
-    String[] diskReads = new String[] {StatsKey.DISK_READ_BYTES, StatsKey.DISK_RECOVERED_BYTES};
+    var diskReads = new String[] {StatsKey.DISK_READ_BYTES, StatsKey.DISK_RECOVERED_BYTES};
     diskReadsRate = new StatsRate(diskReads, StatType.LONG_TYPE, monitor);
 
     diskWritesRate = new StatsRate(StatsKey.DISK_WRITEN_BYTES, StatType.LONG_TYPE, monitor);

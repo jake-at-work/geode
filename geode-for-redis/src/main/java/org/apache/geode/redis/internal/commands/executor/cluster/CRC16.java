@@ -32,11 +32,11 @@ public class CRC16 {
 
   // Create the table up front
   static {
-    int poly = reverseInt16(CCITT_POLY);
+    var poly = reverseInt16(CCITT_POLY);
 
-    for (int x = 0; x < 256; x++) {
-      int w = x << 8;
-      for (int i = 0; i < 8; i++) {
+    for (var x = 0; x < 256; x++) {
+      var w = x << 8;
+      for (var i = 0; i < 8; i++) {
         if ((w & 0x8000) != 0) {
           w = (w << 1) ^ poly;
         } else {
@@ -55,15 +55,15 @@ public class CRC16 {
    * @param end ending index (exclusive) into the byte array
    */
   public static int calculate(byte[] data, int start, int end) {
-    int crc = 0;
-    for (int i = start; i < end; i++) {
+    var crc = 0;
+    for (var i = start; i < end; i++) {
       crc = ((crc << 8) & 0xFF00) ^ (crcTable[(crc >> 8) ^ (data[i] & 0xFF)] & 0xFFFF);
     }
     return crc;
   }
 
   public static int calculate(String data) {
-    byte[] bytes = stringToBytes(data);
+    var bytes = stringToBytes(data);
     return calculate(bytes, 0, bytes.length);
   }
 

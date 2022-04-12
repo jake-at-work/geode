@@ -66,7 +66,7 @@ public abstract class AbstractRPushxIntegrationTest implements RedisIntegrationT
   @Test
   public void rpushx_returnsUpdatedListLength() {
     jedis.rpush(LIST_KEY, INITIAL_ELEMENT);
-    for (int i = 0; i < LIST_ELEMENTS.length; i++) {
+    for (var i = 0; i < LIST_ELEMENTS.length; i++) {
       assertThat(jedis.rpushx(LIST_KEY, LIST_ELEMENTS[i])).isEqualTo(i + 2);
     }
   }
@@ -74,17 +74,17 @@ public abstract class AbstractRPushxIntegrationTest implements RedisIntegrationT
   @Test
   public void rpushx_addsElementsInCorrectOrder_onRepeatedInvocation() {
     jedis.rpush(LIST_KEY, INITIAL_ELEMENT);
-    for (int i = 0; i < LIST_ELEMENTS.length; i++) {
+    for (var i = 0; i < LIST_ELEMENTS.length; i++) {
       jedis.rpushx(LIST_KEY, LIST_ELEMENTS[i]);
     }
 
-    String[] result = {"dolphin", "turtle", "eel", "turtle", "narwhal"};
+    var result = new String[] {"dolphin", "turtle", "eel", "turtle", "narwhal"};
     assertThat(jedis.lrange(LIST_KEY, 0, -1)).containsExactly(result);
   }
 
   @Test
   public void rpushx_withWrongTypeKey_returnsErrorWrongType_shouldNotOverWriteExistingKey() {
-    String value = "notListValue";
+    var value = "notListValue";
     jedis.set(LIST_KEY, value);
     assertThatThrownBy(() -> jedis.rpushx(LIST_KEY, LIST_ELEMENTS)).hasMessage(ERROR_WRONG_TYPE);
     assertThat(jedis.get(LIST_KEY)).isEqualTo(value);
@@ -92,15 +92,15 @@ public abstract class AbstractRPushxIntegrationTest implements RedisIntegrationT
 
   @Test
   public void ensureListConsistency_whenRunningConcurrently() {
-    final String[] initialList = {"river", "turtle", "ocean", "turtle"};
+    final var initialList = new String[] {"river", "turtle", "ocean", "turtle"};
     jedis.rpush(LIST_KEY, initialList);
 
-    String[] resultLremThenRpushx =
-        {"river", "ocean", "turtle", "eel", "turtle", "narwhal"};
-    String[] resultRpushxThenLrem =
-        {"river", "ocean", "eel", "narwhal"};
+    var resultLremThenRpushx =
+        new String[] {"river", "ocean", "turtle", "eel", "turtle", "narwhal"};
+    var resultRpushxThenLrem =
+        new String[] {"river", "ocean", "eel", "narwhal"};
 
-    final AtomicLong rpushxResultReference = new AtomicLong();
+    final var rpushxResultReference = new AtomicLong();
     new ConcurrentLoopingThreads(1000,
         i -> jedis.lrem(LIST_KEY, 0, "turtle"),
         i -> rpushxResultReference.set(jedis.rpushx(LIST_KEY, LIST_ELEMENTS)))

@@ -16,7 +16,6 @@ package org.apache.geode.security.templates;
 
 import java.io.FileInputStream;
 import java.nio.charset.StandardCharsets;
-import java.security.Key;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.Signature;
@@ -67,24 +66,24 @@ public class PKCSAuthInit implements AuthInitialize {
   @Override
   public Properties getCredentials(final Properties securityProperties,
       final DistributedMember server, final boolean isPeer) throws AuthenticationFailedException {
-    final String keyStorePath = securityProperties.getProperty(KEYSTORE_FILE_PATH);
+    final var keyStorePath = securityProperties.getProperty(KEYSTORE_FILE_PATH);
     if (keyStorePath == null) {
       throw new AuthenticationFailedException(
           "PKCSAuthInit: key-store file path property [" + KEYSTORE_FILE_PATH + "] not set.");
     }
 
-    final String alias = securityProperties.getProperty(KEYSTORE_ALIAS);
+    final var alias = securityProperties.getProperty(KEYSTORE_ALIAS);
     if (alias == null) {
       throw new AuthenticationFailedException(
           "PKCSAuthInit: key alias name property [" + KEYSTORE_ALIAS + "] not set.");
     }
 
-    final String keyStorePass = securityProperties.getProperty(KEYSTORE_PASSWORD);
+    final var keyStorePass = securityProperties.getProperty(KEYSTORE_PASSWORD);
 
     try {
-      final KeyStore ks = KeyStore.getInstance("PKCS12");
-      final char[] passPhrase = (keyStorePass != null ? keyStorePass.toCharArray() : null);
-      final FileInputStream certificatefile = new FileInputStream(keyStorePath);
+      final var ks = KeyStore.getInstance("PKCS12");
+      final var passPhrase = (keyStorePass != null ? keyStorePass.toCharArray() : null);
+      final var certificatefile = new FileInputStream(keyStorePath);
 
       try {
         ks.load(certificatefile, passPhrase);
@@ -92,18 +91,18 @@ public class PKCSAuthInit implements AuthInitialize {
         certificatefile.close();
       }
 
-      final Key key = ks.getKey(alias, passPhrase);
+      final var key = ks.getKey(alias, passPhrase);
 
       if (key instanceof PrivateKey) {
-        final PrivateKey privKey = (PrivateKey) key;
-        final X509Certificate cert = (X509Certificate) ks.getCertificate(alias);
-        final Signature sig = Signature.getInstance(cert.getSigAlgName());
+        final var privKey = (PrivateKey) key;
+        final var cert = (X509Certificate) ks.getCertificate(alias);
+        final var sig = Signature.getInstance(cert.getSigAlgName());
 
         sig.initSign(privKey);
         sig.update(alias.getBytes(StandardCharsets.UTF_8));
-        final byte[] signatureBytes = sig.sign();
+        final var signatureBytes = sig.sign();
 
-        final Properties newprops = new Properties();
+        final var newprops = new Properties();
         newprops.put(KEYSTORE_ALIAS, alias);
         newprops.put(SIGNATURE_DATA, signatureBytes);
         return newprops;

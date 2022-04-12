@@ -58,7 +58,7 @@ public class LauncherMemberMXBeanIntegrationTest extends LauncherIntegrationTest
 
   @Before
   public void setUp() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     props.setProperty(STATISTIC_SAMPLE_RATE, SAMPLE_RATE + "");
@@ -109,12 +109,12 @@ public class LauncherMemberMXBeanIntegrationTest extends LauncherIntegrationTest
     whenQuerying(getPlatformMBeanServer());
     assertThat(mbeanNames).hasSize(1);
 
-    MemberMXBean mbean = getMXBeanProxy();
+    var mbean = getMXBeanProxy();
 
-    CompositeDataSupport cds =
+    var cds =
         (CompositeDataSupport) getPlatformMBeanServer().invoke(mbeanObjectName, "showOSMetrics",
             null, null);
-    OSMetrics osMetrics = mbean.showOSMetrics();
+    var osMetrics = mbean.showOSMetrics();
     assertThat(osMetrics).isNotNull();
 
     // Verify conversion from CompositeData to OSMetrics
@@ -154,12 +154,12 @@ public class LauncherMemberMXBeanIntegrationTest extends LauncherIntegrationTest
     whenQuerying(getPlatformMBeanServer());
     assertThat(mbeanNames).hasSize(1);
 
-    MemberMXBean mbean = getMXBeanProxy();
+    var mbean = getMXBeanProxy();
 
-    CompositeDataSupport cds =
+    var cds =
         (CompositeDataSupport) getPlatformMBeanServer().invoke(mbeanObjectName, "showJVMMetrics",
             null, null);
-    JVMMetrics jvmMetrics = mbean.showJVMMetrics();
+    var jvmMetrics = mbean.showJVMMetrics();
     assertThat(jvmMetrics).isNotNull();
 
     assertThat(jvmMetrics.getInitMemory()).isEqualTo(cds.get("initMemory"));
@@ -183,10 +183,10 @@ public class LauncherMemberMXBeanIntegrationTest extends LauncherIntegrationTest
   private void tryConvergeVolatileJVMMetrics(String attribute, Function<JVMMetrics, Number> func) {
     GeodeAwaitility.await(attribute).atMost(SAMPLE_RATE * 5, TimeUnit.MILLISECONDS)
         .untilAsserted(() -> {
-          CompositeDataSupport cds = (CompositeDataSupport) getPlatformMBeanServer()
+          var cds = (CompositeDataSupport) getPlatformMBeanServer()
               .invoke(mbeanObjectName, "showJVMMetrics", null, null);
-          Number cdsValue = (Number) cds.get(attribute);
-          Number jvmMetricValue = func.apply(getMXBeanProxy().showJVMMetrics());
+          var cdsValue = (Number) cds.get(attribute);
+          var jvmMetricValue = func.apply(getMXBeanProxy().showJVMMetrics());
 
           assertThat(cdsValue).isEqualTo(jvmMetricValue);
         });
@@ -195,10 +195,10 @@ public class LauncherMemberMXBeanIntegrationTest extends LauncherIntegrationTest
   private void tryConvergeVolatileOSMetrics(String attribute, Function<OSMetrics, Number> func) {
     GeodeAwaitility.await(attribute).atMost(SAMPLE_RATE * 5, TimeUnit.MILLISECONDS)
         .untilAsserted(() -> {
-          CompositeDataSupport cds = (CompositeDataSupport) getPlatformMBeanServer()
+          var cds = (CompositeDataSupport) getPlatformMBeanServer()
               .invoke(mbeanObjectName, "showOSMetrics", null, null);
-          Number cdsValue = (Number) cds.get(attribute);
-          Number osMetricValue = func.apply(getMXBeanProxy().showOSMetrics());
+          var cdsValue = (Number) cds.get(attribute);
+          var osMetricValue = func.apply(getMXBeanProxy().showOSMetrics());
 
           assertThat(cdsValue).isEqualTo(osMetricValue);
         });
@@ -224,8 +224,8 @@ public class LauncherMemberMXBeanIntegrationTest extends LauncherIntegrationTest
   }
 
   private LauncherMemberMXBeanIntegrationTest andShouldMatchCurrentMember() {
-    ObjectName objectName = mbeanNames.iterator().next();
-    MemberMXBean mbean =
+    var objectName = mbeanNames.iterator().next();
+    var mbean =
         newProxyInstance(getPlatformMBeanServer(), objectName, MemberMXBean.class, false);
 
     assertThat(mbean.getMember()).isEqualTo(getUniqueName());

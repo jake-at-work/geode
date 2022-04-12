@@ -186,9 +186,9 @@ public class BaseControllerAdvice extends AbstractBaseController {
   @ResponseBody
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   public String handleException(final Throwable cause) {
-    final StringWriter stackTraceWriter = new StringWriter();
+    final var stackTraceWriter = new StringWriter();
     cause.printStackTrace(new PrintWriter(stackTraceWriter));
-    final String stackTrace = stackTraceWriter.toString();
+    final var stackTrace = stackTraceWriter.toString();
 
     if (logger.isDebugEnabled()) {
       logger.debug(stackTrace);

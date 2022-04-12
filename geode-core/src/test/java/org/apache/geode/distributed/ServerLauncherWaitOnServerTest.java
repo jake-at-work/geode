@@ -23,8 +23,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -111,7 +109,7 @@ public class ServerLauncherWaitOnServerTest {
   @Test(timeout = 60_000)
   public void returnsImmediatelyIfCacheHasServers() {
     serverLauncher.running.set(true);
-    List<CacheServer> servers = singletonList(mock(CacheServer.class));
+    var servers = singletonList(mock(CacheServer.class));
     when(cache.getCacheServers()).thenReturn(servers);
     when(system.isConnected()).thenReturn(true);
     when(cache.isReconnecting()).thenReturn(false);

@@ -25,7 +25,6 @@ import org.apache.geode.distributed.internal.ServerLocation;
 import org.apache.geode.internal.HeapDataOutputStream;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.Message;
-import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.serialization.KnownVersion;
 
 public class ProxyCacheCloseOp {
@@ -55,7 +54,7 @@ public class ProxyCacheCloseOp {
 
     @Override
     protected void sendMessage(Connection cnx) throws Exception {
-      HeapDataOutputStream hdos = new HeapDataOutputStream(KnownVersion.CURRENT);
+      var hdos = new HeapDataOutputStream(KnownVersion.CURRENT);
       byte[] secureBytes = null;
       hdos.writeLong(cnx.getConnectionID());
       Object userId = UserAttributes.userAttributes.get().getServerToId().get(cnx.getServer());
@@ -76,12 +75,12 @@ public class ProxyCacheCloseOp {
 
     @Override
     protected Object processResponse(final @NotNull Message msg) throws Exception {
-      Part part = msg.getPart(0);
-      final int msgType = msg.getMessageType();
+      var part = msg.getPart(0);
+      final var msgType = msg.getMessageType();
       if (msgType == MessageType.REPLY) {
         return part.getObject();
       } else if (msgType == MessageType.EXCEPTION) {
-        String s = "While performing a remote proxy cache close";
+        var s = "While performing a remote proxy cache close";
         throw new ServerOperationException(s, (Throwable) part.getObject());
         // Get the exception toString part.
         // This was added for c++ thin client and not used in java

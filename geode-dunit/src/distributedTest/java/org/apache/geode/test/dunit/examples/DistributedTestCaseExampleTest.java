@@ -18,7 +18,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 
-import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.test.dunit.DistributedTestCase;
 
 
@@ -27,7 +26,7 @@ public class DistributedTestCaseExampleTest extends DistributedTestCase {
 
   @Test
   public void getSystemCreatesSystem() throws Exception {
-    InternalDistributedSystem system = getSystem();
+    var system = getSystem();
     assertThat(system.isConnected()).isTrue();
   }
 }

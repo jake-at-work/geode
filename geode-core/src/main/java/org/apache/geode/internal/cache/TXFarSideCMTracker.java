@@ -124,7 +124,7 @@ public class TXFarSideCMTracker {
   }
 
   boolean foundFromHistory(Object key) {
-    for (int i = txHistory.length - 1; i >= 0; --i) {
+    for (var i = txHistory.length - 1; i >= 0; --i) {
       if (key.equals(txHistory[i])) {
         return true;
       }
@@ -143,7 +143,7 @@ public class TXFarSideCMTracker {
     // Assume that a thread interrupt is only set in the
     // case of a shutdown, in that case we don't need to wait
     // around any longer, propagating the interrupt is reasonable behavior
-    boolean messageWritten = false;
+    var messageWritten = false;
     synchronized (txInProgress) {
       while (!txInProgress.isEmpty()) {
         logger.info("Lock grantor recovery is waiting for transactions to complete: {}",
@@ -186,7 +186,7 @@ public class TXFarSideCMTracker {
       }
     } else {
       // tx may have completed
-      for (int i = txHistory.length - 1; i >= 0; --i) {
+      for (var i = txHistory.length - 1; i >= 0; --i) {
         if (lockId.equals(txHistory[i])) {
           return;
         }
@@ -203,8 +203,8 @@ public class TXFarSideCMTracker {
       return;
     }
 
-    final Object lock = new Object();
-    final MembershipListener memEar = new MembershipListener() {
+    final var lock = new Object();
+    final var memEar = new MembershipListener() {
       // MembershipListener implementation
       @Override
       public void memberJoined(DistributionManager distributionManager,
@@ -256,7 +256,7 @@ public class TXFarSideCMTracker {
    */
   public TXCommitMessage processed(TXCommitMessage processedMess) {
     final TXCommitMessage mess;
-    final Object key = processedMess.getTrackerKey();
+    final var key = processedMess.getTrackerKey();
     synchronized (txInProgress) {
       mess = (TXCommitMessage) txInProgress.remove(key);
       if (mess != null) {
@@ -327,7 +327,7 @@ public class TXFarSideCMTracker {
    */
   public void add(TXCommitMessage msg) {
     synchronized (txInProgress) {
-      final Object key = msg.getTrackerKey();
+      final var key = msg.getTrackerKey();
       if (key == null) {
         Assert.assertTrue(false, "TXFarSideCMTracker must have a non-null key for message " + msg);
       }

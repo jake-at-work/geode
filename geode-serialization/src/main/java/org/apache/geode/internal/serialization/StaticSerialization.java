@@ -69,7 +69,7 @@ public class StaticSerialization {
   }
 
   public static void writeByteArray(byte[] array, DataOutput out) throws IOException {
-    int len = 0;
+    var len = 0;
     if (array != null) {
       len = array.length;
     }
@@ -78,7 +78,7 @@ public class StaticSerialization {
 
   public static void writeByteArray(byte[] array, int len, DataOutput out) throws IOException {
 
-    int length = len; // to avoid warnings about parameter assignment
+    var length = len; // to avoid warnings about parameter assignment
 
     if (array == null) {
       length = -1;
@@ -108,11 +108,11 @@ public class StaticSerialization {
   }
 
   public static int readArrayLength(DataInput in) throws IOException {
-    byte code = in.readByte();
+    var code = in.readByte();
     if (code == NULL_ARRAY) {
       return -1;
     } else {
-      int result = ubyteToInt(code);
+      var result = ubyteToInt(code);
       if (result > MAX_BYTE_ARRAY_LEN) {
         if (code == SHORT_ARRAY_LEN) {
           return in.readUnsignedShort();
@@ -145,10 +145,10 @@ public class StaticSerialization {
       // strings, we can accelerate this by accessing chars directly
       // with charAt and fill a single-byte buffer. If we run into
       // a multibyte char, we revert to using writeUTF()
-      int len = value.length();
-      int utfLen = len; // added for bug 40932
-      for (int i = 0; i < len; i++) {
-        char c = value.charAt(i);
+      var len = value.length();
+      var utfLen = len; // added for bug 40932
+      for (var i = 0; i < len; i++) {
+        var c = value.charAt(i);
         // noinspection StatementWithEmptyBody
         if ((c <= 0x007F) && (c >= 0x0001)) {
           // nothing needed
@@ -162,7 +162,7 @@ public class StaticSerialization {
         // This is not a performance problem because most strings are ascii
         // and they never did the early out.
       }
-      boolean writeUTF = utfLen > len;
+      var writeUTF = utfLen > len;
       if (writeUTF) {
         if (utfLen > 0xFFFF) {
           out.writeByte(DSCODE.HUGE_STRING.toByte());
@@ -209,9 +209,9 @@ public class StaticSerialization {
   }
 
   private static String readHugeStringFromDataInput(DataInput in) throws IOException {
-    int len = in.readInt();
-    char[] buf = new char[len];
-    for (int i = 0; i < len; i++) {
+    var len = in.readInt();
+    var buf = new char[len];
+    for (var i = 0; i < len; i++) {
       buf[i] = in.readChar();
     }
     return new String(buf);
@@ -219,12 +219,12 @@ public class StaticSerialization {
 
   public static String[] readStringArray(DataInput in) throws IOException {
 
-    int length = readArrayLength(in);
+    var length = readArrayLength(in);
     if (length == -1) {
       return null;
     } else {
-      String[] array = new String[length];
-      for (int i = 0; i < length; i++) {
+      var array = new String[length];
+      for (var i = 0; i < length; i++) {
         array[i] = readString(in);
       }
       return array;
@@ -242,10 +242,10 @@ public class StaticSerialization {
     if (len == 0) {
       return "";
     }
-    byte[] buf = getThreadLocalByteArray(len);
+    var buf = getThreadLocalByteArray(len);
     dataInput.readFully(buf, 0, len);
     @SuppressWarnings("deprecation") // intentionally using deprecated constructor
-    final String string = new String(buf, 0, 0, len);
+    final var string = new String(buf, 0, 0, len);
     return string;
   }
 
@@ -263,7 +263,7 @@ public class StaticSerialization {
 
   public static InetAddress readInetAddress(DataInput in) throws IOException {
 
-    byte[] address = readByteArray(in);
+    var address = readByteArray(in);
     if (address == null) {
       return null;
     }
@@ -286,7 +286,7 @@ public class StaticSerialization {
     }
     writeArrayLength(length, out);
     if (length > 0) {
-      for (int i = 0; i < length; i++) {
+      for (var i = 0; i < length; i++) {
         writeString(array[i], out);
       }
     }
@@ -299,12 +299,12 @@ public class StaticSerialization {
   public static <K, V> HashMap<K, V> readHashMap(DataInput in, DeserializationContext context)
       throws IOException, ClassNotFoundException {
 
-    int size = readArrayLength(in);
+    var size = readArrayLength(in);
     if (size == -1) {
       return null;
     } else {
-      HashMap<K, V> map = new HashMap<>(size);
-      for (int i = 0; i < size; i++) {
+      var map = new HashMap<K, V>(size);
+      for (var i = 0; i < size; i++) {
         K key = context.getDeserializer().readObject(in);
         V value = context.getDeserializer().readObject(in);
         map.put(key, value);
@@ -316,12 +316,12 @@ public class StaticSerialization {
 
 
   public static int[] readIntArray(DataInput in) throws IOException {
-    int length = readArrayLength(in);
+    var length = readArrayLength(in);
     if (length == -1) {
       return null;
     } else {
-      int[] array = new int[length];
-      for (int i = 0; i < length; i++) {
+      var array = new int[length];
+      for (var i = 0; i < length; i++) {
         array[i] = in.readInt();
       }
       return array;
@@ -330,11 +330,11 @@ public class StaticSerialization {
 
   public static byte[] readByteArray(DataInput in) throws IOException {
 
-    int length = readArrayLength(in);
+    var length = readArrayLength(in);
     if (length == -1) {
       return null;
     } else {
-      byte[] array = new byte[length];
+      var array = new byte[length];
       in.readFully(array, 0, length);
       return array;
     }
@@ -350,7 +350,7 @@ public class StaticSerialization {
     writeArrayLength(length, out);
 
     if (length > 0) {
-      for (int i = 0; i < length; i++) {
+      for (var i = 0; i < length; i++) {
         out.writeInt(array[i]);
       }
     }
@@ -396,16 +396,16 @@ public class StaticSerialization {
       // the first CLASS byte indicates it's a Class, the second
       // one indicates it's a non-primitive Class
       out.writeByte(DSCODE.CLASS.toByte());
-      String cname = c.getName();
+      var cname = c.getName();
       cname = processOutgoingClassName(cname);
       writeString(cname, out);
     }
   }
 
   public static Class<?> readClass(DataInput in) throws IOException, ClassNotFoundException {
-    byte typeCode = in.readByte();
+    var typeCode = in.readByte();
     if (typeCode == DSCODE.CLASS.toByte()) {
-      String className = readString(in);
+      var className = readString(in);
       className = processIncomingClassName(className);
       return Class.forName(className);
     } else {
@@ -475,7 +475,7 @@ public class StaticSerialization {
   }
 
   public static Class<?> decodePrimitiveClass(byte typeCode) throws IOException {
-    DSCODE dscode = DscodeHelper.toDSCODE(typeCode);
+    var dscode = DscodeHelper.toDSCODE(typeCode);
     switch (dscode) {
       case BOOLEAN_TYPE:
         return Boolean.TYPE;
@@ -525,7 +525,7 @@ public class StaticSerialization {
   public static KnownVersion getVersionForDataStream(DataInput in) {
     // check if this is a versioned data input
     if (in instanceof VersionedDataStream) {
-      final KnownVersion v = ((VersionedDataStream) in).getVersion();
+      final var v = ((VersionedDataStream) in).getVersion();
       return v != null ? v : KnownVersion.CURRENT;
     } else {
       // assume latest version
@@ -540,7 +540,7 @@ public class StaticSerialization {
   public static KnownVersion getVersionForDataStream(DataOutput out) {
     // check if this is a versioned data output
     if (out instanceof VersionedDataStream) {
-      final KnownVersion v = ((VersionedDataStream) out).getVersion();
+      final var v = ((VersionedDataStream) out).getVersion();
       return v != null ? v : KnownVersion.CURRENT;
     } else {
       // assume latest version

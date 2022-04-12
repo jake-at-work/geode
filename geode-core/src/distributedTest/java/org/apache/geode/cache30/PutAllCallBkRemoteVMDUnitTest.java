@@ -39,7 +39,6 @@ import org.apache.geode.cache.CacheWriter;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.apache.geode.cache.util.CacheWriterAdapter;
@@ -47,7 +46,6 @@ import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.LogWriterUtils;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.WaitCriterion;
 import org.apache.geode.test.dunit.internal.JUnit4DistributedTestCase;
 
@@ -74,9 +72,9 @@ public class PutAllCallBkRemoteVMDUnitTest extends JUnit4DistributedTestCase {
 
   @Override
   public final void postSetUp() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     vm0.invoke(PutAllCallBkRemoteVMDUnitTest::createCacheForVM0);
     vm1.invoke(PutAllCallBkRemoteVMDUnitTest::createCacheForVM1);
     LogWriterUtils.getLogWriter().info("Cache created successfully");
@@ -84,9 +82,9 @@ public class PutAllCallBkRemoteVMDUnitTest extends JUnit4DistributedTestCase {
 
   @Override
   public final void preTearDown() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     vm0.invoke(PutAllCallBkRemoteVMDUnitTest::closeCache);
     vm1.invoke(PutAllCallBkRemoteVMDUnitTest::closeCache);
   }
@@ -95,12 +93,12 @@ public class PutAllCallBkRemoteVMDUnitTest extends JUnit4DistributedTestCase {
     try {
       ds = (new PutAllCallBkRemoteVMDUnitTest()).getSystem(props);
       cache = CacheFactory.create(ds);
-      AttributesFactory factory = new AttributesFactory();
+      var factory = new AttributesFactory();
       factory.setDataPolicy(DataPolicy.REPLICATE);
       factory.setScope(Scope.DISTRIBUTED_ACK);
-      RegionAttributes attr1 = factory.create();
+      var attr1 = factory.create();
       paperRegion = cache.createRegion("paper", attr1);
-      RegionAttributes attr = factory.create();
+      var attr = factory.create();
       region = cache.createRegion("map", attr);
 
     } catch (CacheException ex) {
@@ -115,14 +113,14 @@ public class PutAllCallBkRemoteVMDUnitTest extends JUnit4DistributedTestCase {
 
       ds = (new PutAllCallBkRemoteVMDUnitTest()).getSystem(props);
       cache = CacheFactory.create(ds);
-      AttributesFactory factory = new AttributesFactory();
+      var factory = new AttributesFactory();
       factory.setDataPolicy(DataPolicy.REPLICATE);
       factory.setScope(Scope.DISTRIBUTED_ACK);
-      RegionAttributes attr1 = factory.create();
+      var attr1 = factory.create();
       paperRegion = cache.createRegion("paper", attr1);
       factory.setCacheWriter(aWriter);
       factory.addCacheListener(aListener);
-      RegionAttributes attr = factory.create();
+      var attr = factory.create();
       region = cache.createRegion("map", attr);
     } catch (CacheException ex) {
       throw new RuntimeException("vm1 cache creation exception", ex);
@@ -148,9 +146,9 @@ public class PutAllCallBkRemoteVMDUnitTest extends JUnit4DistributedTestCase {
   @Test
   public void testputAllRemoteVM() {
 
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
     //////////////// testing create call backs//////////////
 
@@ -160,7 +158,7 @@ public class PutAllCallBkRemoteVMDUnitTest extends JUnit4DistributedTestCase {
         Map m = new HashMap();
         paperRegion.put("callbackCame", "false");
         try {
-          for (int i = 1; i < 21; i++) {
+          for (var i = 1; i < 21; i++) {
             m.put(i, java.lang.Integer.toString(i));
           }
           region.putAll(m);
@@ -172,10 +170,10 @@ public class PutAllCallBkRemoteVMDUnitTest extends JUnit4DistributedTestCase {
             .info("****************paperRegion.get(afterCreate)***************"
                 + paperRegion.get("afterCreate"));
 
-        WaitCriterion ev = new WaitCriterion() {
+        var ev = new WaitCriterion() {
           @Override
           public boolean done() {
-            int size = region.size();
+            var size = region.size();
             if (size != (Integer) paperRegion.get("afterCreate") - 1) {
               return false;
             }
@@ -218,21 +216,21 @@ public class PutAllCallBkRemoteVMDUnitTest extends JUnit4DistributedTestCase {
 
   @Test
   public void testPutAllAfterUpdateCallbacks() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
     vm0.invoke(new CacheSerializableRunnable("put and then update") {
       @Override
       public void run2() throws CacheException {
         paperRegion.put("callbackCame", "false");
         // to invoke afterUpdate we should make sure that entries are already present
-        for (int i = 0; i < 5; i++) {
+        for (var i = 0; i < 5; i++) {
           region.put(i, "region" + i);
         }
 
         Map m = new HashMap();
-        for (int i = 0; i < 5; i++) {
+        for (var i = 0; i < 5; i++) {
           m.put(i, "map" + i);
         }
 
@@ -277,7 +275,7 @@ public class PutAllCallBkRemoteVMDUnitTest extends JUnit4DistributedTestCase {
     Object obj = null;
     try {
       if (ob != null) {
-        String str = "first";
+        var str = "first";
         obj = region.put(ob, str);
       }
     } catch (Exception ex) {
@@ -318,7 +316,7 @@ public class PutAllCallBkRemoteVMDUnitTest extends JUnit4DistributedTestCase {
 
 
   public static int sizeMethod() {
-    int i = 0;
+    var i = 0;
     try {
       i = region.size();
     } catch (Exception ex) {
@@ -339,7 +337,7 @@ public class PutAllCallBkRemoteVMDUnitTest extends JUnit4DistributedTestCase {
     @Override
     public void afterCreate(EntryEvent event) {
       paperRegion.put("callbackCame", "true");
-      Integer counter = (Integer) paperRegion.get("afterCreate");
+      var counter = (Integer) paperRegion.get("afterCreate");
       if (counter == null) {
         counter = 1;
       }
@@ -365,7 +363,7 @@ public class PutAllCallBkRemoteVMDUnitTest extends JUnit4DistributedTestCase {
     @Override
     public void afterUpdate(EntryEvent event) {
       paperRegion.put("callbackCame", "true");
-      Integer counter = (Integer) paperRegion.get("afterUpdate");
+      var counter = (Integer) paperRegion.get("afterUpdate");
       if (counter == null) {
         counter = 1;
       }
@@ -394,7 +392,7 @@ public class PutAllCallBkRemoteVMDUnitTest extends JUnit4DistributedTestCase {
     // static class BeforeCreateCallback extends CapacityControllerAdapter {
     @Override
     public void beforeCreate(EntryEvent event) {
-      Integer counter = (Integer) paperRegion.get("beforeCreate");
+      var counter = (Integer) paperRegion.get("beforeCreate");
       if (counter == null) {
         counter = 1;
       }
@@ -404,7 +402,7 @@ public class PutAllCallBkRemoteVMDUnitTest extends JUnit4DistributedTestCase {
 
     @Override
     public void beforeUpdate(EntryEvent event) {
-      Integer counter = (Integer) paperRegion.get("beforeUpdate");
+      var counter = (Integer) paperRegion.get("beforeUpdate");
       if (counter == null) {
         counter = 1;
       }

@@ -115,9 +115,9 @@ public class StatusLocatorCommandDunitTest {
   }
 
   public String parseJvmArgs(List<String> jvmArgs) {
-    String parsedArgs = jvmArgs.get(0);
+    var parsedArgs = jvmArgs.get(0);
 
-    for (int i = 1; i < jvmArgs.size(); i++) {
+    for (var i = 1; i < jvmArgs.size(); i++) {
       parsedArgs += " ";
       parsedArgs += jvmArgs.get(i);
     }

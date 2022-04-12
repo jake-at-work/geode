@@ -73,7 +73,7 @@ public class QueryMonitorTest {
 
   @Test
   public void monitorQueryThreadCqQueryIsNotMonitored() {
-    final ExecutionContext executionContext = mock(ExecutionContext.class);
+    final var executionContext = mock(ExecutionContext.class);
     when(executionContext.isCqQueryContext()).thenReturn(true);
     monitor.monitorQueryExecution(executionContext);
 
@@ -84,7 +84,7 @@ public class QueryMonitorTest {
 
   @Test
   public void monitorQueryThreadLowMemoryExceptionThrown() {
-    final ExecutionContext executionContext = mock(ExecutionContext.class);
+    final var executionContext = mock(ExecutionContext.class);
     monitor.setLowMemory(true, 100);
 
     assertThatThrownBy(() -> monitor.monitorQueryExecution(executionContext))
@@ -93,7 +93,7 @@ public class QueryMonitorTest {
 
   @Test
   public void monitorQueryThreadExpirationTaskScheduled() {
-    final ExecutionContext executionContext = mock(ExecutionContext.class);
+    final var executionContext = mock(ExecutionContext.class);
 
     monitor.monitorQueryExecution(executionContext);
     Mockito.verify(scheduledThreadPoolExecutor, times(1)).schedule(captor.capture(), anyLong(),

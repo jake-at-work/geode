@@ -32,7 +32,7 @@ public class SlowlogExecutor implements CommandExecutor {
 
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
-    byte[] subCommand = toUpperCaseBytes(command.getBytesKey());
+    var subCommand = toUpperCaseBytes(command.getBytesKey());
     if (Arrays.equals(subCommand, GET)) {
       return RedisResponse.emptyArray();
     } else if (Arrays.equals(subCommand, LEN)) {

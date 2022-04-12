@@ -18,12 +18,9 @@ package org.apache.geode.redis.internal.commands.executor.key;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.geode.redis.internal.RedisConstants.ERROR_NOT_INTEGER;
 
-import java.util.List;
-
 import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
 import org.apache.geode.redis.internal.commands.executor.RedisResponse;
-import org.apache.geode.redis.internal.data.RedisKey;
 import org.apache.geode.redis.internal.netty.Coder;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
 
@@ -31,11 +28,11 @@ public class ExpireExecutor implements CommandExecutor {
 
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
-    List<byte[]> commandElems = command.getProcessedCommand();
-    int SECONDS_INDEX = 2;
+    var commandElems = command.getProcessedCommand();
+    var SECONDS_INDEX = 2;
 
-    RedisKey key = command.getKey();
-    byte[] delayByteArray = commandElems.get(SECONDS_INDEX);
+    var key = command.getKey();
+    var delayByteArray = commandElems.get(SECONDS_INDEX);
     long delay;
     try {
       delay = Coder.bytesToLong(delayByteArray);
@@ -47,7 +44,7 @@ public class ExpireExecutor implements CommandExecutor {
       delay = SECONDS.toMillis(delay);
     }
 
-    long timestamp = System.currentTimeMillis() + delay;
+    var timestamp = System.currentTimeMillis() + delay;
 
     int result =
         context.dataLockedExecute(key, false,

@@ -44,7 +44,7 @@ public class LuceneDescribeIndexCommand extends LuceneCommandBase {
 
     authorize(ResourcePermission.Resource.CLUSTER, ResourcePermission.Operation.READ,
         LucenePermission.TARGET);
-    LuceneIndexInfo indexInfo = new LuceneIndexInfo(indexName, regionPath);
+    var indexInfo = new LuceneIndexInfo(indexName, regionPath);
     return toTabularResult(getIndexDetails(indexInfo), true);
   }
 

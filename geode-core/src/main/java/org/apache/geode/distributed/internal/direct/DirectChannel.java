@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
@@ -49,7 +48,6 @@ import org.apache.geode.internal.cache.DirectReplyMessage;
 import org.apache.geode.internal.inet.LocalHostUtil;
 import org.apache.geode.internal.logging.log4j.LogMarker;
 import org.apache.geode.internal.net.BufferPool;
-import org.apache.geode.internal.tcp.BaseMsgStreamer;
 import org.apache.geode.internal.tcp.ConnectExceptions;
 import org.apache.geode.internal.tcp.Connection;
 import org.apache.geode.internal.tcp.ConnectionException;
@@ -117,15 +115,15 @@ public class DirectChannel {
     stats = dm.getStats();
     bufferPool = new BufferPool(stats);
 
-    DistributionConfig dc = dm.getConfig();
+    var dc = dm.getConfig();
     address = initAddress(dc);
-    boolean isBindAddress = dc.getBindAddress() != null;
+    var isBindAddress = dc.getBindAddress() != null;
     try {
       int port = Integer.getInteger("tcpServerPort", 0);
       if (port == 0) {
         port = dc.getTcpPort();
       }
-      Properties props = System.getProperties();
+      var props = System.getProperties();
       if (props.getProperty("p2p.shareSockets") == null) {
         props.setProperty("p2p.shareSockets", String.valueOf(dc.getConserveSockets()));
       }
@@ -137,7 +135,7 @@ public class DirectChannel {
       if (props.getProperty("p2p.idleConnectionTimeout") == null) {
         props.setProperty("p2p.idleConnectionTimeout", String.valueOf(dc.getSocketLeaseTime()));
       }
-      int[] range = dc.getMembershipPortRange();
+      var range = dc.getMembershipPortRange();
       props.setProperty("membership_port_range_start", "" + range[0]);
       props.setProperty("membership_port_range_end", "" + range[1]);
 
@@ -210,19 +208,19 @@ public class DirectChannel {
       InternalDistributedMember[] p_destinations,
       final DistributionMessage msg, long ackWaitThreshold, long ackSAThreshold)
       throws ConnectExceptions, NotSerializableException {
-    InternalDistributedMember[] destinations = p_destinations;
+    var destinations = p_destinations;
 
     // Collects connect exceptions that happened during previous attempts to send.
     // These represent members we are not able to distribute to.
     ConnectExceptions failedCe = null;
     // Describes the destinations that we need to retry the send to.
     ConnectExceptions retryInfo = null;
-    int bytesWritten = 0;
-    boolean retry = false;
-    final boolean orderedMsg = msg.orderedDelivery() || Connection.isDominoThread();
+    var bytesWritten = 0;
+    var retry = false;
+    final var orderedMsg = msg.orderedDelivery() || Connection.isDominoThread();
     // Connections we actually sent messages to.
     final List totalSentCons = new ArrayList(destinations.length);
-    boolean interrupted = false;
+    var interrupted = false;
 
     long ackTimeout = 0;
     long ackSDTimeout = 0;
@@ -243,7 +241,7 @@ public class DirectChannel {
       }
     }
 
-    boolean directReply =
+    var directReply =
         directMsg != null && directMsg.supportsDirectAck() && threadOwnsResources();
 
     // If this is a direct reply message, but we are sending it
@@ -266,7 +264,7 @@ public class DirectChannel {
         if (retryInfo != null) {
           // need to retry to each of the members in the exception
           List retryMembers = retryInfo.getMembers();
-          InternalDistributedMember[] retryDest =
+          var retryDest =
               new InternalDistributedMember[retryMembers.size()];
           retryDest = (InternalDistributedMember[]) retryMembers.toArray(retryDest);
           destinations = retryDest;
@@ -274,7 +272,7 @@ public class DirectChannel {
           retry = true;
         }
         final List<Connection> cons = new ArrayList<>(destinations.length);
-        ConnectExceptions ce = getConnections(mgr, msg, destinations, orderedMsg, retry, ackTimeout,
+        var ce = getConnections(mgr, msg, destinations, orderedMsg, retry, ackTimeout,
             ackSDTimeout, cons);
 
         if (directReply && msg.getProcessorId() > 0) { // no longer a direct-reply message?
@@ -300,10 +298,10 @@ public class DirectChannel {
           logger.debug("{} on these {} connections: {}",
               (retry ? "Retrying send" : "Sending"), cons.size(), cons);
         }
-        DMStats stats = getDMStats();
+        var stats = getDMStats();
         List<?> sentCons; // used for cons we sent to this time
 
-        final BaseMsgStreamer ms =
+        final var ms =
             MsgStreamer.create(cons, msg, directReply, stats, bufferPool);
         try {
           startTime = 0;
@@ -312,7 +310,7 @@ public class DirectChannel {
           }
           ms.reserveConnections(startTime, ackTimeout, ackSDTimeout);
 
-          int result = ms.writeMessage();
+          var result = ms.writeMessage();
           if (bytesWritten == 0) {
             // bytesWritten only needs to be set once.
             // if we have to do a retry we don't want to count
@@ -374,8 +372,8 @@ public class DirectChannel {
       if (interrupted) {
         Thread.currentThread().interrupt();
       }
-      for (final Object totalSentCon : totalSentCons) {
-        Connection con = (Connection) totalSentCon;
+      for (final var totalSentCon : totalSentCons) {
+        var con = (Connection) totalSentCon;
         con.setInUse(false, 0, 0, 0, null);
       }
     }
@@ -388,10 +386,10 @@ public class DirectChannel {
   private ConnectExceptions readAcks(List sentCons, long startTime, long ackTimeout,
       long ackSDTimeout, ConnectExceptions cumulativeExceptions, DirectReplyProcessor processor) {
 
-    ConnectExceptions ce = cumulativeExceptions;
+    var ce = cumulativeExceptions;
 
-    for (final Object sentCon : sentCons) {
-      Connection con = (Connection) sentCon;
+    for (final var sentCon : sentCons) {
+      var con = (Connection) sentCon;
       // We don't expect replies on shared connections.
       if (con.isSharedResource()) {
         continue;
@@ -431,7 +429,7 @@ public class DirectChannel {
       InternalDistributedMember[] destinations, boolean preserveOrder, boolean retry,
       long ackTimeout, long ackSDTimeout, List cons) {
     ConnectExceptions ce = null;
-    for (InternalDistributedMember destination : destinations) {
+    for (var destination : destinations) {
       if (destination == null) {
         continue;
       }
@@ -458,13 +456,13 @@ public class DirectChannel {
           if (ackTimeout > 0) {
             startTime = System.currentTimeMillis();
           }
-          Connection con = conduit.getConnection(destination, preserveOrder, retry, startTime,
+          var con = conduit.getConnection(destination, preserveOrder, retry, startTime,
               ackTimeout, ackSDTimeout);
 
           con.setInUse(true, startTime, 0, 0, null); // fix for bug#37657
           cons.add(con);
           if (con.isSharedResource() && msg instanceof DirectReplyMessage) {
-            DirectReplyMessage directMessage = (DirectReplyMessage) msg;
+            var directMessage = (DirectReplyMessage) msg;
             directMessage.registerProcessor();
           }
         } catch (IOException ex) {
@@ -567,9 +565,9 @@ public class DirectChannel {
 
     // an alert that will show up in the console
     {
-      String msg =
+      var msg =
           "%s seconds have elapsed while waiting for reply from %s on %s whose current membership list is: [%s]";
-      final Object[] msgArgs = new Object[] {ackTimeout / 1000, c.getRemoteAddress(),
+      final var msgArgs = new Object[] {ackTimeout / 1000, c.getRemoteAddress(),
           dm.getId(), activeMembers};
       logger.warn(String.format(msg, msgArgs));
       msgArgs[3] = "(omitted)";
@@ -577,7 +575,7 @@ public class DirectChannel {
 
       if (ReplyProcessor21.THROW_EXCEPTION_ON_TIMEOUT) {
         // init the cause to be a TimeoutException so catchers can determine cause
-        TimeoutException cause =
+        var cause =
             new TimeoutException("Timed out waiting for ACKS.");
         throw new InternalGemFireException(String.format(msg, msgArgs), cause);
       }
@@ -590,7 +588,7 @@ public class DirectChannel {
           c.readAck(processor);
           return;
         } catch (SocketTimeoutException e) {
-          Object[] args = new Object[] {(ackSATimeout + ackTimeout) / 1000,
+          var args = new Object[] {(ackSATimeout + ackTimeout) / 1000,
               c.getRemoteAddress(), dm.getId(), activeMembers};
           logger.fatal(
               "{} seconds have elapsed while waiting for reply from {} on {} whose currentFull membership list is: [{}]",
@@ -678,7 +676,7 @@ public class DirectChannel {
 
   private InetAddress initAddress(DistributionConfig dc) {
 
-    String bindAddress = dc.getBindAddress();
+    var bindAddress = dc.getBindAddress();
 
     try {
       /*
@@ -702,7 +700,7 @@ public class DirectChannel {
    */
   public void closeEndpoint(InternalDistributedMember member, String reason,
       boolean notifyDisconnect) {
-    TCPConduit tc = conduit;
+    var tc = conduit;
     if (tc != null) {
       tc.removeEndpoint(member, reason, notifyDisconnect);
     }
@@ -718,7 +716,7 @@ public class DirectChannel {
    * @since GemFire 5.1
    */
   public void getChannelStates(DistributedMember member, Map result) {
-    TCPConduit tc = conduit;
+    var tc = conduit;
     if (tc != null) {
       tc.getThreadOwnedOrderedConnectionState(member, result);
     }
@@ -733,7 +731,7 @@ public class DirectChannel {
     if (Thread.interrupted()) {
       throw new InterruptedException();
     }
-    TCPConduit tc = conduit;
+    var tc = conduit;
     if (tc != null) {
       tc.waitForThreadOwnedOrderedConnectionState(member, channelState);
     }

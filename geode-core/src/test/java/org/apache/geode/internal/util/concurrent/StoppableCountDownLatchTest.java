@@ -26,7 +26,6 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.Before;
@@ -62,7 +61,7 @@ public class StoppableCountDownLatchTest {
   @Test
   public void defaultRetryIntervalNanosIsTwoSeconds() {
     long twoSeconds = 2;
-    StoppableCountDownLatch latch = new StoppableCountDownLatch(stopper, 1);
+    var latch = new StoppableCountDownLatch(stopper, 1);
 
     assertThat(NANOSECONDS.toSeconds(latch.retryIntervalNanos()))
         .isEqualTo(MILLISECONDS.toSeconds(RETRY_TIME_MILLIS_DEFAULT))
@@ -71,10 +70,10 @@ public class StoppableCountDownLatchTest {
 
   @Test
   public void awaitReturnsAfterCountDown() {
-    StoppableCountDownLatch latch =
+    var latch =
         new StoppableCountDownLatch(stopper, 1, MILLISECONDS.toNanos(2), System::nanoTime);
 
-    Future<Void> latchFuture = executorServiceRule.submit(() -> latch.await());
+    var latchFuture = executorServiceRule.submit(() -> latch.await());
 
     latch.countDown();
 
@@ -83,14 +82,14 @@ public class StoppableCountDownLatchTest {
 
   @Test
   public void awaitIsInterruptible() {
-    int theCount = 1;
-    StoppableCountDownLatch latch =
+    var theCount = 1;
+    var latch =
         new StoppableCountDownLatch(stopper, theCount, MILLISECONDS.toNanos(2), System::nanoTime);
-    AtomicReference<Thread> theThread = new AtomicReference<>();
+    var theThread = new AtomicReference<Thread>();
 
-    Future<Void> latchFuture = executorServiceRule.submit(() -> {
+    var latchFuture = executorServiceRule.submit(() -> {
       theThread.set(Thread.currentThread());
-      Throwable thrown = catchThrowable(latch::await);
+      var thrown = catchThrowable(latch::await);
       errorCollector
           .checkSucceeds(() -> assertThat(thrown).isInstanceOf(InterruptedException.class));
     });
@@ -105,19 +104,19 @@ public class StoppableCountDownLatchTest {
 
   @Test
   public void awaitIsCancelable() {
-    int theCount = 1;
-    StoppableCountDownLatch latch =
+    var theCount = 1;
+    var latch =
         new StoppableCountDownLatch(stopper, theCount, MILLISECONDS.toNanos(2), System::nanoTime);
-    AtomicReference<Thread> theThread = new AtomicReference<>();
-    String cancelMessage = "cancel";
+    var theThread = new AtomicReference<Thread>();
+    var cancelMessage = "cancel";
 
     doNothing()
         .doThrow(new CancelException(cancelMessage) {})
         .when(stopper).checkCancelInProgress(any());
 
-    Future<Void> latchFuture = executorServiceRule.submit(() -> {
+    var latchFuture = executorServiceRule.submit(() -> {
       theThread.set(Thread.currentThread());
-      Throwable thrown = catchThrowable(latch::await);
+      var thrown = catchThrowable(latch::await);
       errorCollector.checkSucceeds(
           () -> assertThat(thrown).isInstanceOf(CancelException.class).hasMessage(cancelMessage));
     });
@@ -130,10 +129,10 @@ public class StoppableCountDownLatchTest {
 
   @Test
   public void awaitWithTimeoutAndTimeUnitReturnsTrueAfterCountDown() throws Exception {
-    StoppableCountDownLatch latch =
+    var latch =
         new StoppableCountDownLatch(stopper, 1, MILLISECONDS.toNanos(2), System::nanoTime);
 
-    Future<Boolean> latchFuture =
+    var latchFuture =
         executorServiceRule.submit(() -> latch.await(TIMEOUT_MILLIS, MILLISECONDS));
 
     latch.countDown();
@@ -143,12 +142,12 @@ public class StoppableCountDownLatchTest {
 
   @Test
   public void awaitWithTimeoutAndTimeUnitReturnsFalseAfterTimeout() throws Exception {
-    StoppableCountDownLatch latch =
+    var latch =
         new StoppableCountDownLatch(stopper, 1, MILLISECONDS.toNanos(2), System::nanoTime);
     long theTimeoutMillis = 2;
-    long startNanos = System.nanoTime();
+    var startNanos = System.nanoTime();
 
-    Future<Boolean> latchFuture =
+    var latchFuture =
         executorServiceRule.submit(() -> latch.await(theTimeoutMillis, MILLISECONDS));
 
     assertThat(latchFuture.get(TIMEOUT_MILLIS, MILLISECONDS)).isFalse();
@@ -157,14 +156,14 @@ public class StoppableCountDownLatchTest {
 
   @Test
   public void awaitWithTimeoutAndTimeUnitIsInterruptible() {
-    int theCount = 1;
-    StoppableCountDownLatch latch =
+    var theCount = 1;
+    var latch =
         new StoppableCountDownLatch(stopper, theCount, MILLISECONDS.toNanos(2), System::nanoTime);
-    AtomicReference<Thread> theThread = new AtomicReference<>();
+    var theThread = new AtomicReference<Thread>();
 
-    Future<Void> latchFuture = executorServiceRule.submit(() -> {
+    var latchFuture = executorServiceRule.submit(() -> {
       theThread.set(Thread.currentThread());
-      Throwable thrown = catchThrowable(() -> latch.await(TIMEOUT_MILLIS, MILLISECONDS));
+      var thrown = catchThrowable(() -> latch.await(TIMEOUT_MILLIS, MILLISECONDS));
       errorCollector
           .checkSucceeds(() -> assertThat(thrown).isInstanceOf(InterruptedException.class));
     });
@@ -179,17 +178,17 @@ public class StoppableCountDownLatchTest {
 
   @Test
   public void awaitWithTimeoutAndTimeUnitIsCancelableAtBeginning() {
-    int theCount = 1;
-    StoppableCountDownLatch latch =
+    var theCount = 1;
+    var latch =
         new StoppableCountDownLatch(stopper, theCount, MILLISECONDS.toNanos(2), System::nanoTime);
-    AtomicReference<Thread> theThread = new AtomicReference<>();
-    String cancelMessage = "cancel";
+    var theThread = new AtomicReference<Thread>();
+    var cancelMessage = "cancel";
 
     doThrow(new CancelException(cancelMessage) {}).when(stopper).checkCancelInProgress(any());
 
-    Future<Void> latchFuture = executorServiceRule.submit(() -> {
+    var latchFuture = executorServiceRule.submit(() -> {
       theThread.set(Thread.currentThread());
-      Throwable thrown = catchThrowable(() -> latch.await(TIMEOUT_MILLIS, MILLISECONDS));
+      var thrown = catchThrowable(() -> latch.await(TIMEOUT_MILLIS, MILLISECONDS));
       errorCollector.checkSucceeds(
           () -> assertThat(thrown).isInstanceOf(CancelException.class).hasMessage(cancelMessage));
     });
@@ -202,10 +201,10 @@ public class StoppableCountDownLatchTest {
 
   @Test
   public void awaitWithTimeoutMillisReturnsTrueAfterCountDown() throws Exception {
-    StoppableCountDownLatch latch =
+    var latch =
         new StoppableCountDownLatch(stopper, 1, MILLISECONDS.toNanos(2), System::nanoTime);
 
-    Future<Boolean> latchFuture = executorServiceRule.submit(() -> latch.await(TIMEOUT_MILLIS));
+    var latchFuture = executorServiceRule.submit(() -> latch.await(TIMEOUT_MILLIS));
 
     latch.countDown();
 
@@ -214,12 +213,12 @@ public class StoppableCountDownLatchTest {
 
   @Test
   public void awaitWithTimeoutMillisReturnsFalseAfterTimeout() throws Exception {
-    StoppableCountDownLatch latch =
+    var latch =
         new StoppableCountDownLatch(stopper, 1, MILLISECONDS.toNanos(2), System::nanoTime);
     long theTimeoutMillis = 2;
-    long startNanos = System.nanoTime();
+    var startNanos = System.nanoTime();
 
-    Future<Boolean> latchFuture = executorServiceRule.submit(() -> latch.await(theTimeoutMillis));
+    var latchFuture = executorServiceRule.submit(() -> latch.await(theTimeoutMillis));
 
     assertThat(latchFuture.get(TIMEOUT_MILLIS, MILLISECONDS)).isFalse();
     assertThat(System.nanoTime() - startNanos).isGreaterThanOrEqualTo(theTimeoutMillis);
@@ -227,14 +226,14 @@ public class StoppableCountDownLatchTest {
 
   @Test
   public void awaitWithTimeoutMillisIsInterruptible() {
-    int theCount = 1;
-    StoppableCountDownLatch latch =
+    var theCount = 1;
+    var latch =
         new StoppableCountDownLatch(stopper, theCount, MILLISECONDS.toNanos(2), System::nanoTime);
-    AtomicReference<Thread> theThread = new AtomicReference<>();
+    var theThread = new AtomicReference<Thread>();
 
-    Future<Void> latchFuture = executorServiceRule.submit(() -> {
+    var latchFuture = executorServiceRule.submit(() -> {
       theThread.set(Thread.currentThread());
-      Throwable thrown = catchThrowable(() -> latch.await(getTimeout().toMillis()));
+      var thrown = catchThrowable(() -> latch.await(getTimeout().toMillis()));
       errorCollector
           .checkSucceeds(() -> assertThat(thrown).isInstanceOf(InterruptedException.class));
     });
@@ -249,17 +248,17 @@ public class StoppableCountDownLatchTest {
 
   @Test
   public void awaitWithTimeoutMillisIsCancelableAtBeginning() {
-    int theCount = 1;
-    StoppableCountDownLatch latch =
+    var theCount = 1;
+    var latch =
         new StoppableCountDownLatch(stopper, theCount, MILLISECONDS.toNanos(2), System::nanoTime);
-    AtomicReference<Thread> theThread = new AtomicReference<>();
-    String cancelMessage = "cancel";
+    var theThread = new AtomicReference<Thread>();
+    var cancelMessage = "cancel";
 
     doThrow(new CancelException(cancelMessage) {}).when(stopper).checkCancelInProgress(any());
 
-    Future<Void> latchFuture = executorServiceRule.submit(() -> {
+    var latchFuture = executorServiceRule.submit(() -> {
       theThread.set(Thread.currentThread());
-      Throwable thrown = catchThrowable(() -> latch.await(TIMEOUT_MILLIS));
+      var thrown = catchThrowable(() -> latch.await(TIMEOUT_MILLIS));
       errorCollector.checkSucceeds(
           () -> assertThat(thrown).isInstanceOf(CancelException.class).hasMessage(cancelMessage));
     });

@@ -84,9 +84,9 @@ public abstract class AbstractExpireAtIntegrationTest implements RedisIntegratio
 
   @Test
   public void should_return_0_given_nonExistentKey_andTimeStampInFuture() {
-    String non_existent_key = "I don't exist";
+    var non_existent_key = "I don't exist";
 
-    long result = jedis.expireAt(
+    var result = jedis.expireAt(
         non_existent_key,
         unixTimeStampInTheFutureInSeconds);
 
@@ -95,9 +95,9 @@ public abstract class AbstractExpireAtIntegrationTest implements RedisIntegratio
 
   @Test
   public void should_return_0_given_nonExistentKey_andTimeStampInPast() {
-    String non_existent_key = "I don't exist";
+    var non_existent_key = "I don't exist";
 
-    long result = jedis.expireAt(
+    var result = jedis.expireAt(
         non_existent_key,
         unixTimeStampFromThePast);
 
@@ -109,7 +109,7 @@ public abstract class AbstractExpireAtIntegrationTest implements RedisIntegratio
 
     jedis.set(key, value);
 
-    long result = jedis.expireAt(
+    var result = jedis.expireAt(
         key,
         unixTimeStampInTheFutureInSeconds);
 
@@ -118,7 +118,7 @@ public abstract class AbstractExpireAtIntegrationTest implements RedisIntegratio
 
   @Test
   public void should_expireKeyAtTimeSpecified() {
-    long unixTimeStampInTheNearFuture = (System.currentTimeMillis() / 1000) + 5;
+    var unixTimeStampInTheNearFuture = (System.currentTimeMillis() / 1000) + 5;
     jedis.set(key, value);
     jedis.expireAt(key, unixTimeStampInTheNearFuture);
 

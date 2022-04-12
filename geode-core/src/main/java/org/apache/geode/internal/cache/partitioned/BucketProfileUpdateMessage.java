@@ -83,7 +83,7 @@ public class BucketProfileUpdateMessage extends DistributionMessage implements M
   @Override
   protected void process(ClusterDistributionManager dm) {
     try {
-      PartitionedRegion pr = PartitionedRegion.getPRFromId(prId);
+      var pr = PartitionedRegion.getPRFromId(prId);
       // pr.waitOnBucketInitialization(); // While PR doesn't directly do GII, wait on this for
       // bucket initialization -- mthomas 5/17/2007
       pr.getRegionAdvisor().putBucketProfile(bucketId, profile);
@@ -136,12 +136,12 @@ public class BucketProfileUpdateMessage extends DistributionMessage implements M
       return null;
     }
     ReplyProcessor21 rp = null;
-    int procId = 0;
+    var procId = 0;
     if (requireAck) {
       rp = new ReplyProcessor21(dm, recipients);
       procId = rp.getProcessorId();
     }
-    BucketProfileUpdateMessage m =
+    var m =
         new BucketProfileUpdateMessage(recipients, prId, procId, bucketId, bp);
     dm.putOutgoing(m);
     return rp;
@@ -174,9 +174,9 @@ public class BucketProfileUpdateMessage extends DistributionMessage implements M
 
   @Override
   public String toString() {
-    StringBuilder buff = new StringBuilder();
-    String className = getClass().getName();
-    String shortName =
+    var buff = new StringBuilder();
+    var className = getClass().getName();
+    var shortName =
         className.substring(className.lastIndexOf('.', className.lastIndexOf('.') - 1) + 1); // partition.<foo>
     return buff.append(shortName).append("(prid=").append(prId).append("; bucketid=")
         .append(bucketId).append("; sender=").append(getSender()).append("]; processorId=")

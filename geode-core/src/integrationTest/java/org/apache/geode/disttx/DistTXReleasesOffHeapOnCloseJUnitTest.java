@@ -22,7 +22,6 @@ import java.util.Properties;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.CacheTransactionManager;
 import org.apache.geode.distributed.ConfigurationProperties;
 import org.apache.geode.internal.offheap.TxReleasesOffHeapOnCloseJUnitTest;
 import org.apache.geode.test.junit.categories.DistributedTransactionsTest;
@@ -39,13 +38,13 @@ public class DistTXReleasesOffHeapOnCloseJUnitTest extends TxReleasesOffHeapOnCl
 
   @Override
   protected void createCache() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     props.setProperty(ConfigurationProperties.OFF_HEAP_MEMORY_SIZE, "1m");
     props.put(ConfigurationProperties.DISTRIBUTED_TRANSACTIONS, "true");
     cache = new CacheFactory(props).create();
-    CacheTransactionManager txmgr = cache.getCacheTransactionManager();
+    var txmgr = cache.getCacheTransactionManager();
     assert (txmgr.isDistributed());
   }
 

@@ -24,7 +24,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.util.UriComponentsBuilder.fromUriString;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -71,7 +70,7 @@ public class OAuthSecurityConfigTest {
         .apply(springSecurity())
         .build();
 
-    try (InputStream propertiesStream = getClass().getClassLoader()
+    try (var propertiesStream = getClass().getClassLoader()
         .getResourceAsStream("pulse.properties")) {
       pulseProperties.load(propertiesStream);
     } catch (IOException cause) {
@@ -81,8 +80,8 @@ public class OAuthSecurityConfigTest {
 
   @Test
   public void visitingProtectedUrlRedirectsUnauthenticatedUserToOAuthClientURL() throws Exception {
-    String pulseOAuthProvider = property("pulse.oauth.providerId");
-    String aProtectedUrl = "/login.html";
+    var pulseOAuthProvider = property("pulse.oauth.providerId");
+    var aProtectedUrl = "/login.html";
 
     mvc.perform(get(aProtectedUrl))
         .andExpect(status().is3xxRedirection())
@@ -91,9 +90,9 @@ public class OAuthSecurityConfigTest {
 
   @Test
   public void oauthClientURLRedirectsToOPulseOAuthAuthorizationURL() throws Exception {
-    String pulseOAuthProvider = property("pulse.oauth.providerId");
-    String pulseOAuthClientId = property("pulse.oauth.clientId");
-    String pulseOAuthAuthorizationUri = property("pulse.oauth.authorizationUri");
+    var pulseOAuthProvider = property("pulse.oauth.providerId");
+    var pulseOAuthClientId = property("pulse.oauth.clientId");
+    var pulseOAuthAuthorizationUri = property("pulse.oauth.authorizationUri");
 
     Map<String, String> expectedRedirectParams = new HashMap<>();
     expectedRedirectParams.put("response_type", "code");
@@ -108,9 +107,9 @@ public class OAuthSecurityConfigTest {
 
   private static ResultMatcher redirectedUrlPath(String expectedPath) {
     return result -> {
-      String redirectedUrlString = result.getResponse().getRedirectedUrl();
+      var redirectedUrlString = result.getResponse().getRedirectedUrl();
       assertThat(redirectedUrlString).isNotNull();
-      String actualPath = redirectedUrlString.split("[?#]")[0];
+      var actualPath = redirectedUrlString.split("[?#]")[0];
       assertThat(actualPath)
           .as("redirect URL path")
           .startsWith(expectedPath);
@@ -119,9 +118,9 @@ public class OAuthSecurityConfigTest {
 
   private static ResultMatcher redirectedUrlParams(Map<String, String> expectedParams) {
     return result -> {
-      String redirectedUrlString = result.getResponse().getRedirectedUrl();
+      var redirectedUrlString = result.getResponse().getRedirectedUrl();
       assertThat(redirectedUrlString).isNotNull();
-      Map<String, String> actualParams = fromUriString(redirectedUrlString)
+      var actualParams = fromUriString(redirectedUrlString)
           .build()
           .getQueryParams()
           .toSingleValueMap();

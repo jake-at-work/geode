@@ -25,12 +25,10 @@ import org.apache.logging.log4j.Logger;
 import org.apache.geode.DataSerializer;
 import org.apache.geode.distributed.internal.DistributionConfig;
 import org.apache.geode.distributed.internal.DistributionManager;
-import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.logging.internal.spi.LogFile;
 
 public class TailLogResponse extends AdminResponse {
   private static final Logger logger = LogService.getLogger();
@@ -40,12 +38,12 @@ public class TailLogResponse extends AdminResponse {
 
   public static TailLogResponse create(DistributionManager dm,
       InternalDistributedMember recipient) {
-    TailLogResponse m = new TailLogResponse();
+    var m = new TailLogResponse();
     m.setRecipient(recipient);
     try {
-      InternalDistributedSystem sys = dm.getSystem();
+      var sys = dm.getSystem();
       if (sys.getLogFile().isPresent()) {
-        LogFile logFile = sys.getLogFile().get();
+        var logFile = sys.getLogFile().get();
         m.childTail = tailSystemLog(logFile.getChildLogFile());
         m.tail = tailSystemLog(sys.getConfig());
         if (m.tail == null) {
@@ -105,18 +103,18 @@ public class TailLogResponse extends AdminResponse {
     if (logFile == null || logFile.equals(new File(""))) {
       return null;
     }
-    int numLines = 30;
-    int maxBuffer = 65500; // DataOutput.writeUTF will only accept 65535 bytes
-    long fileLength = logFile.length();
-    byte[] buffer = (fileLength > maxBuffer) ? new byte[maxBuffer] : new byte[(int) fileLength];
-    int readSize = buffer.length;
-    RandomAccessFile f = new RandomAccessFile(logFile, "r");
+    var numLines = 30;
+    var maxBuffer = 65500; // DataOutput.writeUTF will only accept 65535 bytes
+    var fileLength = logFile.length();
+    var buffer = (fileLength > maxBuffer) ? new byte[maxBuffer] : new byte[(int) fileLength];
+    var readSize = buffer.length;
+    var f = new RandomAccessFile(logFile, "r");
     f.seek(fileLength - readSize);
     f.read(buffer, 0, readSize);
     f.close();
 
-    String messageString = new String(buffer);
-    char[] text = messageString.toCharArray();
+    var messageString = new String(buffer);
+    var text = messageString.toCharArray();
     for (int i = text.length - 1, j = 0; i >= 0; i--) {
       if (text[i] == '[') {
         j++;
@@ -130,7 +128,7 @@ public class TailLogResponse extends AdminResponse {
   }
 
   private static String tailSystemLog(DistributionConfig sc) throws IOException {
-    File logFile = sc.getLogFile();
+    var logFile = sc.getLogFile();
     if (logFile == null || logFile.equals(new File(""))) {
       return null;
     }

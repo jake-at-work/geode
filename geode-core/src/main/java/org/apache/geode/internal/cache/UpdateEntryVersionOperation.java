@@ -60,8 +60,8 @@ public class UpdateEntryVersionOperation extends DistributedCacheOperation {
   @Override
   protected void initMessage(CacheOperationMessage msg, DirectReplyProcessor p) {
     super.initMessage(msg, p);
-    UpdateEntryVersionMessage imsg = (UpdateEntryVersionMessage) msg;
-    EntryEventImpl eei = getEvent();
+    var imsg = (UpdateEntryVersionMessage) msg;
+    var eei = getEvent();
     imsg.key = eei.getKey();
     imsg.eventId = eei.getEventId();
     imsg.versionTag = eei.getVersionTag();
@@ -89,7 +89,7 @@ public class UpdateEntryVersionOperation extends DistributedCacheOperation {
     @Retained
     protected InternalCacheEvent createEvent(DistributedRegion rgn) throws EntryNotFoundException {
       @Retained
-      EntryEventImpl ev = EntryEventImpl.create(rgn, getOperation(), key, null /* newValue */,
+      var ev = EntryEventImpl.create(rgn, getOperation(), key, null /* newValue */,
           callbackArg /* callbackArg */, true /* originRemote */ , getSender(),
           false /* generateCallbacks */);
       ev.setEventId(eventId);
@@ -112,8 +112,8 @@ public class UpdateEntryVersionOperation extends DistributedCacheOperation {
     @Override
     protected boolean operateOnRegion(CacheEvent event, ClusterDistributionManager dm)
         throws EntryNotFoundException {
-      EntryEventImpl ev = (EntryEventImpl) event;
-      DistributedRegion rgn = (DistributedRegion) ev.getRegion();
+      var ev = (EntryEventImpl) event;
+      var rgn = (DistributedRegion) ev.getRegion();
 
       try {
         if (!rgn.isCacheContentProxy()) {
@@ -150,7 +150,7 @@ public class UpdateEntryVersionOperation extends DistributedCacheOperation {
       super.fromData(in, context);
       eventId = DataSerializer.readObject(in);
       key = DataSerializer.readObject(in);
-      Boolean hasTailKey = DataSerializer.readBoolean(in);
+      var hasTailKey = DataSerializer.readBoolean(in);
       if (hasTailKey) {
         tailKey = DataSerializer.readLong(in);
       }
@@ -163,9 +163,9 @@ public class UpdateEntryVersionOperation extends DistributedCacheOperation {
       DataSerializer.writeObject(eventId, out);
       DataSerializer.writeObject(key, out);
 
-      DistributedRegion region = (DistributedRegion) event.getRegion();
+      var region = (DistributedRegion) event.getRegion();
       if (region instanceof BucketRegion) {
-        PartitionedRegion pr = region.getPartitionedRegion();
+        var pr = region.getPartitionedRegion();
         if (pr.isParallelWanEnabled()) {
           DataSerializer.writeBoolean(Boolean.TRUE, out);
           DataSerializer.writeLong(event.getTailKey(), out);

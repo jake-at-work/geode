@@ -29,7 +29,6 @@ import org.junit.rules.ExpectedException;
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.internal.cache.EntrySnapshot;
@@ -61,7 +60,7 @@ public class RegionJUnitTest {
 
   @Test
   public void regionQueryWithFullQueryShouldNotFail() throws Exception {
-    SelectResults results = region.query("SeLeCt * FROM " + SEPARATOR + "pos where ID = 1");
+    var results = region.query("SeLeCt * FROM " + SEPARATOR + "pos where ID = 1");
     assertEquals(1, results.size());
 
     results = region.query("SELECT * FROM " + SEPARATOR + "pos");
@@ -72,39 +71,39 @@ public class RegionJUnitTest {
   public void regionQueryExecuteWithFullQueryWithDifferentRegionShouldFail() throws Exception {
     expectedException.expect(QueryInvalidException.class);
     cache.createRegionFactory(RegionShortcut.REPLICATE).create("otherRegion");
-    SelectResults results = region.query("select * FROM " + SEPARATOR + "otherRegion where ID = 1");
+    var results = region.query("select * FROM " + SEPARATOR + "otherRegion where ID = 1");
   }
 
   @Test
   public void regionQueryExecuteWithMulipleRegionsInFullQueryShouldFail() throws Exception {
     expectedException.expect(QueryInvalidException.class);
     cache.createRegionFactory(RegionShortcut.REPLICATE).create("otherRegion");
-    SelectResults results = region
+    var results = region
         .query("select * FROM " + SEPARATOR + "pos, " + SEPARATOR + "otherRegion where ID = 1");
   }
 
 
   @Test
   public void testShortcutMethods() throws Exception {
-    for (final String query : queries) {
+    for (final var query : queries) {
       Object r = region.query(query);
     }
   }
 
   @Test
   public void testQueryServiceInterface() throws Exception {
-    for (final String query : queries) {
-      Query q = qs.newQuery("select distinct * from " + SEPARATOR + "pos where " + query);
-      Object r = q.execute();
+    for (final var query : queries) {
+      var q = qs.newQuery("select distinct * from " + SEPARATOR + "pos where " + query);
+      var r = q.execute();
     }
   }
 
 
   @Test
   public void testParameterBinding() throws Exception {
-    Query q = qs.newQuery("select distinct * from " + SEPARATOR + "pos where ID = $1");
-    Object[] params = new Object[] {0};// {"active"};
-    Object r = q.execute(params);
+    var q = qs.newQuery("select distinct * from " + SEPARATOR + "pos where ID = $1");
+    var params = new Object[] {0};// {"active"};
+    var r = q.execute(params);
 
     q = qs.newQuery("select distinct * from $1 where status = $2 and ID = $3");
     params = new Object[] {region, "active", 0};
@@ -115,14 +114,15 @@ public class RegionJUnitTest {
 
   @Test
   public void testQRegionInterface() throws Exception {
-    String[] queries = {"select distinct * from " + SEPARATOR + "pos.keys where toString = '1'",
-        "select distinct * from " + SEPARATOR + "pos.values where status = 'active'",
-        "select distinct * from " + SEPARATOR + "pos.entries where key = '1'",
-        "select distinct * from " + SEPARATOR + "pos.entries where value.status = 'active'"};
+    var queries =
+        new String[] {"select distinct * from " + SEPARATOR + "pos.keys where toString = '1'",
+            "select distinct * from " + SEPARATOR + "pos.values where status = 'active'",
+            "select distinct * from " + SEPARATOR + "pos.entries where key = '1'",
+            "select distinct * from " + SEPARATOR + "pos.entries where value.status = 'active'"};
 
-    for (final String query : queries) {
-      Query q = qs.newQuery(query);
-      Object r = q.execute();
+    for (final var query : queries) {
+      var q = qs.newQuery(query);
+      var r = q.execute();
     }
   }
 
@@ -131,15 +131,15 @@ public class RegionJUnitTest {
   public void testInvalidEntries() throws Exception {
     region.invalidate("1");
     region.invalidate("3");
-    Query q = qs.newQuery("select distinct * from " + SEPARATOR + "pos");
-    SelectResults results = (SelectResults) q.execute();
+    var q = qs.newQuery("select distinct * from " + SEPARATOR + "pos");
+    var results = (SelectResults) q.execute();
     assertEquals(2, results.size()); // should not include NULLs
   }
 
   @Test
   public void testRegionEntryAccess() throws Exception {
-    for (final Object o : region.entrySet(false)) {
-      Region.Entry entry = (Region.Entry) o;
+    for (final var o : region.entrySet(false)) {
+      var entry = (Region.Entry) o;
       RegionEntry regionEntry = null;
       if (entry instanceof NonTXEntry) {
         regionEntry = ((NonTXEntry) entry).getRegionEntry();
@@ -149,10 +149,9 @@ public class RegionJUnitTest {
       assertNotNull(regionEntry);
     }
 
-
-    LocalRegion lRegion = (LocalRegion) region;
-    for (final Object key : lRegion.keys()) {
-      Region.Entry rEntry = lRegion.getEntry(key);
+    var lRegion = (LocalRegion) region;
+    for (final var key : lRegion.keys()) {
+      var rEntry = lRegion.getEntry(key);
       RegionEntry regionEntry = null;
       if (rEntry instanceof NonTXEntry) {
         regionEntry = ((NonTXEntry) rEntry).getRegionEntry();
@@ -165,21 +164,21 @@ public class RegionJUnitTest {
 
   @Test
   public void testRegionNames() {
-    String[] queryStrs =
+    var queryStrs =
         new String[] {"SELECT * FROM " + SEPARATOR + "pos",
             "SELECT * FROM " + SEPARATOR + "pos where status='active'"};
 
     CacheUtils.startCache();
     cache = CacheUtils.getCache();
-    AttributesFactory attributesFactory = new AttributesFactory();
+    var attributesFactory = new AttributesFactory();
     attributesFactory.setValueConstraint(Portfolio.class);
-    RegionAttributes regionAttributes = attributesFactory.create();
+    var regionAttributes = attributesFactory.create();
 
     cache.createRegion("p_os", regionAttributes);
     cache.createRegion("p-os", regionAttributes);
 
-    for (final String queryStr : queryStrs) {
-      Query q = CacheUtils.getQueryService().newQuery(queryStr);
+    for (final var queryStr : queryStrs) {
+      var q = CacheUtils.getQueryService().newQuery(queryStr);
       try {
         q.execute();
       } catch (Exception ex) {
@@ -193,9 +192,9 @@ public class RegionJUnitTest {
   public void setUp() throws Exception {
     CacheUtils.startCache();
     cache = CacheUtils.getCache();
-    AttributesFactory attributesFactory = new AttributesFactory();
+    var attributesFactory = new AttributesFactory();
     attributesFactory.setValueConstraint(Portfolio.class);
-    RegionAttributes regionAttributes = attributesFactory.create();
+    var regionAttributes = attributesFactory.create();
 
     region = cache.createRegion("pos", regionAttributes);
     region.put("0", new Portfolio(0));

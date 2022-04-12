@@ -29,8 +29,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
-import org.apache.geode.cache.execute.ResultCollector;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.InternalConfigurationPersistenceService;
 import org.apache.geode.internal.cache.xmlcache.CacheXml;
 import org.apache.geode.logging.internal.log4j.LogLevel;
@@ -42,7 +40,6 @@ import org.apache.geode.management.internal.cli.AbstractCliAroundInterceptor;
 import org.apache.geode.management.internal.cli.GfshParseResult;
 import org.apache.geode.management.internal.cli.functions.AlterRuntimeConfigFunction;
 import org.apache.geode.management.internal.cli.remote.CommandExecutor;
-import org.apache.geode.management.internal.cli.result.model.InfoResultModel;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
 import org.apache.geode.management.internal.configuration.domain.XmlEntity;
 import org.apache.geode.management.internal.functions.CliFunctionResult;
@@ -101,7 +98,7 @@ public class AlterRuntimeConfigCommand extends GfshCommand {
 
     Map<String, String> runTimeDistributionConfigAttributes = new HashMap<>();
     Map<String, String> rumTimeCacheAttributes = new HashMap<>();
-    Set<DistributedMember> targetMembers = findMembers(group, memberNameOrId);
+    var targetMembers = findMembers(group, memberNameOrId);
 
     if (targetMembers.isEmpty()) {
       return ResultModel.createError(CliStrings.NO_MEMBERS_FOUND_MESSAGE);
@@ -185,14 +182,14 @@ public class AlterRuntimeConfigCommand extends GfshCommand {
     allRunTimeAttributes.putAll(runTimeDistributionConfigAttributes);
     allRunTimeAttributes.putAll(rumTimeCacheAttributes);
 
-    ResultCollector<?, ?> rc =
+    var rc =
         ManagementUtils
             .executeFunction(alterRunTimeConfigFunction, allRunTimeAttributes, targetMembers);
-    List<CliFunctionResult> results = CliFunctionResult.cleanResults((List<?>) rc.getResult());
+    var results = CliFunctionResult.cleanResults((List<?>) rc.getResult());
     Set<String> successfulMembers = new TreeSet<>();
     Set<String> errorMessages = new TreeSet<>();
 
-    for (CliFunctionResult result : results) {
+    for (var result : results) {
       if (result.getThrowable() != null) {
         logger.info("Function failed: " + result.getThrowable());
         errorMessages.add(result.getThrowable().getMessage());
@@ -200,28 +197,28 @@ public class AlterRuntimeConfigCommand extends GfshCommand {
         successfulMembers.add(result.getMemberIdOrName());
       }
     }
-    final String lineSeparator = lineSeparator();
+    final var lineSeparator = lineSeparator();
 
 
     if (!successfulMembers.isEmpty()) {
-      StringBuilder successMessageBuilder = new StringBuilder();
+      var successMessageBuilder = new StringBuilder();
 
       successMessageBuilder.append(CliStrings.ALTER_RUNTIME_CONFIG__SUCCESS__MESSAGE);
       successMessageBuilder.append(lineSeparator);
 
-      for (String member : successfulMembers) {
+      for (var member : successfulMembers) {
         successMessageBuilder.append(member);
         successMessageBuilder.append(lineSeparator);
       }
 
-      Properties properties = new Properties();
+      var properties = new Properties();
       properties.putAll(runTimeDistributionConfigAttributes);
 
-      ResultModel result = new ResultModel();
-      InfoResultModel successInfo = result.addInfo("success");
+      var result = new ResultModel();
+      var successInfo = result.addInfo("success");
       successInfo.addLine(successMessageBuilder.toString());
       // Set the Cache attributes to be modified
-      final XmlEntity xmlEntity = XmlEntity.builder().withType(CacheXml.CACHE)
+      final var xmlEntity = XmlEntity.builder().withType(CacheXml.CACHE)
           .withAttributes(rumTimeCacheAttributes).build();
       InternalConfigurationPersistenceService cps = getConfigurationPersistenceService();
       if (cps == null) {
@@ -231,11 +228,11 @@ public class AlterRuntimeConfigCommand extends GfshCommand {
       }
       return result;
     } else {
-      StringBuilder errorMessageBuilder = new StringBuilder();
+      var errorMessageBuilder = new StringBuilder();
       errorMessageBuilder.append("Following errors occurred while altering runtime config");
       errorMessageBuilder.append(lineSeparator);
 
-      for (String errorMessage : errorMessages) {
+      for (var errorMessage : errorMessages) {
         errorMessageBuilder.append(errorMessage);
         errorMessageBuilder.append(lineSeparator);
       }
@@ -247,7 +244,7 @@ public class AlterRuntimeConfigCommand extends GfshCommand {
     @Override
     public ResultModel preExecution(GfshParseResult parseResult) {
       // validate log level
-      String logLevel = parseResult.getParamValueAsString("log-level");
+      var logLevel = parseResult.getParamValueAsString("log-level");
       if (StringUtils.isNotBlank(logLevel) && (LogLevel.getLevel(logLevel) == null)) {
         return ResultModel.createError("Invalid log level: " + logLevel);
       }

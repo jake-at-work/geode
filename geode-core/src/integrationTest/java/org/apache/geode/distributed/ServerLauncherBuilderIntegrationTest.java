@@ -63,7 +63,7 @@ public class ServerLauncherBuilderIntegrationTest {
     givenGemFirePropertiesFile(withMemberName());
 
     // when: starting with null MemberName
-    ServerLauncher launcher = new Builder()
+    var launcher = new Builder()
         .setCommand(Command.START)
         .build();
 
@@ -77,7 +77,7 @@ public class ServerLauncherBuilderIntegrationTest {
     givenGemFirePropertiesFile(withoutMemberName());
 
     // when: no MemberName is specified
-    Throwable thrown = catchThrowable(() -> new Builder()
+    var thrown = catchThrowable(() -> new Builder()
         .setCommand(Command.START)
         .build());
 
@@ -92,7 +92,7 @@ public class ServerLauncherBuilderIntegrationTest {
     // given: using LocatorLauncher in-process
 
     // when: setting WorkingDirectory to non-current directory
-    Throwable thrown = catchThrowable(() -> new Builder()
+    var thrown = catchThrowable(() -> new Builder()
         .setCommand(Command.START)
         .setMemberName("memberOne")
         .setWorkingDirectory(getWorkingDirectoryPath())
@@ -107,7 +107,7 @@ public class ServerLauncherBuilderIntegrationTest {
   @Test
   public void parseArgumentsParsesValuesSeparatedByCommas() throws UnknownHostException {
     // given: a new builder
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     // when: parsing many arguments
     builder.parseArguments("start", "memberOne", "--server-bind-address",
@@ -137,7 +137,7 @@ public class ServerLauncherBuilderIntegrationTest {
   @Test
   public void parseArgumentsParsesValuesSeparatedByEquals() {
     // given: a new builder
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     // when: parsing arguments with values separated by equals
     builder.parseArguments("start", "--dir=" + getWorkingDirectoryPath(),
@@ -176,7 +176,7 @@ public class ServerLauncherBuilderIntegrationTest {
   @Test
   public void setWorkingDirectoryToNullUsesCurrentDirectory() {
     // given: a new builder
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     // when: setting WorkingDirectory to null
     assertThat(builder.setWorkingDirectory(null)).isSameAs(builder);
@@ -188,7 +188,7 @@ public class ServerLauncherBuilderIntegrationTest {
   @Test
   public void setWorkingDirectoryToEmptyStringUsesCurrentDirectory() {
     // given: a new builder
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     // when: setting WorkingDirectory to empty string
     assertThat(builder.setWorkingDirectory("")).isSameAs(builder);
@@ -200,7 +200,7 @@ public class ServerLauncherBuilderIntegrationTest {
   @Test
   public void setWorkingDirectoryToBlankStringUsesCurrentDirectory() {
     // given: a new builder
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     // when: setting WorkingDirectory to white space
     assertThat(builder.setWorkingDirectory("  ")).isSameAs(builder);
@@ -212,7 +212,7 @@ public class ServerLauncherBuilderIntegrationTest {
   @Test
   public void setWorkingDirectoryToExistingDirectory() {
     // given: a new builder
-    Builder builder = new Builder();
+    var builder = new Builder();
 
     // when: setting WorkingDirectory to a directory
     assertThat(builder.setWorkingDirectory(getWorkingDirectoryPath())).isSameAs(builder);
@@ -224,10 +224,10 @@ public class ServerLauncherBuilderIntegrationTest {
   @Test
   public void setWorkingDirectoryToExistingFileThrowsIllegalArgumentException() throws IOException {
     // given: a file instead of a directory
-    File nonDirectory = temporaryFolder.newFile();
+    var nonDirectory = temporaryFolder.newFile();
 
     // when: setting WorkingDirectory to that file
-    Throwable thrown = catchThrowable(() -> new Builder()
+    var thrown = catchThrowable(() -> new Builder()
         .setWorkingDirectory(nonDirectory.getCanonicalPath()));
 
     // then: throw IllegalArgumentException
@@ -242,7 +242,7 @@ public class ServerLauncherBuilderIntegrationTest {
     // given:
 
     // when: setting WorkingDirectory to non-existing directory
-    Throwable thrown = catchThrowable(() -> new Builder()
+    var thrown = catchThrowable(() -> new Builder()
         .setWorkingDirectory("/path/to/non_existing/directory"));
 
     // then: throw IllegalArgumentException
@@ -255,11 +255,11 @@ public class ServerLauncherBuilderIntegrationTest {
   @Test
   public void serverPortCanBeOverriddenBySystemProperty() {
     // given: overridden default port
-    int overriddenPort = getRandomAvailableTCPPort();
+    var overriddenPort = getRandomAvailableTCPPort();
     System.setProperty(TEST_OVERRIDE_DEFAULT_PORT_PROPERTY, String.valueOf(overriddenPort));
 
     // when: creating new ServerLauncher
-    ServerLauncher launcher = new Builder().build();
+    var launcher = new Builder().build();
 
     // then: server port should be the overridden default port
     assertThat(launcher.getServerPort()).isEqualTo(overriddenPort);
@@ -300,7 +300,7 @@ public class ServerLauncherBuilderIntegrationTest {
   }
 
   private Properties withMemberName() {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(NAME, "locator123");
     return properties;
   }
@@ -315,8 +315,8 @@ public class ServerLauncherBuilderIntegrationTest {
    */
   private void givenGemFirePropertiesFile(final Properties config) {
     try {
-      String name = GEMFIRE_PREFIX + "properties";
-      File file = new File(getWorkingDirectory(), name);
+      var name = GEMFIRE_PREFIX + "properties";
+      var file = new File(getWorkingDirectory(), name);
       config.store(new FileWriter(file, false), testName.getMethodName());
       assertThat(file).isFile().exists();
 

@@ -276,7 +276,7 @@ public abstract class AbstractGlobPatternIntegrationTest implements RedisIntegra
 
   @Test
   public void doubleQuote_matchesVerbatim() {
-    String key = "\"quotedKey\"";
+    var key = "\"quotedKey\"";
     jedis.set(key, "value");
     assertThat(jedis.keys("quotedKey")).isEmpty();
     assertThat(jedis.keys("\"*\"")).containsExactlyInAnyOrder(key);

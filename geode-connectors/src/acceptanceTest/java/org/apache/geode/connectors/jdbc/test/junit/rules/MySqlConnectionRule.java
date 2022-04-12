@@ -39,9 +39,9 @@ public class MySqlConnectionRule extends SqlDatabaseConnectionRule {
     await().ignoreExceptions()
         .untilAsserted(
             () -> assertThat(DriverManager.getConnection(getCreateDbConnectionUrl())).isNotNull());
-    String dbName = getDbName();
+    var dbName = getDbName();
     if (dbName != null) {
-      Connection connection = DriverManager.getConnection(getCreateDbConnectionUrl());
+      var connection = DriverManager.getConnection(getCreateDbConnectionUrl());
       connection.createStatement().execute("CREATE DATABASE IF NOT EXISTS " + dbName);
     }
     return DriverManager.getConnection(getConnectionUrl());

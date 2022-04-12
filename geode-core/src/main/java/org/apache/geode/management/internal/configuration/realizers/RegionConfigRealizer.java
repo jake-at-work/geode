@@ -20,7 +20,6 @@ package org.apache.geode.management.internal.configuration.realizers;
 import static org.apache.geode.cache.Region.SEPARATOR;
 
 import java.util.Arrays;
-import java.util.List;
 
 import org.apache.commons.lang3.NotImplementedException;
 
@@ -32,7 +31,6 @@ import org.apache.geode.cache.ExpirationAttributes;
 import org.apache.geode.cache.RegionDestroyedException;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.Scope;
-import org.apache.geode.cache.configuration.DeclarableType;
 import org.apache.geode.cache.configuration.RegionAttributesType;
 import org.apache.geode.cache.configuration.RegionConfig;
 import org.apache.geode.internal.cache.EvictionAttributesImpl;
@@ -59,7 +57,7 @@ public class RegionConfigRealizer
    */
   @Override
   public RealizationResult create(Region regionConfig, InternalCache cache) {
-    RegionConfig xmlConfig = converter.fromConfigObject(regionConfig);
+    var xmlConfig = converter.fromConfigObject(regionConfig);
     return create(xmlConfig, regionConfig.getName(), cache);
   }
 
@@ -73,10 +71,10 @@ public class RegionConfigRealizer
    */
   public RealizationResult create(RegionConfig regionConfig, String regionPath,
       InternalCache cache) {
-    RegionFactory factory = getRegionFactory(cache, regionConfig.getRegionAttributes());
-    RegionPath regionPathData = new RegionPath(regionPath);
-    String regionName = regionPathData.getName();
-    String parentRegionPath = regionPathData.getParent();
+    var factory = getRegionFactory(cache, regionConfig.getRegionAttributes());
+    var regionPathData = new RegionPath(regionPath);
+    var regionName = regionPathData.getName();
+    var parentRegionPath = regionPathData.getParent();
     if (parentRegionPath == null) {
       factory.create(regionName);
       return new RealizationResult().setMessage("Region successfully created.");
@@ -109,24 +107,24 @@ public class RegionConfigRealizer
     }
 
     if (regionAttributes.getCacheListeners() != null) {
-      List<DeclarableType> configListeners = regionAttributes.getCacheListeners();
-      CacheListener[] listeners = new CacheListener[configListeners.size()];
-      for (int i = 0; i < configListeners.size(); i++) {
+      var configListeners = regionAttributes.getCacheListeners();
+      var listeners = new CacheListener[configListeners.size()];
+      for (var i = 0; i < configListeners.size(); i++) {
         listeners[i] = DeclarableTypeInstantiator.newInstance(configListeners.get(i), cache);
       }
       ((RegionFactory<Object, Object>) factory).initCacheListeners(listeners);
     }
 
-    final String keyConstraint = regionAttributes.getKeyConstraint();
-    final String valueConstraint = regionAttributes.getValueConstraint();
+    final var keyConstraint = regionAttributes.getKeyConstraint();
+    final var valueConstraint = regionAttributes.getValueConstraint();
     if (keyConstraint != null && !keyConstraint.isEmpty()) {
-      Class<Object> keyConstraintClass =
+      var keyConstraintClass =
           ManagementUtils.forName(keyConstraint, CliStrings.CREATE_REGION__KEYCONSTRAINT);
       ((RegionFactory<Object, Object>) factory).setKeyConstraint(keyConstraintClass);
     }
 
     if (valueConstraint != null && !valueConstraint.isEmpty()) {
-      Class<Object> valueConstraintClass =
+      var valueConstraintClass =
           ManagementUtils.forName(valueConstraint, CliStrings.CREATE_REGION__VALUECONSTRAINT);
       ((RegionFactory<Object, Object>) factory).setValueConstraint(valueConstraintClass);
     }
@@ -143,7 +141,7 @@ public class RegionConfigRealizer
     }
 
     if (regionAttributes.getEntryIdleTime() != null) {
-      RegionAttributesType.ExpirationAttributesType eitl = regionAttributes.getEntryIdleTime();
+      var eitl = regionAttributes.getEntryIdleTime();
       ((RegionFactory<Object, Object>) factory).setEntryIdleTimeout(
           new ExpirationAttributes(Integer.parseInt(eitl.getTimeout()),
               ExpirationAction.fromXmlString(eitl.getAction())));
@@ -157,7 +155,7 @@ public class RegionConfigRealizer
     }
 
     if (regionAttributes.getEntryTimeToLive() != null) {
-      RegionAttributesType.ExpirationAttributesType ettl = regionAttributes.getEntryTimeToLive();
+      var ettl = regionAttributes.getEntryTimeToLive();
       ((RegionFactory<Object, Object>) factory).setEntryTimeToLive(
           new ExpirationAttributes(Integer.parseInt(ettl.getTimeout()),
               ExpirationAction.fromXmlString(ettl.getAction())));
@@ -170,14 +168,14 @@ public class RegionConfigRealizer
     }
 
     if (regionAttributes.getRegionIdleTime() != null) {
-      RegionAttributesType.ExpirationAttributesType ritl = regionAttributes.getRegionIdleTime();
+      var ritl = regionAttributes.getRegionIdleTime();
       ((RegionFactory<Object, Object>) factory).setRegionIdleTimeout(
           new ExpirationAttributes(Integer.parseInt(ritl.getTimeout()),
               ExpirationAction.fromXmlString(ritl.getAction())));
     }
 
     if (regionAttributes.getRegionTimeToLive() != null) {
-      RegionAttributesType.ExpirationAttributesType rttl = regionAttributes.getRegionTimeToLive();
+      var rttl = regionAttributes.getRegionTimeToLive();
       ((RegionFactory<Object, Object>) factory).setRegionTimeToLive(
           new ExpirationAttributes(Integer.parseInt(rttl.getTimeout()),
               ExpirationAction.fromXmlString(rttl.getAction())));
@@ -245,7 +243,7 @@ public class RegionConfigRealizer
 
   PartitionAttributesImpl convertToRegionFactoryPartitionAttributes(
       RegionAttributesType.PartitionAttributes configAttributes, Cache cache) {
-    PartitionAttributesImpl partitionAttributes = new PartitionAttributesImpl();
+    var partitionAttributes = new PartitionAttributesImpl();
     if (configAttributes == null) {
       return null;
     }
@@ -287,8 +285,8 @@ public class RegionConfigRealizer
     }
 
     if (configAttributes.getPartitionListeners() != null) {
-      List<DeclarableType> configListeners = configAttributes.getPartitionListeners();
-      for (DeclarableType configListener : configListeners) {
+      var configListeners = configAttributes.getPartitionListeners();
+      for (var configListener : configListeners) {
         partitionAttributes.addPartitionListener(
             DeclarableTypeInstantiator.newInstance(configListener, cache));
       }
@@ -300,13 +298,13 @@ public class RegionConfigRealizer
 
   @Override
   public RuntimeRegionInfo get(Region config, InternalCache cache) {
-    org.apache.geode.cache.Region<Object, Object> region =
+    var region =
         cache.getRegion(SEPARATOR + config.getName());
     if (region == null) {
       return null;
     }
 
-    RuntimeRegionInfo info = new RuntimeRegionInfo();
+    var info = new RuntimeRegionInfo();
     info.setEntryCount(region.size());
     return info;
   }
@@ -317,7 +315,7 @@ public class RegionConfigRealizer
    */
   @Override
   public boolean exists(Region config, InternalCache cache) {
-    org.apache.geode.cache.Region<Object, Object> region =
+    var region =
         cache.getRegion(SEPARATOR + config.getName());
     if (region == null) {
       return false;

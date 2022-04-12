@@ -24,7 +24,6 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.search.Query;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -68,43 +67,43 @@ public class DistributedScoringJUnitTest {
   @Test
   public void uniformDistributionProducesComparableScores() throws Exception {
     // the strings below have been grouped to be split between three index repositories
-    String[] testStrings = {"hello world", "foo bar", "just any string",
+    var testStrings = new String[] {"hello world", "foo bar", "just any string",
 
         "hello world is usually the first program", "water on mars", "test world",
 
         "hello", "test hello test", "find the aliens",};
 
-    QueryParser parser = new QueryParser("txt", analyzer);
-    Query query = parser.parse("hello world");
+    var parser = new QueryParser("txt", analyzer);
+    var query = parser.parse("hello world");
 
-    IndexRepositoryImpl singleIndexRepo = createIndexRepo();
+    var singleIndexRepo = createIndexRepo();
     populateIndex(testStrings, singleIndexRepo, 0, testStrings.length);
 
-    TopEntriesCollector collector = new TopEntriesCollector();
+    var collector = new TopEntriesCollector();
     singleIndexRepo.query(query, 100, collector);
     List<EntryScore<String>> singleResult = collector.getEntries().getHits();
 
-    IndexRepositoryImpl distIR1 = createIndexRepo();
+    var distIR1 = createIndexRepo();
     populateIndex(testStrings, distIR1, 0, testStrings.length / 3);
 
-    IndexRepositoryImpl distIR2 = createIndexRepo();
+    var distIR2 = createIndexRepo();
     populateIndex(testStrings, distIR2, testStrings.length / 3, (testStrings.length * 2) / 3);
 
-    IndexRepositoryImpl distIR3 = createIndexRepo();
+    var distIR3 = createIndexRepo();
     populateIndex(testStrings, distIR3, (testStrings.length * 2) / 3, testStrings.length);
 
-    ArrayList<TopEntriesCollector> collectors = new ArrayList<>();
-    TopEntriesCollectorManager manager = new TopEntriesCollectorManager();
+    var collectors = new ArrayList<TopEntriesCollector>();
+    var manager = new TopEntriesCollectorManager();
 
-    TopEntriesCollector collector1 = manager.newCollector("");
+    var collector1 = manager.newCollector("");
     distIR1.query(query, 100, collector1);
     collectors.add(collector1);
 
-    TopEntriesCollector collector2 = manager.newCollector("");
+    var collector2 = manager.newCollector("");
     distIR2.query(query, 100, collector2);
     collectors.add(collector2);
 
-    TopEntriesCollector collector3 = manager.newCollector("");
+    var collector3 = manager.newCollector("");
     distIR3.query(query, 100, collector3);
     collectors.add(collector3);
 
@@ -115,28 +114,28 @@ public class DistributedScoringJUnitTest {
 
     for (Iterator single = distResult.iterator(), dist = singleResult.iterator(); single.hasNext()
         && dist.hasNext();) {
-      EntryScore<String> singleScore = (EntryScore<String>) single.next();
-      EntryScore<String> distScore = (EntryScore<String>) dist.next();
+      var singleScore = (EntryScore<String>) single.next();
+      var distScore = (EntryScore<String>) dist.next();
       Assert.assertEquals(singleScore.getKey(), distScore.getKey());
     }
   }
 
   private void populateIndex(String[] testStrings, IndexRepositoryImpl repo, int start, int end)
       throws IOException {
-    for (int i = start; i < end; i++) {
-      String key = "key-" + i;
+    for (var i = start; i < end; i++) {
+      var key = "key-" + i;
       repo.create(key, new TestType(testStrings[i]));
     }
     repo.commit();
   }
 
   private IndexRepositoryImpl createIndexRepo() throws IOException {
-    ConcurrentHashMap fileAndChunkRegion = new ConcurrentHashMap();
-    RegionDirectory dir = new RegionDirectory(fileAndChunkRegion, fileSystemStats);
+    var fileAndChunkRegion = new ConcurrentHashMap();
+    var dir = new RegionDirectory(fileAndChunkRegion, fileSystemStats);
 
-    IndexWriterConfig config = new IndexWriterConfig(analyzer);
-    IndexWriter writer = new IndexWriter(dir, config);
-    LuceneIndex index = Mockito.mock(LuceneIndex.class);
+    var config = new IndexWriterConfig(analyzer);
+    var writer = new IndexWriter(dir, config);
+    var index = Mockito.mock(LuceneIndex.class);
     Mockito.when(index.getFieldNames()).thenReturn(new String[] {"txt"});
 
     return new IndexRepositoryImpl(region, writer, mapper, indexStats, null, null, "", index);

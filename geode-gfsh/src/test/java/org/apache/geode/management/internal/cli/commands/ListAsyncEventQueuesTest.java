@@ -78,9 +78,9 @@ public class ListAsyncEventQueuesTest {
         .getAllNormalMembers();
 
     // Mock member's queue details
-    FakeDetails details = new FakeDetails("server1", "s1-queue-id", 5, true, "diskStoreName", 10,
+    var details = new FakeDetails("server1", "s1-queue-id", 5, true, "diskStoreName", 10,
         "my.listener.class", new Properties(), false, false);
-    CliFunctionResult memberResult = new CliFunctionResult(details.getMemberName(),
+    var memberResult = new CliFunctionResult(details.getMemberName(),
         Collections.singletonList(details.asAsyncEventQueueDetails()));
     memberCliResults = Collections.singletonList(memberResult);
     doReturn(memberCliResults).when(command).executeAndGetFunctionResult(any(), any(), any());
@@ -98,12 +98,12 @@ public class ListAsyncEventQueuesTest {
         .getAllNormalMembers();
 
     // Mock member's queue details
-    Properties listenerProperties = new Properties();
+    var listenerProperties = new Properties();
     listenerProperties.setProperty("special-property", "special-value");
     listenerProperties.setProperty("another-property", "mundane-value");
-    FakeDetails details = new FakeDetails("server1", "s1-queue-id", 5, true, "diskStoreName", 10,
+    var details = new FakeDetails("server1", "s1-queue-id", 5, true, "diskStoreName", 10,
         "my.listener.class", listenerProperties, false, false);
-    CliFunctionResult memberResult = new CliFunctionResult(details.getMemberName(),
+    var memberResult = new CliFunctionResult(details.getMemberName(),
         Collections.singletonList(details.asAsyncEventQueueDetails()));
     memberCliResults = Collections.singletonList(memberResult);
     doReturn(memberCliResults).when(command).executeAndGetFunctionResult(any(), any(), any());
@@ -120,7 +120,7 @@ public class ListAsyncEventQueuesTest {
         .getAllNormalMembers();
 
     // Mock member's lack of queue details
-    CliFunctionResult memberResult = new CliFunctionResult("server1", Collections.emptyList());
+    var memberResult = new CliFunctionResult("server1", Collections.emptyList());
     memberCliResults = Collections.singletonList(memberResult);
     doReturn(memberCliResults).when(command).executeAndGetFunctionResult(any(), any(), any());
 
@@ -136,7 +136,7 @@ public class ListAsyncEventQueuesTest {
         .getAllNormalMembers();
 
     // Mock member's error result
-    CliFunctionResult memberResult =
+    var memberResult =
         new CliFunctionResult("server1", new Exception(FUNCTION_EXCEPTION_MESSAGE));
     memberCliResults = Collections.singletonList(memberResult);
     doReturn(memberCliResults).when(command).executeAndGetFunctionResult(any(), any(), any());
@@ -154,23 +154,23 @@ public class ListAsyncEventQueuesTest {
         .getAllNormalMembers();
 
     // Mock member's queue details
-    FakeDetails details1 = new FakeDetails("server1", "s1-queue-id1", 5, false, "diskStoreName", 1,
+    var details1 = new FakeDetails("server1", "s1-queue-id1", 5, false, "diskStoreName", 1,
         "my.listener.class", new Properties(), false, false);
-    FakeDetails details2 = new FakeDetails("server1", "s1-queue-id2", 15, true,
+    var details2 = new FakeDetails("server1", "s1-queue-id2", 15, true,
         "otherDiskStoreName", 10, "my.listener.class", new Properties(), false, false);
-    FakeDetails details3 = new FakeDetails("server1", "s1-queue-id3", 25, true, "diskStoreName",
+    var details3 = new FakeDetails("server1", "s1-queue-id3", 25, true, "diskStoreName",
         100, "my.listener.class", new Properties(), true, true);
-    CliFunctionResult member1Result =
+    var member1Result =
         new CliFunctionResult("server1", Arrays.asList(details1.asAsyncEventQueueDetails(),
             details2.asAsyncEventQueueDetails(), details3.asAsyncEventQueueDetails()));
 
-    FakeDetails details4 = new FakeDetails("server2", "s2-queue-id1", 5, false, "diskStoreName", 1,
+    var details4 = new FakeDetails("server2", "s2-queue-id1", 5, false, "diskStoreName", 1,
         "my.listener.class", new Properties(), false, false);
-    FakeDetails details5 = new FakeDetails("server2", "s2-queue-id2", 15, true,
+    var details5 = new FakeDetails("server2", "s2-queue-id2", 15, true,
         "otherDiskStoreName", 10, "my.listener.class", new Properties(), false, false);
-    FakeDetails details6 = new FakeDetails("server2", "s2-queue-id3", 25, true, "diskStoreName",
+    var details6 = new FakeDetails("server2", "s2-queue-id3", 25, true, "diskStoreName",
         100, "my.listener.class", new Properties(), false, false);
-    CliFunctionResult member2Result =
+    var member2Result =
         new CliFunctionResult("server2", Arrays.asList(details4.asAsyncEventQueueDetails(),
             details5.asAsyncEventQueueDetails(), details6.asAsyncEventQueueDetails()));
 
@@ -195,18 +195,18 @@ public class ListAsyncEventQueuesTest {
         .getAllNormalMembers();
 
     // Mock member's queue details
-    FakeDetails details1 = new FakeDetails("server1", "s1-queue-id1", 5, false, "diskStoreName", 1,
+    var details1 = new FakeDetails("server1", "s1-queue-id1", 5, false, "diskStoreName", 1,
         "my.listener.class", new Properties(), false, false);
-    FakeDetails details2 = new FakeDetails("server1", "s1-queue-id2", 15, true,
+    var details2 = new FakeDetails("server1", "s1-queue-id2", 15, true,
         "otherDiskStoreName", 10, "my.listener.class", new Properties(), false, false);
-    FakeDetails details3 = new FakeDetails("server1", "s1-queue-id3", 25, true, "diskStoreName",
+    var details3 = new FakeDetails("server1", "s1-queue-id3", 25, true, "diskStoreName",
         100, "my.listener.class", new Properties(), false, false);
-    CliFunctionResult member1Result =
+    var member1Result =
         new CliFunctionResult("server1", Arrays.asList(details1.asAsyncEventQueueDetails(),
             details2.asAsyncEventQueueDetails(), details3.asAsyncEventQueueDetails()));
 
     // Mock the other's failure
-    CliFunctionResult member2Result =
+    var member2Result =
         new CliFunctionResult("server2", new Exception(FUNCTION_EXCEPTION_MESSAGE));
 
     memberCliResults = Arrays.asList(member1Result, member2Result);

@@ -38,10 +38,7 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.query.CacheUtils;
-import org.apache.geode.cache.query.Index;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.data.Numbers;
 import org.apache.geode.cache.query.internal.QueryObserverAdapter;
@@ -105,9 +102,9 @@ public class NumericQueryJUnitTest {
 
     testRegion.put("1", map);
 
-    QueryService qs = CacheUtils.getQueryService();
+    var qs = CacheUtils.getQueryService();
     // big decimal test
-    SelectResults selectResults = helpTestFunctionalIndexForQuery(
+    var selectResults = helpTestFunctionalIndexForQuery(
         "select * from " + SEPARATOR + "testRegion tr where tr['bigdecimal'] in set (1234.5678)",
         "tr['bigdecimal']", SEPARATOR + "testRegion tr");
     assertEquals(1, selectResults.size());
@@ -170,7 +167,7 @@ public class NumericQueryJUnitTest {
     populateRegion(testRegion);
     assertNotNull(cache.getRegion(testRegionName));
     assertEquals(numElem * 2, cache.getRegion(testRegionName).size());
-    String regionPath = SEPARATOR + testRegionName + " r";
+    var regionPath = SEPARATOR + testRegionName + " r";
     executeQueryTest(getQueriesOnRegion(testRegionName, "r.max1", EQ), "r.max1", regionPath);
     executeQueryTest(getQueriesOnRegion(testRegionName, "r.max1", LT), "r.max1", regionPath);
     executeQueryTest(getQueriesOnRegion(testRegionName, "r.max1", GT), "r.max1", regionPath);
@@ -188,7 +185,7 @@ public class NumericQueryJUnitTest {
     populateRegion(testRegion);
     assertNotNull(cache.getRegion(testRegionName));
     assertEquals(numElem * 2, cache.getRegion(testRegionName).size());
-    String regionPath = SEPARATOR + testRegionName + " r";
+    var regionPath = SEPARATOR + testRegionName + " r";
     executeQueryTest(getQueriesOnRegion(testRegionName, "r.max1", EQ), "r.max1", regionPath);
     executeQueryTest(getQueriesOnRegion(testRegionName, "r.max1", LT), "r.max1", regionPath);
     executeQueryTest(getQueriesOnRegion(testRegionName, "r.max1", GT), "r.max1", regionPath);
@@ -206,7 +203,7 @@ public class NumericQueryJUnitTest {
     populateRegion(testRegion);
     assertNotNull(cache.getRegion(testRegionName));
     assertEquals(numElem * 2, cache.getRegion(testRegionName).size());
-    String regionPath = SEPARATOR + testRegionName + " r";
+    var regionPath = SEPARATOR + testRegionName + " r";
     executeQueryTest(getQueriesOnRegion(testRegionName, "r.max1", EQ), "r.max1", regionPath);
     executeQueryTest(getQueriesOnRegion(testRegionName, "r.max1", LT), "r.max1", regionPath);
     executeQueryTest(getQueriesOnRegion(testRegionName, "r.max1", GT), "r.max1", regionPath);
@@ -225,7 +222,7 @@ public class NumericQueryJUnitTest {
     populateRegion(testRegion);
     assertNotNull(cache.getRegion(testRegionName));
     assertEquals(numElem * 2, cache.getRegion(testRegionName).size());
-    String regionPath = SEPARATOR + testRegionName + " r";
+    var regionPath = SEPARATOR + testRegionName + " r";
     executeQueryTest(getQueriesOnRegion(testRegionName, "r.id", EQ), "r.id", regionPath);
     executeQueryTest(getQueriesOnRegion(testRegionName, "r.id", LT), "r.id", regionPath);
     executeQueryTest(getQueriesOnRegion(testRegionName, "r.id", GT), "r.id", regionPath);
@@ -243,7 +240,7 @@ public class NumericQueryJUnitTest {
     populateRegion(testRegion);
     assertNotNull(cache.getRegion(testRegionName));
     assertEquals(numElem * 2, cache.getRegion(testRegionName).size());
-    String regionPath = SEPARATOR + testRegionName + " r";
+    var regionPath = SEPARATOR + testRegionName + " r";
     executeQueryTest(getQueriesOnRegion(testRegionName, "r.id", EQ), "r.id", regionPath);
     executeQueryTest(getQueriesOnRegion(testRegionName, "r.id", LT), "r.id", regionPath);
     executeQueryTest(getQueriesOnRegion(testRegionName, "r.id", GT), "r.id", regionPath);
@@ -261,7 +258,7 @@ public class NumericQueryJUnitTest {
     populateRegion(testRegion);
     assertNotNull(cache.getRegion(testRegionName));
     assertEquals(numElem * 2, cache.getRegion(testRegionName).size());
-    String regionPath = SEPARATOR + testRegionName + " r";
+    var regionPath = SEPARATOR + testRegionName + " r";
     executeQueryTest(getQueriesOnRegion(testRegionName, "r.id", EQ), "r.id", regionPath);
     executeQueryTest(getQueriesOnRegion(testRegionName, "r.id", LT), "r.id", regionPath);
     executeQueryTest(getQueriesOnRegion(testRegionName, "r.id", GT), "r.id", regionPath);
@@ -272,38 +269,38 @@ public class NumericQueryJUnitTest {
   /******** Region Creation Helper Methods *********/
   private Region createLocalRegion(String regionName) throws ParseException {
     Cache cache = CacheUtils.getCache();
-    AttributesFactory attributesFactory = new AttributesFactory();
+    var attributesFactory = new AttributesFactory();
     attributesFactory.setDataPolicy(DataPolicy.NORMAL);
-    RegionAttributes regionAttributes = attributesFactory.create();
+    var regionAttributes = attributesFactory.create();
     return cache.createRegion(regionName, regionAttributes);
   }
 
   private Region createReplicatedRegion(String regionName) throws ParseException {
     Cache cache = CacheUtils.getCache();
-    AttributesFactory attributesFactory = new AttributesFactory();
+    var attributesFactory = new AttributesFactory();
     attributesFactory.setDataPolicy(DataPolicy.REPLICATE);
-    RegionAttributes regionAttributes = attributesFactory.create();
+    var regionAttributes = attributesFactory.create();
     return cache.createRegion(regionName, regionAttributes);
   }
 
   private Region createPartitionedRegion(String regionName) throws ParseException {
     Cache cache = CacheUtils.getCache();
-    PartitionAttributesFactory prAttFactory = new PartitionAttributesFactory();
-    AttributesFactory attributesFactory = new AttributesFactory();
+    var prAttFactory = new PartitionAttributesFactory();
+    var attributesFactory = new AttributesFactory();
     attributesFactory.setPartitionAttributes(prAttFactory.create());
-    RegionAttributes regionAttributes = attributesFactory.create();
+    var regionAttributes = attributesFactory.create();
     return cache.createRegion(regionName, regionAttributes);
   }
 
   private void populateRegion(Region region) throws Exception {
-    for (int i = 1; i <= numElem; i++) {
+    for (var i = 1; i <= numElem; i++) {
       putData(i, region);
     }
   }
 
   // creates a Numbers object and puts it into the specified region
   private void putData(int id, Region region) throws ParseException {
-    Numbers obj = new Numbers(id);
+    var obj = new Numbers(id);
     region.put(id, obj);
     region.put(id + numElem, obj);
   }
@@ -312,8 +309,8 @@ public class NumericQueryJUnitTest {
 
   private void executeQueryTest(String[] queries, String indexedExpression, String regionPath)
       throws Exception {
-    ArrayList list = new ArrayList(queries.length);
-    for (String query : queries) {
+    var list = new ArrayList(queries.length);
+    for (var query : queries) {
       helpTestFunctionalIndexForQuery(query, indexedExpression, regionPath);
     }
   }
@@ -325,15 +322,15 @@ public class NumericQueryJUnitTest {
    */
   private SelectResults helpTestFunctionalIndexForQuery(String query, String indexedExpression,
       String regionPath) throws Exception {
-    MyQueryObserverAdapter observer = new MyQueryObserverAdapter();
+    var observer = new MyQueryObserverAdapter();
     QueryObserverHolder.setInstance(observer);
 
-    QueryService qs = CacheUtils.getQueryService();
-    SelectResults nonIndexedResults = (SelectResults) qs.newQuery(query).execute();
+    var qs = CacheUtils.getQueryService();
+    var nonIndexedResults = (SelectResults) qs.newQuery(query).execute();
     assertFalse(observer.indexUsed);
 
-    Index index = qs.createIndex("testIndex", indexedExpression, regionPath);
-    SelectResults indexedResults = (SelectResults) qs.newQuery(query).execute();
+    var index = qs.createIndex("testIndex", indexedExpression, regionPath);
+    var indexedResults = (SelectResults) qs.newQuery(query).execute();
     assertEquals(nonIndexedResults.size(), indexedResults.size());
     assertTrue(observer.indexUsed);
     qs.removeIndex(index);

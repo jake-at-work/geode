@@ -21,7 +21,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -39,8 +38,6 @@ import org.springframework.session.SessionRepository;
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
 
-import org.apache.geode.cache.control.RebalanceFactory;
-import org.apache.geode.cache.control.ResourceManager;
 import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.redis.session.springRedisTestApplication.RedisSpringTestApplication;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
@@ -83,7 +80,7 @@ public class SessionsAndCrashesDUnitTest {
   }
 
   private static MemberVM startRedisVM(int vmId, Integer redisPort) {
-    int locatorPort = locator.getPort();
+    var locatorPort = locator.getPort();
 
     return cluster.startRedisVM(vmId, x -> x
         .withProperty(GEODE_FOR_REDIS_PORT, redisPort.toString())
@@ -95,12 +92,12 @@ public class SessionsAndCrashesDUnitTest {
   public void setup() {
     // Focus our connections on server2 and server3 since these are the ones going to be
     // restarted.
-    String[] args = new String[] {
+    var args = new String[] {
         "localhost:" + redisPorts[1],
         "localhost:" + redisPorts[2]};
 
-    int appServerPort = AvailablePortHelper.getRandomAvailableTCPPort();
-    SpringApplication app = new SpringApplication(RedisSpringTestApplication.class);
+    var appServerPort = AvailablePortHelper.getRandomAvailableTCPPort();
+    var app = new SpringApplication(RedisSpringTestApplication.class);
     app.setDefaultProperties(singletonMap("server.port", String.valueOf(appServerPort)));
     springContext = app.run(args);
     sessionRepository = springContext.getBean(SessionRepository.class);
@@ -118,11 +115,11 @@ public class SessionsAndCrashesDUnitTest {
   public void sessionOperationsDoNotFail_whileServersAreRestarted() throws Exception {
     createSessions();
 
-    AtomicBoolean running = new AtomicBoolean(true);
-    AtomicReference<String> phase = new AtomicReference<>("STARTUP");
+    var running = new AtomicBoolean(true);
+    var phase = new AtomicReference<String>("STARTUP");
 
-    Future<Integer> future1 = executor.submit(() -> sessionUpdater(1, running, phase));
-    Future<Integer> future2 = executor.submit(() -> sessionUpdater(2, running, phase));
+    var future1 = executor.submit(() -> sessionUpdater(1, running, phase));
+    var future2 = executor.submit(() -> sessionUpdater(2, running, phase));
 
     GeodeAwaitility.await().during(10, TimeUnit.SECONDS).until(() -> true);
 
@@ -162,12 +159,12 @@ public class SessionsAndCrashesDUnitTest {
   }
 
   private void validateSessionAttributes(int index, int totalUpdates) {
-    SoftAssertions softly = new SoftAssertions();
+    var softly = new SoftAssertions();
 
-    for (int i = totalUpdates - NUM_SESSIONS; i < totalUpdates; i++) {
-      int sessionIdx = i % NUM_SESSIONS;
-      String sessionId = sessionIds.get(sessionIdx);
-      Session session = sessionRepository.findById(sessionId);
+    for (var i = totalUpdates - NUM_SESSIONS; i < totalUpdates; i++) {
+      var sessionIdx = i % NUM_SESSIONS;
+      var sessionId = sessionIds.get(sessionIdx);
+      var session = sessionRepository.findById(sessionId);
       String attr = session.getAttribute(String.format("attr-%d-%d", index, sessionIdx));
 
       softly.assertThat(attr).isEqualTo("value-" + i);
@@ -177,11 +174,11 @@ public class SessionsAndCrashesDUnitTest {
   }
 
   private Integer sessionUpdater(int index, AtomicBoolean running, AtomicReference<String> phase) {
-    int count = 0;
+    var count = 0;
     while (running.get()) {
-      int modCount = count % NUM_SESSIONS;
-      String sessionId = sessionIds.get(modCount);
-      Session session = findSession(sessionId);
+      var modCount = count % NUM_SESSIONS;
+      var sessionId = sessionIds.get(modCount);
+      var session = findSession(sessionId);
       assertThat(session).as("Session " + sessionId + " not found during phase " + phase.get())
           .isNotNull();
 
@@ -194,7 +191,7 @@ public class SessionsAndCrashesDUnitTest {
   }
 
   private Session findSession(String sessionId) {
-    AtomicReference<Session> sessionRef = new AtomicReference<>(null);
+    var sessionRef = new AtomicReference<Session>(null);
     GeodeAwaitility.await().ignoreExceptions()
         .untilAsserted(() -> sessionRef.set(sessionRepository.findById(sessionId)));
 
@@ -207,8 +204,8 @@ public class SessionsAndCrashesDUnitTest {
   }
 
   private void createSessions() {
-    for (int i = 0; i < NUM_SESSIONS; i++) {
-      Session session = sessionRepository.createSession();
+    for (var i = 0; i < NUM_SESSIONS; i++) {
+      var session = sessionRepository.createSession();
       sessionRepository.save(session);
       sessionIds.add(session.getId());
     }
@@ -216,9 +213,9 @@ public class SessionsAndCrashesDUnitTest {
 
   private static void rebalanceAllRegions(MemberVM vm) {
     vm.invoke(() -> {
-      ResourceManager manager = ClusterStartupRule.getCache().getResourceManager();
+      var manager = ClusterStartupRule.getCache().getResourceManager();
 
-      RebalanceFactory factory = manager.createRebalanceFactory();
+      var factory = manager.createRebalanceFactory();
       factory.start().getResults();
     });
   }

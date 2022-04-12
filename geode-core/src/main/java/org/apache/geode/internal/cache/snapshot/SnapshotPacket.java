@@ -69,7 +69,7 @@ public class SnapshotPacket implements DataSerializableFixedID {
       key = BlobHelper.serializeToBlob(entry.getKey());
       if (entry instanceof NonTXEntry && region != null) {
         @Released
-        Object v =
+        var v =
             ((NonTXEntry) entry).getRegionEntry().getValueOffHeapOrDiskWithoutFaultIn(region);
         try {
           value = convertToBytes(v);
@@ -77,8 +77,8 @@ public class SnapshotPacket implements DataSerializableFixedID {
           OffHeapHelper.release(v);
         }
       } else if (entry instanceof EntrySnapshot) {
-        EntrySnapshot entrySnapshot = (EntrySnapshot) entry;
-        Object entryValue = entrySnapshot.getValuePreferringCachedDeserializable();
+        var entrySnapshot = (EntrySnapshot) entry;
+        var entryValue = entrySnapshot.getValuePreferringCachedDeserializable();
         value = convertToBytes(entryValue);
       } else {
         value = convertToBytes(entry.getValue());
@@ -171,7 +171,7 @@ public class SnapshotPacket implements DataSerializableFixedID {
       } else if (Token.isInvalid(val)) {
         return null;
       } else if (val instanceof CachedDeserializable) {
-        byte[] bytes = ((CachedDeserializable) val).getSerializedValue();
+        var bytes = ((CachedDeserializable) val).getSerializedValue();
         return bytes;
       } else if (val != null) {
         return BlobHelper.serializeToBlob(val);
@@ -256,7 +256,7 @@ public class SnapshotPacket implements DataSerializableFixedID {
     context.getSerializer().writeObject(sender, out);
 
     InternalDataSerializer.writeArrayLength(records.length, out);
-    for (SnapshotRecord rec : records) {
+    for (var rec : records) {
       InternalDataSerializer.invokeToData(rec, out);
     }
   }
@@ -268,11 +268,11 @@ public class SnapshotPacket implements DataSerializableFixedID {
     packetId = InternalDataSerializer.readString(in);
     sender = context.getDeserializer().readObject(in);
 
-    int count = InternalDataSerializer.readArrayLength(in);
+    var count = InternalDataSerializer.readArrayLength(in);
     records = new SnapshotRecord[count];
 
-    for (int i = 0; i < count; i++) {
-      SnapshotRecord rec = new SnapshotRecord();
+    for (var i = 0; i < count; i++) {
+      var rec = new SnapshotRecord();
       InternalDataSerializer.invokeFromData(rec, in);
       records[i] = rec;
     }

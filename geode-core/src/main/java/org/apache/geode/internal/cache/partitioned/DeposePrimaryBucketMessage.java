@@ -17,7 +17,6 @@ package org.apache.geode.internal.cache.partitioned;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 
@@ -33,7 +32,6 @@ import org.apache.geode.distributed.internal.membership.InternalDistributedMembe
 import org.apache.geode.internal.Assert;
 import org.apache.geode.internal.InternalDataSerializer;
 import org.apache.geode.internal.NanoTimer;
-import org.apache.geode.internal.cache.BucketAdvisor;
 import org.apache.geode.internal.cache.ForceReattemptException;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.logging.log4j.LogMarker;
@@ -76,13 +74,13 @@ public class DeposePrimaryBucketMessage extends PartitionMessage {
 
     Assert.assertTrue(recipient != null, "DeposePrimaryBucketMessage NULL recipient");
 
-    DeposePrimaryBucketResponse response =
+    var response =
         new DeposePrimaryBucketResponse(region.getSystem(), recipient, region);
-    DeposePrimaryBucketMessage msg =
+    var msg =
         new DeposePrimaryBucketMessage(recipient, region.getPRId(), response, bucketId);
     msg.setTransactionDistributed(region.getCache().getTxManager().isDistributed());
 
-    Set<InternalDistributedMember> failures = region.getDistributionManager().putOutgoing(msg);
+    var failures = region.getDistributionManager().putOutgoing(msg);
     if (failures != null && failures.size() > 0) {
       // throw new ForceReattemptException("Failed sending <" + msg + ">");
       return null;
@@ -105,7 +103,7 @@ public class DeposePrimaryBucketMessage extends PartitionMessage {
   protected boolean operateOnPartitionedRegion(ClusterDistributionManager dm,
       PartitionedRegion region, long startTime) throws ForceReattemptException {
 
-    BucketAdvisor bucketAdvisor = region.getRegionAdvisor().getBucketAdvisor(bucketId);
+    var bucketAdvisor = region.getRegionAdvisor().getBucketAdvisor(bucketId);
 
     bucketAdvisor.deposePrimary();
 
@@ -162,7 +160,7 @@ public class DeposePrimaryBucketMessage extends PartitionMessage {
     public static void send(InternalDistributedMember recipient, int processorId,
         DistributionManager dm, ReplyException re) {
       Assert.assertTrue(recipient != null, "DeposePrimaryBucketReplyMessage NULL recipient");
-      DeposePrimaryBucketReplyMessage m = new DeposePrimaryBucketReplyMessage(processorId, re);
+      var m = new DeposePrimaryBucketReplyMessage(processorId, re);
       m.setRecipient(recipient);
       dm.putOutgoing(m);
     }
@@ -173,7 +171,7 @@ public class DeposePrimaryBucketMessage extends PartitionMessage {
 
     @Override
     public void process(final DistributionManager dm, final ReplyProcessor21 processor) {
-      final long startTime = getTimestamp();
+      final var startTime = getTimestamp();
       if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
         logger.trace(LogMarker.DM_VERBOSE,
             "DeposePrimaryBucketReplyMessage process invoking reply processor with processorId: {}",
@@ -232,7 +230,7 @@ public class DeposePrimaryBucketMessage extends PartitionMessage {
     public void process(DistributionMessage msg) {
       try {
         if (msg instanceof DeposePrimaryBucketReplyMessage) {
-          DeposePrimaryBucketReplyMessage reply = (DeposePrimaryBucketReplyMessage) msg;
+          var reply = (DeposePrimaryBucketReplyMessage) msg;
           if (reply.isSuccess()) {
             if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
               logger.trace(LogMarker.DM_VERBOSE, "DeposePrimaryBucketResponse return OK");

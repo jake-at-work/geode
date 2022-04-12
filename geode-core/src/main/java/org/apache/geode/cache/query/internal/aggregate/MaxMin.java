@@ -41,13 +41,13 @@ public class MaxMin implements Aggregator {
       return;
     }
 
-    Comparable comparable = (Comparable) value;
+    var comparable = (Comparable) value;
 
     if (currentOptima == null) {
       currentOptima = comparable;
     } else {
       @SuppressWarnings("unchecked")
-      int compare = currentOptima.compareTo(comparable);
+      var compare = currentOptima.compareTo(comparable);
 
       if (findMax) {
         currentOptima = compare < 0 ? comparable : currentOptima;

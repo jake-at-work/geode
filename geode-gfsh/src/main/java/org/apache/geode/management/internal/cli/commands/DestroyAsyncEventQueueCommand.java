@@ -19,12 +19,10 @@ import static org.apache.geode.management.internal.i18n.CliStrings.IFEXISTS_HELP
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.InternalConfigurationPersistenceService;
 import org.apache.geode.management.cli.ConverterHint;
 import org.apache.geode.management.cli.GfshCommand;
@@ -63,15 +61,15 @@ public class DestroyAsyncEventQueueCommand extends GfshCommand {
           help = DESTROY_ASYNC_EVENT_QUEUE__GROUP__HELP) String[] onGroups,
       @CliOption(key = IFEXISTS, help = IFEXISTS_HELP, specifiedDefaultValue = "true",
           unspecifiedDefaultValue = "false") boolean ifExists) {
-    DestroyAsyncEventQueueFunctionArgs asyncEventQueueDestoryFunctionArgs =
+    var asyncEventQueueDestoryFunctionArgs =
         new DestroyAsyncEventQueueFunctionArgs(aeqId, ifExists);
 
-    Set<DistributedMember> members = getMembers(onGroups, null);
-    List<CliFunctionResult> functionResults = executeAndGetFunctionResult(
+    var members = getMembers(onGroups, null);
+    var functionResults = executeAndGetFunctionResult(
         new DestroyAsyncEventQueueFunction(), asyncEventQueueDestoryFunctionArgs, members);
 
-    ResultModel result = ResultModel.createMemberStatusResult(functionResults);
-    XmlEntity xmlEntity = getXmlEntity(functionResults);
+    var result = ResultModel.createMemberStatusResult(functionResults);
+    var xmlEntity = getXmlEntity(functionResults);
     InternalConfigurationPersistenceService cps = getConfigurationPersistenceService();
     if (xmlEntity != null) {
       if (cps == null) {

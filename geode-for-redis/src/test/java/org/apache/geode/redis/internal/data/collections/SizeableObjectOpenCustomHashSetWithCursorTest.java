@@ -23,7 +23,6 @@ import java.util.Set;
 import java.util.stream.IntStream;
 
 import it.unimi.dsi.fastutil.bytes.ByteArrays;
-import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import org.junit.Test;
 
 import org.apache.geode.cache.util.ObjectSizer;
@@ -59,7 +58,7 @@ public class SizeableObjectOpenCustomHashSetWithCursorTest {
 
   private List<byte[]> initializeMemberSet() {
     List<byte[]> initialElements = new ArrayList<>();
-    for (int i = 0; i < INITIAL_SIZE; ++i) {
+    for (var i = 0; i < INITIAL_SIZE; ++i) {
       initialElements.add(new byte[] {(byte) i});
     }
     return initialElements;
@@ -67,14 +66,14 @@ public class SizeableObjectOpenCustomHashSetWithCursorTest {
 
   @Test
   public void getSizeInBytesIsAccurateForByteArrays() {
-    RedisSet.MemberSet set = new RedisSet.MemberSet(initializeMemberSet());
+    var set = new RedisSet.MemberSet(initializeMemberSet());
     assertThat(set.getSizeInBytes()).isEqualTo(expectedSize(set));
   }
 
   @Test
   public void addMoreMembers_assertSetSizeIsAccurate() {
-    RedisSet.MemberSet set = new RedisSet.MemberSet(initializeMemberSet());
-    for (int i = INITIAL_SIZE; i < INITIAL_SIZE + SIZE_OF_NEW_ELEMENTS_TO_ADD; ++i) {
+    var set = new RedisSet.MemberSet(initializeMemberSet());
+    for (var i = INITIAL_SIZE; i < INITIAL_SIZE + SIZE_OF_NEW_ELEMENTS_TO_ADD; ++i) {
       set.add(new byte[] {(byte) i});
       assertThat(set.getSizeInBytes()).isEqualTo(expectedSize(set));
     }
@@ -83,8 +82,8 @@ public class SizeableObjectOpenCustomHashSetWithCursorTest {
 
   @Test
   public void removeAllMembers_assertSetSizeIsAccurate() {
-    RedisSet.MemberSet set = new RedisSet.MemberSet(initializeMemberSet());
-    for (int i = 0; i < INITIAL_SIZE + SIZE_OF_NEW_ELEMENTS_TO_ADD; ++i) {
+    var set = new RedisSet.MemberSet(initializeMemberSet());
+    for (var i = 0; i < INITIAL_SIZE + SIZE_OF_NEW_ELEMENTS_TO_ADD; ++i) {
       set.remove(new byte[] {(byte) i});
       assertThat(set.getSizeInBytes()).isEqualTo(expectedSize(set));
     }
@@ -99,11 +98,11 @@ public class SizeableObjectOpenCustomHashSetWithCursorTest {
 
   @Test
   public void scanEntireSet_ReturnsExpectedElements() {
-    ByteSet set = new ByteSet();
+    var set = new ByteSet();
     IntStream.range(0, 10).forEach(i -> set.add(makeKey(i)));
 
     List<byte[]> scanned = new ArrayList<>();
-    int result = set.scan(0, 10000, List::add, scanned);
+    var result = set.scan(0, 10000, List::add, scanned);
     assertThat(result).isZero();
     assertThat(scanned).containsExactlyInAnyOrderElementsOf(set);
   }
@@ -113,11 +112,11 @@ public class SizeableObjectOpenCustomHashSetWithCursorTest {
   }
 
   private void fillSetWithUniqueHashKeys(ByteSet set, int keysToAdd) {
-    int keyCounter = 0;
+    var keyCounter = 0;
     Set<Integer> hashesAdded = new HashSet<>();
     while (keysToAdd > 0) {
-      byte[] key = makeKey(keyCounter);
-      int keyHash = set.hash(key);
+      var key = makeKey(keyCounter);
+      var keyHash = set.hash(key);
       if (!hashesAdded.contains(keyHash)) {
         hashesAdded.add(keyHash);
         set.add(key);
@@ -128,11 +127,11 @@ public class SizeableObjectOpenCustomHashSetWithCursorTest {
   }
 
   private void fillSetWithCollidingHashKeys(ByteSet set, int keysToAdd) {
-    int keyCounter = 0;
+    var keyCounter = 0;
     Set<Integer> hashesAdded = new HashSet<>();
     while (keysToAdd > 0) {
-      byte[] key = makeKey(keyCounter);
-      int keyHash = set.hash(key);
+      var key = makeKey(keyCounter);
+      var keyHash = set.hash(key);
       if (hashesAdded.isEmpty() || hashesAdded.contains(keyHash)) {
         hashesAdded.add(keyHash);
         set.add(key);
@@ -144,13 +143,13 @@ public class SizeableObjectOpenCustomHashSetWithCursorTest {
 
   @Test
   public void twoScansWithNoModifications_ReturnsExpectedElements() {
-    final int setSize = 10;
-    ByteSet set = new ByteSet(setSize * 2); // *2 to prevent rehash
+    final var setSize = 10;
+    var set = new ByteSet(setSize * 2); // *2 to prevent rehash
     fillSetWithUniqueHashKeys(set, setSize);
     List<byte[]> scanned = new ArrayList<>();
-    int scanSize = 1 + set.size() / 2;
+    var scanSize = 1 + set.size() / 2;
     // Scan part way through the set
-    int cursor = set.scan(0, scanSize, List::add, scanned);
+    var cursor = set.scan(0, scanSize, List::add, scanned);
     assertThat(scanned).hasSize(scanSize);
 
     // Scan past the end of the set
@@ -163,17 +162,17 @@ public class SizeableObjectOpenCustomHashSetWithCursorTest {
 
   @Test
   public void scanWithConcurrentRemoves_ReturnsExpectedElements() {
-    final int initialSetSize = 10;
-    ByteSet set = new ByteSet(
+    final var initialSetSize = 10;
+    var set = new ByteSet(
         initialSetSize * 2); // *2 to prevent rehash
     fillSetWithUniqueHashKeys(set, initialSetSize);
     List<byte[]> scanned = new ArrayList<>();
-    int cursor = set.scan(0, initialSetSize / 2, List::add, scanned);
+    var cursor = set.scan(0, initialSetSize / 2, List::add, scanned);
     assertThat(scanned).hasSize(initialSetSize / 2);
 
     // Remove some elements
-    ObjectIterator<byte[]> iterator = set.iterator();
-    int removeCount = initialSetSize / 2 - 1;
+    var iterator = set.iterator();
+    var removeCount = initialSetSize / 2 - 1;
     while (removeCount > 0 && iterator.hasNext()) {
       iterator.next();
       iterator.remove();
@@ -188,12 +187,12 @@ public class SizeableObjectOpenCustomHashSetWithCursorTest {
 
   @Test
   public void scanWithHashcodeCollisions_ReturnsExpectedElements() {
-    final int setSize = 10;
-    ByteSet set = new ByteSet(
+    final var setSize = 10;
+    var set = new ByteSet(
         setSize * 2); // *2 to prevent rehash
     fillSetWithCollidingHashKeys(set, setSize);
     List<byte[]> scanned = new ArrayList<>();
-    int cursor = set.scan(0, 1, List::add, scanned);
+    var cursor = set.scan(0, 1, List::add, scanned);
 
     // The scan had to ignore the count and return all the elements with the same hash
     assertThat(scanned).hasSize(setSize);
@@ -206,18 +205,18 @@ public class SizeableObjectOpenCustomHashSetWithCursorTest {
 
   @Test
   public void scanWithHashcodeCollisionsAndConcurrentRemoves_ReturnsExpectedElements() {
-    final int initialSetSize = 10;
-    ByteSet set = new ByteSet(
+    final var initialSetSize = 10;
+    var set = new ByteSet(
         initialSetSize * 2); // *2 to prevent rehash
     fillSetWithCollidingHashKeys(set, initialSetSize);
     List<byte[]> scanned = new ArrayList<>();
 
-    int cursor = set.scan(0, initialSetSize / 2, List::add, scanned);
+    var cursor = set.scan(0, initialSetSize / 2, List::add, scanned);
     assertThat(scanned).hasSize(initialSetSize);
 
     // Remove some elements
-    ObjectIterator<byte[]> iterator = set.iterator();
-    int removeCount = initialSetSize / 2 - 1;
+    var iterator = set.iterator();
+    var removeCount = initialSetSize / 2 - 1;
     while (removeCount > 0 && iterator.hasNext()) {
       iterator.next();
       iterator.remove();
@@ -232,15 +231,15 @@ public class SizeableObjectOpenCustomHashSetWithCursorTest {
 
   @Test
   public void scanWithGrowingTable_DoesNotMissElements() {
-    final int initialSetSize = 10;
-    ByteSet set =
+    final var initialSetSize = 10;
+    var set =
         new ByteSet(initialSetSize * 2); // *2 to prevent rehash
     fillSetWithUniqueHashKeys(set, initialSetSize);
     List<byte[]> scanned = new ArrayList<>();
     List<byte[]> initialKeys = new ArrayList<>(set.size());
     initialKeys.addAll(set);
 
-    int cursor = set.scan(0, initialSetSize / 2, List::add, scanned);
+    var cursor = set.scan(0, initialSetSize / 2, List::add, scanned);
     assertThat(scanned).hasSize(initialSetSize / 2);
 
     // Add a lot of elements to trigger a resize
@@ -256,18 +255,18 @@ public class SizeableObjectOpenCustomHashSetWithCursorTest {
 
   @Test
   public void scanWithShrinkingTable_DoesNotMissElements() {
-    final int initialSetSize = 500;
-    ByteSet set = new ByteSet(1); // 1 to ensure resizing back down
+    final var initialSetSize = 500;
+    var set = new ByteSet(1); // 1 to ensure resizing back down
 
     fillSetWithUniqueHashKeys(set, initialSetSize);
     List<byte[]> scanned = new ArrayList<>();
-    int cursor = set.scan(0, 50, List::add, scanned);
+    var cursor = set.scan(0, 50, List::add, scanned);
     assertThat(scanned).hasSize(50);
 
     // Remove a lot of elements to trigger a resize
     // Remove some elements
-    ObjectIterator<byte[]> iterator = set.iterator();
-    int removeCount = initialSetSize - 100;
+    var iterator = set.iterator();
+    var removeCount = initialSetSize - 100;
     while (removeCount > 0 && iterator.hasNext()) {
       iterator.next();
       iterator.remove();

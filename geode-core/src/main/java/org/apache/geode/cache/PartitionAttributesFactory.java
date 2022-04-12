@@ -78,8 +78,8 @@ public class PartitionAttributesFactory<K, V> {
    * 90% of the maximum memory allocated to a VM.
    */
   static int computeMaxMem() {
-    final long maxMemInMegabytes = Runtime.getRuntime().maxMemory() / (1024 * 1024);
-    final long maxMemoryToUse = (long) (maxMemInMegabytes * 0.90);
+    final var maxMemInMegabytes = Runtime.getRuntime().maxMemory() / (1024 * 1024);
+    final var maxMemoryToUse = (long) (maxMemInMegabytes * 0.90);
     int ret;
     if (maxMemoryToUse < Integer.MAX_VALUE) {
       ret = (int) maxMemoryToUse;

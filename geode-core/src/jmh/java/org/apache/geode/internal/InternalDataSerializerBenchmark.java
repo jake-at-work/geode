@@ -51,9 +51,9 @@ public class InternalDataSerializerBenchmark {
 
   @Setup(Level.Trial)
   public void setup() throws IOException {
-    HeapDataOutputStream hdos = new HeapDataOutputStream(KnownVersion.CURRENT);
+    var hdos = new HeapDataOutputStream(KnownVersion.CURRENT);
     DataSerializer.writeString("12345678901234567890123456789012345", hdos);
-    byte[] bytes = hdos.toByteArray();
+    var bytes = hdos.toByteArray();
     if (bytes[0] != DSCODE.STRING_BYTES.toByte()) {
       throw new IllegalStateException(
           "expected first byte to be " + DSCODE.STRING_BYTES.toByte() + " but it was " + bytes[0]);
@@ -68,7 +68,7 @@ public class InternalDataSerializerBenchmark {
   @OutputTimeUnit(TimeUnit.MILLISECONDS)
   public String readStringBenchmark() throws IOException {
     dataInput.initialize(serializedBytes, KnownVersion.CURRENT);
-    String result = InternalDataSerializer.readString(dataInput, DSCODE.STRING_BYTES.toByte());
+    var result = InternalDataSerializer.readString(dataInput, DSCODE.STRING_BYTES.toByte());
     return result;
   }
 

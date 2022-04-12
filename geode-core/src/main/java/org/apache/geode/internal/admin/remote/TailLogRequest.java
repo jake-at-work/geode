@@ -26,7 +26,7 @@ import org.apache.geode.internal.serialization.SerializationContext;
 
 public class TailLogRequest extends AdminRequest {
   public static TailLogRequest create() {
-    TailLogRequest m = new TailLogRequest();
+    var m = new TailLogRequest();
     return m;
   }
 

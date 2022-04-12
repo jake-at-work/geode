@@ -17,7 +17,6 @@ package org.apache.geode.modules.session.catalina.internal;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -77,7 +76,7 @@ public abstract class AbstractDeltaSessionIntegrationTest {
         .create(REGION_NAME);
 
     mockDeltaSessionManager();
-    TestDeltaSession deltaSession = new TestDeltaSession(deltaSessionManager, TEST_SESSION_ID);
+    var deltaSession = new TestDeltaSession(deltaSessionManager, TEST_SESSION_ID);
     deltaSession.setAttribute(FIRST_ATTRIBUTE_KEY, FIRST_ATTRIBUTE_VALUE);
     deltaSession.setAttribute(SECOND_ATTRIBUTE_KEY, SECOND_ATTRIBUTE_VALUE);
 
@@ -86,16 +85,16 @@ public abstract class AbstractDeltaSessionIntegrationTest {
 
   DataSerializable serializeDeserializeObject(DataSerializable originalObject)
       throws IOException, IllegalAccessException, InstantiationException, ClassNotFoundException {
-    File tempFile = temporaryFolder.newFile();
+    var tempFile = temporaryFolder.newFile();
     OutputStream outputStream = new FileOutputStream(tempFile);
-    ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
+    var objectOutputStream = new ObjectOutputStream(outputStream);
     originalObject.toData(objectOutputStream);
     objectOutputStream.close();
     outputStream.close();
 
-    DataSerializable deserializeObject = originalObject.getClass().newInstance();
-    FileInputStream inputStream = new FileInputStream(tempFile);
-    ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
+    var deserializeObject = originalObject.getClass().newInstance();
+    var inputStream = new FileInputStream(tempFile);
+    var objectInputStream = new ObjectInputStream(inputStream);
     deserializeObject.fromData(objectInputStream);
     objectInputStream.close();
     inputStream.close();

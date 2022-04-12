@@ -52,14 +52,14 @@ public class IntegratedSecurityPeerAuthDUnitTest {
 
   @BeforeClass
   public static void beforeClass() throws Exception {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.put(SECURITY_MANAGER, MySecurityManager.class.getName());
     locator = cluster.startLocatorVM(0, properties);
   }
 
   @Test
   public void startServer1WithPeerAuthInit_success() throws IOException {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(SECURITY_PEER_AUTH_INIT, MyAuthInit.class.getName());
     props.setProperty("security-name", "server-1");
     cluster.startServerVM(1, props, locator.getPort());
@@ -67,12 +67,12 @@ public class IntegratedSecurityPeerAuthDUnitTest {
 
   @Test
   public void startServer2_not_authorized() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(SECURITY_PEER_AUTH_INIT, MyAuthInit.class.getName());
     props.setProperty("security-name", "server-2");
-    int locatorPort = locator.getPort();
+    var locatorPort = locator.getPort();
     cluster.getVM(2).invoke(() -> {
-      ServerStarterRule server = new ServerStarterRule();
+      var server = new ServerStarterRule();
       server.withProperties(props).withConnectionToLocator(locatorPort).withAutoStart();
       assertThatThrownBy(server::before).isInstanceOf(GemFireSecurityException.class)
           .hasMessageContaining("server-2 not authorized for CLUSTER:MANAGE");
@@ -81,12 +81,12 @@ public class IntegratedSecurityPeerAuthDUnitTest {
 
   @Test
   public void startServer3_not_authenticated() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(SECURITY_PEER_AUTH_INIT, MyAuthInit.class.getName());
     props.setProperty("security-name", "server-3");
-    int locatorPort = locator.getPort();
+    var locatorPort = locator.getPort();
     cluster.getVM(3).invoke(() -> {
-      ServerStarterRule server = new ServerStarterRule();
+      var server = new ServerStarterRule();
       server.withProperties(props).withConnectionToLocator(locatorPort).withAutoStart();
       assertThatThrownBy(server::before).isInstanceOf(GemFireSecurityException.class)
           .hasMessageContaining(SERVER_3_IS_NOT_AUTHENTICATED);
@@ -97,7 +97,7 @@ public class IntegratedSecurityPeerAuthDUnitTest {
     @Override
     public Properties getCredentials(Properties securityProps, DistributedMember server,
         boolean isPeer) throws AuthenticationFailedException {
-      Properties properties = new Properties();
+      var properties = new Properties();
       properties.setProperty("name", securityProps.getProperty("security-name"));
       return properties;
     }
@@ -107,7 +107,7 @@ public class IntegratedSecurityPeerAuthDUnitTest {
     @Override
     public Object authenticate(Properties credentials) throws AuthenticationFailedException {
       // server1 and server2 are authenticated, server3 is not
-      String name = credentials.getProperty("name");
+      var name = credentials.getProperty("name");
       if ("server-3".equals(name)) {
         throw new AuthenticationFailedException(SERVER_3_IS_NOT_AUTHENTICATED);
       }

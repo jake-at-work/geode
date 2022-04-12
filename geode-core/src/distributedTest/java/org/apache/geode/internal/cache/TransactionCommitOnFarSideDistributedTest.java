@@ -24,17 +24,13 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import org.apache.geode.cache.CacheTransactionManager;
-import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.PoolImpl;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.CacheRule;
 import org.apache.geode.test.dunit.rules.ClientCacheRule;
@@ -89,7 +85,7 @@ public class TransactionCommitOnFarSideDistributedTest implements Serializable {
     server3.invoke(() -> createServerRegion(1, false, 2));
 
     server1.invoke(() -> {
-      TXManagerImpl txManager = cacheRule.getCache().getTxManager();
+      var txManager = cacheRule.getCache().getTxManager();
       txManager.begin();
       Region region = cacheRule.getCache().getRegion(regionName);
       region.put(key, newValue);
@@ -113,11 +109,11 @@ public class TransactionCommitOnFarSideDistributedTest implements Serializable {
 
     server1.invoke(() -> {
       Region region = cacheRule.getCache().getRegion(regionName);
-      CacheTransactionManager txManager = cacheRule.getCache().getCacheTransactionManager();
+      var txManager = cacheRule.getCache().getCacheTransactionManager();
       txManager.begin();
       region.put("key1", new TestDeltaSerializableSizeableObject("small value"));
       txManager.commit();
-      TestDeltaSerializableSizeableObject testClass =
+      var testClass =
           (TestDeltaSerializableSizeableObject) region.get("key1");
       testClass.value = "some value that is much larger than the initial value";
       region.put("key1", testClass);
@@ -127,7 +123,7 @@ public class TransactionCommitOnFarSideDistributedTest implements Serializable {
 
   @Test
   public void farSideFailoverMapSavesTransactionsInitiatedFromClient() {
-    VM client = server4;
+    var client = server4;
     port1 = server1.invoke(() -> createServerRegion(1, false, 2));
     server1.invoke(() -> {
       Region region = cacheRule.getCache().getRegion(regionName);
@@ -138,7 +134,7 @@ public class TransactionCommitOnFarSideDistributedTest implements Serializable {
 
     client.invoke(() -> createClientRegion(true, port1));
     client.invoke(() -> {
-      CacheTransactionManager transactionManager =
+      var transactionManager =
           clientCacheRule.getClientCache().getCacheTransactionManager();
       transactionManager.begin();
       Region region = clientCacheRule.getClientCache().getRegion(regionName);
@@ -147,7 +143,7 @@ public class TransactionCommitOnFarSideDistributedTest implements Serializable {
     });
 
     server1.invoke(() -> {
-      TXManagerImpl txManager = cacheRule.getCache().getTxManager();
+      var txManager = cacheRule.getCache().getTxManager();
       Region region = cacheRule.getCache().getRegion(regionName);
       assertThat(region.get(key)).isEqualTo(newValue);
       assertThat(txManager.getFailoverMapSize()).isEqualTo(1);
@@ -158,16 +154,16 @@ public class TransactionCommitOnFarSideDistributedTest implements Serializable {
 
   private int createServerRegion(int totalNumBuckets, boolean isAccessor, int redundancy)
       throws Exception {
-    PartitionAttributesFactory factory = new PartitionAttributesFactory();
+    var factory = new PartitionAttributesFactory();
     factory.setTotalNumBuckets(totalNumBuckets).setRedundantCopies(redundancy);
     if (isAccessor) {
       factory.setLocalMaxMemory(0);
     }
-    PartitionAttributes partitionAttributes = factory.create();
+    var partitionAttributes = factory.create();
     cacheRule.getOrCreateCache().createRegionFactory(RegionShortcut.PARTITION)
         .setPartitionAttributes(partitionAttributes).create(regionName);
 
-    CacheServer server = cacheRule.getCache().addCacheServer();
+    var server = cacheRule.getCache().addCacheServer();
     server.setPort(0);
     server.start();
     return server.getPort();
@@ -176,7 +172,7 @@ public class TransactionCommitOnFarSideDistributedTest implements Serializable {
   private void createClientRegion(boolean connectToFirstPort, int... ports) {
     clientCacheRule.createClientCache();
 
-    PoolImpl pool = getPool(ports);
+    var pool = getPool(ports);
     ClientRegionFactory crf =
         clientCacheRule.getClientCache().createClientRegionFactory(ClientRegionShortcut.LOCAL);
     crf.setPoolName(pool.getName());
@@ -185,8 +181,8 @@ public class TransactionCommitOnFarSideDistributedTest implements Serializable {
   }
 
   private PoolImpl getPool(int... ports) {
-    PoolFactory factory = PoolManager.createFactory();
-    for (int port : ports) {
+    var factory = PoolManager.createFactory();
+    for (var port : ports) {
       factory.addServer(hostName, port);
     }
     factory.setReadTimeout(12000).setSocketBufferSize(1000);

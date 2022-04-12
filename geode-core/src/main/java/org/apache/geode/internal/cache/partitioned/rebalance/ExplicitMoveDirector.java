@@ -24,7 +24,6 @@ import org.apache.geode.internal.cache.partitioned.rebalance.model.Bucket;
 import org.apache.geode.internal.cache.partitioned.rebalance.model.Member;
 import org.apache.geode.internal.cache.partitioned.rebalance.model.Move;
 import org.apache.geode.internal.cache.partitioned.rebalance.model.PartitionedRegionLoadModel;
-import org.apache.geode.internal.cache.partitioned.rebalance.model.RefusalReason;
 
 public class ExplicitMoveDirector extends RebalanceDirectorAdapter {
 
@@ -84,7 +83,7 @@ public class ExplicitMoveDirector extends RebalanceDirectorAdapter {
               + " is not hosted by " + source + ". Members hosting: " + bucket.getMembersHosting());
     }
 
-    RefusalReason reason =
+    var reason =
         targetMember.willAcceptBucket(bucket, sourceMember, model.enforceUniqueZones());
     if (reason.willAccept()) {
       if (!model.moveBucket(new Move(sourceMember, targetMember, bucket))) {

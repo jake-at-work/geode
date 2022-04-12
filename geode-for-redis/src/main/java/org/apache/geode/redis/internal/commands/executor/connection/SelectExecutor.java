@@ -26,7 +26,7 @@ public class SelectExecutor implements CommandExecutor {
 
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
-    byte[] dbIndexBytes = command.getBytesKey();
+    var dbIndexBytes = command.getBytesKey();
     if (dbIndexBytes.length == 1 && dbIndexBytes[0] == '0') {
       return RedisResponse.ok();
     }

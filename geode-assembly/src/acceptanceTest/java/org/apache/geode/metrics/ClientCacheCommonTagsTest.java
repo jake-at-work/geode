@@ -18,10 +18,6 @@ import static java.util.stream.Collectors.toList;
 import static org.apache.geode.distributed.ConfigurationProperties.DISTRIBUTED_SYSTEM_ID;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.List;
-
-import io.micrometer.core.instrument.Meter;
-import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tag;
 import org.junit.After;
 import org.junit.Test;
@@ -44,15 +40,15 @@ public class ClientCacheCommonTagsTest {
   public void metersDoNotHaveClusterTag() {
     clientCache =
         (InternalClientCache) new ClientCacheFactory().set(DISTRIBUTED_SYSTEM_ID, "1").create();
-    MeterRegistry meterRegistry = clientCache.getMeterRegistry();
-    List<Meter> meters = meterRegistry.getMeters();
+    var meterRegistry = clientCache.getMeterRegistry();
+    var meters = meterRegistry.getMeters();
 
     assertThat(meters)
         .isNotEmpty();
 
-    for (Meter meter : meters) {
-      Meter.Id meterId = meter.getId();
-      List<String> tagNames = meterId.getTags().stream().map(Tag::getKey).collect(toList());
+    for (var meter : meters) {
+      var meterId = meter.getId();
+      var tagNames = meterId.getTags().stream().map(Tag::getKey).collect(toList());
 
       assertThat(tagNames)
           .as("Tag names for meter with name " + meterId.getName())

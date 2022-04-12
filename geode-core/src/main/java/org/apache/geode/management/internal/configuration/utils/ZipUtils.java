@@ -18,13 +18,11 @@ package org.apache.geode.management.internal.configuration.utils;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Enumeration;
-import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
@@ -39,15 +37,15 @@ import org.apache.commons.io.IOUtils;
 public class ZipUtils {
 
   public static void zipDirectory(Path sourceDirectory, Path targetFile) throws IOException {
-    Path parentDir = targetFile.getParent();
+    var parentDir = targetFile.getParent();
     if (parentDir != null && !parentDir.toFile().exists()) {
       parentDir.toFile().mkdirs();
     }
 
-    try (ZipOutputStream zs = new ZipOutputStream(Files.newOutputStream(targetFile));
-        Stream<Path> stream = Files.walk(sourceDirectory)) {
+    try (var zs = new ZipOutputStream(Files.newOutputStream(targetFile));
+        var stream = Files.walk(sourceDirectory)) {
       stream.filter(path -> !Files.isDirectory(path)).forEach(path -> {
-        ZipEntry zipEntry = new ZipEntry(sourceDirectory.relativize(path).toString());
+        var zipEntry = new ZipEntry(sourceDirectory.relativize(path).toString());
         try {
           zs.putNextEntry(zipEntry);
           zs.write(Files.readAllBytes(path));
@@ -61,21 +59,21 @@ public class ZipUtils {
 
   public static void zipDirectory(String sourceDirectoryPath, String targetFilePath)
       throws IOException {
-    Path sourceDirectory = Paths.get(sourceDirectoryPath);
-    Path targetFile = Paths.get(targetFilePath);
+    var sourceDirectory = Paths.get(sourceDirectoryPath);
+    var targetFile = Paths.get(targetFilePath);
 
     zipDirectory(sourceDirectory, targetFile);
   }
 
   public static void unzip(String zipFilePath, String outputDirectoryPath) throws IOException {
-    ZipFile zipFile = new ZipFile(zipFilePath);
+    var zipFile = new ZipFile(zipFilePath);
     @SuppressWarnings("unchecked")
-    Enumeration<ZipEntry> zipEntries = (Enumeration<ZipEntry>) zipFile.entries();
+    var zipEntries = (Enumeration<ZipEntry>) zipFile.entries();
 
     try {
       while (zipEntries.hasMoreElements()) {
-        ZipEntry zipEntry = zipEntries.nextElement();
-        File entryDestination = new File(outputDirectoryPath + File.separator + zipEntry.getName());
+        var zipEntry = zipEntries.nextElement();
+        var entryDestination = new File(outputDirectoryPath + File.separator + zipEntry.getName());
 
         if (!entryDestination.toPath().normalize().startsWith(Paths.get(outputDirectoryPath))) {
           throw new IOException("Zip entry contained path traversal");
@@ -85,13 +83,13 @@ public class ZipUtils {
           FileUtils.forceMkdir(entryDestination);
           continue;
         }
-        File parent = entryDestination.getParentFile();
+        var parent = entryDestination.getParentFile();
         if (parent != null) {
           FileUtils.forceMkdir(parent);
         }
         if (entryDestination.createNewFile()) {
 
-          InputStream in = zipFile.getInputStream(zipEntry);
+          var in = zipFile.getInputStream(zipEntry);
           OutputStream out = new FileOutputStream(entryDestination);
           try {
             IOUtils.copy(in, out);

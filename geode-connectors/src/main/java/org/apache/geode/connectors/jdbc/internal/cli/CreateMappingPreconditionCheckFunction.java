@@ -18,7 +18,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -27,9 +26,7 @@ import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.List;
 
 import javax.sql.DataSource;
 
@@ -45,8 +42,6 @@ import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.connectors.jdbc.JdbcConnectorException;
 import org.apache.geode.connectors.jdbc.internal.JdbcConnectorService;
 import org.apache.geode.connectors.jdbc.internal.TableMetaDataManager;
-import org.apache.geode.connectors.jdbc.internal.TableMetaDataView;
-import org.apache.geode.connectors.jdbc.internal.configuration.FieldMapping;
 import org.apache.geode.connectors.jdbc.internal.configuration.RegionMapping;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.classloader.ClassPathLoader;
@@ -65,34 +60,34 @@ public class CreateMappingPreconditionCheckFunction extends CliFunction<Object[]
 
   @Override
   public CliFunctionResult executeFunction(FunctionContext<Object[]> context) {
-    Object[] args = context.getArguments();
-    RegionMapping regionMapping = (RegionMapping) args[0];
-    String remoteInputStreamName = (String) args[1];
-    RemoteInputStream remoteInputStream = (RemoteInputStream) args[2];
-    String dataSourceName = regionMapping.getDataSourceName();
-    DataSource dataSource = getDataSource(dataSourceName);
+    var args = context.getArguments();
+    var regionMapping = (RegionMapping) args[0];
+    var remoteInputStreamName = (String) args[1];
+    var remoteInputStream = (RemoteInputStream) args[2];
+    var dataSourceName = regionMapping.getDataSourceName();
+    var dataSource = getDataSource(dataSourceName);
     if (dataSource == null) {
       throw new JdbcConnectorException("JDBC data-source named \"" + dataSourceName
           + "\" not found. Create it with gfsh 'create data-source --pooled --name="
           + dataSourceName + "'.");
     }
-    InternalCache cache = (InternalCache) context.getCache();
-    TypeRegistry typeRegistry = cache.getPdxRegistry();
-    PdxType pdxType = getPdxTypeForClass(cache, typeRegistry, regionMapping.getPdxName(),
+    var cache = (InternalCache) context.getCache();
+    var typeRegistry = cache.getPdxRegistry();
+    var pdxType = getPdxTypeForClass(cache, typeRegistry, regionMapping.getPdxName(),
         remoteInputStreamName, remoteInputStream);
-    try (Connection connection = dataSource.getConnection()) {
-      TableMetaDataView tableMetaData =
+    try (var connection = dataSource.getConnection()) {
+      var tableMetaData =
           getTableMetaDataManager().getTableMetaDataView(connection, regionMapping);
-      JdbcConnectorService service = cache.getService(JdbcConnectorService.class);
-      List<FieldMapping> fieldMappings = service.createFieldMappingUsingPdx(pdxType, tableMetaData);
+      var service = cache.getService(JdbcConnectorService.class);
+      var fieldMappings = service.createFieldMappingUsingPdx(pdxType, tableMetaData);
 
-      Object[] output = new Object[2];
+      var output = new Object[2];
       output[1] = fieldMappings;
       if (regionMapping.getIds() == null || regionMapping.getIds().isEmpty()) {
-        List<String> keyColumnNames = tableMetaData.getKeyColumnNames();
+        var keyColumnNames = tableMetaData.getKeyColumnNames();
         output[0] = String.join(",", keyColumnNames);
       }
-      String member = context.getMemberName();
+      var member = context.getMemberName();
       return new CliFunctionResult(member, output);
     } catch (SQLException e) {
       throw JdbcConnectorException.createException(e);
@@ -101,8 +96,8 @@ public class CreateMappingPreconditionCheckFunction extends CliFunction<Object[]
 
   private PdxType getPdxTypeForClass(InternalCache cache, TypeRegistry typeRegistry,
       String className, String remoteInputStreamName, RemoteInputStream remoteInputStream) {
-    Class<?> clazz = loadPdxClass(className, remoteInputStreamName, remoteInputStream);
-    PdxType result = typeRegistry.getExistingTypeForClass(clazz);
+    var clazz = loadPdxClass(className, remoteInputStreamName, remoteInputStream);
+    var result = typeRegistry.getExistingTypeForClass(clazz);
     if (result != null) {
       return result;
     }
@@ -120,15 +115,15 @@ public class CreateMappingPreconditionCheckFunction extends CliFunction<Object[]
    */
   private PdxType generatePdxTypeForClass(InternalCache cache, TypeRegistry typeRegistry,
       Class<?> clazz) {
-    Object object = createInstance(clazz);
+    var object = createInstance(clazz);
     try {
       cache.registerPdxMetaData(object);
     } catch (SerializationException ex) {
-      String className = clazz.getName();
-      ReflectionBasedAutoSerializer serializer =
+      var className = clazz.getName();
+      var serializer =
           getReflectionBasedAutoSerializer("\\Q" + className + "\\E");
-      PdxWriter writer = createPdxWriter(typeRegistry, object);
-      boolean result = serializer.toData(object, writer);
+      var writer = createPdxWriter(typeRegistry, object);
+      var result = serializer.toData(object, writer);
       if (!result) {
         throw new JdbcConnectorException(
             "Could not generate a PdxType using the ReflectionBasedAutoSerializer for the class  "
@@ -142,7 +137,7 @@ public class CreateMappingPreconditionCheckFunction extends CliFunction<Object[]
 
   private Object createInstance(Class<?> clazz) {
     try {
-      Constructor<?> ctor = clazz.getConstructor();
+      var ctor = clazz.getConstructor();
       return ctor.newInstance();
     } catch (NoSuchMethodException | SecurityException | InstantiationException
         | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
@@ -168,9 +163,9 @@ public class CreateMappingPreconditionCheckFunction extends CliFunction<Object[]
 
   private Class<?> loadPdxClassFromRemoteStream(String className, String remoteInputStreamName,
       RemoteInputStream remoteInputStream) throws ClassNotFoundException {
-    Path tempDir = createTemporaryDirectory("pdx-class-dir-");
+    var tempDir = createTemporaryDirectory("pdx-class-dir-");
     try {
-      File file =
+      var file =
           copyRemoteInputStreamToTempFile(className, remoteInputStreamName, remoteInputStream,
               tempDir);
       return loadClass(className, createURL(file, tempDir));
@@ -214,21 +209,21 @@ public class CreateMappingPreconditionCheckFunction extends CliFunction<Object[]
   }
 
   private boolean isJar(String fileName) {
-    String fileExtension = FilenameUtils.getExtension(fileName);
+    var fileExtension = FilenameUtils.getExtension(fileName);
     return fileExtension.equalsIgnoreCase("jar");
   }
 
   private File copyRemoteInputStreamToTempFile(String className, String remoteInputStreamName,
       RemoteInputStream remoteInputStream, Path tempDir) {
     if (!isJar(remoteInputStreamName) && className.contains(".")) {
-      File packageDir = new File(tempDir.toFile(), className.replace(".", "/")).getParentFile();
+      var packageDir = new File(tempDir.toFile(), className.replace(".", "/")).getParentFile();
       packageDir.mkdirs();
       tempDir = packageDir.toPath();
     }
     try {
-      Path tempPdxClassFile = Paths.get(tempDir.toString(), remoteInputStreamName);
-      try (InputStream input = RemoteInputStreamClient.wrap(remoteInputStream);
-          FileOutputStream output = new FileOutputStream(tempPdxClassFile.toString())) {
+      var tempPdxClassFile = Paths.get(tempDir.toString(), remoteInputStreamName);
+      try (var input = RemoteInputStreamClient.wrap(remoteInputStream);
+          var output = new FileOutputStream(tempPdxClassFile.toString())) {
         copyFile(input, output);
       }
       return tempPdxClassFile.toFile();

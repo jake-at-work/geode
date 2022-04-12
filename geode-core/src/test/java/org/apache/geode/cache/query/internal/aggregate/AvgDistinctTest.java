@@ -35,7 +35,7 @@ public class AvgDistinctTest extends DistinctAggregatorTest {
     distinctAggregator.accumulate(15);
     distinctAggregator.accumulate(15);
 
-    Object result = distinctAggregator.terminate();
+    var result = distinctAggregator.terminate();
     assertThat(result).isInstanceOf(Number.class);
     assertThat(((Number) result).floatValue()).isEqualTo(10);
   }

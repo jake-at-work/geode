@@ -50,7 +50,7 @@ public class DiskEntryHelperTest {
   @Test
   public void doSynchronousWriteReturnsTrueWhenDiskRegionIsSync() {
     when(diskRegion.isSync()).thenReturn(true);
-    boolean result = callDoSynchronousWrite();
+    var result = callDoSynchronousWrite();
     assertThat(result).isTrue();
   }
 
@@ -60,7 +60,7 @@ public class DiskEntryHelperTest {
     when(diskRegion.isBackup()).thenReturn(true);
     when(internalRegion.isInitialized()).thenReturn(false);
 
-    boolean result = callDoSynchronousWrite();
+    var result = callDoSynchronousWrite();
 
     assertThat(result).isTrue();
   }
@@ -71,7 +71,7 @@ public class DiskEntryHelperTest {
     when(diskRegion.isBackup()).thenReturn(false);
     when(internalRegion.isInitialized()).thenReturn(false);
 
-    boolean result = callDoSynchronousWrite();
+    var result = callDoSynchronousWrite();
 
     assertThat(result).isFalse();
   }
@@ -82,7 +82,7 @@ public class DiskEntryHelperTest {
     when(diskRegion.isBackup()).thenReturn(true);
     when(internalRegion.isInitialized()).thenReturn(true);
 
-    boolean result = callDoSynchronousWrite();
+    var result = callDoSynchronousWrite();
 
     assertThat(result).isFalse();
   }
@@ -90,15 +90,15 @@ public class DiskEntryHelperTest {
   @Test
   public void whenHelperUpdateCalledAndDiskRegionAcquireReadLockThrowsRegionDestroyedExceptionThenStoredObjectShouldBeReleased()
       throws Exception {
-    LocalRegion lr = mock(LocalRegion.class);
-    DiskEntry diskEntry = mock(DiskEntry.class);
+    var lr = mock(LocalRegion.class);
+    var diskEntry = mock(DiskEntry.class);
     when(diskEntry.getDiskId()).thenReturn(mock(DiskId.class));
-    EntryEventImpl entryEvent = mock(EntryEventImpl.class);
-    DiskRegion diskRegion = mock(DiskRegion.class);
+    var entryEvent = mock(EntryEventImpl.class);
+    var diskRegion = mock(DiskRegion.class);
     when(lr.getDiskRegion()).thenReturn(diskRegion);
     Mockito.doThrow(new RegionDestroyedException("Region Destroyed", "mocked region"))
         .when(diskRegion).acquireReadLock();
-    StoredObject storedObject = mock(StoredObject.class);
+    var storedObject = mock(StoredObject.class);
     try {
       DiskEntry.Helper.update(diskEntry, lr, storedObject, entryEvent);
       fail();
@@ -111,12 +111,12 @@ public class DiskEntryHelperTest {
   @Test
   public void whenBasicUpdateWithDiskRegionBackupAndEntryNotSetThenReleaseOnStoredObjectShouldBeCalled()
       throws Exception {
-    StoredObject storedObject = mock(StoredObject.class);
-    LocalRegion lr = mock(LocalRegion.class);
-    DiskEntry diskEntry = mock(DiskEntry.class);
+    var storedObject = mock(StoredObject.class);
+    var lr = mock(LocalRegion.class);
+    var diskEntry = mock(DiskEntry.class);
     when(diskEntry.getDiskId()).thenReturn(mock(DiskId.class));
-    EntryEventImpl entryEvent = mock(EntryEventImpl.class);
-    DiskRegion diskRegion = mock(DiskRegion.class);
+    var entryEvent = mock(EntryEventImpl.class);
+    var diskRegion = mock(DiskRegion.class);
     when(diskRegion.isBackup()).thenReturn(true);
     doThrow(new RegionDestroyedException("", "")).when(diskRegion).put(eq(diskEntry), eq(lr),
         ArgumentMatchers.any(DiskEntry.Helper.ValueWrapper.class), anyBoolean());
@@ -132,12 +132,12 @@ public class DiskEntryHelperTest {
   @Test
   public void whenBasicUpdateWithDiskRegionBackupAndAsyncWritesAndEntryNotSetThenReleaseOnStoredObjectShouldBeCalled()
       throws Exception {
-    StoredObject storedObject = mock(StoredObject.class);
-    LocalRegion lr = mock(LocalRegion.class);
-    DiskEntry diskEntry = mock(DiskEntry.class);
+    var storedObject = mock(StoredObject.class);
+    var lr = mock(LocalRegion.class);
+    var diskEntry = mock(DiskEntry.class);
     when(diskEntry.getDiskId()).thenReturn(mock(DiskId.class));
-    EntryEventImpl entryEvent = mock(EntryEventImpl.class);
-    DiskRegion diskRegion = mock(DiskRegion.class);
+    var entryEvent = mock(EntryEventImpl.class);
+    var diskRegion = mock(DiskRegion.class);
     when(diskRegion.isBackup()).thenReturn(true);
     doThrow(new RegionDestroyedException("", "")).when(diskRegion).put(eq(diskEntry), eq(lr),
         ArgumentMatchers.any(DiskEntry.Helper.ValueWrapper.class), anyBoolean());
@@ -156,12 +156,12 @@ public class DiskEntryHelperTest {
 
   @Test
   public void whenBasicUpdateButNotBackupAndEntrySet() throws Exception {
-    StoredObject storedObject = mock(StoredObject.class);
-    LocalRegion lr = mock(LocalRegion.class);
-    DiskEntry diskEntry = mock(DiskEntry.class);
+    var storedObject = mock(StoredObject.class);
+    var lr = mock(LocalRegion.class);
+    var diskEntry = mock(DiskEntry.class);
     when(diskEntry.getDiskId()).thenReturn(mock(DiskId.class));
-    EntryEventImpl entryEvent = mock(EntryEventImpl.class);
-    DiskRegion diskRegion = mock(DiskRegion.class);
+    var entryEvent = mock(EntryEventImpl.class);
+    var diskRegion = mock(DiskRegion.class);
     when(diskRegion.isBackup()).thenReturn(false);
     when(lr.getDiskRegion()).thenReturn(diskRegion);
     DiskEntry.Helper.basicUpdateForTesting(diskEntry, lr, storedObject, entryEvent);
@@ -170,11 +170,11 @@ public class DiskEntryHelperTest {
 
   @Test
   public void whenBasicUpdateButNotBackupAndDiskIdIsNullAndEntrySet() throws Exception {
-    StoredObject storedObject = mock(StoredObject.class);
-    LocalRegion lr = mock(LocalRegion.class);
-    DiskEntry diskEntry = mock(DiskEntry.class);
-    EntryEventImpl entryEvent = mock(EntryEventImpl.class);
-    DiskRegion diskRegion = mock(DiskRegion.class);
+    var storedObject = mock(StoredObject.class);
+    var lr = mock(LocalRegion.class);
+    var diskEntry = mock(DiskEntry.class);
+    var entryEvent = mock(EntryEventImpl.class);
+    var diskRegion = mock(DiskRegion.class);
     when(diskRegion.isBackup()).thenReturn(false);
     when(lr.getDiskRegion()).thenReturn(diskRegion);
     DiskEntry.Helper.basicUpdateForTesting(diskEntry, lr, storedObject, entryEvent);

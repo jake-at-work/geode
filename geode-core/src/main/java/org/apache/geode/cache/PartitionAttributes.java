@@ -156,7 +156,7 @@ public interface PartitionAttributes<K, V> {
   List<FixedPartitionAttributes> getFixedPartitionAttributes();
 
   default RegionAttributesType.PartitionAttributes convertToConfigPartitionAttributes() {
-    RegionAttributesType.PartitionAttributes configAttributes =
+    var configAttributes =
         new RegionAttributesType.PartitionAttributes();
     configAttributes.setColocatedWith(getColocatedWith());
     configAttributes.setLocalMaxMemory(Integer.toString(getLocalMaxMemory()));

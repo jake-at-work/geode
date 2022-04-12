@@ -95,7 +95,7 @@ public class LogWriterLogger extends ExtendedLoggerWrapper implements LogWriter,
    */
   public static LogWriterLogger create(final String name, final String connectionName,
       final boolean isSecure) {
-    Logger wrapped = LogManager.getLogger(name);
+    var wrapped = LogManager.getLogger(name);
     return new LogWriterLogger(wrapped, connectionName, isSecure);
   }
 
@@ -1304,7 +1304,7 @@ public class LogWriterLogger extends ExtendedLoggerWrapper implements LogWriter,
   }
 
   public void log(int logWriterLevel, final String message, final Throwable throwable) {
-    Level level = LogWriterLevelConverter.toLevel(LogWriterLevel.find(logWriterLevel));
+    var level = LogWriterLevelConverter.toLevel(LogWriterLevel.find(logWriterLevel));
     logWrapper.logIfEnabled(loggerName, level, null, message, throwable);
   }
 
@@ -1629,7 +1629,7 @@ public class LogWriterLogger extends ExtendedLoggerWrapper implements LogWriter,
   }
 
   public int getLogWriterLevel() {
-    final Level log4jLevel = logWrapper.getLevel();
+    final var log4jLevel = logWrapper.getLevel();
 
     if (log4jLevel == Level.OFF) {
       return NONE.intLevel();
@@ -1766,7 +1766,7 @@ public class LogWriterLogger extends ExtendedLoggerWrapper implements LogWriter,
   private static String levelToStringSpecialCase(int levelWithFlags) {
     if ((levelWithFlags & SECURITY_LOGGING_FLAG) != 0) {
       // We know the flag is set so XOR will zero it out.
-      int level = levelWithFlags ^ SECURITY_LOGGING_FLAG;
+      var level = levelWithFlags ^ SECURITY_LOGGING_FLAG;
       return SecurityLogWriter.SECURITY_PREFIX + levelToString(level);
     }
     // Needed to prevent infinite recursion
@@ -1807,7 +1807,7 @@ public class LogWriterLogger extends ExtendedLoggerWrapper implements LogWriter,
     NONE(NONE_LEVEL);
 
     public static LogWriterLevel find(final int intLevel) {
-      for (LogWriterLevel logWriterLevel : values()) {
+      for (var logWriterLevel : values()) {
         if (logWriterLevel.intLevel == intLevel) {
           return logWriterLevel;
         }
@@ -1923,7 +1923,7 @@ public class LogWriterLogger extends ExtendedLoggerWrapper implements LogWriter,
     }
 
     private String getMessage(final LogRecord record) {
-      StringBuilder stringBuilder = new StringBuilder();
+      var stringBuilder = new StringBuilder();
       stringBuilder.append('(').append("tid=").append(record.getThreadID())
           .append(" msgId=").append(record.getSequenceNumber()).append(") ");
       if (record.getMessage() != null) {
@@ -1963,15 +1963,15 @@ public class LogWriterLogger extends ExtendedLoggerWrapper implements LogWriter,
 
     @Override
     public String format(final LogRecord record) {
-      StringWriter sw = new StringWriter();
-      PrintWriter pw = new PrintWriter(sw);
+      var sw = new StringWriter();
+      var pw = new PrintWriter(sw);
 
       pw.println();
       pw.print('[');
       pw.print(record.getLevel().getName());
       pw.print(' ');
       pw.print(dateFormat.format(new Date(record.getMillis())));
-      String threadName = Thread.currentThread().getName();
+      var threadName = Thread.currentThread().getName();
       if (threadName != null) {
         pw.print(' ');
         pw.print(threadName);
@@ -1986,7 +1986,7 @@ public class LogWriterLogger extends ExtendedLoggerWrapper implements LogWriter,
       pw.print(record.getSequenceNumber());
       pw.print(") ");
 
-      String msg = record.getMessage();
+      var msg = record.getMessage();
       if (msg != null) {
         try {
           formatText(pw, msg, 40);
@@ -2013,17 +2013,17 @@ public class LogWriterLogger extends ExtendedLoggerWrapper implements LogWriter,
      * formatText manipulates \n and \r chars but supports Windows and Linux/Unix/Mac
      */
     private static void formatText(PrintWriter writer, String target, int initialLength) {
-      BreakIterator boundary = BreakIterator.getLineInstance();
+      var boundary = BreakIterator.getLineInstance();
       boundary.setText(target);
-      int start = boundary.first();
-      int end = boundary.next();
-      int lineLength = initialLength;
+      var start = boundary.first();
+      var end = boundary.next();
+      var lineLength = initialLength;
 
       while (end != BreakIterator.DONE) {
         // Look at the end and only accept whitespace breaks
-        char endChar = target.charAt(end - 1);
+        var endChar = target.charAt(end - 1);
         while (!Character.isWhitespace(endChar)) {
-          int lastEnd = end;
+          var lastEnd = end;
           end = boundary.next();
           if (end == BreakIterator.DONE) {
             // give up. We are at the end of the string
@@ -2032,7 +2032,7 @@ public class LogWriterLogger extends ExtendedLoggerWrapper implements LogWriter,
           }
           endChar = target.charAt(end - 1);
         }
-        int wordEnd = end;
+        var wordEnd = end;
         if (endChar == '\n') {
           // trim off the \n since println will do it for us
           wordEnd--;
@@ -2043,7 +2043,7 @@ public class LogWriterLogger extends ExtendedLoggerWrapper implements LogWriter,
           // figure tabs use 8 characters
           lineLength += 7;
         }
-        String word = target.substring(start, wordEnd);
+        var word = target.substring(start, wordEnd);
         lineLength += word.length();
         writer.print(word);
         if (endChar == '\n' || endChar == '\r') {

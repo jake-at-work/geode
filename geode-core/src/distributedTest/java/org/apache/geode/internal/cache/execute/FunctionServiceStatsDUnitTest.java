@@ -24,7 +24,6 @@ import static org.junit.Assert.fail;
 import static org.junit.runners.Parameterized.UseParametersRunnerFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -40,18 +39,14 @@ import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolManager;
-import org.apache.geode.cache.execute.Execution;
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionAdapter;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.execute.FunctionService;
-import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.cache.execute.ResultSender;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.ConfigurationProperties;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.DistributedSystem;
@@ -60,7 +55,6 @@ import org.apache.geode.internal.cache.PartitionAttributesImpl;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.PartitionedRegionTestHelper;
 import org.apache.geode.internal.cache.execute.metrics.FunctionServiceStats;
-import org.apache.geode.internal.cache.execute.metrics.FunctionStats;
 import org.apache.geode.internal.cache.execute.metrics.FunctionStatsManager;
 import org.apache.geode.internal.cache.functions.TestFunction;
 import org.apache.geode.internal.cache.tier.sockets.CacheServerTestUtil;
@@ -69,7 +63,6 @@ import org.apache.geode.test.dunit.Assert;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.SerializableCallableIF;
 import org.apache.geode.test.dunit.SerializableRunnableIF;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.Wait;
 import org.apache.geode.test.junit.categories.FunctionServiceTest;
 import org.apache.geode.test.junit.runners.CategoryWithParameterizedRunnerFactory;
@@ -158,7 +151,7 @@ public class FunctionServiceStatsDUnitTest extends PRClientServerTestBase {
    * thus any code which checks stats after calling getResult() may get wrong data.
    */
   private void waitNoFunctionsRunning(FunctionServiceStats stats) {
-    int count = 100;
+    var count = 100;
     while (stats.getFunctionExecutionsRunning() > 0 && count > 0) {
       count--;
       try {
@@ -191,8 +184,8 @@ public class FunctionServiceStatsDUnitTest extends PRClientServerTestBase {
     client.invoke(() -> {
       Region<String, Integer> region = cache.getRegion(PartitionedRegionName);
       assertNotNull(region);
-      final HashSet<String> testKeysSet = new HashSet<>();
-      for (int i = (totalNumBuckets * 2); i > 0; i--) {
+      final var testKeysSet = new HashSet<String>();
+      for (var i = (totalNumBuckets * 2); i > 0; i--) {
         testKeysSet.add("execKey-" + i);
       }
       DistributedSystem.setThreadsSocketPolicy(false);
@@ -200,16 +193,16 @@ public class FunctionServiceStatsDUnitTest extends PRClientServerTestBase {
       if (shouldRegisterFunctionsOnClient()) {
         FunctionService.registerFunction(function);
       }
-      Execution dataSet = FunctionService.onRegion(region);
+      var dataSet = FunctionService.onRegion(region);
       try {
-        int j = 0;
-        for (String s : testKeysSet) {
+        var j = 0;
+        for (var s : testKeysSet) {
           Integer val = j++;
           region.put(s, val);
         }
-        ResultCollector rc =
+        var rc =
             dataSet.withFilter(testKeysSet).setArguments(Boolean.TRUE).execute(function.getId());
-        int resultSize = ((List) rc.getResult()).size();
+        var resultSize = ((List) rc.getResult()).size();
         resultReceived_Aggregate += resultSize;
         resultReceived_TESTFUNCTION2 += resultSize;
         noOfExecutionCalls_Aggregate++;
@@ -246,8 +239,8 @@ public class FunctionServiceStatsDUnitTest extends PRClientServerTestBase {
 
     client.invoke(() -> {
       // checks for the aggregate stats
-      InternalDistributedSystem iDS = (InternalDistributedSystem) cache.getDistributedSystem();
-      FunctionServiceStats functionServiceStats =
+      var iDS = (InternalDistributedSystem) cache.getDistributedSystem();
+      var functionServiceStats =
           iDS.getFunctionStatsManager().getFunctionServiceStats();
       waitNoFunctionsRunning(functionServiceStats);
 
@@ -258,7 +251,7 @@ public class FunctionServiceStatsDUnitTest extends PRClientServerTestBase {
       assertTrue(functionServiceStats.getResultsReceived() >= resultReceived_Aggregate);
 
       logger.info("Calling FunctionStats for  TEST_FUNCTION2 :");
-      FunctionStats functionStats =
+      var functionStats =
           FunctionStatsManager.getFunctionStats(TestFunction.TEST_FUNCTION2, iDS);
       logger.info("Called FunctionStats for  TEST_FUNCTION2 :");
       assertEquals(noOfExecutionCalls_TESTFUNCTION2, functionStats.getFunctionExecutionCalls());
@@ -273,10 +266,10 @@ public class FunctionServiceStatsDUnitTest extends PRClientServerTestBase {
       assertTrue(functionStats.getResultsReceived() >= resultReceived_TESTFUNCTION3);
     });
 
-    SerializableRunnableIF checkStatsOnServer = () -> {
+    var checkStatsOnServer = (SerializableRunnableIF) () -> {
       // checks for the aggregate stats
-      InternalDistributedSystem iDS = (InternalDistributedSystem) cache.getDistributedSystem();
-      FunctionServiceStats functionServiceStats =
+      var iDS = (InternalDistributedSystem) cache.getDistributedSystem();
+      var functionServiceStats =
           iDS.getFunctionStatsManager().getFunctionServiceStats();
       waitNoFunctionsRunning(functionServiceStats);
 
@@ -288,7 +281,7 @@ public class FunctionServiceStatsDUnitTest extends PRClientServerTestBase {
       assertTrue(functionServiceStats
           .getFunctionExecutionsCompleted() >= noOfExecutionsCompleted_Aggregate);
 
-      FunctionStats functionStats =
+      var functionStats =
           FunctionStatsManager.getFunctionStats(TestFunction.TEST_FUNCTION2, iDS);
       // TEST_FUNCTION2 is executed twice
       noOfExecutionCalls_TESTFUNCTION2 += 2;
@@ -322,10 +315,10 @@ public class FunctionServiceStatsDUnitTest extends PRClientServerTestBase {
   @Test
   public void testClientServerDistributedRegionFunctionExecutionStats() {
 
-    final String regionName = "FunctionServiceStatsDUnitTest";
-    SerializableCallableIF<Integer> createCahenServer = () -> {
+    final var regionName = "FunctionServiceStatsDUnitTest";
+    var createCahenServer = (SerializableCallableIF<Integer>) () -> {
       try {
-        Properties props = new Properties();
+        var props = new Properties();
         DistributedSystem ds = getSystem(props);
         assertNotNull(ds);
         ds.disconnect();
@@ -333,19 +326,19 @@ public class FunctionServiceStatsDUnitTest extends PRClientServerTestBase {
         cache = CacheFactory.create(ds);
         logger.info("Created Cache on Server");
         assertNotNull(cache);
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.DISTRIBUTED_ACK);
         factory.setDataPolicy(DataPolicy.REPLICATE);
         assertNotNull(cache);
         Region<String, Integer> region = cache.createRegion(regionName, factory.create());
         logger.info("Region Created :" + region);
         assertNotNull(region);
-        for (int i = 1; i <= 200; i++) {
+        for (var i = 1; i <= 200; i++) {
           region.put("execKey-" + i, i);
         }
-        CacheServer server = cache.addCacheServer();
+        var server = cache.addCacheServer();
         assertNotNull(server);
-        int port = getRandomAvailableTCPPort();
+        var port = getRandomAvailableTCPPort();
         server.setPort(port);
         try {
           server.start();
@@ -360,13 +353,13 @@ public class FunctionServiceStatsDUnitTest extends PRClientServerTestBase {
         throw e;
       }
     };
-    final Integer port1 = server1.invoke(createCahenServer);
-    final Integer port2 = server2.invoke(createCahenServer);
-    final Integer port3 = server3.invoke(createCahenServer);
+    final var port1 = server1.invoke(createCahenServer);
+    final var port2 = server2.invoke(createCahenServer);
+    final var port3 = server3.invoke(createCahenServer);
 
     client.invoke(() -> {
       try {
-        Properties props = new Properties();
+        var props = new Properties();
         props.put(MCAST_PORT, "0");
         props.put(LOCATORS, "");
         DistributedSystem ds = getSystem(props);
@@ -390,7 +383,7 @@ public class FunctionServiceStatsDUnitTest extends PRClientServerTestBase {
         } finally {
           CacheServerTestUtil.enableShufflingOfEndpoints();
         }
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
         factory.setDataPolicy(DataPolicy.EMPTY);
         factory.setPoolName(p.getName());
@@ -398,7 +391,7 @@ public class FunctionServiceStatsDUnitTest extends PRClientServerTestBase {
         Region<String, Integer> region = cache.createRegion(regionName, factory.create());
         logger.info("Client Region Created :" + region);
         assertNotNull(region);
-        for (int i = 1; i <= 200; i++) {
+        for (var i = 1; i <= 200; i++) {
           region.put("execKey-" + i, i);
         }
       } catch (Exception e) {
@@ -425,18 +418,18 @@ public class FunctionServiceStatsDUnitTest extends PRClientServerTestBase {
       }
       Region region = cache.getRegion(regionName);
       Set<String> filter = new HashSet<>();
-      for (int i = 100; i < 120; i++) {
+      for (var i = 100; i < 120; i++) {
         filter.add("execKey-" + i);
       }
 
       try {
         noOfExecutionCalls_Aggregate++;
         noOfExecutionCalls_TESTFUNCTION2++;
-        List list = (List) FunctionService.onRegion(region).withFilter(filter)
+        var list = (List) FunctionService.onRegion(region).withFilter(filter)
             .execute(function2).getResult();
         noOfExecutionsCompleted_Aggregate++;
         noOfExecutionsCompleted_TESTFUNCTION2++;
-        int size = list.size();
+        var size = list.size();
         resultReceived_Aggregate += size;
         resultReceived_TESTFUNCTION2 += size;
 
@@ -459,8 +452,8 @@ public class FunctionServiceStatsDUnitTest extends PRClientServerTestBase {
 
     client.invoke(() -> {
       // checks for the aggregate stats
-      InternalDistributedSystem iDS = (InternalDistributedSystem) cache.getDistributedSystem();
-      FunctionServiceStats functionServiceStats =
+      var iDS = (InternalDistributedSystem) cache.getDistributedSystem();
+      var functionServiceStats =
           iDS.getFunctionStatsManager().getFunctionServiceStats();
       waitNoFunctionsRunning(functionServiceStats);
 
@@ -470,7 +463,7 @@ public class FunctionServiceStatsDUnitTest extends PRClientServerTestBase {
           functionServiceStats.getFunctionExecutionsCompleted());
       assertEquals(resultReceived_Aggregate, functionServiceStats.getResultsReceived());
 
-      FunctionStats functionStats =
+      var functionStats =
           FunctionStatsManager.getFunctionStats(TestFunction.TEST_FUNCTION2, iDS);
       assertEquals(noOfExecutionCalls_TESTFUNCTION2, functionStats.getFunctionExecutionCalls());
       assertEquals(noOfExecutionsCompleted_TESTFUNCTION2,
@@ -502,11 +495,11 @@ public class FunctionServiceStatsDUnitTest extends PRClientServerTestBase {
       if (shouldRegisterFunctionsOnClient()) {
         FunctionService.registerFunction(function);
       }
-      Execution member = FunctionService.onServers(pool);
+      var member = FunctionService.onServers(pool);
 
       try {
-        ResultCollector rs = member.setArguments(Boolean.TRUE).execute(function.getId());
-        int size = ((List) rs.getResult()).size();
+        var rs = member.setArguments(Boolean.TRUE).execute(function.getId());
+        var size = ((List) rs.getResult()).size();
         resultReceived_Aggregate += size;
         noOfExecutionCalls_Aggregate++;
         noOfExecutionsCompleted_Aggregate++;
@@ -523,8 +516,8 @@ public class FunctionServiceStatsDUnitTest extends PRClientServerTestBase {
         FunctionService.registerFunction(function);
       }
       try {
-        ResultCollector rs = member.setArguments("Success").execute(function.getId());
-        int size = ((List) rs.getResult()).size();
+        var rs = member.setArguments("Success").execute(function.getId());
+        var size = ((List) rs.getResult()).size();
         resultReceived_Aggregate += size;
         noOfExecutionCalls_Aggregate++;
         noOfExecutionsCompleted_Aggregate++;
@@ -541,8 +534,8 @@ public class FunctionServiceStatsDUnitTest extends PRClientServerTestBase {
 
     client.invoke(() -> {
       // checks for the aggregate stats
-      InternalDistributedSystem iDS = (InternalDistributedSystem) cache.getDistributedSystem();
-      FunctionServiceStats functionServiceStats =
+      var iDS = (InternalDistributedSystem) cache.getDistributedSystem();
+      var functionServiceStats =
           iDS.getFunctionStatsManager().getFunctionServiceStats();
       waitNoFunctionsRunning(functionServiceStats);
 
@@ -552,7 +545,7 @@ public class FunctionServiceStatsDUnitTest extends PRClientServerTestBase {
           functionServiceStats.getFunctionExecutionsCompleted());
       assertEquals(resultReceived_Aggregate, functionServiceStats.getResultsReceived());
 
-      FunctionStats functionStats =
+      var functionStats =
           FunctionStatsManager.getFunctionStats(TestFunction.TEST_FUNCTION1, iDS);
       assertEquals(noOfExecutionCalls_TESTFUNCTION1, functionStats.getFunctionExecutionCalls());
       assertEquals(noOfExecutionsCompleted_TESTFUNCTION1,
@@ -567,10 +560,10 @@ public class FunctionServiceStatsDUnitTest extends PRClientServerTestBase {
 
     });
 
-    SerializableRunnableIF checkStatsOnServer = () -> {
+    var checkStatsOnServer = (SerializableRunnableIF) () -> {
       // checks for the aggregate stats
-      InternalDistributedSystem iDS = (InternalDistributedSystem) cache.getDistributedSystem();
-      FunctionServiceStats functionServiceStats =
+      var iDS = (InternalDistributedSystem) cache.getDistributedSystem();
+      var functionServiceStats =
           iDS.getFunctionStatsManager().getFunctionServiceStats();
       waitNoFunctionsRunning(functionServiceStats);
 
@@ -581,7 +574,7 @@ public class FunctionServiceStatsDUnitTest extends PRClientServerTestBase {
       noOfExecutionsCompleted_Aggregate += 2;
       // this check is time sensitive, so allow it to fail a few times
       // before giving up
-      for (int i = 0; i < 10; i++) {
+      for (var i = 0; i < 10; i++) {
         try {
           assertEquals(noOfExecutionsCompleted_Aggregate,
               functionServiceStats.getFunctionExecutionsCompleted());
@@ -598,7 +591,7 @@ public class FunctionServiceStatsDUnitTest extends PRClientServerTestBase {
         }
       }
 
-      FunctionStats functionStats =
+      var functionStats =
           FunctionStatsManager.getFunctionStats(TestFunction.TEST_FUNCTION1, iDS);
       // TEST_FUNCTION1 is executed once
       noOfExecutionCalls_TESTFUNCTION1 += 1;
@@ -624,11 +617,11 @@ public class FunctionServiceStatsDUnitTest extends PRClientServerTestBase {
 
   @Test
   public void testP2PDummyExecutionStats() {
-    Host host = Host.getHost(0);
-    final VM datastore0 = host.getVM(0);
-    final VM datastore1 = host.getVM(1);
-    final VM datastore2 = host.getVM(2);
-    final VM accessor = host.getVM(3);
+    var host = Host.getHost(0);
+    final var datastore0 = host.getVM(0);
+    final var datastore1 = host.getVM(1);
+    final var datastore2 = host.getVM(2);
+    final var accessor = host.getVM(3);
     accessor.invoke(closeDistributedSystem);
     datastore0.invoke(closeDistributedSystem);
     datastore1.invoke(closeDistributedSystem);
@@ -644,12 +637,12 @@ public class FunctionServiceStatsDUnitTest extends PRClientServerTestBase {
    */
   @Test
   public void testP2PPartitionedRegionsFunctionExecutionStats() {
-    final String rName = getUniqueName();
-    Host host = Host.getHost(0);
-    final VM datastore0 = host.getVM(0);
-    final VM datastore1 = host.getVM(1);
-    final VM datastore2 = host.getVM(2);
-    final VM accessor = host.getVM(3);
+    final var rName = getUniqueName();
+    var host = Host.getHost(0);
+    final var datastore0 = host.getVM(0);
+    final var datastore1 = host.getVM(1);
+    final var datastore2 = host.getVM(2);
+    final var accessor = host.getVM(3);
 
     datastore0.invoke(initializeStats);
     datastore1.invoke(initializeStats);
@@ -657,9 +650,9 @@ public class FunctionServiceStatsDUnitTest extends PRClientServerTestBase {
     accessor.invoke(initializeStats);
 
     accessor.invoke(() -> {
-      RegionAttributes ra = PartitionedRegionTestHelper.createRegionAttrsForPR(0, 0);
-      AttributesFactory raf = new AttributesFactory(ra);
-      PartitionAttributesImpl pa = new PartitionAttributesImpl();
+      var ra = PartitionedRegionTestHelper.createRegionAttrsForPR(0, 0);
+      var raf = new AttributesFactory(ra);
+      var pa = new PartitionAttributesImpl();
       pa.setAll(ra.getPartitionAttributes());
       pa.setTotalNumBuckets(17);
       raf.setPartitionAttributes(pa);
@@ -667,10 +660,10 @@ public class FunctionServiceStatsDUnitTest extends PRClientServerTestBase {
       getCache().createRegion(rName, raf.create());
     });
 
-    SerializableRunnableIF dataStoreCreate = () -> {
-      RegionAttributes ra = PartitionedRegionTestHelper.createRegionAttrsForPR(0, 10);
-      AttributesFactory raf = new AttributesFactory(ra);
-      PartitionAttributesImpl pa = new PartitionAttributesImpl();
+    var dataStoreCreate = (SerializableRunnableIF) () -> {
+      var ra = PartitionedRegionTestHelper.createRegionAttrsForPR(0, 10);
+      var raf = new AttributesFactory(ra);
+      var pa = new PartitionAttributesImpl();
       pa.setAll(ra.getPartitionAttributes());
       pa.setTotalNumBuckets(17);
       raf.setPartitionAttributes(pa);
@@ -685,22 +678,22 @@ public class FunctionServiceStatsDUnitTest extends PRClientServerTestBase {
     datastore2.invoke(dataStoreCreate);
 
     accessor.invoke(() -> {
-      PartitionedRegion pr = (PartitionedRegion) getCache().getRegion(rName);
+      var pr = (PartitionedRegion) getCache().getRegion(rName);
       DistributedSystem.setThreadsSocketPolicy(false);
-      final HashSet<String> testKeys = new HashSet<>();
-      for (int i = (pr.getTotalNumberOfBuckets() * 3); i > 0; i--) {
+      final var testKeys = new HashSet<String>();
+      for (var i = (pr.getTotalNumberOfBuckets() * 3); i > 0; i--) {
         testKeys.add("execKey-" + i);
       }
-      int j = 0;
+      var j = 0;
       for (Object testKey : testKeys) {
         Integer val = j++;
         pr.put(testKey, val);
       }
       Function function = new TestFunction(true, TestFunction.TEST_FUNCTION2);
       FunctionService.registerFunction(function);
-      Execution dataSet = FunctionService.onRegion(pr);
-      ResultCollector rc1 = dataSet.setArguments(Boolean.TRUE).execute(function);
-      int size = ((List) rc1.getResult()).size();
+      var dataSet = FunctionService.onRegion(pr);
+      var rc1 = dataSet.setArguments(Boolean.TRUE).execute(function);
+      var size = ((List) rc1.getResult()).size();
       resultReceived_Aggregate += size;
       resultReceived_TESTFUNCTION2 += size;
 
@@ -718,9 +711,9 @@ public class FunctionServiceStatsDUnitTest extends PRClientServerTestBase {
     });
 
     accessor.invoke(() -> {
-      InternalDistributedSystem iDS =
+      var iDS =
           ((InternalDistributedSystem) getCache().getDistributedSystem());
-      FunctionServiceStats functionServiceStats =
+      var functionServiceStats =
           iDS.getFunctionStatsManager().getFunctionServiceStats();
       waitNoFunctionsRunning(functionServiceStats);
 
@@ -730,7 +723,7 @@ public class FunctionServiceStatsDUnitTest extends PRClientServerTestBase {
           functionServiceStats.getFunctionExecutionsCompleted());
       assertEquals(resultReceived_Aggregate, functionServiceStats.getResultsReceived());
 
-      FunctionStats functionStats =
+      var functionStats =
           FunctionStatsManager.getFunctionStats(TestFunction.TEST_FUNCTION2, iDS);
       assertEquals(noOfExecutionCalls_TESTFUNCTION2, functionStats.getFunctionExecutionCalls());
       assertEquals(noOfExecutionsCompleted_TESTFUNCTION2,
@@ -744,11 +737,11 @@ public class FunctionServiceStatsDUnitTest extends PRClientServerTestBase {
       assertEquals(resultReceived_TESTFUNCTION3, functionStats.getResultsReceived());
     });
 
-    SerializableRunnableIF checkFunctionExecutionStatsForDataStore = () -> {
-      InternalDistributedSystem iDS =
+    var checkFunctionExecutionStatsForDataStore = (SerializableRunnableIF) () -> {
+      var iDS =
           ((InternalDistributedSystem) getCache().getDistributedSystem());
       // 3 Function Executions took place
-      FunctionServiceStats functionServiceStats =
+      var functionServiceStats =
           iDS.getFunctionStatsManager().getFunctionServiceStats();
       waitNoFunctionsRunning(functionServiceStats);
 
@@ -759,7 +752,7 @@ public class FunctionServiceStatsDUnitTest extends PRClientServerTestBase {
       assertEquals(noOfExecutionsCompleted_Aggregate,
           functionServiceStats.getFunctionExecutionsCompleted());
 
-      FunctionStats functionStats =
+      var functionStats =
           FunctionStatsManager.getFunctionStats(TestFunction.TEST_FUNCTION2, iDS);
       // TEST_FUNCTION2 is executed twice
       noOfExecutionCalls_TESTFUNCTION2 += 2;
@@ -794,12 +787,12 @@ public class FunctionServiceStatsDUnitTest extends PRClientServerTestBase {
    */
   @Test
   public void testP2PDistributedRegionFunctionExecutionStats() {
-    final String rName = getUniqueName();
-    Host host = Host.getHost(0);
-    final VM datastore0 = host.getVM(0);
-    final VM datastore1 = host.getVM(1);
-    final VM datastore2 = host.getVM(2);
-    final VM datastore3 = host.getVM(3);
+    final var rName = getUniqueName();
+    var host = Host.getHost(0);
+    final var datastore0 = host.getVM(0);
+    final var datastore1 = host.getVM(1);
+    final var datastore2 = host.getVM(2);
+    final var datastore3 = host.getVM(3);
 
     datastore0.invoke(initializeStats);
     datastore1.invoke(initializeStats);
@@ -807,27 +800,27 @@ public class FunctionServiceStatsDUnitTest extends PRClientServerTestBase {
     datastore3.invoke(initializeStats);
 
     datastore0.invoke(() -> {
-      AttributesFactory factory = new AttributesFactory();
+      var factory = new AttributesFactory();
       factory.setScope(Scope.DISTRIBUTED_ACK);
       factory.setDataPolicy(DataPolicy.EMPTY);
       Region<String, Integer> region = getCache().createRegion(rName, factory.create());
       logger.info("Region Created :" + region);
       assertNotNull(region);
       FunctionService.registerFunction(new TestFunction(true, TestFunction.TEST_FUNCTION2));
-      for (int i = 1; i <= 200; i++) {
+      for (var i = 1; i <= 200; i++) {
         region.put("execKey-" + i, i);
       }
     });
 
-    SerializableRunnableIF createAndPopulateRegionWithReplicate = () -> {
-      AttributesFactory factory = new AttributesFactory();
+    var createAndPopulateRegionWithReplicate = (SerializableRunnableIF) () -> {
+      var factory = new AttributesFactory();
       factory.setScope(Scope.DISTRIBUTED_ACK);
       factory.setDataPolicy(DataPolicy.REPLICATE);
       Region<String, Integer> region = getCache().createRegion(rName, factory.create());
       logger.info("Region Created :" + region);
       assertNotNull(region);
       FunctionService.registerFunction(new TestFunction(true, TestFunction.TEST_FUNCTION2));
-      for (int i = 1; i <= 200; i++) {
+      for (var i = 1; i <= 200; i++) {
         region.put("execKey-" + i, i);
       }
     };
@@ -839,7 +832,7 @@ public class FunctionServiceStatsDUnitTest extends PRClientServerTestBase {
     datastore0.invoke(() -> {
       Region region = getCache().getRegion(rName);
       try {
-        List list = (List) FunctionService.onRegion(region).setArguments(Boolean.TRUE)
+        var list = (List) FunctionService.onRegion(region).setArguments(Boolean.TRUE)
             .execute(TestFunction.TEST_FUNCTION2).getResult();
         // this is the Distributed Region with Empty Data policy.
         // therefore no function execution takes place here. it only receives the results.
@@ -880,14 +873,14 @@ public class FunctionServiceStatsDUnitTest extends PRClientServerTestBase {
    */
   @Test
   public void testP2PMembersFunctionExecutionStats() {
-    Host host = Host.getHost(0);
-    VM member1 = host.getVM(0);
-    VM member2 = host.getVM(1);
-    VM member3 = host.getVM(2);
-    VM member4 = host.getVM(3);
+    var host = Host.getHost(0);
+    var member1 = host.getVM(0);
+    var member2 = host.getVM(1);
+    var member3 = host.getVM(2);
+    var member4 = host.getVM(3);
 
-    SerializableRunnableIF connectToDistributedSystem = () -> {
-      Properties props = new Properties();
+    var connectToDistributedSystem = (SerializableRunnableIF) () -> {
+      var props = new Properties();
       try {
         ds = getSystem(props);
         assertNotNull(ds);
@@ -932,12 +925,12 @@ public class FunctionServiceStatsDUnitTest extends PRClientServerTestBase {
 
       assertNotNull(ds);
       DistributedMember localmember = ds.getDistributedMember();
-      Execution memberExecution = FunctionService.onMember(localmember);
+      var memberExecution = FunctionService.onMember(localmember);
 
       memberExecution.setArguments("Key");
       try {
-        ResultCollector rc = memberExecution.execute(inlineFunction);
-        int size = ((List) rc.getResult()).size();
+        var rc = memberExecution.execute(inlineFunction);
+        var size = ((List) rc.getResult()).size();
         resultReceived_Aggregate += size;
         noOfExecutionCalls_Aggregate++;
         noOfExecutionsCompleted_Aggregate++;
@@ -953,7 +946,7 @@ public class FunctionServiceStatsDUnitTest extends PRClientServerTestBase {
     });
 
     member1.invoke(() -> {
-      FunctionServiceStats functionServiceStats =
+      var functionServiceStats =
           ds.getFunctionStatsManager().getFunctionServiceStats();
       waitNoFunctionsRunning(functionServiceStats);
 
@@ -963,7 +956,7 @@ public class FunctionServiceStatsDUnitTest extends PRClientServerTestBase {
           functionServiceStats.getFunctionExecutionsCompleted());
       assertEquals(resultReceived_Aggregate, functionServiceStats.getResultsReceived());
 
-      FunctionStats functionStats =
+      var functionStats =
           FunctionStatsManager.getFunctionStats(inlineFunction.getId(), ds);
       assertEquals(noOfExecutionCalls_Inline, functionStats.getFunctionExecutionCalls());
       assertEquals(noOfExecutionsCompleted_Inline,
@@ -971,8 +964,8 @@ public class FunctionServiceStatsDUnitTest extends PRClientServerTestBase {
       assertEquals(resultReceived_Inline, functionStats.getResultsReceived());
     });
 
-    SerializableRunnableIF checkFunctionExecutionStatsForOtherMember = () -> {
-      FunctionServiceStats functionServiceStats =
+    var checkFunctionExecutionStatsForOtherMember = (SerializableRunnableIF) () -> {
+      var functionServiceStats =
           ds.getFunctionStatsManager().getFunctionServiceStats();
       waitNoFunctionsRunning(functionServiceStats);
 
@@ -984,7 +977,7 @@ public class FunctionServiceStatsDUnitTest extends PRClientServerTestBase {
       assertEquals(noOfExecutionsCompleted_Aggregate,
           functionServiceStats.getFunctionExecutionsCompleted());
 
-      FunctionStats functionStats =
+      var functionStats =
           FunctionStatsManager.getFunctionStats(inlineFunction.getId(), ds);
       // noOfExecutionCalls_Inline++;
       // noOfExecutionsCompleted_Inline++;
@@ -1004,7 +997,7 @@ public class FunctionServiceStatsDUnitTest extends PRClientServerTestBase {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties properties = super.getDistributedSystemProperties();
+    var properties = super.getDistributedSystemProperties();
     properties.put(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER,
         "org.apache.geode.internal.cache.execute.MyFunctionExecutionException");
     return properties;
@@ -1018,22 +1011,22 @@ public class FunctionServiceStatsDUnitTest extends PRClientServerTestBase {
    */
   @Test
   public void testFunctionExecutionExceptionStatsOnAllNodesPRegion() {
-    final String rName = getUniqueName();
-    Host host = Host.getHost(0);
-    final VM datastore0 = host.getVM(0);
-    final VM datastore1 = host.getVM(1);
-    final VM datastore2 = host.getVM(2);
-    final VM datastore3 = host.getVM(3);
+    final var rName = getUniqueName();
+    var host = Host.getHost(0);
+    final var datastore0 = host.getVM(0);
+    final var datastore1 = host.getVM(1);
+    final var datastore2 = host.getVM(2);
+    final var datastore3 = host.getVM(3);
 
     datastore0.invoke(initializeStats);
     datastore1.invoke(initializeStats);
     datastore2.invoke(initializeStats);
     datastore3.invoke(initializeStats);
 
-    SerializableRunnableIF dataStoreCreate = () -> {
-      RegionAttributes ra = PartitionedRegionTestHelper.createRegionAttrsForPR(0, 10);
-      AttributesFactory raf = new AttributesFactory(ra);
-      PartitionAttributesImpl pa = new PartitionAttributesImpl();
+    var dataStoreCreate = (SerializableRunnableIF) () -> {
+      var ra = PartitionedRegionTestHelper.createRegionAttrsForPR(0, 10);
+      var raf = new AttributesFactory(ra);
+      var pa = new PartitionAttributesImpl();
       pa.setAll(ra.getPartitionAttributes());
       pa.setTotalNumBuckets(17);
       raf.setPartitionAttributes(pa);
@@ -1047,13 +1040,13 @@ public class FunctionServiceStatsDUnitTest extends PRClientServerTestBase {
     datastore3.invoke(dataStoreCreate);
 
     datastore3.invoke(() -> {
-      PartitionedRegion pr = (PartitionedRegion) getCache().getRegion(rName);
+      var pr = (PartitionedRegion) getCache().getRegion(rName);
       DistributedSystem.setThreadsSocketPolicy(false);
-      final HashSet<String> testKeys = new HashSet<>();
-      for (int i = (pr.getTotalNumberOfBuckets() * 3); i > 0; i--) {
+      final var testKeys = new HashSet<String>();
+      for (var i = (pr.getTotalNumberOfBuckets() * 3); i > 0; i--) {
         testKeys.add("execKey-" + i);
       }
-      int j = 0;
+      var j = 0;
       for (Object testKey : testKeys) {
         Integer key = j++;
         pr.put(key, testKey);
@@ -1061,8 +1054,8 @@ public class FunctionServiceStatsDUnitTest extends PRClientServerTestBase {
       try {
         Function function = new TestFunction(true, "TestFunctionException");
         FunctionService.registerFunction(function);
-        Execution dataSet = FunctionService.onRegion(pr);
-        ResultCollector rc = dataSet.setArguments(Boolean.TRUE).execute(function.getId());
+        var dataSet = FunctionService.onRegion(pr);
+        var rc = dataSet.setArguments(Boolean.TRUE).execute(function.getId());
         // Wait Criterion is added to make sure that the function execution
         // happens on all nodes and all nodes get the FunctionException so that the stats will get
         // incremented,
@@ -1080,7 +1073,7 @@ public class FunctionServiceStatsDUnitTest extends PRClientServerTestBase {
   }
 
   private void createScenario() {
-    ArrayList commonAttributes =
+    var commonAttributes =
         createCommonServerAttributes("TestPartitionedRegion", null, 0, null);
     createClientServerScenarion(commonAttributes, 20, 20, 20);
   }

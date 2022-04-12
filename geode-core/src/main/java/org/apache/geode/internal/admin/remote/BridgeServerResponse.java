@@ -21,7 +21,6 @@ import java.io.IOException;
 import org.apache.geode.CancelException;
 import org.apache.geode.DataSerializer;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.internal.Assert;
 import org.apache.geode.internal.cache.CacheServerImpl;
@@ -47,30 +46,30 @@ public class BridgeServerResponse extends AdminResponse {
    * Creates a {@code BridgeServerResponse} in response to the given request.
    */
   static BridgeServerResponse create(DistributionManager dm, BridgeServerRequest request) {
-    BridgeServerResponse m = new BridgeServerResponse();
+    var m = new BridgeServerResponse();
     m.setRecipient(request.getSender());
 
     try {
-      InternalCache cache = (InternalCache) CacheFactory.getInstanceCloseOk(dm.getSystem());
+      var cache = (InternalCache) CacheFactory.getInstanceCloseOk(dm.getSystem());
 
       if (request.getCacheId() != System.identityHashCode(cache)) {
         m.bridgeInfo = null;
 
       } else {
-        int operation = request.getOperation();
+        var operation = request.getOperation();
         switch (operation) {
           case BridgeServerRequest.ADD_OPERATION: {
-            CacheServerImpl bridge = (CacheServerImpl) cache.addCacheServer();
+            var bridge = (CacheServerImpl) cache.addCacheServer();
             m.bridgeInfo = new RemoteBridgeServer(bridge);
             break;
           }
 
           case BridgeServerRequest.INFO_OPERATION: {
-            int id = request.getBridgeId();
+            var id = request.getBridgeId();
             // Note that since this is only an informational request
             // it is not necessary to synchronize on allBridgeServersLock
-            for (CacheServer cacheServer : cache.getCacheServers()) {
-              CacheServerImpl bridge = (CacheServerImpl) cacheServer;
+            for (var cacheServer : cache.getCacheServers()) {
+              var bridge = (CacheServerImpl) cacheServer;
               if (System.identityHashCode(bridge) == id) {
                 m.bridgeInfo = new RemoteBridgeServer(bridge);
                 break;
@@ -83,9 +82,9 @@ public class BridgeServerResponse extends AdminResponse {
           }
 
           case BridgeServerRequest.START_OPERATION: {
-            RemoteBridgeServer config = request.getBridgeInfo();
-            for (CacheServer cacheServer : cache.getCacheServers()) {
-              CacheServerImpl bridge = (CacheServerImpl) cacheServer;
+            var config = request.getBridgeInfo();
+            for (var cacheServer : cache.getCacheServers()) {
+              var bridge = (CacheServerImpl) cacheServer;
               if (System.identityHashCode(bridge) == config.getId()) {
                 bridge.configureFrom(config);
                 bridge.start();
@@ -100,9 +99,9 @@ public class BridgeServerResponse extends AdminResponse {
           }
 
           case BridgeServerRequest.STOP_OPERATION: {
-            RemoteBridgeServer config = request.getBridgeInfo();
-            for (CacheServer cacheServer : cache.getCacheServers()) {
-              CacheServerImpl bridge = (CacheServerImpl) cacheServer;
+            var config = request.getBridgeInfo();
+            for (var cacheServer : cache.getCacheServers()) {
+              var bridge = (CacheServerImpl) cacheServer;
               if (System.identityHashCode(bridge) == config.getId()) {
                 bridge.stop();
                 m.bridgeInfo = new RemoteBridgeServer(bridge);

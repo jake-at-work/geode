@@ -43,7 +43,7 @@ public class AbstractLauncherTest {
 
   @Test
   public void canBeMocked() throws Exception {
-    AbstractLauncher mockAbstractLauncher = mock(AbstractLauncher.class);
+    var mockAbstractLauncher = mock(AbstractLauncher.class);
     mockAbstractLauncher.setDebug(true);
     verify(mockAbstractLauncher, times(1)).setDebug(true);
   }
@@ -55,7 +55,7 @@ public class AbstractLauncherTest {
 
   @Test
   public void isSetReturnsFalseIfPropertyHasEmptyValue() throws Exception {
-    Properties properties = new Properties();
+    var properties = new Properties();
 
     properties.setProperty(NAME, "");
 
@@ -64,7 +64,7 @@ public class AbstractLauncherTest {
 
   @Test
   public void isSetReturnsFalseIfPropertyHasBlankValue() throws Exception {
-    Properties properties = new Properties();
+    var properties = new Properties();
 
     properties.setProperty(NAME, "  ");
 
@@ -73,7 +73,7 @@ public class AbstractLauncherTest {
 
   @Test
   public void isSetReturnsTrueIfPropertyHasRealValue() throws Exception {
-    Properties properties = new Properties();
+    var properties = new Properties();
 
     properties.setProperty(NAME, "memberOne");
 
@@ -82,7 +82,7 @@ public class AbstractLauncherTest {
 
   @Test
   public void isSetKeyIsCaseSensitive() throws Exception {
-    Properties properties = new Properties();
+    var properties = new Properties();
 
     properties.setProperty(NAME, "memberOne");
 
@@ -93,63 +93,63 @@ public class AbstractLauncherTest {
   public void loadGemFirePropertiesWithNullURLReturnsEmptyProperties() throws Exception {
     URL nullUrl = null;
 
-    Properties properties = AbstractLauncher.loadGemFireProperties(nullUrl);
+    var properties = AbstractLauncher.loadGemFireProperties(nullUrl);
 
     assertThat(properties).isNotNull().isEmpty();
   }
 
   @Test
   public void loadGemFirePropertiesWithNonExistingURLReturnsEmptyProperties() throws Exception {
-    URL nonExistingUrl = new URL("file:///path/to/non_existing/gemfire.properties");
+    var nonExistingUrl = new URL("file:///path/to/non_existing/gemfire.properties");
 
-    Properties properties = AbstractLauncher.loadGemFireProperties(nonExistingUrl);
+    var properties = AbstractLauncher.loadGemFireProperties(nonExistingUrl);
 
     assertThat(properties).isNotNull().isEmpty();
   }
 
   @Test
   public void getDistributedSystemPropertiesContainsMemberNameAsName() throws Exception {
-    AbstractLauncher<?> launcher = createAbstractLauncher("memberOne", "1");
+    var launcher = createAbstractLauncher("memberOne", "1");
 
-    Properties properties = launcher.getDistributedSystemProperties();
+    var properties = launcher.getDistributedSystemProperties();
 
     assertThat(properties).containsExactly(entry(NAME, "memberOne"));
   }
 
   @Test
   public void getDistributedSystemPropertiesIsEmptyWhenMemberNameIsNull() throws Exception {
-    AbstractLauncher<?> launcher = createAbstractLauncher(null, "22");
+    var launcher = createAbstractLauncher(null, "22");
 
-    Properties properties = launcher.getDistributedSystemProperties();
+    var properties = launcher.getDistributedSystemProperties();
 
     assertThat(properties).isEmpty();
   }
 
   @Test
   public void getDistributedSystemPropertiesIsEmptyWhenMemberNameIsEmpty() throws Exception {
-    AbstractLauncher<?> launcher = createAbstractLauncher(StringUtils.EMPTY, "333");
+    var launcher = createAbstractLauncher(StringUtils.EMPTY, "333");
 
-    Properties properties = launcher.getDistributedSystemProperties();
+    var properties = launcher.getDistributedSystemProperties();
 
     assertThat(properties).isEmpty();
   }
 
   @Test
   public void getDistributedSystemPropertiesIsEmptyWhenMemberNameIsBlank() throws Exception {
-    AbstractLauncher<?> launcher = createAbstractLauncher("  ", "4444");
+    var launcher = createAbstractLauncher("  ", "4444");
 
-    Properties properties = launcher.getDistributedSystemProperties();
+    var properties = launcher.getDistributedSystemProperties();
 
     assertThat(properties).isEmpty();
   }
 
   @Test
   public void getDistributedSystemPropertiesIncludesDefaults() throws Exception {
-    AbstractLauncher<?> launcher = createAbstractLauncher("TestMember", "123");
-    Properties defaults = new Properties();
+    var launcher = createAbstractLauncher("TestMember", "123");
+    var defaults = new Properties();
     defaults.setProperty("testKey", "testValue");
 
-    Properties properties = launcher.getDistributedSystemProperties(defaults);
+    var properties = launcher.getDistributedSystemProperties(defaults);
 
     assertThat(properties.getProperty(NAME)).isEqualTo(launcher.getMemberName());
     assertThat(properties.getProperty("testKey")).isEqualTo("testValue");
@@ -157,112 +157,112 @@ public class AbstractLauncherTest {
 
   @Test
   public void getMemberNameReturnsValue() throws Exception {
-    AbstractLauncher<?> launcher = createAbstractLauncher("memberOne", null);
+    var launcher = createAbstractLauncher("memberOne", null);
 
     assertThat(launcher.getMemberName()).isEqualTo("memberOne");
   }
 
   @Test
   public void getMemberNameReturnsEmptyIfEmpty() throws Exception {
-    AbstractLauncher<?> launcher = createAbstractLauncher(StringUtils.EMPTY, null);
+    var launcher = createAbstractLauncher(StringUtils.EMPTY, null);
 
     assertThat(launcher.getMemberName()).isEqualTo(StringUtils.EMPTY);
   }
 
   @Test
   public void getMemberNameReturnsBlankIfBlank() throws Exception {
-    AbstractLauncher<?> launcher = createAbstractLauncher(" ", null);
+    var launcher = createAbstractLauncher(" ", null);
 
     assertThat(launcher.getMemberName()).isEqualTo(" ");
   }
 
   @Test
   public void getMemberNameReturnsSameNumberOfBlanks() throws Exception {
-    AbstractLauncher<?> launcher = createAbstractLauncher("   ", null);
+    var launcher = createAbstractLauncher("   ", null);
 
     assertThat(launcher.getMemberName()).isEqualTo("   ");
   }
 
   @Test
   public void getMemberIdReturnsValue() throws Exception {
-    AbstractLauncher<?> launcher = createAbstractLauncher(null, "123");
+    var launcher = createAbstractLauncher(null, "123");
 
     assertThat(launcher.getMemberId()).isEqualTo("123");
   }
 
   @Test
   public void getMemberIdReturnsNullIfNull() throws Exception {
-    AbstractLauncher<?> launcher = createAbstractLauncher(null, null);
+    var launcher = createAbstractLauncher(null, null);
 
     assertThat(launcher.getMemberId()).isNull();
   }
 
   @Test
   public void getMemberIdReturnsEmptyIfEmpty() throws Exception {
-    AbstractLauncher<?> launcher = createAbstractLauncher(null, StringUtils.EMPTY);
+    var launcher = createAbstractLauncher(null, StringUtils.EMPTY);
 
     assertThat(launcher.getMemberId()).isEqualTo(StringUtils.EMPTY);
   }
 
   @Test
   public void getMemberIdReturnsBlankIfBlank() throws Exception {
-    AbstractLauncher<?> launcher = createAbstractLauncher(null, " ");
+    var launcher = createAbstractLauncher(null, " ");
 
     assertThat(launcher.getMemberId()).isEqualTo(" ");
   }
 
   @Test
   public void getMemberIdReturnsSameNumberOfBlanks() throws Exception {
-    AbstractLauncher<?> launcher = createAbstractLauncher(null, "   ");
+    var launcher = createAbstractLauncher(null, "   ");
 
     assertThat(launcher.getMemberId()).isEqualTo("   ");
   }
 
   @Test
   public void getMemberPrefersMemberNameOverMemberId() throws Exception {
-    AbstractLauncher<?> launcher = createAbstractLauncher("memberOne", "123");
+    var launcher = createAbstractLauncher("memberOne", "123");
 
     assertThat(launcher.getMember()).isEqualTo("memberOne").isEqualTo(launcher.getMemberName());
   }
 
   @Test
   public void getMemberReturnsMemberIdIfMemberNameIsNull() throws Exception {
-    AbstractLauncher<?> launcher = createAbstractLauncher(null, "123");
+    var launcher = createAbstractLauncher(null, "123");
 
     assertThat(launcher.getMember()).isEqualTo("123").isEqualTo(launcher.getMemberId());
   }
 
   @Test
   public void getMemberReturnsMemberIdIfMemberNameIsEmpty() throws Exception {
-    AbstractLauncher<?> launcher = createAbstractLauncher(StringUtils.EMPTY, "123");
+    var launcher = createAbstractLauncher(StringUtils.EMPTY, "123");
 
     assertThat(launcher.getMember()).isEqualTo("123").isEqualTo(launcher.getMemberId());
   }
 
   @Test
   public void getMemberReturnsMemberIdIfMemberNameIsBlank() throws Exception {
-    AbstractLauncher<?> launcher = createAbstractLauncher(" ", "123");
+    var launcher = createAbstractLauncher(" ", "123");
 
     assertThat(launcher.getMember()).isEqualTo("123").isEqualTo(launcher.getMemberId());
   }
 
   @Test
   public void getMemberReturnsNullIfMemberIdIsNull() throws Exception {
-    AbstractLauncher<?> launcher = createAbstractLauncher(null, null);
+    var launcher = createAbstractLauncher(null, null);
 
     assertThat(launcher.getMember()).isNull();
   }
 
   @Test
   public void getMemberReturnNullIfMemberIdIsEmpty() throws Exception {
-    AbstractLauncher<?> launcher = createAbstractLauncher(null, StringUtils.EMPTY);
+    var launcher = createAbstractLauncher(null, StringUtils.EMPTY);
 
     assertThat(launcher.getMember()).isNull();
   }
 
   @Test
   public void getMemberReturnNullIfMemberIdIsBlank() throws Exception {
-    AbstractLauncher<?> launcher = createAbstractLauncher(null, " ");
+    var launcher = createAbstractLauncher(null, " ");
 
     assertThat(launcher.getMember()).isNull();
   }

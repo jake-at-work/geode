@@ -42,23 +42,23 @@ public class LocatorLoadSnapshotIntegrationTest {
    */
   @Test
   public void testConcurrentBalancing() throws InterruptedException {
-    int NUM_THREADS = 50;
-    final int NUM_REQUESTS = 10000;
-    int ALLOWED_THRESHOLD = 50; // We should never be off by more than
+    var NUM_THREADS = 50;
+    final var NUM_REQUESTS = 10000;
+    var ALLOWED_THRESHOLD = 50; // We should never be off by more than
     // the number of concurrent threads.
-    final int LOAD_POLL_INTERVAL = 30000;
+    final var LOAD_POLL_INTERVAL = 30000;
 
-    final LocatorLoadSnapshot sn = new LocatorLoadSnapshot();
-    final ServerLocation l1 = new ServerLocation("localhost", 1);
-    final ServerLocation l2 = new ServerLocation("localhost", 2);
-    final ServerLocation l3 = new ServerLocation("localhost", 3);
-    final String uniqueId1 = new InternalDistributedMember("localhost", 1).getUniqueId();
-    final String uniqueId2 = new InternalDistributedMember("localhost", 2).getUniqueId();
-    final String uniqueId3 = new InternalDistributedMember("localhost", 3).getUniqueId();
+    final var sn = new LocatorLoadSnapshot();
+    final var l1 = new ServerLocation("localhost", 1);
+    final var l2 = new ServerLocation("localhost", 2);
+    final var l3 = new ServerLocation("localhost", 3);
+    final var uniqueId1 = new InternalDistributedMember("localhost", 1).getUniqueId();
+    final var uniqueId2 = new InternalDistributedMember("localhost", 2).getUniqueId();
+    final var uniqueId3 = new InternalDistributedMember("localhost", 3).getUniqueId();
 
-    int initialLoad1 = (int) (Math.random() * (NUM_REQUESTS / 2));
-    int initialLoad2 = (int) (Math.random() * (NUM_REQUESTS / 2));
-    int initialLoad3 = (int) (Math.random() * (NUM_REQUESTS / 2));
+    var initialLoad1 = (int) (Math.random() * (NUM_REQUESTS / 2));
+    var initialLoad2 = (int) (Math.random() * (NUM_REQUESTS / 2));
+    var initialLoad3 = (int) (Math.random() * (NUM_REQUESTS / 2));
 
     sn.addServer(l1, uniqueId1, new String[0], new ServerLoad(initialLoad1, 1, 0, 1),
         LOAD_POLL_INTERVAL);
@@ -72,41 +72,41 @@ public class LocatorLoadSnapshotIntegrationTest {
     loadCounts.put(l2, new AtomicInteger(initialLoad2));
     loadCounts.put(l3, new AtomicInteger(initialLoad3));
 
-    Thread[] threads = new Thread[NUM_THREADS];
+    var threads = new Thread[NUM_THREADS];
     // final Object lock = new Object();
-    for (int i = 0; i < NUM_THREADS; i++) {
+    for (var i = 0; i < NUM_THREADS; i++) {
       threads[i] = new Thread("Thread-" + i) {
         @Override
         public void run() {
-          for (int ii = 0; ii < NUM_REQUESTS; ii++) {
+          for (var ii = 0; ii < NUM_REQUESTS; ii++) {
             ServerLocation location;
             // synchronized(lock) {
             location = sn.getServerForConnection(null, Collections.EMPTY_SET);
             // }
-            AtomicInteger count = (AtomicInteger) loadCounts.get(location);
+            var count = (AtomicInteger) loadCounts.get(location);
             count.incrementAndGet();
           }
         }
       };
     }
 
-    for (int i = 0; i < NUM_THREADS; i++) {
+    for (var i = 0; i < NUM_THREADS; i++) {
       threads[i].start();
     }
 
-    for (int i = 0; i < NUM_THREADS; i++) {
-      Thread t = threads[i];
+    for (var i = 0; i < NUM_THREADS; i++) {
+      var t = threads[i];
       long ms = 30 * 1000;
       t.join(30 * 1000);
       if (t.isAlive()) {
-        for (int j = 0; j < NUM_THREADS; j++) {
+        for (var j = 0; j < NUM_THREADS; j++) {
           threads[j].interrupt();
         }
         fail("Thread did not terminate after " + ms + " ms: " + t);
       }
     }
 
-    double expectedPerServer =
+    var expectedPerServer =
         (initialLoad1 + initialLoad2 + initialLoad3 + NUM_REQUESTS * NUM_THREADS)
             / (double) loadCounts.size();
     // for(Iterator itr = loadCounts.entrySet().iterator(); itr.hasNext(); ) {
@@ -115,11 +115,11 @@ public class LocatorLoadSnapshotIntegrationTest {
     // AI count= (AI) entry.getValue();
     // }
 
-    for (final Object o : loadCounts.entrySet()) {
-      Map.Entry entry = (Map.Entry) o;
-      ServerLocation location = (ServerLocation) entry.getKey();
-      AtomicInteger count = (AtomicInteger) entry.getValue();
-      int difference = (int) Math.abs(count.get() - expectedPerServer);
+    for (final var o : loadCounts.entrySet()) {
+      var entry = (Map.Entry) o;
+      var location = (ServerLocation) entry.getKey();
+      var count = (AtomicInteger) entry.getValue();
+      var difference = (int) Math.abs(count.get() - expectedPerServer);
       assertTrue("Count " + count + " for server " + location + " is not within "
           + ALLOWED_THRESHOLD + " of " + expectedPerServer, difference < ALLOWED_THRESHOLD);
     }

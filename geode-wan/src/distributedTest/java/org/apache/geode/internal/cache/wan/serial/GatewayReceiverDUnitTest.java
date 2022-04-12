@@ -22,7 +22,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.wan.GatewayReceiver;
-import org.apache.geode.cache.wan.GatewayReceiverFactory;
 import org.apache.geode.distributed.internal.DistributionAdvisor;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.AvailablePortHelper;
@@ -88,10 +87,10 @@ public class GatewayReceiverDUnitTest extends WANTestBase {
 
   public <T> void testRemoveGatewayReceiver(SerializableRunnableIF createRegionLambda,
       SerializableCallableIF<DistributionAdvisor> extractAdvisorLambda) throws Exception {
-    InternalDistributedMember[] memberIds = new InternalDistributedMember[8];
+    var memberIds = new InternalDistributedMember[8];
 
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     vm2.invoke(() -> WANTestBase.createCache(nyPort));
     vm3.invoke(() -> WANTestBase.createCache(nyPort));
@@ -140,10 +139,10 @@ public class GatewayReceiverDUnitTest extends WANTestBase {
   public <T> void testCanAddGatewayReceiverAfterOneHasBeenRemoved(
       SerializableRunnableIF createRegionLambda,
       SerializableCallableIF<DistributionAdvisor> extractAdvisorLambda) throws Exception {
-    InternalDistributedMember[] memberIds = new InternalDistributedMember[8];
+    var memberIds = new InternalDistributedMember[8];
 
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     vm2.invoke(() -> WANTestBase.createCache(nyPort));
     vm3.invoke(() -> WANTestBase.createCache(nyPort));
@@ -194,10 +193,10 @@ public class GatewayReceiverDUnitTest extends WANTestBase {
 
   public <T> void testCanDestroyUnstartedGatewayReceiver(SerializableRunnableIF createRegionLambda)
       throws Exception {
-    InternalDistributedMember[] memberIds = new InternalDistributedMember[8];
+    var memberIds = new InternalDistributedMember[8];
 
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     vm2.invoke(() -> WANTestBase.createCache(nyPort));
 
@@ -221,19 +220,19 @@ public class GatewayReceiverDUnitTest extends WANTestBase {
   private void assertProfileCacheServerFlagEquals(InternalDistributedMember member,
       boolean expectedFlag, SerializableCallableIF<DistributionAdvisor> extractAdvisor)
       throws Exception {
-    DistributionAdvisor advisor = extractAdvisor.call();
-    CacheDistributionAdvisor.CacheProfile cp =
+    var advisor = extractAdvisor.call();
+    var cp =
         (CacheDistributionAdvisor.CacheProfile) advisor.getProfile(member);
     assertEquals(expectedFlag, cp.hasCacheServer);
   }
 
   public static GatewayReceiver createAndReturnReceiver() {
-    GatewayReceiverFactory fact = cache.createGatewayReceiverFactory();
-    int port = AvailablePortHelper.getRandomAvailableTCPPort();
+    var fact = cache.createGatewayReceiverFactory();
+    var port = AvailablePortHelper.getRandomAvailableTCPPort();
     fact.setStartPort(port);
     fact.setEndPort(port);
     fact.setManualStart(true);
-    GatewayReceiver receiver = fact.create();
+    var receiver = fact.create();
     try {
       receiver.start();
     } catch (IOException e) {
@@ -245,12 +244,12 @@ public class GatewayReceiverDUnitTest extends WANTestBase {
   }
 
   public static GatewayReceiver createAndReturnUnstartedReceiver() {
-    GatewayReceiverFactory fact = cache.createGatewayReceiverFactory();
-    int port = AvailablePortHelper.getRandomAvailableTCPPort();
+    var fact = cache.createGatewayReceiverFactory();
+    var port = AvailablePortHelper.getRandomAvailableTCPPort();
     fact.setStartPort(port);
     fact.setEndPort(port);
     fact.setManualStart(true);
-    GatewayReceiver receiver = fact.create();
+    var receiver = fact.create();
     return receiver;
   }
 

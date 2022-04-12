@@ -185,8 +185,8 @@ public class JMXMBeanDUnitTest implements Serializable {
   private void remotelyValidateJmxConnection(boolean withAlias) {
     getVM(2).invoke(() -> {
       beforeClass();
-      MBeanServerConnectionRule jmx = new MBeanServerConnectionRule();
-      Map<String, Object> env = getClientEnvironment(withAlias);
+      var jmx = new MBeanServerConnectionRule();
+      var env = getClientEnvironment(withAlias);
       jmx.connect(jmxPort, env);
       validateJmxConnection(jmx);
     });
@@ -207,7 +207,7 @@ public class JMXMBeanDUnitTest implements Serializable {
   private void validateJmxConnection(MBeanServerConnectionRule mBeanServerConnectionRule)
       throws IOException, MalformedObjectNameException {
     // Get MBean proxy instance that will be used to make calls to registered MBean
-    DistributedSystemMXBean distributedSystemMXBean =
+    var distributedSystemMXBean =
         mBeanServerConnectionRule.getProxyMXBean(DistributedSystemMXBean.class);
     assertEquals(1, distributedSystemMXBean.getMemberCount());
     assertEquals(1, distributedSystemMXBean.getLocatorCount());

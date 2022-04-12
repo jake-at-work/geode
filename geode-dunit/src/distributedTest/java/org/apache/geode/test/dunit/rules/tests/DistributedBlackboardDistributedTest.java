@@ -27,7 +27,6 @@ import java.util.concurrent.TimeoutException;
 import org.junit.Rule;
 import org.junit.Test;
 
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.DistributedBlackboard;
 import org.apache.geode.test.dunit.rules.DistributedRule;
 import org.apache.geode.test.junit.rules.serializable.SerializableTestName;
@@ -44,8 +43,8 @@ public class DistributedBlackboardDistributedTest implements Serializable {
 
   @Test
   public void canPassDataBetweenVMs() {
-    VM vm0 = getVM(0);
-    VM vm1 = getVM(1);
+    var vm0 = getVM(0);
+    var vm1 = getVM(1);
 
     vm0.invoke("put data in mailbox", () -> blackboard.setMailbox(mailbox(), value()));
 
@@ -56,13 +55,13 @@ public class DistributedBlackboardDistributedTest implements Serializable {
 
   @Test
   public void canSignalAnotherVM() {
-    VM vm0 = getVM(0);
-    VM vm1 = getVM(1);
+    var vm0 = getVM(0);
+    var vm1 = getVM(1);
 
     vm1.invoke("wait on gate not yet signalled", () -> {
       assertThat(blackboard.isGateSignaled(gate())).isFalse();
 
-      Throwable thrown = catchThrowable(() -> {
+      var thrown = catchThrowable(() -> {
         blackboard.waitForGate(gate(), 1, SECONDS);
       });
 
@@ -76,7 +75,7 @@ public class DistributedBlackboardDistributedTest implements Serializable {
 
   @Test
   public void initBlackboardClearsEverything() {
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       blackboard.setMailbox(mailbox(i), value(i));
       assertThat((Object) blackboard.getMailbox(mailbox(i))).isEqualTo(value(i));
 
@@ -86,7 +85,7 @@ public class DistributedBlackboardDistributedTest implements Serializable {
 
     getVM(1).invoke("clear blackboard", () -> blackboard.initBlackboard());
 
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       assertThat((Object) blackboard.getMailbox(mailbox(i))).isNull();
       assertThat(blackboard.isGateSignaled(gate(i))).isFalse();
     }
@@ -260,7 +259,7 @@ public class DistributedBlackboardDistributedTest implements Serializable {
     blackboard.setMailbox(mailbox(), value());
 
     assertThat((Object) blackboard.getMailbox(mailbox())).isEqualTo(value());
-    for (VM vm : asList(getController(), getVM(0), getVM(1), getVM(2), getVM(3))) {
+    for (var vm : asList(getController(), getVM(0), getVM(1), getVM(2), getVM(3))) {
       vm.invoke(() -> {
         assertThat((Object) blackboard.getMailbox(mailbox())).isEqualTo(value());
       });

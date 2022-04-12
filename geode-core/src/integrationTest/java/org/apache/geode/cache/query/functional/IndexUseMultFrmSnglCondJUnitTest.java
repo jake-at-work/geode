@@ -33,12 +33,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.Index;
 import org.apache.geode.cache.query.IndexType;
 import org.apache.geode.cache.query.Query;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.Struct;
 import org.apache.geode.cache.query.data.Portfolio;
@@ -63,13 +61,13 @@ public class IndexUseMultFrmSnglCondJUnitTest {
 
   @Test
   public void testIndexUsageComaprison() throws Exception {
-    Region region = CacheUtils.createRegion("portfolios", Portfolio.class);
+    var region = CacheUtils.createRegion("portfolios", Portfolio.class);
     StructType resArType1 = null;
     StructType resArType2 = null;
     String[] strAr1 = null;
     String[] strAr2 = null;
-    int resArSize1 = 0;
-    int resArSize2 = 0;
+    var resArSize1 = 0;
+    var resArSize2 = 0;
     Object valPf1 = null;
     Object valPos1 = null;
     Object valPf2 = null;
@@ -80,20 +78,20 @@ public class IndexUseMultFrmSnglCondJUnitTest {
     Iterator iter2 = null;
     Set set1 = null;
     Set set2 = null;
-    for (int i = 0; i < 4; i++) {
+    for (var i = 0; i < 4; i++) {
       region.put("" + i, new Portfolio(i));
     }
-    QueryService qs = CacheUtils.getQueryService();
-    String[] queries =
-        {"SELECT DISTINCT * from " + SEPARATOR
+    var qs = CacheUtils.getQueryService();
+    var queries =
+        new String[] {"SELECT DISTINCT * from " + SEPARATOR
             + "portfolios pf, pf.positions.values pos where pos.secId = 'IBM'"};
-    SelectResults[][] r = new SelectResults[queries.length][2];
+    var r = new SelectResults[queries.length][2];
 
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
-        QueryObserverImpl observer = new QueryObserverImpl();
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         r[i][0] = (SelectResults) q.execute();
 
@@ -106,8 +104,8 @@ public class IndexUseMultFrmSnglCondJUnitTest {
         strAr1 = resArType1.getFieldNames();
 
         set1 = ((r[i][0]).asSet());
-        for (final Object o : set1) {
-          Struct stc1 = (Struct) o;
+        for (final var o : set1) {
+          var stc1 = (Struct) o;
           valPf1 = stc1.get(strAr1[0]);
           valPos1 = stc1.get(strAr1[1]);
           SECID1 = (((Position) valPos1).getSecId());
@@ -122,11 +120,11 @@ public class IndexUseMultFrmSnglCondJUnitTest {
     qs.createIndex("secIdIndex", IndexType.FUNCTIONAL, "b.secId",
         SEPARATOR + "portfolios pf, pf.positions.values b");
 
-    for (int j = 0; j < queries.length; j++) {
+    for (var j = 0; j < queries.length; j++) {
       Query q2 = null;
       try {
         q2 = CacheUtils.getQueryService().newQuery(queries[j]);
-        QueryObserverImpl observer2 = new QueryObserverImpl();
+        var observer2 = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer2);
         r[j][1] = (SelectResults) q2.execute();
         if (observer2.isIndexesUsed != true) {
@@ -137,8 +135,8 @@ public class IndexUseMultFrmSnglCondJUnitTest {
         resArSize2 = (r[j][1]).size();
         strAr2 = resArType2.getFieldNames();
         set2 = ((r[j][1]).asSet());
-        for (final Object o : set2) {
-          Struct stc2 = (Struct) o;
+        for (final var o : set2) {
+          var stc2 = (Struct) o;
           valPf2 = stc2.get(strAr2[0]);
           valPos2 = stc2.get(strAr2[1]);
           SECID2 = (((Position) valPos2).getSecId());
@@ -165,8 +163,8 @@ public class IndexUseMultFrmSnglCondJUnitTest {
     iter2 = set2.iterator();
     iter1 = set1.iterator();
     while (iter1.hasNext()) {
-      Struct stc2 = (Struct) iter2.next();
-      Struct stc1 = (Struct) iter1.next();
+      var stc2 = (Struct) iter2.next();
+      var stc1 = (Struct) iter1.next();
       if (stc2.get(strAr2[0]) != stc1.get(strAr1[0])) {
         fail(
             "FAILED: In both the Cases the first member of StructSet i.e. Portfolio are different. ");
@@ -184,9 +182,9 @@ public class IndexUseMultFrmSnglCondJUnitTest {
   @Test
   public void testMultiFromWithSingleConditionUsingIndex() throws Exception {
     // create region 1 and 2
-    Region region1 = CacheUtils.createRegion("portfolios1", Portfolio.class);
-    Region region2 = CacheUtils.createRegion("portfolios2", Portfolio.class);
-    for (int i = 0; i < 100; i++) {
+    var region1 = CacheUtils.createRegion("portfolios1", Portfolio.class);
+    var region2 = CacheUtils.createRegion("portfolios2", Portfolio.class);
+    for (var i = 0; i < 100; i++) {
       Portfolio p = null;
       if (i != 0 && i < 5) {
         p = new Portfolio(5);
@@ -197,19 +195,19 @@ public class IndexUseMultFrmSnglCondJUnitTest {
       region2.put(i, p);
     }
 
-    QueryService qs = CacheUtils.getQueryService();
+    var qs = CacheUtils.getQueryService();
     // create and execute query
-    String queryString = "SELECT * from " + SEPARATOR + "portfolios1 P1, " + SEPARATOR
+    var queryString = "SELECT * from " + SEPARATOR + "portfolios1 P1, " + SEPARATOR
         + "portfolios2 P2 WHERE P1.ID = 5";
-    Query query = qs.newQuery(queryString);
-    SelectResults sr1 = (SelectResults) query.execute();
+    var query = qs.newQuery(queryString);
+    var sr1 = (SelectResults) query.execute();
 
     // create index
-    Index index =
+    var index =
         qs.createIndex("P1IDIndex", IndexType.FUNCTIONAL, "P1.ID", SEPARATOR + "portfolios1 P1");
 
     // execute query
-    SelectResults sr2 = (SelectResults) query.execute();
+    var sr2 = (SelectResults) query.execute();
     assertEquals("Index result set does not match unindexed result set size", sr1.size(),
         sr2.size());
     // size will be number of matching in region 1 x region 2 size
@@ -220,9 +218,9 @@ public class IndexUseMultFrmSnglCondJUnitTest {
   @Test
   public void testMultiFromWithSingleConditionUsingRangeIndex() throws Exception {
     // create region 1 and 2
-    Region region1 = CacheUtils.createRegion("portfolios1", Portfolio.class);
-    Region region2 = CacheUtils.createRegion("portfolios2", Portfolio.class);
-    for (int i = 0; i < 100; i++) {
+    var region1 = CacheUtils.createRegion("portfolios1", Portfolio.class);
+    var region2 = CacheUtils.createRegion("portfolios2", Portfolio.class);
+    for (var i = 0; i < 100; i++) {
       Portfolio p = null;
       if (i != 0 && i < 5) {
         p = new Portfolio(5);
@@ -233,19 +231,19 @@ public class IndexUseMultFrmSnglCondJUnitTest {
       region2.put(i, p);
     }
 
-    QueryService qs = CacheUtils.getQueryService();
+    var qs = CacheUtils.getQueryService();
     // create and execute query
-    String queryString =
+    var queryString =
         "SELECT * from " + SEPARATOR + "portfolios1 P1, P1.positions.values WHERE P1.ID = 5";
-    Query query = qs.newQuery(queryString);
-    SelectResults sr1 = (SelectResults) query.execute();
+    var query = qs.newQuery(queryString);
+    var sr1 = (SelectResults) query.execute();
 
     // create index
-    Index index = qs.createIndex("P1IDIndex", IndexType.FUNCTIONAL, "P1.ID",
+    var index = qs.createIndex("P1IDIndex", IndexType.FUNCTIONAL, "P1.ID",
         SEPARATOR + "portfolios1 P1, P1.positions.values");
 
     // execute query
-    SelectResults sr2 = (SelectResults) query.execute();
+    var sr2 = (SelectResults) query.execute();
     assertEquals("Index result set does not match unindexed result set size", sr1.size(),
         sr2.size());
     // size will be number of matching in region 1 x region 2 size

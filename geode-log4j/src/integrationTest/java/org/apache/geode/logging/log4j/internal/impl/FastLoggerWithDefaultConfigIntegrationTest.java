@@ -43,14 +43,14 @@ public class FastLoggerWithDefaultConfigIntegrationTest {
 
   @Before
   public void setUp() {
-    LogConfig logConfig = mock(LogConfig.class);
-    LogConfigSupplier logConfigSupplier = mock(LogConfigSupplier.class);
+    var logConfig = mock(LogConfig.class);
+    var logConfigSupplier = mock(LogConfigSupplier.class);
 
     when(logConfig.getLogLevel()).thenReturn(INFO.intLevel());
     when(logConfig.getSecurityLogLevel()).thenReturn(INFO.intLevel());
     when(logConfigSupplier.getLogConfig()).thenReturn(logConfig);
 
-    Configuration configuration =
+    var configuration =
         Configuration.create(LogLevelUpdateOccurs.ALWAYS, LogLevelUpdateScope.GEODE_LOGGERS);
     configuration.initialize(logConfigSupplier);
   }

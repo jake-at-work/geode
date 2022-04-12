@@ -125,7 +125,7 @@ public class Fragment implements MemoryBlock {
 
   @Override
   public int hashCode() {
-    long value = getAddress();
+    var value = getAddress();
     return (int) (value ^ (value >>> 32));
   }
 

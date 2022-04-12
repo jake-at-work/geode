@@ -18,11 +18,9 @@ import static org.apache.geode.test.awaitility.GeodeAwaitility.await;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 import java.util.function.IntSupplier;
@@ -124,11 +122,11 @@ public abstract class CargoTestBase {
    */
   private void getKeyValueDataOnAllClients(String key, String expectedValue, String expectedCookie)
       throws IOException, URISyntaxException {
-    for (int i = 0; i < manager.numContainers(); i++) {
+    for (var i = 0; i < manager.numContainers(); i++) {
       // Set the port for this server
       client.setPort(Integer.parseInt(manager.getContainerPort(i)));
       // Get the response to a get on the specified key from this server
-      Client.Response resp = client.get(key);
+      var resp = client.get(key);
 
       // Null would mean we don't expect the same cookie as before
       if (expectedCookie != null) {
@@ -140,7 +138,7 @@ public abstract class CargoTestBase {
       if (install.getConnectionType() == ContainerInstall.ConnectionType.CACHING_CLIENT_SERVER) {
         // There might be delay for other client cache to gets the update through
         // HARegionQueue
-        String value = resp.getResponse();
+        var value = resp.getResponse();
         if (!expectedValue.equals(value)) {
           logger.info(
               "getKeyValueDataOnAllClients: verifying container \"{}\" for expected value of \"{}\""
@@ -170,12 +168,12 @@ public abstract class CargoTestBase {
   public void containersShouldReplicateCookies() throws IOException, URISyntaxException {
     manager.startAllInactiveContainers();
     await().until(() -> {
-      ServerContainer container = manager.getContainer(0);
+      var container = manager.getContainer(0);
       return container.getState().isStarted();
     });
 
     client.setPort(Integer.parseInt(manager.getContainerPort(0)));
-    Client.Response resp = client.get(null);
+    var resp = client.get(null);
     await().untilAsserted(() -> getKeyValueDataOnAllClients(null, "", resp.getSessionCookie()));
   }
 
@@ -187,15 +185,15 @@ public abstract class CargoTestBase {
   public void containersShouldHavePersistentSessionData() throws IOException, URISyntaxException {
     manager.startAllInactiveContainers();
     await().until(() -> {
-      ServerContainer container = manager.getContainer(0);
+      var container = manager.getContainer(0);
       return container.getState().isStarted();
     });
 
-    String key = "value_testSessionPersists";
-    String value = "Foo";
+    var key = "value_testSessionPersists";
+    var value = "Foo";
 
     client.setPort(Integer.parseInt(manager.getContainerPort(0)));
-    Client.Response resp = client.set(key, value);
+    var resp = client.set(key, value);
     await().untilAsserted(() -> getKeyValueDataOnAllClients(key, value, resp.getSessionCookie()));
   }
 
@@ -208,15 +206,15 @@ public abstract class CargoTestBase {
       throws IOException, URISyntaxException {
     manager.startAllInactiveContainers();
     await().until(() -> {
-      ServerContainer container = manager.getContainer(0);
+      var container = manager.getContainer(0);
       return container.getState().isStarted();
     });
 
-    String key = "value_testSessionPersists";
-    String value = "Foo";
+    var key = "value_testSessionPersists";
+    var value = "Foo";
 
     client.setPort(Integer.parseInt(manager.getContainerPort(0)));
-    Client.Response resp = client.set(key, value);
+    var resp = client.set(key, value);
 
     manager.stopContainer(0);
     manager.removeContainer(0);
@@ -232,12 +230,12 @@ public abstract class CargoTestBase {
   public void invalidationShouldRemoveValueAccessForAllContainers() throws Exception {
     manager.startAllInactiveContainers();
     await().until(() -> {
-      ServerContainer container = manager.getContainer(0);
+      var container = manager.getContainer(0);
       return container.getState().isStarted();
     });
 
-    String key = "value_testInvalidate";
-    String value = "Foo";
+    var key = "value_testInvalidate";
+    var value = "Foo";
 
     client.setPort(Integer.parseInt(manager.getContainerPort(0)));
     client.set(key, value);
@@ -262,15 +260,15 @@ public abstract class CargoTestBase {
       throws IOException, URISyntaxException, InterruptedException {
     manager.startAllInactiveContainers();
     await().until(() -> {
-      ServerContainer container = manager.getContainer(0);
+      var container = manager.getContainer(0);
       return container.getState().isStarted();
     });
 
-    String key = "value_testSessionExpiration";
-    String value = "Foo";
+    var key = "value_testSessionExpiration";
+    var value = "Foo";
 
     client.setPort(Integer.parseInt(manager.getContainerPort(0)));
-    Client.Response resp = client.set(key, value);
+    var resp = client.set(key, value);
     await().untilAsserted(() -> getKeyValueDataOnAllClients(key, value, resp.getSessionCookie()));
     client.setMaxInactive(1); // max inactive time is 1 second. Lets wait a second.
     Thread.sleep(2000);
@@ -292,12 +290,12 @@ public abstract class CargoTestBase {
       throws IOException, URISyntaxException {
     manager.startAllInactiveContainers();
     await().until(() -> {
-      ServerContainer container = manager.getContainer(0);
+      var container = manager.getContainer(0);
       return container.getState().isStarted();
     });
 
-    String key = "value_testSessionExpiration";
-    String value = "Foo";
+    var key = "value_testSessionExpiration";
+    var value = "Foo";
 
     client.setPort(Integer.parseInt(manager.getContainerPort(0)));
     client.set(key, value);
@@ -312,7 +310,7 @@ public abstract class CargoTestBase {
   }
 
   protected void verifyMaxInactiveInterval(int expected) throws IOException, URISyntaxException {
-    for (int i = 0; i < manager.numContainers(); i++) {
+    for (var i = 0; i < manager.numContainers(); i++) {
       client.setPort(Integer.parseInt(manager.getContainerPort(i)));
       if (install.getConnectionType() == ContainerInstall.ConnectionType.CACHING_CLIENT_SERVER) {
         await().atMost(30, TimeUnit.SECONDS).until(() -> Integer.toString(expected)
@@ -334,26 +332,26 @@ public abstract class CargoTestBase {
       throws URISyntaxException, IOException {
     manager.startAllInactiveContainers();
     await().until(() -> {
-      ServerContainer container = manager.getContainer(0);
+      var container = manager.getContainer(0);
       return container.getState().isStarted();
     });
 
-    int timeToExp = 30;
-    String key = "value_testSessionExpiration";
-    String value = "Foo";
+    var timeToExp = 30;
+    var key = "value_testSessionExpiration";
+    var value = "Foo";
 
     client.setPort(Integer.parseInt(manager.getContainerPort(0)));
 
-    Client.Response workingResponse = client.set(key, value);
+    var workingResponse = client.set(key, value);
 
-    String cookie = workingResponse.getSessionCookie();
+    var cookie = workingResponse.getSessionCookie();
 
     workingResponse = client.setMaxInactive(timeToExp);
 
     assertEquals(cookie, workingResponse.getSessionCookie());
 
     await().untilAsserted(() -> {
-      Client.Response resp = client.get(key);
+      var resp = client.get(key);
       Thread.sleep(500);
       assertEquals("Sessions are not replicating properly", cookie,
           resp.getSessionCookie());
@@ -376,14 +374,14 @@ public abstract class CargoTestBase {
   public void containersShouldShareDataRemovals() throws IOException, URISyntaxException {
     manager.startAllInactiveContainers();
     await().until(() -> {
-      ServerContainer container = manager.getContainer(0);
+      var container = manager.getContainer(0);
       return container.getState().isStarted();
     });
 
-    String key = "value_testSessionRemove";
-    String value = "Foo";
+    var key = "value_testSessionRemove";
+    var value = "Foo";
     client.setPort(Integer.parseInt(manager.getContainerPort(0)));
-    Client.Response resp = client.set(key, value);
+    var resp = client.set(key, value);
     await().untilAsserted(() -> getKeyValueDataOnAllClients(key, value, resp.getSessionCookie()));
     client.setPort(Integer.parseInt(manager.getContainerPort(0)));
     client.remove(key);
@@ -401,18 +399,18 @@ public abstract class CargoTestBase {
   public void newContainersShouldShareDataAccess() throws Exception {
     manager.startAllInactiveContainers();
     await().until(() -> {
-      ServerContainer container = manager.getContainer(0);
+      var container = manager.getContainer(0);
       return container.getState().isStarted();
     });
 
-    String key = "value_testSessionAdd";
-    String value = "Foo";
+    var key = "value_testSessionAdd";
+    var value = "Foo";
 
     client.setPort(Integer.parseInt(manager.getContainerPort(0)));
-    Client.Response resp = client.set(key, value);
+    var resp = client.set(key, value);
 
     await().untilAsserted(() -> getKeyValueDataOnAllClients(key, value, resp.getSessionCookie()));
-    int numContainers = manager.numContainers();
+    var numContainers = manager.numContainers();
     // Add and start new container
     manager.addContainer(install);
     customizeContainers();
@@ -427,19 +425,19 @@ public abstract class CargoTestBase {
   public void attributesCanBeReplaced() throws IOException, URISyntaxException {
     manager.startAllInactiveContainers();
     await().until(() -> {
-      ServerContainer container = manager.getContainer(0);
+      var container = manager.getContainer(0);
       return container.getState().isStarted();
     });
 
-    String key = "value_testSessionUpdate";
-    String value = "Foo";
-    String updateValue = "Bar";
+    var key = "value_testSessionUpdate";
+    var value = "Foo";
+    var updateValue = "Bar";
     client.setPort(Integer.parseInt(manager.getContainerPort(0)));
-    Client.Response response = client.set(key, value);
+    var response = client.set(key, value);
     await()
         .untilAsserted(() -> getKeyValueDataOnAllClients(key, value, response.getSessionCookie()));
     client.setPort(Integer.parseInt(manager.getContainerPort(0)));
-    Client.Response updateResponse = client.set(key, updateValue);
+    var updateResponse = client.set(key, updateValue);
     await().untilAsserted(
         () -> getKeyValueDataOnAllClients(key, updateValue, updateResponse.getSessionCookie()));
 
@@ -447,8 +445,8 @@ public abstract class CargoTestBase {
   }
 
   private void checkLogs() {
-    for (int i = 0; i < manager.numContainers(); i++) {
-      File cargo_dir = manager.getContainer(i).cargoLogDir;
+    for (var i = 0; i < manager.numContainers(); i++) {
+      var cargo_dir = manager.getContainer(i).cargoLogDir;
       LogChecker.checkLogs(cargo_dir);
     }
   }
@@ -459,7 +457,7 @@ public abstract class CargoTestBase {
   }
 
   private static void dumpDockerInfo() throws IOException {
-    Path dockerInfoPath = Paths.get("/", "proc", "self", "cgroup");
+    var dockerInfoPath = Paths.get("/", "proc", "self", "cgroup");
     if (Files.isReadable(dockerInfoPath)) {
       System.out.println("Docker info:");
       System.out.println("------------------------------------");

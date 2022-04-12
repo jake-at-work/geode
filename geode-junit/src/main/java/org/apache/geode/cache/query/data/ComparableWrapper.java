@@ -47,7 +47,7 @@ public class ComparableWrapper implements Comparable, Serializable {
       throw new ClassCastException(
           "Can't compare Object " + obj + " : Not of type ComparableWrapper");
     } else {
-      ComparableWrapper cwObj = (ComparableWrapper) obj;
+      var cwObj = (ComparableWrapper) obj;
       if (cwObj.getVal() == val) {
         return 0;
       } else if (cwObj.getVal() > val) {
@@ -62,7 +62,7 @@ public class ComparableWrapper implements Comparable, Serializable {
     if (!(obj instanceof ComparableWrapper)) {
       return false;
     } else {
-      ComparableWrapper cwObj = (ComparableWrapper) obj;
+      var cwObj = (ComparableWrapper) obj;
       return cwObj.getVal() == val;
     }
   }

@@ -42,9 +42,7 @@ import org.apache.geode.management.api.EntityInfo;
 import org.apache.geode.management.api.RestTemplateClusterManagementServiceTransport;
 import org.apache.geode.management.cluster.client.ClusterManagementServiceBuilder;
 import org.apache.geode.management.configuration.Deployment;
-import org.apache.geode.management.runtime.DeploymentInfo;
 import org.apache.geode.test.compiler.JarBuilder;
-import org.apache.geode.test.junit.assertions.ClusterManagementListResultAssert;
 import org.apache.geode.util.internal.GeodeJsonMapper;
 
 @RunWith(SpringRunner.class)
@@ -80,7 +78,7 @@ public class DeployManagementIntegrationTest {
 
     jar1 = new File(temporaryFolder.getRoot(), "jar1.jar");
     jar2 = new File(temporaryFolder.getRoot(), "jar2.jar");
-    JarBuilder jarBuilder = new JarBuilder();
+    var jarBuilder = new JarBuilder();
     jarBuilder.buildJarFromClassNames(jar1, "ClassOne");
     jarBuilder.buildJarFromClassNames(jar2, "ClassTwo");
   }
@@ -99,7 +97,7 @@ public class DeployManagementIntegrationTest {
     deployment.setGroup("group2");
     assertManagementResult(client.create(deployment)).isSuccessful();
 
-    ClusterManagementListResultAssert<Deployment, DeploymentInfo> deploymentResultAssert =
+    var deploymentResultAssert =
         assertManagementListResult(client.list(new Deployment()));
     deploymentResultAssert.isSuccessful()
         .hasEntityInfo()

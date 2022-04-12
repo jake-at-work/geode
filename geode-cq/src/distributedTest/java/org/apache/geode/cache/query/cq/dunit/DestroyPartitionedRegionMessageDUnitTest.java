@@ -33,16 +33,12 @@ import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.query.CqAttributes;
 import org.apache.geode.cache.query.CqAttributesFactory;
 import org.apache.geode.cache.query.CqEvent;
 import org.apache.geode.cache.query.CqListener;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.data.Portfolio;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.categories.ClientSubscriptionTest;
@@ -60,28 +56,28 @@ public class DestroyPartitionedRegionMessageDUnitTest implements Serializable {
 
   @Before
   public void before() throws Exception {
-    MemberVM locator = clusterStartupRule.startLocatorVM(0, new Properties());
+    var locator = clusterStartupRule.startLocatorVM(0, new Properties());
     Integer locator1Port = locator.getPort();
     server1 = clusterStartupRule.startServerVM(1, locator1Port);
     server2 = clusterStartupRule.startServerVM(2, locator1Port);
 
     VMProvider.invokeInEveryMember(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
+      var cache = ClusterStartupRule.getCache();
       assertThat(cache).isNotNull();
       cache.createRegionFactory(RegionShortcut.PARTITION).create("region");
     }, server1, server2);
 
-    ClientCacheFactory clientCacheFactory = new ClientCacheFactory();
+    var clientCacheFactory = new ClientCacheFactory();
     clientCacheFactory.addPoolServer("localhost", server1.getPort());
     clientCacheFactory.setPoolSubscriptionEnabled(true);
-    ClientCache clientCache = clientCacheFactory.create();
+    var clientCache = clientCacheFactory.create();
     clientCache.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY).create("region");
 
-    QueryService queryService = clientCache.getQueryService();
-    CqAttributesFactory cqaf = new CqAttributesFactory();
+    var queryService = clientCache.getQueryService();
+    var cqaf = new CqAttributesFactory();
     testListener = new TestCqListener();
     cqaf.addCqListener(testListener);
-    CqAttributes cqAttributes = cqaf.create();
+    var cqAttributes = cqaf.create();
 
     queryService.newCq("Select * from " + SEPARATOR + "region r where r.ID + 3 > 4", cqAttributes)
         .execute();
@@ -93,7 +89,7 @@ public class DestroyPartitionedRegionMessageDUnitTest implements Serializable {
   public void closeMethodShouldBeCalledWhenRegionIsDestroyed(int serverIndex) {
     // The test is run twice with destroy being invoked in each server
     clusterStartupRule.getMember(serverIndex).invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
+      var cache = ClusterStartupRule.getCache();
       assertThat(cache).isNotNull();
       Region<Integer, Portfolio> regionOnServer = cache.getRegion("region");
       regionOnServer.destroyRegion();
@@ -101,7 +97,7 @@ public class DestroyPartitionedRegionMessageDUnitTest implements Serializable {
 
     // Wait until region destroy operation has been distributed.
     VMProvider.invokeInEveryMember(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
+      var cache = ClusterStartupRule.getCache();
       assertThat(cache).isNotNull();
       await().until(() -> cache.getRegion("region") == null);
     }, server1, server2);

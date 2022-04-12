@@ -47,20 +47,20 @@ public class PeerTypeRegistrationReverseMap {
 
   void save(Object key, Object value) {
     if (value instanceof PdxType) {
-      PdxType type = (PdxType) value;
+      var type = (PdxType) value;
       typeToId.put(type, (Integer) key);
     } else if (value instanceof EnumInfo) {
-      EnumInfo info = (EnumInfo) value;
+      var info = (EnumInfo) value;
       enumToId.put(info, (EnumId) key);
     }
   }
 
   void saveToPending(Object key, Object value) {
     if (value instanceof PdxType) {
-      PdxType type = (PdxType) value;
+      var type = (PdxType) value;
       pendingTypeToId.put(type, (Integer) key);
     } else if (value instanceof EnumInfo) {
-      EnumInfo info = (EnumInfo) value;
+      var info = (EnumInfo) value;
       pendingEnumToId.put(info, (EnumId) key);
     }
   }

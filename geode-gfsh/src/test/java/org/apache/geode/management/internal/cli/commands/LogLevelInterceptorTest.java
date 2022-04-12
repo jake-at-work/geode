@@ -52,7 +52,7 @@ public class LogLevelInterceptorTest {
   public void testInvalidLogLevel() {
     when(parseResult.getParamValueAsString("log-level")).thenReturn("test");
     when(parseResult.getParamValueAsString("loglevel")).thenReturn("test");
-    for (AbstractCliAroundInterceptor interceptor : interceptors) {
+    for (var interceptor : interceptors) {
       result = interceptor.preExecution(parseResult);
       assertThat(result.getInfoSection("info").getContent())
           .containsOnly("Invalid log level: test");
@@ -63,7 +63,7 @@ public class LogLevelInterceptorTest {
   public void testGeodeLogLevel() {
     when(parseResult.getParamValueAsString("log-level")).thenReturn("fine");
     when(parseResult.getParamValueAsString("loglevel")).thenReturn("fine");
-    for (AbstractCliAroundInterceptor interceptor : interceptors) {
+    for (var interceptor : interceptors) {
       result = interceptor.preExecution(parseResult);
       assertThat(result.getInfoSection("info").getContent()).containsOnly("");
     }
@@ -73,7 +73,7 @@ public class LogLevelInterceptorTest {
   public void testLog4JLevel() {
     when(parseResult.getParamValueAsString("log-level")).thenReturn("trace");
     when(parseResult.getParamValueAsString("loglevel")).thenReturn("trace");
-    for (AbstractCliAroundInterceptor interceptor : interceptors) {
+    for (var interceptor : interceptors) {
       result = interceptor.preExecution(parseResult);
       assertThat(result.getInfoSection("info").getContent()).containsOnly("");
     }

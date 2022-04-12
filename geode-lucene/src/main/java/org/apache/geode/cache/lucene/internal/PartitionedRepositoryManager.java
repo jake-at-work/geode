@@ -31,7 +31,6 @@ import org.apache.geode.cache.lucene.LuceneSerializer;
 import org.apache.geode.cache.lucene.internal.repository.IndexRepository;
 import org.apache.geode.cache.lucene.internal.repository.RepositoryManager;
 import org.apache.geode.internal.cache.BucketNotFoundException;
-import org.apache.geode.internal.cache.BucketRegion;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.execute.InternalRegionFunctionContext;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -82,15 +81,15 @@ public class PartitionedRepositoryManager implements RepositoryManager {
   @Override
   public Collection<IndexRepository> getRepositories(RegionFunctionContext ctx,
       boolean waitForRepository) throws BucketNotFoundException {
-    Region<Object, Object> region = ctx.getDataSet();
-    int[] buckets = ((InternalRegionFunctionContext) ctx).getLocalBucketArray(region);
+    var region = ctx.getDataSet();
+    var buckets = ((InternalRegionFunctionContext) ctx).getLocalBucketArray(region);
     if (buckets == null || buckets[0] == 0) {
       return null;
     }
-    ArrayList<IndexRepository> repos = new ArrayList<>(buckets[0]);
-    for (int i = 1; i <= buckets[0]; i++) {
-      int bucketId = buckets[i];
-      BucketRegion userBucket = userRegion.getDataStore().getLocalBucketById(bucketId);
+    var repos = new ArrayList<IndexRepository>(buckets[0]);
+    for (var i = 1; i <= buckets[0]; i++) {
+      var bucketId = buckets[i];
+      var userBucket = userRegion.getDataStore().getLocalBucketById(bucketId);
       if (userBucket == null) {
         throw new BucketNotFoundException(
             "User bucket was not found for region " + region + "bucket id " + bucketId);
@@ -118,7 +117,7 @@ public class PartitionedRepositoryManager implements RepositoryManager {
   @Override
   public IndexRepository getRepository(Region region, Object key, Object callbackArg)
       throws BucketNotFoundException {
-    BucketRegion userBucket = userRegion.getBucketRegion(key, callbackArg);
+    var userBucket = userRegion.getBucketRegion(key, callbackArg);
     if (userBucket == null) {
       throw new BucketNotFoundException("User bucket was not found for region " + region + "key "
           + key + " callbackarg " + callbackArg);
@@ -131,7 +130,7 @@ public class PartitionedRepositoryManager implements RepositoryManager {
    * Return the repository for a given user bucket
    */
   protected IndexRepository getRepository(Integer bucketId) throws BucketNotFoundException {
-    IndexRepository repo = indexRepositories.get(bucketId);
+    var repo = indexRepositories.get(bucketId);
     if (repo != null && !repo.isClosed()) {
       return repo;
     }
@@ -159,7 +158,7 @@ public class PartitionedRepositoryManager implements RepositoryManager {
     } catch (InterruptedException e) {
       throw new InternalGemFireError("Unable to create index repository", e);
     }
-    IndexRepository repo = indexRepositories.compute(bucketId, (key, oldRepository) -> {
+    var repo = indexRepositories.compute(bucketId, (key, oldRepository) -> {
       try {
         if (closed) {
           if (oldRepository != null) {
@@ -183,7 +182,7 @@ public class PartitionedRepositoryManager implements RepositoryManager {
   @Override
   public void close() {
     closed = true;
-    for (Integer bucketId : indexRepositories.keySet()) {
+    for (var bucketId : indexRepositories.keySet()) {
       try {
         computeRepository(bucketId);
       } catch (LuceneIndexDestroyedException e) {

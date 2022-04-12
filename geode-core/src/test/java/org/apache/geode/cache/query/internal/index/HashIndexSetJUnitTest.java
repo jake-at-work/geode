@@ -24,7 +24,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -63,8 +62,8 @@ public class HashIndexSetJUnitTest {
   }
 
   private HashIndexSet createHashIndexSet() {
-    HashIndexSet his = new HashIndexSet();
-    HashIndex.IMQEvaluator mockEvaluator = mock(HashIndex.IMQEvaluator.class);
+    var his = new HashIndexSet();
+    var mockEvaluator = mock(HashIndex.IMQEvaluator.class);
     when(mockEvaluator.evaluateKey(any(Object.class))).thenAnswer(new EvaluateKeyAnswer());
     his.setEvaluator(mockEvaluator);
     return his;
@@ -80,7 +79,7 @@ public class HashIndexSetJUnitTest {
   private Map<Integer, Portfolio> createPortfolioObjects(int numToCreate, int startID) {
     Map<Integer, Portfolio> portfoliosMap = new HashMap<>();
     IntStream.range(0, numToCreate).forEach(e -> {
-      Portfolio p = new Portfolio(e + startID);
+      var p = new Portfolio(e + startID);
       p.indexKey = e;
       portfoliosMap.put(p.indexKey, p);
     });
@@ -89,7 +88,7 @@ public class HashIndexSetJUnitTest {
 
   @Test
   public void testHashIndexSetAdd() throws Exception {
-    int numEntries = 100;
+    var numEntries = 100;
     setupHashIndexSet(numEntries);
 
     assertEquals(numEntries, his.size());
@@ -99,7 +98,7 @@ public class HashIndexSetJUnitTest {
 
   @Test
   public void testHashIndexSetAddWithNullKey() throws Exception {
-    int numEntries = 100;
+    var numEntries = 100;
     setupHashIndexSet(numEntries);
 
     assertEquals(numEntries, his.size());
@@ -113,7 +112,7 @@ public class HashIndexSetJUnitTest {
    */
   @Test
   public void testHashIndexSetAddUseRemoveTokenSlot() throws Exception {
-    int numEntries = 20;
+    var numEntries = 20;
     setupHashIndexSet(numEntries);
     assertEquals(numEntries, his.size());
     his.removeAll(portfolioSet);
@@ -127,7 +126,7 @@ public class HashIndexSetJUnitTest {
 
   @Test
   public void testCompactDueToTooManyRemoveTokens() throws Exception {
-    int numEntries = 10;
+    var numEntries = 10;
     setupHashIndexSet(numEntries);
 
     assertEquals(numEntries, his.size());
@@ -147,7 +146,7 @@ public class HashIndexSetJUnitTest {
 
   @Test
   public void testRehashRetainsAllValues() throws Exception {
-    int numEntries = 80;
+    var numEntries = 80;
     setupHashIndexSet(numEntries);
     assertEquals(numEntries, his.size());
     his.rehash(1000);
@@ -158,7 +157,7 @@ public class HashIndexSetJUnitTest {
 
   @Test
   public void testShrinkByRehashRetainsAllValues() throws Exception {
-    int numEntries = 20;
+    var numEntries = 20;
     setupHashIndexSet(numEntries);
 
     assertEquals(numEntries, his.size());
@@ -170,7 +169,7 @@ public class HashIndexSetJUnitTest {
 
   @Test
   public void testGetByKey() throws Exception {
-    int numEntries = 20;
+    var numEntries = 20;
     setupHashIndexSet(numEntries);
 
     assertEquals(numEntries, his.size());
@@ -180,19 +179,19 @@ public class HashIndexSetJUnitTest {
 
   @Test
   public void testGetByKeyMultipleCollisions() throws Exception {
-    int numEntries = 20;
-    int keyToLookup = 1;
+    var numEntries = 20;
+    var keyToLookup = 1;
     his = createHashIndexSet();
-    Map<Integer, Portfolio> collectionOfPorts1 = createPortfolioObjects(numEntries, 0);
-    Map<Integer, Portfolio> collectionOfPorts2 =
+    var collectionOfPorts1 = createPortfolioObjects(numEntries, 0);
+    var collectionOfPorts2 =
         createPortfolioObjects(numEntries, numEntries);
 
     addPortfoliosToHashIndexSet(collectionOfPorts1, his);
     addPortfoliosToHashIndexSet(collectionOfPorts2, his);
 
     assertEquals(numEntries * 2, his.size());
-    Iterator iterator = his.get(keyToLookup);
-    int numIterated = 0;
+    var iterator = his.get(keyToLookup);
+    var numIterated = 0;
     while (iterator.hasNext()) {
       numIterated++;
       // verify that the returned values match what we lookedup
@@ -203,13 +202,13 @@ public class HashIndexSetJUnitTest {
 
   @Test
   public void testGetByKeyLocatesAfterMultipleColiisionsAndRemoveToken() throws Exception {
-    int numEntries = 20;
-    int keyToLookup = 1;
+    var numEntries = 20;
+    var keyToLookup = 1;
     his = createHashIndexSet();
-    Map<Integer, Portfolio> collectionOfPorts1 = createPortfolioObjects(numEntries, 0);
-    Map<Integer, Portfolio> collectionOfPorts2 =
+    var collectionOfPorts1 = createPortfolioObjects(numEntries, 0);
+    var collectionOfPorts2 =
         createPortfolioObjects(numEntries, numEntries);
-    Map<Integer, Portfolio> collectionOfPorts3 =
+    var collectionOfPorts3 =
         createPortfolioObjects(numEntries, numEntries * 2);
 
     addPortfoliosToHashIndexSet(collectionOfPorts1, his);
@@ -217,8 +216,8 @@ public class HashIndexSetJUnitTest {
     addPortfoliosToHashIndexSet(collectionOfPorts3, his);
 
     assertEquals(numEntries * 3, his.size());
-    Iterator iterator = his.get(keyToLookup);
-    int numIterated = 0;
+    var iterator = his.get(keyToLookup);
+    var numIterated = 0;
     while (iterator.hasNext()) {
       numIterated++;
       // verify that the returned values match what we lookedup
@@ -253,10 +252,10 @@ public class HashIndexSetJUnitTest {
 
   @Test
   public void testGetAllNotMatching() throws Exception {
-    int numEntries = 20;
+    var numEntries = 20;
     his = createHashIndexSet();
-    Map<Integer, Portfolio> collectionOfPorts1 = createPortfolioObjects(numEntries, 0);
-    Map<Integer, Portfolio> collectionOfPorts2 =
+    var collectionOfPorts1 = createPortfolioObjects(numEntries, 0);
+    var collectionOfPorts2 =
         createPortfolioObjects(numEntries, numEntries);
 
     addPortfoliosToHashIndexSet(collectionOfPorts1, his);
@@ -266,11 +265,11 @@ public class HashIndexSetJUnitTest {
     List<Integer> keysNotToMatch = new LinkedList<>();
     keysNotToMatch.add(3);
     keysNotToMatch.add(4);
-    Iterator iterator = his.getAllNotMatching(keysNotToMatch);
-    int numIterated = 0;
+    var iterator = his.getAllNotMatching(keysNotToMatch);
+    var numIterated = 0;
     while (iterator.hasNext()) {
       numIterated++;
-      int idFound = ((Portfolio) iterator.next()).indexKey;
+      var idFound = ((Portfolio) iterator.next()).indexKey;
       assertTrue(idFound != 3 && idFound != 4);
     }
     // Make sure we iterated all the entries minus the entries that we decided not to match
@@ -279,13 +278,13 @@ public class HashIndexSetJUnitTest {
 
   @Test
   public void testIndexOfObject() throws Exception {
-    int numEntries = 10;
+    var numEntries = 10;
     his = createHashIndexSet();
     portfoliosMap = createPortfolioObjects(numEntries, 0);
     portfoliosMap.forEach((k, v) -> {
       try {
-        int index = his.add(k, portfoliosMap.get(k));
-        int foundIndex = his.index(portfoliosMap.get(k));
+        var index = his.add(k, portfoliosMap.get(k));
+        var foundIndex = his.index(portfoliosMap.get(k));
         assertEquals(index, foundIndex);
       } catch (TypeMismatchException ex) {
         throw new Error(ex);
@@ -299,15 +298,15 @@ public class HashIndexSetJUnitTest {
    */
   @Test
   public void testIndexOfObjectWithCollision() throws Exception {
-    int numEntries = 10;
+    var numEntries = 10;
     his = createHashIndexSet();
-    Map<Integer, Portfolio> portfoliosMap1 = createPortfolioObjects(numEntries, 0);
-    Map<Integer, Portfolio> portfoliosMap2 = createPortfolioObjects(numEntries, numEntries);
+    var portfoliosMap1 = createPortfolioObjects(numEntries, 0);
+    var portfoliosMap2 = createPortfolioObjects(numEntries, numEntries);
 
     portfoliosMap1.forEach((k, v) -> {
       try {
-        int index = his.add(k, portfoliosMap1.get(k));
-        int foundIndex = his.index(portfoliosMap1.get(k));
+        var index = his.add(k, portfoliosMap1.get(k));
+        var foundIndex = his.index(portfoliosMap1.get(k));
         assertEquals(index, foundIndex);
       } catch (TypeMismatchException ex) {
         throw new Error(ex);
@@ -315,8 +314,8 @@ public class HashIndexSetJUnitTest {
     });
     portfoliosMap2.forEach((k, v) -> {
       try {
-        int index = his.add(k, portfoliosMap2.get(k));
-        int foundIndex = his.index(portfoliosMap2.get(k));
+        var index = his.add(k, portfoliosMap2.get(k));
+        var foundIndex = his.index(portfoliosMap2.get(k));
         assertEquals(index, foundIndex);
       } catch (TypeMismatchException ex) {
         throw new Error(ex);
@@ -326,7 +325,7 @@ public class HashIndexSetJUnitTest {
 
   @Test
   public void testIndexWhenObjectNotInSet() {
-    int numEntries = 10;
+    var numEntries = 10;
     his = createHashIndexSet();
     portfoliosMap = createPortfolioObjects(numEntries, 0);
     assertEquals(-1, his.index(portfoliosMap.get(1)));
@@ -334,14 +333,14 @@ public class HashIndexSetJUnitTest {
 
   @Test
   public void testIndexWhenObjectNotInSetWhenPopulated() {
-    int numEntries = 10;
+    var numEntries = 10;
     setupHashIndexSet(numEntries);
     assertEquals(-1, his.index(new Portfolio(numEntries + 1)));
   }
 
   @Test
   public void testRemove() throws Exception {
-    int numEntries = 20;
+    var numEntries = 20;
     setupHashIndexSet(numEntries);
 
     assertEquals(numEntries, his.size());
@@ -354,7 +353,7 @@ public class HashIndexSetJUnitTest {
    */
   @Test
   public void testRemoveIgnoreSlot() throws Exception {
-    int numEntries = 20;
+    var numEntries = 20;
     setupHashIndexSet(numEntries);
 
     assertEquals(numEntries, his.size());
@@ -372,14 +371,14 @@ public class HashIndexSetJUnitTest {
   @Test
   public void testRemoveAtWithRemoveToken() throws Exception {
     his = createHashIndexSet();
-    int index = his.add(1, new Portfolio(1));
+    var index = his.add(1, new Portfolio(1));
     assertTrue(his.removeAt(index));
     assertFalse(his.removeAt(index));
   }
 
   @Test
   public void testHashIndexRemoveAll() throws Exception {
-    int numEntries = 100;
+    var numEntries = 100;
     setupHashIndexSet(numEntries);
 
     assertEquals(numEntries, his.size());
@@ -393,7 +392,7 @@ public class HashIndexSetJUnitTest {
    */
   @Test
   public void testHashIndexRemoveAllWithAdditionalPortfolios() throws Exception {
-    int numEntries = 100;
+    var numEntries = 100;
     setupHashIndexSet(numEntries);
 
     assertEquals(numEntries, his.size());
@@ -404,7 +403,7 @@ public class HashIndexSetJUnitTest {
 
   @Test
   public void testHashIndexContainsAll() throws Exception {
-    int numEntries = 100;
+    var numEntries = 100;
     setupHashIndexSet(numEntries);
 
     assertEquals(numEntries, his.size());
@@ -413,7 +412,7 @@ public class HashIndexSetJUnitTest {
 
   @Test
   public void testHashIndexRetainAll() throws Exception {
-    int numEntries = 10;
+    var numEntries = 10;
     setupHashIndexSet(numEntries);
     Set subset = new HashSet();
     portfolioSet.forEach(e -> {
@@ -430,7 +429,7 @@ public class HashIndexSetJUnitTest {
 
   @Test
   public void testHashIndexContainsAllShouldReturnFalse() throws Exception {
-    int numEntries = 100;
+    var numEntries = 100;
     setupHashIndexSet(numEntries);
 
     assertEquals(numEntries, his.size());
@@ -440,7 +439,7 @@ public class HashIndexSetJUnitTest {
 
   @Test
   public void testClear() throws Exception {
-    int numEntries = 100;
+    var numEntries = 100;
     setupHashIndexSet(numEntries);
 
     assertEquals(numEntries, his.size());
@@ -457,9 +456,9 @@ public class HashIndexSetJUnitTest {
 
   @Test
   public void testAreIndexeSetsEqualAndHashCodeSame() throws Exception {
-    Map<Integer, Portfolio> portfolioMap = createPortfolioObjects(100, 0);
-    HashIndexSet indexSet1 = createHashIndexSet();
-    HashIndexSet indexSet2 = createHashIndexSet();
+    var portfolioMap = createPortfolioObjects(100, 0);
+    var indexSet1 = createHashIndexSet();
+    var indexSet2 = createHashIndexSet();
 
     addPortfoliosToHashIndexSet(portfolioMap, indexSet1);
     addPortfoliosToHashIndexSet(portfolioMap, indexSet2);
@@ -471,9 +470,9 @@ public class HashIndexSetJUnitTest {
 
   @Test
   public void testAreIndexeSetsNotEqualAndHashCodeDifferent() throws Exception {
-    Map<Integer, Portfolio> portfolioMap = createPortfolioObjects(100, 0);
-    HashIndexSet indexSet1 = createHashIndexSet();
-    HashIndexSet indexSet2 = createHashIndexSet();
+    var portfolioMap = createPortfolioObjects(100, 0);
+    var indexSet1 = createHashIndexSet();
+    var indexSet2 = createHashIndexSet();
 
     addPortfoliosToHashIndexSet(portfolioMap, indexSet1);
 
@@ -485,7 +484,7 @@ public class HashIndexSetJUnitTest {
 
   @Test
   public void testIndexSetNotEqualsOtherObjectType() {
-    HashIndexSet indexSet = createHashIndexSet();
+    var indexSet = createHashIndexSet();
     assertFalse(indexSet.equals("Other type"));
     assertFalse(indexSet.equals(new Object()));
   }
@@ -494,9 +493,9 @@ public class HashIndexSetJUnitTest {
 
     @Override
     public Object answer(InvocationOnMock invocation) throws Throwable {
-      Object evalOn = invocation.getArgument(0);
+      var evalOn = invocation.getArgument(0);
       if (evalOn instanceof Portfolio) {
-        Portfolio p = (Portfolio) evalOn;
+        var p = (Portfolio) evalOn;
         return p.indexKey;
       }
       return null;

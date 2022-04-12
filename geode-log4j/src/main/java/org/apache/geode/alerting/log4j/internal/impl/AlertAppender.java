@@ -37,7 +37,6 @@ import org.apache.geode.alerting.internal.AlertingSessionRegistryProvider;
 import org.apache.geode.alerting.internal.NullAlertingService;
 import org.apache.geode.alerting.internal.api.AlertingService;
 import org.apache.geode.alerting.internal.log4j.AlertLevelConverter;
-import org.apache.geode.alerting.internal.spi.AlertLevel;
 import org.apache.geode.alerting.internal.spi.AlertingAction;
 import org.apache.geode.alerting.internal.spi.AlertingSessionListener;
 import org.apache.geode.alerting.internal.spi.AlertingSessionRegistry;
@@ -128,7 +127,7 @@ public class AlertAppender extends AbstractAppender
 
     @Override
     public AlertAppender build() {
-      Layout<? extends Serializable> layout = getOrCreateLayout();
+      var layout = getOrCreateLayout();
       return new AlertAppender(getName(), layout, getFilter(), startPaused, debug,
           AlertingSessionRegistryProvider.get());
     }
@@ -154,7 +153,7 @@ public class AlertAppender extends AbstractAppender
   }
 
   private void doAppend(final LogEvent event) {
-    AlertingService alertingService = getAlertingService();
+    var alertingService = getAlertingService();
     if (alertingService.hasAlertListeners()) {
       sendAlerts(event);
     } else {
@@ -166,14 +165,14 @@ public class AlertAppender extends AbstractAppender
   }
 
   private void sendAlerts(final LogEvent event) {
-    AlertingService alertingService = getAlertingService();
+    var alertingService = getAlertingService();
 
-    AlertLevel alertLevel = AlertLevelConverter.fromLevel(event.getLevel());
-    Instant instant = Instant.ofEpochMilli(event.getTimeMillis());
-    String threadName = event.getThreadName();
-    long threadId = Thread.currentThread().getId();
-    String formattedMessage = event.getMessage().getFormattedMessage();
-    String stackTrace = getStackTrace(event);
+    var alertLevel = AlertLevelConverter.fromLevel(event.getLevel());
+    var instant = Instant.ofEpochMilli(event.getTimeMillis());
+    var threadName = event.getThreadName();
+    var threadId = Thread.currentThread().getId();
+    var formattedMessage = event.getMessage().getFormattedMessage();
+    var stackTrace = getStackTrace(event);
 
     alertingService.sendAlerts(alertLevel, instant, threadName, threadId, formattedMessage,
         stackTrace);

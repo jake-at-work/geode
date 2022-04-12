@@ -166,20 +166,20 @@ public final class FileWatchingX509ExtendedKeyManager extends X509ExtendedKeyMan
         keyStore = KeyStore.getInstance(keyStoreType);
       }
 
-      String keyStoreFilePath = keyStorePath.toString();
+      var keyStoreFilePath = keyStorePath.toString();
       if (StringUtils.isEmpty(keyStoreFilePath)) {
         keyStoreFilePath =
             System.getProperty("user.home") + System.getProperty("file.separator") + ".keystore";
       }
 
       char[] password = null;
-      try (FileInputStream fileInputStream = new FileInputStream(keyStoreFilePath)) {
-        String passwordString = keyStorePassword;
+      try (var fileInputStream = new FileInputStream(keyStoreFilePath)) {
+        var passwordString = keyStorePassword;
         if (passwordString != null) {
           if (passwordString.trim().equals("")) {
-            String encryptedPass = System.getenv("javax.net.ssl.keyStorePassword");
+            var encryptedPass = System.getenv("javax.net.ssl.keyStorePassword");
             if (!StringUtils.isEmpty(encryptedPass)) {
-              String toDecrypt = "encrypted(" + encryptedPass + ")";
+              var toDecrypt = "encrypted(" + encryptedPass + ")";
               passwordString = PasswordUtil.decrypt(toDecrypt);
               password = passwordString.toCharArray();
             }
@@ -192,7 +192,7 @@ public final class FileWatchingX509ExtendedKeyManager extends X509ExtendedKeyMan
 
       // default algorithm can be changed by setting property "ssl.KeyManagerFactory.algorithm" in
       // security properties
-      KeyManagerFactory keyManagerFactory =
+      var keyManagerFactory =
           KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
       keyManagerFactory.init(keyStore, password);
       keyManagers = keyManagerFactory.getKeyManagers();
@@ -205,10 +205,10 @@ public final class FileWatchingX509ExtendedKeyManager extends X509ExtendedKeyMan
       throw new InternalGemFireException("Unable to load KeyManager", e);
     }
 
-    for (KeyManager km : keyManagers) {
+    for (var km : keyManagers) {
       if (km instanceof X509ExtendedKeyManager) {
 
-        ExtendedAliasKeyManager extendedAliasKeyManager =
+        var extendedAliasKeyManager =
             new ExtendedAliasKeyManager((X509ExtendedKeyManager) km, keyStoreAlias);
 
         if (keyManager.getAndSet(extendedAliasKeyManager) == null) {
@@ -241,7 +241,7 @@ public final class FileWatchingX509ExtendedKeyManager extends X509ExtendedKeyMan
       if (o == null || getClass() != o.getClass()) {
         return false;
       }
-      PathAndAlias that = (PathAndAlias) o;
+      var that = (PathAndAlias) o;
       return Objects.equals(keyStorePath, that.keyStorePath) && Objects
           .equals(keyStoreAlias, that.keyStoreAlias);
     }

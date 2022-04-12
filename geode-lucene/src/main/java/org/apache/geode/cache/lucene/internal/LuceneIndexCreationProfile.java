@@ -82,7 +82,7 @@ public class LuceneIndexCreationProfile implements CacheServiceProfile, Versione
 
   protected void initializeFieldAnalyzers(Map<String, Analyzer> fieldAnalyzers) {
     this.fieldAnalyzers = new HashMap<>();
-    for (String field : fieldNames) {
+    for (var field : fieldNames) {
       if (fieldAnalyzers != null && !fieldAnalyzers.isEmpty()) {
         this.fieldAnalyzers.put(field,
             fieldAnalyzers.get(field) == null ? StandardAnalyzer.class.getSimpleName()
@@ -105,7 +105,7 @@ public class LuceneIndexCreationProfile implements CacheServiceProfile, Versione
   @Override
   public String checkCompatibility(String regionPath, CacheServiceProfile profile) {
     String result = null;
-    LuceneIndexCreationProfile remoteProfile = (LuceneIndexCreationProfile) profile;
+    var remoteProfile = (LuceneIndexCreationProfile) profile;
 
     // Verify fields are the same
     if ((getFieldNames().length != remoteProfile.getFieldNames().length) || (!Arrays
@@ -144,7 +144,7 @@ public class LuceneIndexCreationProfile implements CacheServiceProfile, Versione
             Arrays.toString(remoteProfile.getFieldAnalyzers().values().toArray()));
       }
       // now the 2 maps should have the same size
-      for (String field : getFieldAnalyzers().keySet()) {
+      for (var field : getFieldAnalyzers().keySet()) {
         if (!remoteProfile.getFieldAnalyzers().get(field).equals(getFieldAnalyzers().get(field))) {
           return String.format(
               "Cannot create Lucene index %s on region %s with analyzer %s on field %s because another member defines the same index with analyzer %s on that field.",

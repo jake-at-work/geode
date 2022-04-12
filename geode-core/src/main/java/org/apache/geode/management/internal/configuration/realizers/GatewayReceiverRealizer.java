@@ -17,14 +17,10 @@ package org.apache.geode.management.internal.configuration.realizers;
 
 import static org.apache.geode.management.internal.configuration.domain.DeclarableTypeInstantiator.newInstance;
 
-import java.util.List;
-
 import org.apache.commons.lang3.NotImplementedException;
 
 import org.apache.geode.annotations.VisibleForTesting;
-import org.apache.geode.cache.configuration.DeclarableType;
 import org.apache.geode.cache.configuration.GatewayReceiverConfig;
-import org.apache.geode.cache.wan.GatewayReceiverFactory;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.management.api.RealizationResult;
 import org.apache.geode.management.configuration.GatewayReceiver;
@@ -46,46 +42,46 @@ public class GatewayReceiverRealizer
    * Need to keep this method since we are using the realizer in the GatewayReceiverFunction
    */
   public RealizationResult create(GatewayReceiverConfig config, InternalCache cache) {
-    GatewayReceiverFactory gatewayReceiverFactory = cache.createGatewayReceiverFactory();
+    var gatewayReceiverFactory = cache.createGatewayReceiverFactory();
 
-    String startPort = config.getStartPort();
+    var startPort = config.getStartPort();
     if (startPort != null) {
       gatewayReceiverFactory.setStartPort(Integer.parseInt(startPort));
     }
 
-    String endPort = config.getEndPort();
+    var endPort = config.getEndPort();
     if (endPort != null) {
       gatewayReceiverFactory.setEndPort(Integer.parseInt(endPort));
     }
 
-    String bindAddress = config.getBindAddress();
+    var bindAddress = config.getBindAddress();
     if (bindAddress != null) {
       gatewayReceiverFactory.setBindAddress(bindAddress);
     }
 
-    String hostnameForSenders = config.getHostnameForSenders();
+    var hostnameForSenders = config.getHostnameForSenders();
     if (hostnameForSenders != null) {
       gatewayReceiverFactory.setHostnameForSenders(hostnameForSenders);
     }
 
-    String maxTimeBetweenPings = config.getMaximumTimeBetweenPings();
+    var maxTimeBetweenPings = config.getMaximumTimeBetweenPings();
     if (maxTimeBetweenPings != null) {
       gatewayReceiverFactory.setMaximumTimeBetweenPings(Integer.parseInt(maxTimeBetweenPings));
     }
 
-    String socketBufferSize = config.getSocketBufferSize();
+    var socketBufferSize = config.getSocketBufferSize();
     if (socketBufferSize != null) {
       gatewayReceiverFactory.setSocketBufferSize(Integer.parseInt(socketBufferSize));
     }
 
-    Boolean manualStart = config.isManualStart();
+    var manualStart = config.isManualStart();
     if (manualStart != null) {
       gatewayReceiverFactory.setManualStart(manualStart);
     }
 
-    List<DeclarableType> gatewayTransportFilters = config.getGatewayTransportFilters();
+    var gatewayTransportFilters = config.getGatewayTransportFilters();
     if (gatewayTransportFilters != null) {
-      for (DeclarableType gatewayTransportFilter : gatewayTransportFilters) {
+      for (var gatewayTransportFilter : gatewayTransportFilters) {
         gatewayReceiverFactory
             .addGatewayTransportFilter(newInstance(gatewayTransportFilter, cache));
       }
@@ -106,7 +102,7 @@ public class GatewayReceiverRealizer
       return null;
     }
 
-    org.apache.geode.cache.wan.GatewayReceiver receiver =
+    var receiver =
         cache.getGatewayReceivers().iterator().next();
     return generateGatewayReceiverInfo(receiver);
   }
@@ -114,8 +110,8 @@ public class GatewayReceiverRealizer
   @VisibleForTesting
   GatewayReceiverInfo generateGatewayReceiverInfo(
       org.apache.geode.cache.wan.GatewayReceiver receiver) {
-    GatewayReceiverMBeanBridge bridge = new GatewayReceiverMBeanBridge(receiver);
-    GatewayReceiverInfo info = new GatewayReceiverInfo();
+    var bridge = new GatewayReceiverMBeanBridge(receiver);
+    var info = new GatewayReceiverInfo();
     info.setBindAddress(receiver.getBindAddress());
     info.setHostnameForSenders(receiver.getHostnameForSenders());
     info.setPort(receiver.getPort());

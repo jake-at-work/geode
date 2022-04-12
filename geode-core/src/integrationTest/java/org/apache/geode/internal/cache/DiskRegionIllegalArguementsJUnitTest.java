@@ -32,7 +32,6 @@ import org.junit.Test;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.distributed.DistributedSystem;
 
 /**
@@ -47,7 +46,7 @@ public class DiskRegionIllegalArguementsJUnitTest {
 
   @Before
   public void setUp() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     props.setProperty(LOG_LEVEL, "config"); // to keep diskPerf logs smaller
@@ -69,7 +68,7 @@ public class DiskRegionIllegalArguementsJUnitTest {
    */
   @Test
   public void testMaxOplogSize() {
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
+    var dsf = cache.createDiskStoreFactory();
     try {
       dsf.setMaxOplogSize(-1);
       fail("expected IllegalArgumentException");
@@ -81,7 +80,7 @@ public class DiskRegionIllegalArguementsJUnitTest {
 
   @Test
   public void testCompactionThreshold() {
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
+    var dsf = cache.createDiskStoreFactory();
 
     try {
       dsf.setCompactionThreshold(-1);
@@ -102,7 +101,7 @@ public class DiskRegionIllegalArguementsJUnitTest {
 
   @Test
   public void testAutoCompact() {
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
+    var dsf = cache.createDiskStoreFactory();
     dsf.setAutoCompact(true);
     assertEquals(true, dsf.create("test").getAutoCompact());
 
@@ -112,7 +111,7 @@ public class DiskRegionIllegalArguementsJUnitTest {
 
   @Test
   public void testAllowForceCompaction() {
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
+    var dsf = cache.createDiskStoreFactory();
     dsf.setAllowForceCompaction(true);
     assertEquals(true, dsf.create("test").getAllowForceCompaction());
 
@@ -123,11 +122,11 @@ public class DiskRegionIllegalArguementsJUnitTest {
   @Test
   public void testDiskDirSize() {
 
-    File file1 = new File("file1");
+    var file1 = new File("file1");
 
-    File file2 = new File("file2");
-    File file3 = new File("file3");
-    File file4 = new File("file4");
+    var file2 = new File("file2");
+    var file3 = new File("file3");
+    var file4 = new File("file4");
     file1.mkdir();
     file2.mkdir();
     file3.mkdir();
@@ -137,18 +136,18 @@ public class DiskRegionIllegalArguementsJUnitTest {
     file3.deleteOnExit();
     file4.deleteOnExit();
 
-    File[] dirs = {file1, file2, file3, file4};
+    var dirs = new File[] {file1, file2, file3, file4};
 
-    int[] ints = {1, 2, 3, -4};
+    var ints = new int[] {1, 2, 3, -4};
 
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
+    var dsf = cache.createDiskStoreFactory();
     try {
       dsf.setDiskDirsAndSizes(dirs, ints);
       fail("expected IllegalArgumentException");
     } catch (IllegalArgumentException ignored) {
     }
 
-    int[] ints1 = {1, 2, 3};
+    var ints1 = new int[] {1, 2, 3};
 
     try {
       dsf.setDiskDirsAndSizes(dirs, ints1);
@@ -161,17 +160,17 @@ public class DiskRegionIllegalArguementsJUnitTest {
 
   @Test
   public void testDiskDirs() {
-    File file1 = new File("file6");
+    var file1 = new File("file6");
 
-    File file2 = new File("file7");
-    File file3 = new File("file8");
-    File file4 = new File("file9");
+    var file2 = new File("file7");
+    var file3 = new File("file8");
+    var file4 = new File("file9");
 
-    File[] dirs = {file1, file2, file3, file4};
+    var dirs = new File[] {file1, file2, file3, file4};
 
-    int[] ints = {1, 2, 3, 4};
+    var ints = new int[] {1, 2, 3, 4};
 
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
+    var dsf = cache.createDiskStoreFactory();
     try {
       dsf.setDiskDirsAndSizes(dirs, ints);
       // The disk store would create the disk store directories.
@@ -180,7 +179,7 @@ public class DiskRegionIllegalArguementsJUnitTest {
     } catch (IllegalArgumentException ignored) {
     }
 
-    int[] ints1 = {1, 2, 3};
+    var ints1 = new int[] {1, 2, 3};
     file1.mkdir();
     file2.mkdir();
     file3.mkdir();
@@ -202,7 +201,7 @@ public class DiskRegionIllegalArguementsJUnitTest {
 
   @Test
   public void testQueueSize() {
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
+    var dsf = cache.createDiskStoreFactory();
     try {
       dsf.setQueueSize(-1);
       fail("expected IllegalArgumentException");
@@ -215,7 +214,7 @@ public class DiskRegionIllegalArguementsJUnitTest {
 
   @Test
   public void testTimeInterval() {
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
+    var dsf = cache.createDiskStoreFactory();
     try {
       dsf.setTimeInterval(-1);
       fail("expected IllegalArgumentException");
@@ -228,7 +227,7 @@ public class DiskRegionIllegalArguementsJUnitTest {
 
   @Test
   public void testDiskUsageWarningPercentage() {
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
+    var dsf = cache.createDiskStoreFactory();
     try {
       dsf.setDiskUsageWarningPercentage(-1);
       fail("expected IllegalArgumentException");
@@ -247,7 +246,7 @@ public class DiskRegionIllegalArguementsJUnitTest {
 
   @Test
   public void testDiskUsageCriticalPercentage() {
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
+    var dsf = cache.createDiskStoreFactory();
     try {
       dsf.setDiskUsageCriticalPercentage(-1);
       fail("expected IllegalArgumentException");

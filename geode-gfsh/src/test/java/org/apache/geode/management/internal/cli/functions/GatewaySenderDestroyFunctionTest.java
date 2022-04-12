@@ -66,7 +66,7 @@ public class GatewaySenderDestroyFunctionTest {
     function.execute(context);
 
     verify(resultSender).lastResult(resultCaptor.capture());
-    CliFunctionResult result = resultCaptor.getValue();
+    var result = resultCaptor.getValue();
     assertThat(result.isSuccessful()).isFalse();
     assertThat(result.getThrowable()).isNull();
     assertThat(result.getMessage()).isEqualTo("Gateway sender id not found.");
@@ -80,7 +80,7 @@ public class GatewaySenderDestroyFunctionTest {
     function.execute(context);
 
     verify(resultSender).lastResult(resultCaptor.capture());
-    CliFunctionResult result = resultCaptor.getValue();
+    var result = resultCaptor.getValue();
     assertThat(result.isSuccessful()).isTrue();
     assertThat(result.getThrowable()).isNull();
     assertThat(result.getMessage()).isEqualTo("Skipping: Gateway sender id not found.");

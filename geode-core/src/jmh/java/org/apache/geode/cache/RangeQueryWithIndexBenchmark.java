@@ -47,11 +47,11 @@ public class RangeQueryWithIndexBenchmark {
 
     @Setup
     public void setup() {
-      Cache cache = new CacheFactory().set("mcast-port", "0").set("locators", "").create();
+      var cache = new CacheFactory().set("mcast-port", "0").set("locators", "").create();
 
       region = cache.createRegionFactory(RegionShortcut.REPLICATE).create("region");
       try {
-        AbstractIndex index =
+        var index =
             (AbstractIndex) cache.getQueryService().createIndex("Status", "id",
                 SEPARATOR + "region");
 
@@ -61,7 +61,7 @@ public class RangeQueryWithIndexBenchmark {
 
         // Do the query once to make sure it's actually returning results
         // And using the index
-        SelectResults results = query();
+        var results = query();
         assertEquals(9999, results.size());
         assertEquals(1, index.getStatistics().getTotalUses());
       } catch (Exception e) {

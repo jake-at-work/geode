@@ -127,7 +127,7 @@ public abstract class AbstractBitOpIntegrationTest implements RedisIntegrationTe
     jedis.set(key, bytes);
     assertThat(jedis.bitop(BitOP.NOT, key, key)).isEqualTo(1);
     assertThat(jedis.strlen(key)).isEqualTo(1);
-    byte[] newbytes = jedis.get(key);
+    var newbytes = jedis.get(key);
     assertThat(newbytes[0]).isEqualTo((byte) 0xFE);
   }
 
@@ -137,7 +137,7 @@ public abstract class AbstractBitOpIntegrationTest implements RedisIntegrationTe
     jedis.set(other, bytes);
     assertThat(jedis.bitop(BitOP.NOT, key, other)).isEqualTo(1);
     assertThat(jedis.strlen(key)).isEqualTo(1);
-    byte[] newbytes = jedis.get(key);
+    var newbytes = jedis.get(key);
     assertThat(newbytes[0]).isEqualTo((byte) 0xFE);
   }
 
@@ -149,7 +149,7 @@ public abstract class AbstractBitOpIntegrationTest implements RedisIntegrationTe
     jedis.set(other, otherBytes);
     assertThat(jedis.bitop(BitOP.AND, key, key, other)).isEqualTo(1);
     assertThat(jedis.strlen(key)).isEqualTo(1);
-    byte[] newbytes = jedis.get(key);
+    var newbytes = jedis.get(key);
     assertThat(newbytes[0]).isEqualTo((byte) 1);
   }
 
@@ -161,7 +161,7 @@ public abstract class AbstractBitOpIntegrationTest implements RedisIntegrationTe
     jedis.set(other, otherBytes);
     assertThat(jedis.bitop(BitOP.AND, key, key, other)).isEqualTo(2);
     assertThat(jedis.strlen(key)).isEqualTo(2);
-    byte[] newbytes = jedis.get(key);
+    var newbytes = jedis.get(key);
     assertThat(newbytes[0]).isEqualTo((byte) 1);
     assertThat(newbytes[1]).isEqualTo((byte) 0);
   }
@@ -174,7 +174,7 @@ public abstract class AbstractBitOpIntegrationTest implements RedisIntegrationTe
     jedis.set(other, otherBytes);
     assertThat(jedis.bitop(BitOP.OR, key, key, other)).isEqualTo(1);
     assertThat(jedis.strlen(key)).isEqualTo(1);
-    byte[] newbytes = jedis.get(key);
+    var newbytes = jedis.get(key);
     assertThat(newbytes[0]).isEqualTo((byte) 9);
   }
 
@@ -186,7 +186,7 @@ public abstract class AbstractBitOpIntegrationTest implements RedisIntegrationTe
     jedis.set(other, otherBytes);
     assertThat(jedis.bitop(BitOP.OR, key, key, other)).isEqualTo(2);
     assertThat(jedis.strlen(key)).isEqualTo(2);
-    byte[] newbytes = jedis.get(key);
+    var newbytes = jedis.get(key);
     assertThat(newbytes[0]).isEqualTo((byte) -1);
     assertThat(newbytes[1]).isEqualTo((byte) 3);
   }
@@ -199,7 +199,7 @@ public abstract class AbstractBitOpIntegrationTest implements RedisIntegrationTe
     jedis.set(other, otherBytes);
     assertThat(jedis.bitop(BitOP.XOR, key, key, other)).isEqualTo(1);
     assertThat(jedis.strlen(key)).isEqualTo(1);
-    byte[] newbytes = jedis.get(key);
+    var newbytes = jedis.get(key);
     assertThat(newbytes[0]).isEqualTo((byte) 1);
   }
 
@@ -211,7 +211,7 @@ public abstract class AbstractBitOpIntegrationTest implements RedisIntegrationTe
     jedis.set(other, otherBytes);
     assertThat(jedis.bitop(BitOP.XOR, key, key, other)).isEqualTo(2);
     assertThat(jedis.strlen(key)).isEqualTo(2);
-    byte[] newbytes = jedis.get(key);
+    var newbytes = jedis.get(key);
     assertThat(newbytes[0]).isEqualTo((byte) 0xFE);
     assertThat(newbytes[1]).isEqualTo((byte) 3);
   }

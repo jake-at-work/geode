@@ -23,7 +23,7 @@ public class AtomicLongWithTerminalStateJUnitTest {
 
   @Test
   public void test() {
-    AtomicLongWithTerminalState al = new AtomicLongWithTerminalState();
+    var al = new AtomicLongWithTerminalState();
     assertEquals(23, al.compareAddAndGet(-1, 23));
     assertEquals(23, al.getAndSet(-1));
     // test for terminal state

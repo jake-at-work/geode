@@ -31,15 +31,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.FunctionDomainException;
 import org.apache.geode.cache.query.IndexType;
 import org.apache.geode.cache.query.NameResolutionException;
-import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.QueryException;
 import org.apache.geode.cache.query.QueryInvocationTargetException;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.TypeMismatchException;
 import org.apache.geode.cache.query.data.Portfolio;
@@ -70,10 +67,10 @@ public class ProjectionAttributeJUnitTest {
 
   @Test
   public void testMisc() throws Exception {
-    QueryService qs = CacheUtils.getQueryService();
-    for (String qStr : miscQueries) {
-      Query q = qs.newQuery(qStr);
-      Object r = q.execute();
+    var qs = CacheUtils.getQueryService();
+    for (var qStr : miscQueries) {
+      var q = qs.newQuery(qStr);
+      var r = q.execute();
       if (!(r instanceof Collection) || ((Collection) r).size() != 0) {
         fail(q.getQueryString());
       }
@@ -83,12 +80,12 @@ public class ProjectionAttributeJUnitTest {
   @Test
   public void testProjectionAttributes() throws FunctionDomainException, TypeMismatchException,
       NameResolutionException, QueryInvocationTargetException {
-    QueryService qs = CacheUtils.getQueryService();
+    var qs = CacheUtils.getQueryService();
 
-    for (int i = 0; i < queries.length; ++i) {
-      String qStr = queries[i];
-      Query q = qs.newQuery(qStr);
-      SelectResults r = (SelectResults) q.execute();
+    for (var i = 0; i < queries.length; ++i) {
+      var qStr = queries[i];
+      var q = qs.newQuery(qStr);
+      var r = (SelectResults) q.execute();
       if (i < 4 && r.getCollectionType().getElementType().isStructType()) {
         fail(q.getQueryString());
       }
@@ -99,30 +96,30 @@ public class ProjectionAttributeJUnitTest {
       }
     }
 
-    String qStr = "select distinct * from " + SEPARATOR + "pos p ";
-    Query q = qs.newQuery(qStr);
-    Object r = q.execute();
+    var qStr = "select distinct * from " + SEPARATOR + "pos p ";
+    var q = qs.newQuery(qStr);
+    var r = q.execute();
     if (r instanceof StructSet) {
       fail(q.getQueryString());
     }
   }
 
   private void checkNames(SelectResults results, String query) {
-    int i1 = query.indexOf(" distinct ");
-    int i2 = query.indexOf(" from ");
+    var i1 = query.indexOf(" distinct ");
+    var i2 = query.indexOf(" from ");
     if (i1 < 0 || i2 < 0) {
       fail(query);
     }
-    String projStr = query.substring(i1 + " distinct ".length(), i2);
+    var projStr = query.substring(i1 + " distinct ".length(), i2);
     // CacheUtils.log("projStr = "+projStr);
-    QCompiler compiler = new QCompiler();
+    var compiler = new QCompiler();
     List projAttrs = compiler.compileProjectionAttributes(projStr);
-    StructType stype = (StructType) results.getCollectionType().getElementType();
-    String[] names = stype.getFieldNames();
-    for (int i = 0; i < names.length; i++) {
-      String name = names[i];
-      Object[] arr = (Object[]) projAttrs.get(i);
-      String nameToMatch = "";
+    var stype = (StructType) results.getCollectionType().getElementType();
+    var names = stype.getFieldNames();
+    for (var i = 0; i < names.length; i++) {
+      var name = names[i];
+      var arr = (Object[]) projAttrs.get(i);
+      var nameToMatch = "";
       if (arr[0] != null) {
         nameToMatch = (String) arr[0];
       } else {
@@ -144,15 +141,15 @@ public class ProjectionAttributeJUnitTest {
 
   public void tesBug33581_tMultiRegionIndexTest() {
     try {
-      Region region1 = CacheUtils.createRegion("Quotes1", Quote.class);
-      Region region2 = CacheUtils.createRegion("Quotes2", Quote.class);
-      Region region3 = CacheUtils.createRegion("Restricted1", Restricted.class);
-      for (int i = 0; i < 10; i++) {
+      var region1 = CacheUtils.createRegion("Quotes1", Quote.class);
+      var region2 = CacheUtils.createRegion("Quotes2", Quote.class);
+      var region3 = CacheUtils.createRegion("Restricted1", Restricted.class);
+      for (var i = 0; i < 10; i++) {
         region1.put(i, new Quote(i));
         region2.put(i, new Quote(i));
         region3.put(i, new Restricted(i));
       }
-      QueryService qs = CacheUtils.getQueryService();
+      var qs = CacheUtils.getQueryService();
       ////////// creating indexes on region Quotes1
       qs.createIndex("Quotes1Region-quoteIdStrIndex", IndexType.PRIMARY_KEY, "q.quoteIdStr",
           SEPARATOR + "Quotes1 q");
@@ -223,7 +220,7 @@ public class ProjectionAttributeJUnitTest {
           SEPARATOR + "Restricted1 r");
       qs.createIndex("RestrictedRegion-maxQtyIndex-1", IndexType.FUNCTIONAL, "r.maxQty",
           SEPARATOR + "Restricted1 r");
-      Query q = qs.newQuery(
+      var q = qs.newQuery(
           "SELECT DISTINCT * FROM " + SEPARATOR + "Quotes1 q1, q1.restrict r1, " + SEPARATOR
               + "Quotes2 q2, q2.restrict r2, " + SEPARATOR
               + "Restricted1 r3 WHERE r1.quoteType = r2.quoteType AND r2.quoteType = r3.quoteType AND r3.maxQty > 1050");
@@ -238,7 +235,7 @@ public class ProjectionAttributeJUnitTest {
 
   @Test
   public void testProjectionAttributesWithIndex() throws QueryException {
-    QueryService qs = CacheUtils.getQueryService();
+    var qs = CacheUtils.getQueryService();
     qs.createIndex("PortFolioID", IndexType.FUNCTIONAL, "ID", SEPARATOR + "pos");
     testProjectionAttributes();
   }
@@ -249,7 +246,7 @@ public class ProjectionAttributeJUnitTest {
   public void setUp() throws Exception {
     CacheUtils.startCache();
     CacheUtils.getCache();
-    Region region = CacheUtils.createRegion("pos", Portfolio.class);
+    var region = CacheUtils.createRegion("pos", Portfolio.class);
     region.put("0", new Portfolio(0));
     region.put("1", new Portfolio(1));
     region.put("2", new Portfolio(2));

@@ -48,7 +48,6 @@ import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.query.Index;
-import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.cache.query.data.PortfolioPdx;
@@ -91,7 +90,7 @@ public class QueryOnCompressedRegionWithIndexTest {
   @Before
   public void createCache() {
     // Create cache
-    CacheFactory cf = new CacheFactory();
+    var cf = new CacheFactory();
     cf.set(MCAST_PORT, "0");
     cf.set(LOCATORS, "");
     cf.setPdxPersistent(true);
@@ -118,10 +117,10 @@ public class QueryOnCompressedRegionWithIndexTest {
   }
 
   private void deleteBackupFiles() {
-    File backupBaseDir = new File(".");
-    Pattern pattern = Pattern.compile("BACKUP.*");
-    File[] files = backupBaseDir.listFiles((dir, name) -> pattern.matcher(name).matches());
-    for (File file : files) {
+    var backupBaseDir = new File(".");
+    var pattern = Pattern.compile("BACKUP.*");
+    var files = backupBaseDir.listFiles((dir, name) -> pattern.matcher(name).matches());
+    for (var file : files) {
       file.delete();
     }
   }
@@ -129,11 +128,11 @@ public class QueryOnCompressedRegionWithIndexTest {
   @Test
   public void testCreateIndexThenAddEntries() throws Exception {
     // Create index
-    String indexName = region.getName() + "_index";
+    var indexName = region.getName() + "_index";
     createIndex(indexName, "status", region.getFullPath());
 
     // Load entries
-    int numObjects = 10;
+    var numObjects = 10;
     loadEntries(region, numObjects, false);
 
     // Execute queries and validate results
@@ -143,11 +142,11 @@ public class QueryOnCompressedRegionWithIndexTest {
   @Test
   public void testCreateIndexThenAddPdxEntries() throws Exception {
     // Create index
-    String indexName = region.getName() + "_index";
+    var indexName = region.getName() + "_index";
     createIndex(indexName, "status", region.getFullPath());
 
     // Load entries
-    int numObjects = 10;
+    var numObjects = 10;
     loadEntries(region, numObjects, true);
 
     // Execute queries and validate results
@@ -157,11 +156,11 @@ public class QueryOnCompressedRegionWithIndexTest {
   @Test
   public void testAddEntriesThenCreateIndex() throws Exception {
     // Load entries
-    int numObjects = 10;
+    var numObjects = 10;
     loadEntries(region, numObjects, false);
 
     // Create index
-    String indexName = region.getName() + "_index";
+    var indexName = region.getName() + "_index";
     createIndex(indexName, "status", region.getFullPath());
 
     // Execute queries and validate results
@@ -171,11 +170,11 @@ public class QueryOnCompressedRegionWithIndexTest {
   @Test
   public void testAddPdxEntriesThenCreateIndex() throws Exception {
     // Load entries
-    int numObjects = 10;
+    var numObjects = 10;
     loadEntries(region, numObjects, true);
 
     // Create index
-    String indexName = region.getName() + "_index";
+    var indexName = region.getName() + "_index";
     createIndex(indexName, "status", region.getFullPath());
 
     // Execute queries and validate results
@@ -193,7 +192,7 @@ public class QueryOnCompressedRegionWithIndexTest {
   }
 
   private void loadEntries(Region region, int numObjects, boolean usePdx) {
-    for (int i = 0; i < numObjects; i++) {
+    for (var i = 0; i < numObjects; i++) {
       region.put(i, usePdx ? new PortfolioPdx(i) : new Portfolio(i));
     }
   }
@@ -210,12 +209,12 @@ public class QueryOnCompressedRegionWithIndexTest {
   private void executeQuery(String queryStr, int expectedResults, String indexName)
       throws Exception {
     // Set query observer
-    QueryObserverImpl observer = new QueryObserverImpl();
+    var observer = new QueryObserverImpl();
     QueryObserverHolder.setInstance(observer);
 
     // Execute query
-    Query query = cache.getQueryService().newQuery(queryStr);
-    SelectResults results = (SelectResults) query.execute();
+    var query = cache.getQueryService().newQuery(queryStr);
+    var results = (SelectResults) query.execute();
 
     // Validate results size
     assertThat(results.size()).isEqualTo(expectedResults);

@@ -141,11 +141,11 @@ public class ConfigurationParameterJmxImpl
    * to avoid escape of InternalRole which is not Serializable.
    */
   private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
-    String inName = (String) in.readObject();
-    String inDescription = (String) in.readObject();
-    Object inValue = in.readObject();
-    Class inClass = (Class) in.readObject();
-    boolean inUserModifiable = in.readBoolean();
+    var inName = (String) in.readObject();
+    var inDescription = (String) in.readObject();
+    var inValue = in.readObject();
+    var inClass = (Class) in.readObject();
+    var inUserModifiable = in.readBoolean();
 
     deserialized = true;
     name = inName;

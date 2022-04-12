@@ -30,7 +30,7 @@ public class PluckStacksUnitTest {
 
   @Test
   public void testPluckingStacksFromJVMGeneratedDump() throws Exception {
-    LineNumberReader reader = new LineNumberReader(
+    var reader = new LineNumberReader(
         new FileReader(createTempFileFromResource(getClass(), "PluckStacksJstackGeneratedDump.txt")
             .getAbsolutePath()));
 

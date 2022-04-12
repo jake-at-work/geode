@@ -17,7 +17,6 @@ package org.apache.geode.cache.query.internal;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -83,10 +82,10 @@ public class CompiledIteratorDef extends AbstractCompiledValue {
     if (rIter != null) {
       return rIter;
     }
-    ObjectType type = elementType;
+    var type = elementType;
     if (type.equals(TypeUtils.OBJECT_TYPE)) {
       // check to see if there's a typecast for this collection
-      ObjectType typc = getCollectionElementTypeCast();
+      var typc = getCollectionElementTypeCast();
       if (typc != null) {
         type = typc;
       } else {
@@ -101,7 +100,7 @@ public class CompiledIteratorDef extends AbstractCompiledValue {
     rIter = new RuntimeIterator(this, type);
     // generate from clause should take care of bucket region substitution if
     // necessary and then set the definition.
-    String fromClause = genFromClause(context);
+    var fromClause = genFromClause(context);
     rIter.setDefinition(fromClause);
     /*
      * If the type of RunTimeIterator is still ObjectType & if the RuneTimeIterator is independent
@@ -147,7 +146,7 @@ public class CompiledIteratorDef extends AbstractCompiledValue {
   }
 
   ObjectType getCollectionElementTypeCast() throws TypeMismatchException {
-    ObjectType typ = collectionExpr.getTypecast();
+    var typ = collectionExpr.getTypecast();
     if (typ != null) {
       if (!(typ instanceof CollectionType)) {
         throw new TypeMismatchException(
@@ -188,7 +187,7 @@ public class CompiledIteratorDef extends AbstractCompiledValue {
     // if we don't have an elementType and there's a typecast, apply the
     // element type here
     if (TypeUtils.OBJECT_TYPE.equals(elementType)) {
-      ObjectType elmTypc = getCollectionElementTypeCast();
+      var elmTypc = getCollectionElementTypeCast();
       if (elmTypc != null) {
         elementType = elmTypc;
       }
@@ -241,7 +240,7 @@ public class CompiledIteratorDef extends AbstractCompiledValue {
   // There is a limitation here that it assumes that the collectionExpr is some
   // path on either a RuntimeIterator or a Region.
   private ObjectType computeElementType(ExecutionContext context) throws AmbiguousNameException {
-    ObjectType type = PathUtils.computeElementTypeOfExpression(context, collectionExpr);
+    var type = PathUtils.computeElementTypeOfExpression(context, collectionExpr);
     // if it's a Map, we want the Entry type, not the value type
     if (type.isMapType()) {
       return ((MapType) type).getEntryType();
@@ -268,7 +267,7 @@ public class CompiledIteratorDef extends AbstractCompiledValue {
     if (obj instanceof SelectResults) {
       // probably came from nested query or is a QRegion already from region
       // path
-      SelectResults sr = (SelectResults) obj;
+      var sr = (SelectResults) obj;
       // override the elementType if not Object.class (does not apply to
       // StructBags)
       if (!elementType.equals(TypeUtils.OBJECT_TYPE)) {
@@ -278,7 +277,7 @@ public class CompiledIteratorDef extends AbstractCompiledValue {
     }
     if (obj instanceof Region) {
       // this can happen if region passed in as parameter
-      QRegion qRegion = new QRegion((Region) obj, false, context);
+      var qRegion = new QRegion((Region) obj, false, context);
       if (!elementType.equals(TypeUtils.OBJECT_TYPE)) {
         // override the valueConstraint, if any
         qRegion.setElementType(elementType);
@@ -290,7 +289,7 @@ public class CompiledIteratorDef extends AbstractCompiledValue {
     // domain, otherwise it would be a SelectResults.
     if (obj instanceof Collection) {
       // do not lose ordering and duplicate information,
-      ResultsCollectionWrapper res = new ResultsCollectionWrapper(elementType, (Collection) obj);
+      var res = new ResultsCollectionWrapper(elementType, (Collection) obj);
       res.setModifiable(false);
       return res;
     }
@@ -303,7 +302,7 @@ public class CompiledIteratorDef extends AbstractCompiledValue {
         elementType = TypeUtils.getObjectType(obj.getClass().getComponentType());
       }
       // do not lose ordering and duplicate information,
-      ResultsCollectionWrapper res =
+      var res =
           new ResultsCollectionWrapper(elementType, Arrays.asList((Object[]) obj));
       res.setModifiable(false);
       return res;
@@ -315,7 +314,7 @@ public class CompiledIteratorDef extends AbstractCompiledValue {
         // use Map.Entry
         elementType = TypeUtils.getObjectType(Map.Entry.class);
       }
-      ResultsCollectionWrapper res =
+      var res =
           new ResultsCollectionWrapper(elementType, ((Map) obj).entrySet());
       res.setModifiable(false);
       return res;
@@ -328,7 +327,7 @@ public class CompiledIteratorDef extends AbstractCompiledValue {
         elementType = TypeUtils.getObjectType(obj.getClass().getComponentType());
       }
       // do not lose ordering and duplicate information,
-      ResultsCollectionWrapper res =
+      var res =
           new ResultsCollectionWrapper(elementType, Arrays.asList((Object[]) obj));
       res.setModifiable(false);
       return res;
@@ -337,7 +336,7 @@ public class CompiledIteratorDef extends AbstractCompiledValue {
 
   String genFromClause(ExecutionContext context)
       throws TypeMismatchException, NameResolutionException {
-    StringBuilder sbuff = new StringBuilder();
+    var sbuff = new StringBuilder();
     collectionExpr.generateCanonicalizedExpression(sbuff, context);
     return sbuff.toString();
   }
@@ -351,14 +350,14 @@ public class CompiledIteratorDef extends AbstractCompiledValue {
     // is ultimately dependent on
 
     // If dependent on self then also assume it to be dependent
-    boolean isDep = false;
+    var isDep = false;
     // Get the list of all iterators on which the colelction expression
     // is dependent on
     Set dependencySet = context.getDependencySet(this, true);
-    Iterator itr = dependencySet.iterator();
-    int currScope = context.currentScope().getScopeID();// context.getScopeCount();
+    var itr = dependencySet.iterator();
+    var currScope = context.currentScope().getScopeID();// context.getScopeCount();
     while (itr.hasNext()) {
-      RuntimeIterator ritr = (RuntimeIterator) itr.next();
+      var ritr = (RuntimeIterator) itr.next();
       if (ritr.getScopeID() <= currScope) {
         isDep = true;
         break;

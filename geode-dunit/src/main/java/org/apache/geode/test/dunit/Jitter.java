@@ -65,14 +65,14 @@ class Jitter {
    * @return randomized interval we should wait
    */
   private static int adjustIntervalIfJitterIsEnabled(final long intervalMillis) {
-    final int minLegal = minimum();
-    final int maxLegal = maximum();
+    final var minLegal = minimum();
+    final var maxLegal = maximum();
 
     if (intervalMillis <= minLegal) {
       return (int) intervalMillis; // Don't ever jitter anything below this.
     }
 
-    int maxValue = maxLegal;
+    var maxValue = maxLegal;
     if (intervalMillis < maxLegal) {
       maxValue = (int) intervalMillis;
     }

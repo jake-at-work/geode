@@ -81,10 +81,10 @@ public class HostAndPort extends InetSocketWrapper implements DataSerializableFi
   public void fromData(DataInput in, DeserializationContext context)
       throws IOException, ClassNotFoundException {
     InetAddress address;
-    byte flags = in.readByte();
+    var flags = in.readByte();
     if ((flags & 1) == 0) {
-      String hostName = StaticSerialization.readString(in);
-      int port = in.readInt();
+      var hostName = StaticSerialization.readString(in);
+      var port = in.readInt();
       if (hostName == null || hostName.isEmpty()) {
         inetSocketAddress = new InetSocketAddress(port);
       } else {
@@ -92,7 +92,7 @@ public class HostAndPort extends InetSocketWrapper implements DataSerializableFi
       }
     } else {
       address = StaticSerialization.readInetAddress(in);
-      int port = in.readInt();
+      var port = in.readInt();
       inetSocketAddress = new InetSocketAddress(address, port);
     }
   }

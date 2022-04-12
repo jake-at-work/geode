@@ -59,33 +59,33 @@ public class TopEntriesFunctionCollectorJUnitTest {
 
   @Test
   public void testGetResultsBlocksTillEnd() throws Exception {
-    final TopEntriesFunctionCollector collector = new TopEntriesFunctionCollector();
-    TopEntries merged = collector.getResult();
+    final var collector = new TopEntriesFunctionCollector();
+    var merged = collector.getResult();
     assertEquals(0, merged.size());
   }
 
   @Test
   public void testGetResultsTimedWait() throws Exception {
-    final TopEntriesFunctionCollector collector = new TopEntriesFunctionCollector();
+    final var collector = new TopEntriesFunctionCollector();
     collector.addResult(null, result1);
     collector.addResult(null, result2);
 
-    TopEntries merged = collector.getResult(1, TimeUnit.SECONDS);
+    var merged = collector.getResult(1, TimeUnit.SECONDS);
     assertEquals(4, merged.size());
     LuceneTestUtilities.verifyResultOrder(merged.getHits(), r1_1, r2_1, r1_2, r2_2);
   }
 
   @Test
   public void mergeShardAndLimitResults() throws Exception {
-    LuceneFunctionContext<TopEntriesCollector> context =
-        new LuceneFunctionContext<>(null, null, null, 3);
+    var context =
+        new LuceneFunctionContext<TopEntriesCollector>(null, null, null, 3);
 
-    TopEntriesFunctionCollector collector = new TopEntriesFunctionCollector(context);
+    var collector = new TopEntriesFunctionCollector(context);
     collector.addResult(null, result1);
     collector.addResult(null, result2);
     collector.endResults();
 
-    TopEntries merged = collector.getResult();
+    var merged = collector.getResult();
     Assert.assertNotNull(merged);
     assertEquals(3, merged.size());
     LuceneTestUtilities.verifyResultOrder(merged.getHits(), r1_1, r2_1, r1_2);
@@ -93,12 +93,12 @@ public class TopEntriesFunctionCollectorJUnitTest {
 
   @Test
   public void mergeResultsDefaultCollectorManager() throws Exception {
-    TopEntriesFunctionCollector collector = new TopEntriesFunctionCollector();
+    var collector = new TopEntriesFunctionCollector();
     collector.addResult(null, result1);
     collector.addResult(null, result2);
     collector.endResults();
 
-    TopEntries merged = collector.getResult();
+    var merged = collector.getResult();
     Assert.assertNotNull(merged);
     assertEquals(4, merged.size());
     LuceneTestUtilities.verifyResultOrder(merged.getHits(), r1_1, r2_1, r1_2, r2_2);
@@ -106,12 +106,12 @@ public class TopEntriesFunctionCollectorJUnitTest {
 
   @Test
   public void getResultsTwice() throws Exception {
-    TopEntriesFunctionCollector collector = new TopEntriesFunctionCollector();
+    var collector = new TopEntriesFunctionCollector();
     collector.addResult(null, result1);
     collector.addResult(null, result2);
     collector.endResults();
 
-    TopEntries merged = collector.getResult();
+    var merged = collector.getResult();
     Assert.assertNotNull(merged);
     assertEquals(4, merged.size());
     LuceneTestUtilities.verifyResultOrder(merged.getHits(), r1_1, r2_1, r1_2, r2_2);
@@ -124,37 +124,37 @@ public class TopEntriesFunctionCollectorJUnitTest {
 
   @Test
   public void mergeResultsCustomCollectorManager() throws Exception {
-    TopEntries resultEntries = new TopEntries();
-    TopEntriesCollector mockCollector = mock(TopEntriesCollector.class);
+    var resultEntries = new TopEntries();
+    var mockCollector = mock(TopEntriesCollector.class);
     Mockito.doReturn(resultEntries).when(mockCollector).getEntries();
 
     CollectorManager<TopEntriesCollector> mockManager = mock(CollectorManager.class);
     Mockito.doReturn(mockCollector).when(mockManager)
         .reduce(Mockito.argThat(argument -> {
-          Collection<TopEntriesCollector> collectors = argument;
+          var collectors = argument;
           return collectors.contains(result1) && collectors.contains(result2);
         }));
 
-    LuceneFunctionContext<TopEntriesCollector> context =
-        new LuceneFunctionContext<>(null, null, mockManager);
-    TopEntriesFunctionCollector collector = new TopEntriesFunctionCollector(context);
+    var context =
+        new LuceneFunctionContext<TopEntriesCollector>(null, null, mockManager);
+    var collector = new TopEntriesFunctionCollector(context);
     collector.addResult(null, result1);
     collector.addResult(null, result2);
     collector.endResults();
 
-    TopEntries merged = collector.getResult();
+    var merged = collector.getResult();
     assertEquals(resultEntries, merged);
   }
 
   @Test
   public void mergeAfterClearResults() throws Exception {
-    TopEntriesFunctionCollector collector = new TopEntriesFunctionCollector();
+    var collector = new TopEntriesFunctionCollector();
     collector.addResult(null, result1);
     collector.clearResults();
     collector.addResult(null, result2);
     collector.endResults();
 
-    TopEntries merged = collector.getResult();
+    var merged = collector.getResult();
     Assert.assertNotNull(merged);
     assertEquals(2, merged.size());
     LuceneTestUtilities.verifyResultOrder(merged.getHits(), r2_1, r2_2);
@@ -162,22 +162,22 @@ public class TopEntriesFunctionCollectorJUnitTest {
 
   @Test(expected = RuntimeException.class)
   public void testExceptionDuringMerge() throws Exception {
-    TopEntriesCollectorManager mockManager = mock(TopEntriesCollectorManager.class);
+    var mockManager = mock(TopEntriesCollectorManager.class);
     Mockito.doThrow(new RuntimeException()).when(mockManager).reduce(any(Collection.class));
 
-    LuceneFunctionContext<TopEntriesCollector> context =
-        new LuceneFunctionContext<>(null, null, mockManager);
-    TopEntriesFunctionCollector collector = new TopEntriesFunctionCollector(context);
+    var context =
+        new LuceneFunctionContext<TopEntriesCollector>(null, null, mockManager);
+    var collector = new TopEntriesFunctionCollector(context);
     collector.endResults();
     collector.getResult();
   }
 
   @Test
   public void testCollectorName() {
-    InternalCache mockCache = mock(InternalCache.class);
+    var mockCache = mock(InternalCache.class);
     Mockito.doReturn("server").when(mockCache).getName();
 
-    TopEntriesFunctionCollector function = new TopEntriesFunctionCollector(null, mockCache);
+    var function = new TopEntriesFunctionCollector(null, mockCache);
     assertEquals("server", function.id());
   }
 }

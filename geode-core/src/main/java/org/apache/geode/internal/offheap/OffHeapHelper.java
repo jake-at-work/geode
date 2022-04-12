@@ -50,7 +50,7 @@ public class OffHeapHelper {
   public static Object copyAndReleaseIfNeeded(@Released Object v, InternalCache cache) {
     if (v instanceof StoredObject) {
       @Unretained
-      StoredObject ohv = (StoredObject) v;
+      var ohv = (StoredObject) v;
       try {
         if (ohv.isSerialized()) {
           return CachedDeserializableFactory.create(ohv.getSerializedValue(), cache);
@@ -79,7 +79,7 @@ public class OffHeapHelper {
   public static Object copyIfNeeded(@Unretained Object v, InternalCache cache) {
     if (v instanceof StoredObject) {
       @Unretained
-      StoredObject ohv = (StoredObject) v;
+      var ohv = (StoredObject) v;
       if (ohv.isSerialized()) {
         v = CachedDeserializableFactory.create(ohv.getSerializedValue(), cache);
       } else {
@@ -109,7 +109,7 @@ public class OffHeapHelper {
    */
   public static boolean releaseWithNoTracking(@Released Object o) {
     if (o instanceof StoredObject) {
-      StoredObject so = (StoredObject) o;
+      var so = (StoredObject) o;
       if (!so.hasRefCount()) {
         so.release();
         return true;
@@ -130,7 +130,7 @@ public class OffHeapHelper {
    */
   public static boolean releaseAndTrackOwner(@Released final Object o, final Object owner) {
     if (o instanceof StoredObject) {
-      StoredObject so = (StoredObject) o;
+      var so = (StoredObject) o;
       if (!so.hasRefCount()) {
         so.release();
         return true;

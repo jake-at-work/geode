@@ -69,7 +69,7 @@ public abstract class GemFireCheckedException extends Exception {
     if (getCause() == null) {
       return null;
     }
-    Throwable root = getCause();
+    var root = getCause();
     while (root != null) {
       if (root.getCause() == null) {
         break;

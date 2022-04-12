@@ -21,7 +21,6 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.Statistics;
-import org.apache.geode.StatisticsType;
 import org.apache.geode.annotations.internal.MakeNotStatic;
 import org.apache.geode.cache.CacheWriterException;
 import org.apache.geode.cache.client.internal.PoolImpl;
@@ -77,19 +76,19 @@ public class ClientStatsManager {
       logger.debug("Entering ClientStatsManager#publishClientStats...");
     }
 
-    ClientHealthStats stats = getClientHealthStats(currentCache, pool);
+    var stats = getClientHealthStats(currentCache, pool);
 
     try {
-      InternalDistributedSystem ds =
+      var ds =
           (InternalDistributedSystem) currentCache.getDistributedSystem();
-      ServerRegionProxy regionProxy =
+      var regionProxy =
           new ServerRegionProxy(ClientHealthMonitoringRegion.ADMIN_REGION_NAME, pool);
 
       boolean isOffHeap;
       isOffHeap = ds.getOffHeapStore() != null;
-      EventID eventId = new EventID(ds);
+      var eventId = new EventID(ds);
       @Released
-      EntryEventImpl event = new EntryEventImpl((Object) null, isOffHeap);
+      var event = new EntryEventImpl((Object) null, isOffHeap);
       try {
         event.setEventId(eventId);
         regionProxy.putForMetaRegion(ds.getDistributedMember(), stats, null, event, null);
@@ -132,12 +131,12 @@ public class ClientStatsManager {
       return false;
     }
 
-    InternalDistributedSystem ds = (InternalDistributedSystem) currentCache.getDistributedSystem();
+    var ds = (InternalDistributedSystem) currentCache.getDistributedSystem();
     if (currentCache.isClosed()) {
       return false;
     }
 
-    boolean restart = lastInitializedCache != currentCache;
+    var restart = lastInitializedCache != currentCache;
     lastInitializedCache = currentCache;
 
     if (restart) {
@@ -150,9 +149,9 @@ public class ClientStatsManager {
     }
 
     if (cachePerfStats == null) {
-      StatisticsType type = ds.findType("CachePerfStats");
+      var type = ds.findType("CachePerfStats");
       if (type != null) {
-        Statistics[] statistics = ds.findStatisticsByType(type);
+        var statistics = ds.findStatisticsByType(type);
         if (statistics != null && statistics.length > 0) {
           cachePerfStats = statistics[0];
         }
@@ -160,9 +159,9 @@ public class ClientStatsManager {
     }
 
     if (vmStats == null) {
-      StatisticsType type = ds.findType("VMStats");
+      var type = ds.findType("VMStats");
       if (type != null) {
-        Statistics[] statistics = ds.findStatisticsByType(type);
+        var statistics = ds.findStatisticsByType(type);
         if (statistics != null && statistics.length > 0) {
           vmStats = statistics[0];
         }
@@ -194,12 +193,12 @@ public class ClientStatsManager {
     if (currentCache == null) {
       return null;
     }
-    ClientHealthStats stats = new ClientHealthStats();
+    var stats = new ClientHealthStats();
 
     long gets = -1;
     long puts = -1;
     long misses = -1;
-    int cacheListenerCalls = -1;
+    var cacheListenerCalls = -1;
 
     if (cachePerfStats != null) {
       gets = cachePerfStats.getLong("gets");
@@ -209,8 +208,8 @@ public class ClientStatsManager {
     }
 
     long processCpuTime = -1;
-    int threads = -1;
-    int cpus = -1;
+    var threads = -1;
+    var cpus = -1;
     if (vmStats != null) {
       processCpuTime = vmStats.getLong("processCpuTime");
       threads = vmStats.getInt("threads");
@@ -225,10 +224,10 @@ public class ClientStatsManager {
     stats.setNumOfThreads(threads);
     stats.setCpus(cpus);
 
-    String poolName = pool.getName();
+    var poolName = pool.getName();
     try {
       Map<String, String> newPoolStats = stats.getPoolStats();
-      String poolStatsStr = "MinConnections=" + pool.getMinConnections() + ";MaxConnections="
+      var poolStatsStr = "MinConnections=" + pool.getMinConnections() + ";MaxConnections="
           + pool.getMaxConnections() + ";Redundancy=" + pool.getSubscriptionRedundancy() + ";CQS="
           + pool.getQueryService().getCqs().length;
       logger.debug("ClientHealthStats for poolName " + poolName + " poolStatsStr=" + poolStatsStr);

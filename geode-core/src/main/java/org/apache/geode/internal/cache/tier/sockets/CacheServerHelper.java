@@ -75,23 +75,23 @@ public class CacheServerHelper {
 
   public static byte[] zip(Object obj) throws IOException {
     // logger.info("CacheServerHelper: Zipping object to blob: " + obj);
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    GZIPOutputStream gz = new GZIPOutputStream(baos);
-    ObjectOutputStream oos = new ObjectOutputStream(gz);
+    var baos = new ByteArrayOutputStream();
+    var gz = new GZIPOutputStream(baos);
+    var oos = new ObjectOutputStream(gz);
     oos.writeObject(obj);
     oos.flush();
     oos.close();
-    byte[] blob = baos.toByteArray();
+    var blob = baos.toByteArray();
     // logger.info("CacheServerHelper: Zipped object to blob: " + blob);
     return blob;
   }
 
   public static Object unzip(byte[] blob) throws IOException, ClassNotFoundException {
     // logger.info("CacheServerHelper: Unzipping blob to object: " + blob);
-    ByteArrayInputStream bais = new ByteArrayInputStream(blob);
-    GZIPInputStream gs = new GZIPInputStream(bais);
-    ObjectInputStream ois = new ObjectInputStream(gs);
-    Object obj = ois.readObject();
+    var bais = new ByteArrayInputStream(blob);
+    var gs = new GZIPInputStream(bais);
+    var ois = new ObjectInputStream(gs);
+    var obj = ois.readObject();
     // logger.info("CacheServerHelper: Unzipped blob to object: " + obj);
     ois.close();
     bais.close();
@@ -105,7 +105,7 @@ public class CacheServerHelper {
    * @return byte[]
    */
   public static byte[] toUTF(String s) {
-    HeapDataOutputStream hdos = new HeapDataOutputStream(s);
+    var hdos = new HeapDataOutputStream(s);
     return hdos.toByteArray();
   }
 
@@ -114,12 +114,12 @@ public class CacheServerHelper {
    *
    */
   public static String fromUTF(byte[] bytearr) {
-    int utflen = bytearr.length;
+    var utflen = bytearr.length;
     int c, char2, char3;
-    int count = 0;
-    int chararr_count = 0;
+    var count = 0;
+    var chararr_count = 0;
 
-    char[] chararr = new char[utflen];
+    var chararr = new char[utflen];
 
     while (count < utflen) {
       c = (int) bytearr[count] & 0xff;

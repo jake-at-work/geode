@@ -47,9 +47,9 @@ public class GeodeRedisServerStartupUsingGfshAcceptanceTest {
   @Test
   public void shouldReturnErrorMessage_givenSamePortAndAddress() throws IOException {
 
-    int port = AvailablePortHelper.getRandomAvailableTCPPort();
+    var port = AvailablePortHelper.getRandomAvailableTCPPort();
 
-    String startServerCommand = String.join(" ",
+    var startServerCommand = String.join(" ",
         "start server",
         "--server-port", "0",
         "--name", "same-port-and-address-server",
@@ -59,7 +59,7 @@ public class GeodeRedisServerStartupUsingGfshAcceptanceTest {
         "--classpath=" + redisHome.getGeodeForRedisHome() + "/lib/*");
     GfshExecution execution;
 
-    try (ServerSocket interferingSocket = new ServerSocket()) {
+    try (var interferingSocket = new ServerSocket()) {
       interferingSocket.bind(new InetSocketAddress("localhost", port));
       execution = GfshScript.of(startServerCommand)
           .expectFailure()
@@ -72,9 +72,9 @@ public class GeodeRedisServerStartupUsingGfshAcceptanceTest {
   @Test
   public void shouldReturnErrorMessage_givenSamePortAndAllAddresses() throws IOException {
 
-    int port = AvailablePortHelper.getRandomAvailableTCPPort();
+    var port = AvailablePortHelper.getRandomAvailableTCPPort();
 
-    String startServerCommand = String.join(" ",
+    var startServerCommand = String.join(" ",
         "start server",
         "--server-port", "0",
         "--name", "same-port-all-addresses-server",
@@ -83,7 +83,7 @@ public class GeodeRedisServerStartupUsingGfshAcceptanceTest {
         "--classpath=" + redisHome.getGeodeForRedisHome() + "/lib/*");
     GfshExecution execution;
 
-    try (ServerSocket interferingSocket = new ServerSocket()) {
+    try (var interferingSocket = new ServerSocket()) {
       interferingSocket.bind(new InetSocketAddress("0.0.0.0", port));
       execution = GfshScript.of(startServerCommand)
           .expectFailure()
@@ -96,7 +96,7 @@ public class GeodeRedisServerStartupUsingGfshAcceptanceTest {
   @Test
   public void shouldReturnErrorMessage_givenInvalidBindAddress() {
 
-    String startServerCommand = String.join(" ",
+    var startServerCommand = String.join(" ",
         "start server",
         "--server-port", "0",
         "--name", "invalid-bind-server",
@@ -115,36 +115,36 @@ public class GeodeRedisServerStartupUsingGfshAcceptanceTest {
 
   @Test
   public void gfshStartsRedisServer_whenRedisEnabled() {
-    String command = "start server --server-port=0 "
+    var command = "start server --server-port=0 "
         + "--J=-Dgemfire." + ConfigurationProperties.GEODE_FOR_REDIS_ENABLED + "=true"
         + " --classpath=" + redisHome.getGeodeForRedisHome() + "/lib/*";
     gfshRule.execute(command);
 
-    try (Jedis jedis = new Jedis(BIND_ADDRESS, 6379)) {
+    try (var jedis = new Jedis(BIND_ADDRESS, 6379)) {
       assertThat(jedis.ping()).isEqualTo("PONG");
     }
   }
 
   @Test
   public void gfshStartsRedisServer_whenCustomPort() {
-    int port = AvailablePortHelper.getRandomAvailableTCPPort();
-    String command = "start server --server-port=0 "
+    var port = AvailablePortHelper.getRandomAvailableTCPPort();
+    var command = "start server --server-port=0 "
         + "--J=-Dgemfire." + ConfigurationProperties.GEODE_FOR_REDIS_ENABLED + "=true"
         + " --J=-Dgemfire." + ConfigurationProperties.GEODE_FOR_REDIS_PORT + "=" + port
         + " --classpath=" + redisHome.getGeodeForRedisHome() + "/lib/*";
 
     gfshRule.execute(command);
 
-    try (Jedis jedis = new Jedis(BIND_ADDRESS, port)) {
+    try (var jedis = new Jedis(BIND_ADDRESS, port)) {
       assertThat(jedis.ping()).isEqualTo("PONG");
     }
   }
 
   @Test
   public void gfshStartsRedisServer_whenCustomPortAndBindAddress() {
-    int port = AvailablePortHelper.getRandomAvailableTCPPort();
-    String anyLocal = LocalHostUtil.getAnyLocalAddress().getHostAddress();
-    String command = "start server --server-port=0 "
+    var port = AvailablePortHelper.getRandomAvailableTCPPort();
+    var anyLocal = LocalHostUtil.getAnyLocalAddress().getHostAddress();
+    var command = "start server --server-port=0 "
         + "--J=-Dgemfire." + ConfigurationProperties.GEODE_FOR_REDIS_ENABLED + "=true"
         + " --J=-Dgemfire." + ConfigurationProperties.GEODE_FOR_REDIS_PORT + "=" + port
         + " --J=-Dgemfire." + ConfigurationProperties.GEODE_FOR_REDIS_BIND_ADDRESS + "="
@@ -153,16 +153,16 @@ public class GeodeRedisServerStartupUsingGfshAcceptanceTest {
 
     gfshRule.execute(command);
 
-    try (Jedis jedis = new Jedis(anyLocal, port)) {
+    try (var jedis = new Jedis(anyLocal, port)) {
       assertThat(jedis.ping()).isEqualTo("PONG");
     }
   }
 
   @Test
   public void gfshDoesNotStartRedisServer_whenNotRedisEnabled() {
-    int port = AvailablePortHelper.getRandomAvailableTCPPort();
-    String anyLocal = LocalHostUtil.getAnyLocalAddress().getHostAddress();
-    String command = "start server --server-port=0 "
+    var port = AvailablePortHelper.getRandomAvailableTCPPort();
+    var anyLocal = LocalHostUtil.getAnyLocalAddress().getHostAddress();
+    var command = "start server --server-port=0 "
         + "--J=-Dgemfire." + ConfigurationProperties.GEODE_FOR_REDIS_PORT + "=" + port
         + " --J=-Dgemfire." + ConfigurationProperties.GEODE_FOR_REDIS_BIND_ADDRESS + "="
         + anyLocal
@@ -170,7 +170,7 @@ public class GeodeRedisServerStartupUsingGfshAcceptanceTest {
 
     gfshRule.execute(command);
 
-    try (Jedis jedis = new Jedis(BIND_ADDRESS, port)) {
+    try (var jedis = new Jedis(BIND_ADDRESS, port)) {
       assertThatThrownBy(() -> jedis.ping()).isInstanceOf(JedisConnectionException.class);
     }
   }

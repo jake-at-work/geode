@@ -26,7 +26,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.lang.reflect.Field;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
@@ -85,7 +84,7 @@ public class GfshInitFileIntegrationTest {
   public static void setUpBeforeClass() {
     logger = Logger.getLogger("");
     savedHandlers = logger.getHandlers();
-    for (Handler handler : savedHandlers) {
+    for (var handler : savedHandlers) {
       logger.removeHandler(handler);
     }
   }
@@ -95,7 +94,7 @@ public class GfshInitFileIntegrationTest {
    */
   @AfterClass
   public static void tearDownAfterClass() {
-    for (Handler handler : savedHandlers) {
+    for (var handler : savedHandlers) {
       logger.addHandler(handler);
     }
 
@@ -125,9 +124,9 @@ public class GfshInitFileIntegrationTest {
 
   @Test
   public void initFile_isNull() {
-    GfshConfig gfshConfig = new GfshConfig(gfshHistoryFilePath.toString(), "", 0,
+    var gfshConfig = new GfshConfig(gfshHistoryFilePath.toString(), "", 0,
         gfshLogDirPath.toString(), null, null, null, null);
-    Gfsh gfsh = Gfsh.getInstance(false, null, gfshConfig);
+    var gfsh = Gfsh.getInstance(false, null, gfshConfig);
 
     assertThat(gfsh.getLastExecutionStatus())
         .as("gfsh last execution status (success is zero)")
@@ -144,9 +143,9 @@ public class GfshInitFileIntegrationTest {
 
   @Test
   public void initFile_doesNotExist() {
-    GfshConfig gfshConfig = new GfshConfig(gfshHistoryFilePath.toString(), "", 0,
+    var gfshConfig = new GfshConfig(gfshHistoryFilePath.toString(), "", 0,
         gfshLogDirPath.toString(), null, null, null, initFilePath.toString());
-    Gfsh gfsh = Gfsh.getInstance(false, null, gfshConfig);
+    var gfsh = Gfsh.getInstance(false, null, gfshConfig);
 
     assertThat(gfsh.getLastExecutionStatus())
         .as("gfsh last execution status (failure is non-zero)")
@@ -164,9 +163,9 @@ public class GfshInitFileIntegrationTest {
   @Test
   public void initFile_existsButIsEmpty() throws Exception {
     createFile(initFilePath);
-    GfshConfig gfshConfig = new GfshConfig(gfshHistoryFilePath.toString(), "", 0,
+    var gfshConfig = new GfshConfig(gfshHistoryFilePath.toString(), "", 0,
         gfshLogDirPath.toString(), null, null, null, initFilePath.toString());
-    Gfsh gfsh = Gfsh.getInstance(false, null, gfshConfig);
+    var gfsh = Gfsh.getInstance(false, null, gfshConfig);
 
     assertThat(gfsh.getLastExecutionStatus())
         .as("gfsh last execution status (success is zero)")
@@ -185,9 +184,9 @@ public class GfshInitFileIntegrationTest {
   public void initFile_existsAndContains_oneGoodCommand() throws Exception {
     writeStringToFile(initFilePath.toFile(), "echo --string=hello" + lineSeparator(),
         defaultCharset());
-    GfshConfig gfshConfig = new GfshConfig(gfshHistoryFilePath.toString(), "", 0,
+    var gfshConfig = new GfshConfig(gfshHistoryFilePath.toString(), "", 0,
         gfshLogDirPath.toString(), null, null, null, initFilePath.toString());
-    Gfsh gfsh = Gfsh.getInstance(false, null, gfshConfig);
+    var gfsh = Gfsh.getInstance(false, null, gfshConfig);
 
     assertThat(gfsh.getLastExecutionStatus())
         .as("gfsh last execution status (success is zero)")
@@ -208,9 +207,9 @@ public class GfshInitFileIntegrationTest {
         defaultCharset());
     writeStringToFile(initFilePath.toFile(), "echo --string=goodbye" + lineSeparator(),
         defaultCharset(), true);
-    GfshConfig gfshConfig = new GfshConfig(gfshHistoryFilePath.toString(), "", 0,
+    var gfshConfig = new GfshConfig(gfshHistoryFilePath.toString(), "", 0,
         gfshLogDirPath.toString(), null, null, null, initFilePath.toString());
-    Gfsh gfsh = Gfsh.getInstance(false, null, gfshConfig);
+    var gfsh = Gfsh.getInstance(false, null, gfshConfig);
 
     assertThat(gfsh.getLastExecutionStatus())
         .as("gfsh last execution status (success is zero)")
@@ -228,9 +227,9 @@ public class GfshInitFileIntegrationTest {
   @Test
   public void initFile_existsAndContains_oneBadCommand() throws Exception {
     writeStringToFile(initFilePath.toFile(), "fail" + lineSeparator(), defaultCharset());
-    GfshConfig gfshConfig = new GfshConfig(gfshHistoryFilePath.toString(), "", 0,
+    var gfshConfig = new GfshConfig(gfshHistoryFilePath.toString(), "", 0,
         gfshLogDirPath.toString(), null, null, null, initFilePath.toString());
-    Gfsh gfsh = Gfsh.getInstance(false, null, gfshConfig);
+    var gfsh = Gfsh.getInstance(false, null, gfshConfig);
 
     assertThat(gfsh.getLastExecutionStatus())
         .as("gfsh last execution status (failure is non-zero)")
@@ -246,9 +245,9 @@ public class GfshInitFileIntegrationTest {
   public void initFile_existsAndContains_twoBadCommands() throws Exception {
     writeStringToFile(initFilePath.toFile(), "fail" + lineSeparator(), defaultCharset());
     writeStringToFile(initFilePath.toFile(), "fail" + lineSeparator(), defaultCharset(), true);
-    GfshConfig gfshConfig = new GfshConfig(gfshHistoryFilePath.toString(), "", 0,
+    var gfshConfig = new GfshConfig(gfshHistoryFilePath.toString(), "", 0,
         gfshLogDirPath.toString(), null, null, null, initFilePath.toString());
-    Gfsh gfsh = Gfsh.getInstance(false, null, gfshConfig);
+    var gfsh = Gfsh.getInstance(false, null, gfshConfig);
 
     assertThat(gfsh.getLastExecutionStatus())
         .as("gfsh last execution status (failure is non-zero)")
@@ -265,9 +264,9 @@ public class GfshInitFileIntegrationTest {
     writeStringToFile(initFilePath.toFile(), "fail" + lineSeparator(), defaultCharset());
     writeStringToFile(initFilePath.toFile(), "echo --string=goodbye" + lineSeparator(),
         defaultCharset(), true);
-    GfshConfig gfshConfig = new GfshConfig(gfshHistoryFilePath.toString(), "", 0,
+    var gfshConfig = new GfshConfig(gfshHistoryFilePath.toString(), "", 0,
         gfshLogDirPath.toString(), null, null, null, initFilePath.toString());
-    Gfsh gfsh = Gfsh.getInstance(false, null, gfshConfig);
+    var gfsh = Gfsh.getInstance(false, null, gfshConfig);
 
     assertThat(gfsh.getLastExecutionStatus())
         .as("gfsh last execution status (failure is non-zero)")
@@ -282,16 +281,16 @@ public class GfshInitFileIntegrationTest {
   private static void initializeGfshStatics(Logger logger, Handler handler)
       throws NoSuchFieldException, IllegalAccessException {
     // Null out static instance so can reinitialise
-    Field gfsh_instance = Gfsh.class.getDeclaredField("instance");
+    var gfsh_instance = Gfsh.class.getDeclaredField("instance");
     gfsh_instance.setAccessible(true);
     gfsh_instance.set(null, null);
 
-    LogWrapper gfshFileLogger = LogWrapper.getInstance(null);
-    Field logWrapper_INSTANCE = LogWrapper.class.getDeclaredField("INSTANCE");
+    var gfshFileLogger = LogWrapper.getInstance(null);
+    var logWrapper_INSTANCE = LogWrapper.class.getDeclaredField("INSTANCE");
     logWrapper_INSTANCE.setAccessible(true);
     logWrapper_INSTANCE.set(null, gfshFileLogger);
 
-    Field logWrapper_logger = LogWrapper.class.getDeclaredField("logger");
+    var logWrapper_logger = LogWrapper.class.getDeclaredField("logger");
     logWrapper_logger.setAccessible(true);
     logger.addHandler(handler);
     logWrapper_logger.set(gfshFileLogger, logger);

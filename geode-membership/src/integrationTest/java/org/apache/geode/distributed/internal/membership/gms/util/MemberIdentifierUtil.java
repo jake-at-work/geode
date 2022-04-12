@@ -19,7 +19,6 @@ import java.net.UnknownHostException;
 
 import org.jgroups.util.UUID;
 
-import org.apache.geode.distributed.internal.membership.api.MemberData;
 import org.apache.geode.distributed.internal.membership.api.MemberDataBuilder;
 import org.apache.geode.distributed.internal.membership.api.MemberIdentifier;
 import org.apache.geode.distributed.internal.membership.api.MemberIdentifierFactoryImpl;
@@ -29,13 +28,13 @@ import org.apache.geode.internal.serialization.KnownVersion;
 public class MemberIdentifierUtil {
   public static MemberIdentifier createMemberID(short version, int viewId, long msb, long lsb)
       throws UnknownHostException {
-    MemberData memberData = MemberDataBuilder.newBuilderForLocalHost("localhost")
+    var memberData = MemberDataBuilder.newBuilderForLocalHost("localhost")
         .setVersionOrdinal(version)
         .setVmViewId(viewId)
         .setUuidMostSignificantBits(msb)
         .setUuidLeastSignificantBits(lsb)
         .build();
-    MemberIdentifier gmsMember = new MemberIdentifierFactoryImpl().create(memberData);
+    var gmsMember = new MemberIdentifierFactoryImpl().create(memberData);
     return gmsMember;
   }
 
@@ -43,7 +42,7 @@ public class MemberIdentifierUtil {
    * Create a new membership ID that is preferred for coordinator and has a UUID established
    */
   public static MemberIdentifier createMemberID(int port) {
-    UUID uuid = UUID.randomUUID();
+    var uuid = UUID.randomUUID();
     try {
       return new MemberIdentifierFactoryImpl().create(new GMSMemberData(InetAddress.getLocalHost(),
           port, KnownVersion.CURRENT_ORDINAL, uuid.getMostSignificantBits(),

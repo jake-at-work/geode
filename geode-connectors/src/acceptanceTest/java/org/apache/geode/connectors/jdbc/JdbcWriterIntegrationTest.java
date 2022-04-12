@@ -28,15 +28,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import javax.sql.DataSource;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.connectors.jdbc.internal.RegionMappingExistsException;
 import org.apache.geode.connectors.jdbc.internal.SqlHandler;
@@ -46,7 +43,6 @@ import org.apache.geode.connectors.jdbc.internal.configuration.FieldMapping;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.pdx.FieldType;
 import org.apache.geode.pdx.PdxInstance;
-import org.apache.geode.pdx.WritablePdxInstance;
 
 public abstract class JdbcWriterIntegrationTest {
 
@@ -112,7 +108,7 @@ public abstract class JdbcWriterIntegrationTest {
   }
 
   protected void createTableInUnusedSchema() throws SQLException {
-    Connection connection2 = getConnection();
+    var connection2 = getConnection();
     statement.execute("Create Schema unusedSchema");
     statement = connection2.createStatement();
     statement.execute("Create Table " + "unusedSchema." + REGION_TABLE_NAME
@@ -125,7 +121,7 @@ public abstract class JdbcWriterIntegrationTest {
 
   protected void sharedRegionSetup(String ids, String catalog, String schema)
       throws RegionMappingExistsException {
-    List<FieldMapping> fieldMappings = Arrays.asList(
+    var fieldMappings = Arrays.asList(
         new FieldMapping("id", FieldType.STRING.name(), "id", JDBCType.VARCHAR.name(), false),
         new FieldMapping("name", FieldType.STRING.name(), "name", JDBCType.VARCHAR.name(), true),
         new FieldMapping("age", FieldType.OBJECT.name(), "age", JDBCType.INTEGER.name(), true));
@@ -178,13 +174,13 @@ public abstract class JdbcWriterIntegrationTest {
   @Test
   public void canInsertIntoTable() throws Exception {
     createTable();
-    DataSource dataSource = testDataSourceFactory.getDataSource("testConnectionConfig");
+    var dataSource = testDataSourceFactory.getDataSource("testConnectionConfig");
     setupRegion("id");
 
     employees.put("1", pdx1);
     employees.put("2", pdx2);
 
-    ResultSet resultSet =
+    var resultSet =
         statement.executeQuery("select * from " + REGION_TABLE_NAME + " order by id asc");
     assertRecordMatchesEmployee(resultSet, "1", employee1);
     assertRecordMatchesEmployee(resultSet, "2", employee2);
@@ -202,7 +198,7 @@ public abstract class JdbcWriterIntegrationTest {
     employees.put("1", pdx1);
     employees.put("2", pdx2);
 
-    ResultSet resultSet =
+    var resultSet =
         statement.executeQuery(
             "select * from " + SCHEMA_NAME + '.' + REGION_TABLE_NAME + " order by id asc");
     assertRecordMatchesEmployee(resultSet, "1", employee1);
@@ -214,17 +210,17 @@ public abstract class JdbcWriterIntegrationTest {
   public void canInsertIntoTableWithCompositeKey() throws Exception {
     createTable();
     setupRegion("id,age");
-    PdxInstance compositeKey1 = cache.createPdxInstanceFactory("IdAgeKeyType").neverDeserialize()
+    var compositeKey1 = cache.createPdxInstanceFactory("IdAgeKeyType").neverDeserialize()
         .writeField("id", (String) pdx1.getField("id"), String.class)
         .writeField("age", (Integer) pdx1.getField("age"), int.class).create();
-    PdxInstance compositeKey2 = cache.createPdxInstanceFactory("IdAgeKeyType").neverDeserialize()
+    var compositeKey2 = cache.createPdxInstanceFactory("IdAgeKeyType").neverDeserialize()
         .writeField("id", (String) pdx2.getField("id"), String.class)
         .writeField("age", (Integer) pdx2.getField("age"), int.class).create();
 
     employees.put(compositeKey1, pdx1);
     employees.put(compositeKey2, pdx2);
 
-    ResultSet resultSet =
+    var resultSet =
         statement.executeQuery("select * from " + REGION_TABLE_NAME + " order by id asc");
     assertRecordMatchesEmployee(resultSet, "1", employee1);
     assertRecordMatchesEmployee(resultSet, "2", employee2);
@@ -240,7 +236,7 @@ public abstract class JdbcWriterIntegrationTest {
     putAllMap.put("2", pdx2);
     employees.putAll(putAllMap);
 
-    ResultSet resultSet =
+    var resultSet =
         statement.executeQuery("select * from " + REGION_TABLE_NAME + " order by id asc");
     assertRecordMatchesEmployee(resultSet, "1", employee1);
     assertRecordMatchesEmployee(resultSet, "2", employee2);
@@ -251,11 +247,11 @@ public abstract class JdbcWriterIntegrationTest {
   public void verifyThatPdxFieldNamedSameAsPrimaryKeyIsIgnored() throws Exception {
     createTable();
     setupRegion("id");
-    PdxInstance pdxInstanceWithId = cache.createPdxInstanceFactory(Employee.class.getName())
+    var pdxInstanceWithId = cache.createPdxInstanceFactory(Employee.class.getName())
         .writeString("name", "Emp1").writeInt("age", 55).writeString("id", "3").create();
     employees.put("1", pdxInstanceWithId);
 
-    ResultSet resultSet =
+    var resultSet =
         statement.executeQuery("select * from " + REGION_TABLE_NAME + " order by id asc");
     assertRecordMatchesEmployee(resultSet, "1", (Employee) pdxInstanceWithId.getObject());
     assertThat(resultSet.next()).isFalse();
@@ -265,7 +261,7 @@ public abstract class JdbcWriterIntegrationTest {
   public void putNonPdxInstanceFails() throws Exception {
     createTable();
     setupRegion("id");
-    Throwable thrown = catchThrowable(() -> employees.put("1", "non pdx instance"));
+    var thrown = catchThrowable(() -> employees.put("1", "non pdx instance"));
     assertThat(thrown).isInstanceOf(IllegalArgumentException.class);
   }
 
@@ -274,10 +270,10 @@ public abstract class JdbcWriterIntegrationTest {
       throws SQLException, RegionMappingExistsException {
     createTable();
     setupRegion("id");
-    Employee value = new Employee("2", "Emp2", 22);
+    var value = new Employee("2", "Emp2", 22);
     employees.put("2", value);
 
-    ResultSet resultSet =
+    var resultSet =
         statement.executeQuery("select * from " + REGION_TABLE_NAME + " order by id asc");
     assertRecordMatchesEmployee(resultSet, "2", value);
     assertThat(resultSet.next()).isFalse();
@@ -289,7 +285,7 @@ public abstract class JdbcWriterIntegrationTest {
     createTable();
     setupRegion("id");
 
-    Throwable thrown = catchThrowable(() -> employees.put("99", illegalEmployee));
+    var thrown = catchThrowable(() -> employees.put("99", illegalEmployee));
 
     assertThat(thrown).isInstanceOf(JdbcConnectorException.class);
     assertThat(thrown.getMessage()).startsWith(getDataTooLongSqlErrorMessage());
@@ -304,7 +300,7 @@ public abstract class JdbcWriterIntegrationTest {
 
     employees.destroy("1");
 
-    ResultSet resultSet =
+    var resultSet =
         statement.executeQuery("select * from " + REGION_TABLE_NAME + " order by id asc");
     assertRecordMatchesEmployee(resultSet, "2", employee2);
     assertThat(resultSet.next()).isFalse();
@@ -319,7 +315,7 @@ public abstract class JdbcWriterIntegrationTest {
 
     employees.destroy("1");
 
-    ResultSet resultSet =
+    var resultSet =
         statement.executeQuery(
             "select * from " + SCHEMA_NAME + '.' + REGION_TABLE_NAME + " order by id asc");
     assertRecordMatchesEmployee(resultSet, "2", employee2);
@@ -330,10 +326,10 @@ public abstract class JdbcWriterIntegrationTest {
   public void canDestroyFromTableWithCompositeKey() throws Exception {
     createTable();
     setupRegion("id,age");
-    PdxInstance compositeKey1 = cache.createPdxInstanceFactory("IdAgeKeyType").neverDeserialize()
+    var compositeKey1 = cache.createPdxInstanceFactory("IdAgeKeyType").neverDeserialize()
         .writeField("id", (String) pdx1.getField("id"), String.class)
         .writeField("age", (Integer) pdx1.getField("age"), int.class).create();
-    PdxInstance compositeKey2 = cache.createPdxInstanceFactory("IdAgeKeyType").neverDeserialize()
+    var compositeKey2 = cache.createPdxInstanceFactory("IdAgeKeyType").neverDeserialize()
         .writeField("id", (String) pdx2.getField("id"), String.class)
         .writeField("age", (Integer) pdx2.getField("age"), int.class).create();
     employees.put(compositeKey1, pdx1);
@@ -341,7 +337,7 @@ public abstract class JdbcWriterIntegrationTest {
 
     employees.destroy(compositeKey1);
 
-    ResultSet resultSet =
+    var resultSet =
         statement.executeQuery("select * from " + REGION_TABLE_NAME + " order by id asc");
     assertRecordMatchesEmployee(resultSet, "2", employee2);
     assertThat(resultSet.next()).isFalse();
@@ -354,7 +350,7 @@ public abstract class JdbcWriterIntegrationTest {
     employees.put("1", pdx1);
     employees.put("1", pdx2);
 
-    ResultSet resultSet =
+    var resultSet =
         statement.executeQuery("select * from " + REGION_TABLE_NAME + " order by id asc");
     assertRecordMatchesEmployee(resultSet, "1", employee2);
     assertThat(resultSet.next()).isFalse();
@@ -367,7 +363,7 @@ public abstract class JdbcWriterIntegrationTest {
     employees.put("1", pdx1);
     employees.put("1", pdx2);
 
-    ResultSet resultSet =
+    var resultSet =
         statement.executeQuery(
             "select * from " + SCHEMA_NAME + '.' + REGION_TABLE_NAME + " order by id asc");
     assertRecordMatchesEmployee(resultSet, "1", employee2);
@@ -378,20 +374,20 @@ public abstract class JdbcWriterIntegrationTest {
   public void canUpdateTableWithCompositeKey() throws Exception {
     createTable();
     setupRegion("id,age");
-    PdxInstance myPdx = cache.createPdxInstanceFactory(Employee.class.getName())
+    var myPdx = cache.createPdxInstanceFactory(Employee.class.getName())
         .writeString("id", "1").writeString("name", "Emp1")
         .writeInt("age", 55).create();
-    PdxInstance compositeKey1 = cache.createPdxInstanceFactory("IdAgeKeyType").neverDeserialize()
+    var compositeKey1 = cache.createPdxInstanceFactory("IdAgeKeyType").neverDeserialize()
         .writeField("id", (String) myPdx.getField("id"), String.class)
         .writeField("age", (Integer) myPdx.getField("age"), int.class).create();
     employees.put(compositeKey1, myPdx);
-    WritablePdxInstance updatedPdx = myPdx.createWriter();
+    var updatedPdx = myPdx.createWriter();
     updatedPdx.setField("name", "updated");
-    Employee updatedEmployee = (Employee) updatedPdx.getObject();
+    var updatedEmployee = (Employee) updatedPdx.getObject();
 
     employees.put(compositeKey1, updatedPdx);
 
-    ResultSet resultSet =
+    var resultSet =
         statement.executeQuery("select * from " + REGION_TABLE_NAME + " order by id asc");
     assertRecordMatchesEmployee(resultSet, "1", updatedEmployee);
     assertThat(resultSet.next()).isFalse();
@@ -404,12 +400,12 @@ public abstract class JdbcWriterIntegrationTest {
     setupRegion("id");
     employees.put("1", pdx1);
 
-    Throwable thrown = catchThrowable(() -> employees.put("1", illegalPdx));
+    var thrown = catchThrowable(() -> employees.put("1", illegalPdx));
 
     assertThat(thrown).isInstanceOf(JdbcConnectorException.class);
     assertThat(thrown.getMessage()).startsWith(getDataTooLongSqlErrorMessage());
 
-    ResultSet resultSet =
+    var resultSet =
         statement.executeQuery("select * from " + REGION_TABLE_NAME + " order by id asc");
     assertRecordMatchesEmployee(resultSet, "1", employee1);
     assertThat(resultSet.next()).isFalse();
@@ -426,7 +422,7 @@ public abstract class JdbcWriterIntegrationTest {
 
     employees.put("1", pdx2);
 
-    ResultSet resultSet =
+    var resultSet =
         statement.executeQuery("select * from " + REGION_TABLE_NAME + " order by id asc");
     assertRecordMatchesEmployee(resultSet, "1", employee2);
     assertThat(resultSet.next()).isFalse();
@@ -441,7 +437,7 @@ public abstract class JdbcWriterIntegrationTest {
 
     employees.put("1", pdx1);
 
-    ResultSet resultSet =
+    var resultSet =
         statement.executeQuery("select * from " + REGION_TABLE_NAME + " order by id asc");
     assertRecordMatchesEmployee(resultSet, "1", employee1);
     assertThat(resultSet.next()).isFalse();
@@ -456,7 +452,7 @@ public abstract class JdbcWriterIntegrationTest {
     statement.execute("delete from " + REGION_TABLE_NAME + " where id = '1'");
     validateTableRowCount(0);
 
-    Throwable thrown = catchThrowable(() -> employees.put("1", illegalPdx));
+    var thrown = catchThrowable(() -> employees.put("1", illegalPdx));
 
     assertThat(thrown).isInstanceOf(JdbcConnectorException.class);
     assertThat(thrown.getMessage()).startsWith(getDataTooLongSqlErrorMessage());
@@ -469,12 +465,12 @@ public abstract class JdbcWriterIntegrationTest {
     statement.execute("Insert into " + REGION_TABLE_NAME + " values('1', 'bogus', 11)");
     validateTableRowCount(1);
 
-    Throwable thrown = catchThrowable(() -> employees.put("1", illegalPdx));
+    var thrown = catchThrowable(() -> employees.put("1", illegalPdx));
 
     assertThat(thrown).isInstanceOf(JdbcConnectorException.class);
     assertThat(thrown.getMessage()).startsWith(getDataTooLongSqlErrorMessage());
 
-    ResultSet resultSet =
+    var resultSet =
         statement.executeQuery("select * from " + REGION_TABLE_NAME + " order by id asc");
     assertRecordMatchesEmployee(resultSet, "1", new Employee("11", "bogus", 11));
     assertThat(resultSet.next()).isFalse();
@@ -488,7 +484,7 @@ public abstract class JdbcWriterIntegrationTest {
     statement.execute("Insert into " + REGION_TABLE_NAME + " values('2', 'bogus', 21)");
     validateTableRowCount(2);
 
-    Throwable thrown = catchThrowable(() -> employees.put("2", pdx2));
+    var thrown = catchThrowable(() -> employees.put("2", pdx2));
 
     assertThat(thrown).isInstanceOf(AssertionError.class);
     assertThat(thrown.getMessage()).isEqualTo("expected 1 but updateCount was: 2");
@@ -500,16 +496,16 @@ public abstract class JdbcWriterIntegrationTest {
     jdbcWriter =
         new JdbcWriter<>(createSqlHandler(regionName, ids, catalog, schema, fieldMappings), cache);
 
-    RegionFactory<Object, Object> regionFactory =
+    var regionFactory =
         cache.createRegionFactory(RegionShortcut.REPLICATE);
     regionFactory.setCacheWriter(jdbcWriter);
     return regionFactory.create(regionName);
   }
 
   protected void validateTableRowCount(int expected) throws Exception {
-    ResultSet resultSet = statement.executeQuery("select count(*) from " + REGION_TABLE_NAME);
+    var resultSet = statement.executeQuery("select count(*) from " + REGION_TABLE_NAME);
     resultSet.next();
-    int size = resultSet.getInt(1);
+    var size = resultSet.getInt(1);
     assertThat(size).isEqualTo(expected);
   }
 

@@ -21,10 +21,10 @@ public class Tomcat8ClientServerCustomCacheXmlTest extends Tomcat8ClientServerTe
 
   @Override
   public void customizeContainers() throws Exception {
-    for (int i = 0; i < manager.numContainers(); i++) {
-      ServerContainer container = manager.getContainer(i);
+    for (var i = 0; i < manager.numContainers(); i++) {
+      var container = manager.getContainer(i);
 
-      HashMap<String, String> regionAttributes = new HashMap<>();
+      var regionAttributes = new HashMap<String, String>();
       regionAttributes.put("refid", "PROXY");
       regionAttributes.put("name", "gemfire_modules_sessions");
 

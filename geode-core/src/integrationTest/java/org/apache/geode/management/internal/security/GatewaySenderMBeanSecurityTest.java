@@ -92,7 +92,7 @@ public class GatewaySenderMBeanSecurityTest {
   @Test
   @ConnectionConfiguration(user = "stranger", password = "stranger")
   public void testNoAccess() throws Exception {
-    SoftAssertions softly = new SoftAssertions();
+    var softly = new SoftAssertions();
 
     softly.assertThatThrownBy(() -> bean.getAlertThreshold())
         .hasMessageContaining(ResourcePermissions.CLUSTER_READ.toString());

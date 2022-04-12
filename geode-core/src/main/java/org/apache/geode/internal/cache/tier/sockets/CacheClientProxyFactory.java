@@ -49,7 +49,7 @@ public class CacheClientProxyFactory {
       "gemfire.CacheClientProxyFactory.INTERNAL_FACTORY";
 
   private static InternalCacheClientProxyFactory factory() {
-    String proxyClassName = System.getProperty(INTERNAL_FACTORY_PROPERTY);
+    var proxyClassName = System.getProperty(INTERNAL_FACTORY_PROPERTY);
     if (proxyClassName == null || proxyClassName.isEmpty()) {
       return DEFAULT;
     }

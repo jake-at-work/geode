@@ -16,18 +16,13 @@ package org.apache.geode.connectors.jdbc.internal.cli;
 
 import static org.apache.geode.connectors.jdbc.internal.cli.ListDriversCommand.NO_MEMBERS_FOUND;
 
-import java.util.List;
-import java.util.Set;
-
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
 import org.apache.geode.annotations.Experimental;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.GfshCommand;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.functions.CliFunctionResult;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.security.ResourceOperation;
 import org.apache.geode.security.ResourcePermission;
@@ -50,11 +45,11 @@ public class RegisterDriverCommand extends GfshCommand {
       @CliOption(key = DRIVER_CLASS_NAME, help = DRIVER_CLASS_NAME_HELP,
           mandatory = true) String driverClassName) {
     try {
-      Set<DistributedMember> targetMembers = findMembers(null, null);
+      var targetMembers = findMembers(null, null);
 
       if (targetMembers.size() > 0) {
-        Object[] arguments = new Object[] {driverClassName};
-        List<CliFunctionResult> registerDriverResults = executeAndGetFunctionResult(
+        var arguments = new Object[] {driverClassName};
+        var registerDriverResults = executeAndGetFunctionResult(
             new RegisterDriverFunction(), arguments, targetMembers);
         return ResultModel.createMemberStatusResult(registerDriverResults, EXPERIMENTAL, null,
             false, true);

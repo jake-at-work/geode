@@ -159,7 +159,7 @@ public class RegionMapping extends CacheElement {
       return false;
     }
 
-    RegionMapping that = (RegionMapping) o;
+    var that = (RegionMapping) o;
 
     return isEqual(regionName, that.regionName)
         && isEqual(pdxName, that.pdxName)
@@ -178,7 +178,7 @@ public class RegionMapping extends CacheElement {
 
   @Override
   public int hashCode() {
-    int result = regionName != null ? regionName.hashCode() : 0;
+    var result = regionName != null ? regionName.hashCode() : 0;
     result = 31 * result + pdxName.hashCode();
     result = 31 * result + (tableName != null ? tableName.hashCode() : 0);
     result = 31 * result + (dataSourceName != null ? dataSourceName.hashCode() : 0);

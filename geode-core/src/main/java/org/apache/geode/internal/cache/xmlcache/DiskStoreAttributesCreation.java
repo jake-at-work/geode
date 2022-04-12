@@ -70,7 +70,7 @@ public class DiskStoreAttributesCreation extends UserSpecifiedDiskStoreAttribute
     if (attrs instanceof UserSpecifiedDiskStoreAttributes) {
       // Selectively set has* fields to true, propagating those non-default
       // (aka user specified) fields as such
-      UserSpecifiedDiskStoreAttributes nonDefault = (UserSpecifiedDiskStoreAttributes) attrs;
+      var nonDefault = (UserSpecifiedDiskStoreAttributes) attrs;
       initHasFields(nonDefault);
     } else {
       // Set all fields to true
@@ -102,7 +102,7 @@ public class DiskStoreAttributesCreation extends UserSpecifiedDiskStoreAttribute
     if (array1.length != array2.length) {
       return false;
     }
-    for (int i = 0; i < array1.length; i++) {
+    for (var i = 0; i < array1.length; i++) {
       if (array1[i] != array2[i]) {
         return false;
       }
@@ -120,7 +120,7 @@ public class DiskStoreAttributesCreation extends UserSpecifiedDiskStoreAttribute
     if (array1.length != array2.length) {
       return false;
     }
-    for (int i = 0; i < array1.length; i++) {
+    for (var i = 0; i < array1.length; i++) {
       if (array1[i] != array2[i]) {
         return false;
       }
@@ -136,9 +136,9 @@ public class DiskStoreAttributesCreation extends UserSpecifiedDiskStoreAttribute
       return false;
     }
 
-    for (final File item : array1) {
-      boolean found = false;
-      for (final File value : array2) {
+    for (final var item : array1) {
+      var found = false;
+      for (final var value : array2) {
         if (equal(item.getAbsoluteFile(), value.getAbsoluteFile())) {
           found = true;
           break;
@@ -146,11 +146,11 @@ public class DiskStoreAttributesCreation extends UserSpecifiedDiskStoreAttribute
       }
 
       if (!found) {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         sb.append("Didn't find ");
         sb.append(item);
         sb.append(" in ");
-        for (final File file : array2) {
+        for (final var file : array2) {
           sb.append(file);
           sb.append(" ");
         }
@@ -274,7 +274,7 @@ public class DiskStoreAttributesCreation extends UserSpecifiedDiskStoreAttribute
     checkIfDirectoriesExist(diskDirs);
     this.diskDirs = diskDirs;
     diskDirSizes = new int[diskDirs.length];
-    for (int i = 0; i < diskDirs.length; i++) {
+    for (var i = 0; i < diskDirs.length; i++) {
       diskDirSizes[i] = DiskStoreFactory.DEFAULT_DISK_DIR_SIZE;
     }
     setHasDiskDirs(true);

@@ -30,16 +30,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
 
 import javax.management.Attribute;
-import javax.management.AttributeList;
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
 import javax.management.IntrospectionException;
@@ -126,13 +123,13 @@ public class JMXDataUpdater implements IClusterUpdater, NotificationListener {
   private JmxManagerInfo getManagerInfoFromLocator(Repository repository) {
 
     try {
-      String locatorHost = repository.getHost();
-      int locatorPort = Integer.parseInt(repository.getPort());
+      var locatorHost = repository.getHost();
+      var locatorPort = Integer.parseInt(repository.getPort());
 
       logger.info("{}={} & {}={}", resourceBundle.getString("LOG_MSG_HOST"), locatorHost,
           resourceBundle.getString("LOG_MSG_PORT"), locatorPort);
 
-      InetAddress inetAddr = InetAddress.getByName(locatorHost);
+      var inetAddr = InetAddress.getByName(locatorHost);
 
       if ((inetAddr instanceof Inet4Address) || (inetAddr instanceof Inet6Address)) {
 
@@ -142,7 +139,7 @@ public class JMXDataUpdater implements IClusterUpdater, NotificationListener {
           logger.info("{}: {}", resourceBundle.getString("LOG_MSG_LOCATOR_IPV6_ADDRESS"), inetAddr);
         }
 
-        JmxManagerInfo jmxManagerInfo = JmxManagerFinder.askLocatorForJmxManager(inetAddr,
+        var jmxManagerInfo = JmxManagerFinder.askLocatorForJmxManager(inetAddr,
             locatorPort, 15000, repository.isUseSSLLocator());
 
         if (jmxManagerInfo.port == 0) {
@@ -160,8 +157,8 @@ public class JMXDataUpdater implements IClusterUpdater, NotificationListener {
         return null;
       }
     } catch (IOException e) {
-      StringWriter swBuffer = new StringWriter();
-      PrintWriter prtWriter = new PrintWriter(swBuffer);
+      var swBuffer = new StringWriter();
+      var prtWriter = new PrintWriter(swBuffer);
       e.printStackTrace(prtWriter);
       logger.fatal("Exception Details : {}\n", swBuffer);
     }
@@ -175,13 +172,13 @@ public class JMXDataUpdater implements IClusterUpdater, NotificationListener {
   public JMXConnector connect(Object credentials) {
     try {
 
-      String jmxSerURL = "";
+      var jmxSerURL = "";
 
       logger.info("{}:{}", resourceBundle.getString("LOG_MSG_USE_LOCATOR_VALUE"),
           repository.getJmxUseLocator());
 
       if (repository.getJmxUseLocator()) {
-        JmxManagerInfo jmxManagerInfo = getManagerInfoFromLocator(repository);
+        var jmxManagerInfo = getManagerInfoFromLocator(repository);
 
         if (jmxManagerInfo.port == 0) {
           logger.info(resourceBundle.getString("LOG_MSG_LOCATOR_COULD_NOT_FIND_MANAGER"));
@@ -203,15 +200,15 @@ public class JMXDataUpdater implements IClusterUpdater, NotificationListener {
       }
 
       if (StringUtils.isNotBlank(jmxSerURL)) {
-        JMXServiceURL url = new JMXServiceURL(jmxSerURL);
+        var url = new JMXServiceURL(jmxSerURL);
         Map<String, Object> env = new HashMap<>();
         env.put(JMXConnector.CREDENTIALS, credentials);
 
-        Properties originalProperties = System.getProperties();
+        var originalProperties = System.getProperties();
         try {
-          Properties updatedProperties = new Properties(originalProperties);
+          var updatedProperties = new Properties(originalProperties);
           if (repository.isUseSSLManager()) {
-            for (String sslProperty : repository.getJavaSslProperties().stringPropertyNames()) {
+            for (var sslProperty : repository.getJavaSslProperties().stringPropertyNames()) {
               updatedProperties.setProperty(sslProperty,
                   repository.getJavaSslProperties().getProperty(sslProperty));
             }
@@ -248,12 +245,12 @@ public class JMXDataUpdater implements IClusterUpdater, NotificationListener {
      * String jmxSerURL = "service:jmx:rmi://" + serverName + "/jndi/rmi://" + serverName + ":" +
      * port + "/jmxrmi";
      */
-    String jmxSerURL = "";
+    var jmxSerURL = "";
     if (host.equalsIgnoreCase("localhost")) {
       // Create jmx service url for 'localhost'
       jmxSerURL = "service:jmx:rmi://" + host + "/jndi/rmi://" + host + ":" + port + "/jmxrmi";
     } else {
-      InetAddress inetAddr = InetAddress.getByName(host);
+      var inetAddr = InetAddress.getByName(host);
       if (inetAddr instanceof Inet4Address) {
         // Create jmx service url for IPv4 address
         jmxSerURL = "service:jmx:rmi://" + host + "/jndi/rmi://" + host + ":" + port + "/jmxrmi";
@@ -279,41 +276,41 @@ public class JMXDataUpdater implements IClusterUpdater, NotificationListener {
 
       // deleted Members
       cluster.getDeletedMembers().clear();
-      for (Entry<String, Cluster.Member> memberSet : cluster.getMembersHMap().entrySet()) {
+      for (var memberSet : cluster.getMembersHMap().entrySet()) {
         cluster.getDeletedMembers().add(memberSet.getKey());
       }
 
       // Deleted Regions
       cluster.getDeletedRegions().clear();
-      for (Cluster.Region region : cluster.getClusterRegions().values()) {
+      for (var region : cluster.getClusterRegions().values()) {
         cluster.getDeletedRegions().add(region.getFullPath());
       }
 
       systemMBeans = mbs.queryNames(MBEAN_OBJECT_NAME_SYSTEM_DISTRIBUTED, null);
-      for (ObjectName sysMBean : systemMBeans) {
+      for (var sysMBean : systemMBeans) {
         updateClusterSystem(sysMBean);
       }
 
       // Cluster Regions/Tables
-      Set<ObjectName> regionMBeans =
+      var regionMBeans =
           mbs.queryNames(MBEAN_OBJECT_NAME_REGION_DISTRIBUTED, null);
 
       // For Gemfire
-      for (ObjectName regMBean : regionMBeans) {
+      for (var regMBean : regionMBeans) {
         updateClusterRegion(regMBean);
       }
 
       // Remove deleted regions from cluster's regions list
-      for (String s : cluster.getDeletedRegions()) {
+      for (var s : cluster.getDeletedRegions()) {
         cluster.removeClusterRegion(s);
       }
 
       List<ObjectName> serviceMBeans = new ArrayList<>();
       List<ObjectName> nonServiceMBeans = new ArrayList<>();
 
-      Set<ObjectName> memberMBeans = mbs.queryNames(MBEAN_OBJECT_NAME_MEMBER, null);
-      for (ObjectName mBean : memberMBeans) {
-        String service = mBean.getKeyProperty(PulseConstants.MBEAN_KEY_PROPERTY_SERVICE);
+      var memberMBeans = mbs.queryNames(MBEAN_OBJECT_NAME_MEMBER, null);
+      for (var mBean : memberMBeans) {
+        var service = mBean.getKeyProperty(PulseConstants.MBEAN_KEY_PROPERTY_SERVICE);
         if (service == null) {
           nonServiceMBeans.add(mBean);
         } else {
@@ -325,12 +322,12 @@ public class JMXDataUpdater implements IClusterUpdater, NotificationListener {
       // Cluster are set up correctly since they are keyed on the 'host' attribute which does not
       // necessarily appear in other MBeans. This avoids the possibility of having a 'null' host
       // icon appear in the Pulse UI.
-      for (ObjectName mBean : nonServiceMBeans) {
+      for (var mBean : nonServiceMBeans) {
         updateClusterMember(mBean);
       }
 
-      for (ObjectName serviceMBean : serviceMBeans) {
-        String service = serviceMBean.getKeyProperty(PulseConstants.MBEAN_KEY_PROPERTY_SERVICE);
+      for (var serviceMBean : serviceMBeans) {
+        var service = serviceMBean.getKeyProperty(PulseConstants.MBEAN_KEY_PROPERTY_SERVICE);
         switch (service) {
           case PulseConstants.MBEAN_KEY_PROPERTY_SERVICE_VALUE_REGION:
             updateMemberRegion(serviceMBean);
@@ -354,9 +351,9 @@ public class JMXDataUpdater implements IClusterUpdater, NotificationListener {
       }
 
       // Cluster Query Statistics
-      Set<ObjectName> statementObjectNames =
+      var statementObjectNames =
           mbs.queryNames(MBEAN_OBJECT_NAME_STATEMENT_DISTRIBUTED, null);
-      for (ObjectName stmtObjectName : statementObjectNames) {
+      for (var stmtObjectName : statementObjectNames) {
         updateClusterStatement(stmtObjectName);
       }
     } catch (IOException ioe) {
@@ -378,13 +375,13 @@ public class JMXDataUpdater implements IClusterUpdater, NotificationListener {
 
     // If there were members deleted, remove them from the membersList &
     // physicalToMember.
-    for (String memberKey : cluster.getDeletedMembers()) {
+    for (var memberKey : cluster.getDeletedMembers()) {
       if (cluster.getMembersHMap().containsKey(memberKey)) {
-        Cluster.Member member = cluster.getMembersHMap().get(memberKey);
-        List<Cluster.Member> memberArrList = cluster.getPhysicalToMember().get(member.getHost());
+        var member = cluster.getMembersHMap().get(memberKey);
+        var memberArrList = cluster.getPhysicalToMember().get(member.getHost());
         if (memberArrList != null) {
           if (memberArrList.contains(member)) {
-            String host = member.getHost();
+            var host = member.getHost();
             cluster.getPhysicalToMember().get(member.getHost()).remove(member);
 
             if (cluster.getPhysicalToMember().get(member.getHost()).size() == 0) {
@@ -412,29 +409,29 @@ public class JMXDataUpdater implements IClusterUpdater, NotificationListener {
         isAddedNotiListner = true;
       }
 
-      String[] serverCnt = (String[]) (mbs.invoke(mbeanName,
+      var serverCnt = (String[]) (mbs.invoke(mbeanName,
           PulseConstants.MBEAN_OPERATION_LISTSERVERS, null, null));
       cluster.setServerCount(serverCnt.length);
 
-      TabularData table = (TabularData) (mbs.invoke(mbeanName,
+      var table = (TabularData) (mbs.invoke(mbeanName,
           PulseConstants.MBEAN_OPERATION_VIEWREMOTECLUSTERSTATUS, null, null));
 
       @SuppressWarnings("unchecked")
-      Collection<CompositeData> rows = (Collection<CompositeData>) table.values();
+      var rows = (Collection<CompositeData>) table.values();
       cluster.getWanInformationObject().clear();
-      for (CompositeData row : rows) {
-        final Object key = row.get("key");
-        final Object value = row.get("value");
+      for (var row : rows) {
+        final var key = row.get("key");
+        final var value = row.get("value");
         cluster.getWanInformationObject().put((String) key, (Boolean) value);
       }
 
-      AttributeList attributeList =
+      var attributeList =
           mbs.getAttributes(mbeanName, PulseConstants.CLUSTER_MBEAN_ATTRIBUTES);
 
-      for (Object o : attributeList) {
+      for (var o : attributeList) {
 
-        Attribute attribute = (Attribute) o;
-        String name = attribute.getName();
+        var attribute = (Attribute) o;
+        var name = attribute.getName();
         switch (name) {
           case PulseConstants.MBEAN_ATTRIBUTE_MEMBERCOUNT:
             cluster.setMemberCount(getIntegerAttribute(attribute.getValue(), attribute.getName()));
@@ -536,7 +533,7 @@ public class JMXDataUpdater implements IClusterUpdater, NotificationListener {
             cluster.getThroughoutReadsTrend().add(cluster.getDiskReadsRate());
             break;
           case PulseConstants.MBEAN_ATTRIBUTE_JVMPAUSES:
-            long trendVal = determineCurrentJVMPauses(PulseConstants.JVM_PAUSES_TYPE_CLUSTER, "",
+            var trendVal = determineCurrentJVMPauses(PulseConstants.JVM_PAUSES_TYPE_CLUSTER, "",
                 getLongAttribute(attribute.getValue(), attribute.getName()));
             cluster.setGarbageCollectionCount(trendVal);
             cluster.getGarbageCollectionTrend().add(cluster.getGarbageCollectionCount());
@@ -562,13 +559,13 @@ public class JMXDataUpdater implements IClusterUpdater, NotificationListener {
   private Cluster.GatewayReceiver initGatewayReceiver(ObjectName mbeanName)
       throws InstanceNotFoundException, ReflectionException, IOException {
 
-    Cluster.GatewayReceiver gatewayReceiver = new Cluster.GatewayReceiver();
+    var gatewayReceiver = new Cluster.GatewayReceiver();
 
-    AttributeList attributeList =
+    var attributeList =
         mbs.getAttributes(mbeanName, PulseConstants.GATEWAY_MBEAN_ATTRIBUTES);
 
-    for (Object o : attributeList) {
-      Attribute attribute = (Attribute) o;
+    for (var o : attributeList) {
+      var attribute = (Attribute) o;
 
       switch (attribute.getName()) {
         case PulseConstants.MBEAN_ATTRIBUTE_PORT:
@@ -599,13 +596,13 @@ public class JMXDataUpdater implements IClusterUpdater, NotificationListener {
   private Cluster.GatewaySender initGatewaySender(ObjectName mbeanName)
       throws InstanceNotFoundException, ReflectionException, IOException {
 
-    Cluster.GatewaySender gatewaySender = new Cluster.GatewaySender();
-    AttributeList attributeList =
+    var gatewaySender = new Cluster.GatewaySender();
+    var attributeList =
         mbs.getAttributes(mbeanName, PulseConstants.GATEWAYSENDER_MBEAN_ATTRIBUTES);
 
-    for (Object o : attributeList) {
-      Attribute attribute = (Attribute) o;
-      String name = attribute.getName();
+    for (var o : attributeList) {
+      var attribute = (Attribute) o;
+      var name = attribute.getName();
       switch (name) {
         case PulseConstants.MBEAN_ATTRIBUTE_EVENTRECEIVEDDATE:
           gatewaySender
@@ -656,14 +653,14 @@ public class JMXDataUpdater implements IClusterUpdater, NotificationListener {
   private void updateGatewaySender(ObjectName mbeanName) throws IOException {
 
     try {
-      String memberName = mbeanName.getKeyProperty(PulseConstants.MBEAN_KEY_PROPERTY_MEMBER);
+      var memberName = mbeanName.getKeyProperty(PulseConstants.MBEAN_KEY_PROPERTY_MEMBER);
 
       if (cluster.getMembersHMap().containsKey(memberName)) {
-        Cluster.Member existingMember = cluster.getMembersHMap().get(memberName);
-        Cluster.GatewaySender gatewaySender = initGatewaySender(mbeanName);
-        for (Iterator<Cluster.GatewaySender> it =
+        var existingMember = cluster.getMembersHMap().get(memberName);
+        var gatewaySender = initGatewaySender(mbeanName);
+        for (var it =
             existingMember.getGatewaySenderList().iterator(); it.hasNext();) {
-          Cluster.GatewaySender exisGatewaySender = it.next();
+          var exisGatewaySender = it.next();
           if ((exisGatewaySender.getId()).equals(gatewaySender.getId())) {
             it.remove();
             break;
@@ -674,10 +671,10 @@ public class JMXDataUpdater implements IClusterUpdater, NotificationListener {
         existingMember.getGatewaySenderList().add(gatewaySender);
 
       } else {
-        Cluster.Member member = new Cluster.Member();
+        var member = new Cluster.Member();
         member.setName(memberName);
         member.setId(memberName);
-        Cluster.GatewaySender gatewaySender = initGatewaySender(mbeanName);
+        var gatewaySender = initGatewaySender(mbeanName);
         member.getGatewaySenderList().add(gatewaySender);
         cluster.getMembersHMap().put(memberName, member);
       }
@@ -693,13 +690,13 @@ public class JMXDataUpdater implements IClusterUpdater, NotificationListener {
   private Cluster.AsyncEventQueue initAsyncEventQueue(ObjectName mbeanName)
       throws InstanceNotFoundException, ReflectionException, IOException {
 
-    Cluster.AsyncEventQueue asyncEventQueue = new Cluster.AsyncEventQueue();
-    AttributeList attributeList =
+    var asyncEventQueue = new Cluster.AsyncEventQueue();
+    var attributeList =
         mbs.getAttributes(mbeanName, PulseConstants.ASYNC_EVENT_QUEUE_MBEAN_ATTRIBUTES);
 
-    for (Object o : attributeList) {
-      Attribute attribute = (Attribute) o;
-      String name = attribute.getName();
+    for (var o : attributeList) {
+      var attribute = (Attribute) o;
+      var name = attribute.getName();
       switch (name) {
         case PulseConstants.MBEAN_ATTRIBUTE_AEQ_ASYNCEVENTID:
           asyncEventQueue.setId(getStringAttribute(attribute.getValue(), attribute.getName()));
@@ -743,14 +740,14 @@ public class JMXDataUpdater implements IClusterUpdater, NotificationListener {
    */
   private void updateAsyncEventQueue(ObjectName mbeanName) throws IOException {
     try {
-      String memberName = mbeanName.getKeyProperty(PulseConstants.MBEAN_KEY_PROPERTY_MEMBER);
+      var memberName = mbeanName.getKeyProperty(PulseConstants.MBEAN_KEY_PROPERTY_MEMBER);
 
       if (cluster.getMembersHMap().containsKey(memberName)) {
-        Cluster.Member existingMember = cluster.getMembersHMap().get(memberName);
-        Cluster.AsyncEventQueue asyncQ = initAsyncEventQueue(mbeanName);
-        for (Iterator<Cluster.AsyncEventQueue> it =
+        var existingMember = cluster.getMembersHMap().get(memberName);
+        var asyncQ = initAsyncEventQueue(mbeanName);
+        for (var it =
             existingMember.getAsyncEventQueueList().iterator(); it.hasNext();) {
-          Cluster.AsyncEventQueue exisAsyncEventQueue = it.next();
+          var exisAsyncEventQueue = it.next();
           if ((exisAsyncEventQueue.getId()).equals(asyncQ.getId())) {
             it.remove();
             break;
@@ -760,11 +757,11 @@ public class JMXDataUpdater implements IClusterUpdater, NotificationListener {
         // Add async event queue
         existingMember.getAsyncEventQueueList().add(asyncQ);
       } else {
-        Cluster.Member member = new Cluster.Member();
+        var member = new Cluster.Member();
         member.setName(memberName);
         member.setId(memberName);
 
-        Cluster.AsyncEventQueue asyncQ = initAsyncEventQueue(mbeanName);
+        var asyncQ = initAsyncEventQueue(mbeanName);
         member.getAsyncEventQueueList().add(asyncQ);
 
         cluster.getMembersHMap().put(memberName, member);
@@ -781,17 +778,17 @@ public class JMXDataUpdater implements IClusterUpdater, NotificationListener {
   private void updateGatewayReceiver(ObjectName mbeanName) throws IOException {
 
     try {
-      String memberName = mbeanName.getKeyProperty(PulseConstants.MBEAN_KEY_PROPERTY_MEMBER);
+      var memberName = mbeanName.getKeyProperty(PulseConstants.MBEAN_KEY_PROPERTY_MEMBER);
 
       if (cluster.getMembersHMap().containsKey(memberName)) {
-        Cluster.Member existingMember = cluster.getMembersHMap().get(memberName);
-        Cluster.GatewayReceiver gatewayReceiver = initGatewayReceiver(mbeanName);
+        var existingMember = cluster.getMembersHMap().get(memberName);
+        var gatewayReceiver = initGatewayReceiver(mbeanName);
         existingMember.setGatewayReceiver(gatewayReceiver);
       } else {
-        Cluster.Member member = new Cluster.Member();
+        var member = new Cluster.Member();
         member.setName(memberName);
         member.setId(memberName);
-        Cluster.GatewayReceiver gatewayReceiver = initGatewayReceiver(mbeanName);
+        var gatewayReceiver = initGatewayReceiver(mbeanName);
         member.setGatewayReceiver(gatewayReceiver);
         cluster.getMembersHMap().put(memberName, member);
       }
@@ -807,11 +804,11 @@ public class JMXDataUpdater implements IClusterUpdater, NotificationListener {
   private void updateMemberClient(ObjectName mbeanName) throws IOException {
 
     try {
-      String memberName = mbeanName.getKeyProperty(PulseConstants.MBEAN_KEY_PROPERTY_MEMBER);
+      var memberName = mbeanName.getKeyProperty(PulseConstants.MBEAN_KEY_PROPERTY_MEMBER);
 
       if (cluster.getMembersHMap().containsKey(memberName)) {
-        Cluster.Member existingMember = cluster.getMembersHMap().get(memberName);
-        HashMap<String, Cluster.Client> memberClientsHM = new HashMap<>();
+        var existingMember = cluster.getMembersHMap().get(memberName);
+        var memberClientsHM = new HashMap<String, Cluster.Client>();
 
         existingMember.setMemberPort(
             "" + mbs.getAttribute(mbeanName, PulseConstants.MBEAN_ATTRIBUTE_PORT));
@@ -822,10 +819,10 @@ public class JMXDataUpdater implements IClusterUpdater, NotificationListener {
         existingMember.setBindAddress(
             (String) mbs.getAttribute(mbeanName, PulseConstants.MBEAN_ATTRIBUTE_BINDADDRESS));
 
-        CompositeData[] compositeData = (CompositeData[]) (mbs.invoke(mbeanName,
+        var compositeData = (CompositeData[]) (mbs.invoke(mbeanName,
             PulseConstants.MBEAN_OPERATION_SHOWALLCLIENTS, null, null));
-        for (CompositeData cmd : compositeData) {
-          Cluster.Client client = new Cluster.Client();
+        for (var cmd : compositeData) {
+          var client = new Cluster.Client();
           if (cmd.containsKey(PulseConstants.COMPOSITE_DATA_KEY_CLIENTID)) {
             client.setId((String) cmd.get(PulseConstants.COMPOSITE_DATA_KEY_CLIENTID));
           }
@@ -891,12 +888,12 @@ public class JMXDataUpdater implements IClusterUpdater, NotificationListener {
       Cluster.Region region) throws IOException {
 
     try {
-      List<String> memberNamesTemp = region.getMemberName();
-      ArrayList<String> memberNames = new ArrayList<>(memberNamesTemp);
+      var memberNamesTemp = region.getMemberName();
+      var memberNames = new ArrayList<String>(memberNamesTemp);
 
       List<Cluster.RegionOnMember> regionOnMemberList = new ArrayList<>();
       List<Cluster.RegionOnMember> regionOnMemberListNew = new ArrayList<>();
-      Cluster.RegionOnMember[] regionOnMemberNames = region.getRegionOnMembers();
+      var regionOnMemberNames = region.getRegionOnMembers();
 
       if ((regionOnMemberNames != null) && (regionOnMemberNames.length > 0)) {
         regionOnMemberList =
@@ -904,27 +901,27 @@ public class JMXDataUpdater implements IClusterUpdater, NotificationListener {
       }
       logger.debug("updateRegionOnMembers : # regionOnMembers objects in region = {}",
           regionOnMemberList.size());
-      for (Cluster.RegionOnMember anRom : regionOnMemberList) {
+      for (var anRom : regionOnMemberList) {
 
-        for (String memberName : memberNames) {
+        for (var memberName : memberNames) {
           if (anRom.getMemberName().equals(memberName)) {
             // Add regionOnMember object in new list
             regionOnMemberListNew.add(anRom);
 
             logger.debug("updateRegionOnMembers : Processing existing Member name = {}",
                 anRom.getMemberName());
-            String objectNameROM =
+            var objectNameROM =
                 PulseConstants.OBJECT_NAME_REGION_ON_MEMBER_REGION + regionObjectName
                     + PulseConstants.OBJECT_NAME_REGION_ON_MEMBER_MEMBER + anRom.getMemberName();
-            ObjectName regionOnMemberMBean = new ObjectName(objectNameROM);
+            var regionOnMemberMBean = new ObjectName(objectNameROM);
             logger.debug("updateRegionOnMembers : Object name = {}",
                 regionOnMemberMBean.getCanonicalName());
 
-            AttributeList attributeList = mbs.getAttributes(regionOnMemberMBean,
+            var attributeList = mbs.getAttributes(regionOnMemberMBean,
                 PulseConstants.REGION_ON_MEMBER_MBEAN_ATTRIBUTES);
-            for (Object o : attributeList) {
-              Attribute attribute = (Attribute) o;
-              String name = attribute.getName();
+            for (var o : attributeList) {
+              var attribute = (Attribute) o;
+              var name = attribute.getName();
               switch (name) {
                 case PulseConstants.MBEAN_ATTRIBUTE_ENTRYSIZE:
                   anRom.setEntrySize(getLongAttribute(attribute.getValue(), attribute.getName()));
@@ -989,18 +986,18 @@ public class JMXDataUpdater implements IClusterUpdater, NotificationListener {
       logger.debug("updateRegionOnMembers : Remaining new members in this region = {}",
           memberNames.size());
       // loop over the remaining regions members and add new members for this region
-      for (String memberName : memberNames) {
-        String objectNameROM = PulseConstants.OBJECT_NAME_REGION_ON_MEMBER_REGION + regionObjectName
+      for (var memberName : memberNames) {
+        var objectNameROM = PulseConstants.OBJECT_NAME_REGION_ON_MEMBER_REGION + regionObjectName
             + PulseConstants.OBJECT_NAME_REGION_ON_MEMBER_MEMBER + memberName;
-        ObjectName regionOnMemberMBean = new ObjectName(objectNameROM);
-        Cluster.RegionOnMember regionOnMember = new Cluster.RegionOnMember();
+        var regionOnMemberMBean = new ObjectName(objectNameROM);
+        var regionOnMember = new Cluster.RegionOnMember();
         regionOnMember.setMemberName(memberName);
         regionOnMember.setRegionFullPath(regionFullPath);
-        AttributeList attributeList = mbs.getAttributes(regionOnMemberMBean,
+        var attributeList = mbs.getAttributes(regionOnMemberMBean,
             PulseConstants.REGION_ON_MEMBER_MBEAN_ATTRIBUTES);
-        for (Object o : attributeList) {
-          Attribute attribute = (Attribute) o;
-          String name = attribute.getName();
+        for (var o : attributeList) {
+          var attribute = (Attribute) o;
+          var name = attribute.getName();
           switch (name) {
             case PulseConstants.MBEAN_ATTRIBUTE_ENTRYSIZE:
               regionOnMember
@@ -1063,14 +1060,14 @@ public class JMXDataUpdater implements IClusterUpdater, NotificationListener {
 
     try {
 
-      AttributeList attributeList =
+      var attributeList =
           mbs.getAttributes(mbeanName, PulseConstants.REGION_MBEAN_ATTRIBUTES);
 
       // retrieve the full path of the region
-      String regionObjectName = mbeanName.getKeyProperty("name");
+      var regionObjectName = mbeanName.getKeyProperty("name");
       String regionFullPath = null;
-      for (Object value : attributeList) {
-        Attribute attribute = (Attribute) value;
+      for (var value : attributeList) {
+        var attribute = (Attribute) value;
 
         if (attribute.getName().equals(PulseConstants.MBEAN_ATTRIBUTE_FULLPATH)) {
           regionFullPath = getStringAttribute(attribute.getValue(), attribute.getName());
@@ -1078,22 +1075,22 @@ public class JMXDataUpdater implements IClusterUpdater, NotificationListener {
         }
       }
 
-      Cluster.Region region = cluster.getClusterRegions().get(regionFullPath);
+      var region = cluster.getClusterRegions().get(regionFullPath);
 
       if (null == region) {
         region = new Cluster.Region();
       }
 
-      for (Object o : attributeList) {
+      for (var o : attributeList) {
 
-        Attribute attribute = (Attribute) o;
+        var attribute = (Attribute) o;
 
-        String name = attribute.getName();
+        var name = attribute.getName();
         switch (name) {
           case PulseConstants.MBEAN_ATTRIBUTE_MEMBERS:
-            String[] memName = (String[]) attribute.getValue();
+            var memName = (String[]) attribute.getValue();
             region.getMemberName().clear();
-            for (String s : memName) {
+            for (var s : memName) {
               region.getMemberName().add(s);
             }
             break;
@@ -1166,7 +1163,7 @@ public class JMXDataUpdater implements IClusterUpdater, NotificationListener {
   }
 
   private static boolean isQuoted(String value) {
-    final int len = value.length();
+    final var len = value.length();
     return len >= 2 && value.charAt(0) == '"' && value.charAt(len - 1) == '"';
   }
 
@@ -1174,25 +1171,25 @@ public class JMXDataUpdater implements IClusterUpdater, NotificationListener {
 
     try {
 
-      AttributeList attributeList =
+      var attributeList =
           mbs.getAttributes(mbeanName, PulseConstants.STATEMENT_MBEAN_ATTRIBUTES);
       // retrieve the full path of the region
-      String statementDefinition = mbeanName.getKeyProperty("name");
+      var statementDefinition = mbeanName.getKeyProperty("name");
 
       if (isQuoted(statementDefinition)) {
         statementDefinition = ObjectName.unquote(statementDefinition);
       }
 
-      Cluster.Statement statement = cluster.getClusterStatements().get(statementDefinition);
+      var statement = cluster.getClusterStatements().get(statementDefinition);
 
       if (null == statement) {
         statement = new Cluster.Statement();
         statement.setQueryDefinition(statementDefinition);
       }
 
-      for (Object o : attributeList) {
-        Attribute attribute = (Attribute) o;
-        String name = attribute.getName();
+      for (var o : attributeList) {
+        var attribute = (Attribute) o;
+        var name = attribute.getName();
         switch (name) {
           case PulseConstants.MBEAN_ATTRIBUTE_NUMTIMESCOMPILED:
             statement
@@ -1281,23 +1278,23 @@ public class JMXDataUpdater implements IClusterUpdater, NotificationListener {
   private Cluster.Member initializeMember(ObjectName mbeanName, Cluster.Member member)
       throws InstanceNotFoundException, ReflectionException, IOException, IntrospectionException {
 
-    MBeanAttributeInfo[] mbeanAttributes = mbs.getMBeanInfo(mbeanName).getAttributes();
+    var mbeanAttributes = mbs.getMBeanInfo(mbeanName).getAttributes();
 
-    AttributeList attributeList =
+    var attributeList =
         mbs.getAttributes(mbeanName,
             Arrays.stream(mbeanAttributes).map(MBeanAttributeInfo::getName).distinct()
                 .toArray(String[]::new));
 
-    for (Object o : attributeList) {
+    for (var o : attributeList) {
 
-      Attribute attribute = (Attribute) o;
-      String name = attribute.getName();
+      var attribute = (Attribute) o;
+      var name = attribute.getName();
 
       switch (name) {
         case PulseConstants.MBEAN_ATTRIBUTE_GEMFIREVERSION:
           if (member.getGemfireVersion() == null) {
             // Set Member's GemFire Version if not set already
-            String gemfireVersion =
+            var gemfireVersion =
                 obtainGemfireVersion(getStringAttribute(attribute.getValue(), attribute.getName()));
             member.setGemfireVersion(gemfireVersion);
           }
@@ -1334,7 +1331,7 @@ public class JMXDataUpdater implements IClusterUpdater, NotificationListener {
           member.getThroughputReadsTrend().add(member.getThroughputReads());
           break;
         case PulseConstants.MBEAN_ATTRIBUTE_JVMPAUSES:
-          long trendVal = determineCurrentJVMPauses(PulseConstants.JVM_PAUSES_TYPE_MEMBER,
+          var trendVal = determineCurrentJVMPauses(PulseConstants.JVM_PAUSES_TYPE_MEMBER,
               member.getName(), getLongAttribute(attribute.getValue(), attribute.getName()));
           member.setGarbageCollectionCount(trendVal);
           member.getGarbageCollectionSamples().add(member.getGarbageCollectionCount());
@@ -1397,14 +1394,14 @@ public class JMXDataUpdater implements IClusterUpdater, NotificationListener {
           member.setOffHeapUsedSize(getLongAttribute(attribute.getValue(), attribute.getName()));
           break;
         case PulseConstants.MBEAN_ATTRIBUTE_SERVERGROUPS:
-          String[] sgValues = (String[]) attribute.getValue();
+          var sgValues = (String[]) attribute.getValue();
           member.getServerGroups().clear();
-          for (String sgValue : sgValues) {
+          for (var sgValue : sgValues) {
             member.getServerGroups().add(sgValue);
           }
           break;
         case PulseConstants.MBEAN_ATTRIBUTE_REDUNDANCYZONES:
-          String rzValue = "";
+          var rzValue = "";
           if (null != attribute.getValue()) {
             rzValue = getStringAttribute(attribute.getValue(), attribute.getName());
           }
@@ -1427,9 +1424,9 @@ public class JMXDataUpdater implements IClusterUpdater, NotificationListener {
   private void updateClusterMember(ObjectName mbeanName) throws IOException {
 
     try {
-      String memberName = mbeanName.getKeyProperty(PulseConstants.MBEAN_KEY_PROPERTY_MEMBER);
+      var memberName = mbeanName.getKeyProperty(PulseConstants.MBEAN_KEY_PROPERTY_MEMBER);
 
-      Cluster.Member clusterMember = cluster.getMembersHMap().get(memberName);
+      var clusterMember = cluster.getMembersHMap().get(memberName);
 
       if (clusterMember != null) // checking if member exists or not
       {
@@ -1441,14 +1438,14 @@ public class JMXDataUpdater implements IClusterUpdater, NotificationListener {
 
       // initialize member and add to cluster's member list
       clusterMember = initializeMember(mbeanName, clusterMember);
-      ArrayList<Cluster.Member> memberArrList =
+      var memberArrList =
           (ArrayList<Cluster.Member>) cluster.getPhysicalToMember().get(clusterMember.getHost());
       if (memberArrList != null) {
         if (!memberArrList.contains(clusterMember)) {
           memberArrList.add(clusterMember);
         }
       } else {
-        ArrayList<Cluster.Member> memberList = new ArrayList<>();
+        var memberList = new ArrayList<Cluster.Member>();
         memberList.add(clusterMember);
         cluster.getPhysicalToMember().put(clusterMember.getHost(), memberList);
       }
@@ -1588,22 +1585,22 @@ public class JMXDataUpdater implements IClusterUpdater, NotificationListener {
   private void updateMemberRegion(ObjectName mbeanName) throws IOException {
 
     try {
-      String memberName = mbeanName.getKeyProperty(PulseConstants.MBEAN_KEY_PROPERTY_MEMBER);
+      var memberName = mbeanName.getKeyProperty(PulseConstants.MBEAN_KEY_PROPERTY_MEMBER);
 
-      Cluster.Member member = cluster.getMembersHMap().get(memberName);
+      var member = cluster.getMembersHMap().get(memberName);
 
       // Following attributes are not present in 9.0
       // "Members"
       // "EmptyNodes"
       // "SystemRegionEntryCount"
       // "MemberCount"
-      AttributeList attributeList =
+      var attributeList =
           mbs.getAttributes(mbeanName, PulseConstants.REGION_MBEAN_ATTRIBUTES);
 
       // retrieve the full path of the region
       String regionFullPathKey = null;
-      for (Object value : attributeList) {
-        Attribute attribute = (Attribute) value;
+      for (var value : attributeList) {
+        var attribute = (Attribute) value;
 
         if (attribute.getName().equals(PulseConstants.MBEAN_ATTRIBUTE_FULLPATH)) {
           regionFullPathKey = getStringAttribute(attribute.getValue(), attribute.getName());
@@ -1619,7 +1616,7 @@ public class JMXDataUpdater implements IClusterUpdater, NotificationListener {
       }
 
       // if region with given path exists then update same else add new region
-      Cluster.Region region = member.getMemberRegions().get(regionFullPathKey);
+      var region = member.getMemberRegions().get(regionFullPathKey);
       if (null == region) {
         region = new Cluster.Region();
         member.getMemberRegions().put(regionFullPathKey, region);
@@ -1628,9 +1625,9 @@ public class JMXDataUpdater implements IClusterUpdater, NotificationListener {
       region.setFullPath(regionFullPathKey); // use already retrieved values
 
       // update the existing or new region
-      for (Object o : attributeList) {
-        Attribute attribute = (Attribute) o;
-        String name = attribute.getName();
+      for (var o : attributeList) {
+        var attribute = (Attribute) o;
+        var name = attribute.getName();
         switch (name) {
           case PulseConstants.MBEAN_ATTRIBUTE_FULLPATH:
             region.setFullPath(getStringAttribute(attribute.getValue(), attribute.getName()));
@@ -1714,16 +1711,16 @@ public class JMXDataUpdater implements IClusterUpdater, NotificationListener {
    */
   @Override
   public void handleNotification(Notification notification, Object handback) {
-    String type = notification.getType();
+    var type = notification.getType();
 
     if (PulseConstants.NOTIFICATION_TYPE_SYSTEM_ALERT.equals(type)) {
-      Cluster.Alert alert = new Cluster.Alert();
-      long timeStamp = notification.getTimeStamp();
-      Date date = new Date(timeStamp);
+      var alert = new Cluster.Alert();
+      var timeStamp = notification.getTimeStamp();
+      var date = new Date(timeStamp);
       alert.setTimestamp(date);
-      String notificationSource = (String) notification.getUserData();
+      var notificationSource = (String) notification.getUserData();
       alert.setMemberName(notificationSource);
-      String alertDescription = notification.getMessage();
+      var alertDescription = notification.getMessage();
       if (alertDescription.startsWith("[error")) {
         alert.setSeverity(Cluster.Alert.ERROR);
       } else if (alertDescription.startsWith("[warning")) {
@@ -1738,13 +1735,13 @@ public class JMXDataUpdater implements IClusterUpdater, NotificationListener {
       alert.setId(Cluster.Alert.nextID());
       cluster.addAlert(alert);
     } else {
-      Cluster.Alert alert = new Cluster.Alert();
-      long timeStamp = notification.getTimeStamp();
-      Date date = new Date(timeStamp);
+      var alert = new Cluster.Alert();
+      var timeStamp = notification.getTimeStamp();
+      var date = new Date(timeStamp);
       alert.setTimestamp(date);
-      String notificationSource = (String) notification.getSource();
+      var notificationSource = (String) notification.getSource();
       alert.setMemberName(notificationSource);
-      String alertDescription = notification.getMessage();
+      var alertDescription = notification.getMessage();
       alert.setDescription(alertDescription);
 
       alert.setSeverity(Cluster.Alert.INFO);
@@ -1755,9 +1752,9 @@ public class JMXDataUpdater implements IClusterUpdater, NotificationListener {
 
       if (PulseConstants.NOTIFICATION_TYPE_REGION_DESTROYED.equals(type)) {
         // Remove deleted region from member's regions list
-        String msg = notification.getMessage();
-        String deletedRegion = msg.substring(msg.indexOf("Name ") + "Name ".length());
-        Cluster.Member member = cluster.getMembersHMap().get(notificationSource);
+        var msg = notification.getMessage();
+        var deletedRegion = msg.substring(msg.indexOf("Name ") + "Name ".length());
+        var member = cluster.getMembersHMap().get(notificationSource);
 
         if (member.getMemberRegions().get(deletedRegion) != null) {
           member.getMemberRegions().remove(deletedRegion);
@@ -1770,13 +1767,13 @@ public class JMXDataUpdater implements IClusterUpdater, NotificationListener {
   @Override
   public ObjectNode executeQuery(String queryText, String members, int limit) {
 
-    ObjectNode queryResult = mapper.createObjectNode();
+    var queryResult = mapper.createObjectNode();
 
     if (mbs != null && systemMBeans != null) {
       Object[] opParams = {queryText, members, limit};
-      for (ObjectName sysMBean : systemMBeans) {
+      for (var sysMBean : systemMBeans) {
         try {
-          String resultString = (String) (mbs.invoke(sysMBean,
+          var resultString = (String) (mbs.invoke(sysMBean,
               PulseConstants.MBEAN_OPERATION_QUERYDATABROWSER, opParams, opSignature));
 
           // Convert result into JSON
@@ -1796,11 +1793,11 @@ public class JMXDataUpdater implements IClusterUpdater, NotificationListener {
   // Function to find out number of current JVM pauses on cluster or Member
   private long determineCurrentJVMPauses(String type, String key, long totalJVMPauses) {
 
-    long currentJVMPausesCount = 0L;
+    var currentJVMPausesCount = 0L;
 
     if (type.equalsIgnoreCase(PulseConstants.JVM_PAUSES_TYPE_CLUSTER)) {
 
-      long prevJVMPausesCount = cluster.getPreviousJVMPauseCount();
+      var prevJVMPausesCount = cluster.getPreviousJVMPauseCount();
 
       if (totalJVMPauses > prevJVMPausesCount) {
         currentJVMPausesCount = totalJVMPauses - prevJVMPausesCount;
@@ -1809,10 +1806,10 @@ public class JMXDataUpdater implements IClusterUpdater, NotificationListener {
 
     } else {
 
-      Cluster.Member clusterMember = cluster.getMembersHMap().get(key);
+      var clusterMember = cluster.getMembersHMap().get(key);
 
       if (clusterMember != null) {
-        long prevJVMPausesCount = clusterMember.getPreviousJVMPauseCount();
+        var prevJVMPausesCount = clusterMember.getPreviousJVMPauseCount();
 
         if (totalJVMPauses > prevJVMPausesCount) {
           currentJVMPausesCount = totalJVMPauses - prevJVMPausesCount;
@@ -1827,9 +1824,9 @@ public class JMXDataUpdater implements IClusterUpdater, NotificationListener {
   // Method which finds and return GemFire Version from argument passed
   private String obtainGemfireVersion(String version) {
 
-    final String versionText = "Java version:   ";
-    int startIndex = version.indexOf(versionText) + versionText.length();
-    String gemfireVersion = version.substring(startIndex);
+    final var versionText = "Java version:   ";
+    var startIndex = version.indexOf(versionText) + versionText.length();
+    var gemfireVersion = version.substring(startIndex);
     gemfireVersion = gemfireVersion.substring(0, gemfireVersion.indexOf(" "));
 
     return gemfireVersion;

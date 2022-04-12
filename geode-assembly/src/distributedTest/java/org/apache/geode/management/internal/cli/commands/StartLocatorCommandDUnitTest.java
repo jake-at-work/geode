@@ -33,7 +33,6 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
-import java.util.List;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -47,8 +46,6 @@ import org.junit.rules.TestName;
 import org.apache.geode.cache.client.internal.locator.LocatorListRequest;
 import org.apache.geode.cache.client.internal.locator.LocatorListResponse;
 import org.apache.geode.distributed.internal.InternalLocator;
-import org.apache.geode.distributed.internal.ServerLocation;
-import org.apache.geode.distributed.internal.ServerLocator;
 import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.internal.process.ProcessType;
 import org.apache.geode.internal.process.ProcessUtils;
@@ -101,35 +98,33 @@ public class StartLocatorCommandDUnitTest {
 
   @Test
   public void testWithConflictingPIDFile() throws Exception {
-    String fileName = ProcessType.LOCATOR.getPidFileName();
+    var fileName = ProcessType.LOCATOR.getPidFileName();
 
     // create dir for pid file
-    File dir = temporaryFolder.newFolder();
+    var dir = temporaryFolder.newFolder();
 
     // create pid file
-    File pidFile = new File(dir.getAbsolutePath(), fileName);
+    var pidFile = new File(dir.getAbsolutePath(), fileName);
     assertThat(pidFile.createNewFile()).isTrue();
 
     // write pid to pid file
-    try (FileWriter fileWriter = new FileWriter(pidFile, false)) {
+    try (var fileWriter = new FileWriter(pidFile, false)) {
       fileWriter.write(ProcessUtils.identifyPid() + "\n");
       fileWriter.flush();
     }
 
     assertThat(pidFile.isFile()).isTrue();
 
-    CommandStringBuilder command = new CommandStringBuilder(START_LOCATOR)
+    var command = new CommandStringBuilder(START_LOCATOR)
         .addOption(START_LOCATOR__MEMBER_NAME, memberName)
         .addOption(START_LOCATOR__LOCATORS, locatorConnectionString)
         .addOption(START_LOCATOR__DIR, pidFile.getParentFile().getCanonicalPath())
         .addOption(START_LOCATOR__PORT, "0")
         .addOption("J", "-Dgemfire.enable-management-rest-service=false");
 
-
-
-    String expectedError = "A PID file already exists and a Locator may be running in "
+    var expectedError = "A PID file already exists and a Locator may be running in "
         + pidFile.getParentFile().getCanonicalPath();
-    String expectedCause = "Caused by: "
+    var expectedCause = "Caused by: "
         + "org.apache.geode.internal.process.FileAlreadyExistsException: Pid file already exists: "
         + pidFile.getCanonicalPath();
 
@@ -139,14 +134,14 @@ public class StartLocatorCommandDUnitTest {
 
   @Test
   public void testWithMissingGemFirePropertiesFile() throws IOException {
-    String missingPropertiesPath =
+    var missingPropertiesPath =
         Paths.get("missing", "gemfire.properties").toAbsolutePath().toString();
-    String expectedError =
+    var expectedError =
         MessageFormat.format(GEODE_0_PROPERTIES_1_NOT_FOUND_MESSAGE, "", missingPropertiesPath);
 
-    File workingDir = temporaryFolder.newFolder();
+    var workingDir = temporaryFolder.newFolder();
 
-    CommandStringBuilder command = new CommandStringBuilder(START_LOCATOR)
+    var command = new CommandStringBuilder(START_LOCATOR)
         .addOption(START_LOCATOR__MEMBER_NAME, memberName)
         .addOption(START_LOCATOR__DIR, workingDir.getAbsolutePath())
         .addOption(START_LOCATOR__PROPERTIES, missingPropertiesPath)
@@ -159,14 +154,14 @@ public class StartLocatorCommandDUnitTest {
 
   @Test
   public void testWithMissingGemFireSecurityPropertiesFile() throws IOException {
-    String missingSecurityPropertiesPath = Paths
+    var missingSecurityPropertiesPath = Paths
         .get("missing", "gemfire-security.properties").toAbsolutePath().toString();
-    String expectedError = MessageFormat.format(GEODE_0_PROPERTIES_1_NOT_FOUND_MESSAGE,
+    var expectedError = MessageFormat.format(GEODE_0_PROPERTIES_1_NOT_FOUND_MESSAGE,
         "Security ", missingSecurityPropertiesPath);
 
-    File workingDir = temporaryFolder.newFolder();
+    var workingDir = temporaryFolder.newFolder();
 
-    CommandStringBuilder command = new CommandStringBuilder(START_LOCATOR)
+    var command = new CommandStringBuilder(START_LOCATOR)
         .addOption(START_LOCATOR__MEMBER_NAME, memberName)
         .addOption(START_LOCATOR__LOCATORS, locatorConnectionString)
         .addOption(START_LOCATOR__DIR, workingDir.getAbsolutePath())
@@ -179,17 +174,17 @@ public class StartLocatorCommandDUnitTest {
 
   @Test
   public void testWithUnavailablePort() throws IOException {
-    int locatorPort = AvailablePortHelper.getRandomAvailableTCPPort();
-    String unexpectedMessage = "[" + locatorPort + "] as locator is currently online.";
-    String expectedMessage = "java.net.BindException: Network is unreachable; port ("
+    var locatorPort = AvailablePortHelper.getRandomAvailableTCPPort();
+    var unexpectedMessage = "[" + locatorPort + "] as locator is currently online.";
+    var expectedMessage = "java.net.BindException: Network is unreachable; port ("
         + locatorPort + ") is not available on localhost.";
 
-    try (Socket interferingProcess = new Socket()) {
+    try (var interferingProcess = new Socket()) {
       interferingProcess.bind(new InetSocketAddress(locatorPort));
 
-      File workingDir = temporaryFolder.newFolder();
+      var workingDir = temporaryFolder.newFolder();
 
-      CommandStringBuilder command = new CommandStringBuilder(START_LOCATOR)
+      var command = new CommandStringBuilder(START_LOCATOR)
           .addOption(START_LOCATOR__MEMBER_NAME, memberName)
           .addOption(START_LOCATOR__LOCATORS, locatorConnectionString)
           .addOption(START_LOCATOR__DIR, workingDir.getAbsolutePath())
@@ -203,13 +198,13 @@ public class StartLocatorCommandDUnitTest {
 
   @Test
   public void testWithAvailablePort() throws IOException {
-    int locatorPort = AvailablePortHelper.getRandomAvailableTCPPort();
-    String expectedMessage =
+    var locatorPort = AvailablePortHelper.getRandomAvailableTCPPort();
+    var expectedMessage =
         "[" + locatorPort + "] as " + memberName + " is currently online.";
 
-    File workingDir = temporaryFolder.newFolder();
+    var workingDir = temporaryFolder.newFolder();
 
-    CommandStringBuilder command = new CommandStringBuilder(START_LOCATOR)
+    var command = new CommandStringBuilder(START_LOCATOR)
         .addOption(START_LOCATOR__MEMBER_NAME, memberName)
         .addOption(START_LOCATOR__LOCATORS, locatorConnectionString)
         .addOption(START_LOCATOR__DIR, workingDir.getAbsolutePath())
@@ -222,12 +217,12 @@ public class StartLocatorCommandDUnitTest {
 
   @Test
   public void testWithDefaultLocatorPort() throws IOException {
-    String unexpectedMessage = "[0] as " + memberName + " is currently online.";
-    String expectedMessage = "\\[\\d+\\] as " + memberName + " is currently online.";
+    var unexpectedMessage = "[0] as " + memberName + " is currently online.";
+    var expectedMessage = "\\[\\d+\\] as " + memberName + " is currently online.";
 
-    File workingDir = temporaryFolder.newFolder();
+    var workingDir = temporaryFolder.newFolder();
 
-    CommandStringBuilder command = new CommandStringBuilder(START_LOCATOR)
+    var command = new CommandStringBuilder(START_LOCATOR)
         .addOption(START_LOCATOR__MEMBER_NAME, memberName)
         .addOption(START_LOCATOR__LOCATORS, locatorConnectionString)
         .addOption(START_LOCATOR__DIR, workingDir.getAbsolutePath())
@@ -241,10 +236,10 @@ public class StartLocatorCommandDUnitTest {
 
   @Test
   public void startLocatorRespectsHostnameForClients() throws IOException {
-    File workingDir = temporaryFolder.newFolder();
-    String expectedMessagePattern = "Locator (.*) is currently online";
+    var workingDir = temporaryFolder.newFolder();
+    var expectedMessagePattern = "Locator (.*) is currently online";
 
-    String command = new CommandStringBuilder(START_LOCATOR)
+    var command = new CommandStringBuilder(START_LOCATOR)
         .addOption(START_LOCATOR__MEMBER_NAME, memberName)
         .addOption(START_LOCATOR__LOCATORS, locatorConnectionString)
         .addOption(START_LOCATOR__DIR, workingDir.getAbsolutePath())
@@ -258,12 +253,12 @@ public class StartLocatorCommandDUnitTest {
 
     // Verify that the ServerLocation contains the specified hostname-for-clients.
     locator.invoke(() -> {
-      InternalLocator internalLocator = InternalLocator.getLocator();
-      final ServerLocator serverLocator = internalLocator.getServerLocatorAdvisee();
-      LocatorListResponse locatorListResponse =
+      var internalLocator = InternalLocator.getLocator();
+      final var serverLocator = internalLocator.getServerLocatorAdvisee();
+      var locatorListResponse =
           (LocatorListResponse) serverLocator.processRequest(new LocatorListRequest());
 
-      List<ServerLocation> locators = locatorListResponse.getLocators();
+      var locators = locatorListResponse.getLocators();
       assertThat(locators.stream().filter(
           serverLocation -> "fakeLocatorName".equals(serverLocation.getHostName())))
               .isNotEmpty().hasSize(1);

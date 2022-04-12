@@ -24,9 +24,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Properties;
 import java.util.Random;
-import java.util.Set;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.LongAdder;
 
@@ -41,7 +39,6 @@ import org.junit.runner.RunWith;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.ssl.CertStores;
 import org.apache.geode.cache.ssl.CertificateBuilder;
-import org.apache.geode.cache.ssl.CertificateMaterial;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.serialization.DeserializationContext;
@@ -106,12 +103,12 @@ public class P2PMessagingConcurrencyDUnitTest {
       final int sendSocketBufferSize,
       final int receiveSocketBufferSize) throws GeneralSecurityException, IOException {
 
-    final Properties senderConfiguration =
+    final var senderConfiguration =
         gemFireConfiguration(conserveSockets, useTLS, sendSocketBufferSize);
-    final Properties receiverConfiguration =
+    final var receiverConfiguration =
         gemFireConfiguration(conserveSockets, useTLS, receiveSocketBufferSize);
 
-    final MemberVM locator =
+    final var locator =
         clusterStartupRule.startLocatorVM(0, 0, VersionManager.CURRENT_VERSION,
             x -> x.withProperties(senderConfiguration).withConnectionToLocator()
                 .withoutClusterConfigurationService().withoutManagementRestService());
@@ -151,13 +148,13 @@ public class P2PMessagingConcurrencyDUnitTest {
 
     configure(conserveSockets, useTLS, sendSocketBufferSize, receiveSocketBufferSize);
 
-    final InternalDistributedMember receiverMember =
+    final var receiverMember =
         receiver.invoke(() -> {
 
           bytesTransferredAdder = new LongAdder();
 
-          final ClusterDistributionManager cdm = getCDM();
-          final InternalDistributedMember localMember = cdm.getDistribution().getLocalMember();
+          final var cdm = getCDM();
+          final var localMember = cdm.getDistribution().getLocalMember();
           return localMember;
 
         });
@@ -166,9 +163,9 @@ public class P2PMessagingConcurrencyDUnitTest {
 
       bytesTransferredAdder = new LongAdder();
 
-      final ClusterDistributionManager cdm = getCDM();
-      final Random random = new Random(RANDOM_SEED);
-      final AtomicInteger nextSenderId = new AtomicInteger();
+      final var cdm = getCDM();
+      final var random = new Random(RANDOM_SEED);
+      final var nextSenderId = new AtomicInteger();
 
       /*
        * When this comment was written DistributedExecutorServiceRule's
@@ -179,29 +176,29 @@ public class P2PMessagingConcurrencyDUnitTest {
        * used blocking I/O, so we were not, as it turns out, living in that
        * ideal world.
        */
-      final ExecutorService executor = senderExecutorServiceRule.getExecutorService();
+      final var executor = senderExecutorServiceRule.getExecutorService();
 
-      final CountDownLatch startLatch = new CountDownLatch(SENDER_COUNT);
-      final CountDownLatch stopLatch = new CountDownLatch(SENDER_COUNT);
-      final LongAdder failedRecipientCount = new LongAdder();
+      final var startLatch = new CountDownLatch(SENDER_COUNT);
+      final var stopLatch = new CountDownLatch(SENDER_COUNT);
+      final var failedRecipientCount = new LongAdder();
 
-      final Runnable doSending = () -> {
-        final int senderId = nextSenderId.getAndIncrement();
+      final var doSending = (Runnable) () -> {
+        final var senderId = nextSenderId.getAndIncrement();
         try {
           startLatch.countDown();
           startLatch.await();
         } catch (final InterruptedException e) {
           throw new RuntimeException("doSending failed", e);
         }
-        final int firstMessageId = senderId * SENDER_COUNT;
-        for (int messageId = firstMessageId; messageId < firstMessageId
+        final var firstMessageId = senderId * SENDER_COUNT;
+        for (var messageId = firstMessageId; messageId < firstMessageId
             + MESSAGES_PER_SENDER; messageId++) {
-          final TestMessage msg = new TestMessage(receiverMember, random, messageId);
+          final var msg = new TestMessage(receiverMember, random, messageId);
 
           /*
            * HERE is the Geode API entrypoint we intend to test (putOutgoing()).
            */
-          final Set<InternalDistributedMember> failedRecipients = cdm.putOutgoing(msg);
+          final var failedRecipients = cdm.putOutgoing(msg);
 
           if (failedRecipients != null) {
             failedRecipientCount.add(failedRecipients.size());
@@ -210,7 +207,7 @@ public class P2PMessagingConcurrencyDUnitTest {
         stopLatch.countDown();
       };
 
-      for (int i = 0; i < SENDER_COUNT; ++i) {
+      for (var i = 0; i < SENDER_COUNT; ++i) {
         executor.submit(doSending);
       }
 
@@ -220,7 +217,7 @@ public class P2PMessagingConcurrencyDUnitTest {
 
     });
 
-    final long bytesSent = getByteCount(sender);
+    final var bytesSent = getByteCount(sender);
 
     await().untilAsserted(
         () -> assertThat(getByteCount(receiver))
@@ -278,11 +275,11 @@ public class P2PMessagingConcurrencyDUnitTest {
 
       out.writeInt(messageId);
 
-      final int length = random.nextInt(LARGEST_MESSAGE_BOUND);
+      final var length = random.nextInt(LARGEST_MESSAGE_BOUND);
 
       out.writeInt(length);
 
-      final byte[] payload = new byte[length];
+      final var payload = new byte[length];
       random.nextBytes(payload);
 
       out.write(payload);
@@ -301,9 +298,9 @@ public class P2PMessagingConcurrencyDUnitTest {
 
       messageId = in.readInt();
 
-      final int length = in.readInt();
+      final var length = in.readInt();
 
-      final byte[] payload = new byte[length];
+      final var payload = new byte[length];
 
       in.readFully(payload);
 
@@ -348,17 +345,17 @@ public class P2PMessagingConcurrencyDUnitTest {
   private static Properties securityProperties() throws GeneralSecurityException, IOException {
     // subsequent calls must return the same value so members agree on credentials
     if (securityProperties == null) {
-      final CertificateMaterial ca = new CertificateBuilder()
+      final var ca = new CertificateBuilder()
           .commonName("Test CA")
           .isCA()
           .generate();
 
-      final CertificateMaterial serverCertificate = new CertificateBuilder()
+      final var serverCertificate = new CertificateBuilder()
           .commonName("member")
           .issuedBy(ca)
           .generate();
 
-      final CertStores memberStore = new CertStores("member");
+      final var memberStore = new CertStores("member");
       memberStore.withCertificate("member", serverCertificate);
       memberStore.trust("ca", ca);
       // we want to exercise the ByteBufferSharing code paths; we don't care about client auth etc

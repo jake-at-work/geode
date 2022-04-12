@@ -27,7 +27,6 @@ import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InOrder;
 
 import org.apache.geode.cache.CacheClosedException;
 import org.apache.geode.distributed.internal.DistributionManager;
@@ -85,7 +84,7 @@ public class FlushToDiskStepTest {
 
   @Test
   public void sendShouldHandleCancelExceptionFromWaitForReplies() throws Exception {
-    ReplyException replyException =
+    var replyException =
         new ReplyException("expected exception", new CacheClosedException("expected exception"));
     doThrow(replyException).when(flushToDiskReplyProcessor).waitForReplies();
     flushToDiskStep.send();
@@ -115,7 +114,7 @@ public class FlushToDiskStepTest {
 
   @Test
   public void sendShouldProcessLocallyBeforeWaitingForReplies() throws Exception {
-    InOrder inOrder = inOrder(flushToDisk, flushToDiskReplyProcessor);
+    var inOrder = inOrder(flushToDisk, flushToDiskReplyProcessor);
     flushToDiskStep.send();
 
     inOrder.verify(flushToDisk, times(1)).run();

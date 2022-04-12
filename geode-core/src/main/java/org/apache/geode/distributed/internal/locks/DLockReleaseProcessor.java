@@ -63,8 +63,8 @@ public class DLockReleaseProcessor extends ReplyProcessor21 {
   protected boolean release(InternalDistributedMember grantor, String serviceName,
       boolean lockBatch, int lockId) {
 
-    DistributionManager dm = getDistributionManager();
-    DLockReleaseMessage msg = new DLockReleaseMessage();
+    var dm = getDistributionManager();
+    var msg = new DLockReleaseMessage();
     msg.processorId = getProcessorId();
     msg.serviceName = serviceName;
     msg.objectName = objectName;
@@ -104,8 +104,8 @@ public class DLockReleaseProcessor extends ReplyProcessor21 {
       Assert.assertTrue(msg instanceof DLockReleaseReplyMessage,
           "DLockReleaseProcessor is unable to process message of type " + msg.getClass());
 
-      DLockReleaseReplyMessage myReply = (DLockReleaseReplyMessage) msg;
-      final boolean isDebugEnabled_DLS = logger.isTraceEnabled(LogMarker.DLS_VERBOSE);
+      var myReply = (DLockReleaseReplyMessage) msg;
+      final var isDebugEnabled_DLS = logger.isTraceEnabled(LogMarker.DLS_VERBOSE);
       if (isDebugEnabled_DLS) {
         logger.trace(LogMarker.DLS_VERBOSE, "Handling: {}", myReply);
       }
@@ -165,7 +165,7 @@ public class DLockReleaseProcessor extends ReplyProcessor21 {
      */
     @Override
     protected void process(final ClusterDistributionManager dm) {
-      boolean failed = true;
+      var failed = true;
       ReplyException replyException = null;
       try {
         svc = DLockService.getInternalServiceNamed(serviceName);
@@ -194,8 +194,8 @@ public class DLockReleaseProcessor extends ReplyProcessor21 {
             logger.trace(LogMarker.DLS_VERBOSE, "DLockReleaseMessage.process failed for <{}>",
                 this);
           }
-          int replyCode = DLockReleaseReplyMessage.NOT_GRANTOR;
-          DLockReleaseReplyMessage replyMsg = new DLockReleaseReplyMessage();
+          var replyCode = DLockReleaseReplyMessage.NOT_GRANTOR;
+          var replyMsg = new DLockReleaseReplyMessage();
           replyMsg.serviceName = serviceName;
           replyMsg.replyCode = replyCode;
           replyMsg.setProcessorId(processorId);
@@ -225,7 +225,7 @@ public class DLockReleaseProcessor extends ReplyProcessor21 {
      * this.svc and this.grantor must be set before calling this method.
      */
     private void executeBasicProcess(final DistributionManager dm) {
-      final DLockReleaseMessage msg = this;
+      final var msg = this;
       dm.getExecutors().getWaitingThreadPool().execute(() -> {
         if (logger.isTraceEnabled(LogMarker.DLS_VERBOSE)) {
           logger.trace(LogMarker.DLS_VERBOSE, "[executeBasicProcess] waitForGrantor {}", msg);
@@ -240,11 +240,11 @@ public class DLockReleaseProcessor extends ReplyProcessor21 {
      * this.svc and this.grantor must be set before calling this method.
      */
     protected void basicProcess(final DistributionManager dm, final boolean waitForGrantor) {
-      final boolean isDebugEnabled_DLS = logger.isTraceEnabled(LogMarker.DLS_VERBOSE);
+      final var isDebugEnabled_DLS = logger.isTraceEnabled(LogMarker.DLS_VERBOSE);
       if (isDebugEnabled_DLS) {
         logger.trace(LogMarker.DLS_VERBOSE, "[basicProcess] {}", this);
       }
-      int replyCode = DLockReleaseReplyMessage.NOT_GRANTOR;
+      var replyCode = DLockReleaseReplyMessage.NOT_GRANTOR;
       ReplyException replyException = null;
       try {
         if (svc == null || svc.isDestroyed()) {
@@ -300,7 +300,7 @@ public class DLockReleaseProcessor extends ReplyProcessor21 {
           logger.trace(LogMarker.DLS_VERBOSE, "[basicProcess] caught Error", e);
         }
       } finally {
-        DLockReleaseReplyMessage replyMsg = new DLockReleaseReplyMessage();
+        var replyMsg = new DLockReleaseReplyMessage();
         replyMsg.serviceName = serviceName;
         replyMsg.replyCode = replyCode;
         replyMsg.setProcessorId(processorId);
@@ -408,7 +408,7 @@ public class DLockReleaseProcessor extends ReplyProcessor21 {
 
     @Override
     public String toString() {
-      StringBuilder buff = new StringBuilder();
+      var buff = new StringBuilder();
       buff.append("DLockReleaseReplyMessage");
       buff.append(" (serviceName=");
       buff.append(serviceName);

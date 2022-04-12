@@ -18,7 +18,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.URI;
@@ -32,7 +31,6 @@ import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
 import javax.tools.FileObject;
 import javax.tools.ForwardingJavaFileManager;
-import javax.tools.JavaCompiler;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.SimpleJavaFileObject;
@@ -74,7 +72,7 @@ public class ClassBuilder implements Serializable {
    */
   public void writeJarFromContent(final String className, final String content,
       final File outputFile) throws IOException {
-    FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
+    var fileOutputStream = new FileOutputStream(outputFile);
     writeJarFromContent(className, content, fileOutputStream);
     fileOutputStream.close();
   }
@@ -101,10 +99,10 @@ public class ClassBuilder implements Serializable {
    */
   public byte[] createJarFromFileContent(final String fileName, final String content)
       throws IOException {
-    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-    JarOutputStream jarOutputStream = new JarOutputStream(byteArrayOutputStream);
+    var byteArrayOutputStream = new ByteArrayOutputStream();
+    var jarOutputStream = new JarOutputStream(byteArrayOutputStream);
 
-    JarEntry entry = new JarEntry(fileName);
+    var entry = new JarEntry(fileName);
     entry.setTime(System.currentTimeMillis());
     jarOutputStream.putNextEntry(entry);
     jarOutputStream.write(content.getBytes());
@@ -124,7 +122,7 @@ public class ClassBuilder implements Serializable {
    */
   public byte[] createJarFromClassContent(final String className, final String content)
       throws IOException {
-    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+    var byteArrayOutputStream = new ByteArrayOutputStream();
     writeJarFromContent(className, content, byteArrayOutputStream);
     return byteArrayOutputStream.toByteArray();
   }
@@ -141,7 +139,7 @@ public class ClassBuilder implements Serializable {
   public void writeJarFromContent(final String className, final String content,
       final OutputStream outStream) throws IOException {
 
-    byte[] bytes = compileClass(className, content);
+    var bytes = compileClass(className, content);
 
     createJar(className, outStream, bytes);
     return;
@@ -149,15 +147,15 @@ public class ClassBuilder implements Serializable {
 
   private void createJar(String className, OutputStream outStream, byte[] bytes)
       throws IOException {
-    JarOutputStream jarOutputStream = new JarOutputStream(outStream);
+    var jarOutputStream = new JarOutputStream(outStream);
 
     // Add the class file to the JAR file
-    String formattedName = className;
+    var formattedName = className;
     if (!formattedName.endsWith(".class")) {
       formattedName = formattedName.concat(".class");
     }
 
-    JarEntry entry = new JarEntry(formattedName);
+    var entry = new JarEntry(formattedName);
     entry.setTime(System.currentTimeMillis());
     jarOutputStream.putNextEntry(entry);
     jarOutputStream.write(bytes);
@@ -167,14 +165,14 @@ public class ClassBuilder implements Serializable {
   }
 
   public static void writeJarFromClasses(File jar, Class... types) throws IOException {
-    try (JarOutputStream jarOutputStream = new JarOutputStream(new FileOutputStream(jar))) {
-      for (Class type : types) {
-        String className = type.getName();
-        String classAsPath = className.replace('.', '/') + ".class";
-        InputStream stream = type.getClassLoader().getResourceAsStream(classAsPath);
-        byte[] bytes = IOUtils.toByteArray(stream);
+    try (var jarOutputStream = new JarOutputStream(new FileOutputStream(jar))) {
+      for (var type : types) {
+        var className = type.getName();
+        var classAsPath = className.replace('.', '/') + ".class";
+        var stream = type.getClassLoader().getResourceAsStream(classAsPath);
+        var bytes = IOUtils.toByteArray(stream);
 
-        JarEntry entry = new JarEntry(classAsPath);
+        var entry = new JarEntry(classAsPath);
         entry.setTime(System.currentTimeMillis());
 
         jarOutputStream.putNextEntry(entry);
@@ -196,8 +194,8 @@ public class ClassBuilder implements Serializable {
    */
   public ClassLoader createClassLoaderFromContent(final String className, final String content)
       throws IOException {
-    byte[] classDefinition = compileClass(className, content);
-    SingleClassClassLoader classLoader = new SingleClassClassLoader();
+    var classDefinition = compileClass(className, content);
+    var classLoader = new SingleClassClassLoader();
     classLoader.addClass(className, classDefinition);
     return classLoader;
   }
@@ -211,22 +209,22 @@ public class ClassBuilder implements Serializable {
    * @return The byte contents of the compiled class.
    */
   public byte[] compileClass(final String className, final String classCode) throws IOException {
-    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+    var byteArrayOutputStream = new ByteArrayOutputStream();
 
-    JavaCompiler javaCompiler = ToolProvider.getSystemJavaCompiler();
-    OutputStreamJavaFileManager<JavaFileManager> fileManager =
-        new OutputStreamJavaFileManager<>(
+    var javaCompiler = ToolProvider.getSystemJavaCompiler();
+    var fileManager =
+        new OutputStreamJavaFileManager<JavaFileManager>(
             javaCompiler.getStandardFileManager(null, null, null), byteArrayOutputStream);
 
     List<JavaFileObject> fileObjects = new ArrayList<>();
     fileObjects.add(new JavaSourceFromString(className, classCode));
 
-    List<String> options = Arrays.asList("-classpath", classPath);
-    DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
+    var options = Arrays.asList("-classpath", classPath);
+    var diagnostics = new DiagnosticCollector<JavaFileObject>();
     if (!javaCompiler.getTask(null, fileManager, diagnostics, options, null, fileObjects).call()) {
-      StringBuilder errorMsg = new StringBuilder();
+      var errorMsg = new StringBuilder();
       for (Diagnostic d : diagnostics.getDiagnostics()) {
-        String err = String.format("Compilation error: Line %d - %s%n", d.getLineNumber(),
+        var err = String.format("Compilation error: Line %d - %s%n", d.getLineNumber(),
             d.getMessage(null));
         errorMsg.append(err);
         System.err.print(err);

@@ -48,7 +48,7 @@ public class TransportFilterSocket extends Socket {
   public InputStream getInputStream() throws IOException {
     if (in == null) {
       in = super.getInputStream();
-      for (GatewayTransportFilter filter : gatewayTransportFilters) {
+      for (var filter : gatewayTransportFilters) {
         in = filter.getInputStream(in);
       }
     }
@@ -59,7 +59,7 @@ public class TransportFilterSocket extends Socket {
   public OutputStream getOutputStream() throws IOException {
     if (out == null) {
       out = super.getOutputStream();
-      for (GatewayTransportFilter filter : gatewayTransportFilters) {
+      for (var filter : gatewayTransportFilters) {
         out = filter.getOutputStream(out);
       }
     }
@@ -71,7 +71,7 @@ public class TransportFilterSocket extends Socket {
    */
   @Override
   public synchronized void close() throws IOException {
-    OutputStream o = getOutputStream();
+    var o = getOutputStream();
     o.flush();
     super.close();
   }

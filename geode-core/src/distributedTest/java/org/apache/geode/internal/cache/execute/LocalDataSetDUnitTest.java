@@ -31,7 +31,6 @@ import org.apache.geode.DataSerializable;
 import org.apache.geode.DataSerializer;
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.EntryOperation;
-import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.PartitionResolver;
 import org.apache.geode.cache.Region;
@@ -71,7 +70,7 @@ public class LocalDataSetDUnitTest extends JUnit4CacheTestCase {
 
   @Override
   public final void postSetUp() throws Exception {
-    Host host = Host.getHost(0);
+    var host = Host.getHost(0);
     dataStore1 = host.getVM(0);
     dataStore2 = host.getVM(1);
     dataStore3 = host.getVM(2);
@@ -98,10 +97,10 @@ public class LocalDataSetDUnitTest extends JUnit4CacheTestCase {
     putInPRs();
     registerIteratorFunctionOnAll();
 
-    SerializableCallable installHook = new SerializableCallable() {
+    var installHook = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        PartitionedRegion pr = (PartitionedRegion) basicGetCache().getRegion("CustomerPR");
+        var pr = (PartitionedRegion) basicGetCache().getRegion("CustomerPR");
         Runnable r = new ReadHook();
         pr.getDataStore().setBucketReadHook(r);
         return null;
@@ -119,15 +118,15 @@ public class LocalDataSetDUnitTest extends JUnit4CacheTestCase {
       }
     });
 
-    SerializableCallable bucketRead = new SerializableCallable() {
+    var bucketRead = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
         return getHookInvoked();
       }
     };
-    Integer ds1 = (Integer) dataStore1.invoke(bucketRead);
-    Integer ds2 = (Integer) dataStore2.invoke(bucketRead);
-    Integer ds3 = (Integer) dataStore3.invoke(bucketRead);
+    var ds1 = (Integer) dataStore1.invoke(bucketRead);
+    var ds2 = (Integer) dataStore2.invoke(bucketRead);
+    var ds3 = (Integer) dataStore3.invoke(bucketRead);
     assertEquals(1, ds1 + ds2 + ds3);
   }
 
@@ -144,7 +143,7 @@ public class LocalDataSetDUnitTest extends JUnit4CacheTestCase {
     public void execute(FunctionContext context) {
       Region localRegion =
           PartitionRegionHelper.getLocalDataForContext((RegionFunctionContext) context);
-      for (final Object o : localRegion.keySet()) {
+      for (final var o : localRegion.keySet()) {
         LogWriterUtils.getLogWriter().info("LocalKeys:" + o);
       }
       context.getResultSender().lastResult(Boolean.TRUE);
@@ -209,7 +208,7 @@ public class LocalDataSetDUnitTest extends JUnit4CacheTestCase {
       FunctionService.onRegion(customerPR).withFilter(filter)
           .execute("LocalDataSetFunction" + false).getResult();
       filter.clear();
-      for (int i = 0; i < 6; i++) {
+      for (var i = 0; i < 6; i++) {
         filter.add("YOYO-CUST-KEY-" + i);
       }
       FunctionService.onRegion(customerPR).withFilter(filter).execute("LocalDataSetFunction" + true)
@@ -268,7 +267,7 @@ public class LocalDataSetDUnitTest extends JUnit4CacheTestCase {
   }
 
   private static void createCustomerPR() {
-    Object[] args =
+    var args =
         new Object[] {"CustomerPR", 1, 0, 10, null};
     accessor.invoke(LocalDataSetDUnitTest.class, "createPR", args);
     args = new Object[] {"CustomerPR", 1, 50, 10, null};
@@ -279,7 +278,7 @@ public class LocalDataSetDUnitTest extends JUnit4CacheTestCase {
   }
 
   private static void createOrderPR() {
-    Object[] args =
+    var args =
         new Object[] {"OrderPR", 1, 0, 10, "CustomerPR"};
     accessor.invoke(LocalDataSetDUnitTest.class, "createPR", args);
     args = new Object[] {"OrderPR", 1, 50, 10, "CustomerPR"};
@@ -289,7 +288,7 @@ public class LocalDataSetDUnitTest extends JUnit4CacheTestCase {
   }
 
   private static void createShipmentPR() {
-    Object[] args =
+    var args =
         new Object[] {"ShipmentPR", 1, 0, 10, "OrderPR"};
     accessor.invoke(LocalDataSetDUnitTest.class, "createPR", args);
     args = new Object[] {"ShipmentPR", 1, 50, 10, "OrderPR"};
@@ -301,11 +300,11 @@ public class LocalDataSetDUnitTest extends JUnit4CacheTestCase {
   public static void createPR(String partitionedRegionName, Integer redundancy,
       Integer localMaxMemory, Integer totalNumBuckets, String colocatedWith) {
 
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
-    PartitionAttributes prAttr = paf.setRedundantCopies(redundancy)
+    var paf = new PartitionAttributesFactory();
+    var prAttr = paf.setRedundantCopies(redundancy)
         .setLocalMaxMemory(localMaxMemory).setTotalNumBuckets(totalNumBuckets)
         .setColocatedWith(colocatedWith).setPartitionResolver(new LDSPartitionResolver()).create();
-    AttributesFactory attr = new AttributesFactory();
+    var attr = new AttributesFactory();
     attr.setPartitionAttributes(prAttr);
     assertNotNull(basicGetCache());
 
@@ -338,7 +337,7 @@ public class LocalDataSetDUnitTest extends JUnit4CacheTestCase {
   }
 
   public static void put() {
-    for (int i = 0; i < 120; i++) {
+    for (var i = 0; i < 120; i++) {
       customerPR.put("YOYO-CUST-KEY-" + i, "YOYO-CUST-VAL-" + i);
       orderPR.put("YOYO-ORD-KEY-" + i, "YOYO-ORD-VAL-" + i);
       shipmentPR.put("YOYO-SHIP-KEY-" + i, "YOYO-SHIP-VAL-" + i);
@@ -359,7 +358,7 @@ class LDSPartitionResolver implements PartitionResolver {
 
   @Override
   public Serializable getRoutingObject(EntryOperation opDetails) {
-    String key = (String) opDetails.getKey();
+    var key = (String) opDetails.getKey();
     return new LDSRoutingObject("" + key.charAt(key.length() - 1));
   }
 
@@ -373,7 +372,7 @@ class LDSPartitionResolver implements PartitionResolver {
     if (!(o instanceof LDSPartitionResolver)) {
       return false;
     }
-    LDSPartitionResolver otherKeyPartitionResolver = (LDSPartitionResolver) o;
+    var otherKeyPartitionResolver = (LDSPartitionResolver) o;
     return otherKeyPartitionResolver.getName().equals(getName());
   }
 }

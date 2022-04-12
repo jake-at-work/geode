@@ -36,7 +36,7 @@ public class Tomcat8SessionsDUnitTest extends TestSessionsTomcat8Base {
     port = AvailablePortHelper.getRandomAvailableTCPPort();
     server = new EmbeddedTomcat8(port, "JVM-1");
 
-    PeerToPeerCacheLifecycleListener p2pListener = new PeerToPeerCacheLifecycleListener();
+    var p2pListener = new PeerToPeerCacheLifecycleListener();
     p2pListener.setProperty(MCAST_PORT, "0");
     p2pListener.setProperty(LOG_LEVEL, "config");
     server.addLifecycleListener(p2pListener);

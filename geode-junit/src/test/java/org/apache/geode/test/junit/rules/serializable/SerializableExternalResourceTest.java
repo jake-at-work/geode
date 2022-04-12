@@ -17,7 +17,6 @@ package org.apache.geode.test.junit.rules.serializable;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.Serializable;
-import java.lang.reflect.Field;
 import java.util.Arrays;
 
 import org.apache.commons.lang3.SerializationUtils;
@@ -32,7 +31,7 @@ public class SerializableExternalResourceTest {
 
   @Test
   public void hasZeroFields() throws Exception {
-    Field[] fields = ExternalResource.class.getDeclaredFields();
+    var fields = ExternalResource.class.getDeclaredFields();
     assertThat(fields.length).as("Fields: " + Arrays.asList(fields)).isEqualTo(0);
   }
 
@@ -43,9 +42,9 @@ public class SerializableExternalResourceTest {
 
   @Test
   public void canBeSerialized() throws Throwable {
-    FakeSerializableExternalResource instance = new FakeSerializableExternalResource().value(1);
+    var instance = new FakeSerializableExternalResource().value(1);
 
-    FakeSerializableExternalResource cloned =
+    var cloned =
         SerializationUtils.clone(instance);
 
     assertThat(instance.value()).isEqualTo(1);

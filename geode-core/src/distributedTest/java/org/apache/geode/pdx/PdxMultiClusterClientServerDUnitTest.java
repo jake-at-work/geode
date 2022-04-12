@@ -30,9 +30,7 @@ import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolManager;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.ConfigurationProperties;
 import org.apache.geode.distributed.Locator;
 import org.apache.geode.test.dunit.SerializableCallableIF;
@@ -71,7 +69,7 @@ public class PdxMultiClusterClientServerDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void putFromOneClientToTwoClustersSendsTypeToBothClusters() {
 
-    ClientCache client = createScenario();
+    var client = createScenario();
 
     Region regionA = client.getRegion("regionA");
     Region regionB = client.getRegion("regionB");
@@ -93,7 +91,7 @@ public class PdxMultiClusterClientServerDUnitTest extends JUnit4CacheTestCase {
   @Ignore("This use case is not currently supported")
   public void copyingValueFromOneClusterToAnotherUsingClientCopiesType() {
 
-    ClientCache client = createScenario();
+    var client = createScenario();
 
     Region regionA = client.getRegion("regionA");
     Region regionB = client.getRegion("regionB");
@@ -122,7 +120,7 @@ public class PdxMultiClusterClientServerDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void bothClustersDefineTypeAndClientPutsInBothClusters() {
 
-    ClientCache client = createScenario();
+    var client = createScenario();
 
     Region regionA = client.getRegion("regionA");
     Region regionB = client.getRegion("regionB");
@@ -148,12 +146,12 @@ public class PdxMultiClusterClientServerDUnitTest extends JUnit4CacheTestCase {
   @Test
   public void sendingTypeIgnoresClustersThatAreNotRunning() {
 
-    ClientCache client = createScenario();
-    int siteCLocatorPort = createLocator(locatorC, SITE_C_DSID);
+    var client = createScenario();
+    var siteCLocatorPort = createLocator(locatorC, SITE_C_DSID);
 
     createServerRegion(serverC, siteCLocatorPort, "regionC", SITE_C_DSID);
 
-    Pool poolC =
+    var poolC =
         PoolManager.createFactory().addLocator("localhost", siteCLocatorPort).create("poolC");
 
     client.createClientRegionFactory(ClientRegionShortcut.PROXY)
@@ -193,17 +191,17 @@ public class PdxMultiClusterClientServerDUnitTest extends JUnit4CacheTestCase {
    * - regionB = connected using poolB to serverB
    */
   private ClientCache createScenario() {
-    int siteALocatorPort = createLocator(locatorA, SITE_A_DSID);
-    int siteBLocatorPort = createLocator(locatorB, SITE_B_DSID);
+    var siteALocatorPort = createLocator(locatorA, SITE_A_DSID);
+    var siteBLocatorPort = createLocator(locatorB, SITE_B_DSID);
 
     createServerRegion(serverA, siteALocatorPort, "regionA", SITE_A_DSID);
     createServerRegion(serverB, siteBLocatorPort, "regionB", SITE_B_DSID);
 
-    ClientCache client = new ClientCacheFactory().create();
+    var client = new ClientCacheFactory().create();
 
-    Pool poolA =
+    var poolA =
         PoolManager.createFactory().addLocator("localhost", siteALocatorPort).create("poolA");
-    Pool poolB =
+    var poolB =
         PoolManager.createFactory().addLocator("localhost", siteBLocatorPort).create("poolB");
 
     client.createClientRegionFactory(ClientRegionShortcut.PROXY)
@@ -219,22 +217,22 @@ public class PdxMultiClusterClientServerDUnitTest extends JUnit4CacheTestCase {
   private int createLocator(VM vm, int dsid) {
     return vm.invoke(() -> {
 
-      Properties properties = new Properties();
+      var properties = new Properties();
       properties.setProperty(ConfigurationProperties.DISTRIBUTED_SYSTEM_ID, Integer.toString(dsid));
-      Locator locator = Locator.startLocatorAndDS(0, null, null);
+      var locator = Locator.startLocatorAndDS(0, null, null);
       return locator.getPort();
     });
   }
 
 
   private int createServerRegion(VM vm, int locatorPort, String regionName, int dsid) {
-    SerializableCallableIF<Integer> createRegion = () -> {
-      Properties properties = new Properties();
+    var createRegion = (SerializableCallableIF<Integer>) () -> {
+      var properties = new Properties();
       properties.setProperty(LOCATORS, "localhost[" + locatorPort + "]");
       properties.setProperty(ConfigurationProperties.DISTRIBUTED_SYSTEM_ID, Integer.toString(dsid));
       Cache cache = getCache(properties);
       cache.createRegionFactory(RegionShortcut.REPLICATE).create(regionName);
-      CacheServer cacheServer = cache.addCacheServer();
+      var cacheServer = cache.addCacheServer();
       cacheServer.setPort(0);
       cacheServer.start();
       return cacheServer.getPort();

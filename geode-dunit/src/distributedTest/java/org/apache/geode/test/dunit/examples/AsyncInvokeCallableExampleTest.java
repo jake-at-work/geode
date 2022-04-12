@@ -46,7 +46,7 @@ public class AsyncInvokeCallableExampleTest {
 
   @Test
   public void invokeAsyncWithExceptionOccurred() throws Exception {
-    AsyncInvocation<Boolean> asyncInvocation =
+    var asyncInvocation =
         getVM(0).invokeAsync(AsyncInvokeCallableExampleTest::longRunningWorkThatThrowsException);
     asyncInvocation.join();
 

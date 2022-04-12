@@ -46,7 +46,7 @@ public abstract class NativeCalls {
       // try to load JNA implementation first
       // we do it via reflection since some clients
       // may not have it
-      final Class<?> c = Class.forName("org.apache.geode.internal.shared.NativeCallsJNAImpl");
+      final var c = Class.forName("org.apache.geode.internal.shared.NativeCallsJNAImpl");
       inst = (NativeCalls) c.getMethod("getInstance").invoke(null);
     } catch (VirtualMachineError e) {
       SystemFailure.initiateFailure(e);
@@ -119,7 +119,7 @@ public abstract class NativeCalls {
   }
 
   public void preBlow(String path, long maxSize, boolean preAllocate) throws IOException {
-    try (RandomAccessFile raf = new RandomAccessFile(path, "rw")) {
+    try (var raf = new RandomAccessFile(path, "rw")) {
       raf.setLength(maxSize);
     }
   }
@@ -166,8 +166,8 @@ public abstract class NativeCalls {
 
     @Override
     public int getProcessId() {
-      final String name = java.lang.management.ManagementFactory.getRuntimeMXBean().getName();
-      final int idx = name.indexOf('@');
+      final var name = java.lang.management.ManagementFactory.getRuntimeMXBean().getName();
+      final var idx = name.indexOf('@');
       if (idx > 0) {
         try {
           return Integer.parseInt(name.substring(0, idx));

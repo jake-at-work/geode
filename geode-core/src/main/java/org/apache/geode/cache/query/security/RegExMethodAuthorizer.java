@@ -157,7 +157,7 @@ public final class RegExMethodAuthorizer implements MethodInvocationAuthorizer {
     }
 
     // Compare fully qualified method name against compiled expressions.
-    String fullyQualifiedMethodName = target.getClass().getName() + "." + method.getName();
+    var fullyQualifiedMethodName = target.getClass().getName() + "." + method.getName();
     if (compiledPatterns.stream()
         .anyMatch(pattern -> pattern.matcher(fullyQualifiedMethodName).matches())) {
       return true;

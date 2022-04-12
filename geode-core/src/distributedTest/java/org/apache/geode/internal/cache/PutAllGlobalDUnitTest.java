@@ -39,7 +39,6 @@ import org.apache.geode.cache.CacheTransactionManager;
 import org.apache.geode.cache.CacheWriter;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.TimeoutException;
 import org.apache.geode.cache.util.CacheWriterAdapter;
@@ -53,7 +52,6 @@ import org.apache.geode.test.dunit.Invoke;
 import org.apache.geode.test.dunit.LogWriterUtils;
 import org.apache.geode.test.dunit.SerializableRunnable;
 import org.apache.geode.test.dunit.ThreadUtils;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.internal.JUnit4DistributedTestCase;
 
 
@@ -78,9 +76,9 @@ public class PutAllGlobalDUnitTest extends JUnit4DistributedTestCase { // TODO: 
 
   @Override
   public final void postSetUp() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     vm0.invoke(PutAllGlobalDUnitTest::createCacheForVM0);
     vm1.invoke(PutAllGlobalDUnitTest::createCacheForVM1);
     LogWriterUtils.getLogWriter().fine("Cache created successfully");
@@ -88,9 +86,9 @@ public class PutAllGlobalDUnitTest extends JUnit4DistributedTestCase { // TODO: 
 
   @Override
   public final void preTearDown() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     vm0.invoke(PutAllGlobalDUnitTest::closeCache);
     vm1.invoke(PutAllGlobalDUnitTest::closeCache);
     cache = null;
@@ -106,9 +104,9 @@ public class PutAllGlobalDUnitTest extends JUnit4DistributedTestCase { // TODO: 
     try {
       ds = (new PutAllGlobalDUnitTest()).getSystem(props);
       cache = CacheFactory.create(ds);
-      AttributesFactory factory = new AttributesFactory();
+      var factory = new AttributesFactory();
       factory.setScope(Scope.GLOBAL);
-      RegionAttributes attr = factory.create();
+      var attr = factory.create();
       region = cache.createRegion("map", attr);
     } catch (Exception ex) {
       ex.printStackTrace();
@@ -121,10 +119,10 @@ public class PutAllGlobalDUnitTest extends JUnit4DistributedTestCase { // TODO: 
       ds = (new PutAllGlobalDUnitTest()).getSystem(props);
       cache = CacheFactory.create(ds);
       cache.setLockTimeout(TIMEOUT_PERIOD / 1000);
-      AttributesFactory factory = new AttributesFactory();
+      var factory = new AttributesFactory();
       factory.setScope(Scope.GLOBAL);
       factory.setCacheWriter(aWriter);
-      RegionAttributes attr = factory.create();
+      var attr = factory.create();
       region = cache.createRegion("map", attr);
     } catch (Exception ex) {
       ex.printStackTrace();
@@ -153,9 +151,9 @@ public class PutAllGlobalDUnitTest extends JUnit4DistributedTestCase { // TODO: 
   @Test
   public void testputAllGlobalRemoteVM() throws Throwable {
     // Test Fails: AssertionError: Should have thrown TimeoutException
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
     final int socketPort = vm0.invoke(PutAllGlobalDUnitTest::openSocket);
 
@@ -164,11 +162,11 @@ public class PutAllGlobalDUnitTest extends JUnit4DistributedTestCase { // TODO: 
     AsyncInvocation async2 = vm1.invokeAsync(new CacheSerializableRunnable("put from another vm") {
       @Override
       public void run2() throws CacheException {
-        long endTime = System.currentTimeMillis() + 5000;
-        boolean connected = false;
+        var endTime = System.currentTimeMillis() + 5000;
+        var connected = false;
         while (!connected && (System.currentTimeMillis() < endTime)) {
           try {
-            Socket sock = new Socket(InetAddress.getLocalHost(), socketPort);
+            var sock = new Socket(InetAddress.getLocalHost(), socketPort);
             connected = true;
             sock.close();
           } catch (IOException ioe) {
@@ -231,7 +229,7 @@ public class PutAllGlobalDUnitTest extends JUnit4DistributedTestCase { // TODO: 
         .info("async1 connection received - continuing with putAll operation");
     serverSocket.close();
     try {
-      for (int i = 1; i < 2; i++) {
+      for (var i = 1; i < 2; i++) {
         m.put(i, String.valueOf(i));
       }
       region.putAll(m);
@@ -255,7 +253,7 @@ public class PutAllGlobalDUnitTest extends JUnit4DistributedTestCase { // TODO: 
   }
 
   public static boolean containsValueMethod(Object ob) {
-    boolean result = false;
+    var result = false;
     try {
       result = region.containsValue(ob);
     } catch (Exception ex) {
@@ -265,7 +263,7 @@ public class PutAllGlobalDUnitTest extends JUnit4DistributedTestCase { // TODO: 
   }
 
   public static int sizeMethod() {
-    int i = 0;
+    var i = 0;
     try {
       i = region.size();
     } catch (Exception ex) {

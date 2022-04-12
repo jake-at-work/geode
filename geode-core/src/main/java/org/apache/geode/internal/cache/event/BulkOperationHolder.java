@@ -65,7 +65,7 @@ public class BulkOperationHolder {
     if (endOfLifeTimestamp == 0) {
       endOfLifeTimestamp = now; // a new holder - start the timer
     }
-    boolean expired = false;
+    var expired = false;
     if (endOfLifeTimestamp <= expirationTime) {
       removed = true;
       expired = true;

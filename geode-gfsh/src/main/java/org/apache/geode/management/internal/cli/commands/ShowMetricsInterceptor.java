@@ -32,15 +32,15 @@ import org.apache.geode.management.internal.i18n.CliStrings;
 public class ShowMetricsInterceptor extends AbstractCliAroundInterceptor {
   @Override
   public ResultModel preExecution(GfshParseResult parseResult) {
-    String export_to_report_to = parseResult.getParamValueAsString(CliStrings.SHOW_METRICS__FILE);
+    var export_to_report_to = parseResult.getParamValueAsString(CliStrings.SHOW_METRICS__FILE);
     if (export_to_report_to != null && !export_to_report_to.endsWith(".csv")) {
       return ResultModel.createError(CliStrings.format(CliStrings.INVALID_FILE_EXTENSION, ".csv"));
     }
 
-    String regionName = parseResult.getParamValueAsString(CliStrings.SHOW_METRICS__REGION);
-    String port = parseResult.getParamValueAsString(CliStrings.SHOW_METRICS__CACHESERVER__PORT);
-    String member = parseResult.getParamValueAsString(CliStrings.MEMBER);
-    String[] categoryArgs = (String[]) parseResult.getParamValue(CliStrings.SHOW_METRICS__CATEGORY);
+    var regionName = parseResult.getParamValueAsString(CliStrings.SHOW_METRICS__REGION);
+    var port = parseResult.getParamValueAsString(CliStrings.SHOW_METRICS__CACHESERVER__PORT);
+    var member = parseResult.getParamValueAsString(CliStrings.MEMBER);
+    var categoryArgs = (String[]) parseResult.getParamValue(CliStrings.SHOW_METRICS__CATEGORY);
 
     if (regionName != null && port != null) {
       return ResultModel.createError(
@@ -52,10 +52,10 @@ public class ShowMetricsInterceptor extends AbstractCliAroundInterceptor {
     }
 
     if (categoryArgs != null) {
-      boolean regionProvided = regionName != null;
-      boolean portProvided = port != null;
-      boolean memberProvided = member != null;
-      List<String> validCategories =
+      var regionProvided = regionName != null;
+      var portProvided = port != null;
+      var memberProvided = member != null;
+      var validCategories =
           getValidCategoriesAsStrings(regionProvided, memberProvided, portProvided);
       Set<String> userCategories = new HashSet<>(Arrays.asList(categoryArgs));
       userCategories.removeAll(validCategories);
@@ -93,9 +93,9 @@ public class ShowMetricsInterceptor extends AbstractCliAroundInterceptor {
 
 
   private ResultModel getInvalidCategoryResult(Set<String> invalidCategories) {
-    StringBuilder sb = new StringBuilder();
+    var sb = new StringBuilder();
     sb.append("Invalid Categories\n");
-    for (String category : invalidCategories) {
+    for (var category : invalidCategories) {
       sb.append(category);
       sb.append('\n');
     }
@@ -105,13 +105,13 @@ public class ShowMetricsInterceptor extends AbstractCliAroundInterceptor {
   @Override
   public ResultModel postExecution(GfshParseResult parseResult, ResultModel resultModel,
       Path tempFile) throws IOException {
-    String saveAs = parseResult.getParamValueAsString(CliStrings.SHOW_METRICS__FILE);
+    var saveAs = parseResult.getParamValueAsString(CliStrings.SHOW_METRICS__FILE);
 
     if (saveAs == null) {
       return resultModel;
     }
 
-    File file = new File(saveAs).getAbsoluteFile();
+    var file = new File(saveAs).getAbsoluteFile();
     resultModel.saveFileTo(file.getParentFile());
     return resultModel;
   }

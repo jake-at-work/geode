@@ -15,7 +15,6 @@
 package org.apache.geode.internal.cache.tier.sockets;
 
 import static org.apache.geode.cache.InterestResultPolicy.KEYS;
-import static org.apache.geode.cache.Region.Entry;
 import static org.apache.geode.cache.Region.SEPARATOR;
 import static org.apache.geode.cache.client.internal.RegisterInterestTracker.interestListIndex;
 import static org.apache.geode.distributed.ConfigurationProperties.LOCATORS;
@@ -33,7 +32,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 
 import org.junit.experimental.categories.Category;
 
@@ -43,15 +41,12 @@ import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.InterestResultPolicy;
 import org.apache.geode.cache.MirrorType;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.Connection;
 import org.apache.geode.cache.client.internal.PoolImpl;
 import org.apache.geode.cache.client.internal.ServerRegionProxy;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.DistributedSystem;
-import org.apache.geode.distributed.internal.ServerLocation;
 import org.apache.geode.internal.cache.CacheServerImpl;
 import org.apache.geode.internal.cache.ClientServerObserverAdapter;
 import org.apache.geode.internal.cache.ClientServerObserverHolder;
@@ -165,15 +160,15 @@ public class HAInterestTestCase extends JUnit4DistributedTestCase {
    * @since GemFire 5.7
    */
   public static VM getPrimaryVM(final VM oldPrimary) {
-    WaitCriterion wc = new WaitCriterion() {
+    var wc = new WaitCriterion() {
       @Override
       public boolean done() {
-        int primaryPort = pool.getPrimaryPort();
+        var primaryPort = pool.getPrimaryPort();
         if (primaryPort == -1) {
           return false;
         }
         // we have a primary
-        VM currentPrimary = getServerVM(primaryPort);
+        var currentPrimary = getServerVM(primaryPort);
         return currentPrimary != oldPrimary;
       }
 
@@ -184,9 +179,9 @@ public class HAInterestTestCase extends JUnit4DistributedTestCase {
     };
     GeodeAwaitility.await().untilAsserted(wc);
 
-    int primaryPort = pool.getPrimaryPort();
+    var primaryPort = pool.getPrimaryPort();
     assertTrue(primaryPort != -1);
-    VM currentPrimary = getServerVM(primaryPort);
+    var currentPrimary = getServerVM(primaryPort);
     assertTrue(currentPrimary != oldPrimary);
     return currentPrimary;
   }
@@ -196,7 +191,7 @@ public class HAInterestTestCase extends JUnit4DistributedTestCase {
   }
 
   public static VM getBackupVM(VM stoppedBackup) {
-    VM currentPrimary = getPrimaryVM(null);
+    var currentPrimary = getPrimaryVM(null);
     if (currentPrimary != server2 && server2 != stoppedBackup) {
       return server2;
     } else if (currentPrimary != server3 && server3 != stoppedBackup) {
@@ -250,14 +245,14 @@ public class HAInterestTestCase extends JUnit4DistributedTestCase {
     final Region r1 = cache.getRegion(SEPARATOR + REGION_NAME);
     assertNotNull(r1);
 
-    WaitCriterion wc = new WaitCriterion() {
+    var wc = new WaitCriterion() {
       @Override
       public boolean done() {
-        Entry re = r1.getEntry(k1);
+        var re = r1.getEntry(k1);
         if (re == null) {
           return false;
         }
-        Object val = re.getValue();
+        var val = re.getValue();
         return client_k1.equals(val);
       }
 
@@ -271,11 +266,11 @@ public class HAInterestTestCase extends JUnit4DistributedTestCase {
     wc = new WaitCriterion() {
       @Override
       public boolean done() {
-        Entry re = r1.getEntry(k2);
+        var re = r1.getEntry(k2);
         if (re == null) {
           return false;
         }
-        Object val = re.getValue();
+        var val = re.getValue();
         return client_k2.equals(val);
       }
 
@@ -289,7 +284,7 @@ public class HAInterestTestCase extends JUnit4DistributedTestCase {
 
   public static void verifyDeadAndLiveServers(final int expectedDeadServers,
       final int expectedLiveServers) {
-    WaitCriterion wc = new WaitCriterion() {
+    var wc = new WaitCriterion() {
       @Override
       public boolean done() {
         return pool.getConnectedServerCount() == expectedLiveServers;
@@ -316,7 +311,7 @@ public class HAInterestTestCase extends JUnit4DistributedTestCase {
       @Override
       public void beforeInterestRecovery() {
         synchronized (HAInterestTestCase.class) {
-          Thread t = new Thread() {
+          var t = new Thread() {
             @Override
             public void run() {
               getBackupVM().invoke(HAInterestTestCase::startServer);
@@ -343,7 +338,7 @@ public class HAInterestTestCase extends JUnit4DistributedTestCase {
       @Override
       public void beforeInterestRecovery() {
         synchronized (HAInterestTestCase.class) {
-          Thread t = new Thread() {
+          var t = new Thread() {
             @Override
             public void run() {
               Region r1 = cache.getRegion(SEPARATOR + REGION_NAME);
@@ -432,7 +427,7 @@ public class HAInterestTestCase extends JUnit4DistributedTestCase {
   public static void verifyDispatcherIsAlive() {
     assertEquals("More than one BridgeServer", 1, cache.getCacheServers().size());
 
-    WaitCriterion wc = new WaitCriterion() {
+    var wc = new WaitCriterion() {
       @Override
       public boolean done() {
         return cache.getCacheServers().size() == 1;
@@ -445,11 +440,11 @@ public class HAInterestTestCase extends JUnit4DistributedTestCase {
     };
     GeodeAwaitility.await().untilAsserted(wc);
 
-    CacheServerImpl bs = (CacheServerImpl) cache.getCacheServers().iterator().next();
+    var bs = (CacheServerImpl) cache.getCacheServers().iterator().next();
     assertNotNull(bs);
     assertNotNull(bs.getAcceptor());
     assertNotNull(bs.getAcceptor().getCacheClientNotifier());
-    final CacheClientNotifier ccn = bs.getAcceptor().getCacheClientNotifier();
+    final var ccn = bs.getAcceptor().getCacheClientNotifier();
 
     wc = new WaitCriterion() {
       @Override
@@ -488,7 +483,7 @@ public class HAInterestTestCase extends JUnit4DistributedTestCase {
   }
 
   public static void verifyDispatcherIsNotAlive() {
-    WaitCriterion wc = new WaitCriterion() {
+    var wc = new WaitCriterion() {
       @Override
       public boolean done() {
         return cache.getCacheServers().size() == 1;
@@ -501,11 +496,11 @@ public class HAInterestTestCase extends JUnit4DistributedTestCase {
     };
     GeodeAwaitility.await().untilAsserted(wc);
 
-    CacheServerImpl bs = (CacheServerImpl) cache.getCacheServers().iterator().next();
+    var bs = (CacheServerImpl) cache.getCacheServers().iterator().next();
     assertNotNull(bs);
     assertNotNull(bs.getAcceptor());
     assertNotNull(bs.getAcceptor().getCacheClientNotifier());
-    final CacheClientNotifier ccn = bs.getAcceptor().getCacheClientNotifier();
+    final var ccn = bs.getAcceptor().getCacheClientNotifier();
 
     wc = new WaitCriterion() {
       @Override
@@ -522,7 +517,7 @@ public class HAInterestTestCase extends JUnit4DistributedTestCase {
 
     Iterator iter_prox = ccn.getClientProxies().iterator();
     if (iter_prox.hasNext()) {
-      CacheClientProxy proxy = (CacheClientProxy) iter_prox.next();
+      var proxy = (CacheClientProxy) iter_prox.next();
       assertFalse("Dispatcher on secondary should not be alive",
           proxy._messageDispatcher.isAlive());
     }
@@ -586,26 +581,26 @@ public class HAInterestTestCase extends JUnit4DistributedTestCase {
   }
 
   public static void startServer() throws IOException {
-    Cache c = CacheFactory.getAnyInstance();
+    var c = CacheFactory.getAnyInstance();
     assertEquals("More than one BridgeServer", 1, c.getCacheServers().size());
-    CacheServerImpl bs = (CacheServerImpl) c.getCacheServers().iterator().next();
+    var bs = (CacheServerImpl) c.getCacheServers().iterator().next();
     assertNotNull(bs);
     bs.start();
   }
 
   public static void stopServer() {
     assertEquals("More than one BridgeServer", 1, cache.getCacheServers().size());
-    CacheServerImpl bs = (CacheServerImpl) cache.getCacheServers().iterator().next();
+    var bs = (CacheServerImpl) cache.getCacheServers().iterator().next();
     assertNotNull(bs);
     bs.stop();
   }
 
   public static void stopPrimaryAndRegisterK1AndK2AndVerifyResponse() {
-    LocalRegion r = (LocalRegion) cache.getRegion(SEPARATOR + REGION_NAME);
+    var r = (LocalRegion) cache.getRegion(SEPARATOR + REGION_NAME);
     assertNotNull(r);
-    ServerRegionProxy srp = new ServerRegionProxy(r);
+    var srp = new ServerRegionProxy(r);
 
-    WaitCriterion wc = new WaitCriterion() {
+    var wc = new WaitCriterion() {
       @Override
       public boolean done() {
         return pool.getConnectedServerCount() == 3;
@@ -626,18 +621,18 @@ public class HAInterestTestCase extends JUnit4DistributedTestCase {
     List serverKeys = srp.registerInterest(list, KEY, KEYS, false,
         r.getAttributes().getDataPolicy());
     assertNotNull(serverKeys);
-    List resultKeys = (List) serverKeys.get(0);
+    var resultKeys = (List) serverKeys.get(0);
     assertEquals(2, resultKeys.size());
     assertTrue(resultKeys.contains(k1));
     assertTrue(resultKeys.contains(k2));
   }
 
   public static void stopPrimaryAndUnregisterRegisterK1() {
-    LocalRegion r = (LocalRegion) cache.getRegion(SEPARATOR + REGION_NAME);
+    var r = (LocalRegion) cache.getRegion(SEPARATOR + REGION_NAME);
     assertNotNull(r);
-    ServerRegionProxy srp = new ServerRegionProxy(r);
+    var srp = new ServerRegionProxy(r);
 
-    WaitCriterion wc = new WaitCriterion() {
+    var wc = new WaitCriterion() {
       @Override
       public boolean done() {
         return pool.getConnectedServerCount() == 3;
@@ -658,11 +653,11 @@ public class HAInterestTestCase extends JUnit4DistributedTestCase {
   }
 
   public static void stopBothPrimaryAndSecondaryAndRegisterK1AndK2AndVerifyResponse() {
-    LocalRegion r = (LocalRegion) cache.getRegion(SEPARATOR + REGION_NAME);
+    var r = (LocalRegion) cache.getRegion(SEPARATOR + REGION_NAME);
     assertNotNull(r);
-    ServerRegionProxy srp = new ServerRegionProxy(r);
+    var srp = new ServerRegionProxy(r);
 
-    WaitCriterion wc = new WaitCriterion() {
+    var wc = new WaitCriterion() {
       @Override
       public boolean done() {
         return pool.getConnectedServerCount() == 3;
@@ -676,7 +671,7 @@ public class HAInterestTestCase extends JUnit4DistributedTestCase {
     GeodeAwaitility.await().untilAsserted(wc);
 
     // close primaryEP
-    VM backup = getBackupVM();
+    var backup = getBackupVM();
     getPrimaryVM().invoke(HAInterestTestCase::stopServer);
     // close secondary
     backup.invoke(HAInterestTestCase::stopServer);
@@ -687,7 +682,7 @@ public class HAInterestTestCase extends JUnit4DistributedTestCase {
         r.getAttributes().getDataPolicy());
 
     assertNotNull(serverKeys);
-    List resultKeys = (List) serverKeys.get(0);
+    var resultKeys = (List) serverKeys.get(0);
     assertEquals(2, resultKeys.size());
     assertTrue(resultKeys.contains(k1));
     assertTrue(resultKeys.contains(k2));
@@ -697,11 +692,11 @@ public class HAInterestTestCase extends JUnit4DistributedTestCase {
    * returns the secondary that was stopped
    */
   public static VM stopSecondaryAndRegisterK1AndK2AndVerifyResponse() {
-    LocalRegion r = (LocalRegion) cache.getRegion(SEPARATOR + REGION_NAME);
+    var r = (LocalRegion) cache.getRegion(SEPARATOR + REGION_NAME);
     assertNotNull(r);
-    ServerRegionProxy srp = new ServerRegionProxy(r);
+    var srp = new ServerRegionProxy(r);
 
-    WaitCriterion wc = new WaitCriterion() {
+    var wc = new WaitCriterion() {
       @Override
       public boolean done() {
         return pool.getConnectedServerCount() == 3;
@@ -715,7 +710,7 @@ public class HAInterestTestCase extends JUnit4DistributedTestCase {
     GeodeAwaitility.await().untilAsserted(wc);
 
     // close secondary EP
-    VM result = getBackupVM();
+    var result = getBackupVM();
     result.invoke(HAInterestTestCase::stopServer);
     List list = new ArrayList();
     list.add(k1);
@@ -724,7 +719,7 @@ public class HAInterestTestCase extends JUnit4DistributedTestCase {
         r.getAttributes().getDataPolicy());
 
     assertNotNull(serverKeys);
-    List resultKeys = (List) serverKeys.get(0);
+    var resultKeys = (List) serverKeys.get(0);
     assertEquals(2, resultKeys.size());
     assertTrue(resultKeys.contains(k1));
     assertTrue(resultKeys.contains(k2));
@@ -735,11 +730,11 @@ public class HAInterestTestCase extends JUnit4DistributedTestCase {
    * returns the secondary that was stopped
    */
   public static VM stopSecondaryAndUNregisterK1() {
-    LocalRegion r = (LocalRegion) cache.getRegion(SEPARATOR + REGION_NAME);
+    var r = (LocalRegion) cache.getRegion(SEPARATOR + REGION_NAME);
     assertNotNull(r);
-    ServerRegionProxy srp = new ServerRegionProxy(r);
+    var srp = new ServerRegionProxy(r);
 
-    WaitCriterion wc = new WaitCriterion() {
+    var wc = new WaitCriterion() {
       @Override
       public boolean done() {
         return pool.getConnectedServerCount() == 3;
@@ -753,7 +748,7 @@ public class HAInterestTestCase extends JUnit4DistributedTestCase {
     GeodeAwaitility.await().untilAsserted(wc);
 
     // close secondary EP
-    VM result = getBackupVM();
+    var result = getBackupVM();
     result.invoke(HAInterestTestCase::stopServer);
     List list = new ArrayList();
     list.add(k1);
@@ -762,11 +757,11 @@ public class HAInterestTestCase extends JUnit4DistributedTestCase {
   }
 
   public static void registerK1AndK2OnPrimaryAndSecondaryAndVerifyResponse() {
-    ServerLocation primary = pool.getPrimary();
-    ServerLocation secondary = pool.getRedundants().get(0);
-    LocalRegion r = (LocalRegion) cache.getRegion(SEPARATOR + REGION_NAME);
+    var primary = pool.getPrimary();
+    var secondary = pool.getRedundants().get(0);
+    var r = (LocalRegion) cache.getRegion(SEPARATOR + REGION_NAME);
     assertNotNull(r);
-    ServerRegionProxy srp = new ServerRegionProxy(r);
+    var srp = new ServerRegionProxy(r);
     List list = new ArrayList();
     list.add(k1);
     list.add(k2);
@@ -776,7 +771,7 @@ public class HAInterestTestCase extends JUnit4DistributedTestCase {
         InterestResultPolicy.KEYS, false, r.getAttributes().getDataPolicy());
     assertNotNull(serverKeys1);
     // expect serverKeys in response from primary
-    List resultKeys = (List) serverKeys1.get(0);
+    var resultKeys = (List) serverKeys1.get(0);
     assertEquals(2, resultKeys.size());
     assertTrue(resultKeys.contains(k1));
     assertTrue(resultKeys.contains(k2));
@@ -792,7 +787,7 @@ public class HAInterestTestCase extends JUnit4DistributedTestCase {
   }
 
   public static void verifyInterestRegistration() {
-    WaitCriterion wc = new WaitCriterion() {
+    var wc = new WaitCriterion() {
       @Override
       public boolean done() {
         return cache.getCacheServers().size() == 1;
@@ -805,11 +800,11 @@ public class HAInterestTestCase extends JUnit4DistributedTestCase {
     };
     GeodeAwaitility.await().untilAsserted(wc);
 
-    CacheServerImpl bs = (CacheServerImpl) cache.getCacheServers().iterator().next();
+    var bs = (CacheServerImpl) cache.getCacheServers().iterator().next();
     assertNotNull(bs);
     assertNotNull(bs.getAcceptor());
     assertNotNull(bs.getAcceptor().getCacheClientNotifier());
-    final CacheClientNotifier ccn = bs.getAcceptor().getCacheClientNotifier();
+    final var ccn = bs.getAcceptor().getCacheClientNotifier();
 
     wc = new WaitCriterion() {
       @Override
@@ -827,12 +822,12 @@ public class HAInterestTestCase extends JUnit4DistributedTestCase {
     Iterator iter_prox = ccn.getClientProxies().iterator();
 
     if (iter_prox.hasNext()) {
-      final CacheClientProxy ccp = (CacheClientProxy) iter_prox.next();
+      final var ccp = (CacheClientProxy) iter_prox.next();
 
       wc = new WaitCriterion() {
         @Override
         public boolean done() {
-          Set keysMap = ccp.cils[interestListIndex]
+          var keysMap = ccp.cils[interestListIndex]
               .getProfile(SEPARATOR + REGION_NAME).getKeysOfInterestFor(ccp.getProxyID());
           return keysMap != null && keysMap.size() == 2;
         }
@@ -844,7 +839,7 @@ public class HAInterestTestCase extends JUnit4DistributedTestCase {
       };
       GeodeAwaitility.await().untilAsserted(wc);
 
-      Set keysMap = ccp.cils[interestListIndex]
+      var keysMap = ccp.cils[interestListIndex]
           .getProfile(SEPARATOR + REGION_NAME).getKeysOfInterestFor(ccp.getProxyID());
       assertNotNull(keysMap);
       assertEquals(2, keysMap.size());
@@ -854,7 +849,7 @@ public class HAInterestTestCase extends JUnit4DistributedTestCase {
   }
 
   public static void verifyInterestUNRegistration() {
-    WaitCriterion wc = new WaitCriterion() {
+    var wc = new WaitCriterion() {
       @Override
       public boolean done() {
         return cache.getCacheServers().size() == 1;
@@ -867,11 +862,11 @@ public class HAInterestTestCase extends JUnit4DistributedTestCase {
     };
     GeodeAwaitility.await().untilAsserted(wc);
 
-    CacheServerImpl bs = (CacheServerImpl) cache.getCacheServers().iterator().next();
+    var bs = (CacheServerImpl) cache.getCacheServers().iterator().next();
     assertNotNull(bs);
     assertNotNull(bs.getAcceptor());
     assertNotNull(bs.getAcceptor().getCacheClientNotifier());
-    final CacheClientNotifier ccn = bs.getAcceptor().getCacheClientNotifier();
+    final var ccn = bs.getAcceptor().getCacheClientNotifier();
 
     wc = new WaitCriterion() {
       @Override
@@ -888,12 +883,12 @@ public class HAInterestTestCase extends JUnit4DistributedTestCase {
 
     Iterator iter_prox = ccn.getClientProxies().iterator();
     if (iter_prox.hasNext()) {
-      final CacheClientProxy ccp = (CacheClientProxy) iter_prox.next();
+      final var ccp = (CacheClientProxy) iter_prox.next();
 
       wc = new WaitCriterion() {
         @Override
         public boolean done() {
-          Set keysMap = ccp.cils[interestListIndex]
+          var keysMap = ccp.cils[interestListIndex]
               .getProfile(SEPARATOR + REGION_NAME).getKeysOfInterestFor(ccp.getProxyID());
           return keysMap != null;
         }
@@ -905,7 +900,7 @@ public class HAInterestTestCase extends JUnit4DistributedTestCase {
       };
       GeodeAwaitility.await().untilAsserted(wc);
 
-      Set keysMap = ccp.cils[interestListIndex]
+      var keysMap = ccp.cils[interestListIndex]
           .getProfile(SEPARATOR + REGION_NAME).getKeysOfInterestFor(ccp.getProxyID());
       assertNotNull(keysMap);
       assertEquals(1, keysMap.size());
@@ -924,7 +919,7 @@ public class HAInterestTestCase extends JUnit4DistributedTestCase {
   }
 
   public static void createClientPoolCache(String testName, String host) throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     new HAInterestTestCase().createCache(props);
@@ -941,7 +936,7 @@ public class HAInterestTestCase extends JUnit4DistributedTestCase {
     } finally {
       CacheServerTestUtil.enableShufflingOfEndpoints();
     }
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
     factory.setConcurrencyChecksEnabled(true);
     factory.setPoolName(p.getName());
@@ -954,7 +949,7 @@ public class HAInterestTestCase extends JUnit4DistributedTestCase {
 
   public static void createClientPoolCacheWithSmallRetryInterval(String testName, String host)
       throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     new HAInterestTestCase().createCache(props);
@@ -970,7 +965,7 @@ public class HAInterestTestCase extends JUnit4DistributedTestCase {
     } finally {
       CacheServerTestUtil.enableShufflingOfEndpoints();
     }
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
     factory.setConcurrencyChecksEnabled(true);
     factory.setPoolName(p.getName());
@@ -984,15 +979,15 @@ public class HAInterestTestCase extends JUnit4DistributedTestCase {
 
   public static void createClientPoolCacheConnectionToSingleServer(String testName, String hostName)
       throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     new HAInterestTestCase().createCache(props);
-    PoolImpl p = (PoolImpl) PoolManager.createFactory().addServer(hostName, PORT1)
+    var p = (PoolImpl) PoolManager.createFactory().addServer(hostName, PORT1)
         .setSubscriptionEnabled(true).setSubscriptionRedundancy(-1).setReadTimeout(10000)
         // .setRetryInterval(20)
         .create("HAInterestBaseTestPool");
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
     factory.setConcurrencyChecksEnabled(true);
     factory.setPoolName(p.getName());
@@ -1006,15 +1001,15 @@ public class HAInterestTestCase extends JUnit4DistributedTestCase {
 
   public static Integer createServerCache() throws Exception {
     new HAInterestTestCase().createCache(new Properties());
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setEnableBridgeConflation(true);
     factory.setMirrorType(MirrorType.KEYS_VALUES);
     factory.setConcurrencyChecksEnabled(true);
     cache.createRegion(REGION_NAME, factory.create());
 
-    CacheServer server = cache.addCacheServer();
-    int port = getRandomAvailableTCPPort();
+    var server = cache.addCacheServer();
+    var port = getRandomAvailableTCPPort();
     server.setPort(port);
     server.setMaximumTimeBetweenPings(180000);
     // ensures updates to be sent instead of invalidations
@@ -1025,14 +1020,14 @@ public class HAInterestTestCase extends JUnit4DistributedTestCase {
 
   public static Integer createServerCacheWithLocalRegion() throws Exception {
     new HAInterestTestCase().createCache(new Properties());
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
     factory.setConcurrencyChecksEnabled(true);
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME, attrs);
 
-    CacheServer server = cache.addCacheServer();
-    int port = getRandomAvailableTCPPort();
+    var server = cache.addCacheServer();
+    var port = getRandomAvailableTCPPort();
     server.setPort(port);
     // ensures updates to be sent instead of invalidations
     server.setNotifyBySubscription(true);

@@ -45,7 +45,7 @@ public class UpdatableUserAuthInitialize implements AuthInitialize {
   @Override
   public Properties getCredentials(Properties securityProps, DistributedMember server,
       boolean isPeer) throws AuthenticationFailedException {
-    Properties credentials = new Properties();
+    var credentials = new Properties();
     credentials.put("security-username", user);
     credentials.put("security-password", user);
 

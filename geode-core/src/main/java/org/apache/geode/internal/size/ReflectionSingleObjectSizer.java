@@ -51,14 +51,14 @@ public class ReflectionSingleObjectSizer implements SingleObjectSizer {
   }
 
   public long sizeof(Object object, boolean roundResult) {
-    Class<?> clazz = object.getClass();
+    var clazz = object.getClass();
     long size;
     if (clazz.isArray()) {
       if (unsafe != null) {
         size = unsafe.arrayBaseOffset(clazz);
-        int arrayLength = Array.getLength(object);
+        var arrayLength = Array.getLength(object);
         if (arrayLength > 0) {
-          int typeSize = unsafe.arrayScaleIndex(clazz);
+          var typeSize = unsafe.arrayScaleIndex(clazz);
           if (typeSize == 0) {
             // the javadocs say that arrayScaleIndex may return 0.
             // If it did then we use sizeType.
@@ -69,7 +69,7 @@ public class ReflectionSingleObjectSizer implements SingleObjectSizer {
       } else {
         // not as accurate but does not use unsafe
         size = OBJECT_SIZE + 4 /* for array length */;
-        int arrayLength = Array.getLength(object);
+        var arrayLength = Array.getLength(object);
         if (arrayLength > 0) {
           size += (long) arrayLength * sizeType(clazz.getComponentType());
         }
@@ -93,7 +93,7 @@ public class ReflectionSingleObjectSizer implements SingleObjectSizer {
 
   static long sizeof(Class<?> clazz, boolean roundResult, Unsafe myUnsafe) {
     Assert.assertTrue(!clazz.isArray());
-    long size = unsafeSizeof(clazz, myUnsafe);
+    var size = unsafeSizeof(clazz, myUnsafe);
     if (size == -1) {
       size = safeSizeof(clazz);
     }
@@ -116,11 +116,11 @@ public class ReflectionSingleObjectSizer implements SingleObjectSizer {
     Field lastField = null;
     long lastFieldOffset = 0;
     do {
-      Field[] fields = clazz.getDeclaredFields();
-      for (Field field : fields) {
+      var fields = clazz.getDeclaredFields();
+      for (var field : fields) {
         if (!Modifier.isStatic(field.getModifiers())) {
           try {
-            long offset = myUnsafe.fieldOffset(field);
+            var offset = myUnsafe.fieldOffset(field);
             if (offset >= lastFieldOffset) {
               lastFieldOffset = offset;
               lastField = field;
@@ -155,8 +155,8 @@ public class ReflectionSingleObjectSizer implements SingleObjectSizer {
     // for any of the field alignment that the jvm does.
     long size = OBJECT_SIZE;
     do {
-      Field[] fields = clazz.getDeclaredFields();
-      for (Field field : fields) {
+      var fields = clazz.getDeclaredFields();
+      for (var field : fields) {
         if (!Modifier.isStatic(field.getModifiers())) {
           size += sizeType(field.getType());
         }

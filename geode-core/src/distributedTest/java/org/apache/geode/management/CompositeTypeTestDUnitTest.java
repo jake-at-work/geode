@@ -24,7 +24,6 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import org.apache.geode.management.internal.MBeanJMXAdapter;
-import org.apache.geode.management.internal.SystemManagementService;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
 import org.apache.geode.test.dunit.VM;
 
@@ -51,15 +50,15 @@ public class CompositeTypeTestDUnitTest implements Serializable {
   public void testCompositeTypeGetters() throws Exception {
     registerMBeanWithCompositeTypeGetters(memberVM);
 
-    String memberName = MBeanJMXAdapter.makeCompliantName(getMemberId(memberVM));
+    var memberName = MBeanJMXAdapter.makeCompliantName(getMemberId(memberVM));
     verifyMBeanWithCompositeTypeGetters(managerVM, memberName);
   }
 
   private void registerMBeanWithCompositeTypeGetters(final VM memberVM) {
     memberVM.invoke("registerMBeanWithCompositeTypeGetters", () -> {
-      SystemManagementService service = managementTestRule.getSystemManagementService();
+      var service = managementTestRule.getSystemManagementService();
 
-      ObjectName objectName = new ObjectName("GemFire:service=custom,type=composite");
+      var objectName = new ObjectName("GemFire:service=custom,type=composite");
       CompositeTestMXBean compositeTestMXBean = new CompositeTestMBean();
 
       objectName = service.registerMBean(compositeTestMXBean, objectName);
@@ -69,27 +68,27 @@ public class CompositeTypeTestDUnitTest implements Serializable {
 
   private void verifyMBeanWithCompositeTypeGetters(final VM managerVM, final String memberId) {
     managerVM.invoke("verifyMBeanWithCompositeTypeGetters", () -> {
-      SystemManagementService service = managementTestRule.getSystemManagementService();
-      ObjectName objectName =
+      var service = managementTestRule.getSystemManagementService();
+      var objectName =
           new ObjectName("GemFire:service=custom,type=composite,member=" + memberId);
 
       GeodeAwaitility.await()
           .until(() -> service.getMBeanInstance(objectName, CompositeTestMXBean.class) != null);
 
-      CompositeTestMXBean compositeTestMXBean =
+      var compositeTestMXBean =
           service.getMBeanInstance(objectName, CompositeTestMXBean.class);
       assertThat(compositeTestMXBean).isNotNull();
 
-      CompositeStats listCompositeStatsData = compositeTestMXBean.listCompositeStats();
+      var listCompositeStatsData = compositeTestMXBean.listCompositeStats();
       assertThat(listCompositeStatsData).isNotNull();
 
-      CompositeStats getCompositeStatsData = compositeTestMXBean.getCompositeStats();
+      var getCompositeStatsData = compositeTestMXBean.getCompositeStats();
       assertThat(getCompositeStatsData).isNotNull();
 
-      CompositeStats[] getCompositeArrayData = compositeTestMXBean.getCompositeArray();
+      var getCompositeArrayData = compositeTestMXBean.getCompositeArray();
       assertThat(getCompositeArrayData).isNotNull().isNotEmpty();
 
-      Integer[] getIntegerArrayData = compositeTestMXBean.getIntegerArray();
+      var getIntegerArrayData = compositeTestMXBean.getIntegerArray();
       assertThat(getIntegerArrayData).isNotNull().isNotEmpty();
     });
   }

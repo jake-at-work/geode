@@ -76,7 +76,7 @@ class CacheHealthEvaluator extends AbstractHealthEvaluator implements CacheLifec
     super(config, dm);
 
     this.config = config;
-    InternalDistributedSystem system = dm.getSystem();
+    var system = dm.getSystem();
     InternalCache cache;
     try {
       cache = (InternalCache) CacheFactory.getInstance(system);
@@ -98,7 +98,7 @@ class CacheHealthEvaluator extends AbstractHealthEvaluator implements CacheLifec
    * Initializes the state of this evaluator based on the given cache instance.
    */
   private void initialize(InternalCache cache, DistributionManager dm) {
-    StringBuilder sb = new StringBuilder();
+    var sb = new StringBuilder();
     if (cache != null) {
       cacheStats = cache.getCachePerfStats();
 
@@ -112,7 +112,7 @@ class CacheHealthEvaluator extends AbstractHealthEvaluator implements CacheLifec
 
     sb.append(" in member ");
     sb.append(dm.getId());
-    int pid = OSProcess.getId();
+    var pid = OSProcess.getId();
     if (pid != 0) {
       sb.append(" with pid ");
       sb.append(pid);
@@ -122,8 +122,8 @@ class CacheHealthEvaluator extends AbstractHealthEvaluator implements CacheLifec
 
   @Override
   public void cacheCreated(InternalCache cache) {
-    InternalDistributedSystem system = (InternalDistributedSystem) cache.getDistributedSystem();
-    DistributionManager dm = system.getDistributionManager();
+    var system = (InternalDistributedSystem) cache.getDistributedSystem();
+    var dm = system.getDistributionManager();
     initialize(cache, dm);
   }
 
@@ -140,17 +140,17 @@ class CacheHealthEvaluator extends AbstractHealthEvaluator implements CacheLifec
       return;
     }
 
-    long deltaNetsearchTime = cacheStats.getNetsearchTime() - prevNetsearchTime;
-    long deltaNetsearchesCompleted =
+    var deltaNetsearchTime = cacheStats.getNetsearchTime() - prevNetsearchTime;
+    var deltaNetsearchesCompleted =
         cacheStats.getNetsearchesCompleted() - prevNetsearchesCompleted;
 
     if (deltaNetsearchesCompleted != 0) {
-      long ratio = deltaNetsearchTime / deltaNetsearchesCompleted;
+      var ratio = deltaNetsearchTime / deltaNetsearchesCompleted;
       ratio /= 1000000;
-      long threshold = config.getMaxNetSearchTime();
+      var threshold = config.getMaxNetSearchTime();
 
       if (ratio > threshold) {
-        String s =
+        var s =
             String.format(
                 "The average duration of a Cache netSearch (%s ms) exceeds the threshold (%s ms)",
                 ratio, threshold);
@@ -173,20 +173,20 @@ class CacheHealthEvaluator extends AbstractHealthEvaluator implements CacheLifec
     }
 
     if (!isFirstEvaluation()) {
-      long deltaLoadTime = cacheStats.getLoadTime() - prevLoadTime;
-      long deltaLoadsCompleted = cacheStats.getLoadsCompleted() - prevLoadsCompleted;
+      var deltaLoadTime = cacheStats.getLoadTime() - prevLoadTime;
+      var deltaLoadsCompleted = cacheStats.getLoadsCompleted() - prevLoadsCompleted;
 
       if (logger.isDebugEnabled()) {
         logger.debug("Completed {} loads in {} ms", deltaLoadsCompleted, deltaLoadTime / 1000000);
       }
 
       if (deltaLoadsCompleted != 0) {
-        long ratio = deltaLoadTime / deltaLoadsCompleted;
+        var ratio = deltaLoadTime / deltaLoadsCompleted;
         ratio /= 1000000;
-        long threshold = config.getMaxLoadTime();
+        var threshold = config.getMaxLoadTime();
 
         if (ratio > threshold) {
-          String s =
+          var s =
               String.format(
                   "The average duration of a Cache load (%s ms) exceeds the threshold (%s ms)",
                   ratio, threshold);
@@ -222,17 +222,17 @@ class CacheHealthEvaluator extends AbstractHealthEvaluator implements CacheLifec
       return;
     }
 
-    long deltaGets = cacheStats.getGets() - prevGets;
+    var deltaGets = cacheStats.getGets() - prevGets;
     if (deltaGets != 0) {
-      long deltaLoadsCompleted = cacheStats.getLoadsCompleted() - prevLoadsCompleted;
-      long deltaNetsearchesCompleted =
+      var deltaLoadsCompleted = cacheStats.getLoadsCompleted() - prevLoadsCompleted;
+      var deltaNetsearchesCompleted =
           cacheStats.getNetsearchesCompleted() - prevNetsearchesCompleted;
 
       double hits = deltaGets - (deltaLoadsCompleted + deltaNetsearchesCompleted);
-      double hitRatio = hits / deltaGets;
-      double threshold = config.getMinHitRatio();
+      var hitRatio = hits / deltaGets;
+      var threshold = config.getMinHitRatio();
       if (hitRatio < threshold) {
-        String s = "The hit ratio of this Cache (" + hitRatio + ") is below the threshold ("
+        var s = "The hit ratio of this Cache (" + hitRatio + ") is below the threshold ("
             + threshold + ')';
         status.add(okayHealth(s));
       }
@@ -249,10 +249,10 @@ class CacheHealthEvaluator extends AbstractHealthEvaluator implements CacheLifec
       return;
     }
 
-    long eventQueueSize = cacheStats.getEventQueueSize();
-    long threshold = config.getMaxEventQueueSize();
+    var eventQueueSize = cacheStats.getEventQueueSize();
+    var threshold = config.getMaxEventQueueSize();
     if (eventQueueSize > threshold) {
-      String s =
+      var s =
           String.format("The size of the cache event queue (%s ms) exceeds the threshold (%s ms)",
               eventQueueSize, threshold);
       status.add(okayHealth(s));

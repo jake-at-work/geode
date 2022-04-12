@@ -63,7 +63,7 @@ public class ClusterSocketCreatorImpl implements ClusterSocketCreator {
     if (sslConnection) {
       throw new UnsupportedOperationException();
     }
-    ServerSocket result = new ServerSocket();
+    var result = new ServerSocket();
     result.setReuseAddress(true);
     if (socketBufferSize != -1) {
       result.setReceiveBufferSize(socketBufferSize);
@@ -71,7 +71,7 @@ public class ClusterSocketCreatorImpl implements ClusterSocketCreator {
     try {
       result.bind(new InetSocketAddress(bindAddr, nport), backlog);
     } catch (BindException e) {
-      BindException throwMe =
+      var throwMe =
           new BindException(String.format("Failed to create server socket on %s[%s]",
               bindAddr == null ? InetAddress.getLocalHost().getHostAddress() : bindAddr,
               nport));

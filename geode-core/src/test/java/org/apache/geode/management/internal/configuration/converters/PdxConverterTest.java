@@ -34,12 +34,12 @@ public class PdxConverterTest {
 
   @Test
   public void fromConfig() {
-    Pdx pdx = new Pdx();
+    var pdx = new Pdx();
     pdx.setReadSerialized(true);
     pdx.setDiskStoreName("test");
     pdx.setIgnoreUnreadFields(true);
     pdx.setPdxSerializer(new ClassName("java.lang.String"));
-    PdxType pdxType = converter.fromConfigObject(pdx);
+    var pdxType = converter.fromConfigObject(pdx);
     assertThat(pdxType.isPersistent()).isTrue();
     assertThat(pdxType.isReadSerialized()).isTrue();
     assertThat(pdxType.getDiskStoreName()).isEqualTo("test");
@@ -49,12 +49,12 @@ public class PdxConverterTest {
 
   @Test
   public void fromConfigWithAutoSerializer() {
-    Pdx pdx = new Pdx();
+    var pdx = new Pdx();
     pdx.setReadSerialized(true);
     pdx.setDiskStoreName("test");
     pdx.setIgnoreUnreadFields(true);
     pdx.setAutoSerializer(new AutoSerializer(true, "pat1", "pat2"));
-    PdxType pdxType = converter.fromConfigObject(pdx);
+    var pdxType = converter.fromConfigObject(pdx);
     assertThat(pdxType.isPersistent()).isTrue();
     assertThat(pdxType.isReadSerialized()).isTrue();
     assertThat(pdxType.getDiskStoreName()).isEqualTo("test");
@@ -67,13 +67,13 @@ public class PdxConverterTest {
 
   @Test
   public void fromXmlObject() {
-    PdxType pdxType = new PdxType();
+    var pdxType = new PdxType();
     pdxType.setDiskStoreName("test");
     pdxType.setIgnoreUnreadFields(true);
     pdxType.setPersistent(true);
     pdxType.setReadSerialized(true);
     pdxType.setPdxSerializer(new DeclarableType("java.lang.String"));
-    Pdx pdxConfig = converter.fromXmlObject(pdxType);
+    var pdxConfig = converter.fromXmlObject(pdxType);
     assertThat(pdxConfig.getDiskStoreName()).isEqualTo("test");
     assertThat(pdxConfig.isIgnoreUnreadFields()).isEqualTo(true);
     assertThat(pdxConfig.isReadSerialized()).isEqualTo(true);
@@ -83,35 +83,35 @@ public class PdxConverterTest {
 
   @Test
   public void fromXmlObjectWithNoDiskStoreNameAndPersistent() {
-    PdxType pdxType = new PdxType();
+    var pdxType = new PdxType();
     pdxType.setDiskStoreName(null);
     pdxType.setPersistent(true);
-    Pdx pdxConfig = converter.fromXmlObject(pdxType);
+    var pdxConfig = converter.fromXmlObject(pdxType);
     assertThat(pdxConfig.getDiskStoreName()).isEqualTo(DEFAULT_DISK_STORE_NAME);
   }
 
   @Test
   public void fromXmlObjectWitDiskStoreNameAndNotPersistent() {
-    PdxType pdxType = new PdxType();
+    var pdxType = new PdxType();
     pdxType.setDiskStoreName("unusedDiskStore");
     pdxType.setPersistent(false);
-    Pdx pdxConfig = converter.fromXmlObject(pdxType);
+    var pdxConfig = converter.fromXmlObject(pdxType);
     assertThat(pdxConfig.getDiskStoreName()).isNull();
   }
 
   @Test
   public void fromXmlObjectWithAutoSerializer() {
-    PdxType pdxType = new PdxType();
+    var pdxType = new PdxType();
     pdxType.setDiskStoreName("test");
     pdxType.setIgnoreUnreadFields(true);
     pdxType.setPersistent(true);
     pdxType.setReadSerialized(true);
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty("classes", "pat1 , pat2");
     properties.setProperty("check-portability", "true");
     pdxType.setPdxSerializer(
         new DeclarableType("org.apache.geode.pdx.ReflectionBasedAutoSerializer", properties));
-    Pdx pdxConfig = converter.fromXmlObject(pdxType);
+    var pdxConfig = converter.fromXmlObject(pdxType);
     assertThat(pdxConfig.getDiskStoreName()).isEqualTo("test");
     assertThat(pdxConfig.isIgnoreUnreadFields()).isEqualTo(true);
     assertThat(pdxConfig.isReadSerialized()).isEqualTo(true);

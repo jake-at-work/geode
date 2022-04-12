@@ -17,7 +17,6 @@ package org.apache.geode.distributed.internal.membership.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 
@@ -38,91 +37,91 @@ public class MemberIdentifierFactoryImplTest {
 
   @Test
   public void testRemoteHost() throws UnknownHostException {
-    InetAddress localhost = LocalHostUtil.getLocalHost();
-    MemberData memberData =
+    var localhost = LocalHostUtil.getLocalHost();
+    var memberData =
         MemberDataBuilder.newBuilder(localhost, localhost.getHostName()).build();
-    MemberIdentifier data = factory.create(memberData);
+    var data = factory.create(memberData);
     assertThat(data.getInetAddress()).isEqualTo(localhost);
     assertThat(data.getHostName()).isEqualTo(localhost.getHostName());
   }
 
   @Test
   public void testNewBuilderForLocalHost() throws UnknownHostException {
-    InetAddress localhost = LocalHostUtil.getLocalHost();
-    MemberData memberData = MemberDataBuilder.newBuilderForLocalHost("hostname").build();
-    MemberIdentifier data = factory.create(memberData);
+    var localhost = LocalHostUtil.getLocalHost();
+    var memberData = MemberDataBuilder.newBuilderForLocalHost("hostname").build();
+    var data = factory.create(memberData);
     assertThat(data.getInetAddress()).isEqualTo(localhost);
     assertThat(data.getHostName()).isEqualTo("hostname");
   }
 
   @Test
   public void testSetMembershipPort() {
-    MemberData memberData = MemberDataBuilder.newBuilderForLocalHost("hostname")
+    var memberData = MemberDataBuilder.newBuilderForLocalHost("hostname")
         .setMembershipPort(1234).build();
-    MemberIdentifier data = factory.create(memberData);
+    var data = factory.create(memberData);
     assertThat(data.getMembershipPort()).isEqualTo(1234);
   }
 
   @Test
   public void testSetVmKind() {
-    MemberData memberData = MemberDataBuilder.newBuilderForLocalHost("hostname")
+    var memberData = MemberDataBuilder.newBuilderForLocalHost("hostname")
         .setVmKind(12).build();
-    MemberIdentifier data = factory.create(memberData);
+    var data = factory.create(memberData);
     assertThat(data.getVmKind()).isEqualTo((byte) 12);
   }
 
   @Test
   public void testSetVmViewId() {
-    MemberData memberData = MemberDataBuilder.newBuilderForLocalHost("hostname")
+    var memberData = MemberDataBuilder.newBuilderForLocalHost("hostname")
         .setVmViewId(1234).build();
-    MemberIdentifier data = factory.create(memberData);
+    var data = factory.create(memberData);
     assertThat(data.getVmViewId()).isEqualTo(1234);
   }
 
   @Test
   public void testSetGroups() {
-    String[] groups = new String[] {"group1", "group2"};
-    MemberData memberData = MemberDataBuilder.newBuilderForLocalHost("hostname")
+    var groups = new String[] {"group1", "group2"};
+    var memberData = MemberDataBuilder.newBuilderForLocalHost("hostname")
         .setGroups(groups).build();
-    MemberIdentifier data = factory.create(memberData);
+    var data = factory.create(memberData);
     assertThat(data.getGroups()).isEqualTo(Arrays.asList(groups));
   }
 
   @Test
   public void testSetDurableId() {
-    MemberData memberData = MemberDataBuilder.newBuilderForLocalHost("hostname")
+    var memberData = MemberDataBuilder.newBuilderForLocalHost("hostname")
         .setDurableId("myId").build();
-    MemberIdentifier data = factory.create(memberData);
+    var data = factory.create(memberData);
     assertThat(data.getDurableId()).isEqualTo("myId");
   }
 
   @Test
   public void testSetVersionOrdinal() {
-    MemberData memberData = MemberDataBuilder.newBuilderForLocalHost("hostname")
+    var memberData = MemberDataBuilder.newBuilderForLocalHost("hostname")
         .setVersionOrdinal(KnownVersion.CURRENT_ORDINAL).build();
-    MemberIdentifier data = factory.create(memberData);
+    var data = factory.create(memberData);
     assertThat(data.getVersionOrdinal()).isEqualTo(KnownVersion.CURRENT_ORDINAL);
   }
 
   @Test
   public void membersAreEqual() {
-    MemberData memberData = MemberDataBuilder.newBuilderForLocalHost("hostname")
+    var memberData = MemberDataBuilder.newBuilderForLocalHost("hostname")
         .setMembershipPort(1).build();
-    MemberIdentifier member1 = factory.create(memberData);
+    var member1 = factory.create(memberData);
     memberData = MemberDataBuilder.newBuilderForLocalHost("hostname")
         .setMembershipPort(1).build();
-    MemberIdentifier member2 = factory.create(memberData);
+    var member2 = factory.create(memberData);
     assertThat(factory.getComparator().compare(member1, member2)).isZero();
   }
 
   @Test
   public void membersAreNotEqual() {
-    MemberData memberData = MemberDataBuilder.newBuilderForLocalHost("hostname")
+    var memberData = MemberDataBuilder.newBuilderForLocalHost("hostname")
         .setMembershipPort(1).build();
-    MemberIdentifier member1 = factory.create(memberData);
+    var member1 = factory.create(memberData);
     memberData = MemberDataBuilder.newBuilderForLocalHost("hostname")
         .setMembershipPort(2).build();
-    MemberIdentifier member2 = factory.create(memberData);
+    var member2 = factory.create(memberData);
     assertThat(factory.getComparator().compare(member1, member2)).isLessThan(0);
     assertThat(factory.getComparator().compare(member2, member1)).isGreaterThan(0);
   }

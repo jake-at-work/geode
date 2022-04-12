@@ -22,8 +22,6 @@ import static org.apache.geode.lang.Identifiable.find;
 import static org.apache.geode.test.awaitility.GeodeAwaitility.await;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.List;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -39,15 +37,11 @@ import org.apache.geode.cache.ExpirationAttributes;
 import org.apache.geode.cache.LoaderHelper;
 import org.apache.geode.cache.PartitionResolver;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.configuration.CacheConfig;
 import org.apache.geode.cache.configuration.RegionAttributesDataPolicy;
 import org.apache.geode.cache.configuration.RegionAttributesScope;
-import org.apache.geode.cache.configuration.RegionAttributesType;
-import org.apache.geode.cache.configuration.RegionConfig;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.apache.geode.cache.util.CacheWriterAdapter;
 import org.apache.geode.compression.Compressor;
-import org.apache.geode.distributed.internal.InternalConfigurationPersistenceService;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.categories.RegionsTest;
@@ -122,7 +116,7 @@ public class CreateRegionCommandPersistsConfigurationDUnitTest {
 
   @Test
   public void createRegionPersistsDefaultConfig() {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     gfsh.executeAndAssertThat("create region --name=" + regionName + " --type=REPLICATE")
         .statusIsSuccess();
 
@@ -133,13 +127,13 @@ public class CreateRegionCommandPersistsConfigurationDUnitTest {
         .statusIsSuccess().containsOutput(regionName);
 
     locator.invoke(() -> {
-      InternalConfigurationPersistenceService cc =
+      var cc =
           ClusterStartupRule.getLocator().getConfigurationPersistenceService();
-      CacheConfig config = cc.getCacheConfig("cluster");
+      var config = cc.getCacheConfig("cluster");
 
-      List<RegionConfig> regions = config.getRegions();
+      var regions = config.getRegions();
       assertThat(regions).isNotEmpty();
-      RegionConfig regionConfig = regions.get(0);
+      var regionConfig = regions.get(0);
       assertThat(regionConfig).isNotNull();
       assertThat(regionConfig.getName()).isEqualTo(regionName);
       assertThat(regionConfig.getIndexes()).isEmpty();
@@ -151,7 +145,7 @@ public class CreateRegionCommandPersistsConfigurationDUnitTest {
 
   @Test
   public void createRegionPersistsConfigParams() {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     gfsh.executeAndAssertThat("create region --name=" + regionName + " --type=PARTITION"
         + " --enable-statistics=true" + " --enable-async-conflation=true"
         + " --entry-idle-time-expiration=100").statusIsSuccess();
@@ -163,22 +157,22 @@ public class CreateRegionCommandPersistsConfigurationDUnitTest {
         .statusIsSuccess().containsOutput(regionName);
 
     locator.invoke(() -> {
-      InternalConfigurationPersistenceService cc =
+      var cc =
           ClusterStartupRule.getLocator().getConfigurationPersistenceService();
-      CacheConfig config = cc.getCacheConfig("cluster");
+      var config = cc.getCacheConfig("cluster");
 
-      List<RegionConfig> regions = config.getRegions();
+      var regions = config.getRegions();
       assertThat(regions).isNotEmpty();
-      RegionConfig regionConfig = regions.get(0);
+      var regionConfig = regions.get(0);
       assertThat(regionConfig).isNotNull();
       assertThat(regionConfig.getName()).isEqualTo(regionName);
       assertThat(regionConfig.getRegionAttributes()).isNotNull();
 
-      RegionAttributesType attr = regionConfig.getRegionAttributes();
+      var attr = regionConfig.getRegionAttributes();
       assertThat(attr.isStatisticsEnabled()).isTrue();
       assertThat(attr.isEnableAsyncConflation()).isTrue();
 
-      RegionAttributesType.ExpirationAttributesType entryIdleTimeExp = attr.getEntryIdleTime();
+      var entryIdleTimeExp = attr.getEntryIdleTime();
       assertThat(entryIdleTimeExp.getTimeout()).isEqualTo("100");
     });
 
@@ -198,8 +192,8 @@ public class CreateRegionCommandPersistsConfigurationDUnitTest {
 
   @Test
   public void createRegionFromTemplateCreatesCorrectConfig() {
-    String regionName = testName.getMethodName();
-    String templateRegionName = regionName + "_template";
+    var regionName = testName.getMethodName();
+    var templateRegionName = regionName + "_template";
     gfsh.executeAndAssertThat("create region"
         + " --name=" + templateRegionName
         + " --type=PARTITION"
@@ -212,30 +206,30 @@ public class CreateRegionCommandPersistsConfigurationDUnitTest {
         "create region --name=" + regionName + " --template-region=" + templateRegionName);
 
     locator.invoke(() -> {
-      InternalConfigurationPersistenceService cc =
+      var cc =
           ClusterStartupRule.getLocator().getConfigurationPersistenceService();
-      CacheConfig config = cc.getCacheConfig("cluster");
+      var config = cc.getCacheConfig("cluster");
 
-      List<RegionConfig> regions = config.getRegions();
+      var regions = config.getRegions();
       assertThat(regions).isNotEmpty();
-      RegionConfig regionConfig = find(config.getRegions(), regionName);
+      var regionConfig = find(config.getRegions(), regionName);
 
       assertThat(regionConfig).isNotNull();
       assertThat(regionConfig.getName()).isEqualTo(regionName);
       assertThat(regionConfig.getRegionAttributes()).isNotNull();
 
-      RegionAttributesType attr = regionConfig.getRegionAttributes();
+      var attr = regionConfig.getRegionAttributes();
       assertThat(attr.isStatisticsEnabled()).isTrue();
       assertThat(attr.isEnableAsyncConflation()).isTrue();
 
-      RegionAttributesType.ExpirationAttributesType entryIdleTimeExp = attr.getEntryIdleTime();
+      var entryIdleTimeExp = attr.getEntryIdleTime();
       assertThat(entryIdleTimeExp.getTimeout()).isEqualTo("100");
     });
   }
 
   @Test
   public void createRegionAndValidateAllConfigIsPersistedForReplicatedRegion() {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     gfsh.executeAndAssertThat("create region"
         + " --name=" + regionName
         + " --type=REPLICATE"
@@ -263,28 +257,28 @@ public class CreateRegionCommandPersistsConfigurationDUnitTest {
         + " --region-time-to-live-expiration-action=local-destroy"
         + " --value-constraint=" + Object.class.getName()).statusIsSuccess();
 
-    String regionNameFromTemplate = regionName + "-from-template";
+    var regionNameFromTemplate = regionName + "-from-template";
     gfsh.executeAndAssertThat("create region --name=" + regionNameFromTemplate
         + " --template-region=" + regionName)
         .statusIsSuccess();
 
     locator.invoke(() -> {
-      InternalConfigurationPersistenceService cc =
+      var cc =
           ClusterStartupRule.getLocator().getConfigurationPersistenceService();
-      CacheConfig config = cc.getCacheConfig("cluster");
+      var config = cc.getCacheConfig("cluster");
 
-      List<RegionConfig> regions = config.getRegions();
+      var regions = config.getRegions();
       assertThat(regions).isNotEmpty();
       assertThat(regions).hasSize(2);
 
-      List<String> regionNames = asList(regionName, regionNameFromTemplate);
+      var regionNames = asList(regionName, regionNameFromTemplate);
       regionNames.forEach(name -> {
-        RegionConfig regionConfig = find(config.getRegions(), name);
+        var regionConfig = find(config.getRegions(), name);
         assertThat(regionConfig).isNotNull();
         assertThat(regionConfig.getName()).isEqualTo(name);
         assertThat(regionConfig.getRegionAttributes()).isNotNull();
 
-        RegionAttributesType attr = regionConfig.getRegionAttributes();
+        var attr = regionConfig.getRegionAttributes();
         assertThat(attr.getCacheListeners().get(0).toString())
             .describedAs("Expecting one cache listener for region " + name)
             .isEqualTo(DummyCacheListener.class.getName());
@@ -373,28 +367,28 @@ public class CreateRegionCommandPersistsConfigurationDUnitTest {
 
   @Test
   public void createRegionDoesNotPersistEmptyOrDefaultEvictionAttributes() {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     gfsh.executeAndAssertThat("create region"
         + " --name=" + regionName
         + " --type=REPLICATE").statusIsSuccess();
 
     locator.invoke(() -> {
-      InternalConfigurationPersistenceService cc =
+      var cc =
           ClusterStartupRule.getLocator().getConfigurationPersistenceService();
-      CacheConfig config = cc.getCacheConfig("cluster");
+      var config = cc.getCacheConfig("cluster");
 
-      List<RegionConfig> regions = config.getRegions();
+      var regions = config.getRegions();
       assertThat(regions).isNotEmpty();
       assertThat(regions).hasSize(1);
 
-      List<String> regionNames = asList(regionName);
+      var regionNames = asList(regionName);
       regionNames.forEach(name -> {
-        RegionConfig regionConfig = find(config.getRegions(), name);
+        var regionConfig = find(config.getRegions(), name);
         assertThat(regionConfig).isNotNull();
         assertThat(regionConfig.getName()).isEqualTo(name);
         assertThat(regionConfig.getRegionAttributes()).isNotNull();
 
-        RegionAttributesType attr = regionConfig.getRegionAttributes();
+        var attr = regionConfig.getRegionAttributes();
         assertThat(attr.getEvictionAttributes())
             .describedAs("Eviction attributes should be null for " + name)
             .isNull();
@@ -404,13 +398,13 @@ public class CreateRegionCommandPersistsConfigurationDUnitTest {
 
   @Test
   public void createRegionPersistsAEQConfig() {
-    String queueId = "queue1";
+    var queueId = "queue1";
     gfsh.executeAndAssertThat(
         "create async-event-queue --id=" + queueId
             + " --listener=" + CreateRegionCommandDUnitTest.DummyAEQListener.class.getName())
         .statusIsSuccess();
 
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     gfsh.executeAndAssertThat(
         "create region --name=" + regionName
             + " --type=REPLICATE"
@@ -418,14 +412,14 @@ public class CreateRegionCommandPersistsConfigurationDUnitTest {
         .statusIsSuccess();
 
     locator.invoke(() -> {
-      InternalConfigurationPersistenceService cc =
+      var cc =
           ClusterStartupRule.getLocator().getConfigurationPersistenceService();
-      CacheConfig config = cc.getCacheConfig("cluster");
+      var config = cc.getCacheConfig("cluster");
 
-      List<RegionConfig> regions = config.getRegions();
+      var regions = config.getRegions();
       assertThat(regions).isNotEmpty();
       assertThat(regions).hasSize(1);
-      RegionConfig regionConfig = find(regions, regionName);
+      var regionConfig = find(regions, regionName);
       assertThat(regionConfig.getRegionAttributes().getAsyncEventQueueIds())
           .contains(queueId);
     });
@@ -433,9 +427,9 @@ public class CreateRegionCommandPersistsConfigurationDUnitTest {
 
   @Test
   public void createRegionWithColocation() {
-    String regionName = testName.getMethodName();
-    String colocatedRegionName = regionName + "-colocated";
-    String colocatedRegionFromTemplateName = colocatedRegionName + "-from-template";
+    var regionName = testName.getMethodName();
+    var colocatedRegionName = regionName + "-colocated";
+    var colocatedRegionFromTemplateName = colocatedRegionName + "-from-template";
 
     gfsh.executeAndAssertThat("create region"
         + " --name=" + regionName
@@ -463,20 +457,20 @@ public class CreateRegionCommandPersistsConfigurationDUnitTest {
         + " --template-region=" + colocatedRegionName).statusIsSuccess();
 
     locator.invoke(() -> {
-      InternalConfigurationPersistenceService cc =
+      var cc =
           ClusterStartupRule.getLocator().getConfigurationPersistenceService();
-      CacheConfig config = cc.getCacheConfig("cluster");
+      var config = cc.getCacheConfig("cluster");
 
-      List<RegionConfig> regions = config.getRegions();
+      var regions = config.getRegions();
       assertThat(regions).isNotEmpty();
       assertThat(regions).hasSize(3);
 
-      RegionConfig colocatedConfig = find(regions, colocatedRegionName);
+      var colocatedConfig = find(regions, colocatedRegionName);
       assertThat(
           colocatedConfig.getRegionAttributes().getPartitionAttributes().getColocatedWith())
               .isEqualTo(SEPARATOR + regionName);
 
-      RegionConfig colocatedConfigFromTemplate = find(regions,
+      var colocatedConfigFromTemplate = find(regions,
           colocatedRegionFromTemplateName);
       assertThat(
           colocatedConfigFromTemplate.getRegionAttributes().getPartitionAttributes()
@@ -487,8 +481,8 @@ public class CreateRegionCommandPersistsConfigurationDUnitTest {
 
   @Test
   public void createRegionPersistsDiskstores() throws Exception {
-    String regionName = testName.getMethodName();
-    String store = "Store1";
+    var regionName = testName.getMethodName();
+    var store = "Store1";
     gfsh.executeAndAssertThat("create disk-store"
         + " --name=" + store
         + " --dir=/tmp/foo").statusIsSuccess();
@@ -502,26 +496,26 @@ public class CreateRegionCommandPersistsConfigurationDUnitTest {
         + " --disk-store=" + store
         + " --enable-synchronous-disk=true").statusIsSuccess();
 
-    String regionNameFromTemplate = regionName + "-from-template";
+    var regionNameFromTemplate = regionName + "-from-template";
     gfsh.executeAndAssertThat("create region --name=" + regionNameFromTemplate
         + " --template-region=" + regionName)
         .statusIsSuccess();
 
     locator.invoke(() -> {
-      InternalConfigurationPersistenceService cc =
+      var cc =
           ClusterStartupRule.getLocator().getConfigurationPersistenceService();
-      CacheConfig config = cc.getCacheConfig("cluster");
+      var config = cc.getCacheConfig("cluster");
 
-      List<RegionConfig> regions = config.getRegions();
+      var regions = config.getRegions();
       assertThat(regions).isNotEmpty();
       assertThat(regions).hasSize(2);
 
-      List<String> regionNames = asList(regionName, regionNameFromTemplate);
+      var regionNames = asList(regionName, regionNameFromTemplate);
       regionNames.forEach(name -> {
-        RegionConfig regionConfig = find(config.getRegions(), name);
+        var regionConfig = find(config.getRegions(), name);
         assertThat(regionConfig.getName()).isEqualTo(name);
 
-        RegionAttributesType regionAttributes = regionConfig.getRegionAttributes();
+        var regionAttributes = regionConfig.getRegionAttributes();
         assertThat(regionAttributes.getDiskStoreName())
             .isEqualTo(store);
         assertThat(regionAttributes.isDiskSynchronous())
@@ -532,8 +526,8 @@ public class CreateRegionCommandPersistsConfigurationDUnitTest {
 
   @Test
   public void createRegionPersistsPartitionAttributes() {
-    String regionName = testName.getMethodName();
-    String regionFromTemplateName = regionName + "-from-template";
+    var regionName = testName.getMethodName();
+    var regionFromTemplateName = regionName + "-from-template";
 
     gfsh.executeAndAssertThat("create region"
         + " --name=" + regionName
@@ -549,22 +543,22 @@ public class CreateRegionCommandPersistsConfigurationDUnitTest {
         + " --template-region=" + regionName).statusIsSuccess();
 
     locator.invoke(() -> {
-      InternalConfigurationPersistenceService cc =
+      var cc =
           ClusterStartupRule.getLocator().getConfigurationPersistenceService();
-      CacheConfig config = cc.getCacheConfig("cluster");
+      var config = cc.getCacheConfig("cluster");
 
-      List<RegionConfig> regions = config.getRegions();
+      var regions = config.getRegions();
       assertThat(regions).isNotEmpty();
       assertThat(regions).hasSize(2);
 
-      List<String> regionNames = asList(regionName, regionFromTemplateName);
+      var regionNames = asList(regionName, regionFromTemplateName);
       regionNames.forEach(name -> {
-        RegionConfig regionConfig = find(config.getRegions(), name);
+        var regionConfig = find(config.getRegions(), name);
         assertThat(regionConfig).isNotNull();
         assertThat(regionConfig.getName()).isEqualTo(name);
 
-        RegionAttributesType regionAttributes = regionConfig.getRegionAttributes();
-        RegionAttributesType.PartitionAttributes partitionAttributes =
+        var regionAttributes = regionConfig.getRegionAttributes();
+        var partitionAttributes =
             regionAttributes.getPartitionAttributes();
 
         assertThat(partitionAttributes.getRecoveryDelay())
@@ -591,7 +585,7 @@ public class CreateRegionCommandPersistsConfigurationDUnitTest {
 
   @Test
   public void createRegionPersistsPartitionResolver() {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
 
     gfsh.executeAndAssertThat("create region"
         + " --name=" + regionName
@@ -599,20 +593,20 @@ public class CreateRegionCommandPersistsConfigurationDUnitTest {
         + " --partition-resolver=" + DummyPartitionResolver.class.getName()).statusIsSuccess();
 
     locator.invoke(() -> {
-      InternalConfigurationPersistenceService cc =
+      var cc =
           ClusterStartupRule.getLocator().getConfigurationPersistenceService();
-      CacheConfig config = cc.getCacheConfig("cluster");
+      var config = cc.getCacheConfig("cluster");
 
-      List<RegionConfig> regions = config.getRegions();
+      var regions = config.getRegions();
       assertThat(regions).isNotEmpty();
       assertThat(regions).hasSize(1);
 
-      RegionConfig regionConfig = find(config.getRegions(), regionName);
+      var regionConfig = find(config.getRegions(), regionName);
       assertThat(regionConfig).isNotNull();
       assertThat(regionConfig.getName()).isEqualTo(regionName);
 
-      RegionAttributesType regionAttributes = regionConfig.getRegionAttributes();
-      RegionAttributesType.PartitionAttributes partitionAttributes =
+      var regionAttributes = regionConfig.getRegionAttributes();
+      var partitionAttributes =
           regionAttributes.getPartitionAttributes();
 
       assertThat(partitionAttributes.getPartitionResolver().getClassName())
@@ -622,8 +616,8 @@ public class CreateRegionCommandPersistsConfigurationDUnitTest {
 
   @Test
   public void createRegionDoesNotPersistEmptyOrDefaultPartitionAttributes() {
-    String regionName = testName.getMethodName();
-    String regionFromTemplateName = regionName + "-from-template";
+    var regionName = testName.getMethodName();
+    var regionFromTemplateName = regionName + "-from-template";
 
     gfsh.executeAndAssertThat("create region"
         + " --name=" + regionName
@@ -634,21 +628,21 @@ public class CreateRegionCommandPersistsConfigurationDUnitTest {
         + " --template-region=" + regionName);
 
     locator.invoke(() -> {
-      InternalConfigurationPersistenceService cc =
+      var cc =
           ClusterStartupRule.getLocator().getConfigurationPersistenceService();
-      CacheConfig config = cc.getCacheConfig("cluster");
+      var config = cc.getCacheConfig("cluster");
 
-      List<RegionConfig> regions = config.getRegions();
+      var regions = config.getRegions();
       assertThat(regions).isNotEmpty();
       assertThat(regions).hasSize(2);
 
-      RegionConfig regionConfig =
+      var regionConfig =
           find(config.getRegions(), regionFromTemplateName);
       assertThat(regionConfig).isNotNull();
       assertThat(regionConfig.getName()).isEqualTo(regionFromTemplateName);
       assertThat(regionConfig.getRegionAttributes()).isNotNull();
 
-      RegionAttributesType attr = regionConfig.getRegionAttributes();
+      var attr = regionConfig.getRegionAttributes();
       assertThat(attr.getPartitionAttributes())
           .describedAs("Partition attributes should be null for " + regionFromTemplateName)
           .isNull();
@@ -657,27 +651,27 @@ public class CreateRegionCommandPersistsConfigurationDUnitTest {
 
   @Test
   public void createRegionDoestNotPersistEmptyOrDefaultExpirationAttributes() {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     gfsh.executeAndAssertThat("create region"
         + " --name=" + regionName
         + " --type=REPLICATE").statusIsSuccess();
 
     locator.invoke(() -> {
-      InternalConfigurationPersistenceService cc =
+      var cc =
           ClusterStartupRule.getLocator().getConfigurationPersistenceService();
-      CacheConfig config = cc.getCacheConfig("cluster");
+      var config = cc.getCacheConfig("cluster");
 
-      List<RegionConfig> regions = config.getRegions();
+      var regions = config.getRegions();
       assertThat(regions).isNotEmpty();
       assertThat(regions).hasSize(1);
 
-      RegionConfig regionConfig =
+      var regionConfig =
           find(config.getRegions(), regionName);
       assertThat(regionConfig).isNotNull();
       assertThat(regionConfig.getName()).isEqualTo(regionName);
       assertThat(regionConfig.getRegionAttributes()).isNotNull();
 
-      RegionAttributesType attr = regionConfig.getRegionAttributes();
+      var attr = regionConfig.getRegionAttributes();
       assertThat(attr.getRegionTimeToLive())
           .describedAs("Expiration attributes should be null for " + regionName)
           .isNull();
@@ -695,8 +689,8 @@ public class CreateRegionCommandPersistsConfigurationDUnitTest {
 
   @Test
   public void createRegionPersistsDisableCloningSetting() {
-    String regionName = testName.getMethodName();
-    String regionFromTemplateName = regionName + "-from-template";
+    var regionName = testName.getMethodName();
+    var regionFromTemplateName = regionName + "-from-template";
 
     gfsh.executeAndAssertThat("create region"
         + " --name=" + regionName
@@ -708,22 +702,22 @@ public class CreateRegionCommandPersistsConfigurationDUnitTest {
         + " --template-region=" + regionName);
 
     locator.invoke(() -> {
-      InternalConfigurationPersistenceService cc =
+      var cc =
           ClusterStartupRule.getLocator().getConfigurationPersistenceService();
-      CacheConfig config = cc.getCacheConfig("cluster");
+      var config = cc.getCacheConfig("cluster");
 
-      List<RegionConfig> regions = config.getRegions();
+      var regions = config.getRegions();
       assertThat(regions).isNotEmpty();
       assertThat(regions).hasSize(2);
 
-      List<String> regionNames = asList(regionName, regionFromTemplateName);
+      var regionNames = asList(regionName, regionFromTemplateName);
       regionNames.forEach(name -> {
-        RegionConfig regionConfig = find(config.getRegions(), name);
+        var regionConfig = find(config.getRegions(), name);
         assertThat(regionConfig).isNotNull();
         assertThat(regionConfig.getName()).isEqualTo(name);
         assertThat(regionConfig.getRegionAttributes()).isNotNull();
 
-        RegionAttributesType attr = regionConfig.getRegionAttributes();
+        var attr = regionConfig.getRegionAttributes();
         assertThat(attr.isCloningEnabled())
             .describedAs("Cloning should be disabled for " + name)
             .isFalse();
@@ -733,7 +727,7 @@ public class CreateRegionCommandPersistsConfigurationDUnitTest {
 
   @Test
   public void createRegionPersistsCustomExpiryClass() {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     gfsh.executeAndAssertThat("create region"
         + " --name=" + regionName
         + " --type=REPLICATE"
@@ -742,19 +736,19 @@ public class CreateRegionCommandPersistsConfigurationDUnitTest {
         .statusIsSuccess();
 
     locator.invoke(() -> {
-      InternalConfigurationPersistenceService cc =
+      var cc =
           ClusterStartupRule.getLocator().getConfigurationPersistenceService();
-      CacheConfig config = cc.getCacheConfig("cluster");
+      var config = cc.getCacheConfig("cluster");
 
-      List<RegionConfig> regions = config.getRegions();
+      var regions = config.getRegions();
       assertThat(regions).isNotEmpty();
       assertThat(regions).hasSize(1);
 
-      RegionConfig regionConfig = find(config.getRegions(), regionName);
+      var regionConfig = find(config.getRegions(), regionName);
       assertThat(regionConfig).isNotNull();
       assertThat(regionConfig.getName()).isEqualTo(regionName);
       assertThat(regionConfig.getRegionAttributes()).isNotNull();
-      RegionAttributesType attr = regionConfig.getRegionAttributes();
+      var attr = regionConfig.getRegionAttributes();
       assertThat(attr.getEntryIdleTime().getCustomExpiry().toString())
           .describedAs("Entry expiration custom expiration should be DummyCustomExpiry")
           .isEqualTo(DummyCustomExpiry.class.getName());
@@ -763,27 +757,27 @@ public class CreateRegionCommandPersistsConfigurationDUnitTest {
 
   @Test
   public void createRegionPersistsDataPolicy() {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     gfsh.executeAndAssertThat("create region"
         + " --name=" + regionName
         + " --type=PARTITION")
         .statusIsSuccess();
 
     locator.invoke(() -> {
-      InternalConfigurationPersistenceService cc =
+      var cc =
           ClusterStartupRule.getLocator().getConfigurationPersistenceService();
-      CacheConfig config = cc.getCacheConfig("cluster");
+      var config = cc.getCacheConfig("cluster");
 
-      List<RegionConfig> regions = config.getRegions();
+      var regions = config.getRegions();
       assertThat(regions).isNotEmpty();
       assertThat(regions).hasSize(1);
 
-      RegionConfig regionConfig = find(config.getRegions(), regionName);
+      var regionConfig = find(config.getRegions(), regionName);
       assertThat(regionConfig).isNotNull();
       assertThat(regionConfig.getName()).isEqualTo(regionName);
       assertThat(regionConfig.getRegionAttributes()).isNotNull();
 
-      RegionAttributesType attr = regionConfig.getRegionAttributes();
+      var attr = regionConfig.getRegionAttributes();
       assertThat(attr.getDataPolicy())
           .describedAs("Data policy for partitioned region should be persisted correctly")
           .isEqualTo(RegionAttributesDataPolicy.PARTITION);
@@ -792,8 +786,8 @@ public class CreateRegionCommandPersistsConfigurationDUnitTest {
 
   @Test
   public void createRegionPersistsScope() {
-    String regionName = testName.getMethodName();
-    String regionName2 = regionName + "2";
+    var regionName = testName.getMethodName();
+    var regionName2 = regionName + "2";
     gfsh.executeAndAssertThat("create region"
         + " --name=" + regionName
         + " --type=PARTITION")
@@ -804,30 +798,30 @@ public class CreateRegionCommandPersistsConfigurationDUnitTest {
         .statusIsSuccess();
 
     locator.invoke(() -> {
-      InternalConfigurationPersistenceService cc =
+      var cc =
           ClusterStartupRule.getLocator().getConfigurationPersistenceService();
-      CacheConfig config = cc.getCacheConfig("cluster");
+      var config = cc.getCacheConfig("cluster");
 
-      List<RegionConfig> regions = config.getRegions();
+      var regions = config.getRegions();
       assertThat(regions).isNotEmpty();
       assertThat(regions).hasSize(2);
 
-      RegionConfig regionConfig1 = find(config.getRegions(), regionName);
+      var regionConfig1 = find(config.getRegions(), regionName);
       assertThat(regionConfig1).isNotNull();
       assertThat(regionConfig1.getName()).isEqualTo(regionName);
       assertThat(regionConfig1.getRegionAttributes()).isNotNull();
 
-      RegionAttributesType attr1 = regionConfig1.getRegionAttributes();
+      var attr1 = regionConfig1.getRegionAttributes();
       assertThat(attr1.getScope())
           .describedAs("Scope for partitioned region should be null")
           .isNull();
 
-      RegionConfig regionConfig2 = find(config.getRegions(), regionName2);
+      var regionConfig2 = find(config.getRegions(), regionName2);
       assertThat(regionConfig2).isNotNull();
       assertThat(regionConfig2.getName()).isEqualTo(regionName2);
       assertThat(regionConfig2.getRegionAttributes()).isNotNull();
 
-      RegionAttributesType attr2 = regionConfig2.getRegionAttributes();
+      var attr2 = regionConfig2.getRegionAttributes();
       assertThat(attr2.getScope())
           .describedAs(
               "Scope for replicated region should be persisted as distributed-ack by default")

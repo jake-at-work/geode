@@ -17,18 +17,14 @@ package org.apache.geode.management.internal.cli.commands;
 import static org.apache.geode.management.internal.i18n.CliStrings.DESCRIBE_MEMBER;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Map;
-
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.management.internal.cli.result.CommandResult;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
-import org.apache.geode.test.junit.assertions.CommandResultAssert;
 import org.apache.geode.test.junit.categories.JMXTest;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
 
@@ -44,7 +40,7 @@ public class DescribeMembersCommandDUnitTest {
   @BeforeClass
   public static void setup() throws Exception {
     locator = lsRule.startLocatorVM(0);
-    int locatorPort = locator.getPort();
+    var locatorPort = locator.getPort();
     lsRule.startServerVM(1, s -> s.withConnectionToLocator(locatorPort).withServerCount(2));
   }
 
@@ -64,11 +60,11 @@ public class DescribeMembersCommandDUnitTest {
   @Test
   public void describeLocator() throws Exception {
     gfsh.connectAndVerify(locator);
-    CommandResult result = gfsh.executeAndAssertThat(DESCRIBE_MEMBER + " --name=locator-0")
+    var result = gfsh.executeAndAssertThat(DESCRIBE_MEMBER + " --name=locator-0")
         .statusIsSuccess()
         .getCommandResult();
 
-    Map<String, String> memberInfo =
+    var memberInfo =
         result.getResultData().getDataSection("memberInfo").getContent();
     assertThat(memberInfo.get("Name")).isEqualTo("locator-0");
     assertThat(memberInfo.get("Id")).contains("locator-0");
@@ -84,7 +80,7 @@ public class DescribeMembersCommandDUnitTest {
   @Test
   public void describeServer() throws Exception {
     gfsh.connectAndVerify(locator);
-    CommandResultAssert commandAssert =
+    var commandAssert =
         gfsh.executeAndAssertThat(DESCRIBE_MEMBER + " --name=server-1").statusIsSuccess();
 
     commandAssert.hasDataSection("memberInfo").hasContent()

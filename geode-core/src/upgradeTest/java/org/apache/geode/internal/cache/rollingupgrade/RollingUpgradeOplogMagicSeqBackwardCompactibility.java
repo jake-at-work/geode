@@ -15,18 +15,15 @@
 package org.apache.geode.internal.cache.rollingupgrade;
 
 import java.io.File;
-import java.util.HashSet;
 
 import org.junit.Ignore;
 import org.junit.Test;
 
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache30.CacheSerializableRunnable;
 import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.test.dunit.DistributedTestUtils;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.NetworkUtils;
-import org.apache.geode.test.dunit.VM;
 
 public class RollingUpgradeOplogMagicSeqBackwardCompactibility
     extends RollingUpgrade2DUnitTestBase {
@@ -35,19 +32,19 @@ public class RollingUpgradeOplogMagicSeqBackwardCompactibility
   @Ignore("GEODE-2355: test fails consistently")
   @Test
   public void testOplogMagicSeqBackwardCompactibility() throws Exception {
-    String objectType = "strings";
-    String regionType = "persistentReplicate";
+    var objectType = "strings";
+    var regionType = "persistentReplicate";
 
 
-    final Host host = Host.getHost(0);
-    VM server1 = host.getVM(oldVersion, 0);
-    VM server2 = host.getVM(oldVersion, 1);
-    VM server3 = host.getVM(oldVersion, 2);
-    VM locator = host.getVM(oldVersion, 3);
+    final var host = Host.getHost(0);
+    var server1 = host.getVM(oldVersion, 0);
+    var server2 = host.getVM(oldVersion, 1);
+    var server3 = host.getVM(oldVersion, 2);
+    var locator = host.getVM(oldVersion, 3);
 
-    String regionName = "aRegion";
-    RegionShortcut shortcut = RegionShortcut.REPLICATE_PERSISTENT;
-    for (int i = 0; i < testingDirs.length; i++) {
+    var regionName = "aRegion";
+    var shortcut = RegionShortcut.REPLICATE_PERSISTENT;
+    for (var i = 0; i < testingDirs.length; i++) {
       testingDirs[i] = new File(diskDir, "diskStoreVM_" + host.getVM(i).getId())
           .getAbsoluteFile();
       if (!testingDirs[i].exists()) {
@@ -56,9 +53,9 @@ public class RollingUpgradeOplogMagicSeqBackwardCompactibility
       }
     }
 
-    int[] locatorPorts = AvailablePortHelper.getRandomAvailableTCPPorts(1);
-    String hostName = NetworkUtils.getServerHostName();
-    String locatorsString = getLocatorString(locatorPorts);
+    var locatorPorts = AvailablePortHelper.getRandomAvailableTCPPorts(1);
+    var hostName = NetworkUtils.getServerHostName();
+    var locatorsString = getLocatorString(locatorPorts);
 
     locator.invoke(() -> DistributedTestUtils.deleteLocatorStateFile(locatorPorts));
 
@@ -70,15 +67,15 @@ public class RollingUpgradeOplogMagicSeqBackwardCompactibility
           server3);
       // invokeRunnableInVMs(invokeAssertVersion(oldOrdinal), server1, server2, server3);
       // create region
-      for (int i = 0; i < testingDirs.length; i++) {
-        CacheSerializableRunnable runnable =
+      for (var i = 0; i < testingDirs.length; i++) {
+        var runnable =
             invokeCreatePersistentReplicateRegion(regionName, testingDirs[i]);
         invokeRunnableInVMs(runnable, host.getVM(i));
       }
 
       putAndVerify("strings", server1, regionName, 0, 10, server2, server3);
       // before upgrade headers will be absent
-      HashSet<String> oldFormatFiles = verifyOplogHeader(testingDirs[0], null);
+      var oldFormatFiles = verifyOplogHeader(testingDirs[0], null);
       locator = rollLocatorToCurrent(locator, hostName, locatorPorts[0], getTestMethodName(),
           locatorsString);
       server1 = rollServerToCurrentAndCreateRegion(server1, regionType, testingDirs[0], shortcut,

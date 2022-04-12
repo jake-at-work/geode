@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.geode.internal.admin.ApplicationVM;
 import org.apache.geode.internal.admin.GemFireVM;
 import org.apache.geode.internal.admin.GfManagerAgent;
 import org.apache.geode.internal.logging.MergeLogFiles;
@@ -58,13 +57,13 @@ public class LogCollator {
   private String mergeLogs() {
     // combine logs...
     Map<String, InputStream> logFiles = new HashMap<>();
-    for (Loglet loglet : logTails) {
+    for (var loglet : logTails) {
       logFiles.put(loglet.name, new ByteArrayInputStream(loglet.tail.getBytes()));
     }
 
     // delegate to MergeLogFiles...
-    StringWriter writer = new StringWriter();
-    PrintWriter mergedLog = new PrintWriter(writer);
+    var writer = new StringWriter();
+    var mergedLog = new PrintWriter(writer);
     if (!MergeLogFiles.mergeLogFiles(logFiles, mergedLog)) {
       return writer.toString();
     } else {
@@ -73,8 +72,8 @@ public class LogCollator {
   }
 
   private void gatherActiveLogs() {
-    ApplicationVM[] runningsApps = system.listApplications();
-    for (final ApplicationVM runningsApp : runningsApps) {
+    var runningsApps = system.listApplications();
+    for (final var runningsApp : runningsApps) {
       addLogFrom(runningsApp);
     }
   }
@@ -92,13 +91,13 @@ public class LogCollator {
   private void addLogFrom(GemFireVM vm) {
     String name = null;
     name = vm.toString();
-    String[] logs = vm.getSystemLogs();
+    var logs = vm.getSystemLogs();
     addTail(name, logs);
   }
 
   private void addTail(String logName, String[] logs) {
     if (logs.length > 0) {
-      String tail = (logs.length > 1) ? logs[1] : logs[0];
+      var tail = (logs.length > 1) ? logs[1] : logs[0];
       logTails.add(new Loglet(logName, tail));
     }
   }

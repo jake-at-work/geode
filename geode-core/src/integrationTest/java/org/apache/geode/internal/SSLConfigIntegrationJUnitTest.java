@@ -22,11 +22,8 @@ import org.junit.After;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.management.GemFireProperties;
 import org.apache.geode.management.ManagementService;
-import org.apache.geode.management.MemberMXBean;
 import org.apache.geode.test.junit.categories.MembershipTest;
 
 /**
@@ -41,10 +38,10 @@ public class SSLConfigIntegrationJUnitTest {
 
   @Test
   public void testIsClusterSSLRequireAuthentication() {
-    Cache mCache = new CacheFactory().set(MCAST_PORT, "0").set(JMX_MANAGER, "true").create();
-    ManagementService mService = ManagementService.getManagementService(mCache);
-    MemberMXBean mMemberBean = mService.getMemberMXBean();
-    GemFireProperties mGemFireProperties = mMemberBean.listGemFireProperties();
+    var mCache = new CacheFactory().set(MCAST_PORT, "0").set(JMX_MANAGER, "true").create();
+    var mService = ManagementService.getManagementService(mCache);
+    var mMemberBean = mService.getMemberMXBean();
+    var mGemFireProperties = mMemberBean.listGemFireProperties();
 
     assertTrue(mGemFireProperties.isServerSSLRequireAuthentication());
     assertTrue(mGemFireProperties.isClusterSSLRequireAuthentication());

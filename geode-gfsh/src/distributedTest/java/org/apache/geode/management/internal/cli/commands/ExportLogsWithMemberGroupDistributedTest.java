@@ -58,10 +58,10 @@ public class ExportLogsWithMemberGroupDistributedTest {
 
   @BeforeClass
   public static void beforeClass() {
-    int[] ports = AvailablePortHelper.getRandomAvailableTCPPorts(2);
+    var ports = AvailablePortHelper.getRandomAvailableTCPPorts(2);
     httpPort = ports[0];
     jmxPort = ports[1];
-    Properties locatorProperties = new Properties();
+    var locatorProperties = new Properties();
     locatorProperties.setProperty(HTTP_SERVICE_BIND_ADDRESS, "localhost");
     locatorProperties.setProperty(HTTP_SERVICE_PORT, httpPort + "");
     locatorProperties.setProperty(JMX_MANAGER_PORT, jmxPort + "");
@@ -69,7 +69,7 @@ public class ExportLogsWithMemberGroupDistributedTest {
     // start the locator in vm0 and then connect to it over http
     locator = lsRule.startLocatorVM(0, locatorProperties);
 
-    Properties serverProperties = new Properties();
+    var serverProperties = new Properties();
     serverProperties.setProperty(GROUPS, "group1");
     lsRule.startServerVM(1, serverProperties, locator.getPort());
     lsRule.startServerVM(2, serverProperties, locator.getPort());
@@ -85,8 +85,8 @@ public class ExportLogsWithMemberGroupDistributedTest {
   public void testExportLogsWithMemberName() throws Exception {
     connectIfNeeded();
     connector.executeAndAssertThat("export logs --member=server-1").statusIsSuccess();
-    String zipPath = getZipPathFromCommandResult(connector.getGfshOutput());
-    Set<String> actualZipEntries = getZipEntries(zipPath);
+    var zipPath = getZipPathFromCommandResult(connector.getGfshOutput());
+    var actualZipEntries = getZipEntries(zipPath);
 
     Set<String> expectedFiles = Sets.newHashSet(Paths.get("server-1", "server-1.log").toString());
     assertThat(actualZipEntries).isEqualTo(expectedFiles);
@@ -96,8 +96,8 @@ public class ExportLogsWithMemberGroupDistributedTest {
   public void testExportLogsWithGroupName() throws Exception {
     connectIfNeeded();
     connector.executeAndAssertThat("export logs --group=group1").statusIsSuccess();
-    String zipPath = getZipPathFromCommandResult(connector.getGfshOutput());
-    Set<String> actualZipEntries = getZipEntries(zipPath);
+    var zipPath = getZipPathFromCommandResult(connector.getGfshOutput());
+    var actualZipEntries = getZipEntries(zipPath);
 
     Set<String> expectedFiles = Sets.newHashSet(Paths.get("server-1", "server-1.log").toString(),
         Paths.get("server-2", "server-2.log").toString());

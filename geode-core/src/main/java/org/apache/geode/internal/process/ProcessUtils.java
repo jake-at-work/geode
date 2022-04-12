@@ -76,7 +76,7 @@ public class ProcessUtils {
     notEmpty(name, "Invalid name '" + name + "' specified");
 
     try {
-      final int index = name.indexOf('@');
+      final var index = name.indexOf('@');
       if (index < 0) {
         throw new PidUnavailableException("Unable to parse pid from " + name);
       }
@@ -129,7 +129,7 @@ public class ProcessUtils {
     notNull(pidFile, "Invalid pidFile '" + pidFile + "' specified");
     isTrue(pidFile.exists(), "Nonexistent pidFile '" + pidFile + "' specified");
 
-    try (BufferedReader reader = new BufferedReader(new FileReader(pidFile))) {
+    try (var reader = new BufferedReader(new FileReader(pidFile))) {
       return Integer.parseInt(reader.readLine());
     }
   }
@@ -163,8 +163,8 @@ public class ProcessUtils {
     try {
       // consider getting rid of Class.forName usage if NativeCalls always safely loads
       Class.forName("org.apache.geode.internal.shared.NativeCalls");
-      NativeProcessUtils nativeProcessUtils = new NativeProcessUtils();
-      boolean result = nativeProcessUtils.isProcessAlive(identifyPid());
+      var nativeProcessUtils = new NativeProcessUtils();
+      var result = nativeProcessUtils.isProcessAlive(identifyPid());
       if (result) {
         return nativeProcessUtils;
       }

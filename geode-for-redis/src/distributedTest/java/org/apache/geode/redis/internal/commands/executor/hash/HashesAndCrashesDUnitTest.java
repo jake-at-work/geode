@@ -42,7 +42,6 @@ import org.junit.Test;
 
 import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.dunit.rules.RedisClusterStartupRule;
 import org.apache.geode.test.dunit.rules.SerializableFunction;
 import org.apache.geode.test.junit.rules.ExecutorServiceRule;
@@ -66,17 +65,17 @@ public class HashesAndCrashesDUnitTest {
 
   @BeforeClass
   public static void classSetup() throws Exception {
-    MemberVM locator = clusterStartUp.startLocatorVM(0);
-    int locatorPort = locator.getPort();
+    var locator = clusterStartUp.startLocatorVM(0);
+    var locatorPort = locator.getPort();
     clusterStartUp.startRedisVM(1, locatorPort);
 
-    int redisPort2 = AvailablePortHelper.getRandomAvailableTCPPort();
+    var redisPort2 = AvailablePortHelper.getRandomAvailableTCPPort();
     serverOperator2 = s -> s
         .withProperty(GEODE_FOR_REDIS_PORT, redisPort2 + "")
         .withConnectionToLocator(locatorPort);
     clusterStartUp.startRedisVM(2, serverOperator2);
 
-    int redisPort3 = AvailablePortHelper.getRandomAvailableTCPPort();
+    var redisPort3 = AvailablePortHelper.getRandomAvailableTCPPort();
     serverOperator3 = s -> s
         .withProperty(GEODE_FOR_REDIS_PORT, redisPort3 + "")
         .withConnectionToLocator(locatorPort);
@@ -89,10 +88,10 @@ public class HashesAndCrashesDUnitTest {
 
   @Before
   public void before() {
-    int redisPort1 = clusterStartUp.getRedisPort(1);
+    var redisPort1 = clusterStartUp.getRedisPort(1);
     clusterClient = RedisClusterClient.create("redis://localhost:" + redisPort1);
 
-    ClusterTopologyRefreshOptions refreshOptions =
+    var refreshOptions =
         ClusterTopologyRefreshOptions.builder()
             .enableAllAdaptiveRefreshTriggers()
             .refreshTriggersReconnectAttempts(1)
@@ -135,7 +134,7 @@ public class HashesAndCrashesDUnitTest {
   }
 
   private void modifyDataWhileCrashingVMs(DataType dataType) throws Exception {
-    AtomicBoolean running = new AtomicBoolean(true);
+    var running = new AtomicBoolean(true);
 
     Runnable task1 = null;
     Runnable task2 = null;
@@ -193,24 +192,24 @@ public class HashesAndCrashesDUnitTest {
   }
 
   private void hsetPerformAndVerify(int index, int minimumIterations, AtomicBoolean isRunning) {
-    String baseKey = "hset-key-" + index + "-";
-    int iterationCount = 0;
-    int totalKeys = 20;
+    var baseKey = "hset-key-" + index + "-";
+    var iterationCount = 0;
+    var totalKeys = 20;
 
     try {
       while (iterationCount < minimumIterations || isRunning.get()) {
-        String key = baseKey + (iterationCount % totalKeys);
-        String field = "field-" + iterationCount;
-        String value = "value-" + iterationCount;
+        var key = baseKey + (iterationCount % totalKeys);
+        var field = "field-" + iterationCount;
+        var value = "value-" + iterationCount;
         executeUntilSuccess(() -> commands.hset(key, field, value),
             String.format("HSET %s %s %s", key, field, value));
         iterationCount += 1;
       }
 
-      for (int i = 0; i < iterationCount; i++) {
-        String key = baseKey + (i % totalKeys);
-        String field = "field-" + i;
-        String value = "value-" + i;
+      for (var i = 0; i < iterationCount; i++) {
+        var key = baseKey + (i % totalKeys);
+        var field = "field-" + i;
+        var value = "value-" + i;
         assertThat(commands.hget(key, field)).isEqualTo(value);
       }
     } finally {
@@ -220,23 +219,23 @@ public class HashesAndCrashesDUnitTest {
   }
 
   private void saddPerformAndVerify(int index, int minimumIterations, AtomicBoolean isRunning) {
-    String baseKey = "sadd-key-" + index + "-";
-    int iterationCount = 0;
-    int totalKeys = 20;
+    var baseKey = "sadd-key-" + index + "-";
+    var iterationCount = 0;
+    var totalKeys = 20;
 
     try {
       while (iterationCount < minimumIterations || isRunning.get()) {
-        String key = baseKey + (iterationCount % totalKeys);
-        String member = "member-" + index + "-" + iterationCount;
+        var key = baseKey + (iterationCount % totalKeys);
+        var member = "member-" + index + "-" + iterationCount;
         executeUntilSuccess(() -> commands.sadd(key, member),
             String.format("SADD %s %s", key, member));
         iterationCount += 1;
       }
 
       List<String> missingMembers = new ArrayList<>();
-      for (int i = 0; i < iterationCount; i++) {
-        String key = baseKey + (i % totalKeys);
-        String member = "member-" + index + "-" + i;
+      for (var i = 0; i < iterationCount; i++) {
+        var key = baseKey + (i % totalKeys);
+        var member = "member-" + index + "-" + i;
         if (!commands.sismember(key, member)) {
           missingMembers.add(member);
         }
@@ -249,17 +248,17 @@ public class HashesAndCrashesDUnitTest {
   }
 
   private void setPerformAndVerify(int index, int minimumIterations, AtomicBoolean isRunning) {
-    int iterationCount = 0;
+    var iterationCount = 0;
 
     try {
       while (iterationCount < minimumIterations || isRunning.get()) {
-        String key = "set-key-" + index + "-" + iterationCount;
+        var key = "set-key-" + index + "-" + iterationCount;
         executeUntilSuccess(() -> commands.set(key, key), String.format("SET %s %s", key, key));
         iterationCount += 1;
       }
 
-      for (int i = 0; i < iterationCount; i++) {
-        String key = "set-key-" + index + "-" + i;
+      for (var i = 0; i < iterationCount; i++) {
+        var key = "set-key-" + index + "-" + i;
         assertThat(commands.get(key)).isEqualTo(key);
       }
     } finally {

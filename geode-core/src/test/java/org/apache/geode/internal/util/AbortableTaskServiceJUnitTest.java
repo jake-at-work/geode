@@ -23,7 +23,6 @@ import java.lang.reflect.Proxy;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -61,10 +60,10 @@ public class AbortableTaskServiceJUnitTest {
 
   @Test
   public void testExecute() throws Exception {
-    DelayedTask dt = new DelayedTask();
+    var dt = new DelayedTask();
     tasks.execute(dt);
 
-    Future<Boolean> future = executorServiceRule.submit(() -> {
+    var future = executorServiceRule.submit(() -> {
       tasks.waitForCompletion();
       return tasks.isCompleted();
     });
@@ -79,10 +78,10 @@ public class AbortableTaskServiceJUnitTest {
 
   @Test
   public void testAbortDuringExecute() throws Exception {
-    DelayedTask dt = new DelayedTask();
+    var dt = new DelayedTask();
     tasks.execute(dt);
 
-    Future<Boolean> future = executorServiceRule.submit(() -> {
+    var future = executorServiceRule.submit(() -> {
       tasks.waitForCompletion();
       return tasks.isCompleted();
     });
@@ -99,18 +98,18 @@ public class AbortableTaskServiceJUnitTest {
   @Test
   public void testAbortBeforeExecute() throws Exception {
     // delay underlying call to execute(Runnable) until after abortAll() is invoked
-    Executor executor =
+    var executor =
         (Executor) Proxy.newProxyInstance(getClass().getClassLoader(), new Class[] {Executor.class},
             new DelayedExecutorHandler(Executors.newSingleThreadExecutor(), "execute"));
     tasks = new AbortableTaskService(executor);
 
-    DelayedTask dt = new DelayedTask();
-    DelayedTask dt2 = new DelayedTask();
+    var dt = new DelayedTask();
+    var dt2 = new DelayedTask();
 
     tasks.execute(dt);
     tasks.execute(dt2);
 
-    Future<Boolean> future = executorServiceRule.submit(() -> {
+    var future = executorServiceRule.submit(() -> {
       tasks.waitForCompletion();
       return tasks.isCompleted();
     });

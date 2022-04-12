@@ -442,7 +442,7 @@ public class AsyncInvocation<V> implements Future<V> {
   @Deprecated
   public AsyncInvocation<V> await(final long timeout, final TimeUnit unit)
       throws InterruptedException, TimeoutException {
-    long millis = unit.toMillis(timeout);
+    var millis = unit.toMillis(timeout);
     join(millis);
     timeoutIfAlive(millis);
     checkException();
@@ -472,7 +472,7 @@ public class AsyncInvocation<V> implements Future<V> {
   @Override
   public V get(final long timeout, final TimeUnit unit)
       throws InterruptedException, TimeoutException {
-    long millis = unit.toMillis(timeout);
+    var millis = unit.toMillis(timeout);
     join(millis);
     timeoutIfAlive(millis);
     checkException();
@@ -506,7 +506,7 @@ public class AsyncInvocation<V> implements Future<V> {
    */
   private AsyncInvocation<V> timeoutIfAlive(final long timeout) throws TimeoutException {
     if (thread.isAlive()) {
-      TimeoutException timeoutException = new TimeoutException(
+      var timeoutException = new TimeoutException(
           "Timed out waiting " + timeout + " milliseconds for AsyncInvocation to complete.");
       throw asyncTimeoutHandler.apply(timeoutException);
     }
@@ -528,7 +528,7 @@ public class AsyncInvocation<V> implements Future<V> {
    * {@code methodName}.
    */
   private static String getName(final Object target, final String methodName) {
-    StringBuilder sb = new StringBuilder(methodName).append(" invoked on ");
+    var sb = new StringBuilder(methodName).append(" invoked on ");
     if (target instanceof Class) {
       sb.append("class ").append(((Class) target).getName());
     } else {
@@ -539,7 +539,7 @@ public class AsyncInvocation<V> implements Future<V> {
 
   private static Function<TimeoutException, TimeoutException> asyncTimeoutHandler(VM vm, long id) {
     return timeoutException -> {
-      StackTrace stackTrace =
+      var stackTrace =
           vm.invoke(() -> {
             System.out.println(dumpThreads());
             return new StackTrace(vm.getId(), AsyncThreadId.get(id));

@@ -19,12 +19,10 @@ import static org.apache.geode.test.util.ResourceUtils.createFileFromResource;
 import static org.apache.geode.test.util.ResourceUtils.getResource;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.net.URL;
 import java.util.regex.Pattern;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.junit.LoggerContextRule;
 import org.apache.logging.log4j.test.appender.ListAppender;
 import org.junit.Before;
@@ -77,7 +75,7 @@ public class LogServiceWithCustomLogConfigIntegrationTest {
 
   @BeforeClass
   public static void setUpLogConfigFile() {
-    URL resource = getResource(CONFIG_FILE_NAME);
+    var resource = getResource(CONFIG_FILE_NAME);
     configFilePath = createFileFromResource(resource, temporaryFolder.getRoot(), CONFIG_FILE_NAME)
         .getAbsolutePath();
   }
@@ -102,7 +100,7 @@ public class LogServiceWithCustomLogConfigIntegrationTest {
   public void logEventShouldMatchCustomConfig() {
     logger.info(logMessage);
 
-    LogEvent logEvent = listAppender.getEvents().get(0);
+    var logEvent = listAppender.getEvents().get(0);
     assertThat(logEvent.getLoggerName()).isEqualTo(logger.getName());
     assertThat(logEvent.getLevel()).isEqualTo(Level.INFO);
     assertThat(logEvent.getMessage().getFormattedMessage()).isEqualTo(logMessage);

@@ -38,9 +38,9 @@ public class ClientSubscriptionManagerImplTest {
 
   @Test
   public void afterRemoveManagerIsEmpty() {
-    Client client = mock(Client.class);
-    Subscription subscription = mock(Subscription.class);
-    ClientSubscriptionManager manager = createManager(client, subscription);
+    var client = mock(Client.class);
+    var subscription = mock(Subscription.class);
+    var manager = createManager(client, subscription);
 
     manager.remove(client);
 
@@ -49,12 +49,12 @@ public class ClientSubscriptionManagerImplTest {
 
   @Test
   public void afterManagerIsEmptyAddFails() {
-    Client client = mock(Client.class);
-    Subscription subscription = mock(Subscription.class);
-    ClientSubscriptionManager manager = createManager(client, subscription);
+    var client = mock(Client.class);
+    var subscription = mock(Subscription.class);
+    var manager = createManager(client, subscription);
 
-    boolean removeResult = manager.remove(client);
-    boolean addResult = manager.add(client, subscription);
+    var removeResult = manager.remove(client);
+    var addResult = manager.add(client, subscription);
 
     assertThat(removeResult).isTrue();
     assertThat(addResult).isFalse();
@@ -63,13 +63,13 @@ public class ClientSubscriptionManagerImplTest {
 
   @Test
   public void secondAddReturnsTrue() {
-    Client client = mock(Client.class);
-    Subscription subscription = mock(Subscription.class);
-    ClientSubscriptionManager manager = createManager(client, subscription);
-    Client client2 = mock(Client.class);
-    Subscription subscription2 = mock(Subscription.class);
+    var client = mock(Client.class);
+    var subscription = mock(Subscription.class);
+    var manager = createManager(client, subscription);
+    var client2 = mock(Client.class);
+    var subscription2 = mock(Subscription.class);
 
-    boolean result = manager.add(client2, subscription2);
+    var result = manager.add(client2, subscription2);
 
     assertThat(result).isTrue();
     assertThat(manager.getSubscriptionCount()).isEqualTo(2);
@@ -77,15 +77,15 @@ public class ClientSubscriptionManagerImplTest {
 
   @Test
   public void removalThatReturnsTrueAllowsMoreAdds() {
-    Client client = mock(Client.class);
-    Subscription subscription = mock(Subscription.class);
-    ClientSubscriptionManager manager = createManager(client, subscription);
-    Client client2 = mock(Client.class);
-    Subscription subscription2 = mock(Subscription.class);
+    var client = mock(Client.class);
+    var subscription = mock(Subscription.class);
+    var manager = createManager(client, subscription);
+    var client2 = mock(Client.class);
+    var subscription2 = mock(Subscription.class);
 
     manager.add(client2, subscription2);
-    boolean removeResult = manager.remove(client);
-    boolean addResult = manager.add(client, subscription);
+    var removeResult = manager.remove(client);
+    var addResult = manager.add(client, subscription);
 
     assertThat(removeResult).isTrue();
     assertThat(addResult).isTrue();

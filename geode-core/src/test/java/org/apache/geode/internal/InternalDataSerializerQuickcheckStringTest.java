@@ -43,15 +43,15 @@ import org.apache.geode.test.junit.categories.SerializationTest;
 public class InternalDataSerializerQuickcheckStringTest {
   @Property(trials = 1000)
   public void StringSerializedDeserializesToSameValue(String originalString) throws IOException {
-    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-    DataOutputStream dataOutputStream = new DataOutputStream(byteArrayOutputStream);
+    var byteArrayOutputStream = new ByteArrayOutputStream();
+    var dataOutputStream = new DataOutputStream(byteArrayOutputStream);
 
     DataSerializer.writeString(originalString, dataOutputStream);
     dataOutputStream.flush();
 
-    byte[] stringBytes = byteArrayOutputStream.toByteArray();
-    DataInputStream dataInputStream = new DataInputStream(new ByteArrayInputStream(stringBytes));
-    String returnedString = DataSerializer.readString(dataInputStream);
+    var stringBytes = byteArrayOutputStream.toByteArray();
+    var dataInputStream = new DataInputStream(new ByteArrayInputStream(stringBytes));
+    var returnedString = DataSerializer.readString(dataInputStream);
 
     assertEquals("Deserialized string matches original", originalString, returnedString);
   }

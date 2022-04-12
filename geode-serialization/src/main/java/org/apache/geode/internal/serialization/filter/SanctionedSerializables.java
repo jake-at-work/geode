@@ -18,7 +18,6 @@ import static java.util.Collections.emptyList;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.net.URL;
@@ -43,10 +42,10 @@ public class SanctionedSerializables {
    * Loads all SanctionedSerializablesServices on the classpath.
    */
   public static Set<SanctionedSerializablesService> loadSanctionedSerializablesServices() {
-    ServiceLoader<SanctionedSerializablesService> loader =
+    var loader =
         ServiceLoader.load(SanctionedSerializablesService.class);
     Set<SanctionedSerializablesService> services = new HashSet<>();
-    for (SanctionedSerializablesService service : loader) {
+    for (var service : loader) {
       services.add(service);
     }
     return services;
@@ -61,8 +60,8 @@ public class SanctionedSerializables {
       return emptyList();
     }
     Collection<String> result = new ArrayList<>(1000);
-    try (InputStream inputStream = sanctionedSerializables.openStream();
-        BufferedReader in = new BufferedReader(new InputStreamReader(inputStream))) {
+    try (var inputStream = sanctionedSerializables.openStream();
+        var in = new BufferedReader(new InputStreamReader(inputStream))) {
       String line;
       while ((line = in.readLine()) != null) {
         line = line.trim();
@@ -78,9 +77,9 @@ public class SanctionedSerializables {
   public static Set<String> loadSanctionedClassNames(
       Iterable<SanctionedSerializablesService> services) {
     Set<String> sanctionedClasses = new HashSet<>(650);
-    for (SanctionedSerializablesService service : services) {
+    for (var service : services) {
       try {
-        Collection<String> classNames = service.getSerializationAcceptlist();
+        var classNames = service.getSerializationAcceptlist();
         logger.info("loaded {} sanctioned serializables from {}", classNames.size(),
             service.getClass().getSimpleName());
         sanctionedClasses.addAll(classNames);

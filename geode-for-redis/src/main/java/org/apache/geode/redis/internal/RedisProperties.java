@@ -47,12 +47,12 @@ public class RedisProperties {
   public static String getStringSystemProperty(String propName, String defaultValue) {
     validatePropertyName(propName);
 
-    String geodeValue = System.getProperty(propName);
+    var geodeValue = System.getProperty(propName);
     if (StringUtils.isNotEmpty(geodeValue)) {
       return geodeValue;
     }
 
-    String gemfireValue = System.getProperty(convertToGemfire(propName));
+    var gemfireValue = System.getProperty(convertToGemfire(propName));
     if (StringUtils.isNotEmpty(gemfireValue)) {
       return gemfireValue;
     }
@@ -68,7 +68,7 @@ public class RedisProperties {
       int maxValue) {
     validatePropertyName(propName);
 
-    int geodeValue = getIntegerFromProperty(propName, defaultValue, minValue, maxValue);
+    var geodeValue = getIntegerFromProperty(propName, defaultValue, minValue, maxValue);
     if (geodeValue != defaultValue) {
       return geodeValue;
     }
@@ -78,7 +78,7 @@ public class RedisProperties {
 
   private static int getIntegerFromProperty(String propName, int defaultValue, int minValue,
       int maxValue) {
-    String stringValue = System.getProperty(propName);
+    var stringValue = System.getProperty(propName);
     if (stringValue == null) {
       return defaultValue;
     }

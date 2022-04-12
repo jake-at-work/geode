@@ -59,7 +59,7 @@ public class QueryAuthorization implements AccessControl {
   public boolean authorizeOperation(String regionName, OperationContext context) {
     logger.info(" Authorizing request ");
     if (context instanceof QueryOperationContext) {
-      Object[] params = ((QueryOperationContext) context).getQueryParams();
+      var params = ((QueryOperationContext) context).getQueryParams();
       assertTrue(" Bind parameters should not be null", params != null);
       assertEquals(" 2 bind parameters should have been received.", 2, params.length);
     }

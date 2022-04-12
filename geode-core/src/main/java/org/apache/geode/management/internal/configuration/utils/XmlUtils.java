@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.StringTokenizer;
 
 import javax.xml.namespace.NamespaceContext;
@@ -41,7 +40,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
@@ -49,7 +47,6 @@ import javax.xml.xpath.XPathFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
@@ -72,7 +69,7 @@ public class XmlUtils {
   public static Document createDocumentFromReader(final Reader reader)
       throws SAXException, ParserConfigurationException, IOException {
     Document doc;
-    InputSource inputSource = new InputSource(reader);
+    var inputSource = new InputSource(reader);
 
     doc = getDocumentBuilder().parse(inputSource);
 
@@ -80,22 +77,22 @@ public class XmlUtils {
   }
 
   public static NodeList query(Node node, String searchString) throws XPathExpressionException {
-    XPath xpath = XPathFactory.newInstance().newXPath();
+    var xpath = XPathFactory.newInstance().newXPath();
     return (NodeList) xpath.evaluate(searchString, node, XPathConstants.NODESET);
   }
 
   public static NodeList query(Node node, String searchString, XPathContext xpathcontext)
       throws XPathExpressionException {
-    XPath xpath = XPathFactory.newInstance().newXPath();
+    var xpath = XPathFactory.newInstance().newXPath();
     xpath.setNamespaceContext(xpathcontext);
     return (NodeList) xpath.evaluate(searchString, node, XPathConstants.NODESET);
   }
 
   public static Element querySingleElement(Node node, String searchString,
       final XPathContext xPathContext) throws XPathExpressionException {
-    XPath xpath = XPathFactory.newInstance().newXPath();
+    var xpath = XPathFactory.newInstance().newXPath();
     xpath.setNamespaceContext(xPathContext);
-    Object result = xpath.evaluate(searchString, node, XPathConstants.NODE);
+    var result = xpath.evaluate(searchString, node, XPathConstants.NODE);
     try {
       return (Element) result;
     } catch (ClassCastException e) {
@@ -104,10 +101,10 @@ public class XmlUtils {
   }
 
   public static DocumentBuilder getDocumentBuilder() throws ParserConfigurationException {
-    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+    var factory = DocumentBuilderFactory.newInstance();
     factory.setNamespaceAware(true);
     // the actual builder or parser
-    DocumentBuilder builder = factory.newDocumentBuilder();
+    var builder = factory.newDocumentBuilder();
     builder.setEntityResolver(new CacheXmlParser());
     return builder;
   }
@@ -121,27 +118,27 @@ public class XmlUtils {
   public static void addNewNode(final Document doc, final XmlEntity xmlEntity)
       throws IOException, XPathExpressionException, SAXException, ParserConfigurationException {
     // Build up map per call to avoid issues with caching wrong version of the map.
-    final LinkedHashMap<String, CacheElement> elementOrderMap = CacheElement.buildElementMap(doc);
+    final var elementOrderMap = CacheElement.buildElementMap(doc);
 
-    final Node newNode = createNode(doc, xmlEntity.getXmlDefinition());
+    final var newNode = createNode(doc, xmlEntity.getXmlDefinition());
     final Node root = doc.getDocumentElement();
-    final int incomingElementOrder =
+    final var incomingElementOrder =
         getElementOrder(elementOrderMap, xmlEntity.getNamespace(), xmlEntity.getType());
 
-    boolean nodeAdded = false;
-    NodeList nodes = root.getChildNodes();
-    final int length = nodes.getLength();
-    for (int i = 0; i < length; i++) {
-      final Node node = nodes.item(i);
+    var nodeAdded = false;
+    var nodes = root.getChildNodes();
+    final var length = nodes.getLength();
+    for (var i = 0; i < length; i++) {
+      final var node = nodes.item(i);
 
       if (node instanceof Element) {
-        final Element childElement = (Element) node;
-        final String type = childElement.getLocalName();
-        final String namespace = childElement.getNamespaceURI();
+        final var childElement = (Element) node;
+        final var type = childElement.getLocalName();
+        final var namespace = childElement.getNamespaceURI();
 
         if (namespace.equals(xmlEntity.getNamespace()) && type.equals(xmlEntity.getType())) {
           // First check if the element has a name
-          String nameOrId = getAttribute(childElement, "name");
+          var nameOrId = getAttribute(childElement, "name");
           // If not then check if the element has an Id
           if (nameOrId == null) {
             nameOrId = getAttribute(childElement, "id");
@@ -185,7 +182,7 @@ public class XmlUtils {
       final String namespace, final String type) {
     if (CacheXml.GEODE_NAMESPACE.equals(namespace)) {
       // We only keep the cache elements in elementOrderMap
-      final CacheElement cacheElement = elementOrderMap.get(type);
+      final var cacheElement = elementOrderMap.get(type);
       if (null != cacheElement) {
         return cacheElement.isMultiple();
       }
@@ -204,7 +201,7 @@ public class XmlUtils {
       final String namespace, final String type) {
     if (CacheXml.GEODE_NAMESPACE.equals(namespace)) {
       // We only keep the cache elements in elementOrderMap
-      final CacheElement cacheElement = elementOrderMap.get(type);
+      final var cacheElement = elementOrderMap.get(type);
       if (null != cacheElement) {
 
         return cacheElement.getOrder();
@@ -221,19 +218,19 @@ public class XmlUtils {
    */
   private static Node createNode(Document owner, String xmlDefinition)
       throws SAXException, IOException, ParserConfigurationException {
-    InputSource inputSource = new InputSource(new StringReader(xmlDefinition));
-    Document document = getDocumentBuilder().parse(inputSource);
+    var inputSource = new InputSource(new StringReader(xmlDefinition));
+    var document = getDocumentBuilder().parse(inputSource);
     Node newNode = document.getDocumentElement();
     return owner.importNode(newNode, true);
   }
 
   public static String getAttribute(Node node, String name) {
-    NamedNodeMap attributes = node.getAttributes();
+    var attributes = node.getAttributes();
     if (attributes == null) {
       return null;
     }
 
-    Node attributeNode = node.getAttributes().getNamedItem(name);
+    var attributeNode = node.getAttributes().getNamedItem(name);
     if (attributeNode == null) {
       return null;
     }
@@ -241,7 +238,7 @@ public class XmlUtils {
   }
 
   public static String getAttribute(Node node, String localName, String namespaceURI) {
-    Node attributeNode = node.getAttributes().getNamedItemNS(namespaceURI, localName);
+    var attributeNode = node.getAttributes().getNamedItemNS(namespaceURI, localName);
     if (attributeNode == null) {
       return null;
     }
@@ -264,10 +261,10 @@ public class XmlUtils {
       return schemaLocationMap;
     }
 
-    final StringTokenizer st = new StringTokenizer(schemaLocation, " \n\t\r");
+    final var st = new StringTokenizer(schemaLocation, " \n\t\r");
     while (st.hasMoreElements()) {
-      final String ns = st.nextToken();
-      final String loc = st.nextToken();
+      final var ns = st.nextToken();
+      final var loc = st.nextToken();
       schemaLocationMap.put(ns, loc);
     }
 
@@ -279,12 +276,12 @@ public class XmlUtils {
    *
    */
   public static void deleteNode(Document doc, XmlEntity xmlEntity) throws Exception {
-    NodeList nodes = getNodes(doc, xmlEntity);
+    var nodes = getNodes(doc, xmlEntity);
     if (nodes != null) {
-      int length = nodes.getLength();
+      var length = nodes.getLength();
 
-      for (int i = 0; i < length; i++) {
-        Node node = nodes.item(i);
+      for (var i = 0; i < length; i++) {
+        var node = nodes.item(i);
         node.getParentNode().removeChild(node);
       }
     }
@@ -296,7 +293,7 @@ public class XmlUtils {
    */
   public static NodeList getNodes(Document doc, XmlEntity xmlEntity)
       throws XPathExpressionException {
-    XPathContext context = new XPathContext();
+    var context = new XPathContext();
     context.addNamespace(xmlEntity.getPrefix(), xmlEntity.getNamespace());
     if (xmlEntity.getChildPrefix() != null) {
       context.addNamespace(xmlEntity.getChildPrefix(), xmlEntity.getChildNamespace());
@@ -350,7 +347,7 @@ public class XmlUtils {
    */
   public static String prettyXml(Node doc)
       throws TransformerFactoryConfigurationError, TransformerException {
-    Transformer transformer = TransformerFactory.newInstance().newTransformer();
+    var transformer = TransformerFactory.newInstance().newTransformer();
     transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 
     return transform(transformer, doc);
@@ -358,15 +355,15 @@ public class XmlUtils {
 
   public static String elementToString(Node element)
       throws TransformerFactoryConfigurationError, TransformerException {
-    Transformer transformer = TransformerFactory.newInstance().newTransformer();
+    var transformer = TransformerFactory.newInstance().newTransformer();
 
     return transform(transformer, element);
   }
 
   private static String transform(Transformer transformer, Node element)
       throws TransformerException {
-    StreamResult result = new StreamResult(new StringWriter());
-    DOMSource source = new DOMSource(element);
+    var result = new StreamResult(new StringWriter());
+    var source = new DOMSource(element);
     transformer.transform(source, result);
 
     return result.getWriter().toString();
@@ -380,7 +377,7 @@ public class XmlUtils {
   public static String prettyXml(String xmlContent)
       throws IOException, TransformerFactoryConfigurationError, TransformerException, SAXException,
       ParserConfigurationException {
-    Document doc = createDocumentFromXml(xmlContent);
+    var doc = createDocumentFromXml(xmlContent);
     return prettyXml(doc);
   }
 
@@ -404,7 +401,7 @@ public class XmlUtils {
    */
   public static Document createAndUpgradeDocumentFromXml(String xmlContent)
       throws SAXException, ParserConfigurationException, IOException, XPathExpressionException {
-    Document doc = XmlUtils.createDocumentFromXml(xmlContent);
+    var doc = XmlUtils.createDocumentFromXml(xmlContent);
     if (!CacheXml.VERSION_LATEST.equals(XmlUtils.getAttribute(doc.getDocumentElement(),
         CacheXml.VERSION, CacheXml.GEODE_NAMESPACE))) {
       doc = upgradeSchema(doc, CacheXml.GEODE_NAMESPACE, CacheXml.LATEST_SCHEMA_LOCATION,
@@ -437,15 +434,15 @@ public class XmlUtils {
 
     if (null != document.getDoctype()) {
       Node root = document.getDocumentElement();
-      Document copiedDocument = getDocumentBuilder().newDocument();
-      Node copiedRoot = copiedDocument.importNode(root, true);
+      var copiedDocument = getDocumentBuilder().newDocument();
+      var copiedRoot = copiedDocument.importNode(root, true);
       copiedDocument.appendChild(copiedRoot);
       document = copiedDocument;
     }
 
-    final Element root = document.getDocumentElement();
+    final var root = document.getDocumentElement();
     // since root is the cache element, then this oldNamespace will be the cache's namespaceURI
-    String oldNamespaceUri = root.getNamespaceURI();
+    var oldNamespaceUri = root.getNamespaceURI();
 
     // update the namespace
     if (!namespaceUri.equals(oldNamespaceUri)) {
@@ -458,7 +455,7 @@ public class XmlUtils {
     // update the schemaLocation attribute
     Node schemaLocationAttr = root.getAttributeNodeNS(W3C_XML_SCHEMA_INSTANCE_NS_URI,
         W3C_XML_SCHEMA_INSTANCE_ATTRIBUTE_SCHEMA_LOCATION);
-    String xsiPrefix = findPrefix(root, W3C_XML_SCHEMA_INSTANCE_NS_URI);
+    var xsiPrefix = findPrefix(root, W3C_XML_SCHEMA_INSTANCE_NS_URI);
     Map<String, String> uriToLocation = new HashMap<>();
     if (schemaLocationAttr != null) {
       uriToLocation = buildSchemaLocationMap(schemaLocationAttr.getNodeValue());
@@ -490,8 +487,8 @@ public class XmlUtils {
    * @since GemFire 8.1
    */
   private static String getSchemaLocationValue(final Map<String, String> schemaLocationMap) {
-    final StringBuilder sb = new StringBuilder();
-    for (final Map.Entry<String, String> entry : schemaLocationMap.entrySet()) {
+    final var sb = new StringBuilder();
+    for (final var entry : schemaLocationMap.entrySet()) {
       if (sb.length() > 0) {
         sb.append(' ');
       }
@@ -502,12 +499,12 @@ public class XmlUtils {
 
   static String findPrefix(final Element root, final String namespaceUri) {
     // Look for all of the attributes of cache that start with xmlns
-    NamedNodeMap attributes = root.getAttributes();
-    for (int i = 0; i < attributes.getLength(); i++) {
-      Node item = attributes.item(i);
+    var attributes = root.getAttributes();
+    for (var i = 0; i < attributes.getLength(); i++) {
+      var item = attributes.item(i);
       if (item.getNodeName().startsWith("xmlns")) {
         if (item.getNodeValue().equals(namespaceUri)) {
-          String[] splitName = item.getNodeName().split(":");
+          var splitName = item.getNodeName().split(":");
           if (splitName.length > 1) {
             return splitName[1];
           } else {
@@ -534,11 +531,11 @@ public class XmlUtils {
   static Node changeNamespace(final Node node, final String oldNamespaceUri,
       final String newNamespaceUri) throws XPathExpressionException {
     Node result = null;
-    final NodeList nodes = query(node, "//*");
-    for (int i = 0; i < nodes.getLength(); i++) {
-      final Node element = nodes.item(i);
+    final var nodes = query(node, "//*");
+    for (var i = 0; i < nodes.getLength(); i++) {
+      final var element = nodes.item(i);
       if (element.getNamespaceURI() == null || element.getNamespaceURI().equals(oldNamespaceUri)) {
-        Node renamed =
+        var renamed =
             node.getOwnerDocument().renameNode(element, newNamespaceUri, element.getNodeName());
         if (element == node) {
           result = renamed;
@@ -558,18 +555,18 @@ public class XmlUtils {
     if (xmlEntity == null || xmlEntity.getAttributes() == null) {
       return;
     }
-    String type = xmlEntity.getType();
-    Map<String, String> attributes = xmlEntity.getAttributes();
+    var type = xmlEntity.getType();
+    var attributes = xmlEntity.getAttributes();
 
-    Element root = doc.getDocumentElement();
+    var root = doc.getDocumentElement();
     if (root.getLocalName().equals(type)) {
 
-      for (Entry<String, String> entry : attributes.entrySet()) {
-        String attributeName = entry.getKey();
-        String attributeValue = entry.getValue();
+      for (var entry : attributes.entrySet()) {
+        var attributeName = entry.getKey();
+        var attributeValue = entry.getValue();
 
         // Remove the existing attribute
-        String rootAttribute = getAttribute(root, attributeName);
+        var rootAttribute = getAttribute(root, attributeName);
         if (null != rootAttribute) {
           root.removeAttribute(rootAttribute);
         }

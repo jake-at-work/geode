@@ -95,7 +95,7 @@ public class InternalDistributedSystemLockMemoryIntegrationTest {
   public void lockMemoryThrowsIfMemoryOverCommit() {
     system = spy(new InternalDistributedSystem.Builder(new Properties(), builder).build());
 
-    Throwable caughtException = catchThrowable(() -> system.lockMemory(100, 200));
+    var caughtException = catchThrowable(() -> system.lockMemory(100, 200));
 
     assertThat(caughtException).isInstanceOf(IllegalStateException.class);
     verify(system, never()).lockMemory();

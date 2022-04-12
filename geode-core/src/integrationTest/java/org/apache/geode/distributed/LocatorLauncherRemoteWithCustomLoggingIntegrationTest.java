@@ -51,7 +51,7 @@ public class LocatorLauncherRemoteWithCustomLoggingIntegrationTest
 
   @Before
   public void setUpLocatorLauncherRemoteWithCustomLoggingIntegrationTest() {
-    String configFileName = getClass().getSimpleName() + "_log4j2.xml";
+    var configFileName = getClass().getSimpleName() + "_log4j2.xml";
     customLoggingConfigFile = createFileFromResource(
         getResource(configFileName),
         getWorkingDirectory(),

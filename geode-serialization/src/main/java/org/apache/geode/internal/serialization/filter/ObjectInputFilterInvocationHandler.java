@@ -69,15 +69,15 @@ class ObjectInputFilterInvocationHandler implements InvocationHandler {
     }
 
     // fetch the class of the serialized instance
-    Object objectInputFilter_filterInfo = args[0];
-    Class<?> serialClass =
+    var objectInputFilter_filterInfo = args[0];
+    var serialClass =
         (Class<?>) ObjectInputFilter_FilterInfo_serialClass.invoke(objectInputFilter_filterInfo);
     if (serialClass == null) { // no class to check, so nothing to accept-list
       return ObjectInputFilter_checkInput.invoke(objectInputFilter, objectInputFilter_filterInfo);
     }
 
     // check sanctionedClasses to determine if the name of the class is ALLOWED
-    String serialClassName = serialClass.getName();
+    var serialClassName = serialClass.getName();
     if (serialClass.isArray()) {
       serialClassName = serialClass.getComponentType().getName();
     }
@@ -86,7 +86,7 @@ class ObjectInputFilterInvocationHandler implements InvocationHandler {
     }
 
     // check the filter to determine if the class is ALLOWED
-    Object objectInputFilter_Status =
+    var objectInputFilter_Status =
         ObjectInputFilter_checkInput.invoke(objectInputFilter, objectInputFilter_filterInfo);
     if (objectInputFilter_Status == ObjectInputFilter_Status_REJECTED) {
       logger.fatal("Serialization filter is rejecting class {}", serialClassName,

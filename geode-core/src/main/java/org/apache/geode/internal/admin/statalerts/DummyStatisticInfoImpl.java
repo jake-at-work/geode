@@ -107,7 +107,7 @@ public class DummyStatisticInfoImpl implements StatisticInfo {
       return false;
     }
 
-    DummyStatisticInfoImpl other = (DummyStatisticInfoImpl) object;
+    var other = (DummyStatisticInfoImpl) object;
 
     return statisticName.equals(other.getStatisticName())
         && statisticsTypeName.equals(other.getStatisticsTypeName())

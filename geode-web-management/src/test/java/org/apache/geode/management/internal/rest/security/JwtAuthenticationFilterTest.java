@@ -25,7 +25,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.Authentication;
 
 public class JwtAuthenticationFilterTest {
 
@@ -62,7 +61,7 @@ public class JwtAuthenticationFilterTest {
   @Test
   public void correctHeader() throws Exception {
     when(request.getHeader("Authorization")).thenReturn("Bearer bar");
-    Authentication authentication = filter.attemptAuthentication(request, null);
+    var authentication = filter.attemptAuthentication(request, null);
     assertThat(authentication.getPrincipal().toString()).isEqualTo("Bearer");
     assertThat(authentication.getCredentials().toString()).isEqualTo("bar");
   }

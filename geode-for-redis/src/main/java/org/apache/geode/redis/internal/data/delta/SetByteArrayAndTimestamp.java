@@ -51,8 +51,8 @@ public class SetByteArrayAndTimestamp extends DeltaInfo {
   }
 
   public static void deserializeFrom(DataInput in, AbstractRedisData redisData) throws IOException {
-    byte[] byteArray = readByteArray(in);
-    long timestamp = readPrimitiveLong(in);
+    var byteArray = readByteArray(in);
+    var timestamp = readPrimitiveLong(in);
     redisData.applySetByteArrayAndTimestampDelta(byteArray, timestamp);
   }
 }

@@ -138,7 +138,7 @@ public class PreferBytesCachedDeserializable
   }
 
   String getShortClassName() {
-    String cname = getClass().getName();
+    var cname = getClass().getName();
     return cname.substring(getClass().getPackage().getName().length() + 1);
   }
 

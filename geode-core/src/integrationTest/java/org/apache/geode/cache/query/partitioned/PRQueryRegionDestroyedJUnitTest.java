@@ -29,7 +29,6 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionDestroyedException;
 import org.apache.geode.cache.query.QueryInvocationTargetException;
 import org.apache.geode.cache.query.RegionNotFoundException;
-import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.data.PortfolioData;
 import org.apache.geode.internal.cache.PartitionedRegionTestHelper;
 import org.apache.geode.test.dunit.ThreadUtils;
@@ -83,17 +82,17 @@ public class PRQueryRegionDestroyedJUnitTest {
 
     logger.info("PRQueryRegionDestroyedJUnitTest#testQueryOnSingleDataStore: creating PR Region ");
 
-    final Region region =
+    final var region =
         PartitionedRegionTestHelper.createPartitionedRegion(regionName, localMaxMemory, redundancy);
 
-    final Region localRegion = PartitionedRegionTestHelper.createLocalRegion(localRegionName);
+    final var localRegion = PartitionedRegionTestHelper.createLocalRegion(localRegionName);
 
-    final StringBuilder errorBuf = new StringBuilder();
+    final var errorBuf = new StringBuilder();
 
-    PortfolioData[] portfolios = new PortfolioData[dataSize];
+    var portfolios = new PortfolioData[dataSize];
 
     try {
-      for (int j = 0; j < dataSize; j++) {
+      for (var j = 0; j < dataSize; j++) {
         portfolios[j] = new PortfolioData(j);
       }
       logger.info(
@@ -105,25 +104,25 @@ public class PRQueryRegionDestroyedJUnitTest {
           "PRQueryRegionDestroyedJUnitTest#testQueryOnSingleDataStore: populating PortfolioData into the PR Datastore  ");
 
       populateData(localRegion, portfolios);
-      final String[] queryString =
-          {"ID = 0 OR ID = 1", "ID > 4 AND ID < 9", "ID = 5", "ID < 5 ", "ID <= 5"};
+      final var queryString =
+          new String[] {"ID = 0 OR ID = 1", "ID > 4 AND ID < 9", "ID = 5", "ID < 5 ", "ID <= 5"};
 
       logger.info(
           "PRQueryRegionDestroyedJUnitTest#testQueryOnSingleDataStore: Creating a Thread which will fire queries on the datastore");
 
-      Thread t1 = new Thread(() -> {
-        final String expectedRegionDestroyedException = RegionDestroyedException.class.getName();
+      var t1 = new Thread(() -> {
+        final var expectedRegionDestroyedException = RegionDestroyedException.class.getName();
 
         logger.info("<ExpectedException action=add>" + expectedRegionDestroyedException
             + "</ExpectedException>");
 
-        for (final String s : queryString) {
+        for (final var s : queryString) {
 
           try {
 
-            SelectResults resSetPR = region.query(s);
-            SelectResults resSetLocal = localRegion.query(s);
-            String failureString =
+            var resSetPR = region.query(s);
+            var resSetLocal = localRegion.query(s);
+            var failureString =
                 PartitionedRegionTestHelper.compareResultSets(resSetPR, resSetLocal);
             Thread.sleep(delayQuery);
             if (failureString != null) {
@@ -155,7 +154,7 @@ public class PRQueryRegionDestroyedJUnitTest {
                     + qe);
 
             encounteredException = true;
-            StringWriter sw = new StringWriter();
+            var sw = new StringWriter();
             qe.printStackTrace(new PrintWriter(sw));
             errorBuf.append(sw);
 
@@ -169,7 +168,7 @@ public class PRQueryRegionDestroyedJUnitTest {
       logger.info(
           "PRQueryRegionDestroyedJUnitTest#testQueryOnSingleDataStore: Creating a Thread which will call Region.destroyRegion() on the datastore ");
 
-      Thread t2 = new Thread(() -> {
+      var t2 = new Thread(() -> {
         try {
           Thread.sleep(2500);
         } catch (InterruptedException ie) {
@@ -215,7 +214,7 @@ public class PRQueryRegionDestroyedJUnitTest {
    */
   private void populateData(Region region, Object[] data) {
     logger.info("PRQueryRegionDestroyedJUnitTest#populateData: Populating Data in the PR Region ");
-    for (int j = 0; j < data.length; j++) {
+    for (var j = 0; j < data.length; j++) {
       region.put(j, data[j]);
     }
   }

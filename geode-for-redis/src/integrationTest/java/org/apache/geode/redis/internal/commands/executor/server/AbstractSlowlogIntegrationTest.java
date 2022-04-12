@@ -20,14 +20,11 @@ import static org.apache.geode.redis.internal.RedisConstants.WRONG_NUMBER_OF_ARG
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import java.util.List;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Protocol;
-import redis.clients.jedis.resps.Slowlog;
 
 import org.apache.geode.redis.RedisIntegrationTest;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
@@ -50,28 +47,28 @@ public abstract class AbstractSlowlogIntegrationTest implements RedisIntegration
 
   @Test
   public void shouldReturnEmptyArray_whenGetSubcommandSpecified() {
-    List<Slowlog> actualResult = jedis.slowlogGet();
+    var actualResult = jedis.slowlogGet();
 
     assertThat(actualResult.isEmpty());
   }
 
   @Test
   public void shouldReturnEmptyArray_whenGetSubcommandSpecified_withLengthParameter() {
-    List<Slowlog> actualResult = jedis.slowlogGet(200);
+    var actualResult = jedis.slowlogGet(200);
 
     assertThat(actualResult.isEmpty());
   }
 
   @Test
   public void shouldReturnEmptyArray_whenGetSubcommandSpecified_withNegativeLengthParameter() {
-    List<Slowlog> actualResult = jedis.slowlogGet(-200);
+    var actualResult = jedis.slowlogGet(-200);
 
     assertThat(actualResult.isEmpty());
   }
 
   @Test
   public void shouldNotThrowException_whenGetSubcommandSpecified_givenLongValue() {
-    List<Slowlog> actualResult = jedis.slowlogGet(Long.MAX_VALUE);
+    var actualResult = jedis.slowlogGet(Long.MAX_VALUE);
 
     assertThat(actualResult.isEmpty());
   }
@@ -85,7 +82,7 @@ public abstract class AbstractSlowlogIntegrationTest implements RedisIntegration
 
   @Test
   public void shouldReturnOK_whenResetSubcommandSpecified() {
-    String response = jedis.slowlogReset();
+    var response = jedis.slowlogReset();
 
     assertThat(response).isEqualTo("OK");
   }

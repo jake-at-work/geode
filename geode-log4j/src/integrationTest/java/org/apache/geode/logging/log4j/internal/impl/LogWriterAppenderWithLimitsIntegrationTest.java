@@ -21,9 +21,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.io.File;
-import java.net.URL;
-
 import org.apache.logging.log4j.junit.LoggerContextRule;
 import org.junit.After;
 import org.junit.Before;
@@ -72,7 +69,7 @@ public class LogWriterAppenderWithLimitsIntegrationTest {
 
   @BeforeClass
   public static void setUpLogConfigFile() {
-    URL resource = getResource(CONFIG_FILE_NAME);
+    var resource = getResource(CONFIG_FILE_NAME);
     configFilePath = createFileFromResource(resource, temporaryFolder.getRoot(), CONFIG_FILE_NAME)
         .getAbsolutePath();
   }
@@ -82,8 +79,8 @@ public class LogWriterAppenderWithLimitsIntegrationTest {
     logWriterAppender = loggerContextRule.getAppender(APPENDER_NAME,
         LogWriterAppender.class);
 
-    String name = testName.getMethodName();
-    File logFile = temporaryFolder.newFile(name + ".log");
+    var name = testName.getMethodName();
+    var logFile = temporaryFolder.newFile(name + ".log");
 
     config = mock(LogConfig.class);
     when(config.getName()).thenReturn(name);
@@ -92,11 +89,11 @@ public class LogWriterAppenderWithLimitsIntegrationTest {
     when(config.getLogDiskSpaceLimit()).thenReturn(MAX_LOG_DISK_SPACE_LIMIT);
     when(config.getLogFileSizeLimit()).thenReturn(MAX_LOG_FILE_SIZE_LIMIT);
 
-    LogConfigSupplier logConfigSupplier = mock(LogConfigSupplier.class);
+    var logConfigSupplier = mock(LogConfigSupplier.class);
     when(logConfigSupplier.getLogConfig()).thenReturn(config);
     when(logConfigSupplier.getStatisticsConfig()).thenReturn(mock(StatisticsConfig.class));
 
-    SessionContext sessionContext = mock(SessionContext.class);
+    var sessionContext = mock(SessionContext.class);
     when(sessionContext.getLogConfigSupplier()).thenReturn(logConfigSupplier);
 
     logWriterAppender.createSession(sessionContext);
@@ -110,7 +107,7 @@ public class LogWriterAppenderWithLimitsIntegrationTest {
   @Test
   public void logDiskSpaceLimit() {
     // log-disk-space-limit starts out as MAX_LOG_DISK_SPACE_LIMIT
-    LogConfig logConfig = logWriterAppender.getLogWriter().getConfig();
+    var logConfig = logWriterAppender.getLogWriter().getConfig();
     assertThat(logConfig.getLogDiskSpaceLimit()).isEqualTo(MAX_LOG_DISK_SPACE_LIMIT);
 
     // log-disk-space-limit changes to 1_000
@@ -129,7 +126,7 @@ public class LogWriterAppenderWithLimitsIntegrationTest {
   @Test
   public void logFileSizeLimit() {
     // log-file-size-limit starts out as MAX_LOG_FILE_SIZE_LIMIT
-    LogConfig logConfig = logWriterAppender.getLogWriter().getConfig();
+    var logConfig = logWriterAppender.getLogWriter().getConfig();
     assertThat(logConfig.getLogFileSizeLimit()).isEqualTo(MAX_LOG_FILE_SIZE_LIMIT);
 
     // log-file-size-limit changes to 1_000

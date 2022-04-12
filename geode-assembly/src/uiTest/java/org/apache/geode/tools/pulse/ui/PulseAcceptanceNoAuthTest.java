@@ -58,7 +58,7 @@ public class PulseAcceptanceNoAuthTest extends PulseAcceptanceTestBase {
 
   @BeforeClass
   public static void beforeClass() throws Exception {
-    int locatorPort = locator.getPort();
+    var locatorPort = locator.getPort();
     clusterRule.startServerVM(1, locatorPort);
 
     gfsh.connectAndVerify(locator.getJmxPort(), GfshCommandRule.PortType.jmxManager);

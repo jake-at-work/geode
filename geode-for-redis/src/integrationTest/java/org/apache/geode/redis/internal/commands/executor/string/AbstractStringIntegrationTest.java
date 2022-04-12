@@ -62,7 +62,7 @@ public abstract class AbstractStringIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testStrlen_requestKey_returnsLengthOfStringValue() {
-    String value = "byGoogle";
+    var value = "byGoogle";
 
     jedis1.set("golang", value);
 
@@ -72,7 +72,7 @@ public abstract class AbstractStringIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testStrlen_requestWrongType_shouldReturnError() {
-    String key = "hashKey";
+    var key = "hashKey";
     jedis1.hset(key, "field", "this value doesn't matter");
 
     assertThatThrownBy(() -> jedis1.strlen(key)).hasMessage(ERROR_WRONG_TYPE);
@@ -80,7 +80,7 @@ public abstract class AbstractStringIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testStrlen_withEmptyByte() {
-    byte[] key = new byte[] {0};
+    var key = new byte[] {0};
     jedis1.set(key, new byte[] {});
 
     assertThat(jedis1.strlen(key)).isEqualTo(0);
@@ -88,7 +88,7 @@ public abstract class AbstractStringIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testStrlen_withBinaryData() {
-    byte[] zero = new byte[] {0};
+    var zero = new byte[] {0};
     jedis1.set(zero, zero);
 
     assertThat(jedis1.strlen(zero)).isEqualTo(1);
@@ -96,8 +96,8 @@ public abstract class AbstractStringIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testStrlen_withUTF16BinaryData() {
-    String test_utf16_string = "最𐐷𤭢";
-    byte[] testBytes = test_utf16_string.getBytes(StandardCharsets.UTF_16);
+    var test_utf16_string = "最𐐷𤭢";
+    var testBytes = test_utf16_string.getBytes(StandardCharsets.UTF_16);
     jedis1.set(testBytes, testBytes);
 
     assertThat(jedis1.strlen(testBytes)).isEqualTo(12);
@@ -105,8 +105,8 @@ public abstract class AbstractStringIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testStrlen_withIntData() {
-    byte[] key = new byte[] {0};
-    byte[] value = new byte[] {1, 0, 0};
+    var key = new byte[] {0};
+    var value = new byte[] {1, 0, 0};
     jedis1.set(key, value);
 
     assertThat(jedis1.strlen(key)).isEqualTo(value.length);
@@ -114,8 +114,8 @@ public abstract class AbstractStringIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testStrlen_withFloatData() {
-    byte[] key = new byte[] {0};
-    byte[] value = new byte[] {'0', '.', '9'};
+    var key = new byte[] {0};
+    var value = new byte[] {'0', '.', '9'};
     jedis1.set(key, value);
 
     assertThat(jedis1.strlen(key)).isEqualTo(value.length);
@@ -128,7 +128,7 @@ public abstract class AbstractStringIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testDecr_withWrongType_shouldError() {
-    String key = "hashKey";
+    var key = "hashKey";
     jedis1.hset(key, "field", "non-int value");
 
     assertThatThrownBy(() -> jedis1.decr(key)).hasMessage(ERROR_WRONG_TYPE);
@@ -136,7 +136,7 @@ public abstract class AbstractStringIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testDecr_decrementsPositiveIntegerValues() {
-    String key = "key";
+    var key = "key";
     jedis1.set(key, "10");
 
     assertThat(jedis1.decr(key)).isEqualTo(9L);
@@ -145,7 +145,7 @@ public abstract class AbstractStringIntegrationTest implements RedisIntegrationT
 
   @Test
   public void testDecr_returnsValueWhenDecrementingResultsInNegativeNumber() {
-    String key = "key";
+    var key = "key";
     jedis1.set(key, "0");
 
     assertThat(jedis1.decr(key)).isEqualTo(-1L);

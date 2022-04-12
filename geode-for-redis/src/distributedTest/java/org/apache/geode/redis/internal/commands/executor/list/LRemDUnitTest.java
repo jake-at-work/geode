@@ -21,7 +21,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.After;
@@ -31,7 +30,6 @@ import org.junit.Test;
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
 
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.dunit.rules.RedisClusterStartupRule;
 import org.apache.geode.test.junit.rules.ExecutorServiceRule;
 
@@ -52,11 +50,11 @@ public class LRemDUnitTest {
 
   @Before
   public void testSetup() {
-    MemberVM locator = clusterStartUp.startLocatorVM(0);
+    var locator = clusterStartUp.startLocatorVM(0);
     clusterStartUp.startRedisVM(1, locator.getPort());
     clusterStartUp.startRedisVM(2, locator.getPort());
     clusterStartUp.startRedisVM(3, locator.getPort());
-    int redisServerPort = clusterStartUp.getRedisPort(1);
+    var redisServerPort = clusterStartUp.getRedisPort(1);
     jedis = new JedisCluster(new HostAndPort(BIND_ADDRESS, redisServerPort), REDIS_CLIENT_TIMEOUT);
     clusterStartUp.flushAll();
   }
@@ -68,19 +66,19 @@ public class LRemDUnitTest {
 
   @Test
   public void shouldDistributeDataAmongCluster_andRetainDataAfterServerCrash() {
-    String key = makeListKeyWithHashtag(1, clusterStartUp.getKeyOnServer("lrem", 1));
+    var key = makeListKeyWithHashtag(1, clusterStartUp.getKeyOnServer("lrem", 1));
 
     // Create initial list and push it
-    final int initialListSize = 30;
-    final int uniqueElements = 3;
-    String[] elementList = new String[initialListSize];
-    for (int i = 0; i < initialListSize; i++) {
+    final var initialListSize = 30;
+    final var uniqueElements = 3;
+    var elementList = new String[initialListSize];
+    for (var i = 0; i < initialListSize; i++) {
       elementList[i] = makeElementString(key, i % uniqueElements);
     }
     jedis.lpush(key, elementList);
 
     // Remove all elements except for ELEMENT_TO_CHECK
-    final int uniqueElementsCount = initialListSize / uniqueElements;
+    final var uniqueElementsCount = initialListSize / uniqueElements;
     assertThat(jedis.lrem(key, 0, makeElementString(key, 0))).isEqualTo(uniqueElementsCount);
     assertThat(jedis.lrem(key, -uniqueElementsCount, makeElementString(key, 1)))
         .isEqualTo(uniqueElementsCount);
@@ -96,29 +94,29 @@ public class LRemDUnitTest {
 
   @Test
   public void givenBucketsMoveDuringLrem_thenOperationsAreNotLost() throws Exception {
-    AtomicBoolean running = new AtomicBoolean(true);
+    var running = new AtomicBoolean(true);
 
-    List<String> listHashtags = makeListHashtags();
-    String key1 = makeListKeyWithHashtag(1, listHashtags.get(0));
-    String key2 = makeListKeyWithHashtag(2, listHashtags.get(1));
-    String key3 = makeListKeyWithHashtag(3, listHashtags.get(2));
+    var listHashtags = makeListHashtags();
+    var key1 = makeListKeyWithHashtag(1, listHashtags.get(0));
+    var key2 = makeListKeyWithHashtag(2, listHashtags.get(1));
+    var key3 = makeListKeyWithHashtag(3, listHashtags.get(2));
 
-    String[] elementList1 = makeListWithRepeatingElements(key1);
-    String[] elementList2 = makeListWithRepeatingElements(key2);
-    String[] elementList3 = makeListWithRepeatingElements(key3);
+    var elementList1 = makeListWithRepeatingElements(key1);
+    var elementList2 = makeListWithRepeatingElements(key2);
+    var elementList3 = makeListWithRepeatingElements(key3);
 
     jedis.lpush(key1, elementList1);
     jedis.lpush(key2, elementList2);
     jedis.lpush(key3, elementList3);
 
-    Future<Integer> future1 =
+    var future1 =
         executor.submit(() -> performLremAndVerify(key1, running, elementList1));
-    Future<Integer> future2 =
+    var future2 =
         executor.submit(() -> performLremAndVerify(key2, running, elementList2));
-    Future<Integer> future3 =
+    var future3 =
         executor.submit(() -> performLremAndVerify(key3, running, elementList3));
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       clusterStartUp.moveBucketForKey(listHashtags.get(i % listHashtags.size()));
       Thread.sleep(500);
     }
@@ -131,8 +129,8 @@ public class LRemDUnitTest {
   }
 
   private void verifyLremResult(String key, int iterationCount) {
-    for (int i = UNIQUE_ELEMENTS - 1; i >= iterationCount; i--) {
-      String element = makeElementString(key, i);
+    for (var i = UNIQUE_ELEMENTS - 1; i >= iterationCount; i--) {
+      var element = makeElementString(key, i);
       assertThat(jedis.lrem(key, COUNT_OF_UNIQUE_ELEMENT, element))
           .isEqualTo(COUNT_OF_UNIQUE_ELEMENT);
     }
@@ -141,13 +139,13 @@ public class LRemDUnitTest {
 
   private Integer performLremAndVerify(String key, AtomicBoolean isRunning, String[] list) {
     assertThat(jedis.llen(key)).isEqualTo(LIST_SIZE_FOR_BUCKET_TEST);
-    int count = COUNT_OF_UNIQUE_ELEMENT;
-    List<String> expectedList = getReversedList(list);
+    var count = COUNT_OF_UNIQUE_ELEMENT;
+    var expectedList = getReversedList(list);
 
-    int iterationCount = 0;
+    var iterationCount = 0;
     while (isRunning.get()) {
       count = -count;
-      String element = makeElementString(key, iterationCount);
+      var element = makeElementString(key, iterationCount);
       assertThat(jedis.lrem(key, count, element)).isEqualTo(COUNT_OF_UNIQUE_ELEMENT);
 
       expectedList.removeAll(Collections.singleton(element));
@@ -165,8 +163,8 @@ public class LRemDUnitTest {
   }
 
   private String[] makeListWithRepeatingElements(String key) {
-    String[] elementList = new String[LIST_SIZE_FOR_BUCKET_TEST];
-    for (int i = 0; i < LIST_SIZE_FOR_BUCKET_TEST; i++) {
+    var elementList = new String[LIST_SIZE_FOR_BUCKET_TEST];
+    for (var i = 0; i < LIST_SIZE_FOR_BUCKET_TEST; i++) {
       elementList[i] = makeElementString(key, i % UNIQUE_ELEMENTS);
     }
     return elementList;
@@ -181,9 +179,9 @@ public class LRemDUnitTest {
   }
 
   private List<String> getReversedList(String[] list) {
-    int listSize = list.length;
+    var listSize = list.length;
     List<String> reversedList = new ArrayList<>(listSize);
-    for (int i = LIST_SIZE_FOR_BUCKET_TEST - 1; 0 <= i; i--) {
+    for (var i = LIST_SIZE_FOR_BUCKET_TEST - 1; 0 <= i; i--) {
       reversedList.add(list[i]);
     }
     return reversedList;

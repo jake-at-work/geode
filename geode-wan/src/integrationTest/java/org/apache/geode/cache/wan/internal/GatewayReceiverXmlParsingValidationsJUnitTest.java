@@ -25,7 +25,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.ServiceLoader;
 
 import org.junit.After;
@@ -68,7 +67,7 @@ public class GatewayReceiverXmlParsingValidationsJUnitTest {
 
   @Test(expected = CacheXmlException.class)
   public void multipleReceiversShouldThrowException() {
-    String cacheXmlFileName =
+    var cacheXmlFileName =
         createTempFileFromResource(getClass(),
             getClass().getSimpleName() + "." + testName.getMethodName() + ".cache.xml")
                 .getAbsolutePath();
@@ -77,17 +76,17 @@ public class GatewayReceiverXmlParsingValidationsJUnitTest {
 
   @Test
   public void correctConfiguration() {
-    String cacheXmlFileName =
+    var cacheXmlFileName =
         createTempFileFromResource(getClass(),
             getClass().getSimpleName() + "." + testName.getMethodName() + ".cache.xml")
                 .getAbsolutePath();
     cache = new CacheFactory().set(MCAST_PORT, "0").set(CACHE_XML_FILE, cacheXmlFileName).create();
 
     assertThat(cache.getGatewayReceivers()).isNotEmpty();
-    GatewayReceiver receiver = cache.getGatewayReceivers().iterator().next();
+    var receiver = cache.getGatewayReceivers().iterator().next();
 
-    ServiceLoader<WANFactory> loader = ServiceLoader.load(WANFactory.class);
-    Iterator<WANFactory> itr = loader.iterator();
+    var loader = ServiceLoader.load(WANFactory.class);
+    var itr = loader.iterator();
     assertThat(itr.hasNext()).isTrue();
 
     assertEquals(1501, receiver.getEndPort());
@@ -174,7 +173,7 @@ public class GatewayReceiverXmlParsingValidationsJUnitTest {
 
     @Override
     public GatewayReceiver create() {
-      GatewayReceiver receiver = mock(GatewayReceiver.class);
+      var receiver = mock(GatewayReceiver.class);
       when(receiver.isManualStart()).thenReturn(manualStart);
       when(receiver.getBindAddress()).thenReturn(bindAdd);
       when(receiver.getEndPort()).thenReturn(endPort);

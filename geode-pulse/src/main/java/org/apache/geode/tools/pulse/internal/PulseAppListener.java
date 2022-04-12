@@ -17,12 +17,8 @@
 
 package org.apache.geode.tools.pulse.internal;
 
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.ResourceBundle;
-import java.util.Set;
-
-import javax.servlet.ServletContext;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -102,11 +98,11 @@ public class PulseAppListener implements ApplicationListener<ApplicationEvent> {
           Boolean.parseBoolean(
               System.getProperty(PulseConstants.SYSTEM_PROPERTY_PULSE_USESSL_LOCATOR)));
 
-      WebApplicationContext applicationContext =
+      var applicationContext =
           (WebApplicationContext) event.getApplicationContext();
-      ServletContext servletContext = applicationContext.getServletContext();
+      var servletContext = applicationContext.getServletContext();
 
-      Object sslProperties =
+      var sslProperties =
           servletContext.getAttribute(GEODE_SSLCONFIG_SERVLET_CONTEXT_PARAM);
       if (sslProperties instanceof Properties) {
         repository.setJavaSslProperties((Properties) sslProperties);
@@ -116,7 +112,7 @@ public class PulseAppListener implements ApplicationListener<ApplicationEvent> {
       logger.info(resourceBundle.getString("LOG_MSG_APP_RUNNING_NONEMBEDDED_MODE"));
 
       // Load Pulse Properties
-      Properties pulseProperties =
+      var pulseProperties =
           propertiesFileLoader.loadProperties(PulseConstants.PULSE_PROPERTIES_FILE, resourceBundle);
 
       repository.setJmxUseLocator(Boolean.valueOf(
@@ -133,17 +129,17 @@ public class PulseAppListener implements ApplicationListener<ApplicationEvent> {
           .getProperty(PulseConstants.SYSTEM_PROPERTY_PULSE_USESSL_LOCATOR, "false")));
 
       // load pulse security properties
-      Properties pulseSecurityProperties =
+      var pulseSecurityProperties =
           propertiesFileLoader
               .loadProperties(PulseConstants.PULSE_SECURITY_PROPERTIES_FILE, resourceBundle);
 
       // set the ssl related properties found in pulsesecurity.properties
       if (!pulseSecurityProperties.isEmpty()) {
-        Set<Entry<Object, Object>> entrySet = pulseSecurityProperties.entrySet();
-        for (Entry<Object, Object> entry : entrySet) {
-          String key = (String) entry.getKey();
+        var entrySet = pulseSecurityProperties.entrySet();
+        for (var entry : entrySet) {
+          var key = (String) entry.getKey();
           if (key.startsWith("javax.net.ssl.")) {
-            String val = (String) entry.getValue();
+            var val = (String) entry.getValue();
             System.setProperty(key, val);
           }
         }
@@ -159,16 +155,16 @@ public class PulseAppListener implements ApplicationListener<ApplicationEvent> {
     // Stop cluster threads
     repository.removeAllClusters();
 
-    WebApplicationContext applicationContext =
+    var applicationContext =
         (WebApplicationContext) event.getApplicationContext();
-    ServletContext servletContext = applicationContext.getServletContext();
+    var servletContext = applicationContext.getServletContext();
 
     logger.info("{}{}", resourceBundle.getString("LOG_MSG_CONTEXT_DESTROYED"),
         servletContext.getContextPath());
   }
 
   private void loadPulseVersionDetails() {
-    Properties properties =
+    var properties =
         propertiesFileLoader
             .loadProperties(PulseConstants.PULSE_VERSION_PROPERTIES_FILE, resourceBundle);
     pulseController.getPulseVersion()

@@ -46,11 +46,11 @@ public class ObjectTraverser {
    */
   public static void breadthFirstSearch(Object root, Visitor visitor, boolean includeStatics)
       throws IllegalArgumentException, IllegalAccessException {
-    VisitStack stack = new VisitStack(visitor, includeStatics);
+    var stack = new VisitStack(visitor, includeStatics);
 
     stack.add(null, root);
     while (!stack.isEmpty()) {
-      Object next = stack.next();
+      var next = stack.next();
       doSearch(next, stack);
     }
 
@@ -59,48 +59,48 @@ public class ObjectTraverser {
   private static void doSearch(Object root, VisitStack stack)
       throws IllegalArgumentException, IllegalAccessException {
     Class clazz = root.getClass();
-    boolean includeStatics = stack.shouldIncludeStatics(clazz);
-    FieldSet set = FIELD_CACHE.get(clazz);
+    var includeStatics = stack.shouldIncludeStatics(clazz);
+    var set = FIELD_CACHE.get(clazz);
     if (set == null) {
       set = cacheFieldSet(clazz);
     }
 
     if (set == NON_PRIMATIVE_ARRAY) {
-      Class componentType = clazz.getComponentType();
-      int length = Array.getLength(root);
-      for (int i = 0; i < length; i++) {
-        Object value = Array.get(root, i);
+      var componentType = clazz.getComponentType();
+      var length = Array.getLength(root);
+      for (var i = 0; i < length; i++) {
+        var value = Array.get(root, i);
         stack.add(root, value);
       }
       return;
     }
 
     if (includeStatics) {
-      for (Field field : set.getStaticFields()) {
-        Object value = field.get(root);
+      for (var field : set.getStaticFields()) {
+        var value = field.get(root);
         stack.add(root, value);
       }
     }
 
-    for (Field field : set.getNonPrimativeFields()) {
-      Object value = field.get(root);
+    for (var field : set.getNonPrimativeFields()) {
+      var value = field.get(root);
       stack.add(root, value);
     }
   }
 
   private static FieldSet cacheFieldSet(Class clazz) {
-    FieldSet set = buildFieldSet(clazz);
+    var set = buildFieldSet(clazz);
     FIELD_CACHE.put(clazz, set);
     return set;
   }
 
   private static FieldSet buildFieldSet(Class clazz) {
-    ArrayList<Field> staticFields = new ArrayList<>();
-    ArrayList<Field> nonPrimativeFields = new ArrayList<>();
+    var staticFields = new ArrayList<Field>();
+    var nonPrimativeFields = new ArrayList<Field>();
 
     while (clazz != null) {
       if (clazz.isArray()) {
-        Class componentType = clazz.getComponentType();
+        var componentType = clazz.getComponentType();
         if (!componentType.isPrimitive()) {
           return NON_PRIMATIVE_ARRAY;
         } else {
@@ -108,8 +108,8 @@ public class ObjectTraverser {
         }
       }
 
-      Field[] fields = clazz.getDeclaredFields();
-      for (Field field : fields) {
+      var fields = clazz.getDeclaredFields();
+      for (var field : fields) {
         Class fieldType = field.getType();
         // skip static fields if we've already counted them once
         if (!fieldType.isPrimitive()) {
@@ -157,10 +157,10 @@ public class ObjectTraverser {
       if (object == null) {
         return;
       }
-      boolean newObject = !seen.contains(object);
+      var newObject = !seen.contains(object);
       if (newObject) {
         seen.add(object);
-        boolean visitChildren = visitor.visit(parent, object);
+        var visitChildren = visitor.visit(parent, object);
         if (visitChildren) {
           stack.add(object);
         }
@@ -179,7 +179,7 @@ public class ObjectTraverser {
       if (!includeStatics) {
         return false;
       }
-      boolean keyExists = seen.contains(clazz);
+      var keyExists = seen.contains(clazz);
       seen.add(clazz);
       return !keyExists;
     }

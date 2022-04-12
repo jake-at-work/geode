@@ -29,11 +29,11 @@ public class CompiledIteratorDefJUnitTest {
   @Test
   public void cacheClosedWhileEvaluateCollectionShouldNotThrowTypeMismatchException()
       throws Exception {
-    CompiledValue compiledValue = mock(CompiledValue.class);
-    CompiledIteratorDef compiledIteratorDef =
+    var compiledValue = mock(CompiledValue.class);
+    var compiledIteratorDef =
         new CompiledIteratorDef("TestIterator", TypeUtils.OBJECT_TYPE, compiledValue);
-    final ExecutionContext executionContext = mock(ExecutionContext.class);
-    RuntimeIterator runtimeIterator = mock(RuntimeIterator.class);
+    final var executionContext = mock(ExecutionContext.class);
+    var runtimeIterator = mock(RuntimeIterator.class);
 
     when(runtimeIterator.evaluateCollection(executionContext))
         .thenThrow(CacheClosedException.class);

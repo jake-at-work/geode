@@ -32,7 +32,6 @@ import java.util.stream.StreamSupport;
 import net.sourceforge.pmd.lang.java.ast.ASTFieldDeclaration;
 import net.sourceforge.pmd.lang.java.ast.ASTVariableDeclaratorId;
 import net.sourceforge.pmd.lang.java.rule.AbstractJavaRule;
-import net.sourceforge.pmd.lang.java.symboltable.VariableNameDeclaration;
 
 public class StaticFieldsMustBeImmutable extends AbstractJavaRule {
   private static final Set<String> immutableTypes =
@@ -70,7 +69,7 @@ public class StaticFieldsMustBeImmutable extends AbstractJavaRule {
   }
 
   private boolean isMutable(ASTVariableDeclaratorId variable) {
-    VariableNameDeclaration nameDeclaration = variable.getNameDeclaration();
+    var nameDeclaration = variable.getNameDeclaration();
     return !(nameDeclaration.isPrimitiveType()
         || immutableTypes.contains(nameDeclaration.getTypeImage()));
   }

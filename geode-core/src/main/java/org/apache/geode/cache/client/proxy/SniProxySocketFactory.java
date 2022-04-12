@@ -45,7 +45,7 @@ public class SniProxySocketFactory implements SocketFactory, Declarable {
   @Override // Declarable
   public void initialize(Cache cache, Properties properties) {
     hostname = properties.getProperty("hostname");
-    String portString =
+    var portString =
         properties.getProperty("port", "" + DistributionLocator.DEFAULT_LOCATOR_PORT);
     port = Integer.parseInt(portString);
   }

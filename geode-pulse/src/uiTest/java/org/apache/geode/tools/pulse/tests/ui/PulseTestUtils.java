@@ -65,7 +65,7 @@ public class PulseTestUtils {
   }
 
   public static WebElement waitForElement(By by) {
-    WebElement element = (new WebDriverWait(driverProvider.get(), maxWaitTime))
+    var element = (new WebDriverWait(driverProvider.get(), maxWaitTime))
         .until((ExpectedCondition<WebElement>) d -> d.findElement(by));
     assertNotNull(element);
     return element;
@@ -73,7 +73,7 @@ public class PulseTestUtils {
 
   public static void clickElementUsingId(String id) {
     WebDriverException lastException = null;
-    int attempts = 3;
+    var attempts = 3;
     while (attempts > 0) {
       try {
         waitForElementWithId(id).click();
@@ -130,13 +130,13 @@ public class PulseTestUtils {
   }
 
   public static void validateServerGroupGridData() {
-    List<WebElement> serverGridRows =
+    var serverGridRows =
         getDriver().findElements(By.xpath("//table[@id='memberListSG']/tbody/tr"));
-    int rowsCount = serverGridRows.size();
-    String[][] gridDataFromUI = new String[rowsCount][7];
+    var rowsCount = serverGridRows.size();
+    var gridDataFromUI = new String[rowsCount][7];
 
     for (int j = 2, x = 0; j <= serverGridRows.size(); j++, x++) {
-      for (int i = 0; i <= 6; i++) {
+      for (var i = 0; i <= 6; i++) {
         gridDataFromUI[x][i] = getDriver()
             .findElement(
                 By.xpath("//table[@id='memberListSG']/tbody/tr[" + j + "]/td[" + (i + 1) + "]"))
@@ -144,15 +144,15 @@ public class PulseTestUtils {
       }
     }
 
-    String[] memberNames = JMXProperties.getInstance().getProperty("members").split(" ");
-    HashMap<String, HashMap<String, Member>> sgMap = new HashMap<>();
+    var memberNames = JMXProperties.getInstance().getProperty("members").split(" ");
+    var sgMap = new HashMap<String, HashMap<String, Member>>();
 
-    for (String member : memberNames) {
-      Member thisMember = new Member(member);
-      String[] sgs = thisMember.getGroups();
+    for (var member : memberNames) {
+      var thisMember = new Member(member);
+      var sgs = thisMember.getGroups();
 
-      for (String sgName : sgs) {
-        HashMap<String, Member> sgMembers = sgMap.get(sgName);
+      for (var sgName : sgs) {
+        var sgMembers = sgMap.get(sgName);
         if (sgMembers == null) {
           sgMembers = new HashMap<>();
           sgMap.put(sgName, sgMembers);
@@ -161,29 +161,29 @@ public class PulseTestUtils {
       }
     }
 
-    for (int i = 0; i < gridDataFromUI.length - 1; i++) {
-      String sgName = gridDataFromUI[i][0];
-      String memName = gridDataFromUI[i][1];
-      Member m = sgMap.get(sgName).get(memName);
+    for (var i = 0; i < gridDataFromUI.length - 1; i++) {
+      var sgName = gridDataFromUI[i][0];
+      var memName = gridDataFromUI[i][1];
+      var m = sgMap.get(sgName).get(memName);
 
       assertEquals(sgName, gridDataFromUI[i][0]);
       assertEquals(memName, gridDataFromUI[i][1]);
       assertEquals(m.getMember(), gridDataFromUI[i][2]);
       assertEquals(m.getHost(), gridDataFromUI[i][3]);
-      String cupUsage = String.valueOf(m.getCpuUsage());
+      var cupUsage = String.valueOf(m.getCpuUsage());
       assertEquals(cupUsage, gridDataFromUI[i][5]);
     }
 
   }
 
   public static void validateRedundancyZonesGridData() {
-    List<WebElement> rzGridRows =
+    var rzGridRows =
         getDriver().findElements(By.xpath("//table[@id='memberListRZ']/tbody/tr"));
-    int rowsCount = rzGridRows.size();
-    String[][] gridDataFromUI = new String[rowsCount][7];
+    var rowsCount = rzGridRows.size();
+    var gridDataFromUI = new String[rowsCount][7];
 
     for (int j = 2, x = 0; j <= rzGridRows.size(); j++, x++) {
-      for (int i = 0; i <= 6; i++) {
+      for (var i = 0; i <= 6; i++) {
         gridDataFromUI[x][i] = getDriver()
             .findElement(
                 By.xpath("//table[@id='memberListRZ']/tbody/tr[" + j + "]/td[" + (i + 1) + "]"))
@@ -191,16 +191,16 @@ public class PulseTestUtils {
       }
     }
 
-    String[] memberNames = JMXProperties.getInstance().getProperty("members").split(" ");
-    HashMap<String, HashMap<String, Member>> rzMap = new HashMap<>();
+    var memberNames = JMXProperties.getInstance().getProperty("members").split(" ");
+    var rzMap = new HashMap<String, HashMap<String, Member>>();
 
-    for (String member : memberNames) {
-      Member thisMember = new Member(member);
+    for (var member : memberNames) {
+      var thisMember = new Member(member);
       // String[] rz = thisMember.getRedundancyZone();
-      String sgName = thisMember.getRedundancyZone();
+      var sgName = thisMember.getRedundancyZone();
 
       // for (String sgName : rz) {
-      HashMap<String, Member> rzMembers = rzMap.get(sgName);
+      var rzMembers = rzMap.get(sgName);
 
       if (rzMembers == null) {
         rzMembers = new HashMap<>();
@@ -211,29 +211,29 @@ public class PulseTestUtils {
       // }
     }
 
-    for (int i = 0; i < gridDataFromUI.length - 1; i++) {
-      String sgName = gridDataFromUI[i][0];
-      String memName = gridDataFromUI[i][1];
-      Member m = rzMap.get(sgName).get(memName);
+    for (var i = 0; i < gridDataFromUI.length - 1; i++) {
+      var sgName = gridDataFromUI[i][0];
+      var memName = gridDataFromUI[i][1];
+      var m = rzMap.get(sgName).get(memName);
 
       assertEquals(sgName, gridDataFromUI[i][0]);
       assertEquals(memName, gridDataFromUI[i][1]);
       assertEquals(m.getMember(), gridDataFromUI[i][2]);
       assertEquals(m.getHost(), gridDataFromUI[i][3]);
-      String cupUsage = String.valueOf(m.getCpuUsage());
+      var cupUsage = String.valueOf(m.getCpuUsage());
       assertEquals(cupUsage, gridDataFromUI[i][5]);
     }
 
   }
 
   public static void validateTopologyGridData() {
-    List<WebElement> rzGridRows =
+    var rzGridRows =
         getDriver().findElements(By.xpath("//table[@id='memberList']/tbody/tr"));
-    int rowsCount = rzGridRows.size();
-    String[][] gridDataFromUI = new String[rowsCount][8];
+    var rowsCount = rzGridRows.size();
+    var gridDataFromUI = new String[rowsCount][8];
 
     for (int j = 2, x = 0; j <= rzGridRows.size(); j++, x++) {
-      for (int i = 0; i <= 7; i++) {
+      for (var i = 0; i <= 7; i++) {
         gridDataFromUI[x][i] = getDriver()
             .findElement(
                 By.xpath("//table[@id='memberList']/tbody/tr[" + j + "]/td[" + (i + 1) + "]"))
@@ -241,36 +241,36 @@ public class PulseTestUtils {
       }
     }
 
-    String[] memberNames = JMXProperties.getInstance().getProperty("members").split(" ");
-    HashMap<String, Member> tpMap = new HashMap<>();
+    var memberNames = JMXProperties.getInstance().getProperty("members").split(" ");
+    var tpMap = new HashMap<String, Member>();
 
-    for (String member : memberNames) {
-      Member thisMember = new Member(member);
+    for (var member : memberNames) {
+      var thisMember = new Member(member);
       tpMap.put(thisMember.getMember(), thisMember);
 
     }
 
-    for (int i = 0; i < gridDataFromUI.length - 1; i++) {
+    for (var i = 0; i < gridDataFromUI.length - 1; i++) {
 
-      String memName = gridDataFromUI[i][0];
-      Member m = tpMap.get(memName);
+      var memName = gridDataFromUI[i][0];
+      var m = tpMap.get(memName);
 
       assertEquals(m.getMember(), gridDataFromUI[i][0]);
       assertEquals(m.getMember(), gridDataFromUI[i][1]);
       assertEquals(m.getHost(), gridDataFromUI[i][2]);
-      String cupUsage = String.valueOf(m.getCpuUsage());
+      var cupUsage = String.valueOf(m.getCpuUsage());
       assertEquals(cupUsage, gridDataFromUI[i][5]);
     }
   }
 
   public static void validateDataPrespectiveGridData() {
-    List<WebElement> serverGridRows =
+    var serverGridRows =
         getDriver().findElements(By.xpath("//table[@id='regionsList']/tbody/tr"));
-    int rowsCount = serverGridRows.size();
-    String[][] gridDataFromUI = new String[rowsCount][7];
+    var rowsCount = serverGridRows.size();
+    var gridDataFromUI = new String[rowsCount][7];
 
     for (int j = 2, x = 0; j <= serverGridRows.size(); j++, x++) {
-      for (int i = 0; i <= 6; i++) {
+      for (var i = 0; i <= 6; i++) {
         if (i < 5) {
           gridDataFromUI[x][i] = getDriver()
               .findElement(
@@ -285,18 +285,18 @@ public class PulseTestUtils {
       }
     }
 
-    String[] regionNames = JMXProperties.getInstance().getProperty("regions").split(" ");
-    HashMap<String, Region> dataMap = new HashMap<>();
+    var regionNames = JMXProperties.getInstance().getProperty("regions").split(" ");
+    var dataMap = new HashMap<String, Region>();
 
-    for (String region : regionNames) {
-      Region thisRegion = new Region(region);
+    for (var region : regionNames) {
+      var thisRegion = new Region(region);
       dataMap.put(thisRegion.getName(), thisRegion);
 
     }
 
-    for (int i = 0; i < gridDataFromUI.length - 1; i++) {
-      String memName = gridDataFromUI[i][0];
-      Region r = dataMap.get(memName);
+    for (var i = 0; i < gridDataFromUI.length - 1; i++) {
+      var memName = gridDataFromUI[i][0];
+      var r = dataMap.get(memName);
 
       assertEquals(r.getName(), gridDataFromUI[i][0]);
       assertEquals(r.getRegionType(), gridDataFromUI[i][1]);
@@ -308,13 +308,13 @@ public class PulseTestUtils {
   }
 
   public static void validateRegionDetailsGridData() {
-    List<WebElement> serverGridRows =
+    var serverGridRows =
         getDriver().findElements(By.xpath("//table[@id='memberList']/tbody/tr"));
-    int rowsCount = serverGridRows.size();
-    String[][] gridDataFromUI = new String[rowsCount][7];
+    var rowsCount = serverGridRows.size();
+    var gridDataFromUI = new String[rowsCount][7];
 
     for (int j = 2, x = 0; j <= serverGridRows.size(); j++, x++) {
-      for (int i = 0; i < 2; i++) {
+      for (var i = 0; i < 2; i++) {
         gridDataFromUI[x][i] = getDriver()
             .findElement(
                 By.xpath("//table[@id='memberList']/tbody/tr[" + j + "]/td[" + (i + 1) + "]"))
@@ -322,18 +322,18 @@ public class PulseTestUtils {
       }
     }
 
-    String[] memberNames = JMXProperties.getInstance().getProperty("members").split(" ");
-    HashMap<String, Member> tpMap = new HashMap<>();
+    var memberNames = JMXProperties.getInstance().getProperty("members").split(" ");
+    var tpMap = new HashMap<String, Member>();
 
-    for (String member : memberNames) {
-      Member thisMember = new Member(member);
+    for (var member : memberNames) {
+      var thisMember = new Member(member);
       tpMap.put(thisMember.getMember(), thisMember);
     }
 
-    for (int i = 0; i < gridDataFromUI.length - 1; i++) {
+    for (var i = 0; i < gridDataFromUI.length - 1; i++) {
 
-      String memName = gridDataFromUI[i][0];
-      Member m = tpMap.get(memName);
+      var memName = gridDataFromUI[i][0];
+      var m = tpMap.get(memName);
       assertEquals(m.getMember(), gridDataFromUI[i][0]);
     }
 
@@ -405,68 +405,68 @@ public class PulseTestUtils {
   }
 
   public static String getPropertyValue(String propertyKey) {
-    String propertyValue = JMXProperties.getInstance().getProperty(propertyKey);
+    var propertyValue = JMXProperties.getInstance().getProperty(propertyKey);
     return propertyValue;
   }
 
   public static void verifyElementPresentById(String id) {
-    WebDriverWait wait = new WebDriverWait(getDriver(), maxWaitTime, pollInterval);
+    var wait = new WebDriverWait(getDriver(), maxWaitTime, pollInterval);
     wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.id(id)));
   }
 
   public static void verifyElementPresentByLinkText(String lnkText) {
-    WebDriverWait wait = new WebDriverWait(getDriver(), maxWaitTime, pollInterval);
+    var wait = new WebDriverWait(getDriver(), maxWaitTime, pollInterval);
     wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.linkText(lnkText)));
   }
 
   public static void verifyElementPresentByXpath(String xpath) {
-    WebDriverWait wait = new WebDriverWait(getDriver(), maxWaitTime, pollInterval);
+    var wait = new WebDriverWait(getDriver(), maxWaitTime, pollInterval);
     wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath(xpath)));
   }
 
   public static void verifyTextPresrntById(String id, String text) {
-    WebDriverWait wait = new WebDriverWait(getDriver(), maxWaitTime, pollInterval);
+    var wait = new WebDriverWait(getDriver(), maxWaitTime, pollInterval);
     wait.until(ExpectedConditions.textToBePresentInElementLocated(By.id(id), text));
   }
 
   public static void verifyTextPresrntByXpath(String xpath, String text) {
-    WebDriverWait wait = new WebDriverWait(getDriver(), maxWaitTime, pollInterval);
+    var wait = new WebDriverWait(getDriver(), maxWaitTime, pollInterval);
     wait.until(ExpectedConditions.textToBePresentInElementLocated(By.xpath(xpath), text));
   }
 
   public static void verifyElementAttributeById(String id, String attribute, String value) {
-    String actualValue = waitForElementWithId(id).getAttribute(attribute);
+    var actualValue = waitForElementWithId(id).getAttribute(attribute);
     assertTrue(actualValue.equals(value) || actualValue.contains(value));
   }
 
 
   public static void mouseReleaseById(String id) {
     verifyElementPresentById(id);
-    Actions action = new Actions(getDriver());
-    WebElement we = getDriver().findElement(By.id(id));
+    var action = new Actions(getDriver());
+    var we = getDriver().findElement(By.id(id));
     action.moveToElement(we).release().perform();
   }
 
   public static void mouseClickAndHoldOverElementById(String id) {
     verifyElementPresentById(id);
-    Actions action = new Actions(getDriver());
-    WebElement we = getDriver().findElement(By.id(id));
+    var action = new Actions(getDriver());
+    var we = getDriver().findElement(By.id(id));
     action.moveToElement(we).clickAndHold().perform();
   }
 
   public static String[] splitString(String stringToSplit, String splitDelimiter) {
-    String[] stringArray = stringToSplit.split(splitDelimiter);
+    var stringArray = stringToSplit.split(splitDelimiter);
     return stringArray;
   }
 
   public static void assertMemberSortingByCpuUsage() {
     Map<Double, String> memberMap = new TreeMap<>(Collections.reverseOrder());
-    String[] membersNames = splitString(JMXProperties.getInstance().getProperty("members"), " ");
-    for (String member : membersNames) {
-      Member thisMember = new Member(member);
+    var membersNames = splitString(JMXProperties.getInstance().getProperty("members"), " ");
+    for (var member : membersNames) {
+      var thisMember = new Member(member);
       memberMap.put(thisMember.getCpuUsage(), thisMember.getMember());
     }
-    for (Map.Entry<Double, String> entry : memberMap.entrySet()) {
+    for (var entry : memberMap.entrySet()) {
       // here matching painting style to validation that the members are painted according to their
       // cpu usage
       String refMemberCPUUsage = null;
@@ -484,12 +484,12 @@ public class PulseTestUtils {
 
   public static void assertMemberSortingByHeapUsage() {
     Map<Long, String> memberMap = new TreeMap<>(Collections.reverseOrder());
-    String[] membersNames = splitString(JMXProperties.getInstance().getProperty("members"), " ");
-    for (String member : membersNames) {
-      Member thisMember = new Member(member);
+    var membersNames = splitString(JMXProperties.getInstance().getProperty("members"), " ");
+    for (var member : membersNames) {
+      var thisMember = new Member(member);
       memberMap.put(thisMember.getCurrentHeapSize(), thisMember.getMember());
     }
-    for (Map.Entry<Long, String> entry : memberMap.entrySet()) {
+    for (var entry : memberMap.entrySet()) {
       // here matching painting style to validation that the members are painted according to their
       // cpu usage
       String refMemberHeapUsage = null;
@@ -507,14 +507,14 @@ public class PulseTestUtils {
 
 
   public static void assertMemberSortingBySgHeapUsage() {
-    String[] memberNames = JMXProperties.getInstance().getProperty("members").split(" ");
-    HashMap<String, HashMap<String, Member>> sgMap = new HashMap<>();
-    for (String member : memberNames) {
-      Member thisMember = new Member(member);
-      String[] sgs = thisMember.getGroups();
+    var memberNames = JMXProperties.getInstance().getProperty("members").split(" ");
+    var sgMap = new HashMap<String, HashMap<String, Member>>();
+    for (var member : memberNames) {
+      var thisMember = new Member(member);
+      var sgs = thisMember.getGroups();
 
-      for (String sgName : sgs) {
-        HashMap<String, Member> sgMembers = sgMap.get(sgName);
+      for (var sgName : sgs) {
+        var sgMembers = sgMap.get(sgName);
         if (sgMembers == null) {
           sgMembers = new HashMap<>();
           sgMap.put(sgName, sgMembers);
@@ -524,14 +524,14 @@ public class PulseTestUtils {
     }
     Map<Float, String> memberMap = new TreeMap<>(Collections.reverseOrder());
 
-    for (int sgId = 1; sgId <= 3; sgId++) {
-      String sgName = "SG1";
-      String memName = "M" + sgId;
-      Member m = sgMap.get(sgName).get(memName);
+    for (var sgId = 1; sgId <= 3; sgId++) {
+      var sgName = "SG1";
+      var memName = "M" + sgId;
+      var m = sgMap.get(sgName).get(memName);
       memberMap.put((float) m.getCurrentHeapSize(), m.getMember());
     }
 
-    for (Map.Entry<Float, String> entry : memberMap.entrySet()) {
+    for (var entry : memberMap.entrySet()) {
       // here matching painting style to validation that the members are painted according to their
       // cpu usage
       String refMemberCPUUsage = null;
@@ -550,14 +550,14 @@ public class PulseTestUtils {
 
 
   public static void assertMemberSortingBySgCpuUsage() {
-    String[] memberNames = JMXProperties.getInstance().getProperty("members").split(" ");
-    HashMap<String, HashMap<String, Member>> sgMap = new HashMap<>();
-    for (String member : memberNames) {
-      Member thisMember = new Member(member);
-      String[] sgs = thisMember.getGroups();
+    var memberNames = JMXProperties.getInstance().getProperty("members").split(" ");
+    var sgMap = new HashMap<String, HashMap<String, Member>>();
+    for (var member : memberNames) {
+      var thisMember = new Member(member);
+      var sgs = thisMember.getGroups();
 
-      for (String sgName : sgs) {
-        HashMap<String, Member> sgMembers = sgMap.get(sgName);
+      for (var sgName : sgs) {
+        var sgMembers = sgMap.get(sgName);
         if (sgMembers == null) {
           sgMembers = new HashMap<>();
           sgMap.put(sgName, sgMembers);
@@ -567,14 +567,14 @@ public class PulseTestUtils {
     }
     Map<Double, String> memberMap = new TreeMap<>(Collections.reverseOrder());
     // SG3(!)M3
-    for (int sgId = 1; sgId <= 3; sgId++) {
-      String sgName = "SG1";
-      String memName = "M" + sgId;
-      Member m = sgMap.get(sgName).get(memName);
+    for (var sgId = 1; sgId <= 3; sgId++) {
+      var sgName = "SG1";
+      var memName = "M" + sgId;
+      var m = sgMap.get(sgName).get(memName);
       memberMap.put(m.getCpuUsage(), m.getMember());
     }
 
-    for (Map.Entry<Double, String> entry : memberMap.entrySet()) {
+    for (var entry : memberMap.entrySet()) {
       // here matching painting style to validation that the members are painted according to their
       // cpu usage
       String refMemberCPUUsage = null;
@@ -591,12 +591,12 @@ public class PulseTestUtils {
   }
 
   public static void assertMemberSortingByRzHeapUsage() {
-    String[] memberNames = JMXProperties.getInstance().getProperty("members").split(" ");
-    HashMap<String, HashMap<String, Member>> rzMap = new HashMap<>();
-    for (String member : memberNames) {
-      Member thisMember = new Member(member);
-      String sgName = thisMember.getRedundancyZone();
-      HashMap<String, Member> rzMembers = rzMap.get(sgName);
+    var memberNames = JMXProperties.getInstance().getProperty("members").split(" ");
+    var rzMap = new HashMap<String, HashMap<String, Member>>();
+    for (var member : memberNames) {
+      var thisMember = new Member(member);
+      var sgName = thisMember.getRedundancyZone();
+      var rzMembers = rzMap.get(sgName);
 
       if (rzMembers == null) {
         rzMembers = new HashMap<>();
@@ -606,12 +606,12 @@ public class PulseTestUtils {
       rzMembers.put(thisMember.getMember(), thisMember);
     }
     Map<Float, String> memberMap = new TreeMap<>(Collections.reverseOrder());
-    String rzName = "RZ1 RZ2";
-    String memName = "M1";
-    Member m = rzMap.get(rzName).get(memName);
+    var rzName = "RZ1 RZ2";
+    var memName = "M1";
+    var m = rzMap.get(rzName).get(memName);
     memberMap.put((float) m.getCurrentHeapSize(), m.getMember());
 
-    for (Map.Entry<Float, String> entry : memberMap.entrySet()) {
+    for (var entry : memberMap.entrySet()) {
       // here matching painting style to validation that the members are painted according to their
       // cpu usage
       String refMemberHeapUsage = null;
@@ -628,12 +628,12 @@ public class PulseTestUtils {
   }
 
   public static void assertMemeberSortingByRzCpuUsage() {
-    String[] memberNames = JMXProperties.getInstance().getProperty("members").split(" ");
-    HashMap<String, HashMap<String, Member>> rzMap = new HashMap<>();
-    for (String member : memberNames) {
-      Member thisMember = new Member(member);
-      String sgName = thisMember.getRedundancyZone();
-      HashMap<String, Member> rzMembers = rzMap.get(sgName);
+    var memberNames = JMXProperties.getInstance().getProperty("members").split(" ");
+    var rzMap = new HashMap<String, HashMap<String, Member>>();
+    for (var member : memberNames) {
+      var thisMember = new Member(member);
+      var sgName = thisMember.getRedundancyZone();
+      var rzMembers = rzMap.get(sgName);
 
       if (rzMembers == null) {
         rzMembers = new HashMap<>();
@@ -643,12 +643,12 @@ public class PulseTestUtils {
       rzMembers.put(thisMember.getMember(), thisMember);
     }
     Map<Double, String> memberMap = new TreeMap<>(Collections.reverseOrder());
-    String rzName = "RZ1 RZ2";
-    String memName = "M1";
-    Member m = rzMap.get(rzName).get(memName);
+    var rzName = "RZ1 RZ2";
+    var memName = "M1";
+    var m = rzMap.get(rzName).get(memName);
     memberMap.put(m.getCpuUsage(), m.getMember());
 
-    for (Map.Entry<Double, String> entry : memberMap.entrySet()) {
+    for (var entry : memberMap.entrySet()) {
       // here matching painting style to validation that the members are painted according to their
       // cpu usage
       String refMemberCPUUsage = null;
@@ -663,7 +663,7 @@ public class PulseTestUtils {
   }
 
   public static List<WebElement> getRegionsFromDataBrowser() {
-    List<WebElement> regionList = getDriver()
+    var regionList = getDriver()
         .findElements(By.xpath("//span[starts-with(@ID,'treeDemo_')][contains(@id,'_span')]"));
     return regionList;
   }

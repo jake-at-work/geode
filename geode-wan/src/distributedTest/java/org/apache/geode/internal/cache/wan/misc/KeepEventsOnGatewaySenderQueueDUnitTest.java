@@ -17,7 +17,6 @@ package org.apache.geode.internal.cache.wan.misc;
 import static org.apache.geode.test.awaitility.GeodeAwaitility.await;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -26,9 +25,7 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.partition.PartitionRegionHelper;
-import org.apache.geode.cache.wan.GatewayReceiver;
 import org.apache.geode.internal.cache.CacheServerImpl;
-import org.apache.geode.internal.cache.tier.sockets.CacheServerStats;
 import org.apache.geode.internal.cache.wan.AbstractGatewaySender;
 import org.apache.geode.internal.cache.wan.GatewayReceiverStats;
 import org.apache.geode.internal.cache.wan.WANTestBase;
@@ -45,11 +42,11 @@ public class KeepEventsOnGatewaySenderQueueDUnitTest extends WANTestBase {
   @Test
   public void testKeepEventsOnGatewaySenderQueueWithPartitionOfflineException() throws Exception {
     // Start locators
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
-    Integer nyPort = vm2.invoke(() -> createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var nyPort = vm2.invoke(() -> createFirstRemoteLocator(2, lnPort));
 
-    String regionName = getTestMethodName() + "_PR";
-    String senderId = "ny";
+    var regionName = getTestMethodName() + "_PR";
+    var senderId = "ny";
 
     // Configure receiving site members
     createCacheInVMs(nyPort, vm3, vm4);
@@ -65,7 +62,7 @@ public class KeepEventsOnGatewaySenderQueueDUnitTest extends WANTestBase {
     vm1.invoke(() -> createPartitionedRegionWithPersistence(regionName, senderId, 0, 100));
 
     // Asynchronously do puts in sending site member
-    AsyncInvocation<Integer> putInvocation = vm1.invokeAsync(() -> doPuts(regionName, 60000l));
+    var putInvocation = vm1.invokeAsync(() -> doPuts(regionName, 60000l));
 
     // Repeatedly bounce a receiving site member which will cause PartitionOfflineExceptions
     AsyncInvocation<Integer> closeOpenInvocation =
@@ -85,11 +82,11 @@ public class KeepEventsOnGatewaySenderQueueDUnitTest extends WANTestBase {
   @Test
   public void testKeepEventsOnGatewaySenderQueueWithRegionDestroyedException() throws Exception {
     // Start locators
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
-    Integer nyPort = vm2.invoke(() -> createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var nyPort = vm2.invoke(() -> createFirstRemoteLocator(2, lnPort));
 
-    String regionName = getTestMethodName() + "_PR";
-    String senderId = "ny";
+    var regionName = getTestMethodName() + "_PR";
+    var senderId = "ny";
 
     // Configure receiving site member
     vm3.invoke(() -> createCache(nyPort));
@@ -102,7 +99,7 @@ public class KeepEventsOnGatewaySenderQueueDUnitTest extends WANTestBase {
     vm1.invoke(() -> createPartitionedRegionWithPersistence(regionName, senderId, 0, 100));
 
     // Do puts in sending site member
-    int numPuts = 10;
+    var numPuts = 10;
     vm1.invoke(() -> doPuts(regionName, numPuts));
 
     // Wait for some retries to occur
@@ -120,7 +117,7 @@ public class KeepEventsOnGatewaySenderQueueDUnitTest extends WANTestBase {
   }
 
   private void disableRemoveFromQueueOnException(String senderId) {
-    AbstractGatewaySender ags = (AbstractGatewaySender) cache.getGatewaySender(senderId);
+    var ags = (AbstractGatewaySender) cache.getGatewaySender(senderId);
     ags.setRemoveFromQueueOnException(false);
   }
 
@@ -130,9 +127,9 @@ public class KeepEventsOnGatewaySenderQueueDUnitTest extends WANTestBase {
   }
 
   private int doPuts(String regionName, long timeToRun) throws Exception {
-    int numPuts = 0;
+    var numPuts = 0;
     Region region = cache.getRegion(regionName);
-    long end = System.currentTimeMillis() + timeToRun;
+    var end = System.currentTimeMillis() + timeToRun;
     while (System.currentTimeMillis() < end) {
       region.put(UUID.randomUUID(), 0);
       numPuts++;
@@ -143,7 +140,7 @@ public class KeepEventsOnGatewaySenderQueueDUnitTest extends WANTestBase {
 
   private void closeRecreateCache(int locatorPort, String regionName, int iterations)
       throws Exception {
-    for (int i = 0; i < iterations; i++) {
+    for (var i = 0; i < iterations; i++) {
       closeCache();
       Thread.sleep(5000);
       createCache(locatorPort);
@@ -153,15 +150,15 @@ public class KeepEventsOnGatewaySenderQueueDUnitTest extends WANTestBase {
   }
 
   private void waitForEventRetries(int numRetries) {
-    GatewayReceiverStats stats = getGatewayReceiverStats();
+    var stats = getGatewayReceiverStats();
     await()
         .until(() -> stats.getEventsRetried() > numRetries);
   }
 
   private GatewayReceiverStats getGatewayReceiverStats() {
-    Set<GatewayReceiver> gatewayReceivers = cache.getGatewayReceivers();
-    GatewayReceiver receiver = gatewayReceivers.iterator().next();
-    CacheServerStats stats = ((CacheServerImpl) receiver.getServer()).getAcceptor().getStats();
+    var gatewayReceivers = cache.getGatewayReceivers();
+    var receiver = gatewayReceivers.iterator().next();
+    var stats = ((CacheServerImpl) receiver.getServer()).getAcceptor().getStats();
     assertThat(stats).isInstanceOf(GatewayReceiverStats.class);
     return (GatewayReceiverStats) stats;
   }

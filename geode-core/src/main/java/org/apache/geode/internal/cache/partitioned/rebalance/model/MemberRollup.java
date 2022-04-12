@@ -64,11 +64,11 @@ class MemberRollup extends Member {
   @Override
   public boolean addBucket(Bucket bucket) {
     if (super.addBucket(bucket)) {
-      BucketRollup bucketRollup = (BucketRollup) bucket;
-      for (Map.Entry<String, Member> entry : getColocatedMembers().entrySet()) {
-        String region = entry.getKey();
-        Member member = entry.getValue();
-        Bucket colocatedBucket = bucketRollup.getColocatedBuckets().get(region);
+      var bucketRollup = (BucketRollup) bucket;
+      for (var entry : getColocatedMembers().entrySet()) {
+        var region = entry.getKey();
+        var member = entry.getValue();
+        var colocatedBucket = bucketRollup.getColocatedBuckets().get(region);
         if (colocatedBucket != null) {
           member.addBucket(colocatedBucket);
         }
@@ -81,11 +81,11 @@ class MemberRollup extends Member {
   @Override
   public boolean removeBucket(Bucket bucket) {
     if (super.removeBucket(bucket)) {
-      BucketRollup bucketRollup = (BucketRollup) bucket;
-      for (Map.Entry<String, Member> entry : getColocatedMembers().entrySet()) {
-        String region = entry.getKey();
-        Member member = entry.getValue();
-        Bucket colocatedBucket = bucketRollup.getColocatedBuckets().get(region);
+      var bucketRollup = (BucketRollup) bucket;
+      for (var entry : getColocatedMembers().entrySet()) {
+        var region = entry.getKey();
+        var member = entry.getValue();
+        var colocatedBucket = bucketRollup.getColocatedBuckets().get(region);
         if (colocatedBucket != null) {
           member.removeBucket(colocatedBucket);
         }
@@ -98,11 +98,11 @@ class MemberRollup extends Member {
   @Override
   public boolean addPrimary(Bucket bucket) {
     if (super.addPrimary(bucket)) {
-      BucketRollup bucketRollup = (BucketRollup) bucket;
-      for (Map.Entry<String, Member> entry : getColocatedMembers().entrySet()) {
-        String region = entry.getKey();
-        Member member = entry.getValue();
-        Bucket colocatedBucket = bucketRollup.getColocatedBuckets().get(region);
+      var bucketRollup = (BucketRollup) bucket;
+      for (var entry : getColocatedMembers().entrySet()) {
+        var region = entry.getKey();
+        var member = entry.getValue();
+        var colocatedBucket = bucketRollup.getColocatedBuckets().get(region);
         if (colocatedBucket != null) {
           member.addPrimary(colocatedBucket);
         }
@@ -115,11 +115,11 @@ class MemberRollup extends Member {
   @Override
   public boolean removePrimary(Bucket bucket) {
     if (super.removePrimary(bucket)) {
-      BucketRollup bucketRollup = (BucketRollup) bucket;
-      for (Map.Entry<String, Member> entry : getColocatedMembers().entrySet()) {
-        String region = entry.getKey();
-        Member member = entry.getValue();
-        Bucket colocatedBucket = bucketRollup.getColocatedBuckets().get(region);
+      var bucketRollup = (BucketRollup) bucket;
+      for (var entry : getColocatedMembers().entrySet()) {
+        var region = entry.getKey();
+        var member = entry.getValue();
+        var colocatedBucket = bucketRollup.getColocatedBuckets().get(region);
         if (colocatedBucket != null) {
           member.removePrimary(colocatedBucket);
         }
@@ -131,15 +131,15 @@ class MemberRollup extends Member {
 
   @Override
   public RefusalReason willAcceptBucket(Bucket bucket, Member source, boolean checkIPAddress) {
-    RefusalReason reason = super.willAcceptBucket(bucket, source, checkIPAddress);
+    var reason = super.willAcceptBucket(bucket, source, checkIPAddress);
     if (reason.willAccept()) {
-      BucketRollup bucketRollup = (BucketRollup) bucket;
-      MemberRollup sourceRollup = (MemberRollup) source;
-      for (Map.Entry<String, Member> entry : getColocatedMembers().entrySet()) {
-        String region = entry.getKey();
-        Member member = entry.getValue();
-        Bucket colocatedBucket = bucketRollup.getColocatedBuckets().get(region);
-        Member colocatedSource =
+      var bucketRollup = (BucketRollup) bucket;
+      var sourceRollup = (MemberRollup) source;
+      for (var entry : getColocatedMembers().entrySet()) {
+        var region = entry.getKey();
+        var member = entry.getValue();
+        var colocatedBucket = bucketRollup.getColocatedBuckets().get(region);
+        var colocatedSource =
             sourceRollup == null ? null : sourceRollup.getColocatedMembers().get(region);
         if (colocatedBucket != null) {
           reason = member.willAcceptBucket(colocatedBucket, colocatedSource, checkIPAddress);

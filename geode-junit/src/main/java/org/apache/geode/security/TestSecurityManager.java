@@ -104,13 +104,13 @@ public class TestSecurityManager implements SecurityManager {
       return false;
     }
 
-    User user = userNameToUser.get(principal.toString());
+    var user = userNameToUser.get(principal.toString());
     if (user == null) {
       return false; // this user is not authorized to do anything
     }
 
     // check if the user has this permission defined in the context
-    for (Role role : userNameToUser.get(user.name).roles) {
+    for (var role : userNameToUser.get(user.name).roles) {
       for (Permission permitted : role.permissions) {
         if (permitted.implies(context)) {
           return true;
@@ -123,7 +123,7 @@ public class TestSecurityManager implements SecurityManager {
 
   @Override
   public void init(final Properties securityProperties) throws NotAuthorizedException {
-    String jsonPropertyValue =
+    var jsonPropertyValue =
         securityProperties != null ? securityProperties.getProperty(SECURITY_JSON) : null;
     if (jsonPropertyValue == null) {
       jsonPropertyValue = DEFAULT_JSON_FILE_NAME;
@@ -137,10 +137,10 @@ public class TestSecurityManager implements SecurityManager {
 
   @Override
   public Object authenticate(final Properties credentials) throws AuthenticationFailedException {
-    String user = credentials.getProperty(ResourceConstants.USER_NAME);
-    String password = credentials.getProperty(ResourceConstants.PASSWORD);
+    var user = credentials.getProperty(ResourceConstants.USER_NAME);
+    var password = credentials.getProperty(ResourceConstants.PASSWORD);
 
-    User userObj = userNameToUser.get(user);
+    var userObj = userNameToUser.get(user);
     if (userObj == null) {
       throw new AuthenticationFailedException("TestSecurityManager: wrong username/password");
     }
@@ -154,10 +154,10 @@ public class TestSecurityManager implements SecurityManager {
 
   boolean initializeFromJson(final String json) {
     try {
-      ObjectMapper mapper = new ObjectMapper();
-      JsonNode jsonNode = mapper.readTree(json);
+      var mapper = new ObjectMapper();
+      var jsonNode = mapper.readTree(json);
       userNameToUser = new HashMap<>();
-      Map<String, Role> roleMap = readRoles(jsonNode);
+      var roleMap = readRoles(jsonNode);
       readUsers(userNameToUser, jsonNode, roleMap);
       return true;
     } catch (IOException ex) {
@@ -168,7 +168,7 @@ public class TestSecurityManager implements SecurityManager {
 
   public boolean initializeFromJsonResource(final String jsonResource) {
     try {
-      InputStream input = ClassLoader.getSystemResourceAsStream(jsonResource);
+      var input = ClassLoader.getSystemResourceAsStream(jsonResource);
       if (input != null) {
         return initializeFromJson(readJsonFromInputStream(input));
       }
@@ -183,15 +183,15 @@ public class TestSecurityManager implements SecurityManager {
   }
 
   private String readJsonFromInputStream(final InputStream input) throws IOException {
-    StringWriter writer = new StringWriter();
+    var writer = new StringWriter();
     IOUtils.copy(input, writer, "UTF-8");
     return writer.toString();
   }
 
   private void readUsers(final Map<String, User> rolesToUsers, final JsonNode node,
       final Map<String, Role> roleMap) {
-    for (JsonNode usersNode : node.get("users")) {
-      User user = new User();
+    for (var usersNode : node.get("users")) {
+      var user = new User();
       user.name = usersNode.get("name").asText();
 
       if (usersNode.has("password")) {
@@ -200,7 +200,7 @@ public class TestSecurityManager implements SecurityManager {
         user.password = user.name;
       }
 
-      for (JsonNode rolesNode : usersNode.get("roles")) {
+      for (var rolesNode : usersNode.get("roles")) {
         user.roles.add(roleMap.get(rolesNode.asText()));
       }
 
@@ -213,13 +213,13 @@ public class TestSecurityManager implements SecurityManager {
       return Collections.EMPTY_MAP;
     }
     Map<String, Role> roleMap = new HashMap<>();
-    for (JsonNode rolesNode : jsonNode.get("roles")) {
-      Role role = new Role();
+    for (var rolesNode : jsonNode.get("roles")) {
+      var role = new Role();
       role.name = rolesNode.get("name").asText();
       String regionNames = null;
       String keys = null;
 
-      JsonNode regionsNode = rolesNode.get("regions");
+      var regionsNode = rolesNode.get("regions");
       if (regionsNode != null) {
         if (regionsNode.isArray()) {
           regionNames = StreamSupport.stream(regionsNode.spliterator(), false).map(JsonNode::asText)
@@ -229,10 +229,10 @@ public class TestSecurityManager implements SecurityManager {
         }
       }
 
-      for (JsonNode operationsAllowedNode : rolesNode.get("operationsAllowed")) {
-        String[] parts = operationsAllowedNode.asText().split(":");
-        String resourcePart = (parts.length > 0) ? parts[0] : null;
-        String operationPart = (parts.length > 1) ? parts[1] : null;
+      for (var operationsAllowedNode : rolesNode.get("operationsAllowed")) {
+        var parts = operationsAllowedNode.asText().split(":");
+        var resourcePart = (parts.length > 0) ? parts[0] : null;
+        var operationPart = (parts.length > 1) ? parts[1] : null;
 
         if (parts.length > 2) {
           regionNames = parts[2];
@@ -241,8 +241,8 @@ public class TestSecurityManager implements SecurityManager {
           keys = parts[3];
         }
 
-        String regionPart = (regionNames != null) ? regionNames : "*";
-        String keyPart = (keys != null) ? keys : "*";
+        var regionPart = (regionNames != null) ? regionNames : "*";
+        var keyPart = (keys != null) ? keys : "*";
 
         role.permissions.add(new ResourcePermission(Resource.valueOf(resourcePart),
             Operation.valueOf(operationPart), regionPart, keyPart));

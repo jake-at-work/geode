@@ -16,7 +16,6 @@ package org.apache.geode.internal.memcached;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.nio.ByteBuffer;
 
 import org.apache.geode.LogWriter;
 import org.apache.geode.annotations.internal.MakeNotStatic;
@@ -56,14 +55,14 @@ public class ConnectionHandler implements Runnable {
 
   @Override
   public void run() {
-    RequestReader request = new RequestReader(socket, protocol);
+    var request = new RequestReader(socket, protocol);
     while (!Thread.currentThread().isInterrupted()) {
       try {
-        Command command = request.readCommand();
+        var command = request.readCommand();
         if (logger.fineEnabled()) {
           logger.fine("processing command:" + command);
         }
-        ByteBuffer reply =
+        var reply =
             command.getCommandProcessor().processCommand(request, protocol, cache);
         if (reply != null) {
           request.sendReply(reply);

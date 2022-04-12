@@ -52,7 +52,7 @@ public class DeploymentInfo extends RuntimeInfo {
     if (!super.equals(o)) {
       return false;
     }
-    DeploymentInfo that = (DeploymentInfo) o;
+    var that = (DeploymentInfo) o;
     return Objects.equals(getJarLocation(), that.getJarLocation());
   }
 

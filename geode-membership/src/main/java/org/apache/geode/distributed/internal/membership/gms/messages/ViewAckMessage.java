@@ -87,7 +87,7 @@ public class ViewAckMessage<ID extends MemberIdentifier> extends AbstractGMSMess
 
   @Override
   public String toString() {
-    String s = getSender() == null ? getRecipients().toString() : "" + getSender();
+    var s = getSender() == null ? getRecipients().toString() : "" + getSender();
     return "ViewAckMessage(" + s + "; " + viewId + "; preparing=" + preparing + "; altview="
         + alternateView + ")";
   }

@@ -45,7 +45,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
@@ -53,20 +52,16 @@ import java.util.concurrent.Callable;
 
 import org.apache.geode.cache.DynamicRegionFactory;
 import org.apache.geode.cache.InterestResultPolicy;
-import org.apache.geode.cache.Operation;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.Region.Entry;
 import org.apache.geode.cache.RegionDestroyedException;
 import org.apache.geode.cache.client.ServerConnectivityException;
 import org.apache.geode.cache.operations.OperationContext.OperationCode;
-import org.apache.geode.cache.query.CqAttributes;
 import org.apache.geode.cache.query.CqAttributesFactory;
 import org.apache.geode.cache.query.CqEvent;
 import org.apache.geode.cache.query.CqException;
 import org.apache.geode.cache.query.CqListener;
 import org.apache.geode.cache.query.CqQuery;
 import org.apache.geode.cache.query.QueryInvocationTargetException;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.Struct;
 import org.apache.geode.distributed.ConfigurationProperties;
@@ -75,7 +70,6 @@ import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.cache.entries.AbstractRegionEntry;
 import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
-import org.apache.geode.internal.membership.utils.AvailablePort.Keeper;
 import org.apache.geode.security.generator.AuthzCredentialGenerator;
 import org.apache.geode.security.generator.AuthzCredentialGenerator.ClassCode;
 import org.apache.geode.security.generator.CredentialGenerator;
@@ -83,7 +77,6 @@ import org.apache.geode.security.generator.DummyCredentialGenerator;
 import org.apache.geode.security.generator.XmlAuthzCredentialGenerator;
 import org.apache.geode.security.templates.UsernamePrincipal;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
-import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.WaitCriterion;
 import org.apache.geode.test.dunit.internal.JUnit4DistributedTestCase;
@@ -135,7 +128,7 @@ public abstract class ClientAuthorizationTestCase extends JUnit4DistributedTestC
   }
 
   private void setUpClientAuthorizationTestBase() throws Exception {
-    Host host = getHost(0);
+    var host = getHost(0);
     server1 = host.getVM(VersionManager.CURRENT_VERSION, 0);
     server2 = host.getVM(VersionManager.CURRENT_VERSION, 1);
     server1.invoke(() -> ServerConnection.allowInternalMessagesWithoutCredentials = false);
@@ -157,7 +150,7 @@ public abstract class ClientAuthorizationTestCase extends JUnit4DistributedTestC
       serverExceptions.addAll(Arrays.asList(serverIgnoredExceptions));
     }
 
-    String[] serverExceptionsArray = serverExceptions.toArray(new String[serverExceptions.size()]);
+    var serverExceptionsArray = serverExceptions.toArray(new String[serverExceptions.size()]);
     server1.invoke(() -> registerExpectedExceptions(serverExceptionsArray));
     server2.invoke(() -> registerExpectedExceptions(serverExceptionsArray));
 
@@ -167,7 +160,7 @@ public abstract class ClientAuthorizationTestCase extends JUnit4DistributedTestC
       clientExceptions.addAll(Arrays.asList(clientIgnoredExceptions));
     }
 
-    String[] clientExceptionsArray = serverExceptions.toArray(new String[clientExceptions.size()]);
+    var clientExceptionsArray = serverExceptions.toArray(new String[clientExceptions.size()]);
     client2.invoke(() -> registerExpectedExceptions(clientExceptionsArray));
     registerExpectedExceptions(clientExceptionsArray);
   }
@@ -210,7 +203,7 @@ public abstract class ClientAuthorizationTestCase extends JUnit4DistributedTestC
   protected static Properties buildProperties(final String authenticator, final String accessor,
       final boolean isAccessorPP, final Properties extraAuthProps,
       final Properties extraAuthzProps) {
-    Properties authProps = new Properties();
+    var authProps = new Properties();
     if (authenticator != null) {
       authProps.setProperty(SECURITY_CLIENT_AUTHENTICATOR, authenticator);
     }
@@ -236,7 +229,7 @@ public abstract class ClientAuthorizationTestCase extends JUnit4DistributedTestC
 
   protected static int createCacheServer(final int serverPort, final Properties authProps,
       final Properties javaProps) {
-    Properties jprops = javaProps;
+    var jprops = javaProps;
     if (jprops == null) {
       jprops = new Properties();
     }
@@ -255,7 +248,7 @@ public abstract class ClientAuthorizationTestCase extends JUnit4DistributedTestC
   }
 
   private static Region createSubregion(final Region region) {
-    Region subregion = getSubregion();
+    var subregion = getSubregion();
     if (subregion == null) {
       subregion = region.createSubregion(SUBREGION_NAME, region.getAttributes());
     }
@@ -263,10 +256,10 @@ public abstract class ClientAuthorizationTestCase extends JUnit4DistributedTestC
   }
 
   protected static String indicesToString(final int[] indices) {
-    String str = "";
+    var str = "";
     if (indices != null && indices.length > 0) {
       str += indices[0];
-      for (int index = 1; index < indices.length; ++index) {
+      for (var index = 1; index < indices.length; ++index) {
         str += ",";
         str += indices[index];
       }
@@ -276,9 +269,9 @@ public abstract class ClientAuthorizationTestCase extends JUnit4DistributedTestC
 
   protected static void doOp(OperationCode op, final int[] indices, final int flagsI,
       final int expectedResult) throws InterruptedException {
-    boolean operationOmitted = false;
-    final int flags = flagsI;
-    Region region = getRegion();
+    var operationOmitted = false;
+    final var flags = flagsI;
+    var region = getRegion();
 
     if ((flags & OpFlags.USE_SUBREGION) > 0) {
       assertNotNull(region);
@@ -320,7 +313,7 @@ public abstract class ClientAuthorizationTestCase extends JUnit4DistributedTestC
       assertNotNull(region);
     }
 
-    final String[] keys = KEYS;
+    final var keys = KEYS;
     final String[] vals;
     if ((flags & OpFlags.USE_NEWVAL) > 0) {
       vals = NVALUES;
@@ -328,23 +321,23 @@ public abstract class ClientAuthorizationTestCase extends JUnit4DistributedTestC
       vals = VALUES;
     }
 
-    InterestResultPolicy policy = InterestResultPolicy.KEYS_VALUES;
+    var policy = InterestResultPolicy.KEYS_VALUES;
     if ((flags & OpFlags.REGISTER_POLICY_NONE) > 0) {
       policy = InterestResultPolicy.NONE;
     }
 
-    final int numOps = indices.length;
+    final var numOps = indices.length;
     System.out.println("Got doOp for op: " + op.toString() + ", numOps: " + numOps + ", indices: "
         + indicesToString(indices) + ", expect: " + expectedResult + " flags: "
         + OpFlags.description(flags));
-    boolean exceptionOccurred = false;
-    boolean breakLoop = false;
+    var exceptionOccurred = false;
+    var breakLoop = false;
 
-    for (final int i : indices) {
+    for (final var i : indices) {
       if (breakLoop) {
         break;
       }
-      int index = i;
+      var index = i;
 
       try {
         final Object key = keys[index];
@@ -358,14 +351,14 @@ public abstract class ClientAuthorizationTestCase extends JUnit4DistributedTestC
             List keyList = new ArrayList(numOps);
             Object searchKey;
 
-            for (int keyNumIndex = 0; keyNumIndex < numOps; ++keyNumIndex) {
-              int keyNum = indices[keyNumIndex];
+            for (var keyNumIndex = 0; keyNumIndex < numOps; ++keyNumIndex) {
+              var keyNum = indices[keyNumIndex];
               searchKey = keys[keyNum];
               keyList.add(searchKey);
 
               // local invalidate some KEYS to force fetch of those KEYS from server
               if ((flags & OpFlags.CHECK_NOKEY) > 0) {
-                AbstractRegionEntry entry =
+                var entry =
                     (AbstractRegionEntry) ((LocalRegion) region).getRegionEntry(searchKey);
                 System.out
                     .println("" + keyNum + ": key is " + searchKey + " and entry is " + entry);
@@ -378,9 +371,9 @@ public abstract class ClientAuthorizationTestCase extends JUnit4DistributedTestC
               }
             }
 
-            Map entries = region.getAll(keyList);
+            var entries = region.getAll(keyList);
 
-            for (int keyNum : indices) {
+            for (var keyNum : indices) {
               searchKey = keys[keyNum];
               if ((flags & OpFlags.CHECK_FAIL) > 0) {
                 assertFalse(entries.containsKey(searchKey));
@@ -395,12 +388,12 @@ public abstract class ClientAuthorizationTestCase extends JUnit4DistributedTestC
           }
 
           if ((flags & OpFlags.LOCAL_OP) > 0) {
-            Callable<Boolean> condition = new Callable<Boolean>() {
+            var condition = new Callable<Boolean>() {
               private Region region;
 
               @Override
               public Boolean call() throws Exception {
-                Object value = getLocalValue(region, key);
+                var value = getLocalValue(region, key);
                 return ((flags & OpFlags.CHECK_FAIL) > 0) != expectedVal.equals(value);
               }
 
@@ -416,10 +409,10 @@ public abstract class ClientAuthorizationTestCase extends JUnit4DistributedTestC
 
           } else if ((flags & OpFlags.USE_GET_ENTRY_IN_TX) > 0) {
             getCache().getCacheTransactionManager().begin();
-            Entry e = region.getEntry(key);
+            var e = region.getEntry(key);
 
             // Also, check getAll()
-            ArrayList a = new ArrayList();
+            var a = new ArrayList();
             a.addAll(a);
             region.getAll(a);
 
@@ -448,8 +441,8 @@ public abstract class ClientAuthorizationTestCase extends JUnit4DistributedTestC
           region.put(key, expectedVal);
 
         } else if (op.isPutAll()) {
-          HashMap map = new HashMap();
-          for (final int j : indices) {
+          var map = new HashMap();
+          for (final var j : indices) {
             map.put(keys[j], vals[j]);
           }
           region.putAll(map);
@@ -513,7 +506,7 @@ public abstract class ClientAuthorizationTestCase extends JUnit4DistributedTestC
             breakLoop = true;
             // Register interest list in this case
             List keyList = new ArrayList(numOps);
-            for (int keyNum : indices) {
+            for (var keyNum : indices) {
               keyList.add(keys[keyNum]);
             }
             region.registerInterest(keyList, policy);
@@ -535,7 +528,7 @@ public abstract class ClientAuthorizationTestCase extends JUnit4DistributedTestC
             breakLoop = true;
             // Register interest list in this case
             List keyList = new ArrayList(numOps);
-            for (int keyNum : indices) {
+            for (var keyNum : indices) {
               keyList.add(keys[keyNum]);
             }
             region.unregisterInterest(keyList);
@@ -565,7 +558,7 @@ public abstract class ClientAuthorizationTestCase extends JUnit4DistributedTestC
           if ((flags & OpFlags.CHECK_FAIL) == 0) {
             assertEquals(numOps, keySet.size());
           }
-          for (int keyNum : indices) {
+          for (var keyNum : indices) {
             if ((flags & OpFlags.CHECK_FAIL) > 0) {
               assertFalse(keySet.contains(keys[keyNum]));
             } else {
@@ -575,14 +568,14 @@ public abstract class ClientAuthorizationTestCase extends JUnit4DistributedTestC
 
         } else if (op.isQuery()) {
           breakLoop = true;
-          SelectResults queryResults =
+          var queryResults =
               region.query("SELECT DISTINCT * FROM " + region.getFullPath());
           assertNotNull(queryResults);
-          Set queryResultSet = queryResults.asSet();
+          var queryResultSet = queryResults.asSet();
           if ((flags & OpFlags.CHECK_FAIL) == 0) {
             assertEquals(numOps, queryResultSet.size());
           }
-          for (int keyNum : indices) {
+          for (var keyNum : indices) {
             if ((flags & OpFlags.CHECK_FAIL) > 0) {
               assertFalse(queryResultSet.contains(vals[keyNum]));
             } else {
@@ -592,20 +585,20 @@ public abstract class ClientAuthorizationTestCase extends JUnit4DistributedTestC
 
         } else if (op.isExecuteCQ()) {
           breakLoop = true;
-          QueryService queryService = getCache().getQueryService();
+          var queryService = getCache().getQueryService();
           CqQuery cqQuery;
           if ((cqQuery = queryService.getCq("cq1")) == null) {
-            CqAttributesFactory cqFact = new CqAttributesFactory();
+            var cqFact = new CqAttributesFactory();
             cqFact.addCqListener(new AuthzCqListener());
-            CqAttributes cqAttrs = cqFact.create();
+            var cqAttrs = cqFact.create();
             cqQuery = queryService.newCq("cq1", "SELECT * FROM " + region.getFullPath(), cqAttrs);
           }
 
           if ((flags & OpFlags.LOCAL_OP) > 0) {
             // Interpret this as testing results using CqListener
-            final AuthzCqListener listener =
+            final var listener =
                 (AuthzCqListener) cqQuery.getCqAttributes().getCqListener();
-            WaitCriterion ev = new WaitCriterion() {
+            var ev = new WaitCriterion() {
               @Override
               public boolean done() {
                 if ((flags & CHECK_FAIL) > 0) {
@@ -638,17 +631,17 @@ public abstract class ClientAuthorizationTestCase extends JUnit4DistributedTestC
             SelectResults cqResults = cqQuery.executeWithInitialResults();
             assertNotNull(cqResults);
             Set cqResultValues = new HashSet();
-            for (Object o : cqResults.asList()) {
-              Struct s = (Struct) o;
+            for (var o : cqResults.asList()) {
+              var s = (Struct) o;
               cqResultValues.add(s.get("value"));
             }
 
-            Set cqResultSet = cqResults.asSet();
+            var cqResultSet = cqResults.asSet();
             if ((flags & OpFlags.CHECK_FAIL) == 0) {
               assertEquals(numOps, cqResultSet.size());
             }
 
-            for (int keyNum : indices) {
+            for (var keyNum : indices) {
               if ((flags & OpFlags.CHECK_FAIL) > 0) {
                 assertFalse(cqResultValues.contains(vals[keyNum]));
               } else {
@@ -659,13 +652,13 @@ public abstract class ClientAuthorizationTestCase extends JUnit4DistributedTestC
 
         } else if (op.isStopCQ()) {
           breakLoop = true;
-          CqQuery cqQuery = getCache().getQueryService().getCq("cq1");
+          var cqQuery = getCache().getQueryService().getCq("cq1");
           ((AuthzCqListener) cqQuery.getCqAttributes().getCqListener()).reset();
           cqQuery.stop();
 
         } else if (op.isCloseCQ()) {
           breakLoop = true;
-          CqQuery cqQuery = getCache().getQueryService().getCq("cq1");
+          var cqQuery = getCache().getQueryService().getCq("cq1");
           ((AuthzCqListener) cqQuery.getCqAttributes().getCqListener()).reset();
           cqQuery.close();
 
@@ -683,8 +676,8 @@ public abstract class ClientAuthorizationTestCase extends JUnit4DistributedTestC
           // subregion.createRegionOnServer();
           // Create region on server using the DynamicRegionFactory
           // Assume it has been already initialized
-          DynamicRegionFactory drf = DynamicRegionFactory.get();
-          Region subregion = drf.createDynamicRegion(regionName, SUBREGION_NAME);
+          var drf = DynamicRegionFactory.get();
+          var subregion = drf.createDynamicRegion(regionName, SUBREGION_NAME);
           assertEquals(SEPARATOR + regionName + SEPARATOR + SUBREGION_NAME,
               subregion.getFullPath());
 
@@ -747,13 +740,13 @@ public abstract class ClientAuthorizationTestCase extends JUnit4DistributedTestC
       final int port2, final String authInit, final Properties extraAuthProps,
       final Properties extraAuthzProps, final TestCredentialGenerator credentialGenerator,
       final Random random) throws InterruptedException {
-    for (OperationWithAction currentOp : opBlock) {
+    for (var currentOp : opBlock) {
       // Start client with valid credentials as specified in OperationWithAction
-      OperationCode opCode = currentOp.getOperationCode();
-      int opFlags = currentOp.getFlags();
-      int clientNum = currentOp.getClientNum();
+      var opCode = currentOp.getOperationCode();
+      var opFlags = currentOp.getFlags();
+      var clientNum = currentOp.getClientNum();
       VM clientVM = null;
-      boolean useThisVM = false;
+      var useThisVM = false;
 
       switch (clientNum) {
         case 1:
@@ -774,17 +767,17 @@ public abstract class ClientAuthorizationTestCase extends JUnit4DistributedTestC
           + "]: " + currentOp);
       if ((opFlags & OpFlags.USE_OLDCONN) == 0) {
         Properties opCredentials;
-        int newRnd = random.nextInt(100) + 1;
-        String currentRegionName = SEPARATOR + regionName;
+        var newRnd = random.nextInt(100) + 1;
+        var currentRegionName = SEPARATOR + regionName;
         if ((opFlags & OpFlags.USE_SUBREGION) > 0) {
           currentRegionName += (SEPARATOR + SUBREGION_NAME);
         }
 
         String credentialsTypeStr;
-        OperationCode authOpCode = currentOp.getAuthzOperationCode();
-        int[] indices = currentOp.getIndices();
-        CredentialGenerator cGen = credentialGenerator.getCredentialGenerator();
-        final Properties javaProps = cGen == null ? null : cGen.getJavaProperties();
+        var authOpCode = currentOp.getAuthzOperationCode();
+        var indices = currentOp.getIndices();
+        var cGen = credentialGenerator.getCredentialGenerator();
+        final var javaProps = cGen == null ? null : cGen.getJavaProperties();
 
         if ((opFlags & OpFlags.CHECK_NOTAUTHZ) > 0 || (opFlags & OpFlags.USE_NOTAUTHZ) > 0) {
           opCredentials = credentialGenerator.getDisallowedCredentials(
@@ -797,13 +790,13 @@ public abstract class ClientAuthorizationTestCase extends JUnit4DistributedTestC
           credentialsTypeStr = " authorized " + authOpCode;
         }
 
-        Properties clientProps =
+        var clientProps =
             concatProperties(new Properties[] {opCredentials, extraAuthProps, extraAuthzProps});
 
         // Start the client with valid credentials but allowed or disallowed to perform an operation
         System.out.println("executeOpBlock: For client" + clientNum + credentialsTypeStr
             + " credentials: " + opCredentials);
-        boolean setupDynamicRegionFactory = (opFlags & OpFlags.ENABLE_DRF) > 0;
+        var setupDynamicRegionFactory = (opFlags & OpFlags.ENABLE_DRF) > 0;
 
         if (useThisVM) {
           clientProps.put(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER,
@@ -839,7 +832,7 @@ public abstract class ClientAuthorizationTestCase extends JUnit4DistributedTestC
       if (useThisVM) {
         doOp(opCode, currentOp.getIndices(), opFlags, expectedResult);
       } else {
-        int[] indices = currentOp.getIndices();
+        var indices = currentOp.getIndices();
         clientVM.invoke("ClientAuthorizationTestCase.doOp", () -> ClientAuthorizationTestCase
             .doOp(opCode, indices, opFlags, expectedResult));
       }
@@ -857,9 +850,9 @@ public abstract class ClientAuthorizationTestCase extends JUnit4DistributedTestC
   protected List<AuthzCredentialGenerator> getDummyGeneratorCombos() {
     List<AuthzCredentialGenerator> generators = new ArrayList<>();
 
-    for (final Object o : ClassCode.getAll()) {
-      ClassCode authzClassCode = (ClassCode) o;
-      AuthzCredentialGenerator authzGen = AuthzCredentialGenerator.create(authzClassCode);
+    for (final var o : ClassCode.getAll()) {
+      var authzClassCode = (ClassCode) o;
+      var authzGen = AuthzCredentialGenerator.create(authzClassCode);
 
       if (authzGen != null) {
         CredentialGenerator cGen = new DummyCredentialGenerator();
@@ -876,39 +869,39 @@ public abstract class ClientAuthorizationTestCase extends JUnit4DistributedTestC
 
   protected void runOpsWithFailOver(final OperationWithAction[] opCodes, final String testName)
       throws InterruptedException {
-    AuthzCredentialGenerator gen = getXmlAuthzGenerator();
-    CredentialGenerator cGen = gen.getCredentialGenerator();
-    Properties extraAuthProps = cGen.getSystemProperties();
-    Properties javaProps = cGen.getJavaProperties();
-    Properties extraAuthzProps = gen.getSystemProperties();
-    String authenticator = cGen.getAuthenticator();
-    String authInit = cGen.getAuthInit();
-    String accessor = gen.getAuthorizationCallback();
-    TestAuthzCredentialGenerator tgen = new TestAuthzCredentialGenerator(gen);
+    var gen = getXmlAuthzGenerator();
+    var cGen = gen.getCredentialGenerator();
+    var extraAuthProps = cGen.getSystemProperties();
+    var javaProps = cGen.getJavaProperties();
+    var extraAuthzProps = gen.getSystemProperties();
+    var authenticator = cGen.getAuthenticator();
+    var authInit = cGen.getAuthInit();
+    var accessor = gen.getAuthorizationCallback();
+    var tgen = new TestAuthzCredentialGenerator(gen);
 
     System.out.println(testName + ": Using authinit: " + authInit);
     System.out.println(testName + ": Using authenticator: " + authenticator);
     System.out.println(testName + ": Using accessor: " + accessor);
 
     // Start servers with all required properties
-    Properties serverProps =
+    var serverProps =
         buildProperties(authenticator, accessor, false, extraAuthProps, extraAuthzProps);
 
     // Get ports for the servers
-    List<Keeper> randomAvailableTCPPortKeepers =
+    var randomAvailableTCPPortKeepers =
         AvailablePortHelper.getRandomAvailableTCPPortKeepers(2);
-    Keeper port1Keeper = randomAvailableTCPPortKeepers.get(0);
-    Keeper port2Keeper = randomAvailableTCPPortKeepers.get(1);
-    int port1 = port1Keeper.getPort();
-    int port2 = port2Keeper.getPort();
+    var port1Keeper = randomAvailableTCPPortKeepers.get(0);
+    var port2Keeper = randomAvailableTCPPortKeepers.get(1);
+    var port1 = port1Keeper.getPort();
+    var port2 = port2Keeper.getPort();
 
     // Perform all the ops on the clients
     List opBlock = new ArrayList();
-    Random rnd = new Random();
+    var rnd = new Random();
 
-    for (int opNum = 0; opNum < opCodes.length; ++opNum) {
+    for (var opNum = 0; opNum < opCodes.length; ++opNum) {
       // Start client with valid credentials as specified in OperationWithAction
-      OperationWithAction currentOp = opCodes[opNum];
+      var currentOp = opCodes[opNum];
 
       if (currentOp.equals(OperationWithAction.OPBLOCK_END)
           || currentOp.equals(OperationWithAction.OPBLOCK_NO_FAILOVER)) {
@@ -975,7 +968,7 @@ public abstract class ClientAuthorizationTestCase extends JUnit4DistributedTestC
 
     @Override
     public void onEvent(final CqEvent aCqEvent) {
-      Operation op = aCqEvent.getBaseOperation();
+      var op = aCqEvent.getBaseOperation();
       if (op.isCreate()) {
         ++numCreates;
       } else if (op.isUpdate()) {
@@ -1019,10 +1012,10 @@ public abstract class ClientAuthorizationTestCase extends JUnit4DistributedTestC
     }
 
     public void checkPuts(final String[] vals, final int[] indices) {
-      for (int index : indices) {
-        boolean foundKey = false;
+      for (var index : indices) {
+        var foundKey = false;
 
-        for (CqEvent event : eventList) {
+        for (var event : eventList) {
           if (KEYS[index].equals(event.getKey())) {
             assertEquals(vals[index], event.getNewValue());
             foundKey = true;
@@ -1136,7 +1129,7 @@ public abstract class ClientAuthorizationTestCase extends JUnit4DistributedTestC
     public static final int USE_GET_ENTRY_IN_TX = 0x10000;
 
     public static String description(int f) {
-      StringBuilder sb = new StringBuilder();
+      var sb = new StringBuilder();
       sb.append("[");
       if ((f & CHECK_FAIL) != 0) {
         sb.append("CHECK_FAIL,");
@@ -1242,7 +1235,7 @@ public abstract class ClientAuthorizationTestCase extends JUnit4DistributedTestC
 
     private void setIndices(int numOps) {
       indices = new int[numOps];
-      for (int index = 0; index < numOps; ++index) {
+      for (var index = 0; index < numOps; ++index) {
         indices[index] = index;
       }
     }

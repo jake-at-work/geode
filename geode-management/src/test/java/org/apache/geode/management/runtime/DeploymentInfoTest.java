@@ -19,7 +19,6 @@ package org.apache.geode.management.runtime;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 
 import org.apache.geode.util.internal.GeodeJsonMapper;
@@ -28,26 +27,26 @@ public class DeploymentInfoTest {
 
   @Test
   public void remembersLastModified() {
-    DeploymentInfo deploymentInfo = new DeploymentInfo();
+    var deploymentInfo = new DeploymentInfo();
     deploymentInfo.setLastModified("lastModified");
     assertThat(deploymentInfo.getLastModified()).isEqualTo("lastModified");
   }
 
   @Test
   public void remembersJarLocation() {
-    DeploymentInfo deploymentInfo = new DeploymentInfo();
+    var deploymentInfo = new DeploymentInfo();
     deploymentInfo.setJarLocation("jarLocation");
     assertThat(deploymentInfo.getJarLocation()).isEqualTo("jarLocation");
   }
 
   @Test
   public void jsonSerializationRoundTrip() throws JsonProcessingException {
-    ObjectMapper mapper = GeodeJsonMapper.getMapper();
-    DeploymentInfo deploymentInfo = new DeploymentInfo();
+    var mapper = GeodeJsonMapper.getMapper();
+    var deploymentInfo = new DeploymentInfo();
     deploymentInfo.setJarLocation("jarLocation");
     deploymentInfo.setLastModified("lastModified");
-    String json = mapper.writeValueAsString(deploymentInfo);
-    DeploymentInfo newValue = mapper.readValue(json, DeploymentInfo.class);
+    var json = mapper.writeValueAsString(deploymentInfo);
+    var newValue = mapper.readValue(json, DeploymentInfo.class);
     assertThat(newValue).usingRecursiveComparison().isEqualTo(deploymentInfo);
   }
 

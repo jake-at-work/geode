@@ -113,7 +113,7 @@ public class Level {
    */
   public boolean equals(Object o) {
     if (o instanceof Level) {
-      Level l = (Level) o;
+      var l = (Level) o;
       return l.value == value;
     }
 

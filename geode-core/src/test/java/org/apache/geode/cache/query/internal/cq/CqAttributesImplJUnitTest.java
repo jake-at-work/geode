@@ -26,14 +26,14 @@ public class CqAttributesImplJUnitTest {
 
   @Test
   public void getCQListenersReturnsEmptyListWhenNoCqListeners() {
-    CqAttributesImpl attributes = new CqAttributesImpl();
+    var attributes = new CqAttributesImpl();
     assertEquals(0, attributes.getCqListeners().length);
   }
 
   @Test
   public void getCQListenersReturnsAddedCqListeners() {
-    CqAttributesImpl attributes = new CqAttributesImpl();
-    CqListener listener = mock(CqListener.class);
+    var attributes = new CqAttributesImpl();
+    var listener = mock(CqListener.class);
     attributes.addCqListener(listener);
     assertArrayEquals(new CqListener[] {listener}, attributes.getCqListeners());
   }

@@ -37,7 +37,7 @@ public class ExecuteScriptCommand extends OfflineGfshCommand {
       @CliOption(key = {CliStrings.RUN__CONTINUEONERROR}, specifiedDefaultValue = "true",
           unspecifiedDefaultValue = "false",
           help = CliStrings.RUN__CONTINUEONERROR__HELP) boolean continueOnError) {
-    Gfsh gfsh = Gfsh.getCurrentInstance();
+    var gfsh = Gfsh.getCurrentInstance();
     return gfsh.executeScript(file, quiet, continueOnError);
   }
 

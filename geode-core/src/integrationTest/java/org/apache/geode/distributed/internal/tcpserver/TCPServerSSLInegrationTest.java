@@ -127,13 +127,13 @@ public class TCPServerSSLInegrationTest {
 
     assertThat(recordedSocketTimeouts).hasSizeGreaterThan(0);
 
-    for (final Integer socketTimeOut : recordedSocketTimeouts) {
+    for (final var socketTimeOut : recordedSocketTimeouts) {
       assertThat(Integer.parseInt(expectedSocketTimeout)).isEqualTo(socketTimeOut.intValue());
     }
   }
 
   private Properties getSSLConfigurationProperties() {
-    Properties sslProperties = new Properties();
+    var sslProperties = new Properties();
     sslProperties.setProperty(SSL_ENABLED_COMPONENTS,
         SecurableCommunicationChannel.LOCATOR.getConstant());
     sslProperties.setProperty(SSL_KEYSTORE,

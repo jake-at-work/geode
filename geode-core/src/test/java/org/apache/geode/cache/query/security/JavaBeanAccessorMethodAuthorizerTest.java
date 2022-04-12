@@ -116,7 +116,7 @@ public class JavaBeanAccessorMethodAuthorizerTest {
 
     Set<String> geodePackage = new HashSet<>();
     geodePackage.add(JavaBeanAccessorMethodAuthorizer.GEODE_BASE_PACKAGE);
-    JavaBeanAccessorMethodAuthorizer geodeMatchingAuthorizer =
+    var geodeMatchingAuthorizer =
         new JavaBeanAccessorMethodAuthorizer(defaultAuthorizer, geodePackage);
 
     geodeMethods.forEach(
@@ -127,8 +127,8 @@ public class JavaBeanAccessorMethodAuthorizerTest {
   public void authorizeReturnsFalseForMatchingMethodNamesAndNonMatchingPackage()
       throws NoSuchMethodException {
 
-    Method getMatchingMethod = List.class.getMethod("get", int.class);
-    Method isMatchingMethod = List.class.getMethod("isEmpty");
+    var getMatchingMethod = List.class.getMethod("get", int.class);
+    var isMatchingMethod = List.class.getMethod("isEmpty");
 
     assertThat(
         authorizerWithLangAndIOPackagesSpecified.authorize(isMatchingMethod, new ArrayList()))
@@ -142,26 +142,26 @@ public class JavaBeanAccessorMethodAuthorizerTest {
   public void authorizeReturnsFalseForNonMatchingMethodNameAndMatchingPackage()
       throws NoSuchMethodException {
 
-    Method langMethod = String.class.getMethod("notify");
+    var langMethod = String.class.getMethod("notify");
     assertThat(authorizerWithLangAndIOPackagesSpecified.authorize(langMethod, "")).isFalse();
 
-    Method ioMethod = File.class.getMethod("notify");
+    var ioMethod = File.class.getMethod("notify");
     assertThat(authorizerWithLangAndIOPackagesSpecified.authorize(ioMethod, new File("")))
         .isFalse();
   }
 
   @Test
   public void authorizeReturnsTrueForMatchingMethodNamesAndPackage() throws NoSuchMethodException {
-    Method isMatchingLangMethod = String.class.getMethod("isEmpty");
-    Method getMatchingLangMethod = String.class.getMethod("getBytes");
+    var isMatchingLangMethod = String.class.getMethod("isEmpty");
+    var getMatchingLangMethod = String.class.getMethod("getBytes");
 
     assertThat(authorizerWithLangAndIOPackagesSpecified.authorize(isMatchingLangMethod, ""))
         .isTrue();
     assertThat(authorizerWithLangAndIOPackagesSpecified.authorize(getMatchingLangMethod, ""))
         .isTrue();
 
-    Method isMatchingIOMethod = File.class.getMethod("isAbsolute");
-    Method getMatchingIOMethod = File.class.getMethod("getPath");
+    var isMatchingIOMethod = File.class.getMethod("isAbsolute");
+    var getMatchingIOMethod = File.class.getMethod("getPath");
 
     assertThat(authorizerWithLangAndIOPackagesSpecified.authorize(isMatchingIOMethod, new File("")))
         .isTrue();
@@ -172,14 +172,14 @@ public class JavaBeanAccessorMethodAuthorizerTest {
 
   @Test
   public void authorizeReturnsFalseForNonMatchingDisallowedMethod() throws NoSuchMethodException {
-    Method method = Object.class.getMethod("notify");
+    var method = Object.class.getMethod("notify");
 
     assertThat(authorizerWithLangAndIOPackagesSpecified.authorize(method, new Object())).isFalse();
   }
 
   @Test
   public void authorizeReturnsTrueForNonMatchingAllowedMethod() throws NoSuchMethodException {
-    Method method = Object.class.getMethod("equals", Object.class);
+    var method = Object.class.getMethod("equals", Object.class);
 
     assertThat(authorizerWithLangAndIOPackagesSpecified.authorize(method, new Object())).isTrue();
   }

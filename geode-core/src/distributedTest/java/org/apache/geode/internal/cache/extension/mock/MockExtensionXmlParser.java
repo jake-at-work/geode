@@ -58,7 +58,7 @@ public class MockExtensionXmlParser extends AbstractXmlParser {
         assertEquals(ELEMENT_CACHE_QNAME, qName);
         assertEquals(NAMESPACE, uri);
         assertNotNull(atts.getValue(ATTRIBUTE_VALUE));
-        MockCacheExtension extension = new MockCacheExtension(atts.getValue(ATTRIBUTE_VALUE));
+        var extension = new MockCacheExtension(atts.getValue(ATTRIBUTE_VALUE));
         stack.push(extension);
         break;
       }
@@ -70,7 +70,7 @@ public class MockExtensionXmlParser extends AbstractXmlParser {
         if ("exception".equals(atts.getValue(ATTRIBUTE_VALUE))) {
           throw new SAXParseException("Value is 'exception'.", documentLocator);
         }
-        MockRegionExtension extension = new MockRegionExtension(atts.getValue(ATTRIBUTE_VALUE));
+        var extension = new MockRegionExtension(atts.getValue(ATTRIBUTE_VALUE));
         stack.push(extension);
         break;
       }
@@ -83,14 +83,14 @@ public class MockExtensionXmlParser extends AbstractXmlParser {
   public void endElement(String uri, String localName, String qName) throws SAXException {
     switch (localName) {
       case ELEMENT_CACHE: {
-        MockCacheExtension extension = (MockCacheExtension) stack.pop();
-        CacheCreation cache = (CacheCreation) stack.peek();
+        var extension = (MockCacheExtension) stack.pop();
+        var cache = (CacheCreation) stack.peek();
         cache.getExtensionPoint().addExtension(extension);
         break;
       }
       case ELEMENT_REGION: {
-        MockRegionExtension extension = (MockRegionExtension) stack.pop();
-        RegionCreation region = (RegionCreation) stack.peek();
+        var extension = (MockRegionExtension) stack.pop();
+        var region = (RegionCreation) stack.peek();
         region.getExtensionPoint().addExtension(extension);
         break;
       }

@@ -31,7 +31,7 @@ public class TabularResultModelAnyRowAssert<T extends String> {
    */
   @SafeVarargs
   public final TabularResultModelAssert contains(T... rowValues) {
-    for (int i = 0; i < parent.getActual().getRowSize(); i++) {
+    for (var i = 0; i < parent.getActual().getRowSize(); i++) {
       try {
         parent.hasRow(i).contains(rowValues);
         return parent;
@@ -48,7 +48,7 @@ public class TabularResultModelAnyRowAssert<T extends String> {
    */
   @SafeVarargs
   public final TabularResultModelAssert containsOnly(T... rowValues) {
-    for (int i = 0; i < parent.getActual().getRowSize(); i++) {
+    for (var i = 0; i < parent.getActual().getRowSize(); i++) {
       try {
         parent.hasRow(i).containsOnly(rowValues);
         return parent;
@@ -64,7 +64,7 @@ public class TabularResultModelAnyRowAssert<T extends String> {
    */
   @SafeVarargs
   public final TabularResultModelAssert containsExactly(T... rowValues) {
-    for (int i = 0; i < parent.getActual().getRowSize(); i++) {
+    for (var i = 0; i < parent.getActual().getRowSize(); i++) {
       try {
         parent.hasRow(i).containsExactly(rowValues);
         return parent;
@@ -80,7 +80,7 @@ public class TabularResultModelAnyRowAssert<T extends String> {
    */
   @SafeVarargs
   public final TabularResultModelAssert containsAnyOf(T... rowValues) {
-    for (int i = 0; i < parent.getActual().getRowSize(); i++) {
+    for (var i = 0; i < parent.getActual().getRowSize(); i++) {
       try {
         parent.hasRow(i).containsAnyOf(rowValues);
         return parent;

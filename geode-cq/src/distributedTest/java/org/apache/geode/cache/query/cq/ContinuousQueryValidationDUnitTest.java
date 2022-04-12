@@ -27,15 +27,12 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.query.CqAttributes;
 import org.apache.geode.cache.query.CqAttributesFactory;
 import org.apache.geode.cache.query.QueryInvalidException;
 import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.categories.ClientSubscriptionTest;
 
 /**
@@ -51,17 +48,17 @@ public class ContinuousQueryValidationDUnitTest {
 
   @Before
   public void setUp() {
-    MemberVM locator = clusterStartupRule.startLocatorVM(1, new Properties());
-    MemberVM cacheServer = clusterStartupRule.startServerVM(2, locator.getPort());
+    var locator = clusterStartupRule.startLocatorVM(1, new Properties());
+    var cacheServer = clusterStartupRule.startServerVM(2, locator.getPort());
     cacheServer.invoke(() -> {
       assertThat(ClusterStartupRule.getCache()).isNotNull();
       ClusterStartupRule.getCache().createRegionFactory(RegionShortcut.REPLICATE).create("region");
     });
 
-    ClientCacheFactory clientCacheFactory = new ClientCacheFactory();
+    var clientCacheFactory = new ClientCacheFactory();
     clientCacheFactory.addPoolLocator("localhost", locator.getPort());
     clientCacheFactory.setPoolSubscriptionEnabled(true);
-    ClientCache clientCache = clientCacheFactory.create();
+    var clientCache = clientCacheFactory.create();
     clientCache.createClientRegionFactory(ClientRegionShortcut.PROXY).create("region");
 
     queryService = clientCache.getQueryService();
@@ -69,8 +66,8 @@ public class ContinuousQueryValidationDUnitTest {
 
   @Test
   public void creationShouldSucceedForValidQueries() {
-    CqAttributes attrs = new CqAttributesFactory().create();
-    String[] validQueries = new String[] {
+    var attrs = new CqAttributesFactory().create();
+    var validQueries = new String[] {
         "SELECT * FROM " + SEPARATOR + "region WHERE id = 1",
         "SELECT * FROM " + SEPARATOR + "region WHERE id <> 1",
         "SELECT * FROM " + SEPARATOR + "region WHERE id < 100",
@@ -78,7 +75,7 @@ public class ContinuousQueryValidationDUnitTest {
         "SELECT * FROM " + SEPARATOR + "region t WHERE t.price > 100.00"
     };
 
-    for (String queryString : validQueries) {
+    for (var queryString : validQueries) {
       assertThatCode(() -> queryService.newCq(queryString, attrs))
           .as(String.format("Query creation failed for %s but should have succeeded.", queryString))
           .doesNotThrowAnyException();
@@ -87,8 +84,8 @@ public class ContinuousQueryValidationDUnitTest {
 
   @Test
   public void creationShouldThrowQueryInvalidExceptionForInvalidQueries() {
-    CqAttributes attrs = new CqAttributesFactory().create();
-    String[] invalidQueries = new String[] {
+    var attrs = new CqAttributesFactory().create();
+    var invalidQueries = new String[] {
         "I AM NOT A QUERY",
         "SELECT * FROM " + SEPARATOR + "region WHERE MIN(id) > 0",
         "SELECT * FROM " + SEPARATOR + "region WHERE MAX(id) > 0",
@@ -97,7 +94,7 @@ public class ContinuousQueryValidationDUnitTest {
         "SELECT * FROM " + SEPARATOR + "region WHERE COUNT(id) > 0",
     };
 
-    for (String queryString : invalidQueries) {
+    for (var queryString : invalidQueries) {
       assertThatThrownBy(() -> queryService.newCq(queryString, attrs))
           .as(String.format("Query creation succeeded for %s but should have failed.", queryString))
           .isInstanceOf(QueryInvalidException.class);
@@ -106,8 +103,8 @@ public class ContinuousQueryValidationDUnitTest {
 
   @Test
   public void creationShouldThrowUnsupportedOperationExceptionForUnsupportedQueries() {
-    CqAttributes attrs = new CqAttributesFactory().create();
-    String[] unsupportedCQs = new String[] {
+    var attrs = new CqAttributesFactory().create();
+    var unsupportedCQs = new String[] {
         // not "just" a select statement
         "(SELECT * FROM " + SEPARATOR + "region WHERE status = 'active').isEmpty",
 
@@ -140,7 +137,7 @@ public class ContinuousQueryValidationDUnitTest {
         "SELECT COUNT(id) FROM " + SEPARATOR + "region WHERE status = 'active'",
     };
 
-    for (String queryString : unsupportedCQs) {
+    for (var queryString : unsupportedCQs) {
       assertThatThrownBy(() -> queryService.newCq(queryString, attrs))
           .as(String.format("Query creation succeeded for %s but should have failed.", queryString))
           .isInstanceOf(UnsupportedOperationException.class);

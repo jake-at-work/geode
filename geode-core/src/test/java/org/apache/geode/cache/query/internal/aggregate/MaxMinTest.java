@@ -17,7 +17,6 @@ package org.apache.geode.cache.query.internal.aggregate;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
-import java.util.List;
 
 import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.Before;
@@ -74,17 +73,17 @@ public class MaxMinTest {
 
   @Test
   public void terminateShouldReturnOptimaFound() {
-    List<String> comparableStrings = Arrays.asList("B", "D", "Z", "E", "A");
+    var comparableStrings = Arrays.asList("B", "D", "Z", "E", "A");
     comparableStrings.forEach(string -> {
       max.accumulate(string);
       min.accumulate(string);
     });
 
-    Object maxResult = max.terminate();
+    var maxResult = max.terminate();
     assertThat(maxResult).isInstanceOf(String.class);
     assertThat(maxResult).isEqualTo("Z");
 
-    Object minResult = min.terminate();
+    var minResult = min.terminate();
     assertThat(minResult).isInstanceOf(String.class);
     assertThat(minResult).isEqualTo("A");
   }

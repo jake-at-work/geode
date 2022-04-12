@@ -47,8 +47,8 @@ public class TenuredHeapConsumptionMonitorTest {
   @Before
   public void setUp() {
     notification = mock(Notification.class);
-    MemoryUsage usage = mock(MemoryUsage.class);
-    MemoryNotificationInfo memoryNotificationInfo = mock(MemoryNotificationInfo.class);
+    var usage = mock(MemoryUsage.class);
+    var memoryNotificationInfo = mock(MemoryNotificationInfo.class);
     when(memoryNotificationInfo.getUsage()).thenReturn(usage);
     when(usage.getUsed()).thenReturn(used);
     memoryNotificationInfoFactory = mock(Function.class);
@@ -89,7 +89,7 @@ public class TenuredHeapConsumptionMonitorTest {
 
   @Test
   public void exceptionMessageIsLoggedWhenExceptionIsThrownInCheckTenuredHeapConsumption() {
-    IllegalArgumentException ex = new IllegalArgumentException("test message");
+    var ex = new IllegalArgumentException("test message");
     when(memoryNotificationInfoFactory.apply(any())).thenThrow(ex);
     when(notification.getType()).thenReturn(MEMORY_COLLECTION_THRESHOLD_EXCEEDED);
     monitor.checkTenuredHeapConsumption(notification);

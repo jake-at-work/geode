@@ -79,7 +79,7 @@ public abstract class AbstractSetBitIntegrationTest implements RedisIntegrationT
     byte[] bytes = {0};
     jedis.set(key, bytes);
     assertThat(jedis.setbit(key, 1, true)).isFalse();
-    byte[] newbytes = jedis.get(key);
+    var newbytes = jedis.get(key);
     assertThat(newbytes[0]).isEqualTo((byte) 0x40);
   }
 
@@ -89,7 +89,7 @@ public abstract class AbstractSetBitIntegrationTest implements RedisIntegrationT
     byte[] bytes = {1};
     jedis.set(key, bytes);
     assertThat(jedis.setbit(key, 7, true)).isTrue();
-    byte[] newbytes = jedis.get(key);
+    var newbytes = jedis.get(key);
     assertThat(newbytes[0]).isEqualTo((byte) 1);
   }
 
@@ -99,7 +99,7 @@ public abstract class AbstractSetBitIntegrationTest implements RedisIntegrationT
     byte[] bytes = {0};
     jedis.set(key, bytes);
     assertThat(jedis.setbit(key, 1 + 8, true)).isFalse();
-    byte[] newbytes = jedis.get(key);
+    var newbytes = jedis.get(key);
     assertThat(newbytes[0]).isEqualTo((byte) 0);
     assertThat(newbytes[1]).isEqualTo((byte) 0x40);
   }

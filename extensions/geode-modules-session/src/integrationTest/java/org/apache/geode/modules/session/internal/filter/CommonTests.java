@@ -36,8 +36,6 @@ import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import com.mockrunner.mock.web.MockHttpServletRequest;
-import com.mockrunner.mock.web.MockHttpServletResponse;
 import com.mockrunner.mock.web.MockServletContext;
 import org.junit.Test;
 
@@ -53,8 +51,8 @@ public abstract class CommonTests extends SessionCookieConfigServletTestCaseAdap
   @Test
   public void testGetSession1() {
     doFilter();
-    HttpSession session1 = ((HttpServletRequest) getFilteredRequest()).getSession();
-    HttpSession session2 = ((HttpServletRequest) getFilteredRequest()).getSession();
+    var session1 = ((HttpServletRequest) getFilteredRequest()).getSession();
+    var session2 = ((HttpServletRequest) getFilteredRequest()).getSession();
 
     assertSame("Session should be the same", session1, session2);
   }
@@ -63,15 +61,15 @@ public abstract class CommonTests extends SessionCookieConfigServletTestCaseAdap
   public void testGetSession2() {
     doFilter();
 
-    HttpSession session1 = ((HttpServletRequest) getFilteredRequest()).getSession();
+    var session1 = ((HttpServletRequest) getFilteredRequest()).getSession();
 
-    MockHttpServletResponse response = getWebMockObjectFactory().getMockResponse();
-    Cookie cookie = (Cookie) response.getCookies().get(0);
+    var response = getWebMockObjectFactory().getMockResponse();
+    var cookie = (Cookie) response.getCookies().get(0);
     getWebMockObjectFactory().getMockRequest().addCookie(cookie);
 
     doFilter();
 
-    HttpSession session2 = ((HttpServletRequest) getFilteredRequest()).getSession();
+    var session2 = ((HttpServletRequest) getFilteredRequest()).getSession();
 
     assertEquals("Session objects across requests should be the same", session1, session2);
   }
@@ -89,7 +87,7 @@ public abstract class CommonTests extends SessionCookieConfigServletTestCaseAdap
   @Test
   public void testGetAttributeRequest2() {
     // Setup
-    CallbackServlet s = (CallbackServlet) getServlet();
+    var s = (CallbackServlet) getServlet();
     s.setCallback((request, response) -> request.setAttribute("foo", "bar"));
     doFilter();
 
@@ -103,7 +101,7 @@ public abstract class CommonTests extends SessionCookieConfigServletTestCaseAdap
 
     ((HttpServletRequest) getFilteredRequest()).getSession().setAttribute("foo", "bar");
 
-    HttpServletRequest request = (HttpServletRequest) getFilteredRequest();
+    var request = (HttpServletRequest) getFilteredRequest();
     assertEquals("bar", request.getSession().getAttribute("foo"));
   }
 
@@ -116,12 +114,12 @@ public abstract class CommonTests extends SessionCookieConfigServletTestCaseAdap
 
     ((HttpServletRequest) getFilteredRequest()).getSession().setAttribute("foo", "bar");
 
-    MockHttpServletResponse response = getWebMockObjectFactory().getMockResponse();
-    Cookie cookie = (Cookie) response.getCookies().get(0);
+    var response = getWebMockObjectFactory().getMockResponse();
+    var cookie = (Cookie) response.getCookies().get(0);
     getWebMockObjectFactory().getMockRequest().addCookie(cookie);
 
     doFilter();
-    HttpServletRequest request = (HttpServletRequest) getFilteredRequest();
+    var request = (HttpServletRequest) getFilteredRequest();
 
     assertEquals("bar", request.getSession().getAttribute("foo"));
   }
@@ -132,7 +130,7 @@ public abstract class CommonTests extends SessionCookieConfigServletTestCaseAdap
   @Test
   public void testSetAttributeNullSession1() {
     // Setup
-    CallbackServlet s = (CallbackServlet) getServlet();
+    var s = (CallbackServlet) getServlet();
     s.setCallback(new Callback() {
       private boolean called = false;
 
@@ -150,9 +148,9 @@ public abstract class CommonTests extends SessionCookieConfigServletTestCaseAdap
     doFilter();
     doFilter();
 
-    HttpSession session = ((HttpServletRequest) getFilteredRequest()).getSession();
+    var session = ((HttpServletRequest) getFilteredRequest()).getSession();
 
-    String attr = (String) session.getAttribute("foo");
+    var attr = (String) session.getAttribute("foo");
     assertNull("Attribute should be null but is " + attr, attr);
   }
 
@@ -164,7 +162,7 @@ public abstract class CommonTests extends SessionCookieConfigServletTestCaseAdap
   public void testInvalidate1() {
     doFilter();
 
-    HttpSession session = ((HttpServletRequest) getFilteredRequest()).getSession();
+    var session = ((HttpServletRequest) getFilteredRequest()).getSession();
     session.invalidate();
 
     try {
@@ -179,7 +177,7 @@ public abstract class CommonTests extends SessionCookieConfigServletTestCaseAdap
   public void testInvalidate2() {
     doFilter();
 
-    HttpSession session = ((HttpServletRequest) getFilteredRequest()).getSession();
+    var session = ((HttpServletRequest) getFilteredRequest()).getSession();
     session.invalidate();
 
     try {
@@ -194,7 +192,7 @@ public abstract class CommonTests extends SessionCookieConfigServletTestCaseAdap
   public void testInvalidate3() {
     doFilter();
 
-    HttpSession session = ((HttpServletRequest) getFilteredRequest()).getSession();
+    var session = ((HttpServletRequest) getFilteredRequest()).getSession();
     session.invalidate();
 
     try {
@@ -209,7 +207,7 @@ public abstract class CommonTests extends SessionCookieConfigServletTestCaseAdap
   public void testInvalidate4() {
     doFilter();
 
-    HttpSession session = ((HttpServletRequest) getFilteredRequest()).getSession();
+    var session = ((HttpServletRequest) getFilteredRequest()).getSession();
     session.invalidate();
 
     try {
@@ -223,7 +221,7 @@ public abstract class CommonTests extends SessionCookieConfigServletTestCaseAdap
   public void testInvalidate5() {
     doFilter();
 
-    HttpSession session = ((HttpServletRequest) getFilteredRequest()).getSession();
+    var session = ((HttpServletRequest) getFilteredRequest()).getSession();
     session.invalidate();
 
     try {
@@ -238,7 +236,7 @@ public abstract class CommonTests extends SessionCookieConfigServletTestCaseAdap
   public void testInvalidate6() {
     doFilter();
 
-    HttpSession session = ((HttpServletRequest) getFilteredRequest()).getSession();
+    var session = ((HttpServletRequest) getFilteredRequest()).getSession();
     session.invalidate();
 
     try {
@@ -252,7 +250,7 @@ public abstract class CommonTests extends SessionCookieConfigServletTestCaseAdap
   public void testInvalidate7() {
     doFilter();
 
-    HttpSession session = ((HttpServletRequest) getFilteredRequest()).getSession();
+    var session = ((HttpServletRequest) getFilteredRequest()).getSession();
     session.invalidate();
 
     try {
@@ -266,7 +264,7 @@ public abstract class CommonTests extends SessionCookieConfigServletTestCaseAdap
   public void testInvalidate8() {
     doFilter();
 
-    HttpSession session = ((HttpServletRequest) getFilteredRequest()).getSession();
+    var session = ((HttpServletRequest) getFilteredRequest()).getSession();
     session.invalidate();
 
     try {
@@ -281,7 +279,7 @@ public abstract class CommonTests extends SessionCookieConfigServletTestCaseAdap
   public void testInvalidate9() {
     doFilter();
 
-    HttpSession session = ((HttpServletRequest) getFilteredRequest()).getSession();
+    var session = ((HttpServletRequest) getFilteredRequest()).getSession();
     session.invalidate();
 
     try {
@@ -296,7 +294,7 @@ public abstract class CommonTests extends SessionCookieConfigServletTestCaseAdap
   public void testInvalidate10() {
     doFilter();
 
-    HttpSession session = ((HttpServletRequest) getFilteredRequest()).getSession();
+    var session = ((HttpServletRequest) getFilteredRequest()).getSession();
     session.invalidate();
 
     try {
@@ -311,7 +309,7 @@ public abstract class CommonTests extends SessionCookieConfigServletTestCaseAdap
   public void testInvalidate11() {
     doFilter();
 
-    HttpSession session = ((HttpServletRequest) getFilteredRequest()).getSession();
+    var session = ((HttpServletRequest) getFilteredRequest()).getSession();
     session.invalidate();
 
     try {
@@ -336,10 +334,10 @@ public abstract class CommonTests extends SessionCookieConfigServletTestCaseAdap
   public void testGetId2() {
     doFilter();
 
-    String sessionId = ((HttpServletRequest) getFilteredRequest()).getSession().getId();
+    var sessionId = ((HttpServletRequest) getFilteredRequest()).getSession().getId();
 
-    MockHttpServletResponse response = getWebMockObjectFactory().getMockResponse();
-    Cookie cookie = (Cookie) response.getCookies().get(0);
+    var response = getWebMockObjectFactory().getMockResponse();
+    var cookie = (Cookie) response.getCookies().get(0);
     getWebMockObjectFactory().getMockRequest().addCookie(cookie);
 
     doFilter();
@@ -352,7 +350,7 @@ public abstract class CommonTests extends SessionCookieConfigServletTestCaseAdap
   public void testGetCreationTime1() {
     doFilter();
 
-    HttpServletRequest request = (HttpServletRequest) getFilteredRequest();
+    var request = (HttpServletRequest) getFilteredRequest();
     assertTrue("Session should have a non-zero creation time",
         request.getSession().getCreationTime() > 0);
   }
@@ -365,10 +363,10 @@ public abstract class CommonTests extends SessionCookieConfigServletTestCaseAdap
   public void testGetCreationTime2() {
     doFilter();
 
-    long creationTime = ((HttpServletRequest) getFilteredRequest()).getSession().getCreationTime();
+    var creationTime = ((HttpServletRequest) getFilteredRequest()).getSession().getCreationTime();
 
-    MockHttpServletResponse response = getWebMockObjectFactory().getMockResponse();
-    Cookie cookie = (Cookie) response.getCookies().get(0);
+    var response = getWebMockObjectFactory().getMockResponse();
+    var cookie = (Cookie) response.getCookies().get(0);
     getWebMockObjectFactory().getMockRequest().addCookie(cookie);
 
     doFilter();
@@ -379,12 +377,12 @@ public abstract class CommonTests extends SessionCookieConfigServletTestCaseAdap
 
   @Test
   public void testResponseContainsRequestedSessionId1() {
-    Cookie cookie = new Cookie("JSESSIONID", "999-GF");
+    var cookie = new Cookie("JSESSIONID", "999-GF");
     getWebMockObjectFactory().getMockRequest().addCookie(cookie);
 
     doFilter();
 
-    HttpServletRequest request = (HttpServletRequest) getFilteredRequest();
+    var request = (HttpServletRequest) getFilteredRequest();
 
     assertEquals("Request does not contain requested session ID", "999-GF",
         request.getRequestedSessionId());
@@ -394,7 +392,7 @@ public abstract class CommonTests extends SessionCookieConfigServletTestCaseAdap
   public void testGetLastAccessedTime1() {
     doFilter();
 
-    HttpServletRequest request = (HttpServletRequest) getFilteredRequest();
+    var request = (HttpServletRequest) getFilteredRequest();
     assertTrue("Session should have a non-zero last access time",
         request.getSession().getLastAccessedTime() > 0);
   }
@@ -406,19 +404,19 @@ public abstract class CommonTests extends SessionCookieConfigServletTestCaseAdap
   @Test
   public void testGetLastAccessedTime2() throws Exception {
     // Setup
-    CallbackServlet s = (CallbackServlet) getServlet();
+    var s = (CallbackServlet) getServlet();
     s.setCallback((request, response) -> request.getSession());
 
     doFilter();
 
-    HttpServletRequest request = (HttpServletRequest) getFilteredRequest();
-    long lastAccess = request.getSession().getLastAccessedTime();
+    var request = (HttpServletRequest) getFilteredRequest();
+    var lastAccess = request.getSession().getLastAccessedTime();
     assertTrue("Session should have a non-zero last access time", lastAccess > 0);
 
-    MockHttpServletResponse response = getWebMockObjectFactory().getMockResponse();
-    Cookie cookie = (Cookie) response.getCookies().get(0);
+    var response = getWebMockObjectFactory().getMockResponse();
+    var cookie = (Cookie) response.getCookies().get(0);
 
-    MockHttpServletRequest mRequest = getWebMockObjectFactory().createMockRequest();
+    var mRequest = getWebMockObjectFactory().createMockRequest();
     mRequest.setRequestURL("/test/foo/bar");
     mRequest.setContextPath(CONTEXT_PATH);
     mRequest.addCookie(cookie);
@@ -435,7 +433,7 @@ public abstract class CommonTests extends SessionCookieConfigServletTestCaseAdap
   public void testGetSetMaxInactiveInterval() {
     doFilter();
 
-    HttpServletRequest request = (HttpServletRequest) getFilteredRequest();
+    var request = (HttpServletRequest) getFilteredRequest();
     request.getSession().setMaxInactiveInterval(50);
 
     assertEquals(50, request.getSession().getMaxInactiveInterval());
@@ -444,15 +442,15 @@ public abstract class CommonTests extends SessionCookieConfigServletTestCaseAdap
   @Test
   public void testCookieSecure() {
 
-    boolean secure = true;
+    var secure = true;
     asMyMockServlet(getWebMockObjectFactory().getMockServletContext()).getSessionCookieConfig()
         .setSecure(secure);
 
     doFilter();
     ((HttpServletRequest) getFilteredRequest()).getSession();
 
-    MockHttpServletResponse response = getWebMockObjectFactory().getMockResponse();
-    Cookie cookie = (Cookie) response.getCookies().get(0);
+    var response = getWebMockObjectFactory().getMockResponse();
+    var cookie = (Cookie) response.getCookies().get(0);
 
     assertEquals(secure, cookie.getSecure());
   }
@@ -460,15 +458,15 @@ public abstract class CommonTests extends SessionCookieConfigServletTestCaseAdap
   @Test
   public void testCookieHttpOnly() {
 
-    boolean httpOnly = true;
+    var httpOnly = true;
     asMyMockServlet(getWebMockObjectFactory().getMockServletContext()).getSessionCookieConfig()
         .setHttpOnly(httpOnly);
 
     doFilter();
     ((HttpServletRequest) getFilteredRequest()).getSession();
 
-    MockHttpServletResponse response = getWebMockObjectFactory().getMockResponse();
-    Cookie cookie = (Cookie) response.getCookies().get(0);
+    var response = getWebMockObjectFactory().getMockResponse();
+    var cookie = (Cookie) response.getCookies().get(0);
 
     assertEquals(httpOnly, cookie.isHttpOnly());
   }
@@ -477,7 +475,7 @@ public abstract class CommonTests extends SessionCookieConfigServletTestCaseAdap
   public void testIsNew1() {
     doFilter();
 
-    HttpServletRequest request = (HttpServletRequest) getFilteredRequest();
+    var request = (HttpServletRequest) getFilteredRequest();
     assertTrue("Session should be new", request.getSession().isNew());
   }
 
@@ -487,18 +485,18 @@ public abstract class CommonTests extends SessionCookieConfigServletTestCaseAdap
   @Test
   public void testIsNew2() {
     // Setup
-    CallbackServlet s = (CallbackServlet) getServlet();
+    var s = (CallbackServlet) getServlet();
     s.setCallback((request, response) -> request.getSession());
 
     doFilter();
 
-    HttpServletRequest request = (HttpServletRequest) getFilteredRequest();
+    var request = (HttpServletRequest) getFilteredRequest();
     request.getSession();
 
-    MockHttpServletResponse response = getWebMockObjectFactory().getMockResponse();
-    Cookie cookie = (Cookie) response.getCookies().get(0);
+    var response = getWebMockObjectFactory().getMockResponse();
+    var cookie = (Cookie) response.getCookies().get(0);
 
-    MockHttpServletRequest mRequest = getWebMockObjectFactory().createMockRequest();
+    var mRequest = getWebMockObjectFactory().createMockRequest();
     mRequest.setRequestURL("/test/foo/bar");
     mRequest.setContextPath(CONTEXT_PATH);
     mRequest.addCookie(cookie);
@@ -513,12 +511,12 @@ public abstract class CommonTests extends SessionCookieConfigServletTestCaseAdap
 
   @Test
   public void testIsRequestedSessionIdFromCookie() {
-    MockHttpServletRequest mRequest = getWebMockObjectFactory().getMockRequest();
-    Cookie c = new Cookie("JSESSIONID", "1-GF");
+    var mRequest = getWebMockObjectFactory().getMockRequest();
+    var c = new Cookie("JSESSIONID", "1-GF");
     mRequest.addCookie(c);
 
     doFilter();
-    HttpServletRequest request = (HttpServletRequest) getFilteredRequest();
+    var request = (HttpServletRequest) getFilteredRequest();
     request.getSession();
 
     assertTrue(request.isRequestedSessionIdFromCookie());
@@ -526,11 +524,11 @@ public abstract class CommonTests extends SessionCookieConfigServletTestCaseAdap
 
   @Test
   public void testIsRequestedSessionIdFromURL() {
-    MockHttpServletRequest mRequest = getWebMockObjectFactory().getMockRequest();
+    var mRequest = getWebMockObjectFactory().getMockRequest();
     mRequest.setRequestURL("/foo/bar;jsessionid=1");
 
     doFilter();
-    HttpServletRequest request = (HttpServletRequest) getFilteredRequest();
+    var request = (HttpServletRequest) getFilteredRequest();
     request.getSession();
 
     assertFalse("Session ID should not be from cookie", request.isRequestedSessionIdFromCookie());
@@ -542,8 +540,8 @@ public abstract class CommonTests extends SessionCookieConfigServletTestCaseAdap
     createFilter(RequestWrappingFilter.class);
     createFilter(SessionCachingFilter.class);
     doFilter();
-    HttpServletRequest request = (HttpServletRequest) getFilteredRequest();
-    HttpSession originalSession = (HttpSession) request.getAttribute("original_session");
+    var request = (HttpServletRequest) getFilteredRequest();
+    var originalSession = (HttpSession) request.getAttribute("original_session");
     assertEquals(originalSession, request.getSession());
   }
 
@@ -555,7 +553,7 @@ public abstract class CommonTests extends SessionCookieConfigServletTestCaseAdap
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
         throws IOException, ServletException {
-      final HttpServletRequest httpRequest = (HttpServletRequest) request;
+      final var httpRequest = (HttpServletRequest) request;
       httpRequest.getSession();
       httpRequest.setAttribute("original_session", httpRequest.getSession());
       request = new HttpServletRequestWrapper(httpRequest);

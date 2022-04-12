@@ -43,7 +43,7 @@ public class RuntimeRegionInfo extends RuntimeInfo implements JsonSerializable {
     if (!super.equals(o)) {
       return false;
     }
-    RuntimeRegionInfo that = (RuntimeRegionInfo) o;
+    var that = (RuntimeRegionInfo) o;
     return getEntryCount() == that.getEntryCount();
   }
 

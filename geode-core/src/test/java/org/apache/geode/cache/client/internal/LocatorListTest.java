@@ -23,11 +23,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.net.InetSocketAddress;
-import java.util.Iterator;
-import java.util.List;
 import java.util.NoSuchElementException;
 
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 import org.apache.geode.distributed.internal.tcpserver.HostAndPort;
@@ -87,11 +84,11 @@ class LocatorListTest {
 
   @Test
   void getLocatorAddressesReturnsLocatorsInSortedOrder() {
-    final List<HostAndPort> locators = asList(
+    final var locators = asList(
         new HostAndPort("locator2", 1234),
         new HostAndPort("locator1", 1234));
 
-    final LocatorList locatorList = new LocatorList(locators);
+    final var locatorList = new LocatorList(locators);
 
     assertThat(locatorList.getLocatorAddresses()).containsExactly(
         new HostAndPort("locator1", 1234),
@@ -100,14 +97,14 @@ class LocatorListTest {
 
   @Test
   void getLocatorsReturnsInetSocketAddressesInOrderInNewList() {
-    final List<HostAndPort> locators = asList(
+    final var locators = asList(
         new HostAndPort("locator2", 1234),
         new HostAndPort("locator1", 1234));
 
-    final LocatorList locatorList = new LocatorList(locators);
+    final var locatorList = new LocatorList(locators);
 
-    final List<InetSocketAddress> locators1 = locatorList.getLocators();
-    final List<InetSocketAddress> locators2 = locatorList.getLocators();
+    final var locators1 = locatorList.getLocators();
+    final var locators2 = locatorList.getLocators();
 
     assertThat(locators1)
         .isNotNull()
@@ -131,16 +128,16 @@ class LocatorListTest {
 
   @Test
   void iteratorReturnsExhaustedIteratorWhenEmpty() {
-    final Iterator<@NotNull HostAndPort> iterator = new LocatorList(emptyList()).iterator();
+    final var iterator = new LocatorList(emptyList()).iterator();
     assertThat(iterator).isExhausted();
     assertThatThrownBy(iterator::next).isInstanceOf(NoSuchElementException.class);
   }
 
   @Test
   void iteratorReturnsIteratorWithEntriesWhenNotEmpty() {
-    final HostAndPort locator1 = new HostAndPort("locator1", 1234);
-    final HostAndPort locator2 = new HostAndPort("locator2", 1234);
-    final Iterator<@NotNull HostAndPort> iterator = new LocatorList(asList(locator1, locator2))
+    final var locator1 = new HostAndPort("locator1", 1234);
+    final var locator2 = new HostAndPort("locator2", 1234);
+    final var iterator = new LocatorList(asList(locator1, locator2))
         .iterator();
 
     assertThat(iterator).hasNext();
@@ -153,9 +150,9 @@ class LocatorListTest {
 
   @Test
   void iteratorReturnsIteratorThatDoesNotSupportRemoveBeforeOrAfterNext() {
-    final HostAndPort locator1 = new HostAndPort("locator1", 1234);
-    final HostAndPort locator2 = new HostAndPort("locator2", 1234);
-    final Iterator<@NotNull HostAndPort> iterator = new LocatorList(asList(locator1, locator2))
+    final var locator1 = new HostAndPort("locator1", 1234);
+    final var locator2 = new HostAndPort("locator2", 1234);
+    final var iterator = new LocatorList(asList(locator1, locator2))
         .iterator();
 
     assertThatThrownBy(iterator::remove).isInstanceOf(UnsupportedOperationException.class);

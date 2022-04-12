@@ -41,10 +41,10 @@ public class CacheInfoResponse extends AdminResponse {
    */
   public static CacheInfoResponse create(DistributionManager dm,
       InternalDistributedMember recipient) {
-    CacheInfoResponse m = new CacheInfoResponse();
+    var m = new CacheInfoResponse();
     m.setRecipient(recipient);
     try {
-      InternalCache c = (InternalCache) CacheFactory.getInstanceCloseOk(dm.getSystem());
+      var c = (InternalCache) CacheFactory.getInstanceCloseOk(dm.getSystem());
       m.info = new RemoteCacheInfo(c);
     } catch (CancelException ignore) {
       m.info = null;

@@ -19,7 +19,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.Serializable;
-import java.net.URL;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Callable;
@@ -37,7 +36,6 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.execute.Execution;
 import org.apache.geode.cache.execute.FunctionService;
-import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.internal.classloader.ClassPathLoader;
 import org.apache.geode.test.compiler.ClassBuilder;
@@ -121,10 +119,10 @@ public class DeployCommandRedeployDUnitTest {
 
   @Test
   public void redeployJarsWithNewVersionsOfFunctionsAndMultipleLocators() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty("locators", "localhost[" + locator.getPort() + "]");
     @SuppressWarnings("unused")
-    MemberVM locator2 = lsRule.startLocatorVM(2, props);
+    var locator2 = lsRule.startLocatorVM(2, props);
 
     gfshConnector.executeAndAssertThat("deploy --jar=" + jarAVersion1.getCanonicalPath())
         .statusIsSuccess();
@@ -176,33 +174,33 @@ public class DeployCommandRedeployDUnitTest {
   // Also, the function for jar A resides in the default package, whereas jar B specifies a package.
   // This ensures that this test has identical coverage to some tests that it replaced.
   private File createJarWithFunctionA(String version) throws Exception {
-    URL classTemplateUrl = DeployCommandRedeployDUnitTest.class
+    var classTemplateUrl = DeployCommandRedeployDUnitTest.class
         .getResource("DeployCommandRedeployDUnitTest_FunctionATemplate");
     assertThat(classTemplateUrl).isNotNull();
 
-    String classContents = FileUtils.readFileToString(new File(classTemplateUrl.toURI()), "UTF-8");
+    var classContents = FileUtils.readFileToString(new File(classTemplateUrl.toURI()), "UTF-8");
     classContents = classContents.replaceAll("FUNCTION_A", FUNCTION_A);
     classContents = classContents.replaceAll("VERSION", version);
 
-    File jar = new File(temporaryFolder.newFolder(JAR_NAME_A + version), JAR_NAME_A);
-    ClassBuilder functionClassBuilder = new ClassBuilder();
+    var jar = new File(temporaryFolder.newFolder(JAR_NAME_A + version), JAR_NAME_A);
+    var functionClassBuilder = new ClassBuilder();
     functionClassBuilder.writeJarFromContent(FUNCTION_A, classContents, jar);
 
     return jar;
   }
 
   private File createJarWithFunctionB(String version) throws Exception {
-    URL classTemplateUrl = DeployCommandRedeployDUnitTest.class
+    var classTemplateUrl = DeployCommandRedeployDUnitTest.class
         .getResource("DeployCommandRedeployDUnitTest_FunctionBTemplate");
     assertThat(classTemplateUrl).isNotNull();
 
-    String classContents = FileUtils.readFileToString(new File(classTemplateUrl.toURI()), "UTF-8");
+    var classContents = FileUtils.readFileToString(new File(classTemplateUrl.toURI()), "UTF-8");
     classContents = classContents.replaceAll("PACKAGE_B", PACKAGE_B);
     classContents = classContents.replaceAll("FUNCTION_B", FUNCTION_B);
     classContents = classContents.replaceAll("VERSION", version);
 
-    File jar = new File(temporaryFolder.newFolder(JAR_NAME_B + version), JAR_NAME_B);
-    ClassBuilder functionClassBuilder = new ClassBuilder();
+    var jar = new File(temporaryFolder.newFolder(JAR_NAME_B + version), JAR_NAME_B);
+    var functionClassBuilder = new ClassBuilder();
     functionClassBuilder.writeJarFromContent("jddunit/function/" + FUNCTION_B, classContents, jar);
 
     return jar;
@@ -210,12 +208,12 @@ public class DeployCommandRedeployDUnitTest {
 
   private static void assertThatFunctionHasVersion(String functionId, String version) {
     @SuppressWarnings("deprecation")
-    GemFireCacheImpl gemFireCache = GemFireCacheImpl.getInstance();
-    DistributedSystem distributedSystem = gemFireCache.getDistributedSystem();
+    var gemFireCache = GemFireCacheImpl.getInstance();
+    var distributedSystem = gemFireCache.getDistributedSystem();
     @SuppressWarnings("unchecked")
     Execution<Void, String, List<String>> execution =
         FunctionService.onMember(distributedSystem.getDistributedMember());
-    List<String> result = execution.execute(functionId).getResult();
+    var result = execution.execute(functionId).getResult();
     assertThat(result.get(0)).isEqualTo(version);
   }
 
@@ -232,11 +230,11 @@ public class DeployCommandRedeployDUnitTest {
     private final ExecutorService EXECUTOR_SERVICE = Executors.newSingleThreadExecutor();
 
     public void startExecuting(String functionId) {
-      ExecutorService EXECUTOR_SERVICE = Executors.newSingleThreadExecutor();
+      var EXECUTOR_SERVICE = Executors.newSingleThreadExecutor();
       EXECUTOR_SERVICE.submit(() -> {
         @SuppressWarnings("deprecation")
-        GemFireCacheImpl gemFireCache = GemFireCacheImpl.getInstance();
-        DistributedSystem distributedSystem = gemFireCache.getDistributedSystem();
+        var gemFireCache = GemFireCacheImpl.getInstance();
+        var distributedSystem = gemFireCache.getDistributedSystem();
 
         while (!Thread.currentThread().isInterrupted()) {
           try {
@@ -252,16 +250,16 @@ public class DeployCommandRedeployDUnitTest {
     }
 
     public void waitForExecutions(int numberOfExecutions) {
-      int initialCount = COUNT_OF_EXECUTIONS.get();
-      int countToWaitFor = initialCount + numberOfExecutions;
-      Callable<Boolean> doneWaiting = () -> COUNT_OF_EXECUTIONS.get() >= countToWaitFor;
+      var initialCount = COUNT_OF_EXECUTIONS.get();
+      var countToWaitFor = initialCount + numberOfExecutions;
+      var doneWaiting = (Callable<Boolean>) () -> COUNT_OF_EXECUTIONS.get() >= countToWaitFor;
 
       await().until(doneWaiting);
     }
 
     public void stopExecutionAndThrowAnyException() throws Exception {
       EXECUTOR_SERVICE.shutdownNow();
-      Exception e = EXCEPTION.get();
+      var e = EXCEPTION.get();
       if (e != null) {
         throw e;
       }

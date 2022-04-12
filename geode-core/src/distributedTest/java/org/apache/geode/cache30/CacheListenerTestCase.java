@@ -28,7 +28,6 @@ import org.apache.geode.cache.CacheListener;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.EntryNotFoundException;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.RegionEvent;
 import org.apache.geode.internal.cache.AbstractRegionMap;
 import org.apache.geode.test.dunit.Wait;
@@ -56,12 +55,12 @@ public abstract class CacheListenerTestCase extends CacheLoaderTestCase {
    */
   @Test
   public void testCacheListenerAfterCreate() throws CacheException {
-    String name = getUniqueName();
+    var name = getUniqueName();
     final Object key = getUniqueName();
     final Object value = 42;
     Object arg = "ARG";
 
-    TestCacheListener listener = new TestCacheListener() {
+    var listener = new TestCacheListener() {
       @Override
       public void afterCreate2(EntryEvent event) {
         assertEquals(key, event.getKey());
@@ -76,9 +75,9 @@ public abstract class CacheListenerTestCase extends CacheLoaderTestCase {
       }
     };
 
-    AttributesFactory factory = new AttributesFactory(getRegionAttributes());
+    var factory = new AttributesFactory(getRegionAttributes());
     factory.setCacheListener(listener);
-    Region region = createRegion(name, factory.create());
+    var region = createRegion(name, factory.create());
 
     region.create(key, value);
     assertTrue(listener.wasInvoked());
@@ -107,13 +106,13 @@ public abstract class CacheListenerTestCase extends CacheLoaderTestCase {
    */
   @Test
   public void testCacheListenerAfterUpdate() throws CacheException {
-    String name = getUniqueName();
+    var name = getUniqueName();
     final Object key = getUniqueName();
     final Object oldValue = 42;
     final Object newValue = 43;
     Object arg = "ARG";
 
-    TestCacheListener listener = new TestCacheListener() {
+    var listener = new TestCacheListener() {
       @Override
       public void afterCreate2(EntryEvent event) {
         // This method will get invoked when the region is populated
@@ -133,9 +132,9 @@ public abstract class CacheListenerTestCase extends CacheLoaderTestCase {
       }
     };
 
-    AttributesFactory factory = new AttributesFactory(getRegionAttributes());
+    var factory = new AttributesFactory(getRegionAttributes());
     factory.setCacheListener(listener);
-    Region region = createRegion(name, factory.create());
+    var region = createRegion(name, factory.create());
 
     region.create(key, oldValue);
     assertTrue(listener.wasInvoked());
@@ -172,13 +171,13 @@ public abstract class CacheListenerTestCase extends CacheLoaderTestCase {
    */
   @Test
   public void testCacheListenerAfterDestroy() throws CacheException {
-    String name = getUniqueName();
+    var name = getUniqueName();
     final Object key = getUniqueName();
     final Object value = 42;
     Object arg = "ARG";
     // final boolean localScope = getRegionAttributes().getScope().isLocal();
 
-    TestCacheListener listener = new TestCacheListener() {
+    var listener = new TestCacheListener() {
       @Override
       public void afterCreate2(EntryEvent event) {
         // This method will get invoked when the region is populated
@@ -193,9 +192,9 @@ public abstract class CacheListenerTestCase extends CacheLoaderTestCase {
       }
     };
 
-    AttributesFactory factory = new AttributesFactory(getRegionAttributes());
+    var factory = new AttributesFactory(getRegionAttributes());
     factory.setCacheListener(listener);
-    Region region = createRegion(name, factory.create());
+    var region = createRegion(name, factory.create());
 
     region.create(key, value);
     assertTrue(listener.wasInvoked());
@@ -214,12 +213,12 @@ public abstract class CacheListenerTestCase extends CacheLoaderTestCase {
    */
   @Test
   public void testCacheListenerAfterInvalidate() throws CacheException {
-    String name = getUniqueName();
+    var name = getUniqueName();
     final Object key = getUniqueName();
     final Object value = 42;
     // Object arg = "ARG";
 
-    TestCacheListener listener = new TestCacheListener() {
+    var listener = new TestCacheListener() {
       @Override
       public void afterCreate2(EntryEvent event) {
         // This method will get invoked when the region is populated
@@ -234,9 +233,9 @@ public abstract class CacheListenerTestCase extends CacheLoaderTestCase {
       }
     };
 
-    AttributesFactory factory = new AttributesFactory(getRegionAttributes());
+    var factory = new AttributesFactory(getRegionAttributes());
     factory.setCacheListener(listener);
-    Region region = createRegion(name, factory.create());
+    var region = createRegion(name, factory.create());
 
     // Does not exist so should not invoke listener
     try {
@@ -260,11 +259,11 @@ public abstract class CacheListenerTestCase extends CacheLoaderTestCase {
   public void testCacheListenerAfterInvalidateWithForce() throws CacheException {
     AbstractRegionMap.FORCE_INVALIDATE_EVENT = true;
     try {
-      String name = getUniqueName();
+      var name = getUniqueName();
       final Object key = getUniqueName();
       final Object value = 42;
 
-      TestCacheListener listener = new TestCacheListener() {
+      var listener = new TestCacheListener() {
         int invalidateCount = 0;
 
         @Override
@@ -286,9 +285,9 @@ public abstract class CacheListenerTestCase extends CacheLoaderTestCase {
         }
       };
 
-      AttributesFactory factory = new AttributesFactory(getRegionAttributes());
+      var factory = new AttributesFactory(getRegionAttributes());
       factory.setCacheListener(listener);
-      Region region = createRegion(name, factory.create());
+      var region = createRegion(name, factory.create());
 
       // Does not exist but should still invoke listener
       try {
@@ -319,18 +318,18 @@ public abstract class CacheListenerTestCase extends CacheLoaderTestCase {
   @Test
   public void testCacheListenerAfterRegionDestroy() throws CacheException, InterruptedException {
 
-    final String name = getUniqueName();
+    final var name = getUniqueName();
     Object arg = "ARG";
     // final String exception = "EXCEPTION";
     // final boolean localScope = getRegionAttributes().getScope().isLocal();
 
-    TestCacheListener listener = new TestCacheListener() {
+    var listener = new TestCacheListener() {
       private boolean closed = false;
       private boolean destroyed = false;
 
       @Override
       public boolean wasInvoked() {
-        boolean value = closed && destroyed;
+        var value = closed && destroyed;
         super.wasInvoked();
         return value;
       }
@@ -352,9 +351,9 @@ public abstract class CacheListenerTestCase extends CacheLoaderTestCase {
       }
     };
 
-    AttributesFactory factory = new AttributesFactory(getRegionAttributes());
+    var factory = new AttributesFactory(getRegionAttributes());
     factory.setCacheListener(listener);
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     Region region;
 
     region = createRegion(name, attrs);
@@ -379,15 +378,15 @@ public abstract class CacheListenerTestCase extends CacheLoaderTestCase {
   @Test
   public void testCacheListenerAfterRegionInvalidate() throws CacheException, InterruptedException {
 
-    final String name = getUniqueName();
+    final var name = getUniqueName();
 
-    TestCacheListener listener = new TestCacheListener() {
+    var listener = new TestCacheListener() {
       private boolean closed = false;
       private boolean invalidated = false;
 
       @Override
       public boolean wasInvoked() {
-        boolean value = invalidated;
+        var value = invalidated;
         super.wasInvoked();
         return value;
       }
@@ -407,9 +406,9 @@ public abstract class CacheListenerTestCase extends CacheLoaderTestCase {
       }
     };
 
-    AttributesFactory factory = new AttributesFactory(getRegionAttributes());
+    var factory = new AttributesFactory(getRegionAttributes());
     factory.setCacheListener(listener);
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     Region region;
 
     region = createRegion(name, attrs);

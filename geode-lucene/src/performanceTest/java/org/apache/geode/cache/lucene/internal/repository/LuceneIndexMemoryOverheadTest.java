@@ -91,13 +91,13 @@ public class LuceneIndexMemoryOverheadTest extends LuceneIntegrationTest {
     Region region = cache.createRegionFactory(RegionShortcut.PARTITION).create(REGION_NAME);
     PartitionRegionHelper.assignBucketsToPartitions(region);
 
-    long emptySize = ObjectGraphSizer.size(cache, filter, false);
+    var emptySize = ObjectGraphSizer.size(cache, filter, false);
     waitForFlush(flush);
 
     long size;
-    int numEntries = 0;
+    var numEntries = 0;
 
-    for (int batch = 0; batch < NUM_BATCHES; batch++) {
+    for (var batch = 0; batch < NUM_BATCHES; batch++) {
 
       size =
           addEntriesAndGetMemorySize(region, numEntries, NUM_ENTRIES, service, flush) - emptySize;
@@ -110,13 +110,13 @@ public class LuceneIndexMemoryOverheadTest extends LuceneIntegrationTest {
 
   private long addEntriesAndGetMemorySize(Region region, int start, int count,
       TombstoneService service, Callable flush) throws Exception {
-    int c = 0;
-    for (int i = start; i < start + count; i++) {
-      byte[] field1 = new byte[3];
-      byte[] field2 = new byte[5];
+    var c = 0;
+    for (var i = start; i < start + count; i++) {
+      var field1 = new byte[3];
+      var field2 = new byte[5];
       random.nextBytes(field1);
       random.nextBytes(field2);
-      TestObject test = new TestObject(new String(field1, StandardCharsets.US_ASCII),
+      var test = new TestObject(new String(field1, StandardCharsets.US_ASCII),
           new String(field2, StandardCharsets.US_ASCII));
       region.put(i, test);
     }

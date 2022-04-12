@@ -16,7 +16,6 @@
 package org.apache.geode.tools.pulse.internal;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Properties;
 import java.util.ResourceBundle;
 
@@ -30,8 +29,8 @@ public class ClassPathPropertiesFileLoader implements PropertiesFileLoader {
 
   @Override
   public Properties loadProperties(String propertyFile, ResourceBundle resourceBundle) {
-    final Properties properties = new Properties();
-    try (final InputStream stream =
+    final var properties = new Properties();
+    try (final var stream =
         Thread.currentThread().getContextClassLoader().getResourceAsStream(propertyFile)) {
       logger.info(propertyFile + " " + resourceBundle.getString("LOG_MSG_FILE_FOUND"));
       properties.load(stream);

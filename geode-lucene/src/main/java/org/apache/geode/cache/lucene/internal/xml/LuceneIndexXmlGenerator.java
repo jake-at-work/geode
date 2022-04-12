@@ -23,13 +23,10 @@ import static org.apache.geode.cache.lucene.internal.xml.LuceneXmlConstants.NAME
 import static org.apache.geode.cache.lucene.internal.xml.LuceneXmlConstants.PREFIX;
 import static org.apache.geode.cache.lucene.internal.xml.LuceneXmlConstants.SERIALIZER;
 
-import org.apache.lucene.analysis.Analyzer;
-import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.lucene.LuceneSerializer;
 import org.apache.geode.internal.cache.xmlcache.CacheXmlGenerator;
 import org.apache.geode.internal.cache.xmlcache.XmlGenerator;
 import org.apache.geode.internal.cache.xmlcache.XmlGeneratorUtils;
@@ -50,25 +47,25 @@ public class LuceneIndexXmlGenerator implements XmlGenerator<Region<?, ?>> {
 
   @Override
   public void generate(CacheXmlGenerator cacheXmlGenerator) throws SAXException {
-    final ContentHandler handler = cacheXmlGenerator.getContentHandler();
+    final var handler = cacheXmlGenerator.getContentHandler();
 
     handler.startPrefixMapping(PREFIX, NAMESPACE);
 
-    AttributesImpl attr = new AttributesImpl();
+    var attr = new AttributesImpl();
     // TODO - should the type be xs:string ?
     XmlGeneratorUtils.addAttribute(attr, NAME, index.getName());
     XmlGeneratorUtils.startElement(handler, PREFIX, INDEX, attr);
-    for (String field : index.getFieldNames()) {
-      AttributesImpl fieldAttr = new AttributesImpl();
+    for (var field : index.getFieldNames()) {
+      var fieldAttr = new AttributesImpl();
       XmlGeneratorUtils.addAttribute(fieldAttr, NAME, field);
-      Analyzer analyzer = index.getFieldAnalyzers().get(field);
+      var analyzer = index.getFieldAnalyzers().get(field);
       if (analyzer != null) {
         XmlGeneratorUtils.addAttribute(fieldAttr, ANALYZER, analyzer.getClass().getName());
       }
       XmlGeneratorUtils.emptyElement(handler, PREFIX, FIELD, fieldAttr);
     }
 
-    LuceneSerializer serializer = index.getLuceneSerializer();
+    var serializer = index.getLuceneSerializer();
     if (serializer != null) {
       XmlGeneratorUtils.startElement(handler, PREFIX, SERIALIZER, EMPTY);
       XmlGeneratorUtils.addDeclarable(handler, serializer);

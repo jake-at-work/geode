@@ -25,12 +25,9 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import org.apache.geode.cache.CommitConflictException;
-import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.TransactionId;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.internal.cache.TXManagerImpl;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.CacheRule;
@@ -97,16 +94,16 @@ public class RepeatableReadTransactionDistributedTest implements Serializable {
   }
 
   private int createServerRegion(int totalNumBuckets, boolean isAccessor) throws Exception {
-    PartitionAttributesFactory factory = new PartitionAttributesFactory();
+    var factory = new PartitionAttributesFactory();
     factory.setTotalNumBuckets(totalNumBuckets);
     if (isAccessor) {
       factory.setLocalMaxMemory(0);
     }
-    PartitionAttributes partitionAttributes = factory.create();
+    var partitionAttributes = factory.create();
     cacheRule.getOrCreateCache().createRegionFactory(RegionShortcut.PARTITION)
         .setPartitionAttributes(partitionAttributes).create(regionName);
 
-    CacheServer server = cacheRule.getCache().addCacheServer();
+    var server = cacheRule.getCache().addCacheServer();
     server.setPort(0);
     server.start();
     return server.getPort();
@@ -125,14 +122,14 @@ public class RepeatableReadTransactionDistributedTest implements Serializable {
   }
 
   private void doValuesTransactionWithTombstone() {
-    TXManagerImpl txMgr =
+    var txMgr =
         (TXManagerImpl) cacheRule.getCache().getCacheTransactionManager();
 
     Region region = cacheRule.getCache().getRegion(regionName);
     txMgr.begin(); // tx1
     region.put("key2", "someValue");
     region.values().toArray();
-    TransactionId txId = txMgr.suspend();
+    var txId = txMgr.suspend();
 
     txMgr.begin(); // tx2
     region.put(key, value2);
@@ -146,14 +143,14 @@ public class RepeatableReadTransactionDistributedTest implements Serializable {
   }
 
   private void doKeySetTransactionWithTombstone() {
-    TXManagerImpl txMgr =
+    var txMgr =
         (TXManagerImpl) cacheRule.getCache().getCacheTransactionManager();
 
     Region region = cacheRule.getCache().getRegion(regionName);
     txMgr.begin(); // tx1
     region.put("key2", "someValue");
     region.keySet().toArray();
-    TransactionId txId = txMgr.suspend();
+    var txId = txMgr.suspend();
 
     txMgr.begin(); // tx2
     region.put(key, value2);
@@ -167,14 +164,14 @@ public class RepeatableReadTransactionDistributedTest implements Serializable {
   }
 
   private void doValuesTransactionWithInvalidate() {
-    TXManagerImpl txMgr =
+    var txMgr =
         (TXManagerImpl) cacheRule.getCache().getCacheTransactionManager();
 
     Region region = cacheRule.getCache().getRegion(regionName);
     txMgr.begin(); // tx1
     region.put("key2", "someValue");
     region.values().toArray();
-    TransactionId txId = txMgr.suspend();
+    var txId = txMgr.suspend();
 
     txMgr.begin(); // tx2
     region.put(key, value2);
@@ -187,14 +184,14 @@ public class RepeatableReadTransactionDistributedTest implements Serializable {
   }
 
   private void doKeySetTransactionWithInvalidate() {
-    TXManagerImpl txMgr =
+    var txMgr =
         (TXManagerImpl) cacheRule.getCache().getCacheTransactionManager();
 
     Region region = cacheRule.getCache().getRegion(regionName);
     txMgr.begin(); // tx1
     region.put("key2", "someValue");
     region.keySet().toArray();
-    TransactionId txId = txMgr.suspend();
+    var txId = txMgr.suspend();
 
     txMgr.begin(); // tx2
     region.put(key, value2);

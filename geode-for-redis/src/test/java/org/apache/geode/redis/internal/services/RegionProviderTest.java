@@ -30,27 +30,27 @@ public class RegionProviderTest {
 
   @Test
   public void areKeysCrossSlotsReturnsFalseWhenKeysAreSameSlot() {
-    RedisKey key1 = mock(RedisKey.class);
-    int slot1 = 1;
+    var key1 = mock(RedisKey.class);
+    var slot1 = 1;
     when(key1.getSlot()).thenReturn(slot1);
-    RedisKey key2 = mock(RedisKey.class);
+    var key2 = mock(RedisKey.class);
     when(key2.getSlot()).thenReturn(slot1);
 
-    List<RedisKey> keyList = Arrays.asList(key1, key2);
+    var keyList = Arrays.asList(key1, key2);
 
     assertThat(RegionProvider.areKeysCrossSlots(keyList)).isFalse();
   }
 
   @Test
   public void areKeysCrossSlotsReturnsTrueWhenKeysAreCrossSlots() {
-    RedisKey key1 = mock(RedisKey.class);
-    int slot1 = 1;
+    var key1 = mock(RedisKey.class);
+    var slot1 = 1;
     when(key1.getSlot()).thenReturn(slot1);
-    RedisKey key2 = mock(RedisKey.class);
-    int slot2 = 2;
+    var key2 = mock(RedisKey.class);
+    var slot2 = 2;
     when(key2.getSlot()).thenReturn(slot2);
 
-    List<RedisKey> keyList = Arrays.asList(key1, key2);
+    var keyList = Arrays.asList(key1, key2);
 
     assertThat(RegionProvider.areKeysCrossSlots(keyList)).isTrue();
   }
@@ -58,14 +58,14 @@ public class RegionProviderTest {
   @Test
   public void areKeysCrossSlotsReturnsTrueWhenKeysAreCrossSlotsForManyKeys() {
     List<RedisKey> keyList = new ArrayList<>();
-    for (int i = 0; i < 100; ++i) {
-      RedisKey key = mock(RedisKey.class);
-      int slot1 = 1;
+    for (var i = 0; i < 100; ++i) {
+      var key = mock(RedisKey.class);
+      var slot1 = 1;
       when(key.getSlot()).thenReturn(slot1);
       keyList.add(key);
     }
-    RedisKey finalKey = mock(RedisKey.class);
-    int slot2 = 2;
+    var finalKey = mock(RedisKey.class);
+    var slot2 = 2;
     when(finalKey.getSlot()).thenReturn(slot2);
     keyList.add(finalKey);
 

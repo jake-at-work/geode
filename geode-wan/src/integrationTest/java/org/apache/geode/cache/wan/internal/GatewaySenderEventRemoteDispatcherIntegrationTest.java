@@ -33,7 +33,6 @@ import org.apache.geode.CancelCriterion;
 import org.apache.geode.Statistics;
 import org.apache.geode.cache.client.internal.Connection;
 import org.apache.geode.cache.client.internal.Endpoint;
-import org.apache.geode.cache.client.internal.EndpointManager;
 import org.apache.geode.cache.client.internal.PoolImpl;
 import org.apache.geode.cache.client.internal.pooling.PooledConnection;
 import org.apache.geode.distributed.DistributedMember;
@@ -63,28 +62,28 @@ public class GatewaySenderEventRemoteDispatcherIntegrationTest {
   @Test
   public void canProcessesEventAfterHostnameLookupFailsInNotifyServerCrashed() throws Exception {
 
-    final PoolImpl pool = getPool();
+    final var pool = getPool();
 
-    final ServerLocation serverLocation = new ServerLocation("127.0.0.1", 2);
+    final var serverLocation = new ServerLocation("127.0.0.1", 2);
 
-    final AbstractGatewaySenderEventProcessor eventProcessor =
+    final var eventProcessor =
         getMockedAbstractGatewaySenderEventProcessor(pool, serverLocation);
 
-    InternalDistributedMember member =
+    var member =
         new InternalDistributedMember(InetAddress.getByName("127.0.0.1"), 1);
 
-    final Endpoint endpoint = getMockedEndpoint(serverLocation, member);
-    final Connection connection = getMockedConnection(serverLocation, endpoint);
+    final var endpoint = getMockedEndpoint(serverLocation, member);
+    final var connection = getMockedConnection(serverLocation, endpoint);
 
     /*
      * In order for listeners to be notified, the endpoint must be referenced by the
      * endpointManager so that it can be removed when the RuntimeException() is thrown by the
      * connection
      */
-    final EndpointManager endpointManager = pool.getEndpointManager();
+    final var endpointManager = pool.getEndpointManager();
     endpointManager.referenceEndpoint(serverLocation, member);
 
-    final GatewaySenderEventRemoteDispatcher dispatcher =
+    final var dispatcher =
         new GatewaySenderEventRemoteDispatcher(eventProcessor, connection);
 
     /*
@@ -102,18 +101,18 @@ public class GatewaySenderEventRemoteDispatcherIntegrationTest {
   }
 
   private PoolImpl getPool() {
-    final DistributionConfig distributionConfig = mock(DistributionConfig.class);
+    final var distributionConfig = mock(DistributionConfig.class);
     doReturn(new SecurableCommunicationChannel[] {}).when(distributionConfig)
         .getSecurableCommunicationChannels();
 
     SocketCreatorFactory.setDistributionConfig(distributionConfig);
 
-    final Properties properties = new Properties();
+    final var properties = new Properties();
     properties.put(DURABLE_CLIENT_ID, "1");
 
-    final Statistics statistics = mock(Statistics.class);
+    final var statistics = mock(Statistics.class);
 
-    final PoolFactoryImpl.PoolAttributes poolAttributes =
+    final var poolAttributes =
         mock(PoolFactoryImpl.PoolAttributes.class);
     /*
      * These are the minimum pool attributes required
@@ -123,21 +122,21 @@ public class GatewaySenderEventRemoteDispatcherIntegrationTest {
     doReturn(1).when(poolAttributes).getMaxConnections();
     doReturn((long) 10e8).when(poolAttributes).getPingInterval();
 
-    final CancelCriterion cancelCriterion = mock(CancelCriterion.class);
+    final var cancelCriterion = mock(CancelCriterion.class);
 
-    final InternalCache internalCache = mock(InternalCache.class);
+    final var internalCache = mock(InternalCache.class);
     doReturn(cancelCriterion).when(internalCache).getCancelCriterion();
 
-    final InternalDistributedSystem internalDistributedSystem =
+    final var internalDistributedSystem =
         mock(InternalDistributedSystem.class);
     doReturn(distributionConfig).when(internalDistributedSystem).getConfig();
     doReturn(properties).when(internalDistributedSystem).getProperties();
     doReturn(statistics).when(internalDistributedSystem).createAtomicStatistics(any(), anyString());
 
-    final PoolManagerImpl poolManager = mock(PoolManagerImpl.class);
+    final var poolManager = mock(PoolManagerImpl.class);
     doReturn(true).when(poolManager).isNormal();
 
-    final ThreadsMonitoring tMonitoring = mock(ThreadsMonitoring.class);
+    final var tMonitoring = mock(ThreadsMonitoring.class);
 
     return PoolImpl.create(poolManager, "pool", poolAttributes, new LinkedList<>(),
         internalDistributedSystem, internalCache, tMonitoring);
@@ -159,18 +158,18 @@ public class GatewaySenderEventRemoteDispatcherIntegrationTest {
 
   private AbstractGatewaySenderEventProcessor getMockedAbstractGatewaySenderEventProcessor(
       PoolImpl pool, ServerLocation serverLocation) {
-    final AbstractGatewaySender abstractGatewaySender = mock(AbstractGatewaySender.class);
+    final var abstractGatewaySender = mock(AbstractGatewaySender.class);
     doReturn(serverLocation).when(abstractGatewaySender).getServerLocation();
     doReturn(pool).when(abstractGatewaySender).getProxy();
 
-    final AbstractGatewaySenderEventProcessor eventProcessor =
+    final var eventProcessor =
         mock(AbstractGatewaySenderEventProcessor.class);
     doReturn(abstractGatewaySender).when(eventProcessor).getSender();
     return eventProcessor;
   }
 
   private Endpoint getMockedEndpoint(ServerLocation serverLocation, DistributedMember member) {
-    final Endpoint endpoint = mock(Endpoint.class);
+    final var endpoint = mock(Endpoint.class);
     doReturn(serverLocation).when(endpoint).getLocation();
     doReturn(member).when(endpoint).getMemberId();
     return endpoint;

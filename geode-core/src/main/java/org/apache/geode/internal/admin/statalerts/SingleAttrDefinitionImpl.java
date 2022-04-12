@@ -19,8 +19,6 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 import org.apache.geode.DataSerializer;
-import org.apache.geode.StatisticDescriptor;
-import org.apache.geode.Statistics;
 import org.apache.geode.StatisticsFactory;
 import org.apache.geode.internal.admin.StatAlert;
 import org.apache.geode.internal.admin.StatAlertDefinition;
@@ -65,28 +63,28 @@ public class SingleAttrDefinitionImpl implements StatAlertDefinition {
     if (!(o instanceof MultiAttrDefinitionImpl)) {
       return false;
     }
-    MultiAttrDefinitionImpl that = (MultiAttrDefinitionImpl) o;
+    var that = (MultiAttrDefinitionImpl) o;
     return _id == that._id;
   }
 
 
   @Override
   public boolean verify(StatisticsFactory factory) {
-    boolean result = false;
+    var result = false;
 
     if (name == null || name.length() == 0) {
       return false;
     }
 
     if (statisticInfo != null) {
-      Statistics[] temp = factory.findStatisticsByTextId(statisticInfo.getStatisticsTextId());
+      var temp = factory.findStatisticsByTextId(statisticInfo.getStatisticsTextId());
 
       if (temp == null || temp.length == 0) {
         return false;
       }
 
-      StatisticDescriptor[] temp1 = temp[0].getType().getStatistics();
-      for (final StatisticDescriptor statisticDescriptor : temp1) {
+      var temp1 = temp[0].getType().getStatistics();
+      for (final var statisticDescriptor : temp1) {
         if (statisticInfo.getStatisticName().equals(statisticDescriptor.getName())) {
           result = true;
           break;
@@ -107,7 +105,7 @@ public class SingleAttrDefinitionImpl implements StatAlertDefinition {
   @Override // GemStoneAddition
   public String toString() {
 
-    StringBuilder buffer = new StringBuilder();
+    var buffer = new StringBuilder();
     buffer.append("Name:" + getName() + "\n");
     buffer.append("Attribute:\n");
     if (statisticInfo != null) {
@@ -166,7 +164,7 @@ public class SingleAttrDefinitionImpl implements StatAlertDefinition {
 
   @Override
   public Number[] getValue() {
-    Number[] vals = new Number[1];
+    var vals = new Number[1];
     vals[0] = statisticInfo.getStatistics().get(statisticInfo.getStatisticDescriptor());
     return vals;
   }
@@ -202,7 +200,7 @@ public class SingleAttrDefinitionImpl implements StatAlertDefinition {
   }
 
   protected StatAlert getAlert(Number val) {
-    Number[] vals = new Number[1];
+    var vals = new Number[1];
     vals[0] = val;
     return new StatAlert(getId(), vals);
   }

@@ -20,7 +20,6 @@ import static org.apache.geode.logging.internal.spi.LoggingProvider.SECURITY_LOG
 import java.io.IOException;
 import java.security.AccessController;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -30,7 +29,6 @@ import org.apache.logging.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.ShiroException;
 import org.apache.shiro.UnavailableSecurityManagerException;
-import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.subject.support.SubjectThreadState;
 import org.apache.shiro.util.ThreadContext;
@@ -107,13 +105,13 @@ public class IntegratedSecurityService implements SecurityService {
 
     // First try get the principal out of AccessControlContext instead of Shiro's Thread context
     // since threads can be shared between JMX clients.
-    javax.security.auth.Subject jmxSubject =
+    var jmxSubject =
         javax.security.auth.Subject.getSubject(AccessController.getContext());
 
     if (jmxSubject != null) {
-      Set<ShiroPrincipal> principals = jmxSubject.getPrincipals(ShiroPrincipal.class);
+      var principals = jmxSubject.getPrincipals(ShiroPrincipal.class);
       if (!principals.isEmpty()) {
-        ShiroPrincipal principal = principals.iterator().next();
+        var principal = principals.iterator().next();
         currentUser = principal.getSubject();
         ThreadContext.bind(currentUser);
         return currentUser;
@@ -166,7 +164,7 @@ public class IntegratedSecurityService implements SecurityService {
     ThreadContext.remove();
 
     Subject currentUser;
-    GeodeAuthenticationToken token = new GeodeAuthenticationToken(credentials);
+    var token = new GeodeAuthenticationToken(credentials);
     try {
       logger.debug("Logging in " + token.getPrincipal());
       currentUser = getCurrentUser();
@@ -175,7 +173,7 @@ public class IntegratedSecurityService implements SecurityService {
       throw new CacheClosedException("Cache is closed.");
     } catch (ShiroException e) {
       logger.info("error logging in: " + token.getPrincipal());
-      Throwable cause = e.getCause();
+      var cause = e.getCause();
       if (cause == null) {
         throw new AuthenticationFailedException(
             "Authentication error. Please check your credentials.", e);
@@ -188,14 +186,14 @@ public class IntegratedSecurityService implements SecurityService {
           "Authentication error. Please check your credentials.", cause);
     }
 
-    Session currentSession = currentUser.getSession();
+    var currentSession = currentUser.getSession();
     currentSession.setAttribute(CREDENTIALS_SESSION_ATTRIBUTE, credentials);
     return currentUser;
   }
 
   @Override
   public void logout() {
-    Subject currentUser = getSubject();
+    var currentUser = getSubject();
     try {
       logger.debug("Logging out " + currentUser.getPrincipal());
       currentUser.logout();
@@ -210,7 +208,7 @@ public class IntegratedSecurityService implements SecurityService {
 
   @Override
   public Callable associateWith(final Callable callable) {
-    Subject currentUser = getSubject();
+    var currentUser = getSubject();
     return currentUser.associateWith(callable);
   }
 
@@ -271,7 +269,7 @@ public class IntegratedSecurityService implements SecurityService {
 
   @Override
   public void authorize(final ResourcePermission context) {
-    Subject currentUser = getSubject();
+    var currentUser = getSubject();
     authorize(context, currentUser);
   }
 
@@ -287,7 +285,7 @@ public class IntegratedSecurityService implements SecurityService {
     try {
       currentUser.checkPermission(context);
     } catch (ShiroException e) {
-      String message = currentUser.getPrincipal() + " not authorized for " + context;
+      var message = currentUser.getPrincipal() + " not authorized for " + context;
       logger.info("NotAuthorizedException: {}", message);
       throw new NotAuthorizedException(message, e);
     }
@@ -336,15 +334,15 @@ public class IntegratedSecurityService implements SecurityService {
       principal = getSubject().getPrincipal();
     }
 
-    String regionName = StringUtils.stripStart(regionPath, SEPARATOR);
+    var regionName = StringUtils.stripStart(regionPath, SEPARATOR);
     Object newValue;
 
     // if the data is a byte array, but the data itself is supposed to be an object, we need to
     // deserialize it before we pass it to the callback.
     if (valueIsSerialized && value instanceof byte[]) {
       try {
-        Object oldObj = EntryEventImpl.deserialize((byte[]) value);
-        Object newObj = postProcessor.processRegionValue(principal, regionName, key, oldObj);
+        var oldObj = EntryEventImpl.deserialize((byte[]) value);
+        var newObj = postProcessor.processRegionValue(principal, regionName, key, oldObj);
         newValue = BlobHelper.serializeToBlob(newObj);
       } catch (IOException | SerializationException e) {
         throw new GemFireIOException("Exception de/serializing entry value", e);

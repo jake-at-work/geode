@@ -138,11 +138,11 @@ public class CachedDeserializableFactory {
   }
 
   public static int getArrayOfBytesSize(final byte[][] value, final boolean addObjectOverhead) {
-    int result = 4 * (value.length + 1);
+    var result = 4 * (value.length + 1);
     if (addObjectOverhead) {
       result += Sizeable.PER_OBJECT_OVERHEAD * (value.length + 1);
     }
-    for (byte[] bytes : value) {
+    for (var bytes : value) {
       if (bytes != null) {
         result += bytes.length;
       }
@@ -197,7 +197,7 @@ public class CachedDeserializableFactory {
       result = os.sizeof(o);
     } else if (calcSerializedSize) {
       result = Sizeable.PER_OBJECT_OVERHEAD + 4;
-      NullDataOutputStream dos = new NullDataOutputStream();
+      var dos = new NullDataOutputStream();
       try {
         DataSerializer.writeObject(o, dos);
         result += dos.size();
@@ -239,7 +239,7 @@ public class CachedDeserializableFactory {
       result = ((HeapDataOutputStream) o).size() + 4;
     } else {
       result = 4;
-      NullDataOutputStream dos = new NullDataOutputStream();
+      var dos = new NullDataOutputStream();
       try {
         DataSerializer.writeObject(o, dos);
         result += dos.size();
@@ -261,7 +261,7 @@ public class CachedDeserializableFactory {
    * @since GemFire 6.1.2.9
    */
   public static int calcSerializedMemSize(Object o) {
-    int result = calcSerializedSize(o);
+    var result = calcSerializedSize(o);
     result += Sizeable.PER_OBJECT_OVERHEAD;
     if (!(o instanceof byte[])) {
       result += overhead();

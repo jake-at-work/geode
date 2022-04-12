@@ -21,8 +21,6 @@ import static org.apache.geode.test.awaitility.GeodeAwaitility.await;
 import static org.apache.geode.test.awaitility.GeodeAwaitility.getTimeout;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.concurrent.Future;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -77,10 +75,10 @@ public class GetStartingMemberTest {
 
   @Test
   public void getStartingMember() throws Exception {
-    Member server0 = new Member();
+    var server0 = new Member();
     server0.setId("server-0");
 
-    Future<Void> startServer = executorServiceRule.submit(() -> {
+    var startServer = executorServiceRule.submit(() -> {
       cluster.startServerVM(0, webContext.getLocator().getPort());
     });
 

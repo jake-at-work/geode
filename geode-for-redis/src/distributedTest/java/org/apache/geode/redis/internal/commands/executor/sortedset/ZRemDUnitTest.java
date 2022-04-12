@@ -20,7 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -65,32 +64,32 @@ public class ZRemDUnitTest {
 
   @Before
   public void setup() {
-    MemberVM locator = clusterStartUp.startLocatorVM(0);
-    int locatorPort = locator.getPort();
+    var locator = clusterStartUp.startLocatorVM(0);
+    var locatorPort = locator.getPort();
 
-    Pair<MemberVM, SerializableFunction<ServerStarterRule>> server1 =
+    var server1 =
         startRedisServer(1, locatorPort);
-    Pair<MemberVM, SerializableFunction<ServerStarterRule>> server2 =
+    var server2 =
         startRedisServer(2, locatorPort);
-    Pair<MemberVM, SerializableFunction<ServerStarterRule>> server3 =
+    var server3 =
         startRedisServer(3, locatorPort);
 
     servers.put(server1.getLeft(), server1.getRight());
     servers.put(server2.getLeft(), server2.getRight());
     servers.put(server3.getLeft(), server3.getRight());
 
-    int redisServerPort = clusterStartUp.getRedisPort(1);
+    var redisServerPort = clusterStartUp.getRedisPort(1);
 
     jedis = new JedisCluster(new HostAndPort(BIND_ADDRESS, redisServerPort), 10_000);
   }
 
   private Pair<MemberVM, SerializableFunction<ServerStarterRule>> startRedisServer(int vmId,
       int locatorPort) {
-    int redisPort = AvailablePortHelper.getRandomAvailableTCPPort();
-    SerializableFunction<ServerStarterRule> serverOperator = s -> s
+    var redisPort = AvailablePortHelper.getRandomAvailableTCPPort();
+    var serverOperator = (SerializableFunction<ServerStarterRule>) s -> s
         .withProperty(GEODE_FOR_REDIS_PORT, redisPort + "")
         .withConnectionToLocator(locatorPort);
-    MemberVM server = clusterStartUp.startRedisVM(vmId, serverOperator);
+    var server = clusterStartUp.startRedisVM(vmId, serverOperator);
 
     return Pair.of(server, serverOperator);
   }
@@ -102,11 +101,11 @@ public class ZRemDUnitTest {
 
   @Test
   public void zRemCanRemoveMembersFromSortedSet() {
-    Map<String, Double> memberScoreMap = makeMemberScoreMap(setSize);
+    var memberScoreMap = makeMemberScoreMap(setSize);
     jedis.zadd(sortedSetKey, memberScoreMap);
     verifyDataExists(memberScoreMap);
 
-    long removed = jedis.zrem(sortedSetKey, memberScoreMap.keySet().toArray(new String[] {}));
+    var removed = jedis.zrem(sortedSetKey, memberScoreMap.keySet().toArray(new String[] {}));
     assertThat(removed).isEqualTo(setSize);
 
     verifyDataDoesNotExist(memberScoreMap);
@@ -115,11 +114,11 @@ public class ZRemDUnitTest {
 
   @Test
   public void zRemCanRemoveMembersConcurrentlyFromSortedSet() {
-    Map<String, Double> memberScoreMap = makeMemberScoreMap(setSize);
+    var memberScoreMap = makeMemberScoreMap(setSize);
     jedis.zadd(sortedSetKey, memberScoreMap);
     verifyDataExists(memberScoreMap);
 
-    AtomicInteger totalRemoved = new AtomicInteger();
+    var totalRemoved = new AtomicInteger();
     new ConcurrentLoopingThreads(setSize,
         (i) -> doZRemOnMembers(i, totalRemoved),
         (i) -> doZRemOnMembersInDifferentOrder(i, totalRemoved)).run();
@@ -129,18 +128,18 @@ public class ZRemDUnitTest {
   }
 
   private void doZRemOnMembers(int i, AtomicInteger total) {
-    long count = jedis.zrem(sortedSetKey, baseName + i);
+    var count = jedis.zrem(sortedSetKey, baseName + i);
     total.addAndGet((int) count);
   }
 
   private void doZRemOnMembersInDifferentOrder(int i, AtomicInteger total) {
-    long count = jedis.zrem(sortedSetKey, baseName + (setSize - i - 1));
+    var count = jedis.zrem(sortedSetKey, baseName + (setSize - i - 1));
     total.addAndGet((int) count);
   }
 
   @Test
   public void zRemRemovesMembersFromSortedSetAfterPrimaryShutsDown() {
-    Map<String, Double> memberScoreMap = makeMemberScoreMap(setSize);
+    var memberScoreMap = makeMemberScoreMap(setSize);
     jedis.zadd(sortedSetKey, memberScoreMap);
     verifyDataExists(memberScoreMap);
 
@@ -153,8 +152,8 @@ public class ZRemDUnitTest {
   }
 
   private void doZRemWithRetries(Map<String, Double> map) {
-    int maxRetryAttempts = 10;
-    int retryAttempts = 0;
+    var maxRetryAttempts = 10;
+    var retryAttempts = 0;
     while (!zRemWithRetries(map, retryAttempts, maxRetryAttempts)) {
       retryAttempts++;
     }
@@ -175,7 +174,7 @@ public class ZRemDUnitTest {
   }
 
   private void doZRem(Map<String, Double> map) {
-    long removed = jedis.zrem(sortedSetKey, map.keySet().toArray(new String[] {}));
+    var removed = jedis.zrem(sortedSetKey, map.keySet().toArray(new String[] {}));
     // When the primary crashes, the zrem may not have happened on the secondary
     // or it may have completed changing the data on the secondary.
     // In both cases jedis will retry the zrem. If the zrem was already done
@@ -185,19 +184,19 @@ public class ZRemDUnitTest {
 
   @Test
   public void zRemCanRemoveMembersFromSortedSetDuringPrimaryIsCrashed() throws Exception {
-    int mapSize = 300;
-    Map<String, Double> memberScoreMap = makeMemberScoreMap(mapSize);
+    var mapSize = 300;
+    var memberScoreMap = makeMemberScoreMap(mapSize);
 
     jedis.zadd(sortedSetKey, memberScoreMap);
     verifyDataExists(memberScoreMap);
 
-    int number = 10;
-    String memberNotRemoved = baseName + number;
+    var number = 10;
+    var memberNotRemoved = baseName + number;
     memberScoreMap.remove(memberNotRemoved);
 
-    AtomicReference<MemberVM> memberStopped = new AtomicReference<>();
-    Future<Void> future1 = executor.submit(() -> doZRem(memberScoreMap));
-    Future<Void> future2 =
+    var memberStopped = new AtomicReference<MemberVM>();
+    var future1 = executor.submit(() -> doZRem(memberScoreMap));
+    var future2 =
         executor.submit(() -> memberStopped.set(stopNodeWithPrimaryBucketOfTheKey(true)));
 
     future1.get();
@@ -211,16 +210,16 @@ public class ZRemDUnitTest {
   }
 
   private void verifyDataExists(Map<String, Double> memberScoreMap) {
-    for (String member : memberScoreMap.keySet()) {
-      Double score = jedis.zscore(sortedSetKey, member);
+    for (var member : memberScoreMap.keySet()) {
+      var score = jedis.zscore(sortedSetKey, member);
       assertThat(score).isEqualTo(memberScoreMap.get(member));
     }
   }
 
   private boolean verifyDataDoesNotExist(Map<String, Double> memberScoreMap) {
     try {
-      for (String member : memberScoreMap.keySet()) {
-        Double score = jedis.zscore(sortedSetKey, member);
+      for (var member : memberScoreMap.keySet()) {
+        var score = jedis.zscore(sortedSetKey, member);
         assertThat(score).isNull();
       }
     } catch (JedisClusterOperationException e) {
@@ -231,7 +230,7 @@ public class ZRemDUnitTest {
 
   private MemberVM stopNodeWithPrimaryBucketOfTheKey(boolean isCrash) {
     boolean isPrimary;
-    for (Map.Entry<MemberVM, SerializableFunction<ServerStarterRule>> entry : servers.entrySet()) {
+    for (var entry : servers.entrySet()) {
       isPrimary = entry.getKey().invoke(ZRemDUnitTest::isPrimaryForKey);
       if (isPrimary) {
         if (isCrash) {
@@ -247,7 +246,7 @@ public class ZRemDUnitTest {
   }
 
   private static boolean isPrimaryForKey() {
-    int bucketId = getBucketId(new RedisKey(sortedSetKey.getBytes()));
+    var bucketId = getBucketId(new RedisKey(sortedSetKey.getBytes()));
     return isPrimaryForBucket(bucketId);
   }
 
@@ -267,7 +266,7 @@ public class ZRemDUnitTest {
 
   private Map<String, Double> makeMemberScoreMap(int setSize) {
     Map<String, Double> scoreMemberPairs = new HashMap<>();
-    for (int i = 0; i < setSize; i++) {
+    for (var i = 0; i < setSize; i++) {
       scoreMemberPairs.put(baseName + i, Double.valueOf(i + ""));
     }
     return scoreMemberPairs;

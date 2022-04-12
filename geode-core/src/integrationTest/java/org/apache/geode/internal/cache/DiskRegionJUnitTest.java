@@ -32,8 +32,6 @@ import java.io.UncheckedIOException;
 import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -64,14 +62,10 @@ import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.apache.geode.cache.util.ObjectSizer;
 import org.apache.geode.internal.cache.entries.DiskEntry;
-import org.apache.geode.internal.cache.eviction.EvictionCounters;
 import org.apache.geode.internal.cache.persistence.DiskRecoveryStore;
-import org.apache.geode.internal.cache.persistence.UninterruptibleFileChannel;
-import org.apache.geode.test.dunit.IgnoredException;
 import org.apache.geode.test.dunit.Wait;
 import org.apache.geode.test.junit.rules.ExecutorServiceRule;
 
@@ -154,12 +148,12 @@ public class DiskRegionJUnitTest {
 
   @Test
   public void testRemoveCorrectlyRecorded() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setOverflow(true);
     diskRegionProperties.setOverFlowCapacity(1);
     diskRegionProperties.setDiskDirs(diskDirs);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory);
 
@@ -170,7 +164,7 @@ public class DiskRegionJUnitTest {
     region.put("2", "2");
     region.put("3", "3");
 
-    AfterDestroyListener<String, String> cacheListener = new AfterDestroyListener<>();
+    var cacheListener = new AfterDestroyListener<String, String>();
     region.getAttributesMutator().addCacheListener(cacheListener);
 
     region.destroy("1");
@@ -183,7 +177,7 @@ public class DiskRegionJUnitTest {
     assertThat(region.get("1")).isNull();
 
     // does the following ever throw EntryNotFoundException? that would be ok
-    Object valueOnDisk = ((InternalRegion) region).getValueOnDisk("1");
+    var valueOnDisk = ((InternalRegion) region).getValueOnDisk("1");
     assertThat(valueOnDisk == null || valueOnDisk.equals(Token.TOMBSTONE)).isTrue();
 
     region.close();
@@ -198,22 +192,22 @@ public class DiskRegionJUnitTest {
    */
   @Test
   public void testDiskRegionOverflow() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setOverflow(true);
     diskRegionProperties.setOverFlowCapacity(5);
     diskRegionProperties.setDiskDirs(diskDirs);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory);
 
     Region<Integer, Object> region =
         createRegion(regionName, diskStoreName, false, false, false, true, 5);
 
-    DiskRegion diskRegion = getDiskRegion(region);
+    var diskRegion = getDiskRegion(region);
 
-    DiskRegionStats diskStats = diskRegion.getStats();
-    EvictionCounters evictionCounters =
+    var diskStats = diskRegion.getStats();
+    var evictionCounters =
         ((InternalRegion) region).getEvictionController().getCounters();
 
     assertThat(diskStats).isNotNull();
@@ -228,7 +222,7 @@ public class DiskRegionJUnitTest {
     // Put in larger stuff until we start evicting
     int total;
     for (total = 0; evictionCounters.getEvictions() <= 0; total++) {
-      int[] array = new int[250];
+      var array = new int[250];
       array[0] = total;
       region.put(total, array);
     }
@@ -241,7 +235,7 @@ public class DiskRegionJUnitTest {
     assertThat(diskStats.getNumOverflowOnDisk()).isEqualTo(1);
     assertThat(evictionCounters.getEvictions()).isEqualTo(1);
 
-    Object value = region.get(0);
+    var value = region.get(0);
     assertThat(value).isNotNull().isInstanceOf(int[].class);
     assertThat(((int[]) value)[0]).isEqualTo(0);
 
@@ -251,8 +245,8 @@ public class DiskRegionJUnitTest {
     assertThat(diskStats.getReads()).isEqualTo(1);
     assertThat(evictionCounters.getEvictions()).isEqualTo(2);
 
-    for (int i = 0; i < total; i++) {
-      int[] array = (int[]) region.get(i);
+    for (var i = 0; i < total; i++) {
+      var array = (int[]) region.get(i);
       assertThat(array).isNotNull().isInstanceOf(int[].class);
       assertThat(array[0]).isEqualTo(i);
     }
@@ -263,22 +257,22 @@ public class DiskRegionJUnitTest {
    */
   @Test
   public void testDifferentObjectTypePuts() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setOverflow(true);
     diskRegionProperties.setOverFlowCapacity(100);
     diskRegionProperties.setDiskDirs(diskDirs);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory);
 
     Region<String, Object> region =
         createRegion(regionName, diskStoreName, true, false, false, true, 100);
 
-    DiskRegion diskRegion = getDiskRegion(region);
+    var diskRegion = getDiskRegion(region);
 
-    int total = 10;
-    for (int i = 0; i < total; i++) {
+    var total = 10;
+    for (var i = 0; i < total; i++) {
       region.put(String.valueOf(i), String.valueOf(i));
     }
     region.put("foobar", "junk");
@@ -358,29 +352,29 @@ public class DiskRegionJUnitTest {
 
   @Test
   public void testFaultingInRemovalFromAsyncBuffer() throws Exception {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setOverflow(true);
     diskRegionProperties.setRolling(true);
     diskRegionProperties.setOverFlowCapacity(100);
     diskRegionProperties.setDiskDirs(diskDirs);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory);
 
     Region<Integer, Integer> region =
         createRegion(regionName, diskStoreName, false, true, false, true, 100);
 
-    CountDownLatch doLatch = new CountDownLatch(1);
-    DelayedGet get = new DelayedGet(doLatch, region);
+    var doLatch = new CountDownLatch(1);
+    var get = new DelayedGet(doLatch, region);
 
-    CompletableFuture<Void> getter1 = executorServiceRule.runAsync(get);
-    CompletableFuture<Void> getter2 = executorServiceRule.runAsync(get);
-    CompletableFuture<Void> getter3 = executorServiceRule.runAsync(get);
-    CompletableFuture<Void> getter4 = executorServiceRule.runAsync(get);
-    CompletableFuture<Void> getter5 = executorServiceRule.runAsync(get);
+    var getter1 = executorServiceRule.runAsync(get);
+    var getter2 = executorServiceRule.runAsync(get);
+    var getter3 = executorServiceRule.runAsync(get);
+    var getter4 = executorServiceRule.runAsync(get);
+    var getter5 = executorServiceRule.runAsync(get);
 
-    for (int i = 0; i < 110; i++) {
+    for (var i = 0; i < 110; i++) {
       region.put(i, i);
     }
 
@@ -399,19 +393,19 @@ public class DiskRegionJUnitTest {
    */
   @Test
   public void testSingleDirectoryNotHanging() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setDiskDirsAndSizes(new File[] {diskDirs[0]}, new int[] {2048});
     diskRegionProperties.setMaxOplogSize(2097152);
     diskRegionProperties.setRolling(true);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory);
 
     Region<String, byte[]> region =
         createRegion(regionName, diskStoreName, true, true, false, false, 0);
 
-    Puts puts = new Puts(region);
+    var puts = new Puts(region);
     puts.performPuts();
 
     assertThat(puts.putSuccessful(0)).as(" first put did not succeed").isTrue();
@@ -424,19 +418,19 @@ public class DiskRegionJUnitTest {
 
   @Test
   public void testOperationGreaterThanMaxOplogSize() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setDiskDirs(diskDirs);
     diskRegionProperties.setMaxOplogSize(512);
     diskRegionProperties.setRolling(true);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory);
 
     Region<String, byte[]> region =
         createRegion(regionName, diskStoreName, true, true, false, false, 0);
 
-    Puts puts = new Puts(region);
+    var puts = new Puts(region);
     puts.performPuts();
 
     assertThat(puts.putSuccessful(0)).as(" first put did not succeed").isTrue();
@@ -452,17 +446,17 @@ public class DiskRegionJUnitTest {
    */
   @Test
   public void testOperationGreaterThanMaxDirSize() {
-    int[] diskDirSizes = {1025, 1025, 1025, 1025};
+    var diskDirSizes = new int[] {1025, 1025, 1025, 1025};
 
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setRegionName(regionName);
     diskRegionProperties.setDiskDirsAndSizes(diskDirs, diskDirSizes);
     diskRegionProperties.setMaxOplogSize(600);
     diskRegionProperties.setRolling(false);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
-    DiskStore diskStore = createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory);
+    var diskStore = createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory);
 
     Region<String, byte[]> region =
         createRegion(regionName, diskStoreName, true, true, false, false, 0);
@@ -472,7 +466,7 @@ public class DiskRegionJUnitTest {
             + Arrays.toString(diskStore.getDiskDirSizes()))
         .isEqualTo(diskDirSizes);
 
-    Puts puts = new Puts(region, 1026);
+    var puts = new Puts(region, 1026);
     puts.performPuts();
 
     assertThat(puts.diskAccessExceptionOccurred())
@@ -496,17 +490,17 @@ public class DiskRegionJUnitTest {
    */
   @Test
   public void testBug42464() {
-    int[] dirSizes = new int[] {900};
+    var dirSizes = new int[] {900};
 
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setDiskDirsAndSizes(new File[] {diskDirs[0]}, dirSizes);
     diskRegionProperties.setMaxOplogSize(500);
     diskRegionProperties.setRolling(true);
     diskRegionProperties.setOverFlowCapacity(1);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
-    DiskStore diskStore = createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory, 500);
+    var diskStore = createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory, 500);
 
     Region<Integer, Object> region =
         createRegion(regionName, diskStoreName, false, true, false, true, 1);
@@ -517,7 +511,7 @@ public class DiskRegionJUnitTest {
     // One entry is kept in memory
     // since the crf max is 500 we should only be able to have 4 entries. The
     // 5th should not fit because of record overhead.
-    for (int i = 0; i <= 9; i++) {
+    for (var i = 0; i <= 9; i++) {
       region.getCache().getLogger().info("putting " + i);
       region.put(i, new byte[101]);
     }
@@ -529,25 +523,25 @@ public class DiskRegionJUnitTest {
     // TODO what is the max size of this 3rd oplog's crf? The first two crfs
     // will be close to 400 bytes each. So the max size of the 3rd oplog should
     // be close to 100.
-    ArrayList<OverflowOplog> oplogs = toDiskStoreImpl(diskStore).testHookGetAllOverflowOplogs();
+    var oplogs = toDiskStoreImpl(diskStore).testHookGetAllOverflowOplogs();
     assertThat(oplogs).hasSize(3);
 
     // TODO verify oplogs
     // Now make sure that further oplogs can hold 4 entries
-    for (int j = 10; j <= 13; j++) {
+    for (var j = 10; j <= 13; j++) {
       region.put(j, new byte[101]);
     }
     oplogs = toDiskStoreImpl(diskStore).testHookGetAllOverflowOplogs();
     assertThat(oplogs).hasSize(4);
 
     // now remove all entries and make sure old oplogs go away
-    for (int i = 0; i <= 13; i++) {
+    for (var i = 0; i <= 13; i++) {
       region.remove(i);
     }
 
     // give background compactor chance to remove oplogs
     oplogs = toDiskStoreImpl(diskStore).testHookGetAllOverflowOplogs();
-    int retryCount = 20;
+    var retryCount = 20;
     while (oplogs.size() > 1 && retryCount > 0) {
       Wait.pause(100);
       oplogs = toDiskStoreImpl(diskStore).testHookGetAllOverflowOplogs();
@@ -558,20 +552,20 @@ public class DiskRegionJUnitTest {
 
   @Test
   public void testSingleDirectorySizeViolation() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setRegionName(regionName);
     diskRegionProperties.setDiskDirsAndSizes(new File[] {diskDirs[0]}, new int[] {2048});
     diskRegionProperties.setMaxOplogSize(2097152);
     diskRegionProperties.setRolling(false);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory);
 
     Region<String, byte[]> region =
         createRegion(regionName, diskStoreName, true, true, false, false, 0);
 
-    Puts puts = new Puts(region);
+    var puts = new Puts(region);
     puts.performPuts();
 
     assertThat(puts.putSuccessful(0)).as(" first put did not succeed").isTrue();
@@ -589,26 +583,26 @@ public class DiskRegionJUnitTest {
    */
   @Test
   public void testDiskFullExcep() {
-    int[] diskDirSizes = new int[4];
+    var diskDirSizes = new int[4];
     diskDirSizes[0] = 2048 + 500;
     diskDirSizes[1] = 2048 + 500;
     diskDirSizes[2] = 2048 + 500;
     diskDirSizes[3] = 2048 + 500;
 
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setDiskDirsAndSizes(diskDirs, diskDirSizes);
     diskRegionProperties.setPersistBackup(true);
     diskRegionProperties.setRolling(false);
     diskRegionProperties.setMaxOplogSize(1000000000);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory, 1_000_000_000);
 
-    Region<Object, Object> region =
+    var region =
         createRegion(regionName, diskStoreName, true, true, false, false, 0);
 
-    int[] actualDiskDirSizes = ((InternalRegion) region).getDiskDirSizes();
+    var actualDiskDirSizes = ((InternalRegion) region).getDiskDirSizes();
 
     assertThat(actualDiskDirSizes[0]).isEqualTo(2048 + 500);
     assertThat(actualDiskDirSizes[1]).isEqualTo(2048 + 500);
@@ -617,16 +611,16 @@ public class DiskRegionJUnitTest {
 
     // we have room for 2 values per dir
 
-    byte[] value = new byte[1024];
+    var value = new byte[1024];
     Arrays.fill(value, (byte) 77);
 
-    for (int i = 0; i < 8; i++) {
+    for (var i = 0; i < 8; i++) {
       region.put(String.valueOf(i), value);
     }
 
     // we should have put 2 values in each dir so the next one should not fit
-    try (IgnoredException ie = addIgnoredException(DiskAccessException.class)) {
-      Throwable thrown = catchThrowable(() -> region.put("FULL", value));
+    try (var ie = addIgnoredException(DiskAccessException.class)) {
+      var thrown = catchThrowable(() -> region.put("FULL", value));
       assertThat(thrown).isInstanceOf(DiskAccessException.class);
     }
 
@@ -638,26 +632,26 @@ public class DiskRegionJUnitTest {
    */
   @Test
   public void testNoDiskFullExcep() {
-    int[] diskDirSizes = new int[4];
+    var diskDirSizes = new int[4];
     diskDirSizes[0] = 2048 + 500;
     diskDirSizes[1] = 2048 + 500;
     diskDirSizes[2] = 2048 + 500;
     diskDirSizes[3] = 2048 + 500;
 
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setDiskDirsAndSizes(diskDirs, diskDirSizes);
     diskRegionProperties.setPersistBackup(true);
     diskRegionProperties.setRolling(true);
     diskRegionProperties.setMaxOplogSize(1000000000);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory, 1_000_000_000);
 
-    Region<Object, Object> region =
+    var region =
         createRegion(regionName, diskStoreName, true, true, false, false, 0);
 
-    int[] actualDiskDirSizes = ((InternalRegion) region).getDiskDirSizes();
+    var actualDiskDirSizes = ((InternalRegion) region).getDiskDirSizes();
 
     assertThat(actualDiskDirSizes[0]).isEqualTo(2048 + 500);
     assertThat(actualDiskDirSizes[1]).isEqualTo(2048 + 500);
@@ -666,10 +660,10 @@ public class DiskRegionJUnitTest {
 
     // we have room for 2 values per dir
 
-    byte[] value = new byte[1024];
+    var value = new byte[1024];
     Arrays.fill(value, (byte) 77);
 
-    for (int i = 0; i < 8; i++) {
+    for (var i = 0; i < 8; i++) {
       region.put(String.valueOf(i), value);
     }
 
@@ -685,27 +679,27 @@ public class DiskRegionJUnitTest {
    */
   @Test
   public void testDiskFullExcepOverflowOnly() {
-    int[] diskDirSizes = new int[4];
+    var diskDirSizes = new int[4];
     diskDirSizes[0] = 2048 + 500;
     diskDirSizes[1] = 2048 + 500;
     diskDirSizes[2] = 2048 + 500;
     diskDirSizes[3] = 2048 + 500;
 
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setDiskDirsAndSizes(diskDirs, diskDirSizes);
     diskRegionProperties.setPersistBackup(false);
     diskRegionProperties.setRolling(false);
     diskRegionProperties.setMaxOplogSize(1000000000);
     diskRegionProperties.setOverFlowCapacity(1);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory, 1_000_000_000);
 
-    Region<Object, Object> region =
+    var region =
         createRegion(regionName, diskStoreName, false, true, false, true, 1);
 
-    int[] actualDiskDirSizes = ((InternalRegion) region).getDiskDirSizes();
+    var actualDiskDirSizes = ((InternalRegion) region).getDiskDirSizes();
 
     assertThat(actualDiskDirSizes[0]).isEqualTo(2048 + 500);
     assertThat(actualDiskDirSizes[1]).isEqualTo(2048 + 500);
@@ -714,19 +708,19 @@ public class DiskRegionJUnitTest {
 
     // we have room for 2 values per dir
 
-    byte[] value = new byte[1024];
+    var value = new byte[1024];
     Arrays.fill(value, (byte) 77);
 
     // put a dummy value in since one value stays in memory
     region.put("FIRST", value);
 
-    for (int i = 0; i < 8; i++) {
+    for (var i = 0; i < 8; i++) {
       region.put(String.valueOf(i), value);
     }
 
     // we should have put 2 values in each dir so the next one should not fit
-    try (IgnoredException ie = addIgnoredException(DiskAccessException.class)) {
-      Throwable thrown = catchThrowable(() -> region.put("FULL", value));
+    try (var ie = addIgnoredException(DiskAccessException.class)) {
+      var thrown = catchThrowable(() -> region.put("FULL", value));
       assertThat(thrown).isInstanceOf(DiskAccessException.class);
     }
 
@@ -738,27 +732,27 @@ public class DiskRegionJUnitTest {
    */
   @Test
   public void testNoDiskFullExcepOverflowOnly() {
-    int[] diskDirSizes = new int[4];
+    var diskDirSizes = new int[4];
     diskDirSizes[0] = 2048 + 500;
     diskDirSizes[1] = 2048 + 500;
     diskDirSizes[2] = 2048 + 500;
     diskDirSizes[3] = 2048 + 500;
 
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setDiskDirsAndSizes(diskDirs, diskDirSizes);
     diskRegionProperties.setPersistBackup(false);
     diskRegionProperties.setRolling(true);
     diskRegionProperties.setMaxOplogSize(1000000000);
     diskRegionProperties.setOverFlowCapacity(1);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory, 1_000_000_000);
 
-    Region<Object, Object> region =
+    var region =
         createRegion(regionName, diskStoreName, false, true, false, true, 1);
 
-    int[] actualDiskDirSizes = ((InternalRegion) region).getDiskDirSizes();
+    var actualDiskDirSizes = ((InternalRegion) region).getDiskDirSizes();
 
     assertThat(actualDiskDirSizes[0]).isEqualTo(2048 + 500);
     assertThat(actualDiskDirSizes[1]).isEqualTo(2048 + 500);
@@ -767,13 +761,13 @@ public class DiskRegionJUnitTest {
 
     // we have room for 2 values per dir
 
-    byte[] value = new byte[1024];
+    var value = new byte[1024];
     Arrays.fill(value, (byte) 77);
 
     // put a dummy value in since one value stays in memory
     region.put("FIRST", value);
 
-    for (int i = 0; i < 8; i++) {
+    for (var i = 0; i < 8; i++) {
       region.put(String.valueOf(i), value);
     }
 
@@ -790,9 +784,9 @@ public class DiskRegionJUnitTest {
    */
   @Test
   public void testSyncModeAllowOperationToProceedEvenIfDiskSpaceIsNotSufficient() {
-    int[] diskDirSizes = {2048};
+    var diskDirSizes = new int[] {2048};
 
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setDiskDirsAndSizes(new File[] {diskDirs[0]}, diskDirSizes);
     diskRegionProperties.setPersistBackup(true);
     diskRegionProperties.setRolling(true);
@@ -800,18 +794,18 @@ public class DiskRegionJUnitTest {
     diskRegionProperties.setMaxOplogSize(100000000);
     diskRegionProperties.setRegionName(regionName);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory, 100_000_000);
 
     Region<Integer, Object> region =
         createRegion(regionName, diskStoreName, true, true, false, false, 0);
 
-    int[] actualDiskSizes = ((InternalRegion) region).getDiskDirSizes();
+    var actualDiskSizes = ((InternalRegion) region).getDiskDirSizes();
     assertThat(actualDiskSizes).isEqualTo(diskDirSizes);
 
     // puts should not fail even after surpassing disk dir sizes
-    byte[] value = new byte[990];
+    var value = new byte[990];
     Arrays.fill(value, (byte) 77);
     region.put(1, value);
     region.put(1, value);
@@ -822,9 +816,9 @@ public class DiskRegionJUnitTest {
 
   @Test
   public void testAsyncModeAllowOperationToProceedEvenIfDiskSpaceIsNotSufficient() {
-    int[] dirSizes = {2048};
+    var dirSizes = new int[] {2048};
 
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setDiskDirsAndSizes(new File[] {diskDirs[0]}, dirSizes);
     diskRegionProperties.setPersistBackup(true);
     diskRegionProperties.setRolling(true);
@@ -834,18 +828,18 @@ public class DiskRegionJUnitTest {
     diskRegionProperties.setTimeInterval(1500000);
     diskRegionProperties.setRegionName(regionName);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
-    DiskStore diskStore =
+    var diskStore =
         createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory, 100_000_000);
 
-    Region<Object, Object> region =
+    var region =
         createRegion(regionName, diskStoreName, true, false, false, false, 0);
 
     assertThat(diskStore.getDiskDirSizes()).isEqualTo(dirSizes);
 
     // puts should not fail even after surpassing disk dir sizes
-    byte[] value = new byte[990];
+    var value = new byte[990];
     Arrays.fill(value, (byte) 77);
     region.put(0, value);
     region.put(1, value);
@@ -859,23 +853,23 @@ public class DiskRegionJUnitTest {
    */
   @Test
   public void testDiskGetInvalidEntry() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setDiskDirsAndSizes(diskDirs, diskDirSizes);
     diskRegionProperties.setRolling(false);
     diskRegionProperties.setMaxOplogSize(1000000000);
     diskRegionProperties.setBytesThreshold(1000000);
     diskRegionProperties.setTimeInterval(1500000);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory, 1_000_000_000);
 
-    Region<Object, Object> region =
+    var region =
         createRegion(regionName, diskStoreName, false, false, false, true, 1000);
 
-    byte[] value = new byte[1024];
+    var value = new byte[1024];
     Arrays.fill(value, (byte) 77);
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       region.put("key" + i, value);
     }
 
@@ -895,43 +889,43 @@ public class DiskRegionJUnitTest {
    */
   @Test
   public void testDiskRegionByteArray() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setPersistBackup(true);
     diskRegionProperties.setDiskDirs(diskDirs);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory);
 
-    Region<Object, Object> region =
+    var region =
         createRegion(regionName, diskStoreName, true, true, false, false, 0);
 
-    int ENTRY_SIZE = 1024;
-    int OP_COUNT = 10;
-    String key = "K";
-    byte[] value = new byte[ENTRY_SIZE];
+    var ENTRY_SIZE = 1024;
+    var OP_COUNT = 10;
+    var key = "K";
+    var value = new byte[ENTRY_SIZE];
     Arrays.fill(value, (byte) 77);
 
     // put an entry
     region.put(key, value);
 
     // put few more entries to write on disk
-    for (int i = 0; i < OP_COUNT; i++) {
+    for (var i = 0; i < OP_COUNT; i++) {
       region.put(i, value);
     }
 
     // get from disk
-    DiskId diskId = ((DiskEntry) ((InternalRegion) region).basicGetEntry("K")).getDiskId();
-    Object val = getDiskRegion(region).get(diskId);
+    var diskId = ((DiskEntry) ((InternalRegion) region).basicGetEntry("K")).getDiskId();
+    var val = getDiskRegion(region).get(diskId);
 
     // verify that the value retrieved above represents byte array.
     // verify the length of the byte[]
     assertThat((byte[]) val).hasSize(1024);
 
     // verify that the retrieved byte[] equals to the value put initially.
-    byte[] x = (byte[]) val;
-    boolean result = false;
-    for (int i = 0; i < x.length; i++) {
+    var x = (byte[]) val;
+    var result = false;
+    for (var i = 0; i < x.length; i++) {
       result = x[i] == value[i];
     }
 
@@ -944,13 +938,13 @@ public class DiskRegionJUnitTest {
    */
   @Test
   public void testInstanceOfDiskRegion() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setDiskDirs(diskDirs); // diskDirs is an array of four diskDirs
     diskRegionProperties.setRolling(true);
 
-    DiskStoreFactory diskStoreFactory2 = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory2 = toDiskStoreFactory(diskRegionProperties);
 
-    DiskStore diskStore = createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory2);
+    var diskStore = createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory2);
 
     Region<?, ?> region = createRegion(regionName, diskStoreName, true, true, false, false, 0);
 
@@ -960,7 +954,7 @@ public class DiskRegionJUnitTest {
     diskRegionProperties.setDiskDirs(diskDirs); // diskDirs is an array of four diskDirs
     diskRegionProperties.setRolling(false);
 
-    DiskStoreFactory diskStoreFactory1 = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory1 = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory1);
 
@@ -973,7 +967,7 @@ public class DiskRegionJUnitTest {
     diskRegionProperties.setDiskDirsAndSizes(new File[] {newFolder(uniqueName + "1")},
         new int[] {2048});
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory);
 
@@ -984,7 +978,7 @@ public class DiskRegionJUnitTest {
 
     diskRegionProperties.setRolling(false);
     diskRegionProperties.setMaxOplogSize(2048);
-    File dir = newFolder(uniqueName + "2");
+    var dir = newFolder(uniqueName + "2");
     diskRegionProperties.setDiskDirsAndSizes(new File[] {dir}, new int[] {1024});
 
     // TODO: test just rolls along? not sure of the value
@@ -995,25 +989,25 @@ public class DiskRegionJUnitTest {
    */
   @Test
   public void testStats() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setDiskDirsAndSizes(new File[] {diskDirs[0]}, new int[] {diskDirSizes[0]});
     diskRegionProperties.setMaxOplogSize(2097152);
     diskRegionProperties.setOverFlowCapacity(100);
     diskRegionProperties.setRolling(true);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory, 2_097_152);
 
-    int overflowCapacity = 100;
+    var overflowCapacity = 100;
     Region<Integer, Integer> region =
         createRegion(regionName, diskStoreName, false, true, false, true, overflowCapacity);
 
-    DiskRegionStats stats = getDiskRegion(region).getStats();
+    var stats = getDiskRegion(region).getStats();
 
     // TODO: there are no assertions for counter
-    int counter = 0;
-    for (int i = 0; i < 5000; i++) {
+    var counter = 0;
+    for (var i = 0; i < 5000; i++) {
       region.put(i, i);
       region.put(i, i);
       region.put(i, i);
@@ -1038,32 +1032,32 @@ public class DiskRegionJUnitTest {
    */
   @Test
   public void testOverflowOnlyNoFiles() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setTimeInterval(15000);
     diskRegionProperties.setBytesThreshold(100000);
     diskRegionProperties.setOverFlowCapacity(1000);
     diskRegionProperties.setDiskDirs(diskDirs);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory);
 
     Region<Integer, Object> region =
         createRegion(regionName, diskStoreName, false, false, false, true, 1_000);
 
-    byte[] value = new byte[1024];
+    var value = new byte[1024];
     Arrays.fill(value, (byte) 77);
 
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       region.put(i, value);
     }
 
     region.close(); // closes disk file which will flush all buffers
 
     // verify that there are no files in the disk dir
-    int fileCount = 0;
-    for (File diskDir : diskDirs) {
-      File[] files = diskDir.listFiles();
+    var fileCount = 0;
+    for (var diskDir : diskDirs) {
+      var files = diskDir.listFiles();
       fileCount += files.length;
     }
 
@@ -1073,8 +1067,8 @@ public class DiskRegionJUnitTest {
 
     // we now should only have zero
     fileCount = 0;
-    for (File diskDir : diskDirs) {
-      File[] files = diskDir.listFiles();
+    for (var diskDir : diskDirs) {
+      var files = diskDir.listFiles();
       fileCount += files.length;
     }
     assertThat(fileCount).isEqualTo(0);
@@ -1082,32 +1076,32 @@ public class DiskRegionJUnitTest {
 
   @Test
   public void testPersistNoFiles() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setOverflow(false);
     diskRegionProperties.setRolling(false);
     diskRegionProperties.setDiskDirs(diskDirs);
     diskRegionProperties.setPersistBackup(true);
     diskRegionProperties.setRegionName(regionName);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory);
 
     Region<Integer, Object> region =
         createRegion(regionName, diskStoreName, true, true, false, false, 0);
 
-    byte[] value = new byte[1024];
+    var value = new byte[1024];
     Arrays.fill(value, (byte) 77);
 
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       region.put(i, value);
     }
 
     region.destroyRegion();
 
-    int fileCount = 0;
-    for (File diskDir : diskDirs) {
-      File[] files = diskDir.listFiles();
+    var fileCount = 0;
+    for (var diskDir : diskDirs) {
+      var files = diskDir.listFiles();
       fileCount += files.length;
     }
 
@@ -1118,8 +1112,8 @@ public class DiskRegionJUnitTest {
 
     // we now should only have zero since the disk store had no regions remaining in it.
     fileCount = 0;
-    for (File diskDir : diskDirs) {
-      File[] files = diskDir.listFiles();
+    for (var diskDir : diskDirs) {
+      var files = diskDir.listFiles();
       fileCount += files.length;
     }
     assertThat(fileCount).isEqualTo(0);
@@ -1132,24 +1126,24 @@ public class DiskRegionJUnitTest {
    */
   @Test
   public void testDiskAccessExceptionNotThrown() {
-    File diskDir = newFolder(uniqueName);
+    var diskDir = newFolder(uniqueName);
 
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setDiskDirsAndSizes(new File[] {diskDir}, new int[] {10240});
     diskRegionProperties.setMaxOplogSize(1024);
     diskRegionProperties.setRolling(true);
     diskRegionProperties.setSynchronous(true);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory, 1024);
 
     Region<Integer, Object> region =
         createRegion(regionName, diskStoreName, true, true, false, true, DEFAULT_ENTRIES_MAXIMUM);
 
-    byte[] bytes = new byte[256];
+    var bytes = new byte[256];
 
-    for (int i = 0; i < 1500; i++) {
+    for (var i = 0; i < 1500; i++) {
       region.put(i % 10, bytes);
     }
   }
@@ -1164,13 +1158,13 @@ public class DiskRegionJUnitTest {
    */
   @Test
   public void testClearInteractionWithLRUList_Bug37605() throws Exception {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setOverflow(true);
     diskRegionProperties.setOverFlowCapacity(1);
     diskRegionProperties.setDiskDirs(diskDirs);
     diskRegionProperties.setRegionName(regionName);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory,
         diskRegionProperties.getMaxOplogSize());
@@ -1178,7 +1172,7 @@ public class DiskRegionJUnitTest {
     Region<String, String> region =
         createRegion(regionName, diskStoreName, true, true, false, true, 1);
 
-    AtomicReference<Future<Void>> doClearFuture = new AtomicReference<>();
+    var doClearFuture = new AtomicReference<Future<Void>>();
     region.getAttributesMutator().addCacheListener(new CacheListenerAdapter<String, String>() {
       @Override
       public void afterCreate(EntryEvent<String, String> event) {
@@ -1196,7 +1190,7 @@ public class DiskRegionJUnitTest {
     awaitFuture(doClearFuture);
     assertThat(region.isEmpty()).isTrue();
 
-    VMLRURegionMap vmlruRegionMap = getVMLRURegionMap(region);
+    var vmlruRegionMap = getVMLRURegionMap(region);
     assertThat(vmlruRegionMap.getEvictionList().getEvictableEntry()).isNull();
   }
 
@@ -1213,21 +1207,21 @@ public class DiskRegionJUnitTest {
    */
   @Test
   public void testClearInteractionWithCreateOperation_Bug37606() throws Exception {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setOverflow(false);
     diskRegionProperties.setRolling(false);
     diskRegionProperties.setDiskDirs(diskDirs);
     diskRegionProperties.setPersistBackup(true);
     diskRegionProperties.setRegionName(regionName);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory);
 
     Region<String, String> region =
         createRegion(regionName, diskStoreName, true, true, false, false, 0);
 
-    AtomicReference<Future<Void>> doCreateFuture = new AtomicReference<>();
+    var doCreateFuture = new AtomicReference<Future<Void>>();
     LocalRegion.ISSUE_CALLBACKS_TO_CACHE_OBSERVER = true;
     CacheObserverHolder.setInstance(new CacheObserverAdapter() {
       @Override
@@ -1265,14 +1259,14 @@ public class DiskRegionJUnitTest {
    */
   @Test
   public void testClearInteractionWithUpdateOperation_Bug37606() throws Exception {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setOverflow(false);
     diskRegionProperties.setRolling(false);
     diskRegionProperties.setDiskDirs(diskDirs);
     diskRegionProperties.setPersistBackup(true);
     diskRegionProperties.setRegionName(regionName);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory);
 
@@ -1281,7 +1275,7 @@ public class DiskRegionJUnitTest {
 
     region.create("key1", "value1");
 
-    AtomicReference<Future<Void>> doPutFuture = new AtomicReference<>();
+    var doPutFuture = new AtomicReference<Future<Void>>();
     LocalRegion.ISSUE_CALLBACKS_TO_CACHE_OBSERVER = true;
     CacheObserverHolder.setInstance(new CacheObserverAdapter() {
       @Override
@@ -1316,14 +1310,14 @@ public class DiskRegionJUnitTest {
    */
   @Test
   public void testEntryUpdateInSyncPersistOnlyForIOExceptionCase() throws Exception {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setRegionName(regionName);
     diskRegionProperties.setOverflow(false);
     diskRegionProperties.setRolling(false);
     diskRegionProperties.setDiskDirs(diskDirs);
     diskRegionProperties.setPersistBackup(true);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory);
 
@@ -1334,7 +1328,7 @@ public class DiskRegionJUnitTest {
 
     closeOplogFileChannel(region);
 
-    Throwable thrown = catchThrowable(() -> region.put("key1", "value2"));
+    var thrown = catchThrowable(() -> region.put("key1", "value2"));
     assertThat(thrown).isInstanceOf(DiskAccessException.class);
 
     verifyClosedDueToDiskAccessException(region);
@@ -1346,14 +1340,14 @@ public class DiskRegionJUnitTest {
    */
   @Test
   public void testEntryUpdateInSyncOverFlowPersistOnlyForIOExceptionCase() throws Exception {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setRegionName(regionName);
     diskRegionProperties.setOverflow(true);
     diskRegionProperties.setRolling(false);
     diskRegionProperties.setDiskDirs(diskDirs);
     diskRegionProperties.setPersistBackup(true);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory);
 
@@ -1364,7 +1358,7 @@ public class DiskRegionJUnitTest {
 
     closeOplogFileChannel(region);
 
-    Throwable thrown = catchThrowable(() -> region.put("key1", "value2"));
+    var thrown = catchThrowable(() -> region.put("key1", "value2"));
     assertThat(thrown).isInstanceOf(DiskAccessException.class);
 
     verifyClosedDueToDiskAccessException(region);
@@ -1376,14 +1370,14 @@ public class DiskRegionJUnitTest {
    */
   @Test
   public void testEntryInvalidateInSyncPersistOnlyForIOExceptionCase() throws Exception {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setRegionName(regionName);
     diskRegionProperties.setOverflow(false);
     diskRegionProperties.setRolling(false);
     diskRegionProperties.setDiskDirs(diskDirs);
     diskRegionProperties.setPersistBackup(true);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory);
 
@@ -1394,7 +1388,7 @@ public class DiskRegionJUnitTest {
 
     closeOplogFileChannel(region);
 
-    Throwable thrown = catchThrowable(() -> region.invalidate("key1"));
+    var thrown = catchThrowable(() -> region.invalidate("key1"));
     assertThat(thrown).isInstanceOf(DiskAccessException.class);
 
     verifyClosedDueToDiskAccessException(region);
@@ -1406,14 +1400,14 @@ public class DiskRegionJUnitTest {
    */
   @Test
   public void testEntryInvalidateInSyncPersistOverflowForIOExceptionCase() throws Exception {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setRegionName(regionName);
     diskRegionProperties.setOverflow(true);
     diskRegionProperties.setRolling(false);
     diskRegionProperties.setDiskDirs(diskDirs);
     diskRegionProperties.setPersistBackup(true);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory);
 
@@ -1424,7 +1418,7 @@ public class DiskRegionJUnitTest {
 
     closeOplogFileChannel(region);
 
-    Throwable thrown = catchThrowable(() -> region.invalidate("key1"));
+    var thrown = catchThrowable(() -> region.invalidate("key1"));
     assertThat(thrown).isInstanceOf(DiskAccessException.class);
 
     verifyClosedDueToDiskAccessException(region);
@@ -1436,14 +1430,14 @@ public class DiskRegionJUnitTest {
    */
   @Test
   public void testEntryCreateInSyncPersistOnlyForIOExceptionCase() throws Exception {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setRegionName(regionName);
     diskRegionProperties.setOverflow(false);
     diskRegionProperties.setRolling(false);
     diskRegionProperties.setDiskDirs(diskDirs);
     diskRegionProperties.setPersistBackup(true);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory);
 
@@ -1452,7 +1446,7 @@ public class DiskRegionJUnitTest {
 
     closeOplogFileChannel(region);
 
-    Throwable thrown = catchThrowable(() -> region.create("key1", "value1"));
+    var thrown = catchThrowable(() -> region.create("key1", "value1"));
     assertThat(thrown).isInstanceOf(DiskAccessException.class);
 
     verifyClosedDueToDiskAccessException(region);
@@ -1464,14 +1458,14 @@ public class DiskRegionJUnitTest {
    */
   @Test
   public void testEntryCreateInSyncPersistOverflowForIOExceptionCase() throws Exception {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setRegionName(regionName);
     diskRegionProperties.setOverflow(true);
     diskRegionProperties.setRolling(false);
     diskRegionProperties.setDiskDirs(diskDirs);
     diskRegionProperties.setPersistBackup(true);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory);
 
@@ -1480,7 +1474,7 @@ public class DiskRegionJUnitTest {
 
     closeOplogFileChannel(region);
 
-    Throwable thrown = catchThrowable(() -> region.create("key1", "value1"));
+    var thrown = catchThrowable(() -> region.create("key1", "value1"));
     assertThat(thrown).isInstanceOf(DiskAccessException.class);
 
     verifyClosedDueToDiskAccessException(region);
@@ -1492,14 +1486,14 @@ public class DiskRegionJUnitTest {
    */
   @Test
   public void testEntryDestructionInSyncPersistOnlyForIOExceptionCase() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setRegionName(regionName);
     diskRegionProperties.setOverflow(false);
     diskRegionProperties.setRolling(false);
     diskRegionProperties.setDiskDirs(diskDirs);
     diskRegionProperties.setPersistBackup(true);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory);
 
@@ -1511,7 +1505,7 @@ public class DiskRegionJUnitTest {
     // Get the oplog handle & hence the underlying file & close it
     getDiskRegion(region).testHook_getChild().testClose();
 
-    Throwable thrown = catchThrowable(() -> region.destroy("key1"));
+    var thrown = catchThrowable(() -> region.destroy("key1"));
     assertThat(thrown).isInstanceOf(DiskAccessException.class);
 
     verifyClosedDueToDiskAccessException(region);
@@ -1523,14 +1517,14 @@ public class DiskRegionJUnitTest {
    */
   @Test
   public void testEntryDestructionInSyncPersistOverflowForIOExceptionCase() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setRegionName(regionName);
     diskRegionProperties.setOverflow(true);
     diskRegionProperties.setRolling(false);
     diskRegionProperties.setDiskDirs(diskDirs);
     diskRegionProperties.setPersistBackup(true);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory);
 
@@ -1542,7 +1536,7 @@ public class DiskRegionJUnitTest {
     // Get the oplog handle & hence the underlying file & close it
     getDiskRegion(region).testHook_getChild().testClose();
 
-    Throwable thrown = catchThrowable(() -> region.destroy("key1"));
+    var thrown = catchThrowable(() -> region.destroy("key1"));
     assertThat(thrown).isInstanceOf(DiskAccessException.class);
 
     verifyClosedDueToDiskAccessException(region);
@@ -1554,7 +1548,7 @@ public class DiskRegionJUnitTest {
    */
   @Test
   public void testEntryUpdateInSyncOverflowOnlyForIOExceptionCase() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setRegionName(regionName);
     diskRegionProperties.setOverflow(true);
     diskRegionProperties.setRolling(false);
@@ -1562,7 +1556,7 @@ public class DiskRegionJUnitTest {
     diskRegionProperties.setPersistBackup(false);
     diskRegionProperties.setOverFlowCapacity(1);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory);
 
@@ -1575,7 +1569,7 @@ public class DiskRegionJUnitTest {
     getDiskRegion(region).testHookCloseAllOverflowChannels();
 
     // Update key1, so that key2 goes on disk & encounters an exception
-    Throwable thrown = catchThrowable(() -> region.put("key1", "value1'"));
+    var thrown = catchThrowable(() -> region.put("key1", "value1'"));
     assertThat(thrown).isInstanceOf(DiskAccessException.class);
 
     verifyClosedDueToDiskAccessException(region);
@@ -1587,7 +1581,7 @@ public class DiskRegionJUnitTest {
    */
   @Test
   public void testEntryCreateInSyncOverflowOnlyForIOExceptionCase() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setRegionName(regionName);
     diskRegionProperties.setOverflow(true);
     diskRegionProperties.setRolling(false);
@@ -1595,7 +1589,7 @@ public class DiskRegionJUnitTest {
     diskRegionProperties.setPersistBackup(false);
     diskRegionProperties.setOverFlowCapacity(1);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory);
 
@@ -1607,7 +1601,7 @@ public class DiskRegionJUnitTest {
 
     getDiskRegion(region).testHookCloseAllOverflowChannels();
 
-    Throwable thrown = catchThrowable(() -> region.create("key3", "value3"));
+    var thrown = catchThrowable(() -> region.create("key3", "value3"));
     assertThat(thrown).isInstanceOf(DiskAccessException.class);
 
     verifyClosedDueToDiskAccessException(region);
@@ -1619,14 +1613,14 @@ public class DiskRegionJUnitTest {
    */
   @Test
   public void testEntryDeletionInSyncOverflowOnlyForIOExceptionCase() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setOverflow(true);
     diskRegionProperties.setRolling(false);
     diskRegionProperties.setDiskDirs(diskDirs);
     diskRegionProperties.setPersistBackup(false);
     diskRegionProperties.setOverFlowCapacity(1);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory);
 
@@ -1650,7 +1644,7 @@ public class DiskRegionJUnitTest {
    */
   @Test
   public void testEntryUpdateInASyncPersistOnlyForIOExceptionCase() throws Exception {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setRegionName(regionName);
     diskRegionProperties.setOverflow(true);
     diskRegionProperties.setRolling(false);
@@ -1658,11 +1652,11 @@ public class DiskRegionJUnitTest {
     diskRegionProperties.setDiskDirs(diskDirs);
     diskRegionProperties.setPersistBackup(true);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory);
 
-    Region<Object, Object> region =
+    var region =
         createRegion(regionName, diskStoreName, true, false, false, true, DEFAULT_ENTRIES_MAXIMUM);
 
     closeOplogFileChannel(region);
@@ -1670,7 +1664,7 @@ public class DiskRegionJUnitTest {
     region.create("key1", new byte[16]);
     region.create("key2", new byte[16]);
 
-    DiskRegion diskRegion = getDiskRegion(region);
+    var diskRegion = getDiskRegion(region);
     diskRegion.flushForTesting();
 
     verifyClosedDueToDiskAccessException(region);
@@ -1682,21 +1676,21 @@ public class DiskRegionJUnitTest {
    */
   @Test
   public void testBridgeServerStoppingInSyncPersistOnlyForIOExceptionCase() throws Exception {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setRegionName(regionName);
     diskRegionProperties.setOverflow(true);
     diskRegionProperties.setRolling(true);
     diskRegionProperties.setDiskDirs(diskDirs);
     diskRegionProperties.setPersistBackup(true);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory);
 
-    Region<Object, Object> region =
+    var region =
         createRegion(regionName, diskStoreName, true, true, false, true, DEFAULT_ENTRIES_MAXIMUM);
 
-    CacheServer cacheServer = cache.addCacheServer();
+    var cacheServer = cache.addCacheServer();
     cacheServer.setPort(0);
     cacheServer.start();
 
@@ -1705,13 +1699,13 @@ public class DiskRegionJUnitTest {
 
     closeOplogFileChannel(region);
 
-    Throwable thrown = catchThrowable(() -> region.put("key2", new byte[16]));
+    var thrown = catchThrowable(() -> region.put("key2", new byte[16]));
     assertThat(thrown).isInstanceOf(DiskAccessException.class);
 
     verifyClosedDueToDiskAccessException(region);
 
     // a disk access exception in a server should always stop the server
-    List<CacheServer> cacheServers = cache.getCacheServers();
+    var cacheServers = cache.getCacheServers();
     assertThat(cacheServers).isEmpty();
   }
 
@@ -1721,14 +1715,14 @@ public class DiskRegionJUnitTest {
    */
   @Test
   public void testDummyByteBugDuringRegionClose_Bug40250() throws Exception {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setRegionName(regionName);
     diskRegionProperties.setRolling(true);
     diskRegionProperties.setCompactionThreshold(100);
     diskRegionProperties.setDiskDirs(diskDirs);
     diskRegionProperties.setPersistBackup(true);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory);
 
@@ -1736,11 +1730,11 @@ public class DiskRegionJUnitTest {
         createRegion(regionName, diskStoreName, true, true, false, false, 0);
 
     // create some string entries
-    for (int i = 0; i < 2; ++i) {
+    for (var i = 0; i < 2; ++i) {
       region.put(String.valueOf(i), String.valueOf(i));
     }
 
-    AtomicReference<Future<Void>> closeRegionFuture = new AtomicReference<>();
+    var closeRegionFuture = new AtomicReference<Future<Void>>();
 
     LocalRegion.ISSUE_CALLBACKS_TO_CACHE_OBSERVER = true;
     CacheObserverHolder.setInstance(new CacheObserverAdapter() {
@@ -1771,7 +1765,7 @@ public class DiskRegionJUnitTest {
     Region<String, String> region2 =
         createRegion(regionName, diskStoreName, true, true, false, false, 0);
 
-    for (int i = 0; i < 2; ++i) {
+    for (var i = 0; i < 2; ++i) {
       assertThat(region2.get(String.valueOf(i))).isEqualTo(String.valueOf(i));
     }
   }
@@ -1782,7 +1776,7 @@ public class DiskRegionJUnitTest {
    */
   @Test
   public void testBridgeServerRunningInSyncPersistOnlyForIOExceptionCase() throws Exception {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setRegionName(regionName);
     diskRegionProperties.setOverflow(true);
     diskRegionProperties.setRolling(true);
@@ -1790,14 +1784,14 @@ public class DiskRegionJUnitTest {
     diskRegionProperties.setPersistBackup(true);
     diskRegionProperties.setMaxOplogSize(100000); // just needs to be bigger than 65550
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory, 100_000);
 
     Region<String, Object> region =
         createRegion(regionName, diskStoreName, true, true, false, true, DEFAULT_ENTRIES_MAXIMUM);
 
-    CacheServer cacheServer = cache.addCacheServer();
+    var cacheServer = cache.addCacheServer();
     cacheServer.setPort(0);
     cacheServer.start();
 
@@ -1805,13 +1799,13 @@ public class DiskRegionJUnitTest {
     region.create("key2", new byte[16]);
 
     // Get the oplog file path
-    UninterruptibleFileChannel oplogFileChannel =
+    var oplogFileChannel =
         getDiskRegion(region).testHook_getChild().getFileChannel();
 
     // corrupt the opfile
     oplogFileChannel.position(2);
-    ByteBuffer byteBuffer = ByteBuffer.allocate(416);
-    for (int i = 0; i < 5; ++i) {
+    var byteBuffer = ByteBuffer.allocate(416);
+    for (var i = 0; i < 5; ++i) {
       byteBuffer.putInt(i);
     }
     byteBuffer.flip();
@@ -1823,7 +1817,7 @@ public class DiskRegionJUnitTest {
     region.close();
     assertThat(region.isDestroyed()).isTrue();
 
-    Throwable thrown = catchThrowable(() -> createRegion(regionName, diskStoreName, true, true,
+    var thrown = catchThrowable(() -> createRegion(regionName, diskStoreName, true, true,
         false, true, DEFAULT_ENTRIES_MAXIMUM));
     assertThat(thrown).isInstanceOf(DiskAccessException.class);
 
@@ -1833,7 +1827,7 @@ public class DiskRegionJUnitTest {
 
   @Test
   public void testEarlyTerminationOfCompactorByDefault() throws Exception {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setRegionName(regionName);
     diskRegionProperties.setRolling(true);
     diskRegionProperties.setCompactionThreshold(100);
@@ -1841,16 +1835,16 @@ public class DiskRegionJUnitTest {
     diskRegionProperties.setMaxOplogSize(100);
     diskRegionProperties.setPersistBackup(true);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory, 100);
 
     Region<String, String> region =
         createRegion(regionName, diskStoreName, true, true, false, false, 0);
 
-    AtomicReference<Future<Void>> closeRegionFuture = new AtomicReference<>();
-    CountDownLatch closingRegionLatch = new CountDownLatch(1);
-    CountDownLatch allowCompactorLatch = new CountDownLatch(1);
+    var closeRegionFuture = new AtomicReference<Future<Void>>();
+    var closingRegionLatch = new CountDownLatch(1);
+    var allowCompactorLatch = new CountDownLatch(1);
 
     LocalRegion.ISSUE_CALLBACKS_TO_CACHE_OBSERVER = true;
     CacheObserverHolder.setInstance(new CacheObserverAdapter() {
@@ -1864,13 +1858,13 @@ public class DiskRegionJUnitTest {
           // wait for operations to get over
           awaitLatch(allowCompactorLatch);
 
-          DiskRegion diskRegion = getDiskRegion(region);
+          var diskRegion = getDiskRegion(region);
           oplogSizeBeforeRolling = diskRegion.getOplogIdToOplog().size();
           assertThat(oplogSizeBeforeRolling).isGreaterThan(0);
 
           closeRegionFuture.set(executorServiceRule.runAsync(() -> {
             closingRegionLatch.countDown();
-            DiskStoreImpl diskStoreImpl = getDiskStore(region);
+            var diskStoreImpl = getDiskStore(region);
             region.close();
             diskStoreImpl.close();
           }));
@@ -1903,7 +1897,7 @@ public class DiskRegionJUnitTest {
       @Override
       public void afterHavingCompacted() {
         try {
-          DiskRegion diskRegion = getDiskRegion(region);
+          var diskRegion = getDiskRegion(region);
           assertThat(diskRegion.getOplogIdToOplog()).hasSize(oplogSizeBeforeRolling);
         } catch (AssertionError | Exception e) {
           errorCollector.addError(e);
@@ -1914,7 +1908,7 @@ public class DiskRegionJUnitTest {
     });
 
     // create some string entries
-    for (int i = 0; i < 100; ++i) {
+    for (var i = 0; i < 100; ++i) {
       region.put(String.valueOf(i), String.valueOf(i));
     }
 
@@ -1925,30 +1919,30 @@ public class DiskRegionJUnitTest {
 
   @Test
   public void throwsIllegalStateExceptionIfMissingOplogDrf() throws Exception {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setRegionName(regionName);
     diskRegionProperties.setDiskDirs(diskDirs);
     diskRegionProperties.setPersistBackup(true);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
-    DiskStore diskStore = createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory);
+    var diskStore = createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory);
 
-    Region<Object, Object> region =
+    var region =
         createRegion(regionName, diskStoreName, true, true, false, false, 0);
 
     region.close();
     closeDiskStore(diskStore);
 
-    Path oplogFile = Files.list(diskDirs[0].toPath())
+    var oplogFile = Files.list(diskDirs[0].toPath())
         .filter(path -> path.toString().endsWith(".drf")).findFirst().get();
 
     Files.delete(oplogFile);
 
-    String expectedMessage =
+    var expectedMessage =
         "The following required files could not be found: *.drf files with these ids:";
 
-    Throwable thrown = catchThrowable(() -> createDiskStoreWithSizeInBytes(diskStoreName,
+    var thrown = catchThrowable(() -> createDiskStoreWithSizeInBytes(diskStoreName,
         toDiskStoreFactory(diskRegionProperties)));
     assertThat(thrown).isInstanceOf(IllegalStateException.class)
         .hasMessageContaining(expectedMessage).hasNoCause();
@@ -1956,30 +1950,30 @@ public class DiskRegionJUnitTest {
 
   @Test
   public void throwsIllegalStateExceptionIfMissingOplogCrf() throws Exception {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setRegionName(regionName);
     diskRegionProperties.setDiskDirs(diskDirs);
     diskRegionProperties.setPersistBackup(true);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
-    DiskStore diskStore = createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory);
+    var diskStore = createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory);
 
-    Region<Object, Object> region =
+    var region =
         createRegion(regionName, diskStoreName, true, true, false, false, 0);
 
     region.close();
     closeDiskStore(diskStore);
 
-    Path oplogFile = Files.list(diskDirs[0].toPath())
+    var oplogFile = Files.list(diskDirs[0].toPath())
         .filter(path -> path.toString().endsWith(".crf")).findFirst().get();
 
     Files.delete(oplogFile);
 
-    String expectedMessage =
+    var expectedMessage =
         "The following required files could not be found: *.crf files with these ids:";
 
-    Throwable thrown = catchThrowable(() -> createDiskStoreWithSizeInBytes(diskStoreName,
+    var thrown = catchThrowable(() -> createDiskStoreWithSizeInBytes(diskStoreName,
         toDiskStoreFactory(diskRegionProperties)));
     assertThat(thrown).isInstanceOf(IllegalStateException.class)
         .hasMessageContaining(expectedMessage).hasNoCause();
@@ -1989,7 +1983,7 @@ public class DiskRegionJUnitTest {
   public void testNoTerminationOfCompactorTillRollingCompleted() throws Exception {
     System.setProperty(DiskStoreImpl.COMPLETE_COMPACTION_BEFORE_TERMINATION_PROPERTY_NAME, "true");
 
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setRegionName(regionName);
     diskRegionProperties.setRolling(true);
     diskRegionProperties.setCompactionThreshold(100);
@@ -1997,16 +1991,16 @@ public class DiskRegionJUnitTest {
     diskRegionProperties.setMaxOplogSize(100);
     diskRegionProperties.setPersistBackup(true);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory, 100);
 
-    Region<Object, Object> region =
+    var region =
         createRegion(regionName, diskStoreName, true, true, false, false, 0);
 
-    AtomicReference<Future<Void>> closeRegionFuture = new AtomicReference<>();
-    CountDownLatch closeThreadStartedLatch = new CountDownLatch(1);
-    CountDownLatch allowCompactorLatch = new CountDownLatch(1);
+    var closeRegionFuture = new AtomicReference<Future<Void>>();
+    var closeThreadStartedLatch = new CountDownLatch(1);
+    var allowCompactorLatch = new CountDownLatch(1);
 
     LocalRegion.ISSUE_CALLBACKS_TO_CACHE_OBSERVER = true;
     CacheObserverHolder.setInstance(new CacheObserverAdapter() {
@@ -2020,13 +2014,13 @@ public class DiskRegionJUnitTest {
           // wait for operations to get over
           awaitLatch(allowCompactorLatch);
 
-          DiskRegion diskRegion = getDiskRegion(region);
+          var diskRegion = getDiskRegion(region);
           oplogSizeBeforeRolling = diskRegion.getOplogIdToOplog().size();
           assertThat(oplogSizeBeforeRolling).isGreaterThan(0);
 
           closeRegionFuture.set(executorServiceRule.runAsync(() -> {
             closeThreadStartedLatch.countDown();
-            DiskStoreImpl diskStore = getDiskStore(region);
+            var diskStore = getDiskStore(region);
             region.close();
             diskStore.close();
           }));
@@ -2058,7 +2052,7 @@ public class DiskRegionJUnitTest {
       public void afterHavingCompacted() {
         try {
           awaitLatch(compactorSignalledLatch);
-          DiskRegion diskRegion = getDiskRegion(region);
+          var diskRegion = getDiskRegion(region);
           assertThat(diskRegion.getOplogIdToOplog()).hasSize(oplogSizeBeforeRolling);
         } catch (AssertionError | Exception e) {
           errorCollector.addError(e);
@@ -2069,7 +2063,7 @@ public class DiskRegionJUnitTest {
     });
 
     // create some string entries
-    for (int i = 0; i < 100; ++i) {
+    for (var i = 0; i < 100; ++i) {
       region.put(String.valueOf(i), String.valueOf(i));
     }
 
@@ -2083,14 +2077,14 @@ public class DiskRegionJUnitTest {
    */
   @Test
   public void testBug40648part1() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setRegionName(regionName);
     diskRegionProperties.setRolling(true);
     diskRegionProperties.setDiskDirs(diskDirs);
     diskRegionProperties.setMaxOplogSize(500 * 2);
     diskRegionProperties.setOverFlowCapacity(1);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory, 1000);
 
@@ -2099,8 +2093,8 @@ public class DiskRegionJUnitTest {
 
     // long loop and no assertions just to verify nothing throws
 
-    byte[] payload = new byte[100];
-    for (int i = 0; i < 1000; i++) {
+    var payload = new byte[100];
+    for (var i = 0; i < 1000; i++) {
       region.put(0, payload);
       region.put(1, payload);
     }
@@ -2114,14 +2108,14 @@ public class DiskRegionJUnitTest {
    */
   @Test
   public void testBug40648part2() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setRegionName(regionName);
     diskRegionProperties.setRolling(true);
     diskRegionProperties.setDiskDirs(diskDirs);
     diskRegionProperties.setMaxOplogSize(500 * 2);
     diskRegionProperties.setOverFlowCapacity(1);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory, 1000);
 
@@ -2130,8 +2124,8 @@ public class DiskRegionJUnitTest {
 
     // long loop and no assertions just to verify nothing throws
 
-    byte[] payload = new byte[100];
-    for (int i = 0; i < 1000; i++) {
+    var payload = new byte[100];
+    for (var i = 0; i < 1000; i++) {
       region.put(0, payload);
       region.put(1, payload);
     }
@@ -2139,14 +2133,14 @@ public class DiskRegionJUnitTest {
 
   @Test
   public void testForceCompactionDoesRoll() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setRegionName(regionName);
     diskRegionProperties.setRolling(false);
     diskRegionProperties.setDiskDirs(diskDirs);
     diskRegionProperties.setAllowForceCompaction(true);
     diskRegionProperties.setPersistBackup(true);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory);
 
@@ -2166,7 +2160,7 @@ public class DiskRegionJUnitTest {
     region.remove("key2");
 
     // the following forceCompaction should go ahead and do a roll and compact it
-    boolean compacted = diskStore.forceCompaction();
+    var compacted = diskStore.forceCompaction();
     assertThat(compacted).isTrue();
   }
 
@@ -2175,7 +2169,7 @@ public class DiskRegionJUnitTest {
    */
   @Test
   public void testNonDefaultCompaction() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setRegionName(regionName);
     diskRegionProperties.setRolling(false);
     diskRegionProperties.setDiskDirs(diskDirs);
@@ -2183,7 +2177,7 @@ public class DiskRegionJUnitTest {
     diskRegionProperties.setPersistBackup(true);
     diskRegionProperties.setCompactionThreshold(90);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory);
 
@@ -2198,8 +2192,8 @@ public class DiskRegionJUnitTest {
     region.remove("key1");
 
     // the following forceCompaction should go ahead and do a roll and compact it
-    Oplog oplog = getDiskRegion(region).testHook_getChild();
-    boolean compacted = getDiskStore(region).forceCompaction();
+    var oplog = getDiskRegion(region).testHook_getChild();
+    var compacted = getDiskStore(region).forceCompaction();
 
     assertThat(oplog.testConfirmCompacted()).isTrue();
     assertThat(compacted).isTrue();
@@ -2210,14 +2204,14 @@ public class DiskRegionJUnitTest {
    */
   @Test
   public void testForceCompactionIsSync() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setRegionName(regionName);
     diskRegionProperties.setRolling(false);
     diskRegionProperties.setDiskDirs(diskDirs);
     diskRegionProperties.setAllowForceCompaction(true);
     diskRegionProperties.setPersistBackup(true);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory);
 
@@ -2231,13 +2225,13 @@ public class DiskRegionJUnitTest {
 
     // now that it is compactable the following forceCompaction should
     // go ahead and do a roll and compact it.
-    Oplog oplog = getDiskRegion(region).testHook_getChild();
-    boolean compacted = getDiskStore(region).forceCompaction();
+    var oplog = getDiskRegion(region).testHook_getChild();
+    var compacted = getDiskStore(region).forceCompaction();
 
     assertThat(oplog.testConfirmCompacted()).isTrue();
     assertThat(compacted).isTrue();
 
-    CachePerfStats stats = cache.getCachePerfStats();
+    var stats = cache.getCachePerfStats();
     assertThat(stats.getDiskTasksWaiting()).isGreaterThanOrEqualTo(0);
   }
 
@@ -2247,13 +2241,13 @@ public class DiskRegionJUnitTest {
    */
   @Test
   public void testBug40876() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setRegionName(regionName);
     diskRegionProperties.setRolling(false);
     diskRegionProperties.setDiskDirs(diskDirs);
     diskRegionProperties.setPersistBackup(true);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory);
 
@@ -2266,7 +2260,7 @@ public class DiskRegionJUnitTest {
 
     region = createRegion(regionName, diskStoreName, true, true, false, false, 0);
 
-    Object value = ((InternalPersistentRegion) region).getValueOnDiskOrBuffer("key1");
+    var value = ((InternalPersistentRegion) region).getValueOnDiskOrBuffer("key1");
     assertThat(value).isEqualTo(Token.INVALID);
     assertThat(region.containsValueForKey("key1")).isFalse();
   }
@@ -2280,20 +2274,20 @@ public class DiskRegionJUnitTest {
    */
   @Test
   public void testBug41822() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setRegionName(regionName);
     diskRegionProperties.setRolling(false);
     diskRegionProperties.setDiskDirs(diskDirs);
     diskRegionProperties.setMaxOplogSize(500);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
-    DiskStore diskStore = createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory, 500);
+    var diskStore = createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory, 500);
 
     Region<String, Object> region =
         createRegion(regionName, diskStoreName, true, true, false, false, 0);
 
-    byte[] payload = new byte[100];
+    var payload = new byte[100];
 
     region.put("key0", payload);
     assertThat(getDiskRegion(region).testHook_getChild().getDirectoryHolder().getDir())
@@ -2346,14 +2340,14 @@ public class DiskRegionJUnitTest {
    */
   @Test
   public void testBug41770() throws Exception {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setRegionName(regionName);
     diskRegionProperties.setOverflow(false);
     diskRegionProperties.setRolling(false);
     diskRegionProperties.setDiskDirs(diskDirs);
     diskRegionProperties.setPersistBackup(true);
 
-    DiskStoreFactory diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
+    var diskStoreFactory = toDiskStoreFactory(diskRegionProperties);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory);
 
@@ -2362,7 +2356,7 @@ public class DiskRegionJUnitTest {
 
     // Install a listener then gets called when the async flusher threads finds an entry to flush
     LocalRegion.ISSUE_CALLBACKS_TO_CACHE_OBSERVER = true;
-    DoRegionClearDuringDiskStoreFlush doRegionClearDuringDiskStoreFlush =
+    var doRegionClearDuringDiskStoreFlush =
         new DoRegionClearDuringDiskStoreFlush(region);
     CacheObserverHolder.setInstance(doRegionClearDuringDiskStoreFlush);
 
@@ -2375,7 +2369,7 @@ public class DiskRegionJUnitTest {
     region.close();
 
     // do a recovery it will fail with an assertion if this bug is not fixed
-    Throwable thrown =
+    var thrown =
         catchThrowable(() -> createRegion(regionName, diskStoreName, true, false, false, false, 0));
     assertThat(thrown).isNull();
   }
@@ -2404,7 +2398,7 @@ public class DiskRegionJUnitTest {
   }
 
   private File createDirectory(File parentDirectory, String name) {
-    File file = new File(parentDirectory, name);
+    var file = new File(parentDirectory, name);
     assertThat(file.mkdir()).isTrue();
     return file;
   }
@@ -2438,14 +2432,14 @@ public class DiskRegionJUnitTest {
   }
 
   private DiskStoreFactory toDiskStoreFactory(DiskRegionProperties diskRegionProperties) {
-    DiskStoreFactory diskStoreFactory = cache.createDiskStoreFactory();
+    var diskStoreFactory = cache.createDiskStoreFactory();
 
     diskStoreFactory.setAllowForceCompaction(diskRegionProperties.getAllowForceCompaction());
     diskStoreFactory.setAutoCompact(diskRegionProperties.isRolling());
     diskStoreFactory.setCompactionThreshold(diskRegionProperties.getCompactionThreshold());
 
     if (diskRegionProperties.getDiskDirSizes() == null) {
-      int[] diskDirSizes = new int[diskRegionProperties.getDiskDirs().length];
+      var diskDirSizes = new int[diskRegionProperties.getDiskDirs().length];
       Arrays.fill(diskDirSizes, Integer.MAX_VALUE);
       diskStoreFactory.setDiskDirsAndSizes(diskRegionProperties.getDiskDirs(), diskDirSizes);
     } else {
@@ -2500,7 +2494,7 @@ public class DiskRegionJUnitTest {
   }
 
   private void closeDiskStore(DiskStore diskStore) {
-    DiskStoreImpl internalDiskStore = (DiskStoreImpl) diskStore;
+    var internalDiskStore = (DiskStoreImpl) diskStore;
     internalDiskStore.close();
 
     cache.removeDiskStore(internalDiskStore);
@@ -2508,7 +2502,7 @@ public class DiskRegionJUnitTest {
 
   private void closeOplogFileChannel(Region<?, ?> region) throws IOException {
     // Get the oplog handle & hence the underlying file & close it
-    UninterruptibleFileChannel oplogFileChannel =
+    var oplogFileChannel =
         getDiskRegion(region).testHook_getChild().getFileChannel();
     oplogFileChannel.close();
   }
@@ -2516,10 +2510,10 @@ public class DiskRegionJUnitTest {
   private void assertThatArrayEquals(Object expected, Object actual) {
     assertThat(actual).isInstanceOf(expected.getClass());
 
-    int actualLength = Array.getLength(actual);
+    var actualLength = Array.getLength(actual);
     assertThat(actualLength).isEqualTo(Array.getLength(expected));
 
-    for (int i = 0; i < actualLength; i++) {
+    for (var i = 0; i < actualLength; i++) {
       assertThat(Array.get(actual, i)).isEqualTo(Array.get(expected, i));
     }
   }
@@ -2527,7 +2521,7 @@ public class DiskRegionJUnitTest {
   private void verifyClosedDueToDiskAccessException(Region<?, ?> region) {
     await().until(() -> getDiskStore(region).isClosed());
     await().until(() -> cache.isClosed());
-    Throwable thrown = catchThrowable(() -> cache.createRegionFactory().create(regionName));
+    var thrown = catchThrowable(() -> cache.createRegionFactory().create(regionName));
     assertThat(thrown).isInstanceOf(CacheClosedException.class)
         .hasCauseInstanceOf(DiskAccessException.class);
   }
@@ -2610,7 +2604,7 @@ public class DiskRegionJUnitTest {
       putSuccessful[2].set(false);
 
       try {
-        byte[] bytes = new byte[dataSize];
+        var bytes = new byte[dataSize];
         region.put("1", bytes);
         putSuccessful[0].set(true);
         region.put("2", bytes);

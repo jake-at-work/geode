@@ -26,8 +26,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.concurrent.CompletableFuture;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -124,9 +122,9 @@ public class ConnectionFactoryImplTest {
     // set up the initial userId to be -1
     server.setUserId(-1);
 
-    CompletableFuture<Void> future1 =
+    var future1 =
         executor.runAsync(() -> factory.authenticateIfRequired(connection));
-    CompletableFuture<Void> future2 =
+    var future2 =
         executor.runAsync(() -> factory.authenticateIfRequired(connection));
     future1.get();
     future2.get();

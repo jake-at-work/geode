@@ -53,14 +53,14 @@ public class FindDurableQueueProcessor extends ReplyProcessor21 {
 
   public static ArrayList sendAndFind(ServerLocator locator, ClientProxyMembershipID proxyId,
       DistributionManager dm) {
-    Set members = ((GridAdvisor) locator.getDistributionAdvisor()).adviseBridgeServers();
+    var members = ((GridAdvisor) locator.getDistributionAdvisor()).adviseBridgeServers();
     if (members.contains(dm.getId())) {
       // Don't send message to local server, see #50534.
       Set remoteMembers = new HashSet(members);
       remoteMembers.remove(dm.getId());
       members = remoteMembers;
     }
-    FindDurableQueueProcessor processor = new FindDurableQueueProcessor(dm, members);
+    var processor = new FindDurableQueueProcessor(dm, members);
 
     FindDurableQueueMessage.send(proxyId, dm, members, processor);
     try {
@@ -68,7 +68,7 @@ public class FindDurableQueueProcessor extends ReplyProcessor21 {
     } catch (ReplyException e) {
       e.handleCause();
     }
-    ArrayList locations = processor.durableLocations;
+    var locations = processor.durableLocations;
     // This will add any local queues to the list
     findLocalDurableQueues(proxyId, locations);
     return locations;
@@ -80,10 +80,10 @@ public class FindDurableQueueProcessor extends ReplyProcessor21 {
     if (cache != null) {
       List l = cache.getCacheServers();
       if (l != null) {
-        for (final Object o : l) {
-          CacheServerImpl bs = (CacheServerImpl) o;
+        for (final var o : l) {
+          var bs = (CacheServerImpl) o;
           if (bs.getAcceptor().getCacheClientNotifier().getClientProxy(proxyId) != null) {
-            ServerLocation loc = new ServerLocation(bs.getExternalAddress(), bs.getPort());
+            var loc = new ServerLocation(bs.getExternalAddress(), bs.getPort());
             matches.add(loc);
           }
         }
@@ -95,7 +95,7 @@ public class FindDurableQueueProcessor extends ReplyProcessor21 {
   public void process(DistributionMessage msg) {
     // TODO Auto-generated method stub
     if (msg instanceof FindDurableQueueReply) {
-      FindDurableQueueReply reply = (FindDurableQueueReply) msg;
+      var reply = (FindDurableQueueReply) msg;
       synchronized (durableLocations) {
         // add me to the durable member set
         durableLocations.addAll(reply.getMatches());
@@ -118,7 +118,7 @@ public class FindDurableQueueProcessor extends ReplyProcessor21 {
 
     protected static void send(ClientProxyMembershipID proxyId, DistributionManager dm, Set members,
         ReplyProcessor21 proc) {
-      FindDurableQueueMessage msg = new FindDurableQueueMessage();
+      var msg = new FindDurableQueueMessage();
       msg.processorId = proc.getProcessorId();
       msg.proxyId = proxyId;
       msg.setRecipients(members);
@@ -139,12 +139,12 @@ public class FindDurableQueueProcessor extends ReplyProcessor21 {
 
     @Override
     protected void process(final ClusterDistributionManager dm) {
-      ArrayList<ServerLocation> matches = new ArrayList<>();
+      var matches = new ArrayList<ServerLocation>();
       try {
         findLocalDurableQueues(proxyId, matches);
 
       } finally {
-        FindDurableQueueReply reply = new FindDurableQueueReply();
+        var reply = new FindDurableQueueReply();
         reply.setProcessorId(getProcessorId());
         reply.matches = matches;
         reply.setRecipient(getSender());

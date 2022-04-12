@@ -20,7 +20,6 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import org.apache.geode.annotations.Immutable;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.sockets.BaseCommand;
 import org.apache.geode.internal.cache.tier.sockets.Message;
@@ -28,7 +27,6 @@ import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
 import org.apache.geode.internal.security.SecurityService;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.pdx.internal.EnumInfo;
-import org.apache.geode.pdx.internal.TypeRegistry;
 
 public class AddPdxEnum extends BaseCommand {
   private static final Logger logger = LogService.getLogger();
@@ -54,12 +52,12 @@ public class AddPdxEnum extends BaseCommand {
           serverConnection.getSocketString());
     }
 
-    EnumInfo enumInfo = (EnumInfo) clientMessage.getPart(0).getObject();
-    int enumId = clientMessage.getPart(1).getInt();
+    var enumInfo = (EnumInfo) clientMessage.getPart(0).getObject();
+    var enumId = clientMessage.getPart(1).getInt();
 
     try {
-      InternalCache cache = serverConnection.getCache();
-      TypeRegistry registry = cache.getPdxRegistry();
+      var cache = serverConnection.getCache();
+      var registry = cache.getPdxRegistry();
       registry.addRemoteEnum(enumId, enumInfo);
     } catch (Exception e) {
       writeException(clientMessage, e, false, serverConnection);

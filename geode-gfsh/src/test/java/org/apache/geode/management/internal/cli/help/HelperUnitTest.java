@@ -50,9 +50,9 @@ public class HelperUnitTest {
   public void before() throws Exception {
     helper = new Helper();
 
-    Method[] methods = DescribeOfflineDiskStoreCommand.class.getMethods();
-    for (Method method1 : methods) {
-      CliCommand cliCommand1 = method1.getDeclaredAnnotation(CliCommand.class);
+    var methods = DescribeOfflineDiskStoreCommand.class.getMethods();
+    for (var method1 : methods) {
+      var cliCommand1 = method1.getDeclaredAnnotation(CliCommand.class);
       if (cliCommand1 != null) {
         helper.addCommand(cliCommand1, method1);
       }
@@ -80,8 +80,8 @@ public class HelperUnitTest {
 
   @Test
   public void testGetLongHelp() {
-    HelpBlock helpBlock = helper.getHelp(cliCommand, annotations, parameterType);
-    String[] helpLines = helpBlock.toString().split(LINE_SEPARATOR);
+    var helpBlock = helper.getHelp(cliCommand, annotations, parameterType);
+    var helpLines = helpBlock.toString().split(LINE_SEPARATOR);
     assertThat(helpLines.length).isEqualTo(14);
     assertThat(helpLines[0]).isEqualTo(Helper.NAME_NAME);
     assertThat(helpLines[2]).isEqualTo(Helper.IS_AVAILABLE_NAME);
@@ -93,8 +93,8 @@ public class HelperUnitTest {
 
   @Test
   public void testGetShortHelp() {
-    HelpBlock helpBlock = helper.getHelp(cliCommand, null, null);
-    String[] helpLines = helpBlock.toString().split(LINE_SEPARATOR);
+    var helpBlock = helper.getHelp(cliCommand, null, null);
+    var helpLines = helpBlock.toString().split(LINE_SEPARATOR);
     assertThat(helpLines.length).isEqualTo(2);
     assertThat(helpLines[0]).isEqualTo("test (Available)");
     assertThat(helpLines[1]).isEqualTo("This is a test description");
@@ -102,7 +102,7 @@ public class HelperUnitTest {
 
   @Test
   public void testGetSyntaxStringWithMandatory() {
-    String syntax = helper.getSyntaxString("test", annotations, parameterType);
+    var syntax = helper.getSyntaxString("test", annotations, parameterType);
     assertThat(syntax).isEqualTo("test --option=value");
     optionBlock = helper.getOptionDetail(cliOption);
     assertThat(optionBlock.toString()).isEqualTo("option" + LINE_SEPARATOR + "help of option"
@@ -112,7 +112,7 @@ public class HelperUnitTest {
   @Test
   public void testGetSyntaxStringWithOutMandatory() {
     when(cliOption.mandatory()).thenReturn(false);
-    String syntax = helper.getSyntaxString("test", annotations, parameterType);
+    var syntax = helper.getSyntaxString("test", annotations, parameterType);
     assertThat(syntax).isEqualTo("test [--option=value]");
     optionBlock = helper.getOptionDetail(cliOption);
     assertThat(optionBlock.toString()).isEqualTo("option" + LINE_SEPARATOR + "help of option"
@@ -122,7 +122,7 @@ public class HelperUnitTest {
   @Test
   public void testGetSyntaxStringWithSecondaryOptionNameIgnored() {
     when(cliOption.key()).thenReturn("option,option2".split(","));
-    String syntax = helper.getSyntaxString("test", annotations, parameterType);
+    var syntax = helper.getSyntaxString("test", annotations, parameterType);
     assertThat(syntax).isEqualTo("test --option=value");
     optionBlock = helper.getOptionDetail(cliOption);
     assertThat(optionBlock.toString())
@@ -134,7 +134,7 @@ public class HelperUnitTest {
   public void testGetSyntaxStringWithSecondaryOptionName() {
     when(cliOption.key()).thenReturn(",option2".split(","));
     when(cliOption.mandatory()).thenReturn(true);
-    String syntax = helper.getSyntaxString("test", annotations, parameterType);
+    var syntax = helper.getSyntaxString("test", annotations, parameterType);
     assertThat(syntax).isEqualTo("test option2");
     optionBlock = helper.getOptionDetail(cliOption);
     assertThat(optionBlock.toString()).isEqualTo("option2" + LINE_SEPARATOR + "help of option"
@@ -145,7 +145,7 @@ public class HelperUnitTest {
   public void testGetSyntaxStringWithOptionalSecondaryOptionName() {
     when(cliOption.key()).thenReturn(",option2".split(","));
     when(cliOption.mandatory()).thenReturn(false);
-    String syntax = helper.getSyntaxString("test", annotations, parameterType);
+    var syntax = helper.getSyntaxString("test", annotations, parameterType);
     assertThat(syntax).isEqualTo("test [option2]");
     optionBlock = helper.getOptionDetail(cliOption);
     assertThat(optionBlock.toString()).isEqualTo("option2" + LINE_SEPARATOR + "help of option"
@@ -155,7 +155,7 @@ public class HelperUnitTest {
   @Test
   public void testGetSyntaxStringWithStringArray() {
     parameterType[0] = String[].class;
-    String syntax = helper.getSyntaxString("test", annotations, parameterType);
+    var syntax = helper.getSyntaxString("test", annotations, parameterType);
     assertThat(syntax).isEqualTo("test --option=value(,value)*");
     optionBlock = helper.getOptionDetail(cliOption);
     assertThat(optionBlock.toString()).isEqualTo("option" + LINE_SEPARATOR + "help of option"
@@ -165,7 +165,7 @@ public class HelperUnitTest {
   @Test
   public void testGetSyntaxStringWithSpecifiedDefault() {
     when(cliOption.specifiedDefaultValue()).thenReturn("true");
-    String syntax = helper.getSyntaxString("test", annotations, parameterType);
+    var syntax = helper.getSyntaxString("test", annotations, parameterType);
     assertThat(syntax).isEqualTo("test --option(=value)?");
 
     optionBlock = helper.getOptionDetail(cliOption);
@@ -178,7 +178,7 @@ public class HelperUnitTest {
   public void testGetSyntaxStringWithDefaultAndStringArray() {
     parameterType[0] = String[].class;
     when(cliOption.specifiedDefaultValue()).thenReturn("value1,value2");
-    String syntax = helper.getSyntaxString("test", annotations, parameterType);
+    var syntax = helper.getSyntaxString("test", annotations, parameterType);
     assertThat(syntax).isEqualTo("test --option(=value)?(,value)*");
 
     optionBlock = helper.getOptionDetail(cliOption);

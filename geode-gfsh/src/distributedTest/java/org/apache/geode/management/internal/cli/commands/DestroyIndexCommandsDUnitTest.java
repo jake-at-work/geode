@@ -26,15 +26,11 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.configuration.RegionConfig;
 import org.apache.geode.distributed.ConfigurationProperties;
-import org.apache.geode.distributed.internal.InternalConfigurationPersistenceService;
 import org.apache.geode.test.dunit.IgnoredException;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
-import org.apache.geode.test.junit.assertions.CommandResultAssert;
 import org.apache.geode.test.junit.categories.OQLIndexTest;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
 
@@ -59,7 +55,7 @@ public class DestroyIndexCommandsDUnitTest {
 
   @Before
   public void before() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER,
         "org.apache.geode.management.internal.cli.domain.Stock");
     locator = rule.startLocatorVM(0);
@@ -74,12 +70,12 @@ public class DestroyIndexCommandsDUnitTest {
     gfsh.executeAndAssertThat(String.format("create region --name=%s --type=REPLICATE", REGION_1))
         .statusIsSuccess();
 
-    CommandResultAssert createIndex1Assert = gfsh.executeAndAssertThat(
+    var createIndex1Assert = gfsh.executeAndAssertThat(
         String.format("create index --name=%s --expression=key --region=%s", INDEX_1, REGION_1))
         .statusIsSuccess();
     createIndex1Assert.hasTableSection("createIndex").hasRowSize(2);
     createIndex1Assert.containsOutput("Cluster configuration for group 'cluster' is updated");
-    CommandResultAssert createIndex2Assert = gfsh.executeAndAssertThat(
+    var createIndex2Assert = gfsh.executeAndAssertThat(
         String.format("create index --name=%s --expression=id --region=%s", INDEX_2, REGION_1))
         .statusIsSuccess();
     createIndex2Assert.hasTableSection("createIndex").hasRowSize(2);
@@ -229,9 +225,9 @@ public class DestroyIndexCommandsDUnitTest {
     });
 
     locator.invoke(() -> {
-      InternalConfigurationPersistenceService svc =
+      var svc =
           ClusterStartupRule.getLocator().getConfigurationPersistenceService();
-      RegionConfig regionConfig = svc.getCacheConfig("cluster").findRegionConfiguration(REGION_1);
+      var regionConfig = svc.getCacheConfig("cluster").findRegionConfiguration(REGION_1);
       assertThat(regionConfig.getIndexes().size()).isEqualTo(2);
     });
   }
@@ -245,7 +241,7 @@ public class DestroyIndexCommandsDUnitTest {
 
     server1.invoke(() -> {
       Cache cache = ClusterStartupRule.getCache();
-      RegionFactory<Object, Object> factory = cache.createRegionFactory(RegionShortcut.REPLICATE);
+      var factory = cache.createRegionFactory(RegionShortcut.REPLICATE);
       factory.create("REGION3");
       cache.getQueryService().createIndex("INDEX3", "key", SEPARATOR + "REGION3");
     });
@@ -270,9 +266,9 @@ public class DestroyIndexCommandsDUnitTest {
     });
 
     locator.invoke(() -> {
-      InternalConfigurationPersistenceService svc =
+      var svc =
           ClusterStartupRule.getLocator().getConfigurationPersistenceService();
-      RegionConfig regionConfig = svc.getCacheConfig("cluster").findRegionConfiguration(region);
+      var regionConfig = svc.getCacheConfig("cluster").findRegionConfiguration(region);
       assertThat(regionConfig.getIndexes().size()).isEqualTo(indexCount);
     });
   }

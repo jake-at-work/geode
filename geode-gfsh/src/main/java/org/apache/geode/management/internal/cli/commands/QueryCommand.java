@@ -25,15 +25,12 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
-import org.apache.shiro.subject.Subject;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.execute.FunctionService;
 import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.cache.query.QueryInvalidException;
-import org.apache.geode.cache.query.internal.CompiledValue;
 import org.apache.geode.cache.query.internal.QCompiler;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.internal.cache.InternalCache;
@@ -67,13 +64,13 @@ public class QueryCommand extends GfshCommand {
           optionContext = ConverterHint.MEMBERIDNAME,
           help = CliStrings.QUERY__MEMBER__HELP) final String memberNameOrId) {
 
-    DistributedMember targetMember = memberNameOrId == null ? null : getMember(memberNameOrId);
-    DataCommandResult dataResult = select(query, targetMember);
+    var targetMember = memberNameOrId == null ? null : getMember(memberNameOrId);
+    var dataResult = select(query, targetMember);
     return dataResult.toSelectCommandResult();
   }
 
   DataCommandResult select(String query, DistributedMember targetMember) {
-    Cache cache = getCache();
+    var cache = getCache();
     DataCommandResult dataResult;
 
     if (StringUtils.isEmpty(query)) {
@@ -82,7 +79,7 @@ public class QueryCommand extends GfshCommand {
       return dataResult;
     }
 
-    boolean limitAdded = false;
+    var limitAdded = false;
 
     if (!StringUtils.containsIgnoreCase(query, " limit")
         && !StringUtils.containsIgnoreCase(query, " count(")) {
@@ -90,28 +87,28 @@ public class QueryCommand extends GfshCommand {
       limitAdded = true;
     }
 
-    QCompiler compiler = new QCompiler();
+    var compiler = new QCompiler();
     Set<String> regionsInQuery;
     try {
-      CompiledValue compiledQuery = compiler.compileQuery(query);
+      var compiledQuery = compiler.compileQuery(query);
       Set<String> regions = new HashSet<>();
       compiledQuery.getRegionsInQuery(regions, null);
 
       // authorize data read on these regions
-      for (String region : regions) {
+      for (var region : regions) {
         authorize(Resource.DATA, Operation.READ, region);
       }
 
       regionsInQuery = Collections.unmodifiableSet(regions);
       if (regionsInQuery.size() > 0) {
-        Set<DistributedMember> members = getMembers(targetMember, (InternalCache) cache,
+        var members = getMembers(targetMember, (InternalCache) cache,
             regionsInQuery);
         if (members != null && members.size() > 0) {
-          DataCommandFunction function = new DataCommandFunction();
-          DataCommandRequest request = new DataCommandRequest();
+          var function = new DataCommandFunction();
+          var request = new DataCommandRequest();
           request.setCommand(CliStrings.QUERY);
           request.setQuery(query);
-          Subject subject = getSubject();
+          var subject = getSubject();
           if (subject != null) {
             request.setPrincipal(subject.getPrincipal());
           }
@@ -155,31 +152,31 @@ public class QueryCommand extends GfshCommand {
       DataCommandFunction putfn, Set<DistributedMember> members) {
 
     if (members.size() == 1) {
-      DistributedMember member = members.iterator().next();
+      var member = members.iterator().next();
       @SuppressWarnings("unchecked")
       ResultCollector<Object, List<Object>> collector =
           FunctionService.onMember(member).setArguments(request).execute(putfn);
-      List<Object> list = collector.getResult();
-      Object object = list.get(0);
+      var list = collector.getResult();
+      var object = list.get(0);
       if (object instanceof Throwable) {
-        Throwable error = (Throwable) object;
-        DataCommandResult result = new DataCommandResult();
+        var error = (Throwable) object;
+        var result = new DataCommandResult();
         result.setErorr(error);
         result.setErrorString(error.getMessage());
         return result;
       }
-      DataCommandResult result = (DataCommandResult) list.get(0);
+      var result = (DataCommandResult) list.get(0);
       result.aggregate(null);
       return result;
     } else {
       @SuppressWarnings("unchecked")
       ResultCollector<Object, List<Object>> collector =
           FunctionService.onMembers(members).setArguments(request).execute(putfn);
-      List<Object> list = collector.getResult();
+      var list = collector.getResult();
       DataCommandResult result = null;
-      for (Object object : list) {
+      for (var object : list) {
         if (object instanceof Throwable) {
-          Throwable error = (Throwable) object;
+          var error = (Throwable) object;
           result = new DataCommandResult();
           result.setErorr(error);
           result.setErrorString(error.getMessage());

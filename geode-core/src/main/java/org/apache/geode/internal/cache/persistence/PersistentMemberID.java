@@ -70,8 +70,8 @@ public class PersistentMemberID implements DataSerializable {
 
   @Override
   public void fromData(DataInput in) throws IOException, ClassNotFoundException {
-    long diskStoreIdHigh = in.readLong();
-    long diskStoreIdLow = in.readLong();
+    var diskStoreIdHigh = in.readLong();
+    var diskStoreIdLow = in.readLong();
     diskStoreId = new DiskStoreID(diskStoreIdHigh, diskStoreIdLow);
     host = DataSerializer.readInetAddress(in);
     directory = DataSerializer.readString(in);
@@ -81,8 +81,8 @@ public class PersistentMemberID implements DataSerializable {
   }
 
   public void _fromData662(DataInput in) throws IOException, ClassNotFoundException {
-    long diskStoreIdHigh = in.readLong();
-    long diskStoreIdLow = in.readLong();
+    var diskStoreIdHigh = in.readLong();
+    var diskStoreIdLow = in.readLong();
     diskStoreId = new DiskStoreID(diskStoreIdHigh, diskStoreIdLow);
     host = DataSerializer.readInetAddress(in);
     directory = DataSerializer.readString(in);
@@ -103,8 +103,8 @@ public class PersistentMemberID implements DataSerializable {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
+    final var prime = 31;
+    var result = 1;
     result = prime * result + ((diskStoreId == null) ? 0 : diskStoreId.hashCode());
     result = prime * result + ((directory == null) ? 0 : directory.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
@@ -125,7 +125,7 @@ public class PersistentMemberID implements DataSerializable {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    PersistentMemberID other = (PersistentMemberID) obj;
+    var other = (PersistentMemberID) obj;
     if (directory == null) {
       if (other.directory != null) {
         return false;

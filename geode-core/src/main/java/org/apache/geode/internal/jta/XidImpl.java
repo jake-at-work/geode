@@ -86,8 +86,8 @@ public class XidImpl implements Xid {
    * A function to create a new Xid.
    */
   public static Xid createXid(byte[] GTid) throws XAException {
-    byte[] globalID = new byte[GTid.length];
-    byte[] branchID = new byte[1];
+    var globalID = new byte[GTid.length];
+    var branchID = new byte[1];
     // we are supporting only one RM So the branch ID is a constant
     branchID[0] = (byte) 1;
     System.arraycopy(GTid, 0, globalID, 0, GTid.length);

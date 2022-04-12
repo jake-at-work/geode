@@ -18,8 +18,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Iterator;
-
 import org.junit.Test;
 
 import org.apache.geode.cache.query.Struct;
@@ -34,13 +32,13 @@ import org.apache.geode.cache.query.types.StructType;
 public class StructBagLimitBehaviourJUnitTest extends ResultsBagLimitBehaviourJUnitTest {
 
   public ResultsBag getBagObject(Class clazz) {
-    ObjectType[] types = new ObjectType[] {new ObjectTypeImpl(clazz), new ObjectTypeImpl(clazz)};
+    var types = new ObjectType[] {new ObjectTypeImpl(clazz), new ObjectTypeImpl(clazz)};
     StructType type = new StructTypeImpl(new String[] {"field1", "field2"}, types);
     return new StructBag(type, null);
   }
 
   public Object wrap(Object obj, ObjectType type) {
-    StructTypeImpl stype = (StructTypeImpl) type;
+    var stype = (StructTypeImpl) type;
     if (obj == null) {
       return new StructImpl(stype, null);
     } else {
@@ -50,7 +48,7 @@ public class StructBagLimitBehaviourJUnitTest extends ResultsBagLimitBehaviourJU
 
   @Test
   public void testRemoveAllStructBagSpecificMthod() {
-    StructBag bag1 = (StructBag) getBagObject(Integer.class);
+    var bag1 = (StructBag) getBagObject(Integer.class);
     // Add Integer & null Objects
     bag1.add(wrap(null, bag1.getCollectionType().getElementType()));
     bag1.add(wrap(null, bag1.getCollectionType().getElementType()));
@@ -61,12 +59,12 @@ public class StructBagLimitBehaviourJUnitTest extends ResultsBagLimitBehaviourJU
     bag1.add(wrap(3, bag1.getCollectionType().getElementType()));
     bag1.add(wrap(4, bag1.getCollectionType().getElementType()));
     bag1.applyLimit(4);
-    StructBag bag2 = (StructBag) getBagObject(Integer.class);
+    var bag2 = (StructBag) getBagObject(Integer.class);
     bag2.addAll((StructFields) bag1);
     // Now remove the first element & it occurnece completelt from bag2
-    Iterator itr2 = bag2.iterator();
-    Struct first = (Struct) itr2.next();
-    int occrnce = 0;
+    var itr2 = bag2.iterator();
+    var first = (Struct) itr2.next();
+    var occrnce = 0;
     while (itr2.hasNext()) {
       if (itr2.next().equals(first)) {
         itr2.remove();
@@ -75,8 +73,8 @@ public class StructBagLimitBehaviourJUnitTest extends ResultsBagLimitBehaviourJU
     }
     assertTrue(bag1.removeAll((StructFields) bag2));
     assertEquals(occrnce, bag1.size());
-    Iterator itr = bag1.iterator();
-    for (int i = 0; i < occrnce; ++i) {
+    var itr = bag1.iterator();
+    for (var i = 0; i < occrnce; ++i) {
       itr.next();
     }
     assertFalse(itr.hasNext());
@@ -84,7 +82,7 @@ public class StructBagLimitBehaviourJUnitTest extends ResultsBagLimitBehaviourJU
 
   @Test
   public void testRetainAllStructBagSpecific() {
-    StructBag bag1 = (StructBag) getBagObject(Integer.class);
+    var bag1 = (StructBag) getBagObject(Integer.class);
     // Add Integer & null Objects
     // Add Integer & null Objects
     bag1.add(wrap(1, bag1.getCollectionType().getElementType()));
@@ -96,12 +94,12 @@ public class StructBagLimitBehaviourJUnitTest extends ResultsBagLimitBehaviourJU
     bag1.add(wrap(null, bag1.getCollectionType().getElementType()));
     bag1.add(wrap(null, bag1.getCollectionType().getElementType()));
     bag1.applyLimit(4);
-    StructBag bag2 = (StructBag) getBagObject(Integer.class);
+    var bag2 = (StructBag) getBagObject(Integer.class);
     bag2.addAll((StructFields) bag1);
     // Now remove the first element & it occurnece completelt from bag2
-    Iterator itr2 = bag2.iterator();
-    Struct first = (Struct) itr2.next();
-    int occrnce = 0;
+    var itr2 = bag2.iterator();
+    var first = (Struct) itr2.next();
+    var occrnce = 0;
     while (itr2.hasNext()) {
       if (itr2.next().equals(first)) {
         itr2.remove();
@@ -110,8 +108,8 @@ public class StructBagLimitBehaviourJUnitTest extends ResultsBagLimitBehaviourJU
     }
     bag1.retainAll((StructFields) bag2);
     assertEquals(4, bag1.size());
-    Iterator itr = bag1.iterator();
-    for (int i = 0; i < 4; ++i) {
+    var itr = bag1.iterator();
+    for (var i = 0; i < 4; ++i) {
       itr.next();
     }
     assertFalse(itr.hasNext());

@@ -29,12 +29,9 @@ import org.junit.experimental.categories.Category;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.ServerConnectivityException;
-import org.apache.geode.test.dunit.rules.ClientVM;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.categories.ClientServerTest;
 
 @Category({ClientServerTest.class})
@@ -47,21 +44,21 @@ public class ClientServerCacheOperationDUnitTest implements Serializable {
 
   @Test
   public void largeObjectPutWithReadTimeoutThrowsException() throws Exception {
-    MemberVM locator = clusterStartupRule.startLocatorVM(0);
-    int locatorPort = locator.getPort();
-    MemberVM server1 =
+    var locator = clusterStartupRule.startLocatorVM(0);
+    var locatorPort = locator.getPort();
+    var server1 =
         clusterStartupRule.startServerVM(1, s -> s.withConnectionToLocator(locatorPort));
-    MemberVM server2 =
+    var server2 =
         clusterStartupRule.startServerVM(2, s -> s.withConnectionToLocator(locatorPort));
-    ClientVM client1 =
+    var client1 =
         clusterStartupRule.startClientVM(3,
             c -> c.withLocatorConnection(locatorPort).withPoolSubscription(true));
 
-    ClientVM client2 =
+    var client2 =
         clusterStartupRule.startClientVM(4,
             c -> c.withLocatorConnection(locatorPort).withPoolSubscription(true));
-    final int byteSize = 40 * 1000 * 1000;
-    final int listSize = 2;
+    final var byteSize = 40 * 1000 * 1000;
+    final var listSize = 2;
 
     server1.invoke(() -> {
       RegionFactory<?, ?> regionFactory =
@@ -77,12 +74,12 @@ public class ClientServerCacheOperationDUnitTest implements Serializable {
 
     List<byte[]> list = new ArrayList<byte[]>(listSize);
 
-    for (int i = 0; i < listSize; i++) {
+    for (var i = 0; i < listSize; i++) {
       list.add(new byte[byteSize]);
     }
 
     client1.invoke(() -> {
-      Pool pool = PoolManager.createFactory()
+      var pool = PoolManager.createFactory()
           .addLocator("localhost", locatorPort)
           .setSocketBufferSize(50)
           .setReadTimeout(40)
@@ -91,7 +88,7 @@ public class ClientServerCacheOperationDUnitTest implements Serializable {
           .setServerConnectionTimeout(50)
           .create("testPool");
 
-      Region<Object, Object> region = ClusterStartupRule.getClientCache()
+      var region = ClusterStartupRule.getClientCache()
           .createClientRegionFactory(ClientRegionShortcut.PROXY)
           .setPoolName(pool.getName())
           .create(regionName);
@@ -102,7 +99,7 @@ public class ClientServerCacheOperationDUnitTest implements Serializable {
 
     server1.invoke(() -> {
       Region<?, ?> region = ClusterStartupRule.getCache().getRegion(regionName);
-      List<?> value = (List<?>) region.get("key");
+      var value = (List<?>) region.get("key");
       if (value != null) {
         assertThat(value.size()).isEqualTo(listSize);
         list.forEach((b) -> assertThat(b.length).isEqualTo(byteSize));
@@ -110,11 +107,11 @@ public class ClientServerCacheOperationDUnitTest implements Serializable {
     });
 
     client2.invoke(() -> {
-      Region<Object, Object> region = ClusterStartupRule.getClientCache()
+      var region = ClusterStartupRule.getClientCache()
           .createClientRegionFactory(ClientRegionShortcut.PROXY)
           .create(regionName);
       assertThat(region.size()).isEqualTo(0);
-      List<?> value = (List<?>) region.get("key");
+      var value = (List<?>) region.get("key");
       if (value != null) {
         assertThat(value.size()).isEqualTo(listSize);
         list.forEach((b) -> assertThat(b.length).isEqualTo(byteSize));
@@ -124,15 +121,15 @@ public class ClientServerCacheOperationDUnitTest implements Serializable {
 
   @Test
   public void largeObjectGetWithReadTimeout() throws Exception {
-    MemberVM locator = clusterStartupRule.startLocatorVM(0);
-    int locatorPort = locator.getPort();
-    MemberVM server1 =
+    var locator = clusterStartupRule.startLocatorVM(0);
+    var locatorPort = locator.getPort();
+    var server1 =
         clusterStartupRule.startServerVM(1, s -> s.withConnectionToLocator(locatorPort));
-    MemberVM server2 =
+    var server2 =
         clusterStartupRule.startServerVM(2, s -> s.withConnectionToLocator(locatorPort));
-    MemberVM server3 =
+    var server3 =
         clusterStartupRule.startServerVM(3, s -> s.withConnectionToLocator(locatorPort));
-    ClientVM client =
+    var client =
         clusterStartupRule.startClientVM(4,
             c -> c.withLocatorConnection(locatorPort).withPoolSubscription(true));
 
@@ -153,10 +150,10 @@ public class ClientServerCacheOperationDUnitTest implements Serializable {
           ClusterStartupRule.getCache().createRegionFactory(REPLICATE);
       Region region = regionFactory.create(regionName);
 
-      int listSize = 2;
+      var listSize = 2;
       List list = new ArrayList(listSize);
 
-      for (int i = 0; i < listSize; i++) {
+      for (var i = 0; i < listSize; i++) {
         list.add(new byte[75 * 1000 * 1000]);
       }
 
@@ -171,7 +168,7 @@ public class ClientServerCacheOperationDUnitTest implements Serializable {
 
     client.invoke(() -> {
 
-      Pool pool = PoolManager.createFactory()
+      var pool = PoolManager.createFactory()
           .addLocator("localhost", locatorPort)
           .setSocketBufferSize(100)
           .setReadTimeout(50)
@@ -186,7 +183,7 @@ public class ClientServerCacheOperationDUnitTest implements Serializable {
       region.get("key");
       assertThat(region.size()).isEqualTo(0);
 
-      Object value = region.get("key");
+      var value = region.get("key");
 
       assertThat(value).isInstanceOf(List.class);
     });

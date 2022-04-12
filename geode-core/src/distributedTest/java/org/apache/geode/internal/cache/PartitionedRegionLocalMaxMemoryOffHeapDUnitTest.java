@@ -50,7 +50,7 @@ public class PartitionedRegionLocalMaxMemoryOffHeapDUnitTest
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties config = new Properties();
+    var config = new Properties();
     // test creates a bit more than 1m of off heap so we need to total off heap size to be >1m
     config.setProperty(OFF_HEAP_MEMORY_SIZE, "2m");
     return config;
@@ -61,7 +61,7 @@ public class PartitionedRegionLocalMaxMemoryOffHeapDUnitTest
       long recoveryDelay, EvictionAttributes evictionAttributes) {
     RegionAttributes<?, ?> regionAttributes = PartitionedRegionTestHelper.createRegionAttrsForPR(
         redundancy, localMaxMemory, recoveryDelay, evictionAttributes, null);
-    AttributesFactory attributesFactory = new AttributesFactory(regionAttributes);
+    var attributesFactory = new AttributesFactory(regionAttributes);
     attributesFactory.setOffHeap(true);
     return attributesFactory.create();
   }

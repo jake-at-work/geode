@@ -25,7 +25,7 @@ public class TestHistoryLogger {
    * out if a previous test may have caused problems
    */
   public static final void logTestHistory(String className, String methodName) {
-    String name = className + "." + methodName;
+    var name = className + "." + methodName;
     System.out.println("Previously run tests: " + testHistory);
     testHistory.add(name);
   }

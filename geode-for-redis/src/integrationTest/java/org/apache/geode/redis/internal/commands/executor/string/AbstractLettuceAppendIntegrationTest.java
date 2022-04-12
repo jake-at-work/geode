@@ -18,7 +18,6 @@ package org.apache.geode.redis.internal.commands.executor.string;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.lettuce.core.cluster.RedisClusterClient;
-import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
 import io.lettuce.core.cluster.api.sync.RedisClusterCommands;
 import org.junit.After;
 import org.junit.Before;
@@ -47,15 +46,15 @@ public abstract class AbstractLettuceAppendIntegrationTest implements RedisInteg
 
   @Test
   public void testAppend_withUTF16KeyAndValue() {
-    String test_utf16_string = "最𐐷𤭢";
-    String double_utf16_string = test_utf16_string + test_utf16_string;
+    var test_utf16_string = "最𐐷𤭢";
+    var double_utf16_string = test_utf16_string + test_utf16_string;
 
-    StatefulRedisClusterConnection<String, String> redisConnection = client.connect();
+    var redisConnection = client.connect();
     RedisClusterCommands<String, String> syncCommands = redisConnection.sync();
 
     syncCommands.set(test_utf16_string, test_utf16_string);
     syncCommands.append(test_utf16_string, test_utf16_string);
-    String result = syncCommands.get(test_utf16_string);
+    var result = syncCommands.get(test_utf16_string);
     assertThat(result).isEqualTo(double_utf16_string);
   }
 }

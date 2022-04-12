@@ -19,7 +19,6 @@ import static org.apache.geode.cache.Region.SEPARATOR;
 import static org.apache.geode.cache.RegionShortcut.REPLICATE;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,7 +29,6 @@ import org.apache.geode.test.junit.categories.PulseTest;
 import org.apache.geode.test.junit.categories.SecurityTest;
 import org.apache.geode.test.junit.rules.EmbeddedPulseRule;
 import org.apache.geode.test.junit.rules.ServerStarterRule;
-import org.apache.geode.tools.pulse.internal.data.Cluster;
 
 @Category({SecurityTest.class, PulseTest.class})
 public class EmbeddedPulseClusterSecurityTest {
@@ -54,11 +52,11 @@ public class EmbeddedPulseClusterSecurityTest {
   @Test
   public void acceptsAuthorizedUser() {
     // The test security manager authorizes "data" to read data
-    String authorizedUser = "data";
+    var authorizedUser = "data";
 
-    Cluster cluster = pulse.getRepository()
+    var cluster = pulse.getRepository()
         .getClusterWithUserNameAndPassword(authorizedUser, authorizedUser);
-    ObjectNode queryResult = cluster.executeQuery(QUERY, null, 0);
+    var queryResult = cluster.executeQuery(QUERY, null, 0);
 
     assertThat(queryResult.toString())
         .contains("No Data Found");
@@ -67,11 +65,11 @@ public class EmbeddedPulseClusterSecurityTest {
   @Test
   public void rejectsUnauthorizedUser() {
     // The test security manager does not authorize "cluster" to read data
-    String unauthorizedUser = "cluster";
+    var unauthorizedUser = "cluster";
 
-    Cluster cluster = pulse.getRepository()
+    var cluster = pulse.getRepository()
         .getClusterWithUserNameAndPassword(unauthorizedUser, unauthorizedUser);
-    ObjectNode queryResult = cluster.executeQuery(QUERY, null, 0);
+    var queryResult = cluster.executeQuery(QUERY, null, 0);
 
     assertThat(queryResult.toString())
         .contains("not authorized for DATA:READ");

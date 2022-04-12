@@ -23,8 +23,6 @@ import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -62,7 +60,7 @@ public class IndexElemArrayJUnitTest {
   @Test
   public void overflowFromAddThrowsException() {
     // no exception should be thrown by this loop
-    for (int i = 1; i < 256; i++) {
+    for (var i = 1; i < 256; i++) {
       list.add(i);
     }
     try {
@@ -75,15 +73,15 @@ public class IndexElemArrayJUnitTest {
 
   @Test(expected = IllegalStateException.class)
   public void overflowFromAddAllThrowsException() {
-    Object[] array = new Object[256];
+    var array = new Object[256];
     Arrays.fill(array, new Object());
-    List<Object> data = Arrays.asList(array);
+    var data = Arrays.asList(array);
     list.addAll(data);
   }
 
   @Test
   public void sizeAfterOverflowFromAddIsCorrect() {
-    for (int i = 1; i < 256; i++) {
+    for (var i = 1; i < 256; i++) {
       list.add(i);
     }
     try {
@@ -95,7 +93,7 @@ public class IndexElemArrayJUnitTest {
 
   @Test
   public void sizeAfterOverflowFromAddAllIsCorrect() {
-    for (int i = 1; i < 256; i++) {
+    for (var i = 1; i < 256; i++) {
       list.add(i);
     }
     try {
@@ -107,10 +105,10 @@ public class IndexElemArrayJUnitTest {
 
   @Test
   public void listCanBeIteratedOverFullRange() {
-    for (int i = 1; i < 256; i++) {
+    for (var i = 1; i < 256; i++) {
       list.add(i);
     }
-    for (int i = 1; i < 256; i++) {
+    for (var i = 1; i < 256; i++) {
       assertThat(list.get(i - 1)).isEqualTo(i);
     }
   }
@@ -135,7 +133,7 @@ public class IndexElemArrayJUnitTest {
       });
     });
 
-    Collection<Object> results = MultithreadedTester.runMultithreaded(callables);
+    var results = MultithreadedTester.runMultithreaded(callables);
     results.forEach(result -> {
       // There should not be any Exception here.
       // E.g. ArrayIndexOutOfBoundsException when multiple threads are acting.
@@ -155,7 +153,7 @@ public class IndexElemArrayJUnitTest {
   }
 
   private Integer iterateList() {
-    Iterator iter = list.iterator();
+    var iter = list.iterator();
     if (iter.hasNext()) {
       iter.next();
     }
@@ -170,7 +168,7 @@ public class IndexElemArrayJUnitTest {
         + Arrays.asList((Object[]) objAfter), objBefore, objAfter);
 
     assertEquals(7, list.size());
-    for (int i = 0; i < 7; i++) {
+    for (var i = 0; i < 7; i++) {
       assertEquals(i + 1, list.get(i));
     }
     list.add(8);
@@ -179,13 +177,13 @@ public class IndexElemArrayJUnitTest {
         + Arrays.asList((Object[]) objAfter), objBefore, objAfter);
 
     assertEquals(8, list.size());
-    for (int i = 0; i < 8; i++) {
+    for (var i = 0; i < 8; i++) {
       assertEquals(i + 1, list.get(i));
     }
   }
 
   private void insert(int num) {
-    for (int i = 1; i <= num; i++) {
+    for (var i = 1; i <= num; i++) {
       list.add(i);
     }
   }
@@ -193,7 +191,7 @@ public class IndexElemArrayJUnitTest {
   private void removeFirst() {
     list.remove(1);
     assertEquals(6, list.size());
-    for (int i = 0; i < 6; i++) {
+    for (var i = 0; i < 6; i++) {
       assertEquals(i + 2, list.get(i));
     }
   }
@@ -201,7 +199,7 @@ public class IndexElemArrayJUnitTest {
   private void removeLast() {
     list.remove(7);
     assertEquals(6, list.size());
-    for (int i = 0; i < 6; i++) {
+    for (var i = 0; i < 6; i++) {
       assertEquals(i + 1, list.get(i));
     }
   }
@@ -209,8 +207,8 @@ public class IndexElemArrayJUnitTest {
   private void remove() {
     list.remove(4);
     assertEquals(6, list.size());
-    int[] temp = {1, 2, 3, 5, 6, 7};
-    for (int i = 0; i < 6; i++) {
+    var temp = new int[] {1, 2, 3, 5, 6, 7};
+    for (var i = 0; i < 6; i++) {
       assertEquals(temp[i], list.get(i));
     }
   }
@@ -221,8 +219,8 @@ public class IndexElemArrayJUnitTest {
   }
 
   private void iterate() {
-    Iterator itr = list.iterator();
-    int i = 1;
+    var itr = list.iterator();
+    var i = 1;
     while (itr.hasNext()) {
       assertEquals(i++, itr.next());
     }
@@ -230,7 +228,7 @@ public class IndexElemArrayJUnitTest {
 
   private void boundaryCondition() {
     try {
-      Object o = list.get(2);
+      var o = list.get(2);
       fail("get() Should have thrown IndexOutOfBoundsException");
     } catch (IndexOutOfBoundsException expected) {
       // ok

@@ -31,8 +31,8 @@ public class LuceneIndexFactoryImplJUnitTest {
 
   @Test
   public void setLuceneSerializerShouldPassLuceneSerializerToService() {
-    LuceneServiceImpl service = mock(LuceneServiceImpl.class);
-    LuceneSerializer serializer = mock(LuceneSerializer.class);
+    var service = mock(LuceneServiceImpl.class);
+    var serializer = mock(LuceneSerializer.class);
     LuceneIndexFactory factory = new LuceneIndexFactoryImpl(service);
     factory.setLuceneSerializer(serializer);
     factory.create("index", "region");

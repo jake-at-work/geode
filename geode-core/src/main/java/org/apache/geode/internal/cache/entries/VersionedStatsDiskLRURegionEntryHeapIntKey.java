@@ -24,7 +24,6 @@ import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.InternalStatisticsDisabledException;
 import org.apache.geode.internal.cache.DiskId;
-import org.apache.geode.internal.cache.DiskStoreImpl;
 import org.apache.geode.internal.cache.InternalRegion;
 import org.apache.geode.internal.cache.PlaceHolderDiskRegion;
 import org.apache.geode.internal.cache.RegionEntry;
@@ -157,10 +156,10 @@ public class VersionedStatsDiskLRURegionEntryHeapIntKey
 
   @Override
   public synchronized int updateAsyncEntrySize(final EvictionController evictionController) {
-    int oldSize = getEntrySize();
-    int newSize = evictionController.entrySize(getKeyForSizing(), null);
+    var oldSize = getEntrySize();
+    var newSize = evictionController.entrySize(getKeyForSizing(), null);
     setEntrySize(newSize);
-    int delta = newSize - oldSize;
+    var delta = newSize - oldSize;
     return delta;
   }
 
@@ -176,9 +175,9 @@ public class VersionedStatsDiskLRURegionEntryHeapIntKey
   }
 
   private void diskInitialize(final RegionEntryContext context, final Object value) {
-    DiskRecoveryStore diskRecoveryStore = (DiskRecoveryStore) context;
-    DiskStoreImpl diskStore = diskRecoveryStore.getDiskStore();
-    long maxOplogSize = diskStore.getMaxOplogSize();
+    var diskRecoveryStore = (DiskRecoveryStore) context;
+    var diskStore = diskRecoveryStore.getDiskStore();
+    var maxOplogSize = diskStore.getMaxOplogSize();
     // get appropriate instance of DiskId implementation based on maxOplogSize
     id = DiskId.createDiskId(maxOplogSize, true, diskStore.needsLinkedList());
     Helper.initialize(this, diskRecoveryStore, value);
@@ -188,8 +187,8 @@ public class VersionedStatsDiskLRURegionEntryHeapIntKey
   // DO NOT modify this class. It was generated from LeafRegionEntry.cpp
   @Override
   public void setDelayedDiskId(final DiskRecoveryStore diskRecoveryStore) {
-    DiskStoreImpl diskStore = diskRecoveryStore.getDiskStore();
-    long maxOplogSize = diskStore.getMaxOplogSize();
+    var diskStore = diskRecoveryStore.getDiskStore();
+    var maxOplogSize = diskStore.getMaxOplogSize();
     id = DiskId.createDiskId(maxOplogSize, false, diskStore.needsLinkedList());
   }
 
@@ -203,10 +202,10 @@ public class VersionedStatsDiskLRURegionEntryHeapIntKey
   @Override
   public synchronized int updateEntrySize(final EvictionController evictionController,
       final Object value) {
-    int oldSize = getEntrySize();
-    int newSize = evictionController.entrySize(getKeyForSizing(), value);
+    var oldSize = getEntrySize();
+    var newSize = evictionController.entrySize(getKeyForSizing(), value);
     setEntrySize(newSize);
-    int delta = newSize - oldSize;
+    var delta = newSize - oldSize;
     return delta;
   }
 
@@ -388,7 +387,7 @@ public class VersionedStatsDiskLRURegionEntryHeapIntKey
   @Override
   public void setVersions(final VersionTag versionTag) {
     memberId = versionTag.getMemberID();
-    int eVersion = versionTag.getEntryVersion();
+    var eVersion = versionTag.getEntryVersion();
     entryVersionLowBytes = (short) (eVersion & 0xffff);
     entryVersionHighByte = (byte) ((eVersion & 0xff0000) >> 16);
     regionVersionHighBytes = versionTag.getRegionVersionHighBytes();
@@ -419,7 +418,7 @@ public class VersionedStatsDiskLRURegionEntryHeapIntKey
   // DO NOT modify this class. It was generated from LeafRegionEntry.cpp
   @Override
   public VersionTag asVersionTag() {
-    VersionTag tag = VersionTag.create(memberId);
+    var tag = VersionTag.create(memberId);
     tag.setEntryVersion(getEntryVersion());
     tag.setRegionVersion(regionVersionHighBytes, regionVersionLowBytes);
     tag.setVersionTimeStamp(getVersionTimeStamp());

@@ -37,7 +37,7 @@ public class ObjectNamesRequest extends RegionAdminRequest implements Cancellabl
    * Returns a <code>ObjectNamesRequest</code> to be sent to the specified recipient.
    */
   public static ObjectNamesRequest create() {
-    ObjectNamesRequest m = new ObjectNamesRequest();
+    var m = new ObjectNamesRequest();
     return m;
   }
 

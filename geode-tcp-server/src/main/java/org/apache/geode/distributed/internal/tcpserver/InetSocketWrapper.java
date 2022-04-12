@@ -66,7 +66,7 @@ class InetSocketWrapper {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    InetSocketWrapper that = (InetSocketWrapper) o;
+    var that = (InetSocketWrapper) o;
     return Objects.equals(inetSocketAddress, that.inetSocketAddress);
   }
 

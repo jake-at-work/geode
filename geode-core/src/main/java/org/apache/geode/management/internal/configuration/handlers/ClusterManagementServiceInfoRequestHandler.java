@@ -19,11 +19,9 @@ import java.io.IOException;
 
 import org.apache.commons.lang3.StringUtils;
 
-import org.apache.geode.distributed.internal.DistributionConfigImpl;
 import org.apache.geode.distributed.internal.InternalLocator;
 import org.apache.geode.distributed.internal.tcpserver.TcpHandler;
 import org.apache.geode.distributed.internal.tcpserver.TcpServer;
-import org.apache.geode.internal.net.SSLConfig;
 import org.apache.geode.internal.net.SSLConfigurationFactory;
 import org.apache.geode.internal.security.SecurableCommunicationChannel;
 import org.apache.geode.management.internal.configuration.messages.ClusterManagementServiceInfo;
@@ -36,13 +34,13 @@ public class ClusterManagementServiceInfoRequestHandler implements TcpHandler {
       throw new IllegalArgumentException("invalid request type");
     }
 
-    ClusterManagementServiceInfo info = new ClusterManagementServiceInfo();
-    InternalLocator locator = InternalLocator.getLocator();
+    var info = new ClusterManagementServiceInfo();
+    var locator = InternalLocator.getLocator();
     if (locator.getClusterManagementService() == null) {
       return info;
     }
 
-    DistributionConfigImpl config = locator.getConfig();
+    var config = locator.getConfig();
     info.setHttpPort(config.getHttpServicePort());
 
     String hostName = null;
@@ -62,7 +60,7 @@ public class ClusterManagementServiceInfoRequestHandler implements TcpHandler {
       info.setSecured(true);
     }
 
-    SSLConfig sslConfig =
+    var sslConfig =
         SSLConfigurationFactory.getSSLConfigForComponent(config, SecurableCommunicationChannel.WEB);
     info.setSSL(sslConfig.isEnabled());
 

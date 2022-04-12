@@ -121,8 +121,8 @@ public class ConfigSource implements Serializable {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
+    final var prime = 31;
+    var result = 1;
     result = prime * result + ((description == null) ? 0 : description.hashCode());
     result = prime * result + ((type == null) ? 0 : type.hashCode());
     return result;
@@ -139,7 +139,7 @@ public class ConfigSource implements Serializable {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    ConfigSource other = (ConfigSource) obj;
+    var other = (ConfigSource) obj;
 
     return (type == other.type && description.equals(other.description));
   }

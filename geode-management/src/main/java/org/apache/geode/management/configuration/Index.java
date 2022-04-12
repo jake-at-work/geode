@@ -85,7 +85,7 @@ public class Index extends AbstractConfiguration<IndexInfo> implements RegionSco
       return null;
     }
 
-    String regionName = regionPath.trim().split(" ")[0];
+    var regionName = regionPath.trim().split(" ")[0];
     regionName = StringUtils.removeStart(regionName, SEPARATOR);
     if (regionName.contains(".")) {
       regionName = regionName.substring(0, regionName.indexOf('.'));
@@ -105,13 +105,13 @@ public class Index extends AbstractConfiguration<IndexInfo> implements RegionSco
 
   @Override
   public Links getLinks() {
-    String regionName = getRegionName();
+    var regionName = getRegionName();
     // /indexes/indexName is not implemented in controller anymore. region name is required for the
     // self link
     if (StringUtils.isBlank(regionName)) {
       return new Links(null, INDEXES);
     }
-    Links links = new Links(getId(), Region.REGION_CONFIG_ENDPOINT + "/" + regionName + INDEXES);
+    var links = new Links(getId(), Region.REGION_CONFIG_ENDPOINT + "/" + regionName + INDEXES);
     links.addLink("region", Region.REGION_CONFIG_ENDPOINT + "/" + regionName);
     return links;
   }
@@ -125,7 +125,7 @@ public class Index extends AbstractConfiguration<IndexInfo> implements RegionSco
       return false;
     }
 
-    Index index = (Index) o;
+    var index = (Index) o;
 
     if (!Objects.equals(name, index.name)) {
       return false;
@@ -141,7 +141,7 @@ public class Index extends AbstractConfiguration<IndexInfo> implements RegionSco
 
   @Override
   public int hashCode() {
-    int result = name != null ? name.hashCode() : 0;
+    var result = name != null ? name.hashCode() : 0;
     result = 31 * result + (expression != null ? expression.hashCode() : 0);
     result = 31 * result + (regionPath != null ? regionPath.hashCode() : 0);
     result = 31 * result + (indexType != null ? indexType.hashCode() : 0);

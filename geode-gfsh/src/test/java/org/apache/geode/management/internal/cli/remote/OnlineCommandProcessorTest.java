@@ -46,7 +46,7 @@ public class OnlineCommandProcessorTest {
   @Before
   public void before() {
     securityService = mock(SecurityService.class);
-    GfshParser gfshParser = new GfshParser(new CommandManager(new Properties(), null));
+    var gfshParser = new GfshParser(new CommandManager(new Properties(), null));
     executor = mock(CommandExecutor.class);
     result = mock(ResultModel.class);
     when(executor.execute(any())).thenReturn(result);
@@ -74,7 +74,7 @@ public class OnlineCommandProcessorTest {
 
   @Test
   public void executeReturnsExecutorResult() {
-    ResultModel commandResult = onlineCommandProcessor.executeCommand("start locator");
+    var commandResult = onlineCommandProcessor.executeCommand("start locator");
     assertThat(commandResult).isSameAs(result);
   }
 
@@ -87,7 +87,7 @@ public class OnlineCommandProcessorTest {
 
   @Test
   public void handlesParsingError() {
-    ResultModel commandResult = onlineCommandProcessor.executeCommand("foo --bar");
+    var commandResult = onlineCommandProcessor.executeCommand("foo --bar");
     assertThat(commandResult).isInstanceOf(ResultModel.class);
     assertThat(commandResult.toString())
         .contains("Could not parse command string. foo --bar")

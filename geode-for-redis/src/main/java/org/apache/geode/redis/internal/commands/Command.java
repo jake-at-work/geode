@@ -70,8 +70,8 @@ public class Command {
 
     RedisCommandType type;
     try {
-      byte[] charCommand = commandElems.get(0);
-      String commandName = bytesToString(charCommand).toUpperCase();
+      var charCommand = commandElems.get(0);
+      var commandName = bytesToString(charCommand).toUpperCase();
       type = RedisCommandType.valueOf(commandName);
     } catch (Exception e) {
       type = RedisCommandType.UNKNOWN;
@@ -181,8 +181,8 @@ public class Command {
     if (commandType.equals(RedisCommandType.AUTH)) {
       return "AUTH command with " + (commandElems.size() - 1) + " argument(s)";
     } else {
-      StringBuilder b = new StringBuilder();
-      for (byte[] rawCommand : commandElems) {
+      var b = new StringBuilder();
+      for (var rawCommand : commandElems) {
         b.append(getHexEncodedString(rawCommand));
         b.append(' ');
       }
@@ -195,9 +195,9 @@ public class Command {
   }
 
   public static String getHexEncodedString(byte[] data, int size) {
-    StringBuilder builder = new StringBuilder();
-    for (int i = 0; i < size; i++) {
-      byte aByte = data[i];
+    var builder = new StringBuilder();
+    for (var i = 0; i < size; i++) {
+      var aByte = data[i];
       if (aByte > 31 && aByte < 127) {
         builder.append((char) aByte);
       } else {
@@ -215,7 +215,7 @@ public class Command {
   }
 
   public RedisResponse execute(ExecutionHandlerContext executionHandlerContext) throws Exception {
-    RedisCommandType type = getCommandType();
+    var type = getCommandType();
     return type.executeCommand(this, executionHandlerContext);
   }
 

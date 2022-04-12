@@ -70,10 +70,10 @@ public abstract class ClusterConfigTestBase {
   }
 
   private String buildClusterZipFile() throws Exception {
-    File clusterConfigDir = temporaryFolder.newFolder("cluster_config");
+    var clusterConfigDir = temporaryFolder.newFolder("cluster_config");
 
-    File clusterDir = new File(clusterConfigDir, "cluster");
-    String clusterXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
+    var clusterDir = new File(clusterConfigDir, "cluster");
+    var clusterXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
         + "<cache xmlns=\"http://geode.apache.org/schema/cache\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" copy-on-read=\"false\" is-server=\"false\" lock-lease=\"120\" lock-timeout=\"60\" search-timeout=\"300\" version=\"1.0\" xsi:schemaLocation=\"http://geode.apache.org/schema/cache http://geode.apache.org/schema/cache/cache-1.0.xsd\">\n"
         + "<region name=\"regionForCluster\">\n"
         + "    <region-attributes data-policy=\"replicate\" scope=\"distributed-ack\"/>\n"
@@ -82,8 +82,8 @@ public abstract class ClusterConfigTestBase {
     writeFile(clusterDir, "cluster.properties", "log-file-size-limit=5000");
     createJarFileWithClass("Cluster", "cluster.jar", clusterDir);
 
-    File group1Dir = new File(clusterConfigDir, "group1");
-    String group1Xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
+    var group1Dir = new File(clusterConfigDir, "group1");
+    var group1Xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
         + "<cache xmlns=\"http://geode.apache.org/schema/cache\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" copy-on-read=\"false\" is-server=\"false\" lock-lease=\"120\" lock-timeout=\"60\" search-timeout=\"300\" version=\"1.0\" xsi:schemaLocation=\"http://geode.apache.org/schema/cache http://geode.apache.org/schema/cache/cache-1.0.xsd\">\n"
         + "<region name=\"regionForGroup1\">\n"
         + "    <region-attributes data-policy=\"replicate\" scope=\"distributed-ack\"/>\n"
@@ -92,9 +92,8 @@ public abstract class ClusterConfigTestBase {
     writeFile(group1Dir, "group1.properties", "log-file-size-limit=6000");
     createJarFileWithClass("Group1", "group1.jar", group1Dir);
 
-
-    File group2Dir = new File(clusterConfigDir, "group2");
-    String group2Xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
+    var group2Dir = new File(clusterConfigDir, "group2");
+    var group2Xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
         + "<cache xmlns=\"http://geode.apache.org/schema/cache\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" copy-on-read=\"false\" is-server=\"false\" lock-lease=\"120\" lock-timeout=\"60\" search-timeout=\"300\" version=\"1.0\" xsi:schemaLocation=\"http://geode.apache.org/schema/cache http://geode.apache.org/schema/cache/cache-1.0.xsd\">\n"
         + "<region name=\"regionForGroup2\">\n"
         + "    <region-attributes data-policy=\"replicate\" scope=\"distributed-ack\"/>\n"
@@ -103,8 +102,7 @@ public abstract class ClusterConfigTestBase {
     writeFile(group2Dir, "group2.properties", "log-file-size-limit=7000");
     createJarFileWithClass("Group2", "group2.jar", group2Dir);
 
-
-    File clusterConfigZip = new File(temporaryFolder.newFolder(), "cluster_config.zip");
+    var clusterConfigZip = new File(temporaryFolder.newFolder(), "cluster_config.zip");
     ZipUtils.zipDirectory(clusterConfigDir.getCanonicalPath(), clusterConfigZip.getCanonicalPath());
 
     FileUtils.deleteDirectory(clusterConfigDir);
@@ -113,7 +111,7 @@ public abstract class ClusterConfigTestBase {
 
   private File writeFile(File dir, String fileName, String content) throws IOException {
     dir.mkdirs();
-    File file = new File(dir, fileName);
+    var file = new File(dir, fileName);
     FileUtils.writeStringToFile(file, content);
 
     return file;
@@ -121,7 +119,7 @@ public abstract class ClusterConfigTestBase {
 
   protected static String createJarFileWithClass(String className, String jarName, File dir)
       throws IOException {
-    File jarFile = new File(dir, jarName);
+    var jarFile = new File(dir, jarName);
     new ClassBuilder().writeJarFromName(className, jarFile);
     return jarFile.getCanonicalPath();
   }

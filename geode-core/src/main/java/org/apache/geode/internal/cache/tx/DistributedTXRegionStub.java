@@ -36,7 +36,6 @@ import org.apache.geode.internal.cache.tier.sockets.ClientProxyMembershipID;
 import org.apache.geode.internal.cache.tier.sockets.VersionedObjectList;
 import org.apache.geode.internal.cache.tx.RemoteContainsKeyValueMessage.RemoteContainsKeyValueResponse;
 import org.apache.geode.internal.cache.tx.RemoteOperationMessage.RemoteOperationResponse;
-import org.apache.geode.internal.cache.tx.RemotePutMessage.PutResult;
 import org.apache.geode.internal.cache.tx.RemotePutMessage.RemotePutResponse;
 
 public class DistributedTXRegionStub extends AbstractPeerTXRegionStub {
@@ -53,7 +52,7 @@ public class DistributedTXRegionStub extends AbstractPeerTXRegionStub {
   public void destroyExistingEntry(EntryEventImpl event, boolean cacheWrite,
       Object expectedOldValue) {
     try {
-      RemoteOperationResponse response = sendRemoteDestroyMessage(event, expectedOldValue);
+      var response = sendRemoteDestroyMessage(event, expectedOldValue);
       response.waitForRemoteResponse();
     } catch (RegionDestroyedException rde) {
       throw new TransactionDataNotColocatedException(
@@ -76,7 +75,7 @@ public class DistributedTXRegionStub extends AbstractPeerTXRegionStub {
   public Entry getEntry(KeyInfo keyInfo, boolean allowTombstone) {
     try {
       // TODO change RemoteFetchEntryMessage to allow tombstones to be returned
-      RemoteFetchEntryMessage.FetchEntryResponse res = sendRemoteFetchEntryMessage(
+      var res = sendRemoteFetchEntryMessage(
           (InternalDistributedMember) state.getTarget(), region, keyInfo.getKey());
       return res.waitForResponse();
     } catch (EntryNotFoundException enfe) {
@@ -103,7 +102,7 @@ public class DistributedTXRegionStub extends AbstractPeerTXRegionStub {
   public void invalidateExistingEntry(EntryEventImpl event, boolean invokeCallbacks,
       boolean forceNewEntry) {
     try {
-      RemoteOperationResponse response = sendRemoteInvalidateMessage(state.getTarget(), event);
+      var response = sendRemoteInvalidateMessage(state.getTarget(), event);
       response.waitForRemoteResponse();
     } catch (RegionDestroyedException rde) {
       throw new TransactionDataNotColocatedException(
@@ -124,7 +123,7 @@ public class DistributedTXRegionStub extends AbstractPeerTXRegionStub {
   @Override
   public boolean containsKey(KeyInfo keyInfo) {
     try {
-      RemoteContainsKeyValueResponse response = sendRemoteContainsKeyValueMessage(
+      var response = sendRemoteContainsKeyValueMessage(
           (InternalDistributedMember) state.getTarget(), keyInfo.getKey(), false);
       return response.waitForContainsResult();
     } catch (RegionDestroyedException rde) {
@@ -140,7 +139,7 @@ public class DistributedTXRegionStub extends AbstractPeerTXRegionStub {
   @Override
   public boolean containsValueForKey(KeyInfo keyInfo) {
     try {
-      RemoteContainsKeyValueResponse response = sendRemoteContainsKeyValueMessage(
+      var response = sendRemoteContainsKeyValueMessage(
           (InternalDistributedMember) state.getTarget(), keyInfo.getKey(), true);
       return response.waitForContainsResult();
     } catch (RegionDestroyedException rde) {
@@ -164,10 +163,10 @@ public class DistributedTXRegionStub extends AbstractPeerTXRegionStub {
       Object value, boolean preferCD, ClientProxyMembershipID requestingClient,
       EntryEventImpl clientEvent) {
     Object retVal;
-    final Object key = keyInfo.getKey();
-    final Object callbackArgument = keyInfo.getCallbackArg();
+    final var key = keyInfo.getKey();
+    final var callbackArgument = keyInfo.getCallbackArg();
     try {
-      RemoteGetMessage.RemoteGetResponse response = sendRemoteGetMessage(
+      var response = sendRemoteGetMessage(
           (InternalDistributedMember) state.getTarget(), key, callbackArgument, requestingClient);
       retVal = response.waitForResponse(preferCD);
     } catch (RegionDestroyedException rde) {
@@ -199,12 +198,12 @@ public class DistributedTXRegionStub extends AbstractPeerTXRegionStub {
       Object expectedOldValue, boolean requireOldValue, long lastModified,
       boolean overwriteDestroyed) {
     boolean retVal;
-    final InternalRegion r = event.getRegion();
+    final var r = event.getRegion();
 
     try {
-      RemotePutResponse response = txSendRemotePutMessage(state.getTarget(), r, event,
+      var response = txSendRemotePutMessage(state.getTarget(), r, event,
           lastModified, ifNew, ifOld, expectedOldValue, requireOldValue);
-      PutResult result = response.waitForResult();
+      var result = response.waitForResult();
       event.setOldValue(result.oldValue, true/* force */);
       retVal = result.returnValue;
     } catch (TransactionDataNotColocatedException enfe) {
@@ -231,7 +230,7 @@ public class DistributedTXRegionStub extends AbstractPeerTXRegionStub {
   public void postPutAll(DistributedPutAllOperation putallOp, VersionedObjectList successfulPuts,
       InternalRegion region) {
     try {
-      RemotePutAllMessage.PutAllResponse response =
+      var response =
           sendRemotePutAllMessage(state.getTarget(), putallOp.getBaseEvent(),
               putallOp.getPutAllEntryData(), putallOp.getPutAllEntryData().length);
       response.waitForRemoteResponse();
@@ -257,7 +256,7 @@ public class DistributedTXRegionStub extends AbstractPeerTXRegionStub {
   public void postRemoveAll(DistributedRemoveAllOperation op, VersionedObjectList successfulOps,
       InternalRegion region) {
     try {
-      RemoteRemoveAllMessage.RemoveAllResponse response =
+      var response =
           sendRemoteRemoveAllMessage(state.getTarget(), op.getBaseEvent(),
               op.getRemoveAllEntryData(), op.getRemoveAllEntryData().length);
       response.waitForRemoteResponse();

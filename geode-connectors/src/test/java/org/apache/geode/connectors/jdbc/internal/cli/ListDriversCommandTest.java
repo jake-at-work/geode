@@ -32,7 +32,6 @@ import org.junit.Test;
 
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.management.cli.Result;
-import org.apache.geode.management.internal.cli.result.model.ResultModel;
 import org.apache.geode.management.internal.functions.CliFunctionResult;
 
 public class ListDriversCommandTest {
@@ -62,7 +61,7 @@ public class ListDriversCommandTest {
         "{Driver.Class.One, Driver.Class.Two, Driver.Class.Three}");
     resultList.add(result);
 
-    ResultModel resultModel = command.listDrivers(null);
+    var resultModel = command.listDrivers(null);
 
     assertThat(resultModel.toString()).contains("Driver.Class.One").contains("Driver.Class.Two")
         .contains("Driver.Class.Three");
@@ -81,7 +80,7 @@ public class ListDriversCommandTest {
         "{Driver.Class.One, Driver.Class.Two, Driver.Class.Three}");
     resultList.add(result);
 
-    ResultModel resultModel = command.listDrivers("Server 1");
+    var resultModel = command.listDrivers("Server 1");
 
     assertThat(resultModel.toString()).contains("Driver.Class.One").contains("Driver.Class.Two")
         .contains("Driver.Class.Three").contains("Server 1");
@@ -92,7 +91,7 @@ public class ListDriversCommandTest {
   @Test
   public void testListDriverReturnsErrorWhenNoMembers() {
     when(memberSet.size()).thenReturn(0);
-    ResultModel resultModel = command.listDrivers(null);
+    var resultModel = command.listDrivers(null);
 
     assertThat(resultModel.toString()).contains(NO_MEMBERS_FOUND);
   }
@@ -100,13 +99,13 @@ public class ListDriversCommandTest {
   @Test
   public void testListDriverReturnsWhenFunctionFailsToExecute() {
     when(memberSet.size()).thenReturn(1);
-    String errorMessage = "Error message";
+    var errorMessage = "Error message";
 
     result = new CliFunctionResult("Server 1", CliFunctionResult.StatusState.ERROR,
         errorMessage);
     resultList.add(result);
 
-    ResultModel resultModel = command.listDrivers(null);
+    var resultModel = command.listDrivers(null);
 
     assertThat(resultModel.toString()).contains(errorMessage);
     assertThat(resultModel.getStatus()).isEqualTo(Result.Status.ERROR);
@@ -114,7 +113,7 @@ public class ListDriversCommandTest {
 
   @Test
   public void testListDriverWithInvalidMemberNameReportsError() {
-    String badMemberName = "Bad Member Name";
+    var badMemberName = "Bad Member Name";
     when(memberSet.size()).thenReturn(1);
     List<String> driverNames = new ArrayList<>();
     driverNames.add("Driver.Class.One");
@@ -124,7 +123,7 @@ public class ListDriversCommandTest {
         "{Driver.Class.One, Driver.Class.Two, Driver.Class.Three}");
     resultList.add(result);
 
-    ResultModel resultModel = command.listDrivers(badMemberName);
+    var resultModel = command.listDrivers(badMemberName);
 
     assertThat(resultModel.toString()).contains("No member found with name: " + badMemberName);
 

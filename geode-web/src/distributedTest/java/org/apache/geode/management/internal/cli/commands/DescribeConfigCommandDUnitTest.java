@@ -29,11 +29,7 @@ import org.junit.experimental.categories.Category;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 
-import org.apache.geode.distributed.internal.DistributionConfig;
-import org.apache.geode.distributed.internal.InternalDistributedSystem;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.categories.GfshTest;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
 import org.apache.geode.test.junit.runners.GeodeParamsRunner;
@@ -53,11 +49,11 @@ public class DescribeConfigCommandDUnitTest {
   @Test
   @Parameters({"true", "false"})
   public void testDescribeConfig(final boolean connectOverHttp) throws Exception {
-    Properties localProps = new Properties();
+    var localProps = new Properties();
     localProps.setProperty(STATISTIC_SAMPLING_ENABLED, "true");
     localProps.setProperty(ENABLE_TIME_STATISTICS, "true");
     localProps.setProperty(GROUPS, "G1");
-    MemberVM server0 =
+    var server0 =
         startupRule.startServerVM(0,
             x -> x.withProperties(localProps).withJMXManager().withHttpService());
 
@@ -68,14 +64,14 @@ public class DescribeConfigCommandDUnitTest {
     }
 
     server0.invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
-      InternalDistributedSystem system = cache.getInternalDistributedSystem();
-      DistributionConfig config = system.getConfig();
+      var cache = ClusterStartupRule.getCache();
+      var system = cache.getInternalDistributedSystem();
+      var config = system.getConfig();
       config.setArchiveFileSizeLimit(1000);
     });
 
     gfsh.executeAndAssertThat("describe config --member=" + server0.getName()).statusIsSuccess();
-    String result = gfsh.getGfshOutput();
+    var result = gfsh.getGfshOutput();
 
     assertThat(result).containsPattern("enable-time-statistics\\s+: true");
     assertThat(result).containsPattern("groups\\s+: G1");

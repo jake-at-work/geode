@@ -28,11 +28,11 @@ public class DeposePrimaryBucketMessageTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    DeposePrimaryBucketMessage mockDeposePrimaryBucketMessage =
+    var mockDeposePrimaryBucketMessage =
         mock(DeposePrimaryBucketMessage.class);
-    ClusterDistributionManager mockDistributionManager = mock(ClusterDistributionManager.class);
-    PartitionedRegion mockPartitionedRegion = mock(PartitionedRegion.class);
-    long startTime = System.currentTimeMillis();
+    var mockDistributionManager = mock(ClusterDistributionManager.class);
+    var mockPartitionedRegion = mock(PartitionedRegion.class);
+    var startTime = System.currentTimeMillis();
     when(mockDeposePrimaryBucketMessage.operateOnPartitionedRegion(eq(mockDistributionManager),
         eq(mockPartitionedRegion), eq(startTime))).thenReturn(true);
     assertThat(mockDeposePrimaryBucketMessage.operateOnPartitionedRegion(mockDistributionManager,

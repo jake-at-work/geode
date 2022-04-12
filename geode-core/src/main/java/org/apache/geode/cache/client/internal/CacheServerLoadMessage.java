@@ -27,7 +27,6 @@ import org.apache.geode.distributed.internal.ClusterDistributionManager;
 import org.apache.geode.distributed.internal.InternalLocator;
 import org.apache.geode.distributed.internal.SerialDistributionMessage;
 import org.apache.geode.distributed.internal.ServerLocation;
-import org.apache.geode.distributed.internal.ServerLocator;
 import org.apache.geode.internal.InternalDataSerializer;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
@@ -63,9 +62,9 @@ public class CacheServerLoadMessage extends SerialDistributionMessage {
 
   public void updateLocalLocators() {
     List locators = Locator.getLocators();
-    for (Object locator : locators) {
-      InternalLocator l = (InternalLocator) locator;
-      ServerLocator serverLocator = l.getServerLocatorAdvisee();
+    for (var locator : locators) {
+      var l = (InternalLocator) locator;
+      var serverLocator = l.getServerLocatorAdvisee();
       if (serverLocator != null) {
         serverLocator.updateLoad(location, getSender().getUniqueId(), load, clientIds);
       }

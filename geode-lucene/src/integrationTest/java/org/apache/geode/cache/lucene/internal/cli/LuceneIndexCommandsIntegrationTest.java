@@ -42,10 +42,8 @@ import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.lucene.LuceneIndex;
 import org.apache.geode.cache.lucene.LuceneQuery;
 import org.apache.geode.cache.lucene.LuceneQueryException;
-import org.apache.geode.cache.lucene.LuceneService;
 import org.apache.geode.cache.lucene.LuceneServiceProvider;
 import org.apache.geode.cache.lucene.internal.LuceneIndexCreationProfile;
 import org.apache.geode.cache.lucene.internal.LuceneIndexImpl;
@@ -53,10 +51,8 @@ import org.apache.geode.cache.lucene.internal.LuceneServiceImpl;
 import org.apache.geode.cache.lucene.internal.repository.serializer.PrimitiveSerializer;
 import org.apache.geode.distributed.ConfigurationProperties;
 import org.apache.geode.management.cli.Result.Status;
-import org.apache.geode.management.internal.cli.result.CommandResult;
 import org.apache.geode.management.internal.cli.util.CommandStringBuilder;
 import org.apache.geode.management.internal.i18n.CliStrings;
-import org.apache.geode.test.junit.assertions.CommandResultAssert;
 import org.apache.geode.test.junit.categories.LuceneTest;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
 import org.apache.geode.test.junit.rules.ServerStarterRule;
@@ -92,7 +88,7 @@ public class LuceneIndexCommandsIntegrationTest {
   public void listIndexShouldReturnExistingIndexWithStats() throws Exception {
     createIndex();
 
-    CommandStringBuilder csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_LIST_INDEX);
+    var csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_LIST_INDEX);
     csb.addOption(LuceneCliStrings.LUCENE_LIST_INDEX__STATS, "true");
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess()
         .tableHasColumnWithExactValuesInAnyOrder("Documents", "0")
@@ -102,14 +98,14 @@ public class LuceneIndexCommandsIntegrationTest {
   @Test
   public void listIndexShouldReturnExistingIndexWithoutStats() throws Exception {
     createIndex();
-    CommandStringBuilder csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_LIST_INDEX);
+    var csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_LIST_INDEX);
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess().containsOutput(INDEX_NAME)
         .doesNotContainOutput("Documents");
   }
 
   @Test
   public void listIndexWhenNoExistingIndexShouldReturnNoIndex() throws Exception {
-    CommandStringBuilder csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_LIST_INDEX);
+    var csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_LIST_INDEX);
     gfsh.executeAndAssertThat(csb.toString()).containsOutput("No lucene indexes found");
   }
 
@@ -117,7 +113,7 @@ public class LuceneIndexCommandsIntegrationTest {
   public void listIndexShouldReturnCorrectStatus() throws Exception {
     createIndexWithoutRegion();
 
-    CommandStringBuilder csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_LIST_INDEX);
+    var csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_LIST_INDEX);
     csb.addOption(LuceneCliStrings.LUCENE_LIST_INDEX__STATS, "true");
 
     gfsh.executeAndAssertThat(csb.toString())
@@ -135,10 +131,10 @@ public class LuceneIndexCommandsIntegrationTest {
     putEntries(entries, 2);
     queryAndVerify("field1:value1", "field1");
 
-    CommandStringBuilder csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_LIST_INDEX);
+    var csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_LIST_INDEX);
     csb.addOption(LuceneCliStrings.LUCENE_LIST_INDEX__STATS, "true");
 
-    CommandResult result = gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess()
+    var result = gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess()
         .tableHasColumnOnlyWithValues("Index Name", INDEX_NAME)
         .tableHasColumnOnlyWithValues("Status", "INITIALIZED")
         .tableHasColumnOnlyWithValues("Region Path", SEPARATOR + "region")
@@ -146,7 +142,7 @@ public class LuceneIndexCommandsIntegrationTest {
         .getCommandResult();
 
     // the document count could be greater than 2
-    List<String> documents =
+    var documents =
         result.getResultData().getTableSections().get(0).getValuesInColumn("Documents");
     assertThat(documents).hasSize(1);
     assertThat(Integer.parseInt(documents.get(0))).isGreaterThanOrEqualTo(2);
@@ -155,7 +151,7 @@ public class LuceneIndexCommandsIntegrationTest {
 
   @Test
   public void createIndexShouldCreateANewIndex() {
-    CommandStringBuilder csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_CREATE_INDEX);
+    var csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_CREATE_INDEX);
     csb.addOption(LuceneCliStrings.LUCENE__INDEX_NAME, INDEX_NAME);
     csb.addOption(LuceneCliStrings.LUCENE__REGION_PATH, REGION_NAME);
     csb.addOption(LuceneCliStrings.LUCENE_CREATE_INDEX__FIELD, "field1,field2,field3");
@@ -165,8 +161,8 @@ public class LuceneIndexCommandsIntegrationTest {
 
     createRegion();
 
-    LuceneService luceneService = LuceneServiceProvider.get(server.getCache());
-    final LuceneIndex index = luceneService.getIndex(INDEX_NAME, REGION_NAME);
+    var luceneService = LuceneServiceProvider.get(server.getCache());
+    final var index = luceneService.getIndex(INDEX_NAME, REGION_NAME);
     assertArrayEquals(new String[] {"field1", "field2", "field3"}, index.getFieldNames());
   }
 
@@ -177,7 +173,7 @@ public class LuceneIndexCommandsIntegrationTest {
     analyzerNames.add(KeywordAnalyzer.class.getCanonicalName());
     analyzerNames.add(StandardAnalyzer.class.getCanonicalName());
 
-    CommandStringBuilder csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_CREATE_INDEX);
+    var csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_CREATE_INDEX);
     csb.addOption(LuceneCliStrings.LUCENE__INDEX_NAME, INDEX_NAME);
     csb.addOption(LuceneCliStrings.LUCENE__REGION_PATH, REGION_NAME);
     csb.addOption(LuceneCliStrings.LUCENE_CREATE_INDEX__FIELD, "field1,field2,field3");
@@ -188,9 +184,9 @@ public class LuceneIndexCommandsIntegrationTest {
 
     createRegion();
 
-    LuceneService luceneService = LuceneServiceProvider.get(server.getCache());
-    final LuceneIndex index = luceneService.getIndex(INDEX_NAME, REGION_NAME);
-    final Map<String, Analyzer> fieldAnalyzers = index.getFieldAnalyzers();
+    var luceneService = LuceneServiceProvider.get(server.getCache());
+    final var index = luceneService.getIndex(INDEX_NAME, REGION_NAME);
+    final var fieldAnalyzers = index.getFieldAnalyzers();
     assertEquals(StandardAnalyzer.class, fieldAnalyzers.get("field1").getClass());
     assertEquals(KeywordAnalyzer.class, fieldAnalyzers.get("field2").getClass());
     assertEquals(StandardAnalyzer.class, fieldAnalyzers.get("field3").getClass());
@@ -199,7 +195,7 @@ public class LuceneIndexCommandsIntegrationTest {
 
   @Test
   public void createIndexWithALuceneSerializerShouldCreateANewIndex() {
-    CommandStringBuilder csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_CREATE_INDEX);
+    var csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_CREATE_INDEX);
     csb.addOption(LuceneCliStrings.LUCENE__INDEX_NAME, INDEX_NAME);
     csb.addOption(LuceneCliStrings.LUCENE__REGION_PATH, REGION_NAME);
     csb.addOption(LuceneCliStrings.LUCENE_CREATE_INDEX__FIELD, "field1,field2,field3");
@@ -211,15 +207,15 @@ public class LuceneIndexCommandsIntegrationTest {
 
     createRegion();
 
-    LuceneService luceneService = LuceneServiceProvider.get(server.getCache());
-    final LuceneIndex index = luceneService.getIndex(INDEX_NAME, REGION_NAME);
+    var luceneService = LuceneServiceProvider.get(server.getCache());
+    final var index = luceneService.getIndex(INDEX_NAME, REGION_NAME);
     assertThat(index.getLuceneSerializer()).isInstanceOf(PrimitiveSerializer.class);
 
   }
 
   @Test
   public void createIndexShouldNotAcceptBadIndexOrRegionNames() {
-    CommandStringBuilder csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_CREATE_INDEX);
+    var csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_CREATE_INDEX);
     csb.addOption(LuceneCliStrings.LUCENE__INDEX_NAME, INDEX_NAME);
     csb.addOption(LuceneCliStrings.LUCENE__REGION_PATH, "'__'");
     csb.addOption(LuceneCliStrings.LUCENE_CREATE_INDEX__FIELD, "field1,field2,field3");
@@ -259,7 +255,7 @@ public class LuceneIndexCommandsIntegrationTest {
     analyzerNames.add(KeywordAnalyzer.class.getCanonicalName());
     analyzerNames.add(StandardAnalyzer.class.getCanonicalName());
 
-    CommandStringBuilder csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_CREATE_INDEX);
+    var csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_CREATE_INDEX);
     csb.addOption(LuceneCliStrings.LUCENE__INDEX_NAME, INDEX_NAME);
     csb.addOption(LuceneCliStrings.LUCENE__REGION_PATH, REGION_NAME);
     csb.addOption(LuceneCliStrings.LUCENE_CREATE_INDEX__FIELD, "field1,field2,field3");
@@ -271,9 +267,9 @@ public class LuceneIndexCommandsIntegrationTest {
 
     createRegion();
 
-    LuceneService luceneService = LuceneServiceProvider.get(server.getCache());
-    final LuceneIndex index = luceneService.getIndex(INDEX_NAME, REGION_NAME);
-    final Map<String, Analyzer> fieldAnalyzers = index.getFieldAnalyzers();
+    var luceneService = LuceneServiceProvider.get(server.getCache());
+    final var index = luceneService.getIndex(INDEX_NAME, REGION_NAME);
+    final var fieldAnalyzers = index.getFieldAnalyzers();
     assertEquals(StandardAnalyzer.class, fieldAnalyzers.get("field1").getClass());
     assertEquals(KeywordAnalyzer.class, fieldAnalyzers.get("field2").getClass());
     assertEquals(StandardAnalyzer.class, fieldAnalyzers.get("field3").getClass());
@@ -281,17 +277,17 @@ public class LuceneIndexCommandsIntegrationTest {
 
   @Test
   public void createIndexWithoutRegionShouldReturnCorrectResults() throws Exception {
-    CommandStringBuilder csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_CREATE_INDEX);
+    var csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_CREATE_INDEX);
     csb.addOption(LuceneCliStrings.LUCENE__INDEX_NAME, INDEX_NAME);
     csb.addOption(LuceneCliStrings.LUCENE__REGION_PATH, REGION_NAME);
     csb.addOption(LuceneCliStrings.LUCENE_CREATE_INDEX__FIELD, "field1,field2,field3");
 
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess();
 
-    LuceneServiceImpl luceneService =
+    var luceneService =
         (LuceneServiceImpl) LuceneServiceProvider.get(server.getCache());
-    final ArrayList<LuceneIndexCreationProfile> profiles =
-        new ArrayList<>(luceneService.getAllDefinedIndexes());
+    final var profiles =
+        new ArrayList<LuceneIndexCreationProfile>(luceneService.getAllDefinedIndexes());
     assertEquals(1, profiles.size());
     assertEquals(INDEX_NAME, profiles.get(0).getIndexName());
   }
@@ -299,9 +295,9 @@ public class LuceneIndexCommandsIntegrationTest {
   @Test
   public void createIndexWithWhitespaceOrDefaultKeywordAnalyzerShouldUseStandardAnalyzer() {
     // Test whitespace analyzer name
-    String analyzerList = StandardAnalyzer.class.getCanonicalName() + ",     ,"
+    var analyzerList = StandardAnalyzer.class.getCanonicalName() + ",     ,"
         + KeywordAnalyzer.class.getCanonicalName();
-    CommandStringBuilder csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_CREATE_INDEX);
+    var csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_CREATE_INDEX);
     csb.addOption(LuceneCliStrings.LUCENE__INDEX_NAME, "space");
     csb.addOption(LuceneCliStrings.LUCENE__REGION_PATH, REGION_NAME);
     csb.addOption(LuceneCliStrings.LUCENE_CREATE_INDEX__FIELD, "field1,field2,field3");
@@ -334,16 +330,16 @@ public class LuceneIndexCommandsIntegrationTest {
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess()
         .containsOutput("Successfully created lucene index");
 
-    LuceneService luceneService = LuceneServiceProvider.get(server.getCache());
+    var luceneService = LuceneServiceProvider.get(server.getCache());
     createRegion();
-    final LuceneIndex spaceIndex = luceneService.getIndex("space", REGION_NAME);
-    final Map<String, Analyzer> spaceFieldAnalyzers = spaceIndex.getFieldAnalyzers();
+    final var spaceIndex = luceneService.getIndex("space", REGION_NAME);
+    final var spaceFieldAnalyzers = spaceIndex.getFieldAnalyzers();
 
-    final LuceneIndex emptyIndex = luceneService.getIndex("empty", REGION_NAME);
-    final Map<String, Analyzer> emptyFieldAnalyzers2 = emptyIndex.getFieldAnalyzers();
+    final var emptyIndex = luceneService.getIndex("empty", REGION_NAME);
+    final var emptyFieldAnalyzers2 = emptyIndex.getFieldAnalyzers();
 
-    final LuceneIndex keywordIndex = luceneService.getIndex("keyword", REGION_NAME);
-    final Map<String, Analyzer> keywordFieldAnalyzers = keywordIndex.getFieldAnalyzers();
+    final var keywordIndex = luceneService.getIndex("keyword", REGION_NAME);
+    final var keywordFieldAnalyzers = keywordIndex.getFieldAnalyzers();
 
     // Test whitespace analyzers
     assertEquals(StandardAnalyzer.class.getCanonicalName(),
@@ -375,7 +371,7 @@ public class LuceneIndexCommandsIntegrationTest {
   public void describeIndexShouldReturnExistingIndex() throws Exception {
     createIndex();
 
-    CommandStringBuilder csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_DESCRIBE_INDEX);
+    var csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_DESCRIBE_INDEX);
     csb.addOption(LuceneCliStrings.LUCENE__INDEX_NAME, INDEX_NAME);
     csb.addOption(LuceneCliStrings.LUCENE__REGION_PATH, REGION_NAME);
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess().containsOutput(INDEX_NAME);
@@ -383,7 +379,7 @@ public class LuceneIndexCommandsIntegrationTest {
 
   @Test
   public void describeIndexShouldShowSerializer() throws Exception {
-    CommandStringBuilder csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_CREATE_INDEX);
+    var csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_CREATE_INDEX);
     csb.addOption(LuceneCliStrings.LUCENE__INDEX_NAME, INDEX_NAME);
     csb.addOption(LuceneCliStrings.LUCENE__REGION_PATH, REGION_NAME);
     csb.addOption(LuceneCliStrings.LUCENE_CREATE_INDEX__FIELD, "field1,field2,field3");
@@ -404,7 +400,7 @@ public class LuceneIndexCommandsIntegrationTest {
   public void describeIndexShouldNotReturnResultWhenIndexNotFound() throws Exception {
     createIndex();
 
-    CommandStringBuilder csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_DESCRIBE_INDEX);
+    var csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_DESCRIBE_INDEX);
     csb.addOption(LuceneCliStrings.LUCENE__INDEX_NAME, "notAnIndex");
     csb.addOption(LuceneCliStrings.LUCENE__REGION_PATH, REGION_NAME);
     gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess()
@@ -414,7 +410,7 @@ public class LuceneIndexCommandsIntegrationTest {
   @Test
   public void describeIndexWithoutRegionShouldReturnErrorMessage() throws Exception {
     createIndexWithoutRegion();
-    CommandStringBuilder csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_DESCRIBE_INDEX);
+    var csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_DESCRIBE_INDEX);
     csb.addOption(LuceneCliStrings.LUCENE__INDEX_NAME, "notAnIndex");
     csb.addOption(LuceneCliStrings.LUCENE__REGION_PATH, REGION_NAME);
     gfsh.executeAndAssertThat(csb.toString()).statusIsError().containsOutput(REGION_NAME);
@@ -434,7 +430,7 @@ public class LuceneIndexCommandsIntegrationTest {
     entries.put("H", new TestObject("ABC", "EFG", "H2J"));
     putEntries(entries, 8);
 
-    CommandStringBuilder csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_SEARCH_INDEX);
+    var csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_SEARCH_INDEX);
     csb.addOption(LuceneCliStrings.LUCENE__INDEX_NAME, INDEX_NAME);
     csb.addOption(LuceneCliStrings.LUCENE__REGION_PATH, REGION_NAME);
     csb.addOption(LuceneCliStrings.LUCENE_SEARCH_INDEX__QUERY_STRING, "field1:value1");
@@ -456,13 +452,13 @@ public class LuceneIndexCommandsIntegrationTest {
     entries.put("E", new TestObject("ryan", "QWE", "RTY"));
     putEntries(entries, 5);
 
-    CommandStringBuilder csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_SEARCH_INDEX);
+    var csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_SEARCH_INDEX);
     csb.addOption(LuceneCliStrings.LUCENE__INDEX_NAME, INDEX_NAME);
     csb.addOption(LuceneCliStrings.LUCENE__REGION_PATH, REGION_NAME);
     csb.addOption(LuceneCliStrings.LUCENE_SEARCH_INDEX__QUERY_STRING, "field1:jon~");
     csb.addOption(LuceneCliStrings.LUCENE_SEARCH_INDEX__DEFAULT_FIELD, "field1");
 
-    CommandResultAssert assertion = gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess();
+    var assertion = gfsh.executeAndAssertThat(csb.toString()).statusIsSuccess();
 
     try {
       assertion.hasTableSection().hasColumn("key").containsExactly("A", "B", "C", "D");
@@ -486,7 +482,7 @@ public class LuceneIndexCommandsIntegrationTest {
     entries.put("H", new TestObject("ABC", "EFG", "H2J"));
     putEntries(entries, 8);
 
-    CommandStringBuilder csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_SEARCH_INDEX);
+    var csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_SEARCH_INDEX);
     csb.addOption(LuceneCliStrings.LUCENE__INDEX_NAME, INDEX_NAME);
     csb.addOption(LuceneCliStrings.LUCENE__REGION_PATH, REGION_NAME);
     csb.addOption(LuceneCliStrings.LUCENE_SEARCH_INDEX__QUERY_STRING, "NotAnExistingValue");
@@ -510,7 +506,7 @@ public class LuceneIndexCommandsIntegrationTest {
     entries.put("H", new TestObject("ABC", "EFG", "H2J"));
     putEntries(entries, 8);
 
-    CommandStringBuilder csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_SEARCH_INDEX);
+    var csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_SEARCH_INDEX);
     csb.addOption(LuceneCliStrings.LUCENE__INDEX_NAME, INDEX_NAME);
     csb.addOption(LuceneCliStrings.LUCENE__REGION_PATH, REGION_NAME);
     csb.addOption(LuceneCliStrings.LUCENE_SEARCH_INDEX__QUERY_STRING, "field1:value1");
@@ -535,7 +531,7 @@ public class LuceneIndexCommandsIntegrationTest {
     entries.put("H", new TestObject("ABC", "EFG", "H2J"));
     putEntries(entries, 8);
 
-    CommandStringBuilder csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_SEARCH_INDEX);
+    var csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_SEARCH_INDEX);
     csb.addOption(LuceneCliStrings.LUCENE__INDEX_NAME, INDEX_NAME);
     csb.addOption(LuceneCliStrings.LUCENE__REGION_PATH, REGION_NAME);
     csb.addOption(LuceneCliStrings.LUCENE_SEARCH_INDEX__QUERY_STRING, "QWE");
@@ -548,7 +544,7 @@ public class LuceneIndexCommandsIntegrationTest {
   @Test
   public void searchOnIndexWithoutRegionShouldReturnError() throws Exception {
     createIndexWithoutRegion();
-    CommandStringBuilder csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_SEARCH_INDEX);
+    var csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_SEARCH_INDEX);
     csb.addOption(LuceneCliStrings.LUCENE__INDEX_NAME, INDEX_NAME);
     csb.addOption(LuceneCliStrings.LUCENE__REGION_PATH, REGION_NAME);
     csb.addOption(LuceneCliStrings.LUCENE_SEARCH_INDEX__QUERY_STRING, "EFG");
@@ -562,16 +558,16 @@ public class LuceneIndexCommandsIntegrationTest {
   public void searchWithoutIndexShouldReturnError() throws Exception {
     createRegion();
 
-    CommandStringBuilder csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_SEARCH_INDEX);
+    var csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_SEARCH_INDEX);
     csb.addOption(LuceneCliStrings.LUCENE__INDEX_NAME, INDEX_NAME);
     csb.addOption(LuceneCliStrings.LUCENE__REGION_PATH, REGION_NAME);
     csb.addOption(LuceneCliStrings.LUCENE_SEARCH_INDEX__QUERY_STRING, "EFG");
     csb.addOption(LuceneCliStrings.LUCENE_SEARCH_INDEX__DEFAULT_FIELD, "field2");
 
-    String commandString = csb.toString();
+    var commandString = csb.toString();
     writeToLog("Command String :\n ", commandString);
-    CommandResult commandResult = gfsh.executeCommand(commandString);
-    String resultAsString = gfsh.getGfshOutput();
+    var commandResult = gfsh.executeCommand(commandString);
+    var resultAsString = gfsh.getGfshOutput();
     writeToLog("Result String :\n ", resultAsString);
     assertEquals(Status.ERROR, commandResult.getStatus());
     assertEquals("Unexpected CommandResult string :" + resultAsString, true,
@@ -592,7 +588,7 @@ public class LuceneIndexCommandsIntegrationTest {
     entries.put("H", new TestObject("ABC", "EFG", "H2J"));
     putEntries(entries, 8);
 
-    CommandStringBuilder csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_SEARCH_INDEX);
+    var csb = new CommandStringBuilder(LuceneCliStrings.LUCENE_SEARCH_INDEX);
     csb.addOption(LuceneCliStrings.LUCENE__INDEX_NAME, INDEX_NAME);
     csb.addOption(LuceneCliStrings.LUCENE__REGION_PATH, REGION_NAME);
     csb.addOption(LuceneCliStrings.LUCENE_SEARCH_INDEX__QUERY_STRING, "value1");
@@ -612,7 +608,7 @@ public class LuceneIndexCommandsIntegrationTest {
       createIndexWithoutRegion();
     }
 
-    String expectedStatus = CliStrings.format(
+    var expectedStatus = CliStrings.format(
         LuceneCliStrings.LUCENE_DESTROY_INDEX__MSG__SUCCESSFULLY_DESTROYED_INDEX_0_FROM_REGION_1,
         "index", SEPARATOR + "region");
     gfsh.executeAndAssertThat("destroy lucene index --name=index --region=region").statusIsSuccess()
@@ -629,7 +625,7 @@ public class LuceneIndexCommandsIntegrationTest {
     }
 
     // Verify destroy all indexes is successful
-    String expectedOutput = CliStrings.format(
+    var expectedOutput = CliStrings.format(
         LuceneCliStrings.LUCENE_DESTROY_INDEX__MSG__SUCCESSFULLY_DESTROYED_INDEXES_FROM_REGION_0,
         new Object[] {SEPARATOR + "region"});
 
@@ -647,7 +643,7 @@ public class LuceneIndexCommandsIntegrationTest {
   @Test
   public void testDestroyNonExistentSingleIndex() throws Exception {
     createRegion();
-    String expectedStatus = String.format("Lucene index %s was not found in region %s",
+    var expectedStatus = String.format("Lucene index %s was not found in region %s",
         INDEX_NAME, SEPARATOR + REGION_NAME);
 
     gfsh.executeAndAssertThat("destroy lucene index --name=index --region=region").statusIsSuccess()
@@ -658,7 +654,7 @@ public class LuceneIndexCommandsIntegrationTest {
   public void testDestroyNonExistentIndexes() throws Exception {
     createRegion();
 
-    String expectedOutput = String.format("No Lucene indexes were found in region %s",
+    var expectedOutput = String.format("No Lucene indexes were found in region %s",
         SEPARATOR + "region");
     gfsh.executeAndAssertThat("destroy lucene index --region=region").statusIsSuccess()
         .containsOutput(expectedOutput);
@@ -669,7 +665,7 @@ public class LuceneIndexCommandsIntegrationTest {
   }
 
   private void createIndex() {
-    LuceneService luceneService = LuceneServiceProvider.get(server.getCache());
+    var luceneService = LuceneServiceProvider.get(server.getCache());
     Map<String, Analyzer> fieldAnalyzers = new HashMap();
     fieldAnalyzers.put("field1", new StandardAnalyzer());
     fieldAnalyzers.put("field2", new KeywordAnalyzer());
@@ -679,7 +675,7 @@ public class LuceneIndexCommandsIntegrationTest {
   }
 
   private void createIndexWithoutRegion() {
-    LuceneService luceneService = LuceneServiceProvider.get(server.getCache());
+    var luceneService = LuceneServiceProvider.get(server.getCache());
     Map<String, Analyzer> fieldAnalyzers = new HashMap();
     fieldAnalyzers.put("field1", new StandardAnalyzer());
     fieldAnalyzers.put("field2", new KeywordAnalyzer());
@@ -694,18 +690,18 @@ public class LuceneIndexCommandsIntegrationTest {
 
   private void putEntries(Map<String, TestObject> entries, int countOfDocuments)
       throws InterruptedException {
-    LuceneService luceneService = LuceneServiceProvider.get(server.getCache());
+    var luceneService = LuceneServiceProvider.get(server.getCache());
     Region region = server.getCache().getRegion(REGION_NAME);
     region.putAll(entries);
     luceneService.waitUntilFlushed(INDEX_NAME, REGION_NAME, 60000, TimeUnit.MILLISECONDS);
-    LuceneIndexImpl index = (LuceneIndexImpl) luceneService.getIndex(INDEX_NAME, REGION_NAME);
+    var index = (LuceneIndexImpl) luceneService.getIndex(INDEX_NAME, REGION_NAME);
     await().until(
         () -> index.getIndexStats().getDocuments() >= countOfDocuments);
   }
 
   private void queryAndVerify(String queryString, String defaultField)
       throws LuceneQueryException {
-    LuceneService luceneService = LuceneServiceProvider.get(server.getCache());
+    var luceneService = LuceneServiceProvider.get(server.getCache());
     final LuceneQuery<String, TestObject> query = luceneService.createLuceneQueryFactory()
         .create(INDEX_NAME, REGION_NAME, queryString, defaultField);
     assertEquals(Collections.singletonList("A"), query.findKeys());

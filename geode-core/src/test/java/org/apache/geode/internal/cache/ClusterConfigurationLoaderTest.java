@@ -20,8 +20,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.spy;
 
-import java.io.File;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -37,14 +35,14 @@ public class ClusterConfigurationLoaderTest {
   @Test
   public void downloadJarRetainsTheJarName() throws Exception {
     doNothing().when(loader).downloadTo(any(), any(), any(), any());
-    File file = loader.downloadJar(null, null, "test.jar");
+    var file = loader.downloadJar(null, null, "test.jar");
     assertThat(file.getName()).isEqualTo("test.jar");
   }
 
   @Test
   public void downloadJarRetainsTheJarNameWithSemanticVersion() throws Exception {
     doNothing().when(loader).downloadTo(any(), any(), any(), any());
-    File file = loader.downloadJar(null, null, "test-1.0.jar");
+    var file = loader.downloadJar(null, null, "test-1.0.jar");
     assertThat(file.getName()).isEqualTo("test-1.0.jar");
   }
 }

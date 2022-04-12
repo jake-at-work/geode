@@ -58,7 +58,7 @@ public class ServerLauncherStartupRule extends SerializableExternalResource {
 
   @Override
   public void before() {
-    ServerLauncher.Builder builder = new ServerLauncher.Builder()
+    var builder = new ServerLauncher.Builder()
         .setServerPort(0)
         .set(properties)
         .setMemberName("server-0")

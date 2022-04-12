@@ -67,7 +67,7 @@ public class NetworkUtils {
    * @return the host name
    */
   public static String getServerHostName() {
-    String serverBindAddress = System.getProperty(GEMFIRE_PREFIX + SERVER_BIND_ADDRESS);
+    var serverBindAddress = System.getProperty(GEMFIRE_PREFIX + SERVER_BIND_ADDRESS);
     return serverBindAddress != null ? serverBindAddress : getCanonicalHostName();
   }
 
@@ -80,7 +80,7 @@ public class NetworkUtils {
    */
   @Deprecated
   public static String getServerHostName(final Host host) {
-    String serverBindAddress = System.getProperty(GEMFIRE_PREFIX + SERVER_BIND_ADDRESS);
+    var serverBindAddress = System.getProperty(GEMFIRE_PREFIX + SERVER_BIND_ADDRESS);
     return serverBindAddress != null ? serverBindAddress : host.getHostName();
   }
 

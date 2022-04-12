@@ -217,7 +217,7 @@ public class GatewaySenderFactoryImpl implements InternalGatewaySenderFactory {
 
   @Override
   public GatewaySender create(String id, int remoteDSId) {
-    int myDSId = InternalDistributedSystem.getAnyInstance().getDistributionManager()
+    var myDSId = InternalDistributedSystem.getAnyInstance().getDistributionManager()
         .getDistributedSystemId();
     if (remoteDSId == myDSId) {
       throw new GatewaySenderException(
@@ -402,10 +402,10 @@ public class GatewaySenderFactoryImpl implements InternalGatewaySenderFactory {
     attrs.setAlertThreshold(senderCreation.getAlertThreshold());
     attrs.setDispatcherThreads(senderCreation.getDispatcherThreads());
     attrs.setOrderPolicy(senderCreation.getOrderPolicy());
-    for (GatewayEventFilter filter : senderCreation.getGatewayEventFilters()) {
+    for (var filter : senderCreation.getGatewayEventFilters()) {
       attrs.getGatewayEventFilters().add(filter);
     }
-    for (GatewayTransportFilter filter : senderCreation.getGatewayTransportFilters()) {
+    for (var filter : senderCreation.getGatewayTransportFilters()) {
       attrs.getGatewayTransportFilters().add(filter);
     }
     attrs.setEventSubstitutionFilter(senderCreation.getGatewayEventSubstitutionFilter());

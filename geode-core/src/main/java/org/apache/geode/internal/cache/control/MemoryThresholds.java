@@ -292,9 +292,9 @@ public class MemoryThresholds {
    * @return a new instance of Thresholds
    */
   public static MemoryThresholds fromData(DataInput in) throws IOException {
-    long maxMemoryBytes = in.readLong();
-    float criticalThreshold = in.readFloat();
-    float evictionThreshold = in.readFloat();
+    var maxMemoryBytes = in.readLong();
+    var criticalThreshold = in.readFloat();
+    var evictionThreshold = in.readFloat();
     return new MemoryThresholds(maxMemoryBytes, criticalThreshold, evictionThreshold);
   }
 

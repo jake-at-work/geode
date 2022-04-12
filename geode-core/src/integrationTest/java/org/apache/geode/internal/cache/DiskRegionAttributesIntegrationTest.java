@@ -38,11 +38,9 @@ import org.junit.rules.TestName;
 
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.DataPolicy;
-import org.apache.geode.cache.DiskStore;
 import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.test.junit.rules.ExecutorServiceRule;
 
 /**
@@ -79,11 +77,11 @@ public class DiskRegionAttributesIntegrationTest {
 
   @Before
   public void setUp() throws Exception {
-    String uniqueName = getClass().getSimpleName() + "_" + testName.getMethodName();
+    var uniqueName = getClass().getSimpleName() + "_" + testName.getMethodName();
     regionName = uniqueName + "_region";
     diskStoreName = uniqueName + "_diskStore";
 
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(MCAST_PORT, "0");
     config.setProperty(LOCATORS, "");
 
@@ -120,13 +118,13 @@ public class DiskRegionAttributesIntegrationTest {
 
   @Test
   public void syncPersistentWithAutoCompact() {
-    DiskStoreFactory diskStoreFactory = cache.createDiskStoreFactory();
+    var diskStoreFactory = cache.createDiskStoreFactory();
     diskStoreFactory.setAutoCompact(true);
     diskStoreFactory.setDiskDirsAndSizes(diskDirs, diskDirSizes);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory, MAX_OPLOG_SIZE_IN_BYTES);
 
-    RegionFactory<Object, Object> regionFactory = cache.createRegionFactory(LOCAL);
+    var regionFactory = cache.createRegionFactory(LOCAL);
     regionFactory.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
     regionFactory.setDiskStoreName(diskStoreName);
     regionFactory.setDiskSynchronous(true);
@@ -139,13 +137,13 @@ public class DiskRegionAttributesIntegrationTest {
 
   @Test
   public void syncPersistent() {
-    DiskStoreFactory diskStoreFactory = cache.createDiskStoreFactory();
+    var diskStoreFactory = cache.createDiskStoreFactory();
     diskStoreFactory.setAutoCompact(false);
     diskStoreFactory.setDiskDirsAndSizes(diskDirs, diskDirSizes);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory, MAX_OPLOG_SIZE_IN_BYTES);
 
-    RegionFactory<Object, Object> regionFactory = cache.createRegionFactory(LOCAL);
+    var regionFactory = cache.createRegionFactory(LOCAL);
     regionFactory.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
 
     regionFactory.setDiskStoreName(diskStoreName);
@@ -159,13 +157,13 @@ public class DiskRegionAttributesIntegrationTest {
 
   @Test
   public void asyncPersistentWithAutoCompact() {
-    DiskStoreFactory diskStoreFactory = cache.createDiskStoreFactory();
+    var diskStoreFactory = cache.createDiskStoreFactory();
     diskStoreFactory.setAutoCompact(true);
     diskStoreFactory.setDiskDirsAndSizes(diskDirs, diskDirSizes);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory, MAX_OPLOG_SIZE_IN_BYTES);
 
-    RegionFactory<Object, Object> regionFactory = cache.createRegionFactory(LOCAL);
+    var regionFactory = cache.createRegionFactory(LOCAL);
     regionFactory.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
     regionFactory.setDiskStoreName(diskStoreName);
     regionFactory.setDiskSynchronous(false);
@@ -178,13 +176,13 @@ public class DiskRegionAttributesIntegrationTest {
 
   @Test
   public void asyncPersistent() {
-    DiskStoreFactory diskStoreFactory = cache.createDiskStoreFactory();
+    var diskStoreFactory = cache.createDiskStoreFactory();
     diskStoreFactory.setAutoCompact(false);
     diskStoreFactory.setDiskDirsAndSizes(diskDirs, diskDirSizes);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory, MAX_OPLOG_SIZE_IN_BYTES);
 
-    RegionFactory<Object, Object> regionFactory = cache.createRegionFactory(LOCAL);
+    var regionFactory = cache.createRegionFactory(LOCAL);
     regionFactory.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
     regionFactory.setDiskStoreName(diskStoreName);
     regionFactory.setDiskSynchronous(false);
@@ -197,13 +195,13 @@ public class DiskRegionAttributesIntegrationTest {
 
   @Test
   public void syncOverflowWithAutoCompact() {
-    DiskStoreFactory diskStoreFactory = cache.createDiskStoreFactory();
+    var diskStoreFactory = cache.createDiskStoreFactory();
     diskStoreFactory.setAutoCompact(true);
     diskStoreFactory.setDiskDirsAndSizes(diskDirs, diskDirSizes);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory, MAX_OPLOG_SIZE_IN_BYTES);
 
-    RegionFactory<Object, Object> regionFactory = cache.createRegionFactory(LOCAL);
+    var regionFactory = cache.createRegionFactory(LOCAL);
     regionFactory.setDiskStoreName(diskStoreName);
     regionFactory.setDiskSynchronous(true);
     regionFactory.setEvictionAttributes(evictionAttributes);
@@ -216,13 +214,13 @@ public class DiskRegionAttributesIntegrationTest {
 
   @Test
   public void syncOverflow() {
-    DiskStoreFactory diskStoreFactory = cache.createDiskStoreFactory();
+    var diskStoreFactory = cache.createDiskStoreFactory();
     diskStoreFactory.setAutoCompact(false);
     diskStoreFactory.setDiskDirsAndSizes(diskDirs, diskDirSizes);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory, MAX_OPLOG_SIZE_IN_BYTES);
 
-    RegionFactory<Object, Object> regionFactory = cache.createRegionFactory(LOCAL);
+    var regionFactory = cache.createRegionFactory(LOCAL);
     regionFactory.setDiskStoreName(diskStoreName);
     regionFactory.setDiskSynchronous(true);
     regionFactory.setEvictionAttributes(evictionAttributes);
@@ -235,7 +233,7 @@ public class DiskRegionAttributesIntegrationTest {
 
   @Test
   public void asyncOverflowWithAutoCompact() {
-    DiskStoreFactory diskStoreFactory = cache.createDiskStoreFactory();
+    var diskStoreFactory = cache.createDiskStoreFactory();
     diskStoreFactory.setAutoCompact(true);
     diskStoreFactory.setDiskDirsAndSizes(diskDirs, diskDirSizes);
     diskStoreFactory.setQueueSize(10_000);
@@ -243,7 +241,7 @@ public class DiskRegionAttributesIntegrationTest {
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory, MAX_OPLOG_SIZE_IN_BYTES);
 
-    RegionFactory<Object, Object> regionFactory = cache.createRegionFactory(LOCAL);
+    var regionFactory = cache.createRegionFactory(LOCAL);
     regionFactory.setDiskStoreName(diskStoreName);
     regionFactory.setDiskSynchronous(false);
 
@@ -257,14 +255,14 @@ public class DiskRegionAttributesIntegrationTest {
 
   @Test
   public void asyncOverflowWithEviction() {
-    DiskStoreFactory diskStoreFactory = cache.createDiskStoreFactory();
+    var diskStoreFactory = cache.createDiskStoreFactory();
     diskStoreFactory.setAutoCompact(false);
     diskStoreFactory.setDiskDirsAndSizes(diskDirs, diskDirSizes);
     diskStoreFactory.setTimeInterval(15);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory, MAX_OPLOG_SIZE_IN_BYTES);
 
-    RegionFactory<Object, Object> regionFactory = cache.createRegionFactory(LOCAL);
+    var regionFactory = cache.createRegionFactory(LOCAL);
     regionFactory.setDiskStoreName(diskStoreName);
     regionFactory.setDiskSynchronous(false);
 
@@ -278,13 +276,13 @@ public class DiskRegionAttributesIntegrationTest {
 
   @Test
   public void syncPersistentWithOverflowAndAutoCompact() {
-    DiskStoreFactory diskStoreFactory = cache.createDiskStoreFactory();
+    var diskStoreFactory = cache.createDiskStoreFactory();
     diskStoreFactory.setAutoCompact(true);
     diskStoreFactory.setDiskDirsAndSizes(diskDirs, diskDirSizes);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory, MAX_OPLOG_SIZE_IN_BYTES);
 
-    RegionFactory<Object, Object> regionFactory = cache.createRegionFactory(LOCAL);
+    var regionFactory = cache.createRegionFactory(LOCAL);
     regionFactory.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
     regionFactory.setDiskStoreName(diskStoreName);
     regionFactory.setDiskSynchronous(true);
@@ -298,13 +296,13 @@ public class DiskRegionAttributesIntegrationTest {
 
   @Test
   public void syncPersistentWithOverflow() {
-    DiskStoreFactory diskStoreFactory = cache.createDiskStoreFactory();
+    var diskStoreFactory = cache.createDiskStoreFactory();
     diskStoreFactory.setAutoCompact(false);
     diskStoreFactory.setDiskDirsAndSizes(diskDirs, diskDirSizes);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory, MAX_OPLOG_SIZE_IN_BYTES);
 
-    RegionFactory<Object, Object> regionFactory = cache.createRegionFactory(LOCAL);
+    var regionFactory = cache.createRegionFactory(LOCAL);
     regionFactory.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
     regionFactory.setDiskStoreName(diskStoreName);
     regionFactory.setDiskSynchronous(true);
@@ -318,7 +316,7 @@ public class DiskRegionAttributesIntegrationTest {
 
   @Test
   public void asyncPersistentWithOverflowAndAutoCompactAndBuffer() {
-    DiskStoreFactory diskStoreFactory = cache.createDiskStoreFactory();
+    var diskStoreFactory = cache.createDiskStoreFactory();
     diskStoreFactory.setAutoCompact(true);
     diskStoreFactory.setDiskDirsAndSizes(diskDirs, diskDirSizes);
     diskStoreFactory.setQueueSize(10_000);
@@ -326,7 +324,7 @@ public class DiskRegionAttributesIntegrationTest {
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory, MAX_OPLOG_SIZE_IN_BYTES);
 
-    RegionFactory<Object, Object> regionFactory = cache.createRegionFactory(LOCAL);
+    var regionFactory = cache.createRegionFactory(LOCAL);
     regionFactory.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
     regionFactory.setDiskStoreName(diskStoreName);
     regionFactory.setDiskSynchronous(false);
@@ -340,14 +338,14 @@ public class DiskRegionAttributesIntegrationTest {
 
   @Test
   public void asyncPersistentWithOverflowAndBuffer() {
-    DiskStoreFactory diskStoreFactory = cache.createDiskStoreFactory();
+    var diskStoreFactory = cache.createDiskStoreFactory();
     diskStoreFactory.setAutoCompact(false);
     diskStoreFactory.setDiskDirsAndSizes(diskDirs, diskDirSizes);
     diskStoreFactory.setTimeInterval(15);
 
     createDiskStoreWithSizeInBytes(diskStoreName, diskStoreFactory, MAX_OPLOG_SIZE_IN_BYTES);
 
-    RegionFactory<Object, Object> regionFactory = cache.createRegionFactory(LOCAL);
+    var regionFactory = cache.createRegionFactory(LOCAL);
     regionFactory.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
     regionFactory.setDiskStoreName(diskStoreName);
     regionFactory.setDiskSynchronous(false);
@@ -360,7 +358,7 @@ public class DiskRegionAttributesIntegrationTest {
   }
 
   private File createDirectory(File parentDirectory, String name) {
-    File file = new File(parentDirectory, name);
+    var file = new File(parentDirectory, name);
     assertThat(file.mkdir()).isTrue();
     return file;
   }
@@ -374,22 +372,22 @@ public class DiskRegionAttributesIntegrationTest {
 
   private void verifyRegionAndDiskStoreAttributes(boolean autoCompact, long maxOplogSizeInBytes,
       int bytesThreshold, int timeInterval) {
-    DiskStore diskStore = cache.findDiskStore(diskStoreName);
+    var diskStore = cache.findDiskStore(diskStoreName);
 
     assertThat(diskStore.getAutoCompact()).isEqualTo(autoCompact);
 
-    int expectedDiskDirsCount = diskDirs.length;
-    int actualDiskDirsCount = diskStore.getDiskDirs().length;
+    var expectedDiskDirsCount = diskDirs.length;
+    var actualDiskDirsCount = diskStore.getDiskDirs().length;
     assertThat(actualDiskDirsCount).isEqualTo(expectedDiskDirsCount);
 
-    int[] expectedDiskDirSizes = diskDirSizes;
+    var expectedDiskDirSizes = diskDirSizes;
     if (expectedDiskDirSizes == null) {
       expectedDiskDirSizes = new int[expectedDiskDirsCount];
       Arrays.fill(expectedDiskDirSizes, Integer.MAX_VALUE);
     }
 
-    int[] actualDiskDirSizes = diskStore.getDiskDirSizes();
-    for (int i = 0; i < expectedDiskDirsCount; i++) {
+    var actualDiskDirSizes = diskStore.getDiskDirSizes();
+    for (var i = 0; i < expectedDiskDirsCount; i++) {
       assertThat(actualDiskDirSizes[i]).isEqualTo(expectedDiskDirSizes[i]);
     }
 

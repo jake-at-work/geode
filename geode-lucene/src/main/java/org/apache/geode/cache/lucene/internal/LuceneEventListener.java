@@ -78,21 +78,21 @@ public class LuceneEventListener implements AsyncEventListener {
 
   protected boolean process(final List<AsyncEvent> events) {
     // Try to get a PDX instance if possible, rather than a deserialized object
-    Boolean initialPdxReadSerialized = cache.getPdxReadSerializedOverride();
+    var initialPdxReadSerialized = cache.getPdxReadSerializedOverride();
     cache.setPdxReadSerializedOverride(true);
 
     Set<IndexRepository> affectedRepos = new HashSet<>();
 
     try {
-      for (AsyncEvent event : events) {
+      for (var event : events) {
 
-        Region region = event.getRegion();
-        Object key = event.getKey();
-        Object callbackArgument = event.getCallbackArgument();
+        var region = event.getRegion();
+        var key = event.getKey();
+        var callbackArgument = event.getCallbackArgument();
 
-        IndexRepository repository = repositoryManager.getRepository(region, key, callbackArgument);
+        var repository = repositoryManager.getRepository(region, key, callbackArgument);
 
-        Object value = getValue(region.getEntry(key));
+        var value = getValue(region.getEntry(key));
         if (value != null) {
           repository.update(key, value);
         } else {
@@ -102,7 +102,7 @@ public class LuceneEventListener implements AsyncEventListener {
         affectedRepos.add(repository);
       }
 
-      for (IndexRepository repo : affectedRepos) {
+      for (var repo : affectedRepos) {
         repo.commit();
       }
       return true;
@@ -123,7 +123,7 @@ public class LuceneEventListener implements AsyncEventListener {
   }
 
   private Object getValue(Region.Entry entry) {
-    final EntrySnapshot es = (EntrySnapshot) entry;
+    final var es = (EntrySnapshot) entry;
     Object value;
     try {
       value = es == null ? null : es.getRawValue(true);

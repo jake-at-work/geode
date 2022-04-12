@@ -78,9 +78,9 @@ public class CreateDefinedIndexesCommandTest {
 
   @Test
   public void creationFailure() {
-    DistributedMember member = mock(DistributedMember.class);
+    var member = mock(DistributedMember.class);
     when(member.getId()).thenReturn("memberId");
-    InternalConfigurationPersistenceService mockService =
+    var mockService =
         mock(InternalConfigurationPersistenceService.class);
 
     doReturn(mockService).when(command).getConfigurationPersistenceService();
@@ -95,9 +95,9 @@ public class CreateDefinedIndexesCommandTest {
 
   @Test
   public void creationSuccess() {
-    DistributedMember member = mock(DistributedMember.class);
+    var member = mock(DistributedMember.class);
     when(member.getId()).thenReturn("memberId");
-    InternalConfigurationPersistenceService mockService =
+    var mockService =
         mock(InternalConfigurationPersistenceService.class);
 
     doReturn(mockService).when(command).getConfigurationPersistenceService();
@@ -116,16 +116,16 @@ public class CreateDefinedIndexesCommandTest {
 
   @Test
   public void multipleIndexesOnMultipleRegions() {
-    DistributedMember member1 = mock(DistributedMember.class);
-    DistributedMember member2 = mock(DistributedMember.class);
+    var member1 = mock(DistributedMember.class);
+    var member2 = mock(DistributedMember.class);
     when(member1.getId()).thenReturn("memberId_1");
     when(member2.getId()).thenReturn("memberId_2");
 
-    InternalConfigurationPersistenceService mockService =
+    var mockService =
         mock(InternalConfigurationPersistenceService.class);
-    CliFunctionResult resultMember1 =
+    var resultMember1 =
         new CliFunctionResult(member1.getId(), Arrays.asList("index1", "index2"));
-    CliFunctionResult resultMember2 =
+    var resultMember2 =
         new CliFunctionResult(member2.getId(), Arrays.asList("index1", "index2"));
 
     doReturn(mockService).when(command).getConfigurationPersistenceService();

@@ -14,7 +14,6 @@
  */
 package org.apache.geode.logging.internal;
 
-import java.util.Collection;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -50,7 +49,7 @@ public class LoggingProviderLoader {
 
   public LoggingProvider load() {
     // 1: use LOGGING_PROVIDER_NAME_PROPERTY if set
-    LoggingProvider providerFromSystemProperty = checkSystemProperty();
+    var providerFromSystemProperty = checkSystemProperty();
     if (providerFromSystemProperty != null) {
       logger.info("Using {} from System Property {} for service {}",
           providerFromSystemProperty.getClass().getName(), LOGGING_PROVIDER_NAME_PROPERTY,
@@ -64,7 +63,7 @@ public class LoggingProviderLoader {
         .forEach(provider -> loggingProviders.put(provider.getPriority(), provider));
 
     if (!loggingProviders.isEmpty()) {
-      LoggingProvider providerFromServiceLoader = loggingProviders.get(loggingProviders.lastKey());
+      var providerFromServiceLoader = loggingProviders.get(loggingProviders.lastKey());
       logger.info("Using {} from ServiceLoader for service {}",
           providerFromServiceLoader.getClass().getName(), LoggingProvider.class.getName());
       return providerFromServiceLoader;
@@ -78,19 +77,19 @@ public class LoggingProviderLoader {
 
   private Iterable<LoggingProvider> loadServiceProviders() {
     CollectingServiceLoader<LoggingProvider> serviceLoader = new ListCollectingServiceLoader<>();
-    Collection<LoggingProvider> loggingProviders =
+    var loggingProviders =
         serviceLoader.loadServices(LoggingProvider.class);
     return loggingProviders;
   }
 
   private LoggingProvider checkSystemProperty() {
-    String agentClassName = System.getProperty(LOGGING_PROVIDER_NAME_PROPERTY);
+    var agentClassName = System.getProperty(LOGGING_PROVIDER_NAME_PROPERTY);
     if (agentClassName == null) {
       return null;
     }
 
     try {
-      Class<? extends LoggingProvider> agentClass =
+      var agentClass =
           ClassPathLoader.getLatest().forName(agentClassName).asSubclass(LoggingProvider.class);
       return agentClass.newInstance();
     } catch (ClassNotFoundException | ClassCastException | InstantiationException

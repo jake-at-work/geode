@@ -15,15 +15,10 @@
 
 package org.apache.geode.management.internal.cli.commands;
 
-import java.util.Map;
-import java.util.Set;
 
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
-import org.apache.geode.cache.persistence.PersistentID;
-import org.apache.geode.distributed.DistributedMember;
-import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.backup.BackupOperation;
 import org.apache.geode.management.BackupStatus;
@@ -56,10 +51,10 @@ public class BackupDiskStoreCommand extends GfshCommand {
     authorize(ResourcePermission.Resource.CLUSTER, ResourcePermission.Operation.WRITE,
         ResourcePermission.Target.DISK);
 
-    ResultModel result = new ResultModel();
+    var result = new ResultModel();
     try {
-      InternalCache cache = (InternalCache) getCache();
-      DistributionManager dm = cache.getDistributionManager();
+      var cache = (InternalCache) getCache();
+      var dm = cache.getDistributionManager();
       BackupStatus backupStatus;
 
       if (baselineDir != null && !baselineDir.isEmpty()) {
@@ -69,29 +64,29 @@ public class BackupDiskStoreCommand extends GfshCommand {
         backupStatus = new BackupOperation(dm, dm.getCache()).backupAllMembers(targetDir, null);
       }
 
-      Map<DistributedMember, Set<PersistentID>> backedupMemberDiskstoreMap =
+      var backedupMemberDiskstoreMap =
           backupStatus.getBackedUpDiskStores();
 
-      Set<DistributedMember> backedupMembers = backedupMemberDiskstoreMap.keySet();
+      var backedupMembers = backedupMemberDiskstoreMap.keySet();
 
       if (!backedupMembers.isEmpty()) {
-        TabularResultModel backedupDiskStoresTable = result.addTable(BACKED_UP_DISKSTORES_SECTION);
+        var backedupDiskStoresTable = result.addTable(BACKED_UP_DISKSTORES_SECTION);
         backedupDiskStoresTable.setHeader(CliStrings.BACKUP_DISK_STORE_MSG_BACKED_UP_DISK_STORES);
 
-        for (DistributedMember member : backedupMembers) {
-          Set<PersistentID> backedupDiskStores = backedupMemberDiskstoreMap.get(member);
-          boolean printMember = true;
-          String memberName = member.getName();
+        for (var member : backedupMembers) {
+          var backedupDiskStores = backedupMemberDiskstoreMap.get(member);
+          var printMember = true;
+          var memberName = member.getName();
 
           if (memberName == null || memberName.isEmpty()) {
             memberName = member.getId();
           }
-          for (PersistentID persistentId : backedupDiskStores) {
+          for (var persistentId : backedupDiskStores) {
             if (persistentId != null) {
 
-              String UUID = persistentId.getUUID().toString();
-              String hostName = persistentId.getHost().getHostName();
-              String directory = persistentId.getDirectory();
+              var UUID = persistentId.getUUID().toString();
+              var hostName = persistentId.getHost().getHostName();
+              var directory = persistentId.getDirectory();
 
               if (printMember) {
                 writeToBackupDiskStoreTable(backedupDiskStoresTable, memberName, UUID, hostName,
@@ -107,13 +102,13 @@ public class BackupDiskStoreCommand extends GfshCommand {
         result.addInfo().addLine(CliStrings.BACKUP_DISK_STORE_MSG_NO_DISKSTORES_BACKED_UP);
       }
 
-      Set<PersistentID> offlineDiskStores = backupStatus.getOfflineDiskStores();
+      var offlineDiskStores = backupStatus.getOfflineDiskStores();
 
       if (!offlineDiskStores.isEmpty()) {
-        TabularResultModel offlineDiskStoresTable = result.addTable(OFFLINE_DISKSTORES_SECTION);
+        var offlineDiskStoresTable = result.addTable(OFFLINE_DISKSTORES_SECTION);
         offlineDiskStoresTable.setHeader(CliStrings.BACKUP_DISK_STORE_MSG_OFFLINE_DISK_STORES);
 
-        for (PersistentID offlineDiskStore : offlineDiskStores) {
+        for (var offlineDiskStore : offlineDiskStores) {
           offlineDiskStoresTable.accumulate(CliStrings.BACKUP_DISK_STORE_MSG_UUID,
               offlineDiskStore.getUUID().toString());
           offlineDiskStoresTable.accumulate(CliStrings.BACKUP_DISK_STORE_MSG_HOST,

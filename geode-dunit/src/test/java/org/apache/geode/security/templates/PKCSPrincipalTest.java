@@ -37,10 +37,10 @@ public class PKCSPrincipalTest {
 
   @Test
   public void canBeSerialized() throws Exception {
-    String name = "jsmith";
-    PKCSPrincipal instance = new PKCSPrincipal(name);
+    var name = "jsmith";
+    var instance = new PKCSPrincipal(name);
 
-    PKCSPrincipal cloned = SerializationUtils.clone(instance);
+    var cloned = SerializationUtils.clone(instance);
 
     assertThat(cloned.getName()).isEqualTo(name);
   }

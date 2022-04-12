@@ -24,7 +24,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import org.apache.geode.internal.cache.InternalCache;
-import org.apache.geode.management.runtime.PdxInfo;
 
 public class PdxRealizerTest {
   private PdxRealizer pdxRealizer;
@@ -39,7 +38,7 @@ public class PdxRealizerTest {
   @Test
   public void getPdxInformation() {
     when(cache.getPdxReadSerialized()).thenReturn(true);
-    PdxInfo pdxInfo = pdxRealizer.get(null, cache);
+    var pdxInfo = pdxRealizer.get(null, cache);
     assertThat(pdxInfo.isReadSerialized()).isTrue();
     assertThat(pdxInfo.isIgnoreUnreadFields()).isFalse();
   }
@@ -48,7 +47,7 @@ public class PdxRealizerTest {
   public void persistent() throws Exception {
     when(cache.getPdxPersistent()).thenReturn(false);
     when(cache.getPdxDiskStore()).thenReturn("test");
-    PdxInfo pdxInfo = pdxRealizer.get(null, cache);
+    var pdxInfo = pdxRealizer.get(null, cache);
     assertThat(pdxInfo.getDiskStoreName()).isNull();
 
     when(cache.getPdxPersistent()).thenReturn(true);

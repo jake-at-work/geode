@@ -55,7 +55,7 @@ public abstract class AbstractSCardIntegrationTest implements RedisIntegrationTe
 
   @Test
   public void scardSet_returnsSize() {
-    String[] values = new String[] {"Jeff", "Natalie", "Michelle", "Joe", "Kelley"};
+    var values = new String[] {"Jeff", "Natalie", "Michelle", "Joe", "Kelley"};
     jedis.sadd(key, values);
     assertThat(jedis.scard(key)).isEqualTo(values.length);
   }
@@ -67,11 +67,11 @@ public abstract class AbstractSCardIntegrationTest implements RedisIntegrationTe
 
   @Test
   public void scardAfterSadd_returnsSize() {
-    String[] valuesInitial = new String[] {"Jeff", "Natalie", "Michelle", "Joe", "Kelley"};
-    String[] valuesToAdd = new String[] {"one", "two", "three"};
+    var valuesInitial = new String[] {"Jeff", "Natalie", "Michelle", "Joe", "Kelley"};
+    var valuesToAdd = new String[] {"one", "two", "three"};
 
     jedis.sadd(key, valuesInitial);
-    long size = jedis.scard(key);
+    var size = jedis.scard(key);
     assertThat(size).isEqualTo(valuesInitial.length);
     jedis.sadd(key, valuesToAdd);
     assertThat(jedis.scard(key)).isEqualTo(size + valuesToAdd.length);
@@ -80,11 +80,11 @@ public abstract class AbstractSCardIntegrationTest implements RedisIntegrationTe
 
   @Test
   public void scardWithConcurrentSAdd_returnsCorrectValue() {
-    String[] valuesInitial = new String[] {"one", "two", "three"};
-    String[] valuesToAdd = new String[] {"pear", "apple", "plum", "orange", "peach"};
+    var valuesInitial = new String[] {"one", "two", "three"};
+    var valuesToAdd = new String[] {"pear", "apple", "plum", "orange", "peach"};
     jedis.sadd(key, valuesInitial);
 
-    final AtomicLong scardReference = new AtomicLong();
+    final var scardReference = new AtomicLong();
     new ConcurrentLoopingThreads(1000,
         i -> jedis.sadd(key, valuesToAdd),
         i -> scardReference.set(jedis.scard(key)))

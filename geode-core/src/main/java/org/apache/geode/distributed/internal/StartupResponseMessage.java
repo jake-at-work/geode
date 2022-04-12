@@ -25,7 +25,6 @@ import org.apache.geode.DataSerializer;
 import org.apache.geode.Instantiator;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.InternalDataSerializer;
-import org.apache.geode.internal.InternalDataSerializer.SerializerAttributesHolder;
 import org.apache.geode.internal.InternalInstantiator;
 import org.apache.geode.internal.InternalInstantiator.InstantiatorAttributesHolder;
 import org.apache.geode.internal.logging.log4j.LogMarker;
@@ -82,28 +81,28 @@ public class StartupResponseMessage extends DistributionMessage
      * instantiators. While preparing the response message, we populate this information.
      **/
     // Fix for #43677
-    Object[] instantiators = InternalInstantiator.getInstantiatorsForSerialization();
+    var instantiators = InternalInstantiator.getInstantiatorsForSerialization();
     instantiatorClasseNames = new String[instantiators.length];
     instantiatedClasseNames = new String[instantiators.length];
     instantiatorIds = new int[instantiators.length];
-    for (int i = 0; i < instantiators.length; i++) {
+    for (var i = 0; i < instantiators.length; i++) {
       if (instantiators[i] instanceof Instantiator) {
-        Instantiator inst = (Instantiator) instantiators[i];
+        var inst = (Instantiator) instantiators[i];
         instantiatorClasseNames[i] = inst.getClass().getName();
         instantiatedClasseNames[i] = inst.getInstantiatedClass().getName();
         instantiatorIds[i] = inst.getId();
       } else {
-        InstantiatorAttributesHolder inst = (InstantiatorAttributesHolder) instantiators[i];
+        var inst = (InstantiatorAttributesHolder) instantiators[i];
         instantiatorClasseNames[i] = inst.getInstantiatorClassName();
         instantiatedClasseNames[i] = inst.getInstantiatedClassName();
         instantiatorIds[i] = inst.getId();
       }
     }
 
-    SerializerAttributesHolder[] sahs = InternalDataSerializer.getSerializersForDistribution();
+    var sahs = InternalDataSerializer.getSerializersForDistribution();
     serializerIds = new int[sahs.length];
     serializerClasseNames = new String[sahs.length];
-    for (int i = 0; i < sahs.length; i++) {
+    for (var i = 0; i < sahs.length; i++) {
       serializerIds[i] = sahs[i].getId();
       serializerClasseNames[i] = sahs[i].getClassName();
     }
@@ -156,8 +155,8 @@ public class StartupResponseMessage extends DistributionMessage
     }
 
     if (serializerIds != null) {
-      for (int i = 0; i < serializerIds.length; i++) {
-        String cName = serializerClasseNames[i];
+      for (var i = 0; i < serializerIds.length; i++) {
+        var cName = serializerClasseNames[i];
         if (cName != null) {
           InternalDataSerializer.register(cName, false, null, null, serializerIds[i]);
         }
@@ -166,10 +165,10 @@ public class StartupResponseMessage extends DistributionMessage
 
     if (instantiatorIds != null) {
       // Process the Instantiator registrations.
-      for (int i = 0; i < instantiatorIds.length; i++) {
-        String instantiatorClassName = instantiatorClasseNames[i];
-        String instantiatedClassName = instantiatedClasseNames[i];
-        int id = instantiatorIds[i];
+      for (var i = 0; i < instantiatorIds.length; i++) {
+        var instantiatorClassName = instantiatorClasseNames[i];
+        var instantiatedClassName = instantiatedClasseNames[i];
+        var id = instantiatorIds[i];
         if ((instantiatorClassName != null) && (instantiatedClassName != null)) {
           InternalInstantiator.register(instantiatorClassName, instantiatedClassName, id, false);
         }
@@ -178,7 +177,7 @@ public class StartupResponseMessage extends DistributionMessage
 
     dm.processStartupResponse(sender, rejectionMessage);
 
-    StartupMessageReplyProcessor proc =
+    var proc =
         (StartupMessageReplyProcessor) ReplyProcessor21.getProcessor(processorId);
     if (proc != null) {
       if (rejectionMessage != null) {
@@ -220,13 +219,13 @@ public class StartupResponseMessage extends DistributionMessage
     // Send a description of all of the DataSerializers and
     // Instantiators that have been registered
     out.writeInt(serializerIds.length);
-    for (int i = 0; i < serializerIds.length; i++) {
+    for (var i = 0; i < serializerIds.length; i++) {
       DataSerializer.writeNonPrimitiveClassName(serializerClasseNames[i], out);
       out.writeInt(serializerIds[i]);
     }
 
     out.writeInt(instantiatorIds.length);
-    for (int i = 0; i < instantiatorIds.length; i++) {
+    for (var i = 0; i < instantiatorIds.length; i++) {
       DataSerializer.writeNonPrimitiveClassName(instantiatorClasseNames[i], out);
       DataSerializer.writeNonPrimitiveClassName(instantiatedClasseNames[i], out);
       out.writeInt(instantiatorIds[i]);
@@ -247,10 +246,10 @@ public class StartupResponseMessage extends DistributionMessage
     rejectionMessage = DataSerializer.readString(in);
     responderIsAdmin = in.readBoolean();
 
-    int serializerCount = in.readInt();
+    var serializerCount = in.readInt();
     serializerClasseNames = new String[serializerCount];
     serializerIds = new int[serializerCount];
-    for (int i = 0; i < serializerCount; i++) {
+    for (var i = 0; i < serializerCount; i++) {
       try {
         serializerClasseNames[i] = DataSerializer.readNonPrimitiveClassName(in);
       } finally {
@@ -259,12 +258,12 @@ public class StartupResponseMessage extends DistributionMessage
     }
 
     // Fix for B39705 : Deserialize the instantiators in the field variables.
-    int instantiatorCount = in.readInt();
+    var instantiatorCount = in.readInt();
     instantiatorClasseNames = new String[instantiatorCount];
     instantiatedClasseNames = new String[instantiatorCount];
     instantiatorIds = new int[instantiatorCount];
 
-    for (int i = 0; i < instantiatorCount; i++) {
+    for (var i = 0; i < instantiatorCount; i++) {
       instantiatorClasseNames[i] = DataSerializer.readNonPrimitiveClassName(in);
       instantiatedClasseNames[i] = DataSerializer.readNonPrimitiveClassName(in);
       instantiatorIds[i] = in.readInt();

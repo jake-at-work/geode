@@ -30,12 +30,10 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import org.apache.geode.cache.client.ClientCacheFactory;
-import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.ServerOperationException;
 import org.apache.geode.cache.client.internal.PingOp;
 import org.apache.geode.cache.client.internal.PoolImpl;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.internal.ServerLocation;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
@@ -70,7 +68,7 @@ public class PingOpDistributedTest implements Serializable {
 
   private void initServer(int serverPort) throws IOException {
     cacheRule.createCache();
-    CacheServer cacheServer = cacheRule.getCache().addCacheServer();
+    var cacheServer = cacheRule.getCache().addCacheServer();
     cacheServer.setPort(serverPort);
 
     // "Disable" the auto-ping for the duration of this test.
@@ -79,10 +77,10 @@ public class PingOpDistributedTest implements Serializable {
   }
 
   private void initClient(String poolName, List<Integer> serverPorts) {
-    final ClientCacheFactory clientCacheFactory = new ClientCacheFactory();
+    final var clientCacheFactory = new ClientCacheFactory();
     clientCacheFactory.create();
 
-    PoolFactory poolFactory = PoolManager.createFactory();
+    var poolFactory = PoolManager.createFactory();
     serverPorts.forEach(serverPort -> poolFactory.addServer("localhost", serverPort));
 
     // "Disable" the auto-ping for the duration of this test.
@@ -92,7 +90,7 @@ public class PingOpDistributedTest implements Serializable {
 
   @Before
   public void setUp() throws IOException {
-    int[] ports = getRandomAvailableTCPPorts(2);
+    var ports = getRandomAvailableTCPPorts(2);
 
     client = getVM(0);
     server1 = getVM(1);
@@ -109,12 +107,12 @@ public class PingOpDistributedTest implements Serializable {
 
   public void executePing(String poolName, int serverPort,
       InternalDistributedMember distributedMember) {
-    PoolImpl poolImpl = (PoolImpl) PoolManager.find(poolName);
+    var poolImpl = (PoolImpl) PoolManager.find(poolName);
     PingOp.execute(poolImpl, new ServerLocation("localhost", serverPort), distributedMember);
   }
 
   public Long getSingleHeartBeat() {
-    ClientHealthMonitor chm = ClientHealthMonitor.getInstance();
+    var chm = ClientHealthMonitor.getInstance();
     if (chm.getClientHeartbeats().size() == 0) {
       return 0L;
     }
@@ -125,17 +123,17 @@ public class PingOpDistributedTest implements Serializable {
 
   @Test
   public void regularPingFlow() {
-    final String poolName = testName.getMethodName();
+    final var poolName = testName.getMethodName();
     parametrizedSetUp(poolName, Collections.singletonList(server1Port));
-    InternalDistributedMember distributedMember1 = (InternalDistributedMember) server1
+    var distributedMember1 = (InternalDistributedMember) server1
         .invoke(() -> cacheRule.getCache().getDistributedSystem().getDistributedMember());
 
     client.invoke(() -> executePing(poolName, server1Port, distributedMember1));
-    Long firstHeartbeat = server1.invoke(this::getSingleHeartBeat);
+    var firstHeartbeat = server1.invoke(this::getSingleHeartBeat);
 
     GeodeAwaitility.await().untilAsserted(() -> {
       client.invoke(() -> executePing(poolName, server1Port, distributedMember1));
-      Long subsequentHeartbeat = server1.invoke(this::getSingleHeartBeat);
+      var subsequentHeartbeat = server1.invoke(this::getSingleHeartBeat);
       if (subsequentHeartbeat < firstHeartbeat) {
         throw new Error("Heartbeat decreased from initial " + firstHeartbeat
             + " to " + subsequentHeartbeat);
@@ -147,13 +145,13 @@ public class PingOpDistributedTest implements Serializable {
 
   @Test
   public void memberShouldNotRedirectPingMessageWhenClientCachedViewIdIsWrong() {
-    final String poolName = testName.getMethodName();
+    final var poolName = testName.getMethodName();
     parametrizedSetUp(poolName, Collections.singletonList(server1Port));
-    InternalDistributedMember distributedMember1 = (InternalDistributedMember) server1
+    var distributedMember1 = (InternalDistributedMember) server1
         .invoke(() -> cacheRule.getCache().getDistributedSystem().getDistributedMember());
 
     client.invoke(() -> {
-      PoolImpl poolImpl = (PoolImpl) PoolManager.find(poolName);
+      var poolImpl = (PoolImpl) PoolManager.find(poolName);
       distributedMember1.setVmViewId(distributedMember1.getVmViewId() + 1);
       assertThatThrownBy(() -> {
         PingOp.execute(poolImpl, new ServerLocation("localhost", server1Port), distributedMember1);
@@ -163,13 +161,13 @@ public class PingOpDistributedTest implements Serializable {
 
   @Test
   public void pingReturnsErrorIfTheTargetServerIsNotAMember() {
-    final String poolName = testName.getMethodName();
+    final var poolName = testName.getMethodName();
     parametrizedSetUp(poolName, Collections.singletonList(server1Port));
-    int notUsedPort = getRandomAvailableTCPPorts(1)[0];
-    InternalDistributedMember fakeDistributedMember =
+    var notUsedPort = getRandomAvailableTCPPorts(1)[0];
+    var fakeDistributedMember =
         new InternalDistributedMember("localhost", notUsedPort);
     client.invoke(() -> {
-      PoolImpl poolImpl = (PoolImpl) PoolManager.find(poolName);
+      var poolImpl = (PoolImpl) PoolManager.find(poolName);
       assertThatThrownBy(() -> {
         PingOp.execute(poolImpl, new ServerLocation("localhost", server1Port),
             fakeDistributedMember);
@@ -180,25 +178,25 @@ public class PingOpDistributedTest implements Serializable {
 
   @Test
   public void memberShouldCorrectlyRedirectPingMessage() {
-    final String poolName = testName.getMethodName();
+    final var poolName = testName.getMethodName();
     parametrizedSetUp(poolName, asList(server1Port, server2Port));
-    InternalDistributedMember distributedMember1 = (InternalDistributedMember) server1
+    var distributedMember1 = (InternalDistributedMember) server1
         .invoke(() -> cacheRule.getCache().getDistributedSystem().getDistributedMember());
-    InternalDistributedMember distributedMember2 = (InternalDistributedMember) server2
+    var distributedMember2 = (InternalDistributedMember) server2
         .invoke(() -> cacheRule.getCache().getDistributedSystem().getDistributedMember());
 
     // Run two correct pings to ensure both ClientHealthMonitors have a valid value
     client.invoke(() -> executePing(poolName, server1Port, distributedMember1));
     client.invoke(() -> executePing(poolName, server2Port, distributedMember2));
 
-    Long firstHeartbeatServer1 = server1.invoke(this::getSingleHeartBeat);
-    Long firstHeartbeatServer2 = server2.invoke(this::getSingleHeartBeat);
+    var firstHeartbeatServer1 = server1.invoke(this::getSingleHeartBeat);
+    var firstHeartbeatServer2 = server2.invoke(this::getSingleHeartBeat);
 
     // Ping to be forwarded from server1 to server2
     client.invoke(() -> executePing(poolName, server1Port, distributedMember2));
 
-    Long secondHeartbeatServer1 = server1.invoke(this::getSingleHeartBeat);
-    Long secondHeartbeatServer2 = server2.invoke(this::getSingleHeartBeat);
+    var secondHeartbeatServer1 = server1.invoke(this::getSingleHeartBeat);
+    var secondHeartbeatServer2 = server2.invoke(this::getSingleHeartBeat);
 
     // Heartbeat in server2 changed as the ping was forwarded from server1 to him.
     assertThat(secondHeartbeatServer1).isEqualTo(firstHeartbeatServer1);

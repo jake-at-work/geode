@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
@@ -62,10 +61,10 @@ public class ElderInitProcessor extends ReplyProcessor21 {
    * current ds.
    */
   static void init(DistributionManager dm, HashMap<String, GrantorInfo> map) {
-    HashSet<String> crashedGrantors = new HashSet<>();
+    var crashedGrantors = new HashSet<String>();
     Set others = dm.getOtherDistributionManagerIds();
     if (!others.isEmpty()) {
-      ElderInitProcessor processor = new ElderInitProcessor(dm, others, map, crashedGrantors);
+      var processor = new ElderInitProcessor(dm, others, map, crashedGrantors);
       ElderInitMessage.send(others, dm, processor);
       try {
         processor.waitForRepliesUninterruptibly();
@@ -77,7 +76,7 @@ public class ElderInitProcessor extends ReplyProcessor21 {
     GrantorRequestProcessor.readyForElderRecovery(dm.getSystem(), null, null);
     DLockService.recoverLocalElder(dm, map, crashedGrantors);
 
-    for (String crashedGrantor : crashedGrantors) {
+    for (var crashedGrantor : crashedGrantors) {
       map.put(crashedGrantor, new GrantorInfo(null, 0, 0, true));
     }
   }
@@ -100,14 +99,14 @@ public class ElderInitProcessor extends ReplyProcessor21 {
       ArrayList rmtGrantorSerialNumbers, ArrayList rmtNonGrantors,
       InternalDistributedMember rmtId) {
     {
-      Iterator iterGrantorServices = rmtGrantors.iterator();
-      Iterator iterGrantorVersions = rmtGrantorVersions.iterator();
-      Iterator iterGrantorSerialNumbers = rmtGrantorSerialNumbers.iterator();
+      var iterGrantorServices = rmtGrantors.iterator();
+      var iterGrantorVersions = rmtGrantorVersions.iterator();
+      var iterGrantorSerialNumbers = rmtGrantorSerialNumbers.iterator();
       while (iterGrantorServices.hasNext()) {
-        String serviceName = (String) iterGrantorServices.next();
+        var serviceName = (String) iterGrantorServices.next();
         long versionId = (Long) iterGrantorVersions.next();
         int serialNumber = (Integer) iterGrantorSerialNumbers.next();
-        GrantorInfo oldgi = (GrantorInfo) grantors.get(serviceName);
+        var oldgi = (GrantorInfo) grantors.get(serviceName);
         if (oldgi == null || oldgi.getVersionId() < versionId) {
           grantors.put(serviceName, new GrantorInfo(rmtId, versionId, serialNumber, false));
           crashedGrantors.remove(serviceName);
@@ -115,8 +114,8 @@ public class ElderInitProcessor extends ReplyProcessor21 {
       }
     }
     {
-      for (final Object rmtNonGrantor : rmtNonGrantors) {
-        String serviceName = (String) rmtNonGrantor;
+      for (final var rmtNonGrantor : rmtNonGrantors) {
+        var serviceName = (String) rmtNonGrantor;
         if (!grantors.containsKey(serviceName)) {
           crashedGrantors.add(serviceName);
         }
@@ -127,7 +126,7 @@ public class ElderInitProcessor extends ReplyProcessor21 {
   @Override
   public void process(DistributionMessage msg) {
     if (msg instanceof ElderInitReplyMessage) {
-      ElderInitReplyMessage eiMsg = (ElderInitReplyMessage) msg;
+      var eiMsg = (ElderInitReplyMessage) msg;
       processData(eiMsg.getGrantors(), eiMsg.getGrantorVersions(), eiMsg.getGrantorSerialNumbers(),
           eiMsg.getNonGrantors(), eiMsg.getSender());
     } else {
@@ -144,7 +143,7 @@ public class ElderInitProcessor extends ReplyProcessor21 {
     private int processorId;
 
     protected static void send(Set others, DistributionManager dm, ReplyProcessor21 proc) {
-      ElderInitMessage msg = new ElderInitMessage();
+      var msg = new ElderInitMessage();
       msg.processorId = proc.getProcessorId();
       msg.setRecipients(others);
       if (logger.isTraceEnabled(LogMarker.DLS_VERBOSE)) {
@@ -166,10 +165,10 @@ public class ElderInitProcessor extends ReplyProcessor21 {
 
     @Override
     protected void process(ClusterDistributionManager dm) {
-      ArrayList grantors = new ArrayList(); // svc names grantor for
-      ArrayList grantorVersions = new ArrayList(); // grantor versions
-      ArrayList grantorSerialNumbers = new ArrayList(); // serial numbers of grantor svcs
-      ArrayList nonGrantors = new ArrayList(); // svc names non-grantor for
+      var grantors = new ArrayList(); // svc names grantor for
+      var grantorVersions = new ArrayList(); // grantor versions
+      var grantorSerialNumbers = new ArrayList(); // serial numbers of grantor svcs
+      var nonGrantors = new ArrayList(); // svc names non-grantor for
       try {
         if (dm.waitForElder(getSender())) {
           GrantorRequestProcessor.readyForElderRecovery(dm.getSystem(), getSender(), null);
@@ -227,7 +226,7 @@ public class ElderInitProcessor extends ReplyProcessor21 {
 
     public static void send(MessageWithReply reqMsg, DistributionManager dm, ArrayList grantors,
         ArrayList grantorVersions, ArrayList grantorSerialNumbers, ArrayList nonGrantors) {
-      ElderInitReplyMessage m = new ElderInitReplyMessage();
+      var m = new ElderInitReplyMessage();
       m.grantors = grantors;
       m.grantorVersions = grantorVersions;
       m.grantorSerialNumbers = grantorSerialNumbers;

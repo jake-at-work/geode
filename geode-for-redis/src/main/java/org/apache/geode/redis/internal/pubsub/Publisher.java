@@ -30,10 +30,8 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -51,7 +49,6 @@ import org.apache.geode.annotations.VisibleForTesting;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.execute.FunctionService;
 import org.apache.geode.cache.execute.ResultCollector;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.internal.cache.execute.InternalFunction;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.redis.internal.netty.Client;
@@ -106,8 +103,8 @@ public class Publisher {
   }
 
   public void publish(Client client, byte[] channel, byte[] message) {
-    long startTime = redisStats.startPublish();
-    ClientPublisher clientPublisher =
+    var startTime = redisStats.startPublish();
+    var clientPublisher =
         computeIfAbsent(clientPublishers, client, key -> new ClientPublisher());
     clientPublisher.publish(channel, message, startTime);
   }
@@ -143,9 +140,9 @@ public class Publisher {
 
   @SuppressWarnings("unchecked")
   private void internalPublish(PublishRequestBatch batch) {
-    Set<DistributedMember> remoteMembers = regionProvider.getRemoteRegionMembers();
-    List<PublishRequest> optimizedBatch = batch.optimize(redisStats);
-    long start = redisStats.getCurrentTimeNanos();
+    var remoteMembers = regionProvider.getRemoteRegionMembers();
+    var optimizedBatch = batch.optimize(redisStats);
+    var start = redisStats.getCurrentTimeNanos();
     try {
       ResultCollector<?, ?> resultCollector = null;
       try {
@@ -173,7 +170,7 @@ public class Publisher {
             batch, e);
       }
     } finally {
-      long end = redisStats.getCurrentTimeNanos();
+      var end = redisStats.getCurrentTimeNanos();
       redisStats.endPublish(batch.getPublishRequestCount(),
           (end - start) + batch.getTimeLocalRequestWasInQueue());
     }
@@ -198,22 +195,22 @@ public class Publisher {
 
 
   private void publishRequestToLocalChannelSubscribers(PublishRequest request) {
-    Collection<Subscription> channelSubscriptions =
+    var channelSubscriptions =
         subscriptions.getChannelSubscriptions(request.getChannel());
     if (channelSubscriptions.isEmpty()) {
       return;
     }
-    ByteBuf writeBuf = channelSubscriptions.iterator().next().getChannelWriteBuffer();
-    for (byte[] message : request.getMessages()) {
+    var writeBuf = channelSubscriptions.iterator().next().getChannelWriteBuffer();
+    for (var message : request.getMessages()) {
       writeArrayResponse(writeBuf, MESSAGE, request.getChannel(), message);
     }
     if (channelSubscriptions.size() == 1) {
-      Subscription singleSubscription = channelSubscriptions.iterator().next();
+      var singleSubscription = channelSubscriptions.iterator().next();
       singleSubscription.writeBufferToChannel(writeBuf);
     } else {
       // This pattern of using retainedDuplicate and ReferenceCountUtil.release
       // came from io.netty.channel.group.DefaultChannelGroup
-      for (Subscription subscription : channelSubscriptions) {
+      for (var subscription : channelSubscriptions) {
         subscription.writeBufferToChannel(writeBuf.retainedDuplicate());
       }
       ReferenceCountUtil.release(writeBuf);
@@ -221,27 +218,27 @@ public class Publisher {
   }
 
   private void publishRequestToLocalPatternSubscribers(PublishRequest request) {
-    List<PatternSubscriptions> patternSubscriptionList =
+    var patternSubscriptionList =
         subscriptions.getPatternSubscriptions(request.getChannel());
-    for (PatternSubscriptions patternSubscriptions : patternSubscriptionList) {
+    for (var patternSubscriptions : patternSubscriptionList) {
       publishRequestToPatternSubscriptions(request, patternSubscriptions);
     }
   }
 
   private static void publishRequestToPatternSubscriptions(PublishRequest request,
       PatternSubscriptions patternSubscriptions) {
-    ByteBuf writeBuf = patternSubscriptions.getFirst().getChannelWriteBuffer();
-    for (byte[] message : request.getMessages()) {
+    var writeBuf = patternSubscriptions.getFirst().getChannelWriteBuffer();
+    for (var message : request.getMessages()) {
       writeArrayResponse(writeBuf, PMESSAGE, patternSubscriptions.getPattern(),
           request.getChannel(), message);
     }
     if (patternSubscriptions.size() == 1) {
-      Subscription singleSubscription = patternSubscriptions.getFirst();
+      var singleSubscription = patternSubscriptions.getFirst();
       singleSubscription.writeBufferToChannel(writeBuf);
     } else {
       // This pattern of using retainedDuplicate and ReferenceCountUtil.release
       // came from io.netty.channel.group.DefaultChannelGroup
-      for (Subscription subscription : patternSubscriptions.getSubscriptions()) {
+      for (var subscription : patternSubscriptions.getSubscriptions()) {
         subscription.writeBufferToChannel(writeBuf.retainedDuplicate());
       }
       ReferenceCountUtil.release(writeBuf);
@@ -298,7 +295,7 @@ public class Publisher {
     public void toData(DataOutput out) throws IOException {
       DataSerializer.writeByteArray(getChannel(), out);
       DataSerializer.writePrimitiveInt(messages.size(), out);
-      for (byte[] message : messages) {
+      for (var message : messages) {
         DataSerializer.writeByteArray(message, out);
       }
     }
@@ -306,9 +303,9 @@ public class Publisher {
     @Override
     public void fromData(DataInput in) throws IOException {
       channel = DataSerializer.readByteArray(in);
-      int messageCount = DataSerializer.readPrimitiveInt(in);
+      var messageCount = DataSerializer.readPrimitiveInt(in);
       messages = new ArrayList<>(messageCount);
-      for (int i = 0; i < messageCount; i++) {
+      for (var i = 0; i < messageCount; i++) {
         messages.add(DataSerializer.readByteArray(in));
       }
     }
@@ -387,9 +384,9 @@ public class Publisher {
     public List<PublishRequest> optimize(RedisStats redisStats) {
       optimizedBatch.clear();
       timeLocalRequestWasInQueue = 0;
-      long now = redisStats.getCurrentTimeNanos();
+      var now = redisStats.getCurrentTimeNanos();
       PublishRequest currentPublishRequest = null;
-      for (LocalPublishRequest localPublishRequest : batch) {
+      for (var localPublishRequest : batch) {
         if (currentPublishRequest == null ||
             !Arrays.equals(currentPublishRequest.getChannel(), localPublishRequest.getChannel())) {
           if (optimizedBatch.isEmpty()) {

@@ -49,16 +49,16 @@ public class GetEntry70 extends Get70 {
   @Override
   public Get70.Entry getValueAndIsObject(Region region, Object key, Object callbackArg,
       ServerConnection servConn) {
-    LocalRegion lregion = (LocalRegion) region;
+    var lregion = (LocalRegion) region;
     Object data = null;
-    Region.Entry entry = region.getEntry(key);
+    var entry = region.getEntry(key);
     if (logger.isDebugEnabled()) {
       logger.debug("GetEntryCommand: for key: {} returning entry: {}", key, entry);
     }
     VersionTag tag = null;
     if (entry != null) {
-      EntrySnapshot snap = new EntrySnapshot();
-      NonLocalRegionEntry re = new NonLocalRegionEntry(entry, lregion);
+      var snap = new EntrySnapshot();
+      var re = new NonLocalRegionEntry(entry, lregion);
       snap.setRegionEntry(re);
       snap.setRegion(lregion);
       data = snap;

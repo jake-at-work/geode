@@ -30,7 +30,6 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -59,17 +58,14 @@ import org.apache.geode.SystemFailure;
 import org.apache.geode.admin.AdminException;
 import org.apache.geode.admin.CacheServer;
 import org.apache.geode.admin.CacheServerConfig;
-import org.apache.geode.admin.CacheVm;
 import org.apache.geode.admin.CacheVmConfig;
 import org.apache.geode.admin.DistributedSystemConfig;
-import org.apache.geode.admin.DistributionLocator;
 import org.apache.geode.admin.DistributionLocatorConfig;
 import org.apache.geode.admin.GemFireHealth;
 import org.apache.geode.admin.SystemMember;
 import org.apache.geode.admin.SystemMemberCacheEvent;
 import org.apache.geode.admin.SystemMemberCacheListener;
 import org.apache.geode.admin.SystemMemberRegionEvent;
-import org.apache.geode.admin.SystemMemberType;
 import org.apache.geode.admin.internal.AdminDistributedSystemImpl;
 import org.apache.geode.admin.internal.CacheServerConfigImpl;
 import org.apache.geode.admin.internal.DistributionLocatorImpl;
@@ -164,8 +160,8 @@ public class AdminDistributedSystemJmxImpl extends AdminDistributedSystemImpl
 
   private void initStateSaveFile(AgentConfigImpl agentConfig) {
     // Init file name for StatAlertDefns
-    AgentConfigImpl impl = agentConfig;
-    File propFile = impl.getPropertyFile();
+    var impl = agentConfig;
+    var propFile = impl.getPropertyFile();
 
     if (propFile != null) {
       if (propFile.isDirectory()) {
@@ -188,7 +184,7 @@ public class AdminDistributedSystemJmxImpl extends AdminDistributedSystemImpl
    * @see org.apache.geode.admin.internal.AdminDistributedSystemImpl#getGemFireHealth
    */
   public ObjectName monitorGemFireHealth() throws MalformedObjectNameException {
-    GemFireHealthJmxImpl health = (GemFireHealthJmxImpl) getGemFireHealth();
+    var health = (GemFireHealthJmxImpl) getGemFireHealth();
     health.ensureMBeansAreRegistered();
     return health.getObjectName();
   }
@@ -223,9 +219,9 @@ public class AdminDistributedSystemJmxImpl extends AdminDistributedSystemImpl
   public ObjectName createDistributionLocator(String host, int port, String workingDirectory,
       String productDirectory, String remoteCommand) throws MalformedObjectNameException {
     try {
-      DistributionLocatorJmxImpl locator = (DistributionLocatorJmxImpl) addDistributionLocator();
+      var locator = (DistributionLocatorJmxImpl) addDistributionLocator();
 
-      DistributionLocatorConfig config = locator.getConfig();
+      var config = locator.getConfig();
       config.setHost(host);
       config.setPort(port);
       config.setWorkingDirectory(workingDirectory);
@@ -360,7 +356,7 @@ public class AdminDistributedSystemJmxImpl extends AdminDistributedSystemImpl
        * super.nodeJoined results in creation of a new SystemMember which registers itself as an
        * MBean, so now we try to find it...
        */
-      SystemMember member = findSystemMember(joined);
+      var member = findSystemMember(joined);
 
       if (null == member) {
         if (logger.isDebugEnabled()) {
@@ -384,7 +380,7 @@ public class AdminDistributedSystemJmxImpl extends AdminDistributedSystemImpl
                 notificationSequenceNumber.addAndGet(1), joined.getId().toString()));
 
         if (isEmailNotificationEnabled) {
-          String mess =
+          var mess =
               String.format("Member joined the Distributed SystemMember Id: %s",
                   joined.getId().toString());
           sendEmail(EML_SUBJ_PRFX_GFE_NOTFY + EML_SUBJ_ITEM_GFE_DS + getName() + " <"
@@ -427,7 +423,7 @@ public class AdminDistributedSystemJmxImpl extends AdminDistributedSystemImpl
   @Override
   public void nodeLeft(GfManagerAgent source, GemFireVM left) {
     try {
-      SystemMember member = findSystemMember(left, false);
+      var member = findSystemMember(left, false);
       super.nodeLeft(source, left);
       if (logger.isDebugEnabled()) {
         logger.debug("Processing node left for: {}", member);
@@ -439,7 +435,7 @@ public class AdminDistributedSystemJmxImpl extends AdminDistributedSystemImpl
                 notificationSequenceNumber.addAndGet(1), left.getId().toString()));
 
         if (isEmailNotificationEnabled) {
-          String mess =
+          var mess =
               String.format("Member left the Distributed SystemMember Id: %s",
                   left.getId().toString());
           sendEmail(EML_SUBJ_PRFX_GFE_NOTFY + EML_SUBJ_ITEM_GFE_DS + getName() + " <"
@@ -450,7 +446,7 @@ public class AdminDistributedSystemJmxImpl extends AdminDistributedSystemImpl
         logger.warn(e.getMessage(), e);
       }
 
-      SystemMemberType memberType = member.getType();
+      var memberType = member.getType();
       if (/* member != null && */ memberType.isApplication() || memberType.isCacheVm()) {
         // automatically unregister the MBean...
         MBeanUtils.unregisterMBean((ManagedResource) member);
@@ -488,7 +484,7 @@ public class AdminDistributedSystemJmxImpl extends AdminDistributedSystemImpl
   public void nodeCrashed(GfManagerAgent source, GemFireVM crashed) {
     try {
       // SystemMember application has left...
-      SystemMember member = findSystemMember(crashed, false);
+      var member = findSystemMember(crashed, false);
       super.nodeCrashed(source, crashed);
       if (logger.isDebugEnabled()) {
         logger.debug("Processing node crash for: {}", member);
@@ -501,7 +497,7 @@ public class AdminDistributedSystemJmxImpl extends AdminDistributedSystemImpl
                 notificationSequenceNumber.addAndGet(1), crashed.getId().toString()));
 
         if (isEmailNotificationEnabled) {
-          String mess =
+          var mess =
               String.format("Member crashed in the Distributed SystemMember Id: %s",
                   crashed.getId().toString());
           sendEmail(EML_SUBJ_PRFX_GFE_ALERT + EML_SUBJ_ITEM_GFE_DS + getName() + " <"
@@ -512,7 +508,7 @@ public class AdminDistributedSystemJmxImpl extends AdminDistributedSystemImpl
         logger.warn(e.getMessage(), e);
       }
 
-      SystemMemberType memberType = member.getType();
+      var memberType = member.getType();
       if (/* member != null && */ memberType.isApplication() || memberType.isCacheVm()) {
         // automatically unregister the MBean...
         MBeanUtils.unregisterMBean((ManagedResource) member);
@@ -551,12 +547,12 @@ public class AdminDistributedSystemJmxImpl extends AdminDistributedSystemImpl
     try {
       super.alert(alert);
       try {
-        String strAlert = alert.toString();
+        var strAlert = alert.toString();
         modelMBean.sendNotification(new Notification(NOTIF_ALERT, mbeanName,
             notificationSequenceNumber.addAndGet(1), strAlert));
 
         if (isEmailNotificationEnabled) {
-          String mess =
+          var mess =
               String.format("System Alert from Distributed System: %s",
                   strAlert);
           sendEmail(EML_SUBJ_PRFX_GFE_ALERT + EML_SUBJ_ITEM_GFE_DS + getName() + " <System Alert>",
@@ -814,10 +810,10 @@ public class AdminDistributedSystemJmxImpl extends AdminDistributedSystemImpl
 
   public ObjectName[] manageDistributionLocators() throws MalformedObjectNameException {
     try {
-      DistributionLocator[] locs = getDistributionLocators();
-      ObjectName[] onames = new javax.management.ObjectName[locs.length];
-      for (int i = 0; i < locs.length; i++) {
-        DistributionLocatorJmxImpl loc = (DistributionLocatorJmxImpl) locs[i];
+      var locs = getDistributionLocators();
+      var onames = new javax.management.ObjectName[locs.length];
+      for (var i = 0; i < locs.length; i++) {
+        var loc = (DistributionLocatorJmxImpl) locs[i];
         onames[i] = new ObjectName(loc.getMBeanName());
       }
       return onames;
@@ -885,10 +881,10 @@ public class AdminDistributedSystemJmxImpl extends AdminDistributedSystemImpl
 
   public ObjectName[] manageCacheVms() throws AdminException, MalformedObjectNameException {
     try {
-      CacheVm[] mgrs = getCacheVms();
-      ObjectName[] onames = new javax.management.ObjectName[mgrs.length];
-      for (int i = 0; i < mgrs.length; i++) {
-        CacheServerJmxImpl mgr = (CacheServerJmxImpl) mgrs[i];
+      var mgrs = getCacheVms();
+      var onames = new javax.management.ObjectName[mgrs.length];
+      for (var i = 0; i < mgrs.length; i++) {
+        var mgr = (CacheServerJmxImpl) mgrs[i];
         onames[i] = new ObjectName(mgr.getMBeanName());
       }
       return onames;
@@ -918,10 +914,10 @@ public class AdminDistributedSystemJmxImpl extends AdminDistributedSystemImpl
   public ObjectName[] manageSystemMemberApplications()
       throws AdminException, MalformedObjectNameException {
     try {
-      SystemMember[] apps = getSystemMemberApplications();
-      ObjectName[] onames = new javax.management.ObjectName[apps.length];
-      for (int i = 0; i < apps.length; i++) {
-        SystemMemberJmxImpl app = (SystemMemberJmxImpl) apps[i];
+      var apps = getSystemMemberApplications();
+      var onames = new javax.management.ObjectName[apps.length];
+      for (var i = 0; i < apps.length; i++) {
+        var app = (SystemMemberJmxImpl) apps[i];
         onames[i] = new ObjectName(app.getMBeanName());
       }
       return onames;
@@ -958,12 +954,12 @@ public class AdminDistributedSystemJmxImpl extends AdminDistributedSystemImpl
   public ObjectName manageSystemMember(DistributedMember distributedMember)
       throws AdminException, MalformedObjectNameException {
     try {
-      SystemMember member = lookupSystemMember(distributedMember);
+      var member = lookupSystemMember(distributedMember);
       if (member == null) {
         return null;
       }
-      SystemMemberJmxImpl jmx = (SystemMemberJmxImpl) member;
-      ObjectName oname = new ObjectName(jmx.getMBeanName());
+      var jmx = (SystemMemberJmxImpl) member;
+      var oname = new ObjectName(jmx.getMBeanName());
       return oname;
     } catch (AdminException e) {
       logger.warn(e.getMessage(), e);
@@ -1444,10 +1440,10 @@ public class AdminDistributedSystemJmxImpl extends AdminDistributedSystemImpl
   public TabularData getMissingPersistentMembersJMX() throws AdminException {
 
     try {
-      Set<PersistentID> members = super.getMissingPersistentMembers();
+      var members = super.getMissingPersistentMembers();
       TabularData results = new TabularDataSupport(PERSISTENT_ID_TABLE_TYPE);
-      int index = 0;
-      for (PersistentID id : members) {
+      var index = 0;
+      for (var id : members) {
         CompositeData idData = new CompositeDataSupport(PERSISTENT_ID_TYPE, PERSISTENT_ID_FIELDS,
             new Object[] {id.getHost().toString(), id.getDirectory(), id.getUUID().toString()});
         results.put(idData);
@@ -1520,7 +1516,7 @@ public class AdminDistributedSystemJmxImpl extends AdminDistributedSystemImpl
    * This method is used to write existing StatAlertDefinitions to a file
    */
   protected void readAlertDefinitionsAsSerializedObjects() {
-    StatAlertDefinition[] defns = new StatAlertDefinition[0];
+    var defns = new StatAlertDefinition[0];
 
     File serFile = null;
     FileInputStream foStr = null;
@@ -1572,7 +1568,7 @@ public class AdminDistributedSystemJmxImpl extends AdminDistributedSystemImpl
       }
     }
 
-    for (final StatAlertDefinition defn : defns) {
+    for (final var defn : defns) {
       updateAlertDefinition(defn);
     }
   }
@@ -1601,17 +1597,17 @@ public class AdminDistributedSystemJmxImpl extends AdminDistributedSystemImpl
       foStr = new FileOutputStream(serFile);
       ooStr = new DataOutputStream(foStr);
 
-      int numOfAlerts = 0;
+      var numOfAlerts = 0;
       StatAlertDefinition[] defs = null;
 
       synchronized (ALERT_DEFINITIONS) {
         numOfAlerts = ALERT_DEFINITIONS.size();
         defs = new StatAlertDefinition[numOfAlerts];
 
-        int i = 0;
-        for (final Object o : ALERT_DEFINITIONS.keySet()) {
-          Integer key = (Integer) o;
-          StatAlertDefinition readDefn = (StatAlertDefinition) ALERT_DEFINITIONS.get(key);
+        var i = 0;
+        for (final var o : ALERT_DEFINITIONS.keySet()) {
+          var key = (Integer) o;
+          var readDefn = (StatAlertDefinition) ALERT_DEFINITIONS.get(key);
           defs[i] = readDefn;
           i++;
         }
@@ -1646,7 +1642,7 @@ public class AdminDistributedSystemJmxImpl extends AdminDistributedSystemImpl
    * @return true if file is writable, false otherwise
    */
   private boolean canWriteToFile(File file) {
-    boolean fileIsWritable = true;
+    var fileIsWritable = true;
     // Fix for BUG40360 : When the user does not have write permissions for
     // saving the stat-alert definitions, then appropriate warning message is
     // logged and the operation is aborted. In case the file doesn't exist, then
@@ -1734,7 +1730,7 @@ public class AdminDistributedSystemJmxImpl extends AdminDistributedSystemImpl
      * alert passed to be deleted from the list/map of alerts on JMX MBean & all Member MBeans
      */
     synchronized (ALERT_DEFINITIONS) {
-      StatAlertDefinition alertDefinition = (StatAlertDefinition) ALERT_DEFINITIONS.get(defId);
+      var alertDefinition = (StatAlertDefinition) ALERT_DEFINITIONS.get(defId);
       if (alertDefinition != null) {
         ALERT_DEFINITIONS.remove(defId);
         synchronized (alertsStore) {
@@ -1814,11 +1810,11 @@ public class AdminDistributedSystemJmxImpl extends AdminDistributedSystemImpl
    * @param newInterval refresh interval to be set for members(in milliseconds)
    */
   private void notifyMembersForRefreshIntervalChange(long newInterval) {
-    GfManagerAgent agent = getGfManagerAgent();
-    ApplicationVM[] VMs = agent.listApplications();
+    var agent = getGfManagerAgent();
+    var VMs = agent.listApplications();
     // TODO: is there any other way to get all VMs?
 
-    for (final ApplicationVM vm : VMs) {
+    for (final var vm : VMs) {
       vm.setRefreshInterval(newInterval);
     }
   }
@@ -1833,11 +1829,11 @@ public class AdminDistributedSystemJmxImpl extends AdminDistributedSystemImpl
       logger.debug(
           "Entered AdminDistributedSystemJmxImpl.notifyMembersForAlertDefinitionChange(StatAlertDefinition) *****");
     }
-    GfManagerAgent agent = getGfManagerAgent();
-    StatAlertDefinition[] alertDefs = new StatAlertDefinition[] {alertDef};
-    ApplicationVM[] VMs = agent.listApplications();
+    var agent = getGfManagerAgent();
+    var alertDefs = new StatAlertDefinition[] {alertDef};
+    var VMs = agent.listApplications();
 
-    for (final ApplicationVM vm : VMs) {
+    for (final var vm : VMs) {
       vm.updateAlertDefinitions(alertDefs,
           UpdateAlertDefinitionMessage.UPDATE_ALERT_DEFINITION);
     }
@@ -1855,11 +1851,11 @@ public class AdminDistributedSystemJmxImpl extends AdminDistributedSystemImpl
    * @param alertDef stat alert definition to be removed
    */
   private void notifyMembersForAlertDefinitionRemoval(StatAlertDefinition alertDef) {
-    GfManagerAgent agent = getGfManagerAgent();
-    StatAlertDefinition[] alertDefs = new StatAlertDefinition[] {alertDef};
-    ApplicationVM[] VMs = agent.listApplications();
+    var agent = getGfManagerAgent();
+    var alertDefs = new StatAlertDefinition[] {alertDef};
+    var VMs = agent.listApplications();
 
-    for (final ApplicationVM vm : VMs) {
+    for (final var vm : VMs) {
       vm.updateAlertDefinitions(alertDefs,
           UpdateAlertDefinitionMessage.REMOVE_ALERT_DEFINITION);
     }
@@ -1889,7 +1885,7 @@ public class AdminDistributedSystemJmxImpl extends AdminDistributedSystemImpl
     }
 
     // creating an array of stat alert definition objects
-    StatAlertDefinition[] alertDefs = new StatAlertDefinition[0];
+    var alertDefs = new StatAlertDefinition[0];
 
     Collection alertDefsCollection = null;
     synchronized (ALERT_DEFINITIONS) {
@@ -1973,15 +1969,15 @@ public class AdminDistributedSystemJmxImpl extends AdminDistributedSystemImpl
      * 1. The implementation idea is yet not clear. 2. The StatAlert array would received directly
      * or from a request object.
      */
-    ArrayList notificationObjects = new ArrayList();
+    var notificationObjects = new ArrayList();
 
-    String memberId = remoteVM.getId().getId();
+    var memberId = remoteVM.getId().getId();
 
-    final boolean isSystemWide = false;
+    final var isSystemWide = false;
 
     StatAlert alert = null;
     Integer defId = null;
-    for (final StatAlert statAlert : alerts) {
+    for (final var statAlert : alerts) {
       alert = statAlert;
 
       if (getAlertDefinition(alert.getDefinitionId()) == null) {
@@ -1997,7 +1993,7 @@ public class AdminDistributedSystemJmxImpl extends AdminDistributedSystemImpl
        * should directly be sent to clients.
        */
 
-      StatAlertNotification alertNotification = new StatAlertNotification(alert, memberId);
+      var alertNotification = new StatAlertNotification(alert, memberId);
 
       /*
        * variable isSystemWide is created only for convienience, there should be an indication for
@@ -2050,8 +2046,8 @@ public class AdminDistributedSystemJmxImpl extends AdminDistributedSystemImpl
     byte[] arr = null;
 
     try {
-      ByteArrayOutputStream byteArrStr = new ByteArrayOutputStream();
-      DataOutputStream str = new DataOutputStream(byteArrStr);
+      var byteArrStr = new ByteArrayOutputStream();
+      var str = new DataOutputStream(byteArrStr);
       DataSerializer.writeArrayList(notificationObjects, str);
       str.flush();
       arr = byteArrStr.toByteArray();
@@ -2076,22 +2072,22 @@ public class AdminDistributedSystemJmxImpl extends AdminDistributedSystemImpl
             notificationObjects.size());
       }
 
-      byte[] notifBytes = convertNotificationsDataToByteArray(notificationObjects);
+      var notifBytes = convertNotificationsDataToByteArray(notificationObjects);
       if (notifBytes != null) {
-        Notification notif = new Notification(NOTIF_STAT_ALERT, objName, // Pass the
-                                                                         // StatNotifications
+        var notif = new Notification(NOTIF_STAT_ALERT, objName, // Pass the
+                                                                // StatNotifications
             notificationSequenceNumber.addAndGet(1), "StatAlert Notifications");
         notif.setUserData(notifBytes);
         modelMBean.sendNotification(notif);
       } // IOException handled and logged in convertNotificationsDataToByteArray
 
-      StringBuilder buf = new StringBuilder();
-      for (Object notificationObject : notificationObjects) {
-        StatAlertNotification not = (StatAlertNotification) notificationObject;
+      var buf = new StringBuilder();
+      for (var notificationObject : notificationObjects) {
+        var not = (StatAlertNotification) notificationObject;
         buf.append(not.toString(getAlertDefinition(not.getDefinitionId())));
       }
       if (isEmailNotificationEnabled) {
-        String mess =
+        var mess =
             String.format("Statistics Alert from Distributed SystemMember: %sStatistics: %s",
                 objName.getCanonicalName(), buf);
         sendEmail(EML_SUBJ_PRFX_GFE_ALERT + EML_SUBJ_ITEM_GFE_DS + getName() + " <"
@@ -2140,7 +2136,7 @@ public class AdminDistributedSystemJmxImpl extends AdminDistributedSystemImpl
 
   @Override
   public String getId() {
-    String myId = super.getId();
+    var myId = super.getId();
     return MBeanUtils.makeCompliantMBeanNameProperty(myId);
   }
 
@@ -2165,9 +2161,9 @@ public class AdminDistributedSystemJmxImpl extends AdminDistributedSystemImpl
         clientHost);
     try {
       SystemMemberJmx systemMemberJmx = null;
-      CacheVm[] cacheVms = getCacheVms();
+      var cacheVms = getCacheVms();
 
-      for (CacheVm cacheVm : cacheVms) {
+      for (var cacheVm : cacheVms) {
         if (cacheVm.getId().equals(senderId) && cacheVm instanceof CacheServerJmxImpl) {
           systemMemberJmx = (CacheServerJmxImpl) cacheVm;
           break;
@@ -2175,9 +2171,9 @@ public class AdminDistributedSystemJmxImpl extends AdminDistributedSystemImpl
       }
 
       if (systemMemberJmx == null) {
-        SystemMember[] appVms = getSystemMemberApplications();
+        var appVms = getSystemMemberApplications();
 
-        for (SystemMember appVm : appVms) {
+        for (var appVm : appVms) {
           if (appVm.getId().equals(senderId) && appVm instanceof SystemMemberJmxImpl) {
             systemMemberJmx = (SystemMemberJmxImpl) appVm;
             break;
@@ -2206,7 +2202,7 @@ public class AdminDistributedSystemJmxImpl extends AdminDistributedSystemImpl
 
   @Override
   public void setAlertLevelAsString(String level) {
-    String newLevel = level != null ? level.trim() : null;
+    var newLevel = level != null ? level.trim() : null;
     try {
       super.setAlertLevelAsString(newLevel);
     } catch (IllegalArgumentException e) {
@@ -2221,8 +2217,8 @@ public class AdminDistributedSystemJmxImpl extends AdminDistributedSystemImpl
    * @param event event object corresponding to the creation of the cache
    */
   public void handleCacheCreateEvent(SystemMemberCacheEvent event) {
-    String memberId = event.getMemberId();
-    SystemMemberJmx systemMemberJmx = (SystemMemberJmx) findCacheOrAppVmById(memberId);
+    var memberId = event.getMemberId();
+    var systemMemberJmx = (SystemMemberJmx) findCacheOrAppVmById(memberId);
 
     if (systemMemberJmx != null) {
       systemMemberJmx.handleCacheCreate(event);
@@ -2237,8 +2233,8 @@ public class AdminDistributedSystemJmxImpl extends AdminDistributedSystemImpl
    * @param event event object corresponding to the closure of the cache
    */
   public void handleCacheCloseEvent(SystemMemberCacheEvent event) {
-    String memberId = event.getMemberId();
-    SystemMemberJmx systemMemberJmx = (SystemMemberJmx) findCacheOrAppVmById(memberId);
+    var memberId = event.getMemberId();
+    var systemMemberJmx = (SystemMemberJmx) findCacheOrAppVmById(memberId);
 
     if (systemMemberJmx != null) {
       systemMemberJmx.handleCacheClose(event);
@@ -2253,8 +2249,8 @@ public class AdminDistributedSystemJmxImpl extends AdminDistributedSystemImpl
    * @param event event object corresponding to the creation of a region
    */
   public void handleRegionCreateEvent(SystemMemberRegionEvent event) {
-    String memberId = event.getMemberId();
-    SystemMemberJmx systemMemberJmx = (SystemMemberJmx) findCacheOrAppVmById(memberId);
+    var memberId = event.getMemberId();
+    var systemMemberJmx = (SystemMemberJmx) findCacheOrAppVmById(memberId);
 
     if (systemMemberJmx != null) {
       systemMemberJmx.handleRegionCreate(event);
@@ -2268,8 +2264,8 @@ public class AdminDistributedSystemJmxImpl extends AdminDistributedSystemImpl
    * @param event event object corresponding to the loss of a region
    */
   public void handleRegionLossEvent(SystemMemberRegionEvent event) {
-    String memberId = event.getMemberId();
-    SystemMemberJmx systemMemberJmx = (SystemMemberJmx) findCacheOrAppVmById(memberId);
+    var memberId = event.getMemberId();
+    var systemMemberJmx = (SystemMemberJmx) findCacheOrAppVmById(memberId);
 
     if (systemMemberJmx != null) {
       systemMemberJmx.handleRegionLoss(event);

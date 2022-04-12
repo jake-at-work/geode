@@ -89,7 +89,7 @@ public abstract class AbstractZLexCountIntegrationTest implements RedisIntegrati
 
   @Test
   public void shouldReturnOne_givenMemberNameInRange() {
-    String memberName = "member";
+    var memberName = "member";
     jedis.zadd(KEY, SCORE, memberName);
 
     // Range m <= result <= n
@@ -102,7 +102,7 @@ public abstract class AbstractZLexCountIntegrationTest implements RedisIntegrati
 
   @Test
   public void shouldReturnOne_givenMinEqualToMemberNameAndMinInclusive() {
-    String memberName = "member";
+    var memberName = "member";
     jedis.zadd(KEY, SCORE, memberName);
 
     // Range member <= result <= n
@@ -111,7 +111,7 @@ public abstract class AbstractZLexCountIntegrationTest implements RedisIntegrati
 
   @Test
   public void shouldReturnOne_givenMaxEqualToMemberNameAndMaxInclusive() {
-    String memberName = "member";
+    var memberName = "member";
     jedis.zadd(KEY, SCORE, memberName);
 
     // Range a <= result <= member
@@ -120,7 +120,7 @@ public abstract class AbstractZLexCountIntegrationTest implements RedisIntegrati
 
   @Test
   public void shouldReturnOne_givenMinAndMaxEqualToMemberNameAndMinAndMaxInclusive() {
-    String memberName = "member";
+    var memberName = "member";
     jedis.zadd(KEY, SCORE, memberName);
 
     assertThat(jedis.zlexcount(KEY, "[" + memberName, "[" + memberName)).isEqualTo(1);
@@ -136,7 +136,7 @@ public abstract class AbstractZLexCountIntegrationTest implements RedisIntegrati
 
   @Test
   public void shouldReturnZero_givenMinEqualToMemberNameAndMinExclusive() {
-    String memberName = "member";
+    var memberName = "member";
     jedis.zadd(KEY, SCORE, memberName);
 
     // Range member < result <= n
@@ -145,7 +145,7 @@ public abstract class AbstractZLexCountIntegrationTest implements RedisIntegrati
 
   @Test
   public void shouldReturnZero_givenMaxEqualToMemberNameAndMaxExclusive() {
-    String memberName = "member";
+    var memberName = "member";
     jedis.zadd(KEY, SCORE, memberName);
 
     // Range a <= result < member
@@ -154,7 +154,7 @@ public abstract class AbstractZLexCountIntegrationTest implements RedisIntegrati
 
   @Test
   public void shouldReturnZero_givenRangeExcludingMember() {
-    String memberName = "member";
+    var memberName = "member";
     jedis.zadd(KEY, SCORE, memberName);
 
     // Range n <= result <= o
@@ -165,10 +165,10 @@ public abstract class AbstractZLexCountIntegrationTest implements RedisIntegrati
   public void shouldReturnCount_givenMultipleMembersInRange_withInclusiveMinAndMax() {
     populateSortedSet();
 
-    int minLength = 3;
-    int maxLength = 6;
-    String min = StringUtils.repeat(BASE_MEMBER_NAME, minLength);
-    String max = StringUtils.repeat(BASE_MEMBER_NAME, maxLength);
+    var minLength = 3;
+    var maxLength = 6;
+    var min = StringUtils.repeat(BASE_MEMBER_NAME, minLength);
+    var max = StringUtils.repeat(BASE_MEMBER_NAME, maxLength);
 
     // Range (v * 3) <= result <= (v * 6)
     assertThat(jedis.zlexcount(KEY, "[" + min, "[" + max)).isEqualTo(4);
@@ -178,10 +178,10 @@ public abstract class AbstractZLexCountIntegrationTest implements RedisIntegrati
   public void shouldReturnCount_givenMultipleMembersInRange_withExclusiveMinAndMax() {
     populateSortedSet();
 
-    int minLength = 1;
-    int maxLength = 7;
-    String min = StringUtils.repeat(BASE_MEMBER_NAME, minLength);
-    String max = StringUtils.repeat(BASE_MEMBER_NAME, maxLength);
+    var minLength = 1;
+    var maxLength = 7;
+    var min = StringUtils.repeat(BASE_MEMBER_NAME, minLength);
+    var max = StringUtils.repeat(BASE_MEMBER_NAME, maxLength);
 
     // Range (v * 1) < result < (v * 7)
     assertThat(jedis.zlexcount(KEY, "(" + min, "(" + max)).isEqualTo(5);
@@ -191,10 +191,10 @@ public abstract class AbstractZLexCountIntegrationTest implements RedisIntegrati
   public void shouldReturnCount_givenMultipleMembersInRange_withInclusiveMinAndExclusiveMax() {
     populateSortedSet();
 
-    int minLength = 5;
-    int maxLength = 8;
-    String min = StringUtils.repeat(BASE_MEMBER_NAME, minLength);
-    String max = StringUtils.repeat(BASE_MEMBER_NAME, maxLength);
+    var minLength = 5;
+    var maxLength = 8;
+    var min = StringUtils.repeat(BASE_MEMBER_NAME, minLength);
+    var max = StringUtils.repeat(BASE_MEMBER_NAME, maxLength);
 
     // Range (v * 5) <= result < (v * 8)
     assertThat(jedis.zlexcount(KEY, "[" + min, "(" + max)).isEqualTo(3);
@@ -204,10 +204,10 @@ public abstract class AbstractZLexCountIntegrationTest implements RedisIntegrati
   public void shouldReturnCount_givenMultipleMembersInRange_withExclusiveMinAndInclusiveMax() {
     populateSortedSet();
 
-    int minLength = 2;
-    int maxLength = 5;
-    String min = StringUtils.repeat(BASE_MEMBER_NAME, minLength);
-    String max = StringUtils.repeat(BASE_MEMBER_NAME, maxLength);
+    var minLength = 2;
+    var maxLength = 5;
+    var min = StringUtils.repeat(BASE_MEMBER_NAME, minLength);
+    var max = StringUtils.repeat(BASE_MEMBER_NAME, maxLength);
 
     // Range (v * 2) < result <= (v * 5)
     assertThat(jedis.zlexcount(KEY, "(" + min, "[" + max)).isEqualTo(3);
@@ -217,10 +217,10 @@ public abstract class AbstractZLexCountIntegrationTest implements RedisIntegrati
   public void shouldReturnCount_givenMultipleMembersInRangeUsingMinusAndPlusArguments() {
     populateSortedSet();
 
-    int minLength = 4;
-    int maxLength = 8;
-    String min = StringUtils.repeat(BASE_MEMBER_NAME, minLength);
-    String max = StringUtils.repeat(BASE_MEMBER_NAME, maxLength);
+    var minLength = 4;
+    var maxLength = 8;
+    var min = StringUtils.repeat(BASE_MEMBER_NAME, minLength);
+    var max = StringUtils.repeat(BASE_MEMBER_NAME, maxLength);
 
     // Range -infinity <= result <= (v * 8)
     assertThat(jedis.zlexcount(KEY, "-", "[" + max)).isEqualTo(8);
@@ -236,8 +236,8 @@ public abstract class AbstractZLexCountIntegrationTest implements RedisIntegrati
   // number of times
   private List<String> populateSortedSet() {
     List<String> members = new ArrayList<>();
-    String memberName = BASE_MEMBER_NAME;
-    for (int i = 0; i < 10; ++i) {
+    var memberName = BASE_MEMBER_NAME;
+    for (var i = 0; i < 10; ++i) {
       jedis.zadd(KEY, SCORE, memberName);
       members.add(memberName);
       memberName += BASE_MEMBER_NAME;

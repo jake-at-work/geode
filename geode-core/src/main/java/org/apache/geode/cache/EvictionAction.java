@@ -115,7 +115,7 @@ public final class EvictionAction extends EnumSyntax implements Serializable {
     if (s.length() < 1) {
       return NONE;
     }
-    for (int i = 0; i < stringTable.length; ++i) {
+    for (var i = 0; i < stringTable.length; ++i) {
       if (s.equals(stringTable[i])) {
         return enumValueTable[i];
       }

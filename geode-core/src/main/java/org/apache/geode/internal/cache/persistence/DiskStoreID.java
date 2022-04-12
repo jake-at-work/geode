@@ -66,8 +66,8 @@ public class DiskStoreID implements VersionSource<DiskStoreID>, Serializable {
   }
 
   public static DiskStoreID readEssentialData(DataInput in) throws IOException {
-    long mostSig = in.readLong();
-    long leastSig = in.readLong();
+    var mostSig = in.readLong();
+    var leastSig = in.readLong();
     return new DiskStoreID(mostSig, leastSig);
   }
 
@@ -83,7 +83,7 @@ public class DiskStoreID implements VersionSource<DiskStoreID>, Serializable {
     if (tagID == null) {
       return 1;
     }
-    int result = Long.signum(mostSig - tagID.mostSig);
+    var result = Long.signum(mostSig - tagID.mostSig);
     if (result != 0) {
       result = Long.signum(leastSig - tagID.leastSig);
     }
@@ -109,8 +109,8 @@ public class DiskStoreID implements VersionSource<DiskStoreID>, Serializable {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
+    final var prime = 31;
+    var result = 1;
     result = prime * result + (int) (leastSig ^ (leastSig >>> 32));
     result = prime * result + (int) (mostSig ^ (mostSig >>> 32));
     return result;
@@ -127,7 +127,7 @@ public class DiskStoreID implements VersionSource<DiskStoreID>, Serializable {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    DiskStoreID other = (DiskStoreID) obj;
+    var other = (DiskStoreID) obj;
     if (leastSig != other.leastSig) {
       return false;
     }

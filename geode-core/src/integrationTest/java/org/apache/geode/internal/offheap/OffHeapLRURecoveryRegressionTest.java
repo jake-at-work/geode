@@ -25,10 +25,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.DiskStore;
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.distributed.ConfigurationProperties;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
@@ -49,12 +46,12 @@ public class OffHeapLRURecoveryRegressionTest {
    */
   @Test
   public void recoveringTooMuchDataDoesNotRunOutOfOffHeapMemory() {
-    final int ENTRY_COUNT = 40;
-    GemFireCacheImpl gfc = createCache();
+    final var ENTRY_COUNT = 40;
+    var gfc = createCache();
     try {
-      Region<Object, Object> r = createRegion(gfc);
-      byte[] v = new byte[1024 * 1024];
-      for (int i = 0; i < ENTRY_COUNT; i++) {
+      var r = createRegion(gfc);
+      var v = new byte[1024 * 1024];
+      for (var i = 0; i < ENTRY_COUNT; i++) {
         r.put(i, v);
       }
     } finally {
@@ -70,7 +67,7 @@ public class OffHeapLRURecoveryRegressionTest {
       try {
         createDiskStore(gfc);
         try {
-          int offHeapObjects = MemoryAllocatorImpl.getAllocator().getStats().getObjects();
+          var offHeapObjects = MemoryAllocatorImpl.getAllocator().getStats().getObjects();
           if (offHeapObjects < 10) {
             fail("expected at least 10 offheap values to be recovered but only did "
                 + offHeapObjects);
@@ -89,7 +86,7 @@ public class OffHeapLRURecoveryRegressionTest {
                 + " offheap values to be recovered but actually did " + offHeapObjects);
           }
         } finally {
-          DiskStore ds = gfc.findDiskStore(DS_NAME);
+          var ds = gfc.findDiskStore(DS_NAME);
           ds.destroy();
         }
       } finally {
@@ -102,27 +99,27 @@ public class OffHeapLRURecoveryRegressionTest {
   }
 
   private GemFireCacheImpl createCache() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(LOCATORS, "");
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(ConfigurationProperties.OFF_HEAP_MEMORY_SIZE, "20m");
-    GemFireCacheImpl result = (GemFireCacheImpl) new CacheFactory(props).create();
+    var result = (GemFireCacheImpl) new CacheFactory(props).create();
     result.getResourceManager().setEvictionOffHeapPercentage(50.0f);
     return result;
   }
 
   private void createDiskStore(GemFireCacheImpl gfc) {
-    DiskStoreFactory dsf = gfc.createDiskStoreFactory();
+    var dsf = gfc.createDiskStoreFactory();
     dsf.create(DS_NAME);
   }
 
   private Region<Object, Object> createRegion(GemFireCacheImpl gfc) {
     createDiskStore(gfc);
-    RegionFactory<Object, Object> rf =
+    var rf =
         gfc.createRegionFactory(RegionShortcut.LOCAL_PERSISTENT_OVERFLOW);
     rf.setOffHeap(true);
     rf.setDiskStoreName(DS_NAME);
-    Region<Object, Object> r = rf.create("OffHeapLRURecoveryRegressionTestRegion");
+    var r = rf.create("OffHeapLRURecoveryRegressionTestRegion");
     return r;
   }
 

@@ -68,15 +68,15 @@ public class GatewayManagementControllerSpringTest {
 
   @Test
   public void getGatewayReceiverMappingRecognizesReceiverIdWithDot() throws Exception {
-    String receiverIdWithDot = "receiver.id";
-    String requestPath = URI_VERSION + GATEWAY_RECEIVERS_ENDPOINTS + "/" + receiverIdWithDot;
+    var receiverIdWithDot = "receiver.id";
+    var requestPath = URI_VERSION + GATEWAY_RECEIVERS_ENDPOINTS + "/" + receiverIdWithDot;
 
     when(cms.get(any())).thenReturn(new ClusterManagementGetResult<>());
 
     context.perform(get(requestPath))
         .andExpect(status().is2xxSuccessful());
 
-    ArgumentCaptor<GatewayReceiver> gatewayReceiverCaptor =
+    var gatewayReceiverCaptor =
         ArgumentCaptor.forClass(GatewayReceiver.class);
     verify(cms).get(gatewayReceiverCaptor.capture());
 

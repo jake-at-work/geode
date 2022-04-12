@@ -50,27 +50,27 @@ public class SearchLoadAndWriteProcessorTest {
   @Test
   public void verifyThatOffHeapReleaseIsCalledAfterNetWrite() {
     // setup
-    SearchLoadAndWriteProcessor processor = SearchLoadAndWriteProcessor.getProcessor();
-    LocalRegion lr = mock(LocalRegion.class);
+    var processor = SearchLoadAndWriteProcessor.getProcessor();
+    var lr = mock(LocalRegion.class);
     when(lr.getOffHeap()).thenReturn(true);
     when(lr.getScope()).thenReturn(Scope.DISTRIBUTED_ACK);
     Object key = "key";
-    StoredObject value = mock(StoredObject.class);
+    var value = mock(StoredObject.class);
     when(value.hasRefCount()).thenReturn(true);
     when(value.retain()).thenReturn(true);
     Object cbArg = null;
-    KeyInfo keyInfo = new KeyInfo(key, value, cbArg);
+    var keyInfo = new KeyInfo(key, value, cbArg);
     when(lr.getKeyInfo(any(), any(), any())).thenReturn(keyInfo);
     processor.region = lr;
 
-    InternalCache cache = mock(InternalCache.class);
-    InternalDistributedSystem ids = mock(InternalDistributedSystem.class);
-    MemoryAllocator mem = mock(MemoryAllocator.class);
+    var cache = mock(InternalCache.class);
+    var ids = mock(InternalDistributedSystem.class);
+    var mem = mock(MemoryAllocator.class);
     when(lr.getCache()).thenReturn(cache);
     when(cache.getDistributedSystem()).thenReturn(ids);
     when(ids.getOffHeapStore()).thenReturn(mem);
 
-    EntryEventImpl event =
+    var event =
         EntryEventImpl.create(lr, Operation.REPLACE, key, value, cbArg, false, null);
 
     try {
@@ -90,17 +90,17 @@ public class SearchLoadAndWriteProcessorTest {
 
   @Test
   public void verifyNoProcessingReplyFromADepartedMember() {
-    SearchLoadAndWriteProcessor processor = SearchLoadAndWriteProcessor.getProcessor();
-    DistributedRegion lr = mock(DistributedRegion.class);
-    RegionAttributes attrs = mock(RegionAttributes.class);
-    GemFireCacheImpl cache = mock(GemFireCacheImpl.class);
-    InternalDistributedSystem ds = mock(InternalDistributedSystem.class);
-    DistributionManager dm = mock(DistributionManager.class);
-    CacheDistributionAdvisor advisor = mock(CacheDistributionAdvisor.class);
-    CachePerfStats stats = mock(CachePerfStats.class);
-    ExpirationAttributes expirationAttrs = mock(ExpirationAttributes.class);
-    InternalDistributedMember m1 = mock(InternalDistributedMember.class);
-    InternalDistributedMember m2 = mock(InternalDistributedMember.class);
+    var processor = SearchLoadAndWriteProcessor.getProcessor();
+    var lr = mock(DistributedRegion.class);
+    var attrs = mock(RegionAttributes.class);
+    var cache = mock(GemFireCacheImpl.class);
+    var ds = mock(InternalDistributedSystem.class);
+    var dm = mock(DistributionManager.class);
+    var advisor = mock(CacheDistributionAdvisor.class);
+    var stats = mock(CachePerfStats.class);
+    var expirationAttrs = mock(ExpirationAttributes.class);
+    var m1 = mock(InternalDistributedMember.class);
+    var m2 = mock(InternalDistributedMember.class);
     Set<InternalDistributedMember> replicates = new HashSet<>();
     replicates.add(m1);
     replicates.add(m2);
@@ -123,12 +123,11 @@ public class SearchLoadAndWriteProcessorTest {
     when(advisor.adviseInitializedReplicates()).thenReturn(replicates);
 
     Object key = "k1";
-    byte[] v1 = "v1".getBytes();
-    byte[] v2 = "v2".getBytes();
-    EntryEventImpl event = EntryEventImpl.create(lr, Operation.GET, key, null, null, false, null);
+    var v1 = "v1".getBytes();
+    var v2 = "v2".getBytes();
+    var event = EntryEventImpl.create(lr, Operation.GET, key, null, null, false, null);
 
-
-    Thread t1 = new Thread(() -> {
+    var t1 = new Thread(() -> {
       await()
           .until(() -> processor.getSelectedNode() != null);
       departedMember = processor.getSelectedNode();
@@ -137,7 +136,7 @@ public class SearchLoadAndWriteProcessorTest {
     });
     t1.start();
 
-    Thread t2 = new Thread(() -> {
+    var t2 = new Thread(() -> {
       await()
           .until(() -> departedMember != null && processor.getSelectedNode() != null
               && departedMember != processor.getSelectedNode());
@@ -148,7 +147,7 @@ public class SearchLoadAndWriteProcessorTest {
     });
     t2.start();
 
-    Thread t3 = new Thread(() -> {
+    var t3 = new Thread(() -> {
       await()
           .until(() -> departedMember != null && processor.getSelectedNode() != null
               && departedMember != processor.getSelectedNode());

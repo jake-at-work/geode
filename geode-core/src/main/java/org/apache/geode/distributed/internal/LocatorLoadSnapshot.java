@@ -20,7 +20,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
@@ -79,7 +78,7 @@ public class LocatorLoadSnapshot {
   public LocatorLoadSnapshot() {
     connectionLoadMap.put(null, new HashMap<>());
     queueLoadMap.put(null, new HashMap<>());
-    String property = System.getProperty(LOAD_IMBALANCE_THRESHOLD_PROPERTY_NAME);
+    var property = System.getProperty(LOAD_IMBALANCE_THRESHOLD_PROPERTY_NAME);
     if (property != null) {
       loadImbalanceThreshold = Float.parseFloat(property);
     } else {
@@ -93,11 +92,11 @@ public class LocatorLoadSnapshot {
   public synchronized void addServer(ServerLocation location, String memberId, String[] groups,
       ServerLoad initialLoad, long loadPollInterval) {
     serverGroupMap.put(location, groups);
-    LoadHolder connectionLoad =
+    var connectionLoad =
         new LoadHolder(location, initialLoad.getConnectionLoad(),
             initialLoad.getLoadPerConnection(), loadPollInterval);
     addGroups(connectionLoadMap, groups, connectionLoad, memberId);
-    LoadHolder queueLoad = new LoadHolder(location,
+    var queueLoad = new LoadHolder(location,
         initialLoad.getSubscriptionConnectionLoad(),
         initialLoad.getLoadPerSubscriptionConnection(), loadPollInterval);
     addGroups(queueLoadMap, groups, queueLoad);
@@ -108,7 +107,7 @@ public class LocatorLoadSnapshot {
    * Remove a server from the load snapshot.
    */
   public synchronized void removeServer(ServerLocation location, String memberId) {
-    String[] groups = serverGroupMap.remove(location);
+    var groups = serverGroupMap.remove(location);
     /*
      * Adding null check for #41522 - we were getting a remove from a BridgeServer that was shutting
      * down and the ServerLocation wasn't in this map. The root cause isn't 100% clear but it might
@@ -130,14 +129,14 @@ public class LocatorLoadSnapshot {
   synchronized void updateLoad(ServerLocation location, String memberId, ServerLoad newLoad,
       List<ClientProxyMembershipID> clientIds) {
 
-    String[] groups = serverGroupMap.get(location);
+    var groups = serverGroupMap.get(location);
     // the server was asynchronously removed, so don't do anything.
     if (groups == null) {
       return;
     }
 
     if (clientIds != null) {
-      for (ClientProxyMembershipID clientId : clientIds) {
+      for (var clientId : clientIds) {
         cancelClientEstimate(clientId, location);
       }
     }
@@ -153,7 +152,7 @@ public class LocatorLoadSnapshot {
       group = null;
     }
 
-    Map<ServerLocationAndMemberId, LoadHolder> groupServers = connectionLoadMap.get(group);
+    var groupServers = connectionLoadMap.get(group);
     return isBalanced(groupServers);
   }
 
@@ -167,14 +166,14 @@ public class LocatorLoadSnapshot {
       return true;
     }
 
-    float bestLoad = Float.MAX_VALUE;
-    float largestLoadPerConnection = Float.MIN_VALUE;
-    float worstLoad = Float.MIN_VALUE;
+    var bestLoad = Float.MAX_VALUE;
+    var largestLoadPerConnection = Float.MIN_VALUE;
+    var worstLoad = Float.MIN_VALUE;
 
-    for (Entry<ServerLocationAndMemberId, LoadHolder> loadHolderEntry : groupServers.entrySet()) {
-      LoadHolder nextLoadReference = loadHolderEntry.getValue();
-      float nextLoad = nextLoadReference.getLoad();
-      float nextLoadPerConnection = nextLoadReference.getLoadPerConnection();
+    for (var loadHolderEntry : groupServers.entrySet()) {
+      var nextLoadReference = loadHolderEntry.getValue();
+      var nextLoad = nextLoadReference.getLoad();
+      var nextLoadPerConnection = nextLoadReference.getLoadPerConnection();
 
       if (nextLoad < bestLoad) {
         bestLoad = nextLoad;
@@ -187,7 +186,7 @@ public class LocatorLoadSnapshot {
       }
     }
 
-    boolean balanced = (worstLoad - bestLoad) <= largestLoadPerConnection;
+    var balanced = (worstLoad - bestLoad) <= largestLoadPerConnection;
 
     if (withThresholdCheck) {
       balanced = thresholdCheck(bestLoad, worstLoad, largestLoadPerConnection, balanced);
@@ -220,7 +219,7 @@ public class LocatorLoadSnapshot {
     // see if we're out of balance enough to trigger rebalancing or whether we
     // should tolerate the imbalance
     if (!balanced) {
-      float imbalance = worstLoad - bestLoad;
+      var imbalance = worstLoad - bestLoad;
       if (imbalance >= (largestLoadPerConnection * loadImbalanceThreshold)) {
         rebalancing = true;
       } else {
@@ -248,7 +247,7 @@ public class LocatorLoadSnapshot {
       group = null;
     }
 
-    Map<ServerLocationAndMemberId, LoadHolder> groupServers = connectionLoadMap.get(group);
+    var groupServers = connectionLoadMap.get(group);
     if (groupServers == null || groupServers.isEmpty()) {
       return null;
     }
@@ -258,7 +257,7 @@ public class LocatorLoadSnapshot {
       if (bestLHs.isEmpty()) {
         return null;
       }
-      LoadHolder lh = (LoadHolder) bestLHs.get(0);
+      var lh = (LoadHolder) bestLHs.get(0);
       lh.incConnections();
       return lh.getLocation();
     }
@@ -268,12 +267,12 @@ public class LocatorLoadSnapshot {
     if ("".equals(group)) {
       group = null;
     }
-    Map<ServerLocationAndMemberId, LoadHolder> groupServers = connectionLoadMap.get(group);
+    var groupServers = connectionLoadMap.get(group);
     if (groupServers == null || groupServers.isEmpty()) {
       return null;
     }
     ArrayList result = new ArrayList<>();
-    for (ServerLocationAndMemberId locationAndMemberId : groupServers.keySet()) {
+    for (var locationAndMemberId : groupServers.keySet()) {
       result.add(locationAndMemberId.getServerLocation());
     }
     return result;
@@ -297,7 +296,7 @@ public class LocatorLoadSnapshot {
       group = null;
     }
 
-    Map<ServerLocationAndMemberId, LoadHolder> groupServers = connectionLoadMap.get(group);
+    var groupServers = connectionLoadMap.get(group);
     if (groupServers == null || groupServers.isEmpty()) {
       return null;
     }
@@ -308,16 +307,16 @@ public class LocatorLoadSnapshot {
       return currentServer;
     }
 
-    LoadHolder currentServerLH = isCurrentServerMostLoaded(currentServer, groupServers);
+    var currentServerLH = isCurrentServerMostLoaded(currentServer, groupServers);
     if (currentServerLH == null) {
       return currentServer;
     }
     {
-      List<LoadHolder> bestLHs = findBestServers(groupServers, excludedServers, 1);
+      var bestLHs = findBestServers(groupServers, excludedServers, 1);
       if (bestLHs.isEmpty()) {
         return null;
       }
-      LoadHolder bestLH = bestLHs.get(0);
+      var bestLH = bestLHs.get(0);
       currentServerLH.decConnections();
       bestLH.incConnections();
       return bestLH.getLocation();
@@ -353,23 +352,23 @@ public class LocatorLoadSnapshot {
       group = null;
     }
 
-    Map<ServerLocation, LoadHolder> groupServers = queueLoadMap.get(group);
+    var groupServers = queueLoadMap.get(group);
 
     if (groupServers == null || groupServers.isEmpty()) {
       return Collections.emptyList();
     }
     {
-      List<LoadHolder> bestLHs = findBestServers(groupServers, excludedServers, count);
-      ArrayList<ServerLocation> result = new ArrayList<>(bestLHs.size());
+      var bestLHs = findBestServers(groupServers, excludedServers, count);
+      var result = new ArrayList<ServerLocation>(bestLHs.size());
 
       if (id != null) {
-        ClientProxyMembershipID.Identity actualId = id.getIdentity();
-        for (LoadHolder load : bestLHs) {
-          EstimateMapKey key = new EstimateMapKey(actualId, load.getLocation());
-          LoadEstimateTask task = new LoadEstimateTask(key, load);
+        var actualId = id.getIdentity();
+        for (var load : bestLHs) {
+          var key = new EstimateMapKey(actualId, load.getLocation());
+          var task = new LoadEstimateTask(key, load);
           try {
             final long MIN_TIMEOUT = 60000; // 1 minute
-            long timeout = load.getLoadPollInterval() * 2;
+            var timeout = load.getLoadPollInterval() * 2;
             if (timeout < MIN_TIMEOUT) {
               timeout = MIN_TIMEOUT;
             }
@@ -382,7 +381,7 @@ public class LocatorLoadSnapshot {
           result.add(load.getLocation());
         }
       } else {
-        for (LoadHolder load : bestLHs) {
+        for (var load : bestLHs) {
           load.incConnections();
           result.add(load.getLocation());
         }
@@ -396,15 +395,15 @@ public class LocatorLoadSnapshot {
    * each server.
    */
   public synchronized Map<ServerLocation, ServerLoad> getLoadMap() {
-    Map<ServerLocationAndMemberId, LoadHolder> connectionMap = connectionLoadMap.get(null);
-    Map<ServerLocation, LoadHolder> queueMap = queueLoadMap.get(null);
+    var connectionMap = connectionLoadMap.get(null);
+    var queueMap = queueLoadMap.get(null);
     Map<ServerLocation, ServerLoad> result = new HashMap<>();
 
-    for (Entry<ServerLocationAndMemberId, LoadHolder> entry : connectionMap
+    for (var entry : connectionMap
         .entrySet()) {
-      ServerLocation location = entry.getKey().getServerLocation();
-      LoadHolder connectionLoad = entry.getValue();
-      LoadHolder queueLoad = queueMap.get(location);
+      var location = entry.getKey().getServerLocation();
+      var connectionLoad = entry.getValue();
+      var queueLoad = queueMap.get(location);
       // was asynchronously removed
       if (queueLoad == null) {
         continue;
@@ -420,13 +419,13 @@ public class LocatorLoadSnapshot {
   @VisibleForTesting
   void addGroups(Map<String, Map<ServerLocation, LoadHolder>> map, String[] groups,
       LoadHolder holder) {
-    for (String group : groups) {
-      Map<ServerLocation, LoadHolder> groupMap = map.computeIfAbsent(group, k -> new HashMap<>());
+    for (var group : groups) {
+      var groupMap = map.computeIfAbsent(group, k -> new HashMap<>());
       groupMap.put(holder.getLocation(), holder);
     }
     // Special case for GatewayReceiver where we don't put those serverlocation against holder
     if (!(groups.length > 0 && groups[0].equals(GatewayReceiver.RECEIVER_GROUP))) {
-      Map<ServerLocation, LoadHolder> groupMap = map.computeIfAbsent(null, k -> new HashMap<>());
+      var groupMap = map.computeIfAbsent(null, k -> new HashMap<>());
       groupMap.put(holder.getLocation(), holder);
     }
   }
@@ -435,14 +434,14 @@ public class LocatorLoadSnapshot {
   void addGroups(Map<String, Map<ServerLocationAndMemberId, LoadHolder>> map,
       String[] groups,
       LoadHolder holder, String memberId) {
-    for (String group : groups) {
-      Map<ServerLocationAndMemberId, LoadHolder> groupMap =
+    for (var group : groups) {
+      var groupMap =
           map.computeIfAbsent(group, k -> new HashMap<>());
       groupMap.put(new ServerLocationAndMemberId(holder.getLocation(), memberId), holder);
     }
     // Special case for GatewayReceiver where we don't put those serverlocation against holder
     if (!(groups.length > 0 && groups[0].equals(GatewayReceiver.RECEIVER_GROUP))) {
-      Map<ServerLocationAndMemberId, LoadHolder> groupMap =
+      var groupMap =
           map.computeIfAbsent(null, k -> new HashMap<>());
       groupMap.put(new ServerLocationAndMemberId(holder.getLocation(), memberId), holder);
     }
@@ -451,8 +450,8 @@ public class LocatorLoadSnapshot {
   @VisibleForTesting
   void removeFromMap(Map<String, Map<ServerLocation, LoadHolder>> map, String[] groups,
       ServerLocation location) {
-    for (String group : groups) {
-      Map<ServerLocation, LoadHolder> groupMap = map.get(group);
+    for (var group : groups) {
+      var groupMap = map.get(group);
       if (groupMap != null) {
         groupMap.remove(location);
         if (groupMap.size() == 0) {
@@ -468,10 +467,10 @@ public class LocatorLoadSnapshot {
   void removeFromMap(Map<String, Map<ServerLocationAndMemberId, LoadHolder>> map,
       String[] groups,
       ServerLocation location, String memberId) {
-    ServerLocationAndMemberId locationAndMemberId =
+    var locationAndMemberId =
         new ServerLocationAndMemberId(location, memberId);
-    for (String group : groups) {
-      Map<ServerLocationAndMemberId, LoadHolder> groupMap = map.get(group);
+    for (var group : groups) {
+      var groupMap = map.get(group);
       if (groupMap != null) {
         groupMap.remove(locationAndMemberId);
         if (groupMap.size() == 0) {
@@ -491,12 +490,12 @@ public class LocatorLoadSnapshot {
   @VisibleForTesting
   void updateMap(Map map, ServerLocation location, String memberId, float load,
       float loadPerConnection) {
-    Map groupMap = (Map) map.get(null);
+    var groupMap = (Map) map.get(null);
     LoadHolder holder;
     if (memberId.equals("")) {
       holder = (LoadHolder) groupMap.get(location);
     } else {
-      ServerLocationAndMemberId locationAndMemberId =
+      var locationAndMemberId =
           new ServerLocationAndMemberId(location, memberId);
       holder = (LoadHolder) groupMap.get(locationAndMemberId);
     }
@@ -521,22 +520,22 @@ public class LocatorLoadSnapshot {
       return new ArrayList<>();
     }
 
-    TreeSet<LoadHolder> bestEntries = new TreeSet<>((l1, l2) -> {
-      int difference = Float.compare(l1.getLoad(), l2.getLoad());
+    var bestEntries = new TreeSet<LoadHolder>((l1, l2) -> {
+      var difference = Float.compare(l1.getLoad(), l2.getLoad());
       if (difference != 0) {
         return difference;
       }
-      ServerLocation sl1 = l1.getLocation();
-      ServerLocation sl2 = l2.getLocation();
+      var sl1 = l1.getLocation();
+      var sl2 = l2.getLocation();
       return sl1.compareTo(sl2);
     });
 
-    boolean retainAll = (count < 0);
-    float lastBestLoad = Float.MAX_VALUE;
+    var retainAll = (count < 0);
+    var lastBestLoad = Float.MAX_VALUE;
 
     for (Map.Entry<?, LoadHolder> loadEntry : groupServers.entrySet()) {
       ServerLocation location;
-      Object key = loadEntry.getKey();
+      var key = loadEntry.getKey();
       if (key instanceof ServerLocationAndMemberId) {
         location = ((ServerLocationAndMemberId) key).getServerLocation();
       } else if (key instanceof ServerLocation) {
@@ -549,15 +548,15 @@ public class LocatorLoadSnapshot {
         continue;
       }
 
-      LoadHolder nextLoadReference = loadEntry.getValue();
-      float nextLoad = nextLoadReference.getLoad();
+      var nextLoadReference = loadEntry.getValue();
+      var nextLoad = nextLoadReference.getLoad();
 
       if ((bestEntries.size() < count) || retainAll || (nextLoad < lastBestLoad)) {
         bestEntries.add(nextLoadReference);
         if (!retainAll && (bestEntries.size() > count)) {
           bestEntries.remove(bestEntries.last());
         }
-        LoadHolder lastBestHolder = bestEntries.last();
+        var lastBestHolder = bestEntries.last();
         lastBestLoad = lastBestHolder.getLoad();
       }
     }
@@ -574,7 +573,7 @@ public class LocatorLoadSnapshot {
 
     // Check if there are keys in the map that contains currentServer.
     LoadHolder currentLH = null;
-    for (ServerLocationAndMemberId locationAndMemberId : groupServers.keySet()) {
+    for (var locationAndMemberId : groupServers.keySet()) {
       if (currentServer.equals(locationAndMemberId.getServerLocation())) {
         currentLH = groupServers.get(locationAndMemberId);
         break;
@@ -583,14 +582,14 @@ public class LocatorLoadSnapshot {
     if (currentLH == null) {
       return null;
     }
-    final float currentLoad = currentLH.getLoad();
-    for (Map.Entry<ServerLocationAndMemberId, LoadHolder> loadEntry : groupServers.entrySet()) {
-      ServerLocation location = loadEntry.getKey().getServerLocation();
+    final var currentLoad = currentLH.getLoad();
+    for (var loadEntry : groupServers.entrySet()) {
+      var location = loadEntry.getKey().getServerLocation();
       if (location.equals(currentServer)) {
         continue;
       }
-      LoadHolder nextLoadReference = loadEntry.getValue();
-      float nextLoad = nextLoadReference.getLoad();
+      var nextLoadReference = loadEntry.getValue();
+      var nextLoad = nextLoadReference.getLoad();
       if (nextLoad > currentLoad) {
         // found a server who has a higher load than us
         return null;
@@ -661,7 +660,7 @@ public class LocatorLoadSnapshot {
       if (!(obj instanceof EstimateMapKey)) {
         return false;
       }
-      EstimateMapKey that = (EstimateMapKey) obj;
+      var that = (EstimateMapKey) obj;
       return clientId.equals(that.clientId) && serverId.equals(that.serverId);
     }
   }

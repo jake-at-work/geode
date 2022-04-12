@@ -19,9 +19,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryPoolMXBean;
 import java.util.Properties;
-import java.util.Set;
 
 import javax.management.ListenerNotFoundException;
 import javax.management.NotificationEmitter;
@@ -34,12 +32,10 @@ import org.junit.Test;
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.LowMemoryException;
-import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.Scope;
-import org.apache.geode.cache.control.ResourceManager;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.internal.cache.control.InternalResourceManager.ResourceType;
@@ -55,7 +51,7 @@ public class MemoryMonitorJUnitTest {
 
   @Before
   public void setUp() throws Exception {
-    Properties p = new Properties();
+    var p = new Properties();
     p.setProperty(MCAST_PORT, "0");
     ds = DistributedSystem.connect(p);
     cache = (GemFireCacheImpl) CacheFactory.create(ds);
@@ -93,8 +89,8 @@ public class MemoryMonitorJUnitTest {
    */
   @Test
   public void testInvokeListeners() throws Exception {
-    InternalResourceManager internalManager = cache.getInternalResourceManager();
-    HeapMemoryMonitor heapMonitor = internalManager.getHeapMonitor();
+    var internalManager = cache.getInternalResourceManager();
+    var heapMonitor = internalManager.getHeapMonitor();
 
     heapMonitor.setTestMaxMemoryBytes(1000);
     HeapMemoryMonitor.setTestBytesUsedForThresholdSet(50);
@@ -106,11 +102,11 @@ public class MemoryMonitorJUnitTest {
     assertEquals(800, internalManager.getStats().getEvictionThreshold());
 
     // register a bunch of listeners
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       ResourceListener listener = new TestMemoryThresholdListener();
       internalManager.addResourceListener(ResourceType.HEAP_MEMORY, listener);
     }
-    Set<ResourceListener<?>> heapListeners =
+    var heapListeners =
         internalManager.getResourceListeners(ResourceType.HEAP_MEMORY);
     assertEquals(10 + SYSTEM_LISTENERS, heapListeners.size());
 
@@ -154,9 +150,9 @@ public class MemoryMonitorJUnitTest {
   // TODO: write a converse of this test when default values are enabled
   @Test
   public void testDefaultThresholds() throws Exception {
-    final InternalResourceManager irm = cache.getInternalResourceManager();
-    final HeapMemoryMonitor hmm = irm.getHeapMonitor();
-    TestMemoryThresholdListener listener = new TestMemoryThresholdListener();
+    final var irm = cache.getInternalResourceManager();
+    final var hmm = irm.getHeapMonitor();
+    var listener = new TestMemoryThresholdListener();
     irm.addResourceListener(ResourceType.HEAP_MEMORY, listener);
 
     hmm.setTestMaxMemoryBytes(1000);
@@ -203,9 +199,9 @@ public class MemoryMonitorJUnitTest {
   @Test
   public void testSubRegionCloseRemovesListener() {
     // test local sub region
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
-    Region parent = cache.createRegion("parent", factory.create());
+    var parent = cache.createRegion("parent", factory.create());
     parent.createSubregion("sub", factory.create());
     parent.close();
     assertEquals(0 + SYSTEM_LISTENERS, cache.getInternalResourceManager(false)
@@ -239,9 +235,9 @@ public class MemoryMonitorJUnitTest {
    */
   @Test
   public void testPutsRejectionDistributedRegion() throws Exception {
-    AttributesFactory attr = new AttributesFactory();
+    var attr = new AttributesFactory();
     attr.setScope(Scope.DISTRIBUTED_ACK);
-    Region region = cache.createRegion("DistributedRegion", attr.create());
+    var region = cache.createRegion("DistributedRegion", attr.create());
     checkOpRejection(region, false, true);
     region.close();
     assertEquals(0 + SYSTEM_LISTENERS, cache.getInternalResourceManager(false)
@@ -250,9 +246,9 @@ public class MemoryMonitorJUnitTest {
 
   @Test
   public void testTxDistributedRegion() throws Exception {
-    AttributesFactory attr = new AttributesFactory();
+    var attr = new AttributesFactory();
     attr.setScope(Scope.DISTRIBUTED_ACK);
-    Region region = cache.createRegion("DistributedRegion", attr.create());
+    var region = cache.createRegion("DistributedRegion", attr.create());
     checkOpRejection(region, true, true);
     region.close();
     assertEquals(0 + SYSTEM_LISTENERS, cache.getInternalResourceManager(false)
@@ -261,9 +257,9 @@ public class MemoryMonitorJUnitTest {
 
   @Test
   public void testPutsLocalRegion() throws Exception {
-    AttributesFactory attr = new AttributesFactory();
+    var attr = new AttributesFactory();
     attr.setScope(Scope.LOCAL);
-    Region region = cache.createRegion("localRegion", attr.create());
+    var region = cache.createRegion("localRegion", attr.create());
     checkOpRejection(region, false, true);
     region.close();
     assertEquals(0 + SYSTEM_LISTENERS, cache.getInternalResourceManager(false)
@@ -272,9 +268,9 @@ public class MemoryMonitorJUnitTest {
 
   @Test
   public void testTxLocalRegion() throws Exception {
-    AttributesFactory attr = new AttributesFactory();
+    var attr = new AttributesFactory();
     attr.setScope(Scope.LOCAL);
-    Region region = cache.createRegion("localRegion", attr.create());
+    var region = cache.createRegion("localRegion", attr.create());
     checkOpRejection(region, true, true);
     region.close();
     assertEquals(0 + SYSTEM_LISTENERS, cache.getInternalResourceManager(false)
@@ -283,9 +279,9 @@ public class MemoryMonitorJUnitTest {
 
   @Test
   public void testPutsRejectedSubRegion() throws Exception {
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
-    Region subRegion =
+    var subRegion =
         cache.createRegion("local1", factory.create()).createSubregion("sub1", factory.create());
     checkOpRejection(subRegion, false, true);
     subRegion.close();
@@ -297,9 +293,9 @@ public class MemoryMonitorJUnitTest {
 
   @Test
   public void testTxSubRegion() throws Exception {
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.LOCAL);
-    Region subRegion =
+    var subRegion =
         cache.createRegion("local1", factory.create()).createSubregion("sub1", factory.create());
     checkOpRejection(subRegion, true, true);
     subRegion.close();
@@ -311,9 +307,9 @@ public class MemoryMonitorJUnitTest {
 
   @Test
   public void testPutsPartitionedRegion() throws Exception {
-    PartitionAttributes pa =
+    var pa =
         new PartitionAttributesFactory().setRedundantCopies(0).setTotalNumBuckets(3).create();
-    Region region = new RegionFactory().setPartitionAttributes(pa).create("parReg");
+    var region = new RegionFactory().setPartitionAttributes(pa).create("parReg");
     checkOpRejection(region, false, true);
     region.close();
     assertEquals(0 + SYSTEM_LISTENERS, cache.getInternalResourceManager(false)
@@ -326,14 +322,14 @@ public class MemoryMonitorJUnitTest {
       cache.getCacheTransactionManager().begin();
     }
     region.put("key-1", "value-1");
-    int addSubregion = 0;
+    var addSubregion = 0;
     if (region.getName().equals("sub1")) {
       addSubregion++;
     }
 
-    InternalResourceManager internalManager = cache.getInternalResourceManager();
-    HeapMemoryMonitor heapMonitor = internalManager.getHeapMonitor();
-    TestMemoryThresholdListener listener = new TestMemoryThresholdListener();
+    var internalManager = cache.getInternalResourceManager();
+    var heapMonitor = internalManager.getHeapMonitor();
+    var listener = new TestMemoryThresholdListener();
     internalManager.addResourceListener(ResourceType.HEAP_MEMORY, listener);
     heapMonitor.setTestMaxMemoryBytes(100);
     HeapMemoryMonitor.setTestBytesUsedForThresholdSet(50);
@@ -348,7 +344,7 @@ public class MemoryMonitorJUnitTest {
 
     heapMonitor.updateStateAndSendEvent(97, "test");
     assertEquals(1, listener.getCriticalThresholdCalls());
-    boolean caughtException = false;
+    var caughtException = false;
     try {
       region.put("key-1", "value-2");
     } catch (LowMemoryException low) {
@@ -374,15 +370,15 @@ public class MemoryMonitorJUnitTest {
 
   @Test
   public void testCriticalHeapThreshold() throws Exception {
-    final int toohigh = 101;
-    final int toolow = -1;
-    final float disabled = 0.0f;
-    final float justright = 92.5f;
-    final ResourceManager rm = cache.getResourceManager();
+    final var toohigh = 101;
+    final var toolow = -1;
+    final var disabled = 0.0f;
+    final var justright = 92.5f;
+    final var rm = cache.getResourceManager();
 
     long usageThreshold = -1;
-    int once = 0;
-    for (MemoryPoolMXBean p : ManagementFactory.getMemoryPoolMXBeans()) {
+    var once = 0;
+    for (var p : ManagementFactory.getMemoryPoolMXBeans()) {
       if (p.isUsageThresholdSupported() && HeapMemoryMonitor.isTenured(p)) {
         usageThreshold = p.getUsageThreshold();
         once++;
@@ -393,7 +389,7 @@ public class MemoryMonitorJUnitTest {
     // Default test, current default is disabled
     assertEquals(rm.getCriticalHeapPercentage(), MemoryThresholds.DEFAULT_CRITICAL_PERCENTAGE,
         0.01);
-    NotificationEmitter emitter = (NotificationEmitter) ManagementFactory.getMemoryMXBean();
+    var emitter = (NotificationEmitter) ManagementFactory.getMemoryMXBean();
     try {
       emitter.removeNotificationListener(
           InternalResourceManager.getInternalResourceManager(cache).getHeapMonitor());
@@ -416,8 +412,8 @@ public class MemoryMonitorJUnitTest {
     rm.setCriticalHeapPercentage(justright);
     emitter = (NotificationEmitter) ManagementFactory.getMemoryMXBean();
     {
-      InternalResourceManager irm = InternalResourceManager.getInternalResourceManager(cache);
-      HeapMemoryMonitor hmm = irm.getHeapMonitor();
+      var irm = InternalResourceManager.getInternalResourceManager(cache);
+      var hmm = irm.getHeapMonitor();
       // Expect no exception for removal (it was installed during set)
       hmm.stopMonitoring();
     }
@@ -433,7 +429,7 @@ public class MemoryMonitorJUnitTest {
     } catch (ListenerNotFoundException ignored) {
     }
     // Assert the threshold was reset
-    for (MemoryPoolMXBean p : ManagementFactory.getMemoryPoolMXBeans()) {
+    for (var p : ManagementFactory.getMemoryPoolMXBeans()) {
       if (HeapMemoryMonitor.isTenured(p)) {
         assertEquals(usageThreshold, p.getUsageThreshold());
       }
@@ -442,22 +438,21 @@ public class MemoryMonitorJUnitTest {
 
   @Test
   public void testHandleNotification() throws Exception {
-    final InternalResourceManager irm = cache.getInternalResourceManager();
-    final HeapMemoryMonitor hmm = irm.getHeapMonitor();
+    final var irm = cache.getInternalResourceManager();
+    final var hmm = irm.getHeapMonitor();
 
     hmm.setTestMaxMemoryBytes(100);
     HeapMemoryMonitor.setTestBytesUsedForThresholdSet(50);
     irm.setEvictionHeapPercentage(80);
     irm.setCriticalHeapPercentage(90);
 
-
-    TestMemoryThresholdListener listener = new TestMemoryThresholdListener();
+    var listener = new TestMemoryThresholdListener();
     listener.resetThresholdCalls();
     irm.addResourceListener(ResourceType.HEAP_MEMORY, listener);
 
     assertEquals(0, listener.getAllCalls());
     // test EVICTION, CRITICAL, EVICTION, NORMAL cycle
-    for (int i = 0; i < 3; i++) {
+    for (var i = 0; i < 3; i++) {
       hmm.updateStateAndSendEvent(82, "test"); // EVICTION
       assertEquals(i * 4 + 1, listener.getAllCalls());
       assertEquals((i * 3) + 1, listener.getEvictionThresholdCalls());
@@ -507,7 +502,7 @@ public class MemoryMonitorJUnitTest {
     listener.resetThresholdCalls();
 
     // generate many events in threshold thickness for eviction threshold
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       hmm.updateStateAndSendEvent(82, "test"); // EVICTION
       assertEquals(1, listener.getEvictionThresholdCalls());
       assertEquals((i * 2) + 1, listener.getAllCalls());
@@ -517,7 +512,7 @@ public class MemoryMonitorJUnitTest {
     }
     listener.resetThresholdCalls();
     // generate many events in threshold thickness for critical threshold
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       hmm.updateStateAndSendEvent(92, "test"); // CRITICAL
       assertEquals(1, listener.getCriticalThresholdCalls());
       assertEquals((i * 2) + 1, listener.getAllCalls());
@@ -529,7 +524,7 @@ public class MemoryMonitorJUnitTest {
     listener.resetThresholdCalls();
 
     // generate many events around threshold thickness for eviction threshold
-    for (int i = 1; i < 6; i++) {
+    for (var i = 1; i < 6; i++) {
       hmm.updateStateAndSendEvent(82, "test"); // EVICTION
       assertEquals(i, listener.getEvictionThresholdCalls());
       assertEquals(82, listener.getCurrentHeapPercentage());
@@ -543,7 +538,7 @@ public class MemoryMonitorJUnitTest {
     hmm.updateStateAndSendEvent(87, "test"); // EVICTION
     listener.resetThresholdCalls();
     // generate many events around threshold thickness for critical threshold
-    for (int i = 1; i < 6; i++) {
+    for (var i = 1; i < 6; i++) {
       hmm.updateStateAndSendEvent(92, "test"); // CRITICAL
       assertEquals(i, listener.getCriticalThresholdCalls());
       assertEquals(92, listener.getCurrentHeapPercentage());
@@ -579,14 +574,14 @@ public class MemoryMonitorJUnitTest {
 
   @Test
   public void testDisabledThresholds() {
-    final InternalResourceManager irm = cache.getInternalResourceManager();
-    final HeapMemoryMonitor hmm = irm.getHeapMonitor();
+    final var irm = cache.getInternalResourceManager();
+    final var hmm = irm.getHeapMonitor();
     hmm.setTestMaxMemoryBytes(100);
     HeapMemoryMonitor.setTestBytesUsedForThresholdSet(50);
     irm.setEvictionHeapPercentage(80);
     irm.setCriticalHeapPercentage(90);
 
-    TestMemoryThresholdListener listener = new TestMemoryThresholdListener();
+    var listener = new TestMemoryThresholdListener();
     irm.addResourceListener(ResourceType.HEAP_MEMORY, listener);
     listener.resetThresholdCalls();
     assertEquals(0, listener.getAllCalls());
@@ -745,9 +740,9 @@ public class MemoryMonitorJUnitTest {
 
   @Test
   public void testAddListeners() {
-    final InternalResourceManager internalManager = cache.getInternalResourceManager();
-    ResourceListener<MemoryEvent> memoryListener =
-        event -> cache.getLogger().info("Received MemoryEvent");
+    final var internalManager = cache.getInternalResourceManager();
+    var memoryListener =
+        (ResourceListener<MemoryEvent>) event -> cache.getLogger().info("Received MemoryEvent");
     internalManager.addResourceListener(ResourceType.HEAP_MEMORY, memoryListener);
 
     assertEquals(1 + SYSTEM_LISTENERS,

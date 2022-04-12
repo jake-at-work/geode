@@ -113,7 +113,7 @@ public class FindCoordinatorRequest<ID extends MemberIdentifier> extends Abstrac
     context.getSerializer().writeObject(memberID, out);
     if (rejectedCoordinators != null) {
       out.writeInt(rejectedCoordinators.size());
-      for (ID mbr : rejectedCoordinators) {
+      for (var mbr : rejectedCoordinators) {
         context.getSerializer().writeObject(mbr, out);
       }
     } else {
@@ -129,9 +129,9 @@ public class FindCoordinatorRequest<ID extends MemberIdentifier> extends Abstrac
   public void fromData(DataInput in,
       DeserializationContext context) throws IOException, ClassNotFoundException {
     memberID = context.getDeserializer().readObject(in);
-    int size = in.readInt();
+    var size = in.readInt();
     rejectedCoordinators = new ArrayList<>(size);
-    for (int i = 0; i < size; i++) {
+    for (var i = 0; i < size; i++) {
       rejectedCoordinators.add(context.getDeserializer().readObject(in));
     }
     lastViewId = in.readInt();
@@ -142,8 +142,8 @@ public class FindCoordinatorRequest<ID extends MemberIdentifier> extends Abstrac
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
+    final var prime = 31;
+    var result = 1;
     result = prime * result + lastViewId;
     result = prime * result + ((dhalgo == null) ? 0 : dhalgo.hashCode());
     result = prime * result + ((memberID == null) ? 0 : memberID.hashCode());
@@ -163,7 +163,7 @@ public class FindCoordinatorRequest<ID extends MemberIdentifier> extends Abstrac
     if (getClass() != obj.getClass()) {
       return false;
     }
-    FindCoordinatorRequest<ID> other = (FindCoordinatorRequest<ID>) obj;
+    var other = (FindCoordinatorRequest<ID>) obj;
     if (lastViewId != other.lastViewId) {
       return false;
     }

@@ -70,8 +70,8 @@ public class SlotAdvisor {
    */
   public synchronized List<MemberBucketSlot> getBucketSlots() throws InterruptedException {
     List<MemberBucketSlot> memberBucketSlots = new ArrayList<>(RegionProvider.REDIS_REGION_BUCKETS);
-    for (int bucketId = 0; bucketId < REDIS_REGION_BUCKETS; bucketId++) {
-      RedisMemberInfo memberInfo = getMemberInfo(bucketId);
+    for (var bucketId = 0; bucketId < REDIS_REGION_BUCKETS; bucketId++) {
+      var memberInfo = getMemberInfo(bucketId);
       if (memberInfo != null) {
         memberBucketSlots.add(
             new MemberBucketSlot(bucketId, memberInfo.getMember(), memberInfo.getHostAddress(),
@@ -95,7 +95,7 @@ public class SlotAdvisor {
   private RedisMemberInfo getMemberInfo(int bucketId) throws InterruptedException {
     RedisMemberInfo response;
 
-    for (int i = 0; i < HOSTPORT_RETRIEVAL_ATTEMPTS; i++) {
+    for (var i = 0; i < HOSTPORT_RETRIEVAL_ATTEMPTS; i++) {
       response = getMemberInfo0(bucketId);
       if (response != null) {
         return response;
@@ -111,7 +111,7 @@ public class SlotAdvisor {
 
   @SuppressWarnings("unchecked")
   private RedisMemberInfo getMemberInfo0(int bucketId) {
-    InternalDistributedMember member = getOrCreateMember(bucketId);
+    var member = getOrCreateMember(bucketId);
 
     if (memberInfos.containsKey(member)) {
       return memberInfos.get(member);
@@ -124,7 +124,7 @@ public class SlotAdvisor {
 
     this.memberInfos.clear();
 
-    for (RedisMemberInfo memberInfo : memberInfos) {
+    for (var memberInfo : memberInfos) {
       if (memberInfo == null) {
         continue;
       }

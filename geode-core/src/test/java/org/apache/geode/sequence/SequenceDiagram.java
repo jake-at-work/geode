@@ -19,7 +19,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.util.ArrayList;
@@ -71,14 +70,14 @@ public class SequenceDiagram extends JPanel {
     shortLineNames = parseShortNames(lineNames, lineMapper);
     this.minTime = minTime;
     this.maxTime = maxTime;
-    int width = getInitialWidth();
-    int height = 500;
+    var width = getInitialWidth();
+    var height = 500;
     super.setPreferredSize(new Dimension(width, height));
     resizeMe(width, height);
     addComponentListener(new ComponentAdapter() {
       @Override
       public void componentResized(ComponentEvent e) {
-        Component source = (Component) e.getSource();
+        var source = (Component) e.getSource();
         resizeMe(source.getWidth(), source.getHeight());
       }
     });
@@ -88,9 +87,9 @@ public class SequenceDiagram extends JPanel {
   private Map<String, List<String>> parseShortNames(List<String> lineNames, LineMapper lineMapper) {
     Map<String, List<String>> shortNames =
         new LinkedHashMap<>(lineNames.size());
-    for (String name : lineNames) {
-      String shortName = lineMapper.getShortNameForLine(name);
-      List<String> list = shortNames.get(shortName);
+    for (var name : lineNames) {
+      var shortName = lineMapper.getShortNameForLine(name);
+      var list = shortNames.get(shortName);
       if (list == null) {
         list = new ArrayList<>();
         shortNames.put(shortName, list);
@@ -120,13 +119,12 @@ public class SequenceDiagram extends JPanel {
 
   public void resizeMe(int width, int height) {
     setPreferredSize(new Dimension(width, height));
-    float xZoom = width / (float) getInitialWidth();
+    var xZoom = width / (float) getInitialWidth();
 
-
-    long elapsedTime = maxTime - minTime;
-    double yScale = height / (double) elapsedTime;
+    var elapsedTime = maxTime - minTime;
+    var yScale = height / (double) elapsedTime;
     // long yBase = (long) (minTime - ((long) Y_PADDING / yScale));
-    long yBase = minTime;
+    var yBase = minTime;
     lineStep = (int) (PADDING_BETWEEN_LINES * xZoom);
     lineWidth = (int) (STATE_WIDTH * xZoom);
 
@@ -134,15 +132,15 @@ public class SequenceDiagram extends JPanel {
       return;
     }
 
-    int sublineWidth = lineWidth / subDiagrams.size();
-    int sublineIndex = 0;
-    for (SubDiagram diagram : subDiagrams.values()) {
-      int lineIndex = 0;
-      for (List<String> fullNames : shortLineNames.values()) {
-        for (String name : fullNames) {
-          Lifeline line = diagram.lifelines.get(name);
+    var sublineWidth = lineWidth / subDiagrams.size();
+    var sublineIndex = 0;
+    for (var diagram : subDiagrams.values()) {
+      var lineIndex = 0;
+      for (var fullNames : shortLineNames.values()) {
+        for (var name : fullNames) {
+          var line = diagram.lifelines.get(name);
           if (line != null) {
-            int lineX = lineIndex * lineStep + sublineIndex * sublineWidth;
+            var lineX = lineIndex * lineStep + sublineIndex * sublineWidth;
             line.resize(lineX, sublineWidth, yBase, yScale);
           }
         }
@@ -153,7 +151,7 @@ public class SequenceDiagram extends JPanel {
   }
 
   public void showPopupText(int x, int y, int xOnScreen, int yOnScreen) {
-    LifelineState state = getStateAt(x, y);
+    var state = getStateAt(x, y);
     if (state == mouseoverState) {
       return;
     }
@@ -164,7 +162,7 @@ public class SequenceDiagram extends JPanel {
       mouseover = null;
       mouseoverState = null;
     } else {
-      Component popupContents = state.getPopup();
+      var popupContents = state.getPopup();
       mouseoverState = state;
       mouseover =
           PopupFactory.getSharedInstance().getPopup(this, popupContents, xOnScreen + 20, yOnScreen);
@@ -173,7 +171,7 @@ public class SequenceDiagram extends JPanel {
   }
 
   public void selectState(int x, int y) {
-    LifelineState state = getStateAt(x, y);
+    var state = getStateAt(x, y);
     if (state == selectedState) {
       return;
     }
@@ -197,12 +195,12 @@ public class SequenceDiagram extends JPanel {
     // That could make painting faster as well.
     List<String> reverseList = new ArrayList<>(lineNames);
     Collections.reverse(reverseList);
-    for (SubDiagram diagram : subDiagrams.values()) {
-      for (String name : reverseList) {
-        Lifeline line = diagram.lifelines.get(name);
+    for (var diagram : subDiagrams.values()) {
+      for (var name : reverseList) {
+        var line = diagram.lifelines.get(name);
         if (line != null) {
           if (line.getX() < x && line.getX() + line.getWidth() > x) {
-            LifelineState state = line.getStateAt(y);
+            var state = line.getStateAt(y);
             if (state != null) {
               return state;
             }
@@ -216,13 +214,13 @@ public class SequenceDiagram extends JPanel {
   @Override
   protected void paintComponent(Graphics g) {
     super.paintComponent(g);
-    Graphics2D g2 = (Graphics2D) g.create();
+    var g2 = (Graphics2D) g.create();
     // TODO - we should clip these to the visible lines
-    for (SubDiagram subDiagram : subDiagrams.values()) {
+    for (var subDiagram : subDiagrams.values()) {
       subDiagram.paintStates(g2, colorMap);
     }
 
-    for (SubDiagram subDiagram : subDiagrams.values()) {
+    for (var subDiagram : subDiagrams.values()) {
       subDiagram.paintArrows(g2, colorMap);
     }
     paintHighlightedComponents(g2, selectedState, new HashSet<>());
@@ -244,7 +242,7 @@ public class SequenceDiagram extends JPanel {
     if (endingState != null) {
       endingState.highlight(g2);
 
-      for (Arrow arrow : endingState.getInboundArrows()) {
+      for (var arrow : endingState.getInboundArrows()) {
         arrow.paint(g2);
         paintHighlightedComponents(g2, arrow.getStartingState(), visited);
       }
@@ -271,7 +269,7 @@ public class SequenceDiagram extends JPanel {
       SequenceDiagram.this.addComponentListener(new ComponentAdapter() {
         @Override
         public void componentResized(ComponentEvent e) {
-          int newWidth = e.getComponent().getWidth();
+          var newWidth = e.getComponent().getWidth();
           setPreferredSize(new Dimension(newWidth, AXIS_SIZE));
           revalidate();
         }
@@ -281,11 +279,11 @@ public class SequenceDiagram extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
       super.paintComponent(g);
-      Rectangle bounds = g.getClipBounds();
-      int index = 0;
-      for (String name : shortLineNames.keySet()) {
-        int nameWidth = g.getFontMetrics().stringWidth(name);
-        int lineX = lineStep * index;
+      var bounds = g.getClipBounds();
+      var index = 0;
+      for (var name : shortLineNames.keySet()) {
+        var nameWidth = g.getFontMetrics().stringWidth(name);
+        var lineX = lineStep * index;
         index++;
         if (bounds.getMaxX() < lineX || bounds.getMinX() > lineX + nameWidth) {
           continue;
@@ -309,15 +307,15 @@ public class SequenceDiagram extends JPanel {
     }
 
     public void paintStates(Graphics2D g2, StateColorMap colorMap) {
-      for (Lifeline line : lifelines.values()) {
+      for (var line : lifelines.values()) {
         line.paint(g2, colorMap);
       }
     }
 
     public void paintArrows(Graphics2D g2, StateColorMap colorMap) {
-      Color lineColor = colorMap.getColor(name);
+      var lineColor = colorMap.getColor(name);
       g2.setColor(lineColor);
-      for (Arrow arrow : arrows) {
+      for (var arrow : arrows) {
         arrow.paint(g2);
       }
     }

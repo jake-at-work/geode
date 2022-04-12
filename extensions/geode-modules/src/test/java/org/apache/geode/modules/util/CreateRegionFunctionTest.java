@@ -33,7 +33,7 @@ import org.apache.geode.cache.RegionAttributes;
 public class CreateRegionFunctionTest {
 
   private RegionAttributes getRegionAttributesWithModifiedDiskDirs(final File[] diskDirs) {
-    final RegionAttributes mockRegionAttributes = mock(RegionAttributes.class);
+    final var mockRegionAttributes = mock(RegionAttributes.class);
     when(mockRegionAttributes.getDiskStoreName()).thenReturn(null);
     when(mockRegionAttributes.getDataPolicy()).thenReturn(DataPolicy.NORMAL);
     when(mockRegionAttributes.getCacheListeners()).thenReturn(new CacheListener[] {});
@@ -45,7 +45,7 @@ public class CreateRegionFunctionTest {
   }
 
   private RegionAttributes getRegionAttributesWithModifiedDiskDirSize(final int[] diskDirSize) {
-    final RegionAttributes mockRegionAttributes = mock(RegionAttributes.class);
+    final var mockRegionAttributes = mock(RegionAttributes.class);
     when(mockRegionAttributes.getDiskStoreName()).thenReturn(null);
     when(mockRegionAttributes.getDataPolicy()).thenReturn(DataPolicy.NORMAL);
     when(mockRegionAttributes.getCacheListeners()).thenReturn(new CacheListener[] {});
@@ -59,19 +59,19 @@ public class CreateRegionFunctionTest {
 
   @Test
   public void regionComparisonMustBeSuccessfulWhenDiskStoreNamesForBothAreNullAndDiskPropertiesAreDifferent() {
-    final CreateRegionFunction createRegionFunction = mock(CreateRegionFunction.class);
+    final var createRegionFunction = mock(CreateRegionFunction.class);
     doCallRealMethod().when(createRegionFunction).compareRegionAttributes(any(), any());
 
-    final RegionAttributes existingRegionAttributes =
+    final var existingRegionAttributes =
         getRegionAttributesWithModifiedDiskDirSize(new int[] {1});
-    final RegionAttributes requestedRegionAttributes =
+    final var requestedRegionAttributes =
         getRegionAttributesWithModifiedDiskDirSize(new int[] {2});
     createRegionFunction.compareRegionAttributes(existingRegionAttributes,
         requestedRegionAttributes);
 
-    final RegionAttributes existingRegionAttributes2 =
+    final var existingRegionAttributes2 =
         getRegionAttributesWithModifiedDiskDirs(null);
-    final RegionAttributes requestedRegionAttributes2 =
+    final var requestedRegionAttributes2 =
         getRegionAttributesWithModifiedDiskDirs(new File[] {});
     createRegionFunction.compareRegionAttributes(existingRegionAttributes2,
         requestedRegionAttributes2);

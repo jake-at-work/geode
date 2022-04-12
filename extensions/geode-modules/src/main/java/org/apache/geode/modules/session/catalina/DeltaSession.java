@@ -38,7 +38,6 @@ import org.apache.catalina.ha.session.SerializablePrincipal;
 import org.apache.catalina.realm.GenericPrincipal;
 import org.apache.catalina.security.SecurityUtil;
 import org.apache.catalina.session.StandardSession;
-import org.apache.juli.logging.Log;
 
 import org.apache.geode.DataSerializable;
 import org.apache.geode.DataSerializer;
@@ -122,7 +121,7 @@ public class DeltaSession extends StandardSession
   public HttpSession getSession() {
     if (facade == null) {
       if (isPackageProtectionEnabled()) {
-        final DeltaSession fsession = this;
+        final var fsession = this;
         facade = getNewFacade(fsession);
       } else {
         facade = new DeltaSessionFacade(this);
@@ -133,10 +132,10 @@ public class DeltaSession extends StandardSession
 
   @Override
   public Principal getPrincipal() {
-    final DeltaSessionManager<?> deltaSessionManager = getDeltaSessionManager();
+    final var deltaSessionManager = getDeltaSessionManager();
 
     if (principal == null && serializedPrincipal != null) {
-      final Log logger = deltaSessionManager.getLogger();
+      final var logger = deltaSessionManager.getLogger();
 
       final SerializablePrincipal sp;
       try {
@@ -166,7 +165,7 @@ public class DeltaSession extends StandardSession
     if (getManager() != null) {
       // TODO convert this to a delta
       getManager().add(this);
-      final Log logger = getDeltaSessionManager().getLogger();
+      final var logger = getDeltaSessionManager().getLogger();
       if (logger.isDebugEnabled()) {
         logger.debug(this + ": Cached principal: " + principal);
       }
@@ -176,11 +175,11 @@ public class DeltaSession extends StandardSession
   private byte[] getSerializedPrincipal() {
     if (serializedPrincipal == null) {
       if (principal != null && principal instanceof GenericPrincipal) {
-        GenericPrincipal gp = (GenericPrincipal) principal;
-        SerializablePrincipal sp = SerializablePrincipal.createPrincipal(gp);
+        var gp = (GenericPrincipal) principal;
+        var sp = SerializablePrincipal.createPrincipal(gp);
         serializedPrincipal = serialize(sp);
         if (manager != null) {
-          final Log logger = getDeltaSessionManager().getLogger();
+          final var logger = getDeltaSessionManager().getLogger();
           if (logger.isDebugEnabled()) {
             logger.debug(this + ": Serialized principal: " + sp);
           }
@@ -213,7 +212,7 @@ public class DeltaSession extends StandardSession
   @Override
   public void setOwner(Object manager) {
     if (manager instanceof DeltaSessionManager) {
-      DeltaSessionManager<?> sessionManager = (DeltaSessionManager<?>) manager;
+      var sessionManager = (DeltaSessionManager<?>) manager;
       this.manager = sessionManager;
       initializeRegion(sessionManager);
       hasDelta = false;
@@ -254,7 +253,7 @@ public class DeltaSession extends StandardSession
 
     synchronized (changeLock) {
       // Serialize the value
-      final byte[] serializedValue = value == null ? null : serialize(value);
+      final var serializedValue = value == null ? null : serialize(value);
 
       // Store the attribute locally
       if (preferDeserializedForm) {
@@ -338,7 +337,7 @@ public class DeltaSession extends StandardSession
       return null;
     }
     checkBackingCacheAvailable();
-    Object value = deserializeAttribute(name, super.getAttribute(name), preferDeserializedForm);
+    var value = deserializeAttribute(name, super.getAttribute(name), preferDeserializedForm);
 
     // Touch the session region if necessary. This is an asynchronous operation
     // that prevents the session region from prematurely expiring a session that
@@ -357,7 +356,7 @@ public class DeltaSession extends StandardSession
     // deserialize it and add it to attributes map before returning it.
     if (value instanceof byte[]) {
       try {
-        final Object deserialized = BlobHelper.deserializeBlob((byte[]) value);
+        final var deserialized = BlobHelper.deserializeBlob((byte[]) value);
         if (deserialized == null) {
           removeAttributeInternal(name, false);
           return null;
@@ -393,7 +392,7 @@ public class DeltaSession extends StandardSession
 
   @Override
   public void processExpired() {
-    DeltaSessionManager<?> manager = getDeltaSessionManager();
+    var manager = getDeltaSessionManager();
     if (manager != null && manager.getLogger() != null && manager.getLogger().isDebugEnabled()) {
       getDeltaSessionManager().getLogger().debug(this + ": Expired");
     }
@@ -464,7 +463,7 @@ public class DeltaSession extends StandardSession
   @Override
   public void applyAttributeEvents(Region<String, DeltaSessionInterface> region,
       List<DeltaSessionAttributeEvent> events) {
-    for (DeltaSessionAttributeEvent event : events) {
+    for (var event : events) {
       event.apply(this);
       queueAttributeEvent(event, false);
     }
@@ -597,7 +596,7 @@ public class DeltaSession extends StandardSession
     }
 
     // Iterate and apply the events
-    for (DeltaSessionAttributeEvent event : events) {
+    for (var event : events) {
       event.apply(this);
     }
 
@@ -667,7 +666,7 @@ public class DeltaSession extends StandardSession
   private void readInAttributes(DataInput in) throws IOException, ClassNotFoundException {
     ConcurrentHashMap<Object, Object> map = DataSerializer.readObject(in);
     try {
-      Field field = getAttributesFieldObject();
+      var field = getAttributesFieldObject();
       field.set(this, map);
     } catch (IllegalAccessException e) {
       logError(e);
@@ -680,7 +679,7 @@ public class DeltaSession extends StandardSession
   }
 
   private void logError(Exception e) {
-    final DeltaSessionManager<?> deltaSessionManager = getDeltaSessionManager();
+    final var deltaSessionManager = getDeltaSessionManager();
     if (deltaSessionManager != null) {
       deltaSessionManager.getLogger().error(e);
     }
@@ -688,11 +687,11 @@ public class DeltaSession extends StandardSession
 
   @Override
   public int getSizeInBytes() {
-    int size = 0;
+    var size = 0;
     Enumeration<String> attributeNames = uncheckedCast(getAttributeNames());
     while (attributeNames.hasMoreElements()) {
       // Don't use getAttribute() because we don't want to deserialize the value.
-      Object value = getAttributeWithoutDeserialize(attributeNames.nextElement());
+      var value = getAttributeWithoutDeserialize(attributeNames.nextElement());
       if (value instanceof byte[]) {
         size += ((byte[]) value).length;
       }
@@ -705,9 +704,9 @@ public class DeltaSession extends StandardSession
     // Iterate the values and serialize them if necessary before sending them to the server. This
     // makes the application classes unnecessary on the server.
     Map<String, byte[]> serializedAttributes = new ConcurrentHashMap<>();
-    for (Map.Entry<String, Object> entry : getAttributes().entrySet()) {
-      Object value = entry.getValue();
-      byte[] serializedValue = value instanceof byte[] ? (byte[]) value : serialize(value);
+    for (var entry : getAttributes().entrySet()) {
+      var value = entry.getValue();
+      var serializedValue = value instanceof byte[] ? (byte[]) value : serialize(value);
       serializedAttributes.put(entry.getKey(), serializedValue);
     }
     return serializedAttributes;
@@ -715,7 +714,7 @@ public class DeltaSession extends StandardSession
 
   protected Map<String, Object> getAttributes() {
     try {
-      Field field = getAttributesFieldObject();
+      var field = getAttributesFieldObject();
       return uncheckedCast(field.get(this));
     } catch (IllegalAccessException e) {
       logError(e);
@@ -728,7 +727,7 @@ public class DeltaSession extends StandardSession
     try {
       serializedValue = serializeViaBlobHelper(obj);
     } catch (IOException e) {
-      String builder = this + ": Object " + obj
+      var builder = this + ": Object " + obj
           + " cannot be serialized due to the following exception";
       getDeltaSessionManager().getLogger().warn(
           builder, e);

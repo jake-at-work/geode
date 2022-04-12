@@ -40,7 +40,6 @@ import org.junit.experimental.categories.Category;
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.Index;
 import org.apache.geode.cache.query.IndexType;
@@ -95,21 +94,21 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
   @Test
   public void testComparisonBetnWithAndWithoutIndexCreation() throws Exception {
 
-    Region region = CacheUtils.createRegion("pos", Portfolio.class);
-    for (int i = 0; i < 4; i++) {
+    var region = CacheUtils.createRegion("pos", Portfolio.class);
+    for (var i = 0; i < 4; i++) {
       region.put("" + i, new Portfolio(i));
     }
     QueryService qs;
     qs = CacheUtils.getQueryService();
-    String[] queries = {
+    var queries = new String[] {
         "SELECT DISTINCT * FROM " + SEPARATOR
             + "pos pf,  positions.values pos where pf.status='active' and pos.secId= 'IBM' and ID = 0"};
-    SelectResults[][] sr = new SelectResults[queries.length][2];
-    for (int i = 0; i < queries.length; i++) {
+    var sr = new SelectResults[queries.length][2];
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
-        QueryObserverImpl observer = new QueryObserverImpl();
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         sr[i][0] = (SelectResults) q.execute();
         if (!observer.isIndexesUsed) {
@@ -124,8 +123,8 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
         strg1 = resType1.getFieldNames();
 
         set1 = (sr[i][0].asSet());
-        for (final Object o : set1) {
-          Struct stc1 = (Struct) o;
+        for (final var o : set1) {
+          var stc1 = (Struct) o;
           valPf1 = stc1.get(strg1[0]);
           valPos1 = stc1.get(strg1[1]);
           isActive1 = ((Portfolio) stc1.get(strg1[0])).isActive();
@@ -140,17 +139,17 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
     // Create an Index on status and execute the same query again.
 
     qs = CacheUtils.getQueryService();
-    Index index1 =
+    var index1 =
         qs.createIndex("statusIndex", IndexType.FUNCTIONAL, "pf.status", SEPARATOR + "pos pf");
     // Index index2 = (Index)qs.createIndex("secIdIndex", IndexType.FUNCTIONAL,"pos.secId","/pos pf,
     // pf.positions.values pos");
-    Index index3 = qs.createIndex("IDIndex", IndexType.FUNCTIONAL, "pf.ID", SEPARATOR + "pos pf");
+    var index3 = qs.createIndex("IDIndex", IndexType.FUNCTIONAL, "pf.ID", SEPARATOR + "pos pf");
 
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
-        QueryObserverImpl observer2 = new QueryObserverImpl();
+        var observer2 = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer2);
         sr[i][1] = (SelectResults) q.execute();
         if (!observer2.isIndexesUsed) {
@@ -161,8 +160,8 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
         strg2 = resType2.getFieldNames();
 
         set2 = (sr[i][1].asSet());
-        for (final Object o : set2) {
-          Struct stc2 = (Struct) o;
+        for (final var o : set2) {
+          var stc2 = (Struct) o;
           valPf2 = stc2.get(strg2[0]);
           valPos2 = stc2.get(strg2[1]);
           isActive2 = ((Portfolio) stc2.get(strg2[0])).isActive();
@@ -188,8 +187,8 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
     itert2 = set2.iterator();
     itert1 = set1.iterator();
     while (itert1.hasNext()) {
-      Struct stc2 = (Struct) itert2.next();
-      Struct stc1 = (Struct) itert1.next();
+      var stc2 = (Struct) itert2.next();
+      var stc1 = (Struct) itert1.next();
       if (stc2.get(strg2[0]) != stc1.get(strg1[0])) {
         fail(
             "FAILED: In both the Cases the first member of StructSet i.e. Portfolio are different. ");
@@ -214,21 +213,21 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
 
   @Test
   public void testIndexSkipping() throws Exception {
-    Region region = CacheUtils.createRegion("pos", Portfolio.class);
-    for (int i = 0; i < 10; i++) {
+    var region = CacheUtils.createRegion("pos", Portfolio.class);
+    for (var i = 0; i < 10; i++) {
       region.put("" + i, new Portfolio(i));
     }
     QueryService qs;
     qs = CacheUtils.getQueryService();
-    String[] queries = {
+    var queries = new String[] {
         "SELECT DISTINCT * FROM " + SEPARATOR
             + "pos pf,  positions.values pos where pf.ID > 0 and pf.ID < 3  and pf.status='active' and  pos.secId != null "};
-    SelectResults[][] sr = new SelectResults[queries.length][2];
-    for (int i = 0; i < queries.length; i++) {
+    var sr = new SelectResults[queries.length][2];
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
-        QueryObserverImpl observer = new QueryObserverImpl();
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         sr[i][0] = (SelectResults) q.execute();
         if (!observer.isIndexesUsed) {
@@ -243,8 +242,8 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
         strg1 = resType1.getFieldNames();
 
         set1 = (sr[i][0].asSet());
-        for (final Object o : set1) {
-          Struct stc1 = (Struct) o;
+        for (final var o : set1) {
+          var stc1 = (Struct) o;
           valPf1 = stc1.get(strg1[0]);
           valPos1 = stc1.get(strg1[1]);
           isActive1 = ((Portfolio) stc1.get(strg1[0])).isActive();
@@ -259,17 +258,17 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
     // Create an Index on status and execute the same query again.
 
     qs = CacheUtils.getQueryService();
-    Index index1 =
+    var index1 =
         qs.createIndex("statusIndex", IndexType.FUNCTIONAL, "pf.status", SEPARATOR + "pos pf");
-    Index index2 = qs.createIndex("secIdIndex", IndexType.FUNCTIONAL, "pos.secId",
+    var index2 = qs.createIndex("secIdIndex", IndexType.FUNCTIONAL, "pos.secId",
         SEPARATOR + "pos pf, pf.positions.values pos");
-    Index index3 = qs.createIndex("IDIndex", IndexType.FUNCTIONAL, "pf.ID", SEPARATOR + "pos pf");
+    var index3 = qs.createIndex("IDIndex", IndexType.FUNCTIONAL, "pf.ID", SEPARATOR + "pos pf");
 
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
-        QueryObserverImpl observer2 = new QueryObserverImpl();
+        var observer2 = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer2);
         sr[i][1] = (SelectResults) q.execute();
         if (!observer2.isIndexesUsed) {
@@ -282,8 +281,8 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
         strg2 = resType2.getFieldNames();
 
         set2 = (sr[i][1].asSet());
-        for (final Object o : set2) {
-          Struct stc2 = (Struct) o;
+        for (final var o : set2) {
+          var stc2 = (Struct) o;
           valPf2 = stc2.get(strg2[0]);
           valPos2 = stc2.get(strg2[1]);
           isActive2 = ((Portfolio) stc2.get(strg2[0])).isActive();
@@ -309,8 +308,8 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
     itert2 = set2.iterator();
     itert1 = set1.iterator();
     while (itert1.hasNext()) {
-      Struct stc2 = (Struct) itert2.next();
-      Struct stc1 = (Struct) itert1.next();
+      var stc2 = (Struct) itert2.next();
+      var stc1 = (Struct) itert1.next();
       if (stc2.get(strg2[0]) != stc1.get(strg1[0])) {
         fail(
             "FAILED: In both the Cases the first member of StructSet i.e. Portfolio are different. ");
@@ -336,21 +335,21 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
   @Test
   public void testNoIndexSkipping() throws Exception {
 
-    Region region = CacheUtils.createRegion("pos", Portfolio.class);
-    for (int i = 0; i < 400; i++) {
+    var region = CacheUtils.createRegion("pos", Portfolio.class);
+    for (var i = 0; i < 400; i++) {
       region.put("" + i, new Portfolio(i));
     }
     QueryService qs;
     qs = CacheUtils.getQueryService();
-    String[] queries = {
+    var queries = new String[] {
         "SELECT DISTINCT * FROM " + SEPARATOR
             + "pos pf,  positions.values pos where pf.ID > 0 and pf.ID < 250  and pf.status='active' and  pos.secId != null "};
-    SelectResults[][] sr = new SelectResults[queries.length][2];
-    for (int i = 0; i < queries.length; i++) {
+    var sr = new SelectResults[queries.length][2];
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
-        QueryObserverImpl observer = new QueryObserverImpl();
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         sr[i][0] = (SelectResults) q.execute();
         if (!observer.isIndexesUsed) {
@@ -365,8 +364,8 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
         strg1 = resType1.getFieldNames();
 
         set1 = (sr[i][0].asSet());
-        for (final Object o : set1) {
-          Struct stc1 = (Struct) o;
+        for (final var o : set1) {
+          var stc1 = (Struct) o;
           valPf1 = stc1.get(strg1[0]);
           valPos1 = stc1.get(strg1[1]);
           isActive1 = ((Portfolio) stc1.get(strg1[0])).isActive();
@@ -381,17 +380,17 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
     // Create an Index on status and execute the same query again.
 
     qs = CacheUtils.getQueryService();
-    Index index1 =
+    var index1 =
         qs.createIndex("statusIndex", IndexType.FUNCTIONAL, "pf.status", SEPARATOR + "pos pf");
-    Index index2 = qs.createIndex("secIdIndex", IndexType.FUNCTIONAL, "pos.secId",
+    var index2 = qs.createIndex("secIdIndex", IndexType.FUNCTIONAL, "pos.secId",
         SEPARATOR + "pos pf, pf.positions.values pos");
-    Index index3 = qs.createIndex("IDIndex", IndexType.FUNCTIONAL, "pf.ID", SEPARATOR + "pos pf");
+    var index3 = qs.createIndex("IDIndex", IndexType.FUNCTIONAL, "pf.ID", SEPARATOR + "pos pf");
 
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
-        QueryObserverImpl observer2 = new QueryObserverImpl();
+        var observer2 = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer2);
         sr[i][1] = (SelectResults) q.execute();
         if (!observer2.isIndexesUsed) {
@@ -405,8 +404,8 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
         strg2 = resType2.getFieldNames();
 
         set2 = (sr[i][1].asSet());
-        for (final Object o : set2) {
-          Struct stc2 = (Struct) o;
+        for (final var o : set2) {
+          var stc2 = (Struct) o;
           valPf2 = stc2.get(strg2[0]);
           valPos2 = stc2.get(strg2[1]);
           isActive2 = ((Portfolio) stc2.get(strg2[0])).isActive();
@@ -463,11 +462,11 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
   @Test
   public void testIndexUsageIfIndexesGreaterThanFieldsInQueryWhereClauseWithTwoIterators()
       throws Exception {
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setValueConstraint(Portfolio.class);
-    RegionAttributes ra = af.createRegionAttributes();
-    Region region = CacheUtils.getCache().createRegion("pos", ra);
-    for (int i = 0; i < 4; i++) {
+    var ra = af.createRegionAttributes();
+    var region = CacheUtils.getCache().createRegion("pos", ra);
+    for (var i = 0; i < 4; i++) {
       region.put("" + i, new Portfolio(i));
     }
     executeQuery(region, true /* chcek referential integrity */);
@@ -477,7 +476,7 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
     af = new AttributesFactory();
     af.setValueConstraint(Portfolio.class);
 
-    PartitionAttributesFactory pfa = new PartitionAttributesFactory();
+    var pfa = new PartitionAttributesFactory();
 
     pfa.setRedundantCopies(0);
     pfa.setTotalNumBuckets(1);
@@ -485,8 +484,8 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
     ra = af.createRegionAttributes();
     region = CacheUtils.getCache().createRegion("pos", ra);
 
-    for (int i = 0; i < 4; i++) {
-      Portfolio x = new Portfolio(i);
+    for (var i = 0; i < 4; i++) {
+      var x = new Portfolio(i);
       region.put("" + i, x);
     }
     executeQuery(region, false/* chcek referential integrity */);
@@ -498,17 +497,17 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
   private void executeQuery(Region region, boolean checkReferentialIntegrity) throws Exception {
     QueryService qs;
     qs = CacheUtils.getQueryService();
-    String[] queries = {
+    var queries = new String[] {
         "SELECT DISTINCT pf FROM " + SEPARATOR
             + "pos pf,  positions.values pos where pf.description = 'XXXX'  and pos.secId= 'IBM' "};
-    SelectResults[][] sr = new SelectResults[queries.length][2];
+    var sr = new SelectResults[queries.length][2];
 
     ObjectType resType1 = null, resType2 = null;
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
-        QueryObserverImpl observer = new QueryObserverImpl();
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         sr[i][0] = (SelectResults) q.execute();
         if (!observer.isIndexesUsed) {
@@ -521,7 +520,7 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
         resSize1 = (sr[i][0].size());
         CacheUtils.log(resType1);
         set1 = (sr[i][0].asSet());
-        for (final Object o : set1) {
+        for (final var o : set1) {
           valPf1 = o;
           isActive1 = ((Portfolio) valPf1).isActive();
 
@@ -535,19 +534,19 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
     // Create an Index on status and execute the same query again.
 
     qs = CacheUtils.getQueryService();
-    Index index1 =
+    var index1 =
         qs.createIndex("statusIndex", IndexType.FUNCTIONAL, "pf.status", SEPARATOR + "pos pf");
-    Index index2 = qs.createIndex("secIdIndex", IndexType.FUNCTIONAL, "pos.secId",
+    var index2 = qs.createIndex("secIdIndex", IndexType.FUNCTIONAL, "pos.secId",
         SEPARATOR + "pos pf, pf.positions.values pos");
-    Index index3 =
+    var index3 =
         qs.createIndex("descriptionIndex", IndexType.FUNCTIONAL, "pf.description",
             SEPARATOR + "pos pf");
 
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
-        QueryObserverImpl observer2 = new QueryObserverImpl();
+        var observer2 = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer2);
         sr[i][1] = (SelectResults) q.execute();
         if (observer2.isIndexesUsed) {
@@ -561,7 +560,7 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
         // strg2=resType2.getFieldNames();
 
         set2 = (sr[i][1].asSet());
-        for (final Object o : set2) {
+        for (final var o : set2) {
           valPf2 = o;
           // valPf2=stc2.get(strg2[0]);
           // valPos2=stc2.get(strg2[1]);
@@ -588,9 +587,9 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
     itert2 = set2.iterator();
     itert1 = set1.iterator();
     while (itert1.hasNext()) {
-      Object pos2 = itert2.next();
-      Object pos1 = itert1.next();
-      Object posFromRegion = region.get(((Portfolio) pos1).getPk());
+      var pos2 = itert2.next();
+      var pos1 = itert1.next();
+      var posFromRegion = region.get(((Portfolio) pos1).getPk());
       if (!pos1.equals(pos2)) {
         fail(
             "FAILED: In both the Cases the first member of StructSet i.e. Portfolio are different. ");
@@ -618,11 +617,11 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
   @Test
   public void testIndexUsageIfIndexesGreaterThanFieldsInQueryWhereClauseWithOneIterator()
       throws Exception {
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setValueConstraint(Portfolio.class);
-    RegionAttributes ra = af.createRegionAttributes();
-    Region region = CacheUtils.getCache().createRegion("pos", ra);
-    for (int i = 0; i < 4; i++) {
+    var ra = af.createRegionAttributes();
+    var region = CacheUtils.getCache().createRegion("pos", ra);
+    for (var i = 0; i < 4; i++) {
       region.put("" + i, new Portfolio(i));
     }
     executeQuery_1(region, true /* chcek referential integrity */);
@@ -632,7 +631,7 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
     af = new AttributesFactory();
     af.setValueConstraint(Portfolio.class);
 
-    PartitionAttributesFactory pfa = new PartitionAttributesFactory();
+    var pfa = new PartitionAttributesFactory();
 
     pfa.setRedundantCopies(0);
     pfa.setTotalNumBuckets(1);
@@ -640,8 +639,8 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
     ra = af.createRegionAttributes();
     region = CacheUtils.getCache().createRegion("pos", ra);
 
-    for (int i = 0; i < 4; i++) {
-      Portfolio x = new Portfolio(i);
+    for (var i = 0; i < 4; i++) {
+      var x = new Portfolio(i);
       region.put("" + i, x);
     }
     executeQuery_1(region, false/* chcek referential integrity */);
@@ -655,17 +654,17 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
 
     QueryService qs;
     qs = CacheUtils.getQueryService();
-    String[] queries =
-        {"SELECT DISTINCT * FROM " + SEPARATOR
+    var queries =
+        new String[] {"SELECT DISTINCT * FROM " + SEPARATOR
             + "pos pf where pf.description = 'XXXX'  and pf.status='active' "};
-    SelectResults[][] sr = new SelectResults[queries.length][2];
+    var sr = new SelectResults[queries.length][2];
 
     ObjectType resType1 = null, resType2 = null;
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
-        QueryObserverImpl observer = new QueryObserverImpl();
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         sr[i][0] = (SelectResults) q.execute();
 
@@ -681,7 +680,7 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
         // strg1=resType1.getFieldNames();
 
         set1 = (sr[i][0].asSet());
-        for (final Object o : set1) {
+        for (final var o : set1) {
           valPf1 = o;
           // valPf1 = stc1.get(strg1[0]);
           // valPos1 = stc1.get(strg1[1]);
@@ -697,19 +696,19 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
     // Create an Index on status and execute the same query again.
 
     qs = CacheUtils.getQueryService();
-    Index index1 =
+    var index1 =
         qs.createIndex("statusIndex", IndexType.FUNCTIONAL, "pf.status", SEPARATOR + "pos pf");
-    Index index2 =
+    var index2 =
         qs.createIndex("IdIndex", IndexType.FUNCTIONAL, "pf.iD", SEPARATOR + "pos pf");
-    Index index3 =
+    var index3 =
         qs.createIndex("descriptionIndex", IndexType.FUNCTIONAL, "pf.description",
             SEPARATOR + "pos pf");
 
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
-        QueryObserverImpl observer2 = new QueryObserverImpl();
+        var observer2 = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer2);
         sr[i][1] = (SelectResults) q.execute();
         if (observer2.isIndexesUsed) {
@@ -723,7 +722,7 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
         // strg2=resType2.getFieldNames();
 
         set2 = (sr[i][1].asSet());
-        for (final Object o : set2) {
+        for (final var o : set2) {
           valPf2 = o;
           // valPf2=stc2.get(strg2[0]);
           // valPos2=stc2.get(strg2[1]);
@@ -750,9 +749,9 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
     itert2 = set2.iterator();
     itert1 = set1.iterator();
     while (itert1.hasNext()) {
-      Object pos2 = itert2.next();
-      Object pos1 = itert1.next();
-      Object posFromRegion = region.get(((Portfolio) pos1).getPk());
+      var pos2 = itert2.next();
+      var pos1 = itert1.next();
+      var posFromRegion = region.get(((Portfolio) pos1).getPk());
       if (!pos1.equals(pos2)) {
         fail(
             "FAILED: In both the Cases the first member of StructSet i.e. Portfolio are different. ");
@@ -793,11 +792,11 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
   @Test
   public void testIndexUsageIfOneFieldIndexedAndMoreThanOneUnindexed_Bug38032() throws Exception {
 
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setValueConstraint(Portfolio.class);
-    RegionAttributes ra = af.createRegionAttributes();
-    Region region = CacheUtils.getCache().createRegion("pos", ra);
-    for (int i = 0; i < 5; i++) {
+    var ra = af.createRegionAttributes();
+    var region = CacheUtils.getCache().createRegion("pos", ra);
+    for (var i = 0; i < 5; i++) {
       region.put("" + i, new Portfolio(i));
     }
     // As default generation of Portfolio objects
@@ -814,9 +813,9 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
     ((Portfolio) region.get("1")).setCreateTime(5);
     ((Portfolio) region.get("2")).setCreateTime(5);
     ((Portfolio) region.get("2")).description = "XXXX";
-    int numSatisfyingOurCond = 0;
-    for (int i = 0; i < 5; i++) {
-      Portfolio pf = (Portfolio) region.get("" + i);
+    var numSatisfyingOurCond = 0;
+    for (var i = 0; i < 5; i++) {
+      var pf = (Portfolio) region.get("" + i);
       if (pf.description != null && pf.description.equals("XXXX") && pf.getCreateTime() == 5
           && pf.isActive()) {
         ++numSatisfyingOurCond;
@@ -831,7 +830,7 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
     af = new AttributesFactory();
     af.setValueConstraint(Portfolio.class);
 
-    PartitionAttributesFactory pfa = new PartitionAttributesFactory();
+    var pfa = new PartitionAttributesFactory();
 
     pfa.setRedundantCopies(0);
     pfa.setTotalNumBuckets(1);
@@ -840,7 +839,7 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
     region = CacheUtils.getCache().createRegion("pos", ra);
 
 
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       region.put("" + i, new Portfolio(i));
     }
     // As default generation of Portfolio objects
@@ -853,7 +852,7 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
     // Thus out of 4 objects created only 1 object ( key =2 ) will have
     // description = XXXX , status = active & time = 5
 
-    Portfolio x = (Portfolio) region.get("0");
+    var x = (Portfolio) region.get("0");
     x.setCreateTime(5);
     region.put("0", x);
     x = (Portfolio) region.get("1");
@@ -864,8 +863,8 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
     x.description = "XXXX";
     region.put("2", x);
     numSatisfyingOurCond = 0;
-    for (int i = 0; i < 5; i++) {
-      Portfolio pf = (Portfolio) region.get("" + i);
+    for (var i = 0; i < 5; i++) {
+      var pf = (Portfolio) region.get("" + i);
       if (pf.description != null && pf.description.equals("XXXX") && pf.getCreateTime() == 5
           && pf.isActive()) {
         ++numSatisfyingOurCond;
@@ -883,16 +882,16 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
 
     QueryService qs;
     qs = CacheUtils.getQueryService();
-    String[] queries = {
+    var queries = new String[] {
         "SELECT DISTINCT * FROM " + SEPARATOR
             + "pos pf where pf.description = 'XXXX'  and pf.status='active' and pf.createTime = 5 "};
-    SelectResults[][] sr = new SelectResults[queries.length][2];
+    var sr = new SelectResults[queries.length][2];
     ObjectType resType1 = null, resType2 = null;
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
-        QueryObserverImpl observer = new QueryObserverImpl();
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         sr[i][0] = (SelectResults) q.execute();
         if (!observer.isIndexesUsed) {
@@ -906,7 +905,7 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
         CacheUtils.log(resType1);
         assertEquals(1, resSize1);
         set1 = (sr[i][0].asSet());
-        for (final Object o : set1) {
+        for (final var o : set1) {
           valPf1 = o;
           isActive1 = ((Portfolio) valPf1).isActive();
           assertTrue(isActive1);
@@ -923,17 +922,17 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
     // Create an Index on status and execute the same query again.
 
     qs = CacheUtils.getQueryService();
-    Index index1 =
+    var index1 =
         qs.createIndex("statusIndex", IndexType.FUNCTIONAL, "pf.status", SEPARATOR + "pos pf");
     // Index index2 = (Index)qs.createIndex("IdIndex", IndexType.FUNCTIONAL,"pf.iD","/pos pf");
     // Index index3 = qs.createIndex("descriptionIndex", IndexType.FUNCTIONAL,"pf.description","/pos
     // pf");
 
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
-        QueryObserverImpl observer2 = new QueryObserverImpl();
+        var observer2 = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer2);
         sr[i][1] = (SelectResults) q.execute();
         if (observer2.isIndexesUsed) {
@@ -947,7 +946,7 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
         // strg2=resType2.getFieldNames();
 
         set2 = (sr[i][1].asSet());
-        for (final Object o : set2) {
+        for (final var o : set2) {
           valPf2 = o;
           // valPf2=stc2.get(strg2[0]);
           // valPos2=stc2.get(strg2[1]);
@@ -978,9 +977,9 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
     itert2 = set2.iterator();
     itert1 = set1.iterator();
     while (itert1.hasNext()) {
-      Object pos2 = itert2.next();
-      Object pos1 = itert1.next();
-      Object posFromRegion = region.get(((Portfolio) pos1).getPk());
+      var pos2 = itert2.next();
+      var pos1 = itert1.next();
+      var posFromRegion = region.get(((Portfolio) pos1).getPk());
       if (!pos1.equals(pos2)) {
         fail(
             "FAILED: In both the Cases the first member of StructSet i.e. Portfolio are different. ");
@@ -1008,11 +1007,11 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
   @Test
   public void testIndexUsageIfTwoFieldsIndexedAndOneUnindexed() throws Exception {
 
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setValueConstraint(Portfolio.class);
-    RegionAttributes ra = af.createRegionAttributes();
-    Region region = CacheUtils.getCache().createRegion("pos", ra);
-    for (int i = 0; i < 5; i++) {
+    var ra = af.createRegionAttributes();
+    var region = CacheUtils.getCache().createRegion("pos", ra);
+    for (var i = 0; i < 5; i++) {
       region.put("" + i, new Portfolio(i));
     }
     // As default generation of Portfolio objects
@@ -1029,9 +1028,9 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
     ((Portfolio) region.get("1")).setCreateTime(5);
     ((Portfolio) region.get("2")).setCreateTime(5);
     ((Portfolio) region.get("2")).description = "XXXX";
-    int numSatisfyingOurCond = 0;
-    for (int i = 0; i < 5; i++) {
-      Portfolio pf = (Portfolio) region.get("" + i);
+    var numSatisfyingOurCond = 0;
+    for (var i = 0; i < 5; i++) {
+      var pf = (Portfolio) region.get("" + i);
       if (pf.description != null && pf.description.equals("XXXX") && pf.getCreateTime() == 5
           && pf.isActive()) {
         ++numSatisfyingOurCond;
@@ -1046,7 +1045,7 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
     af = new AttributesFactory();
     af.setValueConstraint(Portfolio.class);
 
-    PartitionAttributesFactory pfa = new PartitionAttributesFactory();
+    var pfa = new PartitionAttributesFactory();
 
     pfa.setRedundantCopies(0);
     pfa.setTotalNumBuckets(1);
@@ -1055,7 +1054,7 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
     region = CacheUtils.getCache().createRegion("pos", ra);
 
 
-    for (int i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       region.put("" + i, new Portfolio(i));
     }
     // As default generation of Portfolio objects
@@ -1068,7 +1067,7 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
     // Thus out of 4 objects created only 1 object ( key =2 ) will have
     // description = XXXX , status = active & time = 5
 
-    Portfolio x = (Portfolio) region.get("0");
+    var x = (Portfolio) region.get("0");
     x.setCreateTime(5);
     region.put("0", x);
     x = (Portfolio) region.get("1");
@@ -1079,8 +1078,8 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
     x.description = "XXXX";
     region.put("2", x);
     numSatisfyingOurCond = 0;
-    for (int i = 0; i < 5; i++) {
-      Portfolio pf = (Portfolio) region.get("" + i);
+    for (var i = 0; i < 5; i++) {
+      var pf = (Portfolio) region.get("" + i);
       if (pf.description != null && pf.description.equals("XXXX") && pf.getCreateTime() == 5
           && pf.isActive()) {
         ++numSatisfyingOurCond;
@@ -1098,16 +1097,16 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
 
     QueryService qs;
     qs = CacheUtils.getQueryService();
-    String[] queries = {
+    var queries = new String[] {
         "SELECT DISTINCT * FROM " + SEPARATOR
             + "pos pf where pf.description = 'XXXX'  and pf.status='active' and pf.createTime = 5 "};
     ObjectType resType1 = null, resType2 = null;
-    SelectResults[][] sr = new SelectResults[queries.length][2];
-    for (int i = 0; i < queries.length; i++) {
+    var sr = new SelectResults[queries.length][2];
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
-        QueryObserverImpl observer = new QueryObserverImpl();
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         sr[i][0] = (SelectResults) q.execute();
         if (!observer.isIndexesUsed) {
@@ -1119,7 +1118,7 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
         CacheUtils.log(resType1);
         assertEquals(1, resSize1);
         set1 = (sr[i][0].asSet());
-        for (final Object o : set1) {
+        for (final var o : set1) {
           valPf1 = o;
           isActive1 = ((Portfolio) valPf1).isActive();
           assertTrue(isActive1);
@@ -1136,19 +1135,19 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
     // Create an Index on status and execute the same query again.
 
     qs = CacheUtils.getQueryService();
-    Index index1 =
+    var index1 =
         qs.createIndex("statusIndex", IndexType.FUNCTIONAL, "pf.status", SEPARATOR + "pos pf");
-    Index index2 =
+    var index2 =
         qs.createIndex("IdIndex", IndexType.FUNCTIONAL, "pf.iD", SEPARATOR + "pos pf");
-    Index index3 =
+    var index3 =
         qs.createIndex("descriptionIndex", IndexType.FUNCTIONAL, "pf.description",
             SEPARATOR + "pos pf");
 
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
-        QueryObserverImpl observer2 = new QueryObserverImpl();
+        var observer2 = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer2);
         sr[i][1] = (SelectResults) q.execute();
         if (observer2.isIndexesUsed) {
@@ -1161,7 +1160,7 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
         // strg2=resType2.getFieldNames();
 
         set2 = (sr[i][1].asSet());
-        for (final Object o : set2) {
+        for (final var o : set2) {
           valPf2 = o;
           // valPf2=stc2.get(strg2[0]);
           // valPos2=stc2.get(strg2[1]);
@@ -1192,9 +1191,9 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
     itert2 = set2.iterator();
     itert1 = set1.iterator();
     while (itert1.hasNext()) {
-      Object pos2 = itert2.next();
-      Object pos1 = itert1.next();
-      Object posFromRegion = region.get(((Portfolio) pos1).getPk());
+      var pos2 = itert2.next();
+      var pos1 = itert1.next();
+      var posFromRegion = region.get(((Portfolio) pos1).getPk());
       if (!pos1.equals(pos2)) {
         fail(
             "FAILED: In both the Cases the first member of StructSet i.e. Portfolio are different. ");
@@ -1217,14 +1216,13 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
   @Test
   public void testNonDistinctOrCondResults() throws Exception {
 
-
-    Region region = CacheUtils.createRegion("pos", Portfolio.class);
-    for (int i = 0; i < 10; i++) {
+    var region = CacheUtils.createRegion("pos", Portfolio.class);
+    for (var i = 0; i < 10; i++) {
       region.put("" + i, new Portfolio(i));
     }
 
-    for (int i = 10; i < 20; i++) {
-      Portfolio p = new Portfolio(i);
+    for (var i = 10; i < 20; i++) {
+      var p = new Portfolio(i);
       if (i % 2 == 0) {
         p.status = null;
       }
@@ -1232,20 +1230,20 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
     }
     QueryService qs;
     qs = CacheUtils.getQueryService();
-    String[] queries =
-        {"SELECT * FROM " + SEPARATOR
+    var queries =
+        new String[] {"SELECT * FROM " + SEPARATOR
             + "pos pf,  positions.values pos where pf.ID > 0 OR pf.status='active' OR  pos.secId != 'IBM'",
             "SELECT * FROM " + SEPARATOR + "pos pf where pf.ID > 0 OR pf.status='active'",
             "SELECT * FROM " + SEPARATOR + "pos pf where pf.ID > 0 OR pf.status LIKE 'act%'",
             "SELECT * FROM " + SEPARATOR
                 + "pos pf where pf.ID > 0 OR pf.status IN SET('active', 'inactive')",};
 
-    SelectResults[] sr = new SelectResults[queries.length];
-    for (int i = 0; i < queries.length; i++) {
+    var sr = new SelectResults[queries.length];
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
-        QueryObserverImpl observer = new QueryObserverImpl();
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         sr[i] = (SelectResults) q.execute();
         if (observer.isIndexesUsed) {
@@ -1258,8 +1256,8 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
     }
 
     // Verify Results
-    for (int i = 0; i < sr.length; i++) {
-      Set resultSet = sr[i].asSet();
+    for (var i = 0; i < sr.length; i++) {
+      var resultSet = sr[i].asSet();
 
       // Check Element Type
       if (queries[i].contains("values")) {
@@ -1278,18 +1276,18 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
             resultSet.size());
       }
 
-      for (final Object obj : resultSet) {
+      for (final var obj : resultSet) {
         if (sr[i].getCollectionType().getElementType().toString().equals(
             "struct<pf:org.apache.geode.cache.query.data.Portfolio,pos:java.lang.Object>")) {
-          Object[] values = ((Struct) obj).getFieldValues();
-          Portfolio port = (Portfolio) values[0];
-          Position pos = (Position) values[1];
+          var values = ((Struct) obj).getFieldValues();
+          var port = (Portfolio) values[0];
+          var pos = (Position) values[1];
           if (!(port.getID() > 0 || port.status.equals("active") || pos.secId.equals("IBM"))) {
             fail("Result object" + obj
                 + " failed to satisfy all OR conditions of where clause of query " + queries[i]);
           }
         } else {
-          Portfolio port = (Portfolio) obj;
+          var port = (Portfolio) obj;
           if (!(port.getID() > 0 || port.status.equals("active"))) {
             fail("Result object" + port
                 + " failed to satisfy all OR conditions of where clause of query " + queries[i]);
@@ -1307,13 +1305,13 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
   @Test
   public void testCorrectOrCondResultWithMultiIndexes() throws Exception {
 
-    Region region = CacheUtils.createRegion("pos", Portfolio.class);
-    for (int i = 0; i < 10; i++) {
+    var region = CacheUtils.createRegion("pos", Portfolio.class);
+    for (var i = 0; i < 10; i++) {
       region.put("" + i, new Portfolio(i));
     }
 
-    for (int i = 10; i < 20; i++) {
-      Portfolio p = new Portfolio(i);
+    for (var i = 10; i < 20; i++) {
+      var p = new Portfolio(i);
       if (i % 2 == 0) {
         p.status = null;
       }
@@ -1321,8 +1319,8 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
     }
     QueryService qs;
     qs = CacheUtils.getQueryService();
-    String[] queries =
-        {"SELECT * FROM " + SEPARATOR
+    var queries =
+        new String[] {"SELECT * FROM " + SEPARATOR
             + "pos pf,  positions.values pos where pf.ID > 0 OR pf.status='active' OR  pos.secId != 'IBM'",
             "SELECT * FROM " + SEPARATOR + "pos pf where pf.ID > 0 OR pf.status='active'",
             "SELECT * FROM " + SEPARATOR + "pos pf where pf.ID > 0 OR pf.status LIKE 'act%'",
@@ -1331,12 +1329,12 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
             "SELECT * FROM " + SEPARATOR
                 + "pos pf where pf.ID > 0 OR pf.status IN SET('active', 'inactive')",};
 
-    SelectResults[][] sr = new SelectResults[queries.length][2];
-    for (int i = 0; i < queries.length; i++) {
+    var sr = new SelectResults[queries.length][2];
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
-        QueryObserverImpl observer = new QueryObserverImpl();
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         sr[i][0] = (SelectResults) q.execute();
         if (observer.isIndexesUsed) {
@@ -1351,17 +1349,17 @@ public class IndexWithSngleFrmAndMultCondQryJUnitTest {
     // Create an Index on status and execute the same query again.
 
     qs = CacheUtils.getQueryService();
-    Index index1 =
+    var index1 =
         qs.createIndex("statusIndex", IndexType.FUNCTIONAL, "pf.status", SEPARATOR + "pos pf");
-    Index index2 = qs.createIndex("secIdIndex", IndexType.FUNCTIONAL, "pos.secId",
+    var index2 = qs.createIndex("secIdIndex", IndexType.FUNCTIONAL, "pos.secId",
         SEPARATOR + "pos pf, pf.positions.values pos");
-    Index index3 = qs.createIndex("IDIndex", IndexType.FUNCTIONAL, "pf.ID", SEPARATOR + "pos pf");
+    var index3 = qs.createIndex("IDIndex", IndexType.FUNCTIONAL, "pf.ID", SEPARATOR + "pos pf");
 
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
-        QueryObserverImpl observer2 = new QueryObserverImpl();
+        var observer2 = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer2);
         sr[i][1] = (SelectResults) q.execute();
         if (!observer2.isIndexesUsed && !queries[i].contains("LIKE")) {

@@ -49,13 +49,11 @@ import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.KeyManagerFactoryWrapper;
 import io.netty.handler.ssl.util.TrustManagerFactoryWrapper;
 import io.netty.handler.timeout.WriteTimeoutHandler;
-import io.netty.util.concurrent.Future;
 import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.DistributionConfig;
 import org.apache.geode.internal.inet.LocalHostUtil;
-import org.apache.geode.internal.net.SSLConfig;
 import org.apache.geode.internal.net.SSLConfigurationFactory;
 import org.apache.geode.internal.net.filewatch.FileWatchingX509ExtendedKeyManager;
 import org.apache.geode.internal.net.filewatch.FileWatchingX509ExtendedTrustManager;
@@ -123,7 +121,7 @@ public class NettyRedisServer {
   }
 
   private Channel createChannel(int port) {
-    ServerBootstrap serverBootstrap =
+    var serverBootstrap =
         new ServerBootstrap()
             .group(selectorGroup, workerGroup)
             .channel(NioServerSocketChannel.class)
@@ -142,7 +140,7 @@ public class NettyRedisServer {
       closeFuture = serverChannel.closeFuture();
     }
     workerGroup.shutdownGracefully();
-    Future<?> bossFuture = selectorGroup.shutdownGracefully();
+    var bossFuture = selectorGroup.shutdownGracefully();
     if (serverChannel != null) {
       serverChannel.close();
     }
@@ -157,7 +155,7 @@ public class NettyRedisServer {
   }
 
   private ChannelInitializer<SocketChannel> createChannelInitializer() {
-    String redisUsername = configSupplier.get().getRedisUsername();
+    var redisUsername = configSupplier.get().getRedisUsername();
 
     return new ChannelInitializer<SocketChannel>() {
       @Override
@@ -166,7 +164,7 @@ public class NettyRedisServer {
           logger.debug(
               "GeodeRedisServer-Connection established with " + socketChannel.remoteAddress());
         }
-        ChannelPipeline pipeline = socketChannel.pipeline();
+        var pipeline = socketChannel.pipeline();
         addSSLIfEnabled(socketChannel, pipeline);
         pipeline.addLast(ByteToCommandDecoder.class.getSimpleName(),
             new ByteToCommandDecoder(redisStats, securityService, socketChannel.id()));
@@ -181,7 +179,7 @@ public class NettyRedisServer {
 
   private void addSSLIfEnabled(SocketChannel ch, ChannelPipeline p) {
 
-    SSLConfig sslConfigForServer =
+    var sslConfigForServer =
         SSLConfigurationFactory.getSSLConfigForComponent(configSupplier.get(),
             SecurableCommunicationChannel.SERVER);
 
@@ -205,7 +203,7 @@ public class NettyRedisServer {
             FileWatchingX509ExtendedTrustManager.newFileWatchingTrustManager(sslConfigForServer));
       }
 
-      SslContextBuilder sslContextBuilder = SslContextBuilder.forServer(keyManagerFactory);
+      var sslContextBuilder = SslContextBuilder.forServer(keyManagerFactory);
       sslContextBuilder.trustManager(trustManagerFactory);
 
       if (!sslConfigForServer.isAnyCiphers()) {
@@ -228,8 +226,8 @@ public class NettyRedisServer {
   }
 
   private Channel createBoundChannel(ServerBootstrap serverBootstrap, int requestedPort) {
-    int port = requestedPort == RANDOM_PORT_INDICATOR ? 0 : requestedPort;
-    ChannelFuture channelFuture =
+    var port = requestedPort == RANDOM_PORT_INDICATOR ? 0 : requestedPort;
+    var channelFuture =
         serverBootstrap.bind(new InetSocketAddress(bindAddress, port));
     try {
       channelFuture.syncUninterruptibly();
@@ -248,7 +246,7 @@ public class NettyRedisServer {
   }
 
   private void logStartupMessage() {
-    String logMessage = "GeodeRedisServer started {" + bindAddress + ":" + serverPort + "}";
+    var logMessage = "GeodeRedisServer started {" + bindAddress + ":" + serverPort + "}";
     logger.info(logMessage);
   }
 
@@ -283,7 +281,7 @@ public class NettyRedisServer {
   }
 
   private static EventLoopGroup createEventLoopGroup(String name, boolean isDaemon, int nThreads) {
-    String fullName = "GeodeRedisServer-" + name + "Thread-";
+    var fullName = "GeodeRedisServer-" + name + "Thread-";
     ThreadFactory threadFactory = new LoggingThreadFactory(fullName, isDaemon);
     return new NioEventLoopGroup(nThreads, threadFactory);
   }

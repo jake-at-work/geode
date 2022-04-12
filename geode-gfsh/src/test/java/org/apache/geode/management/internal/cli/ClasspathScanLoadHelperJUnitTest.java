@@ -49,8 +49,8 @@ public class ClasspathScanLoadHelperJUnitTest {
         add(WRONG_PACKAGE_NAME);
       }
     };
-    ClasspathScanLoadHelper scanner = new ClasspathScanLoadHelper(packages);
-    Set<Class<?>> classLoaded =
+    var scanner = new ClasspathScanLoadHelper(packages);
+    var classLoaded =
         scanner.scanPackagesForClassesImplementing(INTERFACE1, PACKAGE_NAME);
     assertEquals(2, classLoaded.size());
     assertTrue(classLoaded.contains(IMPL1));

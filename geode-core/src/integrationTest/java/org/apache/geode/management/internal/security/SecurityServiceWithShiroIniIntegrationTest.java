@@ -140,7 +140,7 @@ public class SecurityServiceWithShiroIniIntegrationTest {
   }
 
   private Properties loginCredentials(String username, String password) {
-    Properties credentials = new Properties();
+    var credentials = new Properties();
     credentials.put(ResourceConstants.USER_NAME, username);
     credentials.put(ResourceConstants.PASSWORD, password);
     return credentials;

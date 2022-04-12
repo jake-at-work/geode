@@ -68,12 +68,12 @@ public abstract class AbstractConfig implements Config {
 
   @Override
   public String toLoggerString() {
-    StringWriter stringWriter = new StringWriter();
-    PrintWriter printWriter = new PrintWriter(stringWriter);
+    var stringWriter = new StringWriter();
+    var printWriter = new PrintWriter(stringWriter);
     printSourceSection(ConfigSource.runtime(), printWriter);
     printSourceSection(ConfigSource.sysprop(), printWriter);
     printSourceSection(ConfigSource.api(), printWriter);
-    for (ConfigSource fileSource : getFileSources()) {
+    for (var fileSource : getFileSources()) {
       printSourceSection(fileSource, printWriter);
     }
     printSourceSection(ConfigSource.xml(), printWriter);
@@ -90,10 +90,10 @@ public abstract class AbstractConfig implements Config {
    */
   public Map<String, String> getConfigPropsFromSource(ConfigSource source) {
     Map<String, String> configProps = new HashMap<>();
-    String[] validAttributeNames = getAttributeNames();
-    Map<String, ConfigSource> sm = getAttSourceMap();
+    var validAttributeNames = getAttributeNames();
+    var sm = getAttSourceMap();
 
-    for (String name : validAttributeNames) {
+    for (var name : validAttributeNames) {
       if (source == null && sm.get(name) != null
           || source != null && !source.equals(sm.get(name))) {
         continue;
@@ -110,7 +110,7 @@ public abstract class AbstractConfig implements Config {
    */
   public Map<String, String> getConfigPropsDefinedUsingFiles() {
     Map<String, String> configProps = new HashMap<>();
-    for (ConfigSource fileSource : getFileSources()) {
+    for (var fileSource : getFileSources()) {
       configProps.putAll(getConfigPropsFromSource(fileSource));
     }
     return configProps;
@@ -119,8 +119,8 @@ public abstract class AbstractConfig implements Config {
   @Override
   public Properties toProperties() {
     Properties result = new SortedProperties();
-    String[] attNames = getAttributeNames();
-    for (String name : attNames) {
+    var attNames = getAttributeNames();
+    for (var name : attNames) {
       result.setProperty(name, getAttribute(name));
     }
     return result;
@@ -128,7 +128,7 @@ public abstract class AbstractConfig implements Config {
 
   @Override
   public void toFile(File file) throws IOException {
-    try (FileOutputStream out = new FileOutputStream(file)) {
+    try (var out = new FileOutputStream(file)) {
       toProperties().store(out, null);
     }
   }
@@ -144,22 +144,22 @@ public abstract class AbstractConfig implements Config {
     if (!getClass().equals(other.getClass())) {
       return false;
     }
-    String[] validAttributeNames = getAttributeNames();
-    for (String name : validAttributeNames) {
-      Object thisAtt = getAttributeObject(name);
-      Object otherAtt = other.getAttributeObject(name);
+    var validAttributeNames = getAttributeNames();
+    for (var name : validAttributeNames) {
+      var thisAtt = getAttributeObject(name);
+      var otherAtt = other.getAttributeObject(name);
       if (thisAtt != otherAtt) {
         if (thisAtt == null) {
           return false;
         } else if (thisAtt.getClass().isArray()) {
-          int thisLength = Array.getLength(thisAtt);
-          int otherLength = Array.getLength(otherAtt);
+          var thisLength = Array.getLength(thisAtt);
+          var otherLength = Array.getLength(otherAtt);
           if (thisLength != otherLength) {
             return false;
           }
-          for (int j = 0; j < thisLength; j++) {
-            Object thisArrObj = Array.get(thisAtt, j);
-            Object otherArrObj = Array.get(otherAtt, j);
+          for (var j = 0; j < thisLength; j++) {
+            var thisArrObj = Array.get(thisAtt, j);
+            var otherArrObj = Array.get(otherAtt, j);
             if (thisArrObj != otherArrObj) {
               if (thisArrObj == null) {
                 return false;
@@ -178,13 +178,13 @@ public abstract class AbstractConfig implements Config {
 
   @Override
   public String getAttribute(String name) {
-    Object result = getAttributeObject(name);
+    var result = getAttributeObject(name);
     if (result instanceof String) {
       return (String) result;
     }
 
     if (name.equalsIgnoreCase(MEMBERSHIP_PORT_RANGE)) {
-      int[] value = (int[]) result;
+      var value = (int[]) result;
       return "" + value[0] + "-" + value[1];
     }
 
@@ -197,7 +197,7 @@ public abstract class AbstractConfig implements Config {
     }
 
     if (result instanceof InetAddress) {
-      InetAddress addr = (InetAddress) result;
+      var addr = (InetAddress) result;
       String addrName;
       if (addr.isMulticastAddress() || !SocketCreator.resolve_dns) {
         // on Windows getHostName on mcast addrs takes ~5 seconds
@@ -219,7 +219,7 @@ public abstract class AbstractConfig implements Config {
   @Override
   public void setAttribute(String name, String value, ConfigSource source) {
     Object attObjectValue;
-    Class valueType = getAttributeType(name);
+    var valueType = getAttributeType(name);
     try {
       if (valueType.equals(String.class)) {
         attObjectValue = value;
@@ -239,12 +239,12 @@ public abstract class AbstractConfig implements Config {
       } else if (valueType.equals(File.class)) {
         attObjectValue = new File(value);
       } else if (valueType.equals(int[].class)) {
-        int minus = value.indexOf('-');
+        var minus = value.indexOf('-');
         if (minus <= 0) {
           throw new IllegalArgumentException(
               "expected a setting in the form X-Y but found no dash for attribute " + name);
         }
-        int[] tempValue = new int[2];
+        var tempValue = new int[2];
         tempValue[0] = Integer.parseInt(value.substring(0, minus));
         tempValue[1] = Integer.parseInt(value.substring(minus + 1));
         attObjectValue = tempValue;
@@ -257,7 +257,7 @@ public abstract class AbstractConfig implements Config {
                   name, value, ex));
         }
       } else if (valueType.equals(FlowControlParams.class)) {
-        String[] values = value.split(",");
+        var values = value.split(",");
         if (values.length != 3) {
           throw new IllegalArgumentException(
               String.format("%s value %s must have three elements separated by commas",
@@ -327,7 +327,7 @@ public abstract class AbstractConfig implements Config {
   }
 
   protected void checkAttributeName(String name) {
-    String[] validAttNames = getAttributeNames();
+    var validAttNames = getAttributeNames();
     if (!Arrays.asList(validAttNames).contains(name.toLowerCase())) {
       throw new IllegalArgumentException(
           String.format("Unknown configuration attribute name %s. Valid attribute names are: %s .",
@@ -336,8 +336,8 @@ public abstract class AbstractConfig implements Config {
   }
 
   private List<ConfigSource> getFileSources() {
-    ArrayList<ConfigSource> result = new ArrayList<>();
-    for (ConfigSource cs : getAttSourceMap().values()) {
+    var result = new ArrayList<ConfigSource>();
+    for (var cs : getAttSourceMap().values()) {
       if (cs.getType() == ConfigSource.Type.FILE || cs.getType() == ConfigSource.Type.SECURE_FILE) {
         if (!result.contains(cs)) {
           result.add(cs);
@@ -348,11 +348,11 @@ public abstract class AbstractConfig implements Config {
   }
 
   private void printSourceSection(ConfigSource source, PrintWriter printWriter) {
-    String[] validAttributeNames = getAttributeNames();
-    boolean sourceFound = false;
-    Map<String, ConfigSource> sourceMap = getAttSourceMap();
-    boolean sourceIsSecured = source != null && source.getType() == ConfigSource.Type.SECURE_FILE;
-    for (String name : validAttributeNames) {
+    var validAttributeNames = getAttributeNames();
+    var sourceFound = false;
+    var sourceMap = getAttSourceMap();
+    var sourceIsSecured = source != null && source.getType() == ConfigSource.Type.SECURE_FILE;
+    for (var name : validAttributeNames) {
       if (source == null) {
         if (sourceMap.get(name) != null) {
           continue;
@@ -395,11 +395,11 @@ public abstract class AbstractConfig implements Config {
 
   private SecurableCommunicationChannel[] commaDelimitedStringToSecurableCommunicationChannels(
       final String tokenizeString) {
-    StringTokenizer stringTokenizer = new StringTokenizer(tokenizeString, ",");
-    SecurableCommunicationChannel[] returnArray =
+    var stringTokenizer = new StringTokenizer(tokenizeString, ",");
+    var returnArray =
         new SecurableCommunicationChannel[stringTokenizer.countTokens()];
-    for (int i = 0; i < returnArray.length; i++) {
-      String name = stringTokenizer.nextToken();
+    for (var i = 0; i < returnArray.length; i++) {
+      var name = stringTokenizer.nextToken();
       try {
         returnArray[i] = SecurableCommunicationChannel.getEnum(name);
       } catch (Exception e) {

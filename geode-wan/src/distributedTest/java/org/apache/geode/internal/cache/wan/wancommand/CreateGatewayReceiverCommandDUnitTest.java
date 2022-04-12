@@ -75,7 +75,7 @@ public class CreateGatewayReceiverCommandDUnitTest {
 
   @Before
   public void before() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(DISTRIBUTED_SYSTEM_ID, "" + 1);
     locatorSite1 = clusterStartupRule.startLocatorVM(0, props);
 
@@ -87,7 +87,7 @@ public class CreateGatewayReceiverCommandDUnitTest {
   public void twoGatewayReceiversCannotCoexist() {
     Integer locator1Port = locatorSite1.getPort();
     server1 = clusterStartupRule.startServerVM(1, locator1Port);
-    String command = CREATE_GATEWAYRECEIVER;
+    var command = CREATE_GATEWAYRECEIVER;
     gfsh.executeAndAssertThat(command).statusIsSuccess()
         .tableHasColumnWithExactValuesInAnyOrder("Member", SERVER_1)
         .tableHasColumnWithValuesContaining("Message",
@@ -107,7 +107,7 @@ public class CreateGatewayReceiverCommandDUnitTest {
     Integer locator1Port = locatorSite1.getPort();
     server1 = clusterStartupRule.startServerVM(1, locator1Port);
     server2 = clusterStartupRule.startServerVM(2, locator1Port);
-    String createOnS1 = CREATE_GATEWAYRECEIVER + " --member=" + server1.getName();
+    var createOnS1 = CREATE_GATEWAYRECEIVER + " --member=" + server1.getName();
     gfsh.executeAndAssertThat(createOnS1).statusIsSuccess()
         .tableHasColumnWithExactValuesInAnyOrder("Member", SERVER_1)
         .tableHasColumnWithValuesContaining("Message",
@@ -128,8 +128,8 @@ public class CreateGatewayReceiverCommandDUnitTest {
     Integer locator1Port = locatorSite1.getPort();
     server1 = clusterStartupRule.startServerVM(1, locator1Port);
     server2 = clusterStartupRule.startServerVM(2, locator1Port);
-    String createOnS1 = CREATE_GATEWAYRECEIVER + " --member=" + server1.getName();
-    String createOnBoth = CREATE_GATEWAYRECEIVER + " --if-not-exists";
+    var createOnS1 = CREATE_GATEWAYRECEIVER + " --member=" + server1.getName();
+    var createOnBoth = CREATE_GATEWAYRECEIVER + " --if-not-exists";
     gfsh.executeAndAssertThat(createOnS1).statusIsSuccess()
         .tableHasColumnWithExactValuesInAnyOrder("Member", SERVER_1)
         .tableHasColumnWithValuesContaining("Message",
@@ -153,7 +153,7 @@ public class CreateGatewayReceiverCommandDUnitTest {
     server3 = clusterStartupRule.startServerVM(3, locator1Port);
 
     // Initial Creation should succeed
-    String command =
+    var command =
         CliStrings.CREATE_GATEWAYRECEIVER + " --" + CliStrings.CREATE_GATEWAYRECEIVER__BINDADDRESS
             + "=localhost" + " --" + CliStrings.CREATE_GATEWAYRECEIVER__STARTPORT + "=10000" + " --"
             + CliStrings.CREATE_GATEWAYRECEIVER__ENDPORT + "=11000" + " --"
@@ -203,7 +203,7 @@ public class CreateGatewayReceiverCommandDUnitTest {
     // If neither bind-address or hostname-for-senders is set, profile
     // uses AcceptorImpl.getExternalAddress() to derive canonical hostname
     // when the Profile (and ServerLocation) are created
-    String hostname = getHostName();
+    var hostname = getHostName();
 
     invokeInEveryMember(() -> {
       verifyGatewayReceiverProfile(hostname);
@@ -226,7 +226,7 @@ public class CreateGatewayReceiverCommandDUnitTest {
     server2 = clusterStartupRule.startServerVM(2, locator1Port);
     server3 = clusterStartupRule.startServerVM(3, locator1Port);
 
-    String command =
+    var command =
         CliStrings.CREATE_GATEWAYRECEIVER + " --" + CliStrings.CREATE_GATEWAYRECEIVER__MANUALSTART
             + "=true" + " --" + CliStrings.CREATE_GATEWAYRECEIVER__BINDADDRESS + "=localhost"
             + " --" + CliStrings.CREATE_GATEWAYRECEIVER__STARTPORT + "=10000" + " --"
@@ -255,8 +255,8 @@ public class CreateGatewayReceiverCommandDUnitTest {
     server2 = clusterStartupRule.startServerVM(2, locator1Port);
     server3 = clusterStartupRule.startServerVM(3, locator1Port);
 
-    String hostnameForSenders = getHostName();
-    String command =
+    var hostnameForSenders = getHostName();
+    var command =
         CliStrings.CREATE_GATEWAYRECEIVER + " --" + CliStrings.CREATE_GATEWAYRECEIVER__MANUALSTART
             + "=false" + " --" + CliStrings.CREATE_GATEWAYRECEIVER__HOSTNAMEFORSENDERS + "="
             + hostnameForSenders + " --" + CliStrings.CREATE_GATEWAYRECEIVER__STARTPORT + "=10000"
@@ -288,11 +288,11 @@ public class CreateGatewayReceiverCommandDUnitTest {
   @Parameters({BIND_ADDRESS, SERVER_BIND_ADDRESS})
   public void testCreateGatewayReceiverWithDefaultsAndAddressProperties(String addressPropertyKey)
       throws Exception {
-    String receiverGroup = "receiverGroup";
+    var receiverGroup = "receiverGroup";
     Integer locator1Port = locatorSite1.getPort();
-    String expectedBindAddress = getBindAddress();
+    var expectedBindAddress = getBindAddress();
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(GROUPS, receiverGroup);
     props.setProperty(addressPropertyKey, expectedBindAddress);
 
@@ -300,7 +300,7 @@ public class CreateGatewayReceiverCommandDUnitTest {
     server2 = clusterStartupRule.startServerVM(2, props, locator1Port);
     server3 = clusterStartupRule.startServerVM(3, props, locator1Port);
 
-    String command = CliStrings.CREATE_GATEWAYRECEIVER + " --" + GROUP + "=" + receiverGroup;
+    var command = CliStrings.CREATE_GATEWAYRECEIVER + " --" + GROUP + "=" + receiverGroup;
     gfsh.executeAndAssertThat(command).statusIsSuccess()
         .tableHasColumnWithExactValuesInAnyOrder("Member", SERVER_1, SERVER_2, SERVER_3)
         .tableHasColumnWithValuesContaining("Message",
@@ -326,11 +326,11 @@ public class CreateGatewayReceiverCommandDUnitTest {
   @Test
   public void testCreateGatewayReceiverWithDefaultsAndMultipleBindAddressProperties()
       throws Exception {
-    String receiverGroup = "receiverGroup";
+    var receiverGroup = "receiverGroup";
     Integer locator1Port = locatorSite1.getPort();
-    String expectedBindAddress = getBindAddress();
+    var expectedBindAddress = getBindAddress();
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(GROUPS, receiverGroup);
     props.setProperty(BIND_ADDRESS, expectedBindAddress);
     props.setProperty(SERVER_BIND_ADDRESS, expectedBindAddress);
@@ -339,7 +339,7 @@ public class CreateGatewayReceiverCommandDUnitTest {
     server2 = clusterStartupRule.startServerVM(2, props, locator1Port);
     server3 = clusterStartupRule.startServerVM(3, props, locator1Port);
 
-    String command = CliStrings.CREATE_GATEWAYRECEIVER + " --" + GROUP + "=" + receiverGroup;
+    var command = CliStrings.CREATE_GATEWAYRECEIVER + " --" + GROUP + "=" + receiverGroup;
     gfsh.executeAndAssertThat(command).statusIsSuccess()
         .tableHasColumnWithExactValuesInAnyOrder("Member", SERVER_1, SERVER_2, SERVER_3)
         .tableHasColumnWithValuesContaining("Message",
@@ -365,12 +365,12 @@ public class CreateGatewayReceiverCommandDUnitTest {
   @Test
   public void testCreateGatewayReceiverWithHostnameForSendersAndServerBindAddressProperty()
       throws Exception {
-    String receiverGroup = "receiverGroup";
-    String hostnameForSenders = getHostName();
-    String serverBindAddress = getBindAddress();
+    var receiverGroup = "receiverGroup";
+    var hostnameForSenders = getHostName();
+    var serverBindAddress = getBindAddress();
     Integer locator1Port = locatorSite1.getPort();
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(GROUPS, receiverGroup);
     props.setProperty(SERVER_BIND_ADDRESS, serverBindAddress);
 
@@ -378,7 +378,7 @@ public class CreateGatewayReceiverCommandDUnitTest {
     server2 = clusterStartupRule.startServerVM(2, props, locator1Port);
     server3 = clusterStartupRule.startServerVM(3, props, locator1Port);
 
-    String command =
+    var command =
         CliStrings.CREATE_GATEWAYRECEIVER + " --" + CliStrings.CREATE_GATEWAYRECEIVER__MANUALSTART
             + "=false" + " --" + CliStrings.CREATE_GATEWAYRECEIVER__HOSTNAMEFORSENDERS + "="
             + hostnameForSenders + " --" + CliStrings.CREATE_GATEWAYRECEIVER__STARTPORT + "=10000"
@@ -408,12 +408,12 @@ public class CreateGatewayReceiverCommandDUnitTest {
   @Test
   public void testCreateGatewayReceiverWithHostnameForSendersAndBindAddressProperty()
       throws Exception {
-    String receiverGroup = "receiverGroup";
-    String hostnameForSenders = getHostName();
+    var receiverGroup = "receiverGroup";
+    var hostnameForSenders = getHostName();
     Integer locator1Port = locatorSite1.getPort();
-    String expectedBindAddress = getBindAddress();
+    var expectedBindAddress = getBindAddress();
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(GROUPS, receiverGroup);
     props.setProperty(BIND_ADDRESS, expectedBindAddress);
 
@@ -421,7 +421,7 @@ public class CreateGatewayReceiverCommandDUnitTest {
     server2 = clusterStartupRule.startServerVM(2, props, locator1Port);
     server3 = clusterStartupRule.startServerVM(3, props, locator1Port);
 
-    String command =
+    var command =
         CliStrings.CREATE_GATEWAYRECEIVER + " --" + CliStrings.CREATE_GATEWAYRECEIVER__MANUALSTART
             + "=false" + " --" + CliStrings.CREATE_GATEWAYRECEIVER__HOSTNAMEFORSENDERS + "="
             + hostnameForSenders + " --" + CliStrings.CREATE_GATEWAYRECEIVER__STARTPORT + "=10000"
@@ -454,7 +454,7 @@ public class CreateGatewayReceiverCommandDUnitTest {
     server2 = clusterStartupRule.startServerVM(2, locator1Port);
     server3 = clusterStartupRule.startServerVM(3, locator1Port);
 
-    String command =
+    var command =
         CliStrings.CREATE_GATEWAYRECEIVER + " --" + CliStrings.CREATE_GATEWAYRECEIVER__MANUALSTART
             + "=false" + " --" + CliStrings.CREATE_GATEWAYRECEIVER__BINDADDRESS + "=localhost"
             + " --" + CliStrings.CREATE_GATEWAYRECEIVER__STARTPORT + "=10000" + " --"
@@ -488,7 +488,7 @@ public class CreateGatewayReceiverCommandDUnitTest {
     server2 = clusterStartupRule.startServerVM(2, locator1Port);
     server3 = clusterStartupRule.startServerVM(3, locator1Port);
 
-    String command = CliStrings.CREATE_GATEWAYRECEIVER + " --"
+    var command = CliStrings.CREATE_GATEWAYRECEIVER + " --"
         + CliStrings.CREATE_GATEWAYRECEIVER__BINDADDRESS + "=localhost" + " --"
         + CliStrings.CREATE_GATEWAYRECEIVER__STARTPORT + "=10000" + " --"
         + CliStrings.CREATE_GATEWAYRECEIVER__ENDPORT + "=11000" + " --"
@@ -524,7 +524,7 @@ public class CreateGatewayReceiverCommandDUnitTest {
 
     DistributedMember server1Member = getMember(server1.getVM());
 
-    String command =
+    var command =
         CliStrings.CREATE_GATEWAYRECEIVER + " --" + CliStrings.CREATE_GATEWAYRECEIVER__MANUALSTART
             + "=true" + " --" + CliStrings.CREATE_GATEWAYRECEIVER__BINDADDRESS + "=localhost"
             + " --" + CliStrings.CREATE_GATEWAYRECEIVER__STARTPORT + "=10000" + " --"
@@ -560,7 +560,7 @@ public class CreateGatewayReceiverCommandDUnitTest {
     DistributedMember server1Member = getMember(server1.getVM());
     DistributedMember server2Member = getMember(server2.getVM());
 
-    String command =
+    var command =
         CliStrings.CREATE_GATEWAYRECEIVER + " --" + CliStrings.CREATE_GATEWAYRECEIVER__MANUALSTART
             + "=true" + " --" + CliStrings.CREATE_GATEWAYRECEIVER__BINDADDRESS + "=localhost"
             + " --" + CliStrings.CREATE_GATEWAYRECEIVER__STARTPORT + "=10000" + " --"
@@ -589,13 +589,13 @@ public class CreateGatewayReceiverCommandDUnitTest {
    */
   @Test
   public void testCreateGatewayReceiverOnGroup() {
-    String groups = "receiverGroup1";
-    int locator1Port = locatorSite1.getPort();
+    var groups = "receiverGroup1";
+    var locator1Port = locatorSite1.getPort();
     server1 = startServerWithGroups(1, groups, locator1Port);
     server2 = startServerWithGroups(2, groups, locator1Port);
     server3 = startServerWithGroups(3, groups, locator1Port);
 
-    String command =
+    var command =
         CliStrings.CREATE_GATEWAYRECEIVER + " --" + CliStrings.CREATE_GATEWAYRECEIVER__MANUALSTART
             + "=true" + " --" + CliStrings.CREATE_GATEWAYRECEIVER__BINDADDRESS + "=localhost"
             + " --" + CliStrings.CREATE_GATEWAYRECEIVER__STARTPORT + "=10000" + " --"
@@ -621,14 +621,14 @@ public class CreateGatewayReceiverCommandDUnitTest {
    */
   @Test
   public void testCreateGatewayReceiverOnGroupScenario2() {
-    String group1 = "receiverGroup1";
-    String group2 = "receiverGroup2";
-    int locator1Port = locatorSite1.getPort();
+    var group1 = "receiverGroup1";
+    var group2 = "receiverGroup2";
+    var locator1Port = locatorSite1.getPort();
     server1 = startServerWithGroups(1, group1, locator1Port);
     server2 = startServerWithGroups(2, group1, locator1Port);
     server3 = startServerWithGroups(3, group2, locator1Port);
 
-    String command =
+    var command =
         CliStrings.CREATE_GATEWAYRECEIVER + " --" + CliStrings.CREATE_GATEWAYRECEIVER__MANUALSTART
             + "=true" + " --" + CliStrings.CREATE_GATEWAYRECEIVER__BINDADDRESS + "=localhost"
             + " --" + CliStrings.CREATE_GATEWAYRECEIVER__STARTPORT + "=10000" + " --"
@@ -657,12 +657,12 @@ public class CreateGatewayReceiverCommandDUnitTest {
    */
   @Test
   public void testCreateGatewayReceiverOnMultipleGroups() {
-    int locator1Port = locatorSite1.getPort();
+    var locator1Port = locatorSite1.getPort();
     server1 = startServerWithGroups(1, "receiverGroup1", locator1Port);
     server2 = startServerWithGroups(2, "receiverGroup1", locator1Port);
     server3 = startServerWithGroups(3, "receiverGroup2", locator1Port);
 
-    String command =
+    var command =
         CliStrings.CREATE_GATEWAYRECEIVER + " --" + CliStrings.CREATE_GATEWAYRECEIVER__MANUALSTART
             + "=true" + " --" + CliStrings.CREATE_GATEWAYRECEIVER__BINDADDRESS + "=localhost"
             + " --" + CliStrings.CREATE_GATEWAYRECEIVER__STARTPORT + "=10000" + " --"
@@ -691,7 +691,7 @@ public class CreateGatewayReceiverCommandDUnitTest {
   }
 
   private MemberVM startServerWithGroups(int index, String groups, int locPort) {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(GROUPS, groups);
     return clusterStartupRule.startServerVM(index, props, locPort);
   }

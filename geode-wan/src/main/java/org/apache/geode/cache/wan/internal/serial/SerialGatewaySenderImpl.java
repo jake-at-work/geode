@@ -14,22 +14,17 @@
  */
 package org.apache.geode.cache.wan.internal.serial;
 
-import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 
-import org.apache.geode.cache.asyncqueue.AsyncEventListener;
-import org.apache.geode.cache.wan.GatewayTransportFilter;
 import org.apache.geode.cache.wan.internal.AbstractRemoteGatewaySender;
 import org.apache.geode.distributed.DistributedLockService;
 import org.apache.geode.distributed.internal.DistributionAdvisor.Profile;
-import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.ResourceEvent;
 import org.apache.geode.internal.cache.EntryEventImpl;
 import org.apache.geode.internal.cache.EventID;
 import org.apache.geode.internal.cache.InternalCache;
-import org.apache.geode.internal.cache.RegionQueue;
 import org.apache.geode.internal.cache.UpdateAttributesProcessor;
 import org.apache.geode.internal.cache.ha.ThreadIdentifier;
 import org.apache.geode.internal.cache.wan.AbstractGatewaySenderEventProcessor;
@@ -75,7 +70,7 @@ public class SerialGatewaySenderImpl extends AbstractRemoteGatewaySender {
         return;
       }
       if (remoteDSId != DEFAULT_DISTRIBUTED_SYSTEM_ID) {
-        String locators = cache.getInternalDistributedSystem().getConfig().getLocators();
+        var locators = cache.getInternalDistributedSystem().getConfig().getLocators();
         if (locators.length() == 0) {
           throw new GatewaySenderConfigurationException(
               "Locators must be configured before starting gateway-sender.");
@@ -105,7 +100,7 @@ public class SerialGatewaySenderImpl extends AbstractRemoteGatewaySender {
       }
       new UpdateAttributesProcessor(this).distribute(false);
 
-      InternalDistributedSystem system = cache.getInternalDistributedSystem();
+      var system = cache.getInternalDistributedSystem();
       system.handleResourceEvent(ResourceEvent.GATEWAYSENDER_START, this);
 
       logger
@@ -142,7 +137,7 @@ public class SerialGatewaySenderImpl extends AbstractRemoteGatewaySender {
       // alive until after the dispatcher has stopped)
       stompProxyDead();
       // Close the listeners
-      for (AsyncEventListener listener : listeners) {
+      for (var listener : listeners) {
         listener.close();
       }
       logger.info("Stopped  {}", this);
@@ -159,16 +154,16 @@ public class SerialGatewaySenderImpl extends AbstractRemoteGatewaySender {
         // service not found... ignore
       }
     }
-    Set<RegionQueue> queues = getQueues();
+    var queues = getQueues();
     if (queues != null && !queues.isEmpty()) {
-      for (RegionQueue q : queues) {
+      for (var q : queues) {
         ((SerialGatewaySenderQueue) q).cleanUp();
       }
     }
 
     setIsPrimary(false);
     new UpdateAttributesProcessor(this).distribute(false);
-    Thread lockObtainingThread = getSenderAdvisor().getLockObtainingThread();
+    var lockObtainingThread = getSenderAdvisor().getLockObtainingThread();
     if (lockObtainingThread != null && lockObtainingThread.isAlive()) {
       // wait a while for thread to terminate
       try {
@@ -183,7 +178,7 @@ public class SerialGatewaySenderImpl extends AbstractRemoteGatewaySender {
       }
     }
 
-    InternalDistributedSystem system =
+    var system =
         (InternalDistributedSystem) cache.getDistributedSystem();
     system.handleResourceEvent(ResourceEvent.GATEWAYSENDER_STOP, this);
 
@@ -203,7 +198,7 @@ public class SerialGatewaySenderImpl extends AbstractRemoteGatewaySender {
   @Override
   public void fillInProfile(Profile profile) {
     assert profile instanceof GatewaySenderProfile;
-    GatewaySenderProfile pf = (GatewaySenderProfile) profile;
+    var pf = (GatewaySenderProfile) profile;
     pf.Id = getId();
     pf.startTime = getStartTime();
     pf.remoteDSId = getRemoteDSId();
@@ -214,13 +209,13 @@ public class SerialGatewaySenderImpl extends AbstractRemoteGatewaySender {
     pf.isPersistenceEnabled = isPersistenceEnabled();
     pf.alertThreshold = getAlertThreshold();
     pf.manualStart = isManualStart();
-    for (org.apache.geode.cache.wan.GatewayEventFilter filter : getGatewayEventFilters()) {
+    for (var filter : getGatewayEventFilters()) {
       pf.eventFiltersClassNames.add(filter.getClass().getName());
     }
-    for (GatewayTransportFilter filter : getGatewayTransportFilters()) {
+    for (var filter : getGatewayTransportFilters()) {
       pf.transFiltersClassNames.add(filter.getClass().getName());
     }
-    for (AsyncEventListener listener : getAsyncEventListeners()) {
+    for (var listener : getAsyncEventListeners()) {
       pf.senderEventListenerClassNames.add(listener.getClass().getName());
     }
     pf.isDiskSynchronous = isDiskSynchronous();
@@ -232,16 +227,16 @@ public class SerialGatewaySenderImpl extends AbstractRemoteGatewaySender {
 
   @Override
   public void setModifiedEventId(EntryEventImpl clonedEvent) {
-    EventID originalEventId = clonedEvent.getEventId();
-    long originalThreadId = originalEventId.getThreadID();
-    long newThreadId = originalThreadId;
+    var originalEventId = clonedEvent.getEventId();
+    var originalThreadId = originalEventId.getThreadID();
+    var newThreadId = originalThreadId;
     if (ThreadIdentifier.isWanTypeThreadID(newThreadId)) {
       // This thread id has already been converted. Do nothing.
     } else {
       newThreadId = ThreadIdentifier.createFakeThreadIDForParallelGSPrimaryBucket(0,
           originalThreadId, getEventIdIndex());
     }
-    EventID newEventId = new EventID(originalEventId.getMembershipID(), newThreadId,
+    var newEventId = new EventID(originalEventId.getMembershipID(), newThreadId,
         originalEventId.getSequenceID());
     if (logger.isDebugEnabled()) {
       logger.debug(
@@ -254,7 +249,7 @@ public class SerialGatewaySenderImpl extends AbstractRemoteGatewaySender {
   }
 
   private ThreadsMonitoring getThreadMonitorObj() {
-    DistributionManager distributionManager = cache.getDistributionManager();
+    var distributionManager = cache.getDistributionManager();
     if (distributionManager != null) {
       return distributionManager.getThreadMonitoring();
     } else {

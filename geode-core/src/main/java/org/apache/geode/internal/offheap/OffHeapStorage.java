@@ -14,13 +14,11 @@
  */
 package org.apache.geode.internal.offheap;
 
-import java.lang.reflect.Method;
 
 import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.Statistics;
 import org.apache.geode.StatisticsFactory;
 import org.apache.geode.StatisticsType;
-import org.apache.geode.StatisticsTypeFactory;
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.cache.CacheException;
 import org.apache.geode.distributed.DistributedSystem;
@@ -66,43 +64,43 @@ public class OffHeapStorage implements OffHeapMemoryStats {
 
   // creates and registers the statistics type
   static {
-    final StatisticsTypeFactory f = StatisticsTypeFactoryImpl.singleton();
+    final var f = StatisticsTypeFactoryImpl.singleton();
 
-    final String usedMemoryDesc =
+    final var usedMemoryDesc =
         "The amount of off-heap memory, in bytes, that is being used to store data.";
-    final String defragmentationDesc =
+    final var defragmentationDesc =
         "The total number of times off-heap memory has been defragmented.";
-    final String defragmentationsInProgressDesc =
+    final var defragmentationsInProgressDesc =
         "Current number of defragment operations currently in progress.";
-    final String defragmentationTimeDesc = "The total time spent defragmenting off-heap memory.";
-    final String fragmentationDesc =
+    final var defragmentationTimeDesc = "The total time spent defragmenting off-heap memory.";
+    final var fragmentationDesc =
         "The percentage of off-heap free memory that is fragmented.  Updated every time a defragmentation is performed.";
-    final String fragmentsDesc =
+    final var fragmentsDesc =
         "The number of fragments of free off-heap memory. Updated every time a defragmentation is done.";
-    final String freedChunksDesc =
+    final var freedChunksDesc =
         "The number of off-heap memory chunks that have been freed since the last defragmentation and that are not currently being used to store an object in the off-heap memory space. Updated every time a defragmentation is done and periodically according to off-heap-stats-update-frequency-ms system property (default 3600 seconds).";
-    final String freeMemoryDesc =
+    final var freeMemoryDesc =
         "The amount of off-heap memory, in bytes, that is not being used.";
-    final String largestFragmentDesc =
+    final var largestFragmentDesc =
         "The largest fragment of off-heap memory that can be used to allocate an object. Updated every time a defragmentation is done and periodically according to off-heap-stats-update-frequency-ms system property (default 3600 seconds)";
-    final String objectsDesc = "The number of objects stored in off-heap memory.";
-    final String readsDesc =
+    final var objectsDesc = "The number of objects stored in off-heap memory.";
+    final var readsDesc =
         "The total number of reads of off-heap memory. Only reads of a full object increment this statistic. If only a part of the object is read this statistic is not incremented.";
-    final String maxMemoryDesc =
+    final var maxMemoryDesc =
         "The maximum amount of off-heap memory, in bytes. This is the amount of memory allocated at startup and does not change.";
 
-    final String usedMemory = "usedMemory";
-    final String defragmentations = "defragmentations";
-    final String defragmentationsInProgress = "defragmentationsInProgress";
-    final String defragmentationTime = "defragmentationTime";
-    final String fragmentation = "fragmentation";
-    final String fragments = "fragments";
-    final String freedChunks = "freedChunks";
-    final String freeMemory = "freeMemory";
-    final String largestFragment = "largestFragment";
-    final String objects = "objects";
-    final String reads = "reads";
-    final String maxMemory = "maxMemory";
+    final var usedMemory = "usedMemory";
+    final var defragmentations = "defragmentations";
+    final var defragmentationsInProgress = "defragmentationsInProgress";
+    final var defragmentationTime = "defragmentationTime";
+    final var fragmentation = "fragmentation";
+    final var fragments = "fragments";
+    final var freedChunks = "freedChunks";
+    final var freeMemory = "freeMemory";
+    final var largestFragment = "largestFragment";
+    final var objects = "objects";
+    final var reads = "reads";
+    final var maxMemory = "maxMemory";
 
     statsType = f.createType(statsTypeName, statsTypeDescription,
         new StatisticDescriptor[] {f.createLongGauge(usedMemory, usedMemoryDesc, "bytes"),
@@ -134,7 +132,7 @@ public class OffHeapStorage implements OffHeapMemoryStats {
   }
 
   public static long parseOffHeapMemorySize(String value) {
-    final long parsed = parseLongWithUnits(value, 0L, 1024 * 1024);
+    final var parsed = parseLongWithUnits(value, 0L, 1024 * 1024);
     if (parsed < 0) {
       return 0;
     }
@@ -142,7 +140,7 @@ public class OffHeapStorage implements OffHeapMemoryStats {
   }
 
   public static long calcMaxSlabSize(long offHeapMemorySize) {
-    final String offHeapSlabConfig =
+    final var offHeapSlabConfig =
         System.getProperty(GeodeGlossary.GEMFIRE_PREFIX + "OFF_HEAP_SLAB_SIZE");
     long result = 0;
     if (offHeapSlabConfig != null && !offHeapSlabConfig.equals("")) {
@@ -170,12 +168,12 @@ public class OffHeapStorage implements OffHeapMemoryStats {
   private static void validateVmCompatibility() {
     try {
       // Do we have the Unsafe class? Throw ClassNotFoundException if not.
-      Class<?> klass = ClassPathLoader.getLatest().forName("sun.misc.Unsafe");
+      var klass = ClassPathLoader.getLatest().forName("sun.misc.Unsafe");
 
       // Okay, we have the class. Do we have the copyMemory method (not all JVMs support it)? Throw
       // NoSuchMethodException if not.
       @SuppressWarnings("unused")
-      Method copyMemory = klass.getMethod("copyMemory", Object.class, long.class, Object.class,
+      var copyMemory = klass.getMethod("copyMemory", Object.class, long.class, Object.class,
           long.class, long.class);
     } catch (ClassNotFoundException e) {
       throw new CacheException(
@@ -226,9 +224,9 @@ public class OffHeapStorage implements OffHeapMemoryStats {
       OutOfOffHeapMemoryListener ooohml) {
     final OffHeapMemoryStats stats = new OffHeapStorage(sf);
 
-    final long maxSlabSize = calcMaxSlabSize(offHeapMemorySize);
+    final var maxSlabSize = calcMaxSlabSize(offHeapMemorySize);
 
-    final int slabCount = calcSlabCount(maxSlabSize, offHeapMemorySize);
+    final var slabCount = calcSlabCount(maxSlabSize, offHeapMemorySize);
 
     return MemoryAllocatorImpl.create(ooohml, stats, slabCount, offHeapMemorySize, maxSlabSize);
   }
@@ -237,9 +235,9 @@ public class OffHeapStorage implements OffHeapMemoryStats {
       OutOfOffHeapMemoryListener ooohml, int updateOffHeapStatsFrequencyMs) {
     final OffHeapMemoryStats stats = new OffHeapStorage(sf);
 
-    final long maxSlabSize = calcMaxSlabSize(offHeapMemorySize);
+    final var maxSlabSize = calcMaxSlabSize(offHeapMemorySize);
 
-    final int slabCount = calcSlabCount(maxSlabSize, offHeapMemorySize);
+    final var slabCount = calcSlabCount(maxSlabSize, offHeapMemorySize);
 
     return MemoryAllocatorImpl.create(ooohml, stats, slabCount, offHeapMemorySize, maxSlabSize,
         updateOffHeapStatsFrequencyMs);
@@ -250,7 +248,7 @@ public class OffHeapStorage implements OffHeapMemoryStats {
 
   // non-private for unit test access
   static int calcSlabCount(long maxSlabSize, long offHeapMemorySize) {
-    long result = offHeapMemorySize / maxSlabSize;
+    var result = offHeapMemorySize / maxSlabSize;
     if ((offHeapMemorySize % maxSlabSize) >= MIN_SLAB_SIZE) {
       result++;
     }
@@ -266,7 +264,7 @@ public class OffHeapStorage implements OffHeapMemoryStats {
     if (v == null || v.equals("")) {
       return defaultValue;
     }
-    int unitMultiplier = defaultMultiplier;
+    var unitMultiplier = defaultMultiplier;
     if (v.toLowerCase().endsWith("g")) {
       unitMultiplier = 1024 * 1024 * 1024;
       v = v.substring(0, v.length() - 1);
@@ -275,7 +273,7 @@ public class OffHeapStorage implements OffHeapMemoryStats {
       v = v.substring(0, v.length() - 1);
     }
     try {
-      long result = Long.parseLong(v);
+      var result = Long.parseLong(v);
       result *= unitMultiplier;
       return result;
     } catch (NumberFormatException e) {

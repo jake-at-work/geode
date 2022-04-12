@@ -40,19 +40,19 @@ class Column {
     // This can happen because colSizes are re-computed
     // to fit the screen width
     if (stringValue.length() > colWidth) {
-      int endIndex = colWidth - 2;
+      var endIndex = colWidth - 2;
       if (endIndex < 0) {
         return "";
       }
       return stringValue.substring(0, endIndex) + "..";
     }
 
-    int numSpaces = colWidth - stringValue.length();
+    var numSpaces = colWidth - stringValue.length();
     if (trimIt) {
       numSpaces = 0;
     }
 
-    StringBuilder stringBuilder = new StringBuilder();
+    var stringBuilder = new StringBuilder();
 
     switch (align) {
       case LEFT:

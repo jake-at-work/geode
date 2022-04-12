@@ -102,9 +102,9 @@ public class StatisticsTypeImpl implements ValidatingStatisticsType {
   }
 
   private int addTypedDescriptorToMap(byte typeCode, int startOfSequentialIds) {
-    int count = 0;
-    for (StatisticDescriptor stat : stats) {
-      StatisticDescriptorImpl sd = (StatisticDescriptorImpl) stat;
+    var count = 0;
+    for (var stat : stats) {
+      var sd = (StatisticDescriptorImpl) stat;
       if (sd.getTypeCode() == typeCode) {
         sd.setId(startOfSequentialIds + count);
         count++;
@@ -147,7 +147,7 @@ public class StatisticsTypeImpl implements ValidatingStatisticsType {
 
   @Override
   public StatisticDescriptor nameToDescriptor(String name) {
-    StatisticDescriptor stat = statsMap.get(name);
+    var stat = statsMap.get(name);
     if (stat == null) {
       throw new IllegalArgumentException(
           String.format("There is no statistic named %s",
@@ -199,19 +199,19 @@ public class StatisticsTypeImpl implements ValidatingStatisticsType {
     if (!(o instanceof StatisticsType)) {
       return false;
     }
-    StatisticsType other = (StatisticsType) o;
+    var other = (StatisticsType) o;
     if (!getName().equals(other.getName())) {
       return false;
     }
     if (!getDescription().equals(other.getDescription())) {
       return false;
     }
-    StatisticDescriptor[] myStats = getStatistics();
-    StatisticDescriptor[] yourStats = other.getStatistics();
+    var myStats = getStatistics();
+    var yourStats = other.getStatistics();
     if (myStats.length != yourStats.length) {
       return false;
     }
-    for (int i = 0; i < myStats.length; i++) {
+    for (var i = 0; i < myStats.length; i++) {
       if (!myStats[i].equals(yourStats[i])) {
         return false;
       }

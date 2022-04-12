@@ -25,17 +25,11 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
-import org.apache.geode.cache.CacheListener;
-import org.apache.geode.cache.CacheLoader;
-import org.apache.geode.cache.CacheWriter;
-import org.apache.geode.cache.CustomExpiry;
 import org.apache.geode.cache.DataPolicy;
-import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.cache.ExpirationAction;
 import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
-import org.apache.geode.compression.Compressor;
 import org.apache.geode.internal.cache.AbstractRegion;
 import org.apache.geode.management.internal.cli.util.RegionAttributesDefault;
 import org.apache.geode.management.internal.cli.util.RegionAttributesNames;
@@ -115,12 +109,12 @@ public class RegionAttributesInfo implements Serializable {
     regionIdleTimeout = ra.getRegionIdleTimeout().getTimeout();
     regionTimeToLive = ra.getRegionTimeToLive().getTimeout();
 
-    Compressor compressor = ra.getCompressor();
+    var compressor = ra.getCompressor();
     if (compressor != null) {
       compressorClassName = compressor.getClass().getCanonicalName();
     }
 
-    ExpirationAction expAction = ra.getEntryIdleTimeout().getAction();
+    var expAction = ra.getEntryIdleTimeout().getAction();
     if (expAction != null) {
       entryIdleTimeoutAction = expAction.toString();
     }
@@ -145,26 +139,26 @@ public class RegionAttributesInfo implements Serializable {
     gatewaySenderIDs = ra.getGatewaySenderIds();
 
     // Collecting information about all the CacheListeners, CacheWriters, CacheLoaders
-    CacheListener<?, ?>[] cacheListeners = ra.getCacheListeners();
+    var cacheListeners = ra.getCacheListeners();
 
     // TODO: The cacheListeners should be added one by one by delimited by a "\n"
     if (cacheListeners.length > 0) {
       cacheListenerClassNames = new ArrayList<>();
-      for (CacheListener<?, ?> cacheListener : cacheListeners) {
+      for (var cacheListener : cacheListeners) {
         cacheListenerClassNames.add(cacheListener.getClass().getCanonicalName());
       }
       Collections.sort(cacheListenerClassNames);
     }
 
     // CacheLoader
-    CacheLoader<?, ?> cacheLoader = ra.getCacheLoader();
+    var cacheLoader = ra.getCacheLoader();
 
     if (cacheLoader != null) {
       cacheLoaderClassName = cacheLoader.getClass().getCanonicalName();
     }
 
     // CacheWriter
-    CacheWriter<?, ?> cacheWriter = ra.getCacheWriter();
+    var cacheWriter = ra.getCacheWriter();
 
     if (cacheWriter != null) {
       cacheWriterClassName = cacheWriter.getClass().getCanonicalName();
@@ -172,7 +166,7 @@ public class RegionAttributesInfo implements Serializable {
 
     // Setting the Partition Attributes and Eviction Attributes
     PartitionAttributes<?, ?> partitionAttributes = ra.getPartitionAttributes();
-    EvictionAttributes evictionAttributes = ra.getEvictionAttributes();
+    var evictionAttributes = ra.getEvictionAttributes();
 
     if (partitionAttributes != null) {
       partitionAttributesInfo = new PartitionAttributesInfo(partitionAttributes);
@@ -184,12 +178,12 @@ public class RegionAttributesInfo implements Serializable {
     }
     offHeap = ra.getOffHeap();
 
-    CustomExpiry<?, ?> customIdleTimeout = ra.getCustomEntryIdleTimeout();
+    var customIdleTimeout = ra.getCustomEntryIdleTimeout();
     if (customIdleTimeout != null) {
       customExpiryIdleTimeoutClass = customIdleTimeout.getClass().getName();
     }
 
-    CustomExpiry<?, ?> customTTL = ra.getCustomEntryTimeToLive();
+    var customTTL = ra.getCustomEntryTimeToLive();
     if (customTTL != null) {
       customExpiryTTLClass = customTTL.getClass().getName();
     }

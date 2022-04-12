@@ -49,7 +49,7 @@ public class GemFireVersion {
   private GemFireVersion() {}
 
   private static VersionDescription createDescription() {
-    String name =
+    var name =
         GemFireVersion.class.getPackage().getName().replace('.', '/') + "/" + RESOURCE_NAME;
     return new VersionDescription(name);
   }
@@ -103,8 +103,8 @@ public class GemFireVersion {
   }
 
   public static String asString() {
-    StringWriter sw = new StringWriter(256);
-    PrintWriter pw = new PrintWriter(sw);
+    var sw = new StringWriter(256);
+    var pw = new PrintWriter(sw);
     print(pw);
     pw.flush();
     return sw.toString();
@@ -112,17 +112,17 @@ public class GemFireVersion {
 
   /** Public method that returns the URL of the gemfire jar file */
   public static URL getJarURL() {
-    java.security.CodeSource cs = GemFireVersion.class.getProtectionDomain().getCodeSource();
+    var cs = GemFireVersion.class.getProtectionDomain().getCodeSource();
     if (cs != null) {
       return cs.getLocation();
     }
     // fix for bug 33274 - null CodeSource from protection domain in Sybase
     URL csLoc = null;
-    StringTokenizer tokenizer = new StringTokenizer(getClassPath(), File.pathSeparator);
+    var tokenizer = new StringTokenizer(getClassPath(), File.pathSeparator);
     while (tokenizer.hasMoreTokens()) {
-      String jar = tokenizer.nextToken();
+      var jar = tokenizer.nextToken();
       if (jar.contains(getGemFireJarFileName())) {
-        File gemfireJar = new File(jar);
+        var gemfireJar = new File(jar);
         try {
           csLoc = gemfireJar.toURI().toURL();
         } catch (Exception ignored) {
@@ -136,9 +136,9 @@ public class GemFireVersion {
     // try the boot class path to fix bug 37394
     tokenizer = new StringTokenizer(getBootClassPath(), File.pathSeparator);
     while (tokenizer.hasMoreTokens()) {
-      String jar = tokenizer.nextToken();
+      var jar = tokenizer.nextToken();
       if (jar.contains(getGemFireJarFileName())) {
-        File gemfireJar = new File(jar);
+        var gemfireJar = new File(jar);
         try {
           csLoc = gemfireJar.toURI().toURL();
         } catch (Exception ignored) {

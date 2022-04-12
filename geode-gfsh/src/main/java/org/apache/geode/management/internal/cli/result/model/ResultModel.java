@@ -144,7 +144,7 @@ public class ResultModel {
    * @param content the content to be saved to the file
    */
   public void addFile(String fileName, String content) {
-    FileResultModel fileModel = new FileResultModel(fileName, content);
+    var fileModel = new FileResultModel(fileName, content);
     files.add(fileModel);
   }
 
@@ -170,7 +170,7 @@ public class ResultModel {
       }
     }
 
-    InfoResultModel section = new InfoResultModel();
+    var section = new InfoResultModel();
     sections.put(namedSection, section);
 
     return section;
@@ -193,7 +193,7 @@ public class ResultModel {
       }
     }
 
-    TabularResultModel section = new TabularResultModel();
+    var section = new TabularResultModel();
     sections.put(namedSection, section);
 
     return section;
@@ -207,11 +207,11 @@ public class ResultModel {
       throw new IllegalStateException(
           "Section already exists. Can't overwrite it with this new content.");
     }
-    TabularResultModel section = addTable(namedSection);
-    boolean atLeastOneSuccess = false;
-    boolean atLeastOneFailure = false;
+    var section = addTable(namedSection);
+    var atLeastOneSuccess = false;
+    var atLeastOneFailure = false;
     section.setColumnHeader("Member", "Status", "Message");
-    for (CliFunctionResult functionResult : functionResults) {
+    for (var functionResult : functionResults) {
       if (functionResult == null) {
         continue;
       }
@@ -269,7 +269,7 @@ public class ResultModel {
       }
     }
 
-    DataResultModel section = new DataResultModel();
+    var section = new DataResultModel();
     sections.put(namedSection, section);
 
     return section;
@@ -294,8 +294,8 @@ public class ResultModel {
 
 
   public String toJson() {
-    ObjectMapper mapper = new ObjectMapper();
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    var mapper = new ObjectMapper();
+    var baos = new ByteArrayOutputStream();
     try {
       mapper.writeValue(baos, this);
     } catch (IOException e) {
@@ -314,7 +314,7 @@ public class ResultModel {
   // ********************************************
 
   public static ResultModel fromJson(String json) {
-    ObjectMapper mapper = new ObjectMapper();
+    var mapper = new ObjectMapper();
 
     ResultModel response;
     try {
@@ -330,7 +330,7 @@ public class ResultModel {
    * the status to ERROR.
    */
   public static ResultModel createError(String message) {
-    ResultModel result = createInfo(message);
+    var result = createInfo(message);
     result.setStatus(Result.Status.ERROR);
     return result;
   }
@@ -339,7 +339,7 @@ public class ResultModel {
    * Helper method to create an {@code InfoResultModel} named "info".
    */
   public static ResultModel createInfo(String message) {
-    ResultModel result = new ResultModel();
+    var result = new ResultModel();
     result.addInfo(INFO_SECTION).addLine(message);
     result.setStatus(Result.Status.OK);
     return result;
@@ -371,9 +371,9 @@ public class ResultModel {
    */
   public static ResultModel createMemberStatusResult(List<CliFunctionResult> functionResults,
       String header, String footer, boolean ignoreIgnorable, boolean ignorePartialFailure) {
-    ResultModel result = new ResultModel();
+    var result = new ResultModel();
 
-    TabularResultModel tabularResultModel =
+    var tabularResultModel =
         result.addTableAndSetStatus(MEMBER_STATUS_SECTION, functionResults, ignoreIgnorable,
             ignorePartialFailure);
     tabularResultModel.setHeader(header);
@@ -389,7 +389,7 @@ public class ResultModel {
    *
    */
   public void saveFileTo(File dir) throws IOException {
-    InfoResultModel info = addInfo("fileSave");
+    var info = addInfo("fileSave");
     if (files.size() == 0) {
       info.addLine("No file found to be saved.");
       setStatus(Result.Status.ERROR);
@@ -412,7 +412,7 @@ public class ResultModel {
       return;
     }
 
-    for (FileResultModel fileResult : files) {
+    for (var fileResult : files) {
       info.addLine(fileResult.saveFile(dir));
     }
 
@@ -423,7 +423,7 @@ public class ResultModel {
     if (files.size() != 1) {
       return null;
     }
-    File file = files.get(0).getFile();
+    var file = files.get(0).getFile();
     if (file == null) {
       return null;
     }
@@ -444,7 +444,7 @@ public class ResultModel {
    */
   public long computeFileSizeTotal() {
     long byteCount = 0;
-    for (FileResultModel file : files) {
+    for (var file : files) {
       byteCount += file.getLength();
     }
     return byteCount;

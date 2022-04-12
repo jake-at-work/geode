@@ -72,20 +72,20 @@ public class PdxInstanceImplTest {
 
   @Before
   public void setUp() throws IOException, ClassNotFoundException {
-    CancelCriterion cancelCriterion = mock(CancelCriterion.class);
+    var cancelCriterion = mock(CancelCriterion.class);
     doNothing().when(cancelCriterion).checkCancelInProgress(any());
 
-    InternalDistributedMember distributedMember = mock(InternalDistributedMember.class);
+    var distributedMember = mock(InternalDistributedMember.class);
 
-    DistributionManager distributionManager = mock(DistributionManager.class);
+    var distributionManager = mock(DistributionManager.class);
     when(distributionManager.getDistributedSystemId()).thenReturn(-1);
     when(distributionManager.getCancelCriterion()).thenReturn(cancelCriterion);
     when(distributionManager.getId()).thenReturn(distributedMember);
     when(distributionManager.getElderId()).thenReturn(distributedMember);
 
-    GrantorRequestContext grantorRequestContext = new GrantorRequestContext(cancelCriterion);
+    var grantorRequestContext = new GrantorRequestContext(cancelCriterion);
 
-    InternalDistributedSystem distributedSystem = mock(InternalDistributedSystem.class);
+    var distributedSystem = mock(InternalDistributedSystem.class);
     when(distributedSystem.isLoner()).thenReturn(true);
     when(distributedSystem.getCancelCriterion()).thenReturn(cancelCriterion);
     when(distributedSystem.getGrantorRequestContext()).thenReturn(grantorRequestContext);
@@ -94,21 +94,21 @@ public class PdxInstanceImplTest {
     when(distributedSystem.getDistributionManager()).thenReturn(distributionManager);
     when(distributionManager.getSystem()).thenReturn(distributedSystem);
 
-    InternalCache internalCache = mock(InternalCache.class);
+    var internalCache = mock(InternalCache.class);
     when(internalCache.getInternalDistributedSystem()).thenReturn(distributedSystem);
     when(internalCache.getPdxPersistent()).thenReturn(false);
 
     Region<Object, Object> region = mock(Region.class);
     when(internalCache.createVMRegion(any(), any(), any())).thenReturn(region);
 
-    DistributedLockService distributedLockService = mock(DistributedLockService.class);
+    var distributedLockService = mock(DistributedLockService.class);
 
     emptyPdxType = new PdxType("PdxInstanceImplTest.EmptyPdxType", false);
     nonExistentField = new PdxField("nonExistentField", 0, 0, FieldType.OBJECT, false);
 
     pdxType = new PdxType("PdxInstanceImplTest.PdxType", false);
-    int index = 0;
-    int varId = 0;
+    var index = 0;
+    var varId = 0;
     nonIdentityField = new PdxField("nonIdentityField", index++, 0, FieldType.INT, false);
     pdxType.addField(nonIdentityField);
     booleanField = new PdxField("booleanField", index++, 0, FieldType.BOOLEAN, true);
@@ -153,7 +153,7 @@ public class PdxInstanceImplTest {
         new PdxField("booleanArrayField", index++, varId++, FieldType.BOOLEAN_ARRAY, true);
     pdxType.addField(booleanArrayField);
 
-    PeerTypeRegistration testTypeRegistration = mock(PeerTypeRegistration.class);
+    var testTypeRegistration = mock(PeerTypeRegistration.class);
     when(testTypeRegistration.getLockService()).thenReturn(distributedLockService);
     when(testTypeRegistration.defineType(emptyPdxType)).thenReturn(1);
     when(testTypeRegistration.defineType(pdxType)).thenReturn(2);
@@ -168,7 +168,7 @@ public class PdxInstanceImplTest {
     pdxRegistry.defineType(emptyPdxType);
     pdxRegistry.defineType(pdxType);
 
-    final PdxWriterImpl writer = new PdxWriterImpl(pdxType, pdxRegistry, new PdxOutputStream(1024));
+    final var writer = new PdxWriterImpl(pdxType, pdxRegistry, new PdxOutputStream(1024));
     writer.writeInt(13);
     writer.writeBoolean(true);
     writer.writeDouble(3.1415);
@@ -194,11 +194,11 @@ public class PdxInstanceImplTest {
 
   @Test
   public void testToStringForEmpty() {
-    final PdxWriterImpl writer =
+    final var writer =
         new PdxWriterImpl(emptyPdxType, pdxRegistry, new PdxOutputStream());
     writer.completeByteStreamGeneration();
 
-    final PdxInstance instance = writer.makePdxInstance();
+    final var instance = writer.makePdxInstance();
     assertEquals(emptyPdxType.getClassName() + "]{}", substringAfter(instance.toString(), ","));
   }
 

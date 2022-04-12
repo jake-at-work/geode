@@ -73,7 +73,7 @@ public class ShipmentId implements DataSerializable {
     }
 
     if (obj instanceof ShipmentId) {
-      ShipmentId other = (ShipmentId) obj;
+      var other = (ShipmentId) obj;
       return orderId.equals(other.orderId) && shipmentId.equals(other.shipmentId);
     }
     return false;

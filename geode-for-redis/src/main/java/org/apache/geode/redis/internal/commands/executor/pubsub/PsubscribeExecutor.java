@@ -34,8 +34,8 @@ public class PsubscribeExecutor implements CommandExecutor {
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
 
     Collection<SubscribeResult> results = new ArrayList<>(command.getCommandArguments().size());
-    for (byte[] patternBytes : command.getCommandArguments()) {
-      SubscribeResult result =
+    for (var patternBytes : command.getCommandArguments()) {
+      var result =
           context.getPubSub().psubscribe(patternBytes, context.getClient());
       results.add(result);
     }

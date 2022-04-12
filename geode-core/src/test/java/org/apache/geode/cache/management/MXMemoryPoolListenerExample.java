@@ -17,10 +17,7 @@ package org.apache.geode.cache.management;
 import static org.apache.geode.distributed.ConfigurationProperties.MCAST_PORT;
 
 import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryMXBean;
-import java.lang.management.MemoryPoolMXBean;
 import java.lang.management.MemoryType;
-import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -71,12 +68,12 @@ public class MXMemoryPoolListenerExample implements NotificationListener {
 
   public static void main(String[] args) {
 
-    final MemoryMXBean mbean = ManagementFactory.getMemoryMXBean();
+    final var mbean = ManagementFactory.getMemoryMXBean();
 
 
     final double threshold;
     {
-      double t = 0.8;
+      var t = 0.8;
       if (args.length > 0) {
         try {
           t = Integer.parseInt(args[0]) / 100;
@@ -91,7 +88,7 @@ public class MXMemoryPoolListenerExample implements NotificationListener {
 
     final int percentTenured;
     {
-      int p = 100;
+      var p = 100;
       if (args.length > 1) {
         try {
           p = Integer.parseInt(args[1]);
@@ -104,26 +101,26 @@ public class MXMemoryPoolListenerExample implements NotificationListener {
       percentTenured = p;
     }
 
-    Properties dsProps = new Properties();
+    var dsProps = new Properties();
     dsProps.setProperty(MCAST_PORT, "0"); // Loner
     dsProps.setProperty(ConfigurationProperties.LOG_LEVEL, "info");
     dsProps.setProperty(ConfigurationProperties.STATISTIC_SAMPLE_RATE, "200");
     dsProps.setProperty(ConfigurationProperties.ENABLE_TIME_STATISTICS, "true");
     dsProps.setProperty(ConfigurationProperties.STATISTIC_SAMPLING_ENABLED, "true");
-    DistributedSystem ds = DistributedSystem.connect(dsProps);
-    final LogWriter logger = ds.getLogWriter();
+    var ds = DistributedSystem.connect(dsProps);
+    final var logger = ds.getLogWriter();
 
     logger.info("Usage threshold: " + threshold + "; percent tenured: " + percentTenured
         + "; Runtime Maximum memory: " + (Runtime.getRuntime().maxMemory() / (1024 * 1024)) + "Mb"
         + "; Heap Maximum memory: " + (mbean.getHeapMemoryUsage().getMax() / (1024 * 1024)) + "Mb");
 
-    MXMemoryPoolListenerExample me = new MXMemoryPoolListenerExample(ds);
+    var me = new MXMemoryPoolListenerExample(ds);
 
     // Register this listener to NotificationEmitter
-    NotificationEmitter emitter = (NotificationEmitter) mbean;
+    var emitter = (NotificationEmitter) mbean;
     emitter.addNotificationListener(me, null, null);
-    List<MemoryPoolMXBean> pools = ManagementFactory.getMemoryPoolMXBeans();
-    for (MemoryPoolMXBean p : pools) {
+    var pools = ManagementFactory.getMemoryPoolMXBeans();
+    for (var p : pools) {
       if (p.isCollectionUsageThresholdSupported()) {
         // p.setCollectionUsageThreshold(0);
         logger.info("Pool which supports collection usage threshold: " + p.getName() + "; "
@@ -133,14 +130,14 @@ public class MXMemoryPoolListenerExample implements NotificationListener {
       // On JRockit do not set the usage threshold on the Nursery pool
       if (p.getType().equals(MemoryType.HEAP) && p.isUsageThresholdSupported()
           && !p.getName().startsWith("Nursery")) {
-        int byteThreshold = (int) Math.ceil(threshold * p.getUsage().getMax());
+        var byteThreshold = (int) Math.ceil(threshold * p.getUsage().getMax());
         logger.info("Setting threshold " + (byteThreshold / (1024 * 1024)) + "Mb on: " + p.getName()
             + "; " + p.getCollectionUsage());
         p.setUsageThreshold(byteThreshold);
       }
     }
 
-    final Cache c = CacheFactory.create(ds);
+    final var c = CacheFactory.create(ds);
     new MemoryHog("hog_1", c, me.critical).consumeMemory(percentTenured).printTenuredSize();
     ds.disconnect();
   }
@@ -160,12 +157,12 @@ public class MXMemoryPoolListenerExample implements NotificationListener {
 
     public MemoryHog consumeMemory(final int percentTenured) {
       final long maxSecondsToRun = 180;
-      final LogWriter logger = cache.getLogger();
-      final long start = System.nanoTime();
-      for (int i = 100;; i++) {
+      final var logger = cache.getLogger();
+      final var start = System.nanoTime();
+      for (var i = 100;; i++) {
         // Create garbage
-        byte[] val = new byte[1012]; // 1024 less 4 bytes for obj ref, less 8 bytes for Integer key
-                                     // == 1012
+        var val = new byte[1012]; // 1024 less 4 bytes for obj ref, less 8 bytes for Integer key
+                                  // == 1012
         // Some random usage of the data to prevent optimization
         val[percentTenured] = (byte) i;
         if (percentTenured > 0 && (i % 100) <= percentTenured) {
@@ -174,7 +171,7 @@ public class MXMemoryPoolListenerExample implements NotificationListener {
         }
 
         if (i % 1000 == 0) {
-          long runTime = TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - start);
+          var runTime = TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - start);
           if (runTime > maxSecondsToRun) {
             logger.info(name + ": Ending consume loop after " + runTime + "s");
             break;

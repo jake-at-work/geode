@@ -30,9 +30,7 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
-import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionService;
-import org.apache.geode.cache.lucene.LuceneService;
 import org.apache.geode.cache.lucene.LuceneServiceProvider;
 import org.apache.geode.cache.lucene.internal.distributed.LuceneQueryFunction;
 import org.apache.geode.test.junit.categories.LuceneTest;
@@ -50,7 +48,7 @@ public class LuceneServiceImplIntegrationTest {
   @Test
   public void luceneServiceProviderGetShouldAcceptClientCacheAsAParameter() {
     clientCache = getClientCache();
-    LuceneService luceneService = LuceneServiceProvider.get(clientCache);
+    var luceneService = LuceneServiceProvider.get(clientCache);
     assertNotNull(luceneService);
   }
 
@@ -58,14 +56,14 @@ public class LuceneServiceImplIntegrationTest {
   public void getCacheShouldReturnTheCorrectCache() {
     cache = getCache();
     new LuceneServiceImpl().init(cache);
-    LuceneService service = LuceneServiceProvider.get(cache);
+    var service = LuceneServiceProvider.get(cache);
     assertTrue(service.getCache().equals(cache));
   }
 
   // lucene service will register query execution function on initialization
   @Test
   public void shouldRegisterQueryFunction() {
-    Function function = FunctionService.getFunction(LuceneQueryFunction.ID);
+    var function = FunctionService.getFunction(LuceneQueryFunction.ID);
     assertNull(function);
 
     cache = getCache();

@@ -79,20 +79,20 @@ public class GatewaySenderEventImplTest {
   private void createCache() {
     // Mock cache
     cache = Fakes.cache();
-    InternalDistributedSystem ids = mock(InternalDistributedSystem.class);
+    var ids = mock(InternalDistributedSystem.class);
     when(cache.getDistributedSystem()).thenReturn(ids);
   }
 
   @Test
   public void versionedFromData() throws IOException, ClassNotFoundException {
-    GatewaySenderEventImpl gatewaySenderEvent = spy(GatewaySenderEventImpl.class);
-    DataInput dataInput = mock(DataInput.class);
-    DeserializationContext deserializationContext = mock(DeserializationContext.class);
-    ObjectDeserializer objectDeserializer = mock(ObjectDeserializer.class);
-    EventID eventID = mock(EventID.class);
-    GatewaySenderEventCallbackArgument gatewaySenderEventCallbackArgument =
+    var gatewaySenderEvent = spy(GatewaySenderEventImpl.class);
+    var dataInput = mock(DataInput.class);
+    var deserializationContext = mock(DeserializationContext.class);
+    var objectDeserializer = mock(ObjectDeserializer.class);
+    var eventID = mock(EventID.class);
+    var gatewaySenderEventCallbackArgument =
         mock(GatewaySenderEventCallbackArgument.class);
-    TransactionId transactionId = mock(TransactionId.class);
+    var transactionId = mock(TransactionId.class);
     when(deserializationContext.getDeserializer()).thenReturn(objectDeserializer);
     when(objectDeserializer.readObject(dataInput)).thenReturn(eventID,
         gatewaySenderEventCallbackArgument);
@@ -114,9 +114,9 @@ public class GatewaySenderEventImplTest {
   @Parameters(method = "getVersionsAndExpectedInvocations")
   public void testSerializingDataFromCurrentVersionToOldVersion(VersionAndExpectedInvocations vaei)
       throws IOException {
-    GatewaySenderEventImpl gatewaySenderEvent = spy(GatewaySenderEventImpl.class);
-    OutputStream outputStream = mock(OutputStream.class);
-    VersionedDataOutputStream versionedDataOutputStream =
+    var gatewaySenderEvent = spy(GatewaySenderEventImpl.class);
+    var outputStream = mock(OutputStream.class);
+    var versionedDataOutputStream =
         new VersionedDataOutputStream(outputStream, vaei.getVersion());
 
     InternalDataSerializer.invokeToData(gatewaySenderEvent, versionedDataOutputStream);
@@ -134,11 +134,11 @@ public class GatewaySenderEventImplTest {
   public void testDeserializingDataFromOldVersionToCurrentVersion(
       VersionAndExpectedInvocations vaei)
       throws IOException, ClassNotFoundException {
-    GatewaySenderEventImpl gatewaySenderEvent = spy(GatewaySenderEventImpl.class);
-    InputStream inputStream = mock(InputStream.class);
+    var gatewaySenderEvent = spy(GatewaySenderEventImpl.class);
+    var inputStream = mock(InputStream.class);
     when(inputStream.read()).thenReturn(69); // NULL_STRING
     when(inputStream.read(isA(byte[].class), isA(int.class), isA(int.class))).thenReturn(1);
-    VersionedDataInputStream versionedDataInputStream =
+    var versionedDataInputStream =
         new VersionedDataInputStream(inputStream, vaei.getVersion());
 
     InternalDataSerializer.invokeFromData(gatewaySenderEvent, versionedDataInputStream);
@@ -161,7 +161,7 @@ public class GatewaySenderEventImplTest {
 
   @Test
   public void testEquality() throws Exception {
-    LocalRegion region = mock(LocalRegion.class);
+    var region = mock(LocalRegion.class);
     when(region.getFullPath()).thenReturn(testName.getMethodName() + "_region");
     when(region.getCache()).thenReturn(cache);
     Object event = ParallelGatewaySenderHelper.createGatewaySenderEvent(region, Operation.CREATE,
@@ -208,7 +208,7 @@ public class GatewaySenderEventImplTest {
             "key1", "value2", 0, 0, 0, 0);
     assertThat(event).isNotEqualTo(eventDifferentValue);
 
-    LocalRegion region2 = mock(LocalRegion.class);
+    var region2 = mock(LocalRegion.class);
     when(region2.getFullPath()).thenReturn(testName.getMethodName() + "_region2");
     when(region2.getCache()).thenReturn(cache);
     Object eventDifferentRegion =
@@ -220,22 +220,22 @@ public class GatewaySenderEventImplTest {
   @Test
   public void testSerialization() throws Exception {
     // Set up test
-    LocalRegion region = mock(LocalRegion.class);
+    var region = mock(LocalRegion.class);
     when(region.getFullPath()).thenReturn(testName.getMethodName() + "_region");
     when(region.getCache()).thenReturn(cache);
-    TXId txId = new TXId(cache.getMyId(), 0);
+    var txId = new TXId(cache.getMyId(), 0);
     when(region.getTXId()).thenReturn(txId);
 
     // Create GatewaySenderEventImpl
-    GatewaySenderEventImpl originalEvent =
+    var originalEvent =
         ParallelGatewaySenderHelper.createGatewaySenderEvent(region, Operation.PUTALL_CREATE,
             "key1", "value1", 1, 3, 3, 113);
 
     // Serialize GatewaySenderEventImpl
-    byte[] eventBytes = BlobHelper.serializeToBlob(originalEvent);
+    var eventBytes = BlobHelper.serializeToBlob(originalEvent);
 
     // Deserialize GatewaySenderEventImpl
-    GatewaySenderEventImpl deserializedEvent =
+    var deserializedEvent =
         (GatewaySenderEventImpl) BlobHelper.deserializeBlob(eventBytes);
 
     // Verify fields are equal
@@ -269,9 +269,9 @@ public class GatewaySenderEventImplTest {
 
   @Test
   public void constructsWithTransactionMetadataWhenInclude() throws IOException {
-    final EntryEventImpl cacheEvent = mockEntryEventImpl(mock(TransactionId.class));
+    final var cacheEvent = mockEntryEventImpl(mock(TransactionId.class));
 
-    final GatewaySenderEventImpl gatewaySenderEvent =
+    final var gatewaySenderEvent =
         new GatewaySenderEventImpl(EnumListenerEvent.AFTER_CREATE, cacheEvent, null, INCLUDE);
 
     assertThat(gatewaySenderEvent.getTransactionId()).isNotNull();
@@ -280,9 +280,9 @@ public class GatewaySenderEventImplTest {
 
   @Test
   public void constructsWithTransactionMetadataWhenIncludedLastEvent() throws IOException {
-    final EntryEventImpl cacheEvent = mockEntryEventImpl(mock(TransactionId.class));
+    final var cacheEvent = mockEntryEventImpl(mock(TransactionId.class));
 
-    final GatewaySenderEventImpl gatewaySenderEvent =
+    final var gatewaySenderEvent =
         new GatewaySenderEventImpl(EnumListenerEvent.AFTER_CREATE, cacheEvent, null,
             INCLUDE_LAST_EVENT);
 
@@ -292,9 +292,9 @@ public class GatewaySenderEventImplTest {
 
   @Test
   public void constructsWithoutTransactionMetadataWhenExcluded() throws IOException {
-    final EntryEventImpl cacheEvent = mockEntryEventImpl(mock(TransactionId.class));
+    final var cacheEvent = mockEntryEventImpl(mock(TransactionId.class));
 
-    final GatewaySenderEventImpl gatewaySenderEvent =
+    final var gatewaySenderEvent =
         new GatewaySenderEventImpl(EnumListenerEvent.AFTER_CREATE, cacheEvent, null, EXCLUDE);
 
     assertThat(gatewaySenderEvent.getTransactionId()).isNull();
@@ -304,9 +304,9 @@ public class GatewaySenderEventImplTest {
   @Test
   public void constructsWithoutTransactionMetadataWhenIncludedButNotTransactionEvent()
       throws IOException {
-    final EntryEventImpl cacheEvent = mockEntryEventImpl(null);
+    final var cacheEvent = mockEntryEventImpl(null);
 
-    final GatewaySenderEventImpl gatewaySenderEvent =
+    final var gatewaySenderEvent =
         new GatewaySenderEventImpl(EnumListenerEvent.AFTER_CREATE, cacheEvent, null, INCLUDE);
 
     assertThat(gatewaySenderEvent.getTransactionId()).isNull();
@@ -316,9 +316,9 @@ public class GatewaySenderEventImplTest {
   @Test
   public void constructsWithoutTransactionMetadataWhenIncludedLastEventButNotTransactionEvent()
       throws IOException {
-    final EntryEventImpl cacheEvent = mockEntryEventImpl(null);
+    final var cacheEvent = mockEntryEventImpl(null);
 
-    final GatewaySenderEventImpl gatewaySenderEvent =
+    final var gatewaySenderEvent =
         new GatewaySenderEventImpl(EnumListenerEvent.AFTER_CREATE, cacheEvent, null,
             INCLUDE_LAST_EVENT);
 
@@ -329,9 +329,9 @@ public class GatewaySenderEventImplTest {
   @Test
   public void constructsWithoutTransactionMetadataWhenExcludedButNotTransactionEvent()
       throws IOException {
-    final EntryEventImpl cacheEvent = mockEntryEventImpl(null);
+    final var cacheEvent = mockEntryEventImpl(null);
 
-    final GatewaySenderEventImpl gatewaySenderEvent =
+    final var gatewaySenderEvent =
         new GatewaySenderEventImpl(EnumListenerEvent.AFTER_CREATE, cacheEvent, null, EXCLUDE);
 
     assertThat(gatewaySenderEvent.getTransactionId()).isNull();
@@ -339,11 +339,11 @@ public class GatewaySenderEventImplTest {
   }
 
   private EntryEventImpl mockEntryEventImpl(final TransactionId transactionId) {
-    final EntryEventImpl cacheEvent = mock(EntryEventImpl.class);
+    final var cacheEvent = mock(EntryEventImpl.class);
     when(cacheEvent.getEventId()).thenReturn(mock(EventID.class));
     when(cacheEvent.getOperation()).thenReturn(Operation.CREATE);
     when(cacheEvent.getTransactionId()).thenReturn(transactionId);
-    final LocalRegion region = mock(LocalRegion.class);
+    final var region = mock(LocalRegion.class);
     when(cacheEvent.getRegion()).thenReturn(region);
     return cacheEvent;
   }
@@ -352,13 +352,13 @@ public class GatewaySenderEventImplTest {
   public void testCreation_WithAfterUpdateWithGenerateCallbacks(boolean isGenerateCallbacks,
       boolean isCallbackArgumentNull)
       throws IOException {
-    InternalRegion region = mock(InternalRegion.class);
+    var region = mock(InternalRegion.class);
     when(region.getFullPath()).thenReturn(testName.getMethodName() + "_region");
 
-    Operation operation = mock(Operation.class);
+    var operation = mock(Operation.class);
     when(operation.isLocalLoad()).thenReturn(true);
 
-    EntryEventImpl cacheEvent = mock(EntryEventImpl.class);
+    var cacheEvent = mock(EntryEventImpl.class);
     when(cacheEvent.getRegion()).thenReturn(region);
     when(cacheEvent.getEventId()).thenReturn(mock(EventID.class));
     when(cacheEvent.getOperation()).thenReturn(operation);
@@ -366,14 +366,14 @@ public class GatewaySenderEventImplTest {
     when(cacheEvent.getRawCallbackArgument())
         .thenReturn(isCallbackArgumentNull ? null : mock(GatewaySenderEventCallbackArgument.class));
 
-    GatewaySenderEventImpl event = new GatewaySenderEventImpl(
+    var event = new GatewaySenderEventImpl(
         EnumListenerEvent.AFTER_UPDATE_WITH_GENERATE_CALLBACKS, cacheEvent,
         null, false, INCLUDE_LAST_EVENT);
 
-    final int numberOfParts = isCallbackArgumentNull ? 8 : 9;
+    final var numberOfParts = isCallbackArgumentNull ? 8 : 9;
     assertThat(event.getNumberOfParts()).isEqualTo(numberOfParts);
 
-    final int action = isGenerateCallbacks ? 1 : 4;
+    final var action = isGenerateCallbacks ? 1 : 4;
     assertThat(event.getAction()).isEqualTo(action);
   }
 

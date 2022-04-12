@@ -18,7 +18,6 @@ import static org.apache.geode.distributed.ConfigurationProperties.START_DEV_RES
 import static org.apache.geode.test.awaitility.GeodeAwaitility.await;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,7 +29,6 @@ import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.server.CacheServer;
-import org.apache.geode.distributed.internal.DistributionConfig;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
@@ -70,9 +68,9 @@ public class ServerStarterRule extends MemberStarterRule<ServerStarterRule> impl
   private int serverCount = 1;
 
   public ServerStarterRule() {
-    String workerID = System.getProperty("org.gradle.test.worker");
-    Path wd = Paths.get(".").toAbsolutePath();
-    String className = getClass().getSimpleName();
+    var workerID = System.getProperty("org.gradle.test.worker");
+    var wd = Paths.get(".").toAbsolutePath();
+    var className = getClass().getSimpleName();
     availableLocatorPort = AvailablePortHelper.getRandomAvailableTCPPort();
   }
 
@@ -106,7 +104,7 @@ public class ServerStarterRule extends MemberStarterRule<ServerStarterRule> impl
 
   @Override
   public void stopMember() {
-    for (CacheServer server : servers) {
+    for (var server : servers) {
       server.stop();
     }
     // make sure this cache is the one currently open. A server cache can be recreated due to
@@ -191,7 +189,7 @@ public class ServerStarterRule extends MemberStarterRule<ServerStarterRule> impl
     if (servers == null) {
       servers = new ArrayList<>();
     }
-    CacheFactory cf = new CacheFactory(properties);
+    var cf = new CacheFactory(properties);
     if (pdxPersistentUserSet) {
       cf.setPdxPersistent(pdxPersistent);
     }
@@ -202,13 +200,13 @@ public class ServerStarterRule extends MemberStarterRule<ServerStarterRule> impl
       cf.setPdxSerializer(pdxSerializer);
     }
     cache = (InternalCache) cf.create();
-    DistributionConfig config =
+    var config =
         ((InternalDistributedSystem) cache.getDistributedSystem()).getConfig();
     jmxPort = config.getJmxManagerPort();
     httpPort = config.getHttpServicePort();
 
-    for (int i = 0; i < serverCount; i++) {
-      CacheServer server = cache.addCacheServer();
+    for (var i = 0; i < serverCount; i++) {
+      var server = cache.addCacheServer();
       if (i == 0) {
         CacheServerHelper.setIsDefaultServer(server);
       }
@@ -240,7 +238,7 @@ public class ServerStarterRule extends MemberStarterRule<ServerStarterRule> impl
   public void waitTilFullyReconnected() {
     try {
       await().until(() -> {
-        InternalDistributedSystem internalDistributedSystem =
+        var internalDistributedSystem =
             InternalDistributedSystem.getConnectedInstance();
         return internalDistributedSystem != null
             && internalDistributedSystem.getCache() != null
@@ -249,14 +247,14 @@ public class ServerStarterRule extends MemberStarterRule<ServerStarterRule> impl
 
     } catch (Exception e) {
       // provide more information when condition is not satisfied after awaitility timeout
-      InternalDistributedSystem ids = InternalDistributedSystem.getConnectedInstance();
+      var ids = InternalDistributedSystem.getConnectedInstance();
       System.out.println("ds is: " + (ids != null ? "not null" : "null"));
       System.out.println("cache is: " + (ids.getCache() != null ? "not null" : "null"));
       System.out.println("has cache server: "
           + (!ids.getCache().getCacheServers().isEmpty()));
       throw e;
     }
-    InternalDistributedSystem dm = InternalDistributedSystem.getConnectedInstance();
+    var dm = InternalDistributedSystem.getConnectedInstance();
     cache = dm.getCache();
   }
 }

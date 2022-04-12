@@ -451,7 +451,7 @@ public abstract class EvictionAttributes {
     if (!(obj instanceof EvictionAttributes)) {
       return false;
     }
-    final EvictionAttributes other = (EvictionAttributes) obj;
+    final var other = (EvictionAttributes) obj;
     if (!getAlgorithm().equals(other.getAlgorithm())) {
       return false;
     }
@@ -468,7 +468,7 @@ public abstract class EvictionAttributes {
 
   @Override
   public String toString() {
-    final StringBuilder buffer = new StringBuilder(128);
+    final var buffer = new StringBuilder(128);
     buffer.append(" algorithm=").append(getAlgorithm());
     if (!getAlgorithm().isNone()) {
       buffer.append("; action=").append(getAction());
@@ -505,30 +505,30 @@ public abstract class EvictionAttributes {
   }
 
   public RegionAttributesType.EvictionAttributes convertToConfigEvictionAttributes() {
-    RegionAttributesType.EvictionAttributes configAttributes =
+    var configAttributes =
         new RegionAttributesType.EvictionAttributes();
-    EnumActionDestroyOverflow action = EnumActionDestroyOverflow.fromValue(getAction()
+    var action = EnumActionDestroyOverflow.fromValue(getAction()
         .toString());
-    EvictionAlgorithm algorithm = getAlgorithm();
-    Optional<String> objectSizerClass = Optional.ofNullable(getObjectSizer())
+    var algorithm = getAlgorithm();
+    var objectSizerClass = Optional.ofNullable(getObjectSizer())
         .map(c -> c.getClass().toString());
-    String maximum = Integer.toString(getMaximum());
+    var maximum = Integer.toString(getMaximum());
 
     if (algorithm.isLRUHeap()) {
-      RegionAttributesType.EvictionAttributes.LruHeapPercentage heapPercentage =
+      var heapPercentage =
           new RegionAttributesType.EvictionAttributes.LruHeapPercentage();
       heapPercentage.setAction(action);
       objectSizerClass.ifPresent(heapPercentage::setClassName);
       configAttributes.setLruHeapPercentage(heapPercentage);
     } else if (algorithm.isLRUMemory()) {
-      RegionAttributesType.EvictionAttributes.LruMemorySize memorySize =
+      var memorySize =
           new RegionAttributesType.EvictionAttributes.LruMemorySize();
       memorySize.setAction(action);
       objectSizerClass.ifPresent(memorySize::setClassName);
       memorySize.setMaximum(maximum);
       configAttributes.setLruMemorySize(memorySize);
     } else {
-      RegionAttributesType.EvictionAttributes.LruEntryCount entryCount =
+      var entryCount =
           new RegionAttributesType.EvictionAttributes.LruEntryCount();
       entryCount.setAction(action);
       entryCount.setMaximum(maximum);

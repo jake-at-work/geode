@@ -47,7 +47,7 @@ public class Pdx extends AbstractConfiguration<PdxInfo> {
 
   @Override
   public Links getLinks() {
-    Links links = new Links(getId(), PDX_ENDPOINT);
+    var links = new Links(getId(), PDX_ENDPOINT);
     links.setSelf(PDX_ENDPOINT);
     return links;
   }

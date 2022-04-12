@@ -51,9 +51,9 @@ public class TXOriginatorRecoveryProcessor extends ReplyProcessor21 {
 
   static void sendMessage(Set members, InternalDistributedMember originator, TXLockId txLockId,
       DLockGrantor grantor, DistributionManager dm) {
-    TXOriginatorRecoveryProcessor processor = new TXOriginatorRecoveryProcessor(dm, members);
+    var processor = new TXOriginatorRecoveryProcessor(dm, members);
 
-    TXOriginatorRecoveryMessage msg = new TXOriginatorRecoveryMessage();
+    var msg = new TXOriginatorRecoveryMessage();
     msg.processorId = processor.getProcessorId();
     msg.txLockId = txLockId;
 
@@ -137,7 +137,7 @@ public class TXOriginatorRecoveryProcessor extends ReplyProcessor21 {
 
     @Override
     protected void process(final ClusterDistributionManager dm) {
-      final TXOriginatorRecoveryMessage msg = this;
+      final var msg = this;
 
       try {
         dm.getExecutors().getWaitingThreadPool().execute(
@@ -208,7 +208,7 @@ public class TXOriginatorRecoveryProcessor extends ReplyProcessor21 {
         // }
         // }
       } finally {
-        TXOriginatorRecoveryReplyMessage replyMsg = new TXOriginatorRecoveryReplyMessage();
+        var replyMsg = new TXOriginatorRecoveryReplyMessage();
         replyMsg.txLockId = txLockId;
         replyMsg.setProcessorId(getProcessorId());
         replyMsg.setRecipient(getSender());

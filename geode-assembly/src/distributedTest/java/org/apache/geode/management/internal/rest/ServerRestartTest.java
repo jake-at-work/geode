@@ -22,12 +22,10 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import org.apache.geode.management.api.ClusterManagementResult;
-import org.apache.geode.management.api.ClusterManagementService;
 import org.apache.geode.management.cluster.client.ClusterManagementServiceBuilder;
 import org.apache.geode.management.configuration.Region;
 import org.apache.geode.management.configuration.RegionType;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.rules.MemberStarterRule;
 
 public class ServerRestartTest {
@@ -36,18 +34,18 @@ public class ServerRestartTest {
 
   @Test
   public void serverReconnect() {
-    MemberVM locator = cluster.startLocatorVM(0, MemberStarterRule::withHttpService);
+    var locator = cluster.startLocatorVM(0, MemberStarterRule::withHttpService);
     cluster.startServerVM(1, locator.getPort());
 
     // we will stop the 2nd server so that we won't get "loss of qurom" error
-    MemberVM server2 = cluster.startServerVM(2, locator.getPort());
+    var server2 = cluster.startServerVM(2, locator.getPort());
 
-    ClusterManagementService cmService =
+    var cmService =
         new ClusterManagementServiceBuilder()
             .setPort(locator.getHttpPort())
             .build();
 
-    Region region = new Region();
+    var region = new Region();
     region.setName("Foo");
     region.setType(RegionType.REPLICATE);
     assertManagementResult(cmService.create(region)).hasStatusCode(

@@ -30,7 +30,6 @@ import org.junit.rules.TestName;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.DataPolicy;
-import org.apache.geode.cache.DiskStore;
 import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
@@ -86,15 +85,15 @@ public class OplogTooManyFilesOpenRegressionTest {
 
   @Before
   public void setUp() {
-    String uniqueName = getClass().getSimpleName() + "_" + testName.getMethodName();
-    File temporaryDirectory = temporaryFolder.getRoot();
+    var uniqueName = getClass().getSimpleName() + "_" + testName.getMethodName();
+    var temporaryDirectory = temporaryFolder.getRoot();
 
     value = new byte[VALUE_SIZE];
     Arrays.fill(value, (byte) 77);
 
     cache = new CacheFactory().set(LOCATORS, "").set(MCAST_PORT, "0").create();
 
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setBytesThreshold(10000l);
     diskRegionProperties.setDiskDirs(new File[] {temporaryDirectory});
     diskRegionProperties.setMaxOplogSize(10240);
@@ -103,7 +102,7 @@ public class OplogTooManyFilesOpenRegressionTest {
     diskRegionProperties.setSynchronous(false);
     diskRegionProperties.setTimeInterval(15000l);
 
-    DiskStoreFactory dsf = cache.createDiskStoreFactory();
+    var dsf = cache.createDiskStoreFactory();
     dsf.setAllowForceCompaction(diskRegionProperties.getAllowForceCompaction());
     dsf.setAutoCompact(diskRegionProperties.isRolling());
     dsf.setCompactionThreshold(diskRegionProperties.getCompactionThreshold());
@@ -114,7 +113,7 @@ public class OplogTooManyFilesOpenRegressionTest {
     setMaxOplogSizeInBytes(diskRegionProperties, dsf);
 
     ((DiskStoreFactoryImpl) dsf).setDiskDirSizesUnit(DiskDirSizesUnit.BYTES);
-    DiskStore diskStore = dsf.create(uniqueName);
+    var diskStore = dsf.create(uniqueName);
 
     RegionFactory<Integer, byte[]> regionFactory = cache.createRegionFactory();
     regionFactory.setDiskStoreName(diskStore.getName());
@@ -131,7 +130,7 @@ public class OplogTooManyFilesOpenRegressionTest {
 
   private void setMaxOplogSizeInBytes(DiskRegionProperties diskRegionProperties,
       DiskStoreFactory dsf) {
-    DiskStoreFactoryImpl impl = (DiskStoreFactoryImpl) dsf;
+    var impl = (DiskStoreFactoryImpl) dsf;
     impl.setMaxOplogSizeInBytes(diskRegionProperties.getMaxOplogSize());
   }
 
@@ -142,7 +141,7 @@ public class OplogTooManyFilesOpenRegressionTest {
 
   @Test
   public void testPopulate1kbwrites() {
-    for (int i = 0; i < PUT_COUNT; i++) {
+    for (var i = 0; i < PUT_COUNT; i++) {
       region.put(i, value);
     }
 

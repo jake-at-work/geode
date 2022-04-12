@@ -32,14 +32,12 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.PoolImpl;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
 import org.apache.geode.test.dunit.Assert;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.NetworkUtils;
 import org.apache.geode.test.dunit.SerializableRunnable;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.WaitCriterion;
 import org.apache.geode.test.dunit.cache.internal.JUnit4CacheTestCase;
 import org.apache.geode.test.dunit.internal.JUnit4DistributedTestCase;
@@ -55,24 +53,24 @@ public class DurableClientBug39997DUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testNoServerAvailableOnStartup() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
-    final String hostName = NetworkUtils.getServerHostName(host);
-    final int port = AvailablePortHelper.getRandomAvailableTCPPort();
+    final var hostName = NetworkUtils.getServerHostName(host);
+    final var port = AvailablePortHelper.getRandomAvailableTCPPort();
     vm0.invoke(new SerializableRunnable("create cache") {
       @Override
       public void run() {
         getSystem(getClientProperties());
-        PoolImpl p = (PoolImpl) PoolManager.createFactory().addServer(hostName, port)
+        var p = (PoolImpl) PoolManager.createFactory().addServer(hostName, port)
             .setSubscriptionEnabled(true).setSubscriptionRedundancy(0)
             .create("DurableClientReconnectDUnitTestPool");
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
         factory.setPoolName(p.getName());
         Cache cache = getCache();
-        Region region1 = cache.createRegion("region", factory.create());
+        var region1 = cache.createRegion("region", factory.create());
         cache.readyForEvents();
 
         try {
@@ -88,10 +86,10 @@ public class DurableClientBug39997DUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run() {
         Cache cache = getCache();
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.DISTRIBUTED_ACK);
         cache.createRegion("region", factory.create());
-        CacheServer server = cache.addCacheServer();
+        var server = cache.addCacheServer();
         server.setPort(port);
         try {
           server.start();
@@ -129,7 +127,7 @@ public class DurableClientBug39997DUnitTest extends JUnit4CacheTestCase {
   }
 
   public Properties getClientProperties() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     props.setProperty(DURABLE_CLIENT_ID, "my_id");

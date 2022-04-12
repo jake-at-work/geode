@@ -24,9 +24,7 @@ import static org.apache.geode.management.internal.cli.commands.AlterQueryServic
 import static org.apache.geode.management.internal.cli.commands.AlterQueryServiceCommand.SPLITTING_REGEX;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -85,14 +83,14 @@ public class AlterQueryServiceCommandWithSecurityDUnitTest {
   @Before
   public void setUp() throws Exception {
     locator = cluster.startLocatorVM(0, l -> l.withSecurityManager(SimpleSecurityManager.class));
-    int locatorPort = locator.getPort();
+    var locatorPort = locator.getPort();
     IntStream.range(0, 2).forEach(i -> servers.add(i, cluster.startServerVM(i + 1, s -> s
         .withConnectionToLocator(locatorPort).withCredential("clusterManage", "clusterManage"))));
     gfsh.connectAndVerify(locator);
   }
 
   private String buildCommand(String authorizerName, String authorizerParameters) {
-    StringBuilder commandBuilder = new StringBuilder(COMMAND_NAME);
+    var commandBuilder = new StringBuilder(COMMAND_NAME);
     commandBuilder.append(" --").append(AUTHORIZER_NAME).append("=").append(authorizerName);
 
     if (authorizerParameters != null) {
@@ -113,11 +111,11 @@ public class AlterQueryServiceCommandWithSecurityDUnitTest {
   }
 
   private void startServerAndVerifyJavaBeanAccessorMethodAuthorizer() {
-    int locatorPort = locator.getPort();
-    MemberVM newServer = cluster.startServerVM(servers.size() + 1, s -> s
+    var locatorPort = locator.getPort();
+    var newServer = cluster.startServerVM(servers.size() + 1, s -> s
         .withConnectionToLocator(locatorPort).withCredential("clusterManage", "clusterManage"));
     newServer.invoke(() -> {
-      JavaBeanAccessorMethodAuthorizer methodAuthorizer =
+      var methodAuthorizer =
           (JavaBeanAccessorMethodAuthorizer) Objects.requireNonNull(ClusterStartupRule.getCache())
               .getService(QueryConfigurationService.class).getMethodAuthorizer();
       assertThat(methodAuthorizer.getClass()).isEqualTo(JavaBeanAccessorMethodAuthorizer.class);
@@ -130,7 +128,7 @@ public class AlterQueryServiceCommandWithSecurityDUnitTest {
   private void verifyCurrentAuthorizerClass(
       Class<? extends MethodInvocationAuthorizer> authorizerClass) {
     servers.forEach(server -> server.invoke(() -> {
-      MethodInvocationAuthorizer methodAuthorizer =
+      var methodAuthorizer =
           Objects.requireNonNull(ClusterStartupRule.getCache())
               .getService(QueryConfigurationService.class).getMethodAuthorizer();
       assertThat(methodAuthorizer.getClass()).isEqualTo(authorizerClass);
@@ -138,8 +136,8 @@ public class AlterQueryServiceCommandWithSecurityDUnitTest {
   }
 
   private String getTestMethodAuthorizerFilePath() throws IOException {
-    URL url = getClass().getResource(TEST_AUTHORIZER_TXT);
-    File textFile = tempFolder.newFile(TEST_AUTHORIZER_TXT);
+    var url = getClass().getResource(TEST_AUTHORIZER_TXT);
+    var textFile = tempFolder.newFile(TEST_AUTHORIZER_TXT);
     FileUtils.copyURLToFile(url, textFile);
 
     return textFile.getAbsolutePath();
@@ -164,7 +162,7 @@ public class AlterQueryServiceCommandWithSecurityDUnitTest {
         JAVA_BEAN_AUTHORIZER_PARAMETERS)).statusIsSuccess().hasTableSection()
         .hasRowSize(servers.size());
     servers.forEach(server -> server.invoke(() -> {
-      JavaBeanAccessorMethodAuthorizer methodAuthorizer =
+      var methodAuthorizer =
           (JavaBeanAccessorMethodAuthorizer) Objects.requireNonNull(ClusterStartupRule.getCache())
               .getService(QueryConfigurationService.class).getMethodAuthorizer();
       Set<String> expectedParameters =
@@ -176,7 +174,7 @@ public class AlterQueryServiceCommandWithSecurityDUnitTest {
         buildCommand(RegExMethodAuthorizer.class.getName(), REGEX_AUTHORIZER_PARAMETERS))
         .statusIsSuccess().hasTableSection().hasRowSize(servers.size());
     servers.forEach(server -> server.invoke(() -> {
-      RegExMethodAuthorizer methodAuthorizer =
+      var methodAuthorizer =
           (RegExMethodAuthorizer) Objects.requireNonNull(ClusterStartupRule.getCache())
               .getService(QueryConfigurationService.class).getMethodAuthorizer();
       Set<String> expectedParameters =
@@ -189,18 +187,18 @@ public class AlterQueryServiceCommandWithSecurityDUnitTest {
   public void alterQueryServiceCommandWithUserSpecifiedMethodAuthorizerUpdatesMethodAuthorizer()
       throws IOException {
     verifyCurrentAuthorizerClass(DEFAULT_AUTHORIZER_CLASS);
-    Class<TestMethodAuthorizer> authorizerClass = TestMethodAuthorizer.class;
-    String authorizerName = authorizerClass.getName();
-    String classContent =
+    var authorizerClass = TestMethodAuthorizer.class;
+    var authorizerName = authorizerClass.getName();
+    var classContent =
         new String(Files.readAllBytes(Paths.get(getTestMethodAuthorizerFilePath())));
-    String jarFileName = "testJar.jar";
-    File jarFile = tempFolder.newFile(jarFileName);
+    var jarFileName = "testJar.jar";
+    var jarFile = tempFolder.newFile(jarFileName);
     new ClassBuilder().writeJarFromContent(authorizerName, classContent, jarFile);
 
     gfsh.executeAndAssertThat("deploy --jars=" + jarFile.getAbsolutePath()).statusIsSuccess();
     executeAndAssertGfshCommandIsSuccessful(TestMethodAuthorizer.class, USER_AUTHORIZER_PARAMETERS);
     servers.forEach(server -> server.invoke(() -> {
-      TestMethodAuthorizer methodAuthorizer =
+      var methodAuthorizer =
           (TestMethodAuthorizer) Objects.requireNonNull(ClusterStartupRule.getCache())
               .getService(QueryConfigurationService.class).getMethodAuthorizer();
       Set<String> expectedParameters =
@@ -212,9 +210,9 @@ public class AlterQueryServiceCommandWithSecurityDUnitTest {
   @Test
   public void alterQueryServiceCommandUpdatesClusterConfigWhenNoMembersAreFound() {
     servers.forEach(VMProvider::stop);
-    Class<JavaBeanAccessorMethodAuthorizer> authorizerClass =
+    var authorizerClass =
         JavaBeanAccessorMethodAuthorizer.class;
-    String authorizerName = authorizerClass.getName();
+    var authorizerName = authorizerClass.getName();
 
     gfsh.executeAndAssertThat(buildCommand(authorizerName, JAVA_BEAN_AUTHORIZER_PARAMETERS))
         .statusIsSuccess().hasInfoSection().hasLines().contains(NO_MEMBERS_FOUND_MESSAGE);
@@ -223,7 +221,7 @@ public class AlterQueryServiceCommandWithSecurityDUnitTest {
 
   @Test
   public void alterQueryServiceCommandDoesNotUpdateClusterConfigWhenFunctionExecutionFailsOnAllMembers() {
-    String authorizerName = "badAuthorizerName";
+    var authorizerName = "badAuthorizerName";
 
     gfsh.executeAndAssertThat(buildCommand(authorizerName, JAVA_BEAN_AUTHORIZER_PARAMETERS))
         .statusIsError();

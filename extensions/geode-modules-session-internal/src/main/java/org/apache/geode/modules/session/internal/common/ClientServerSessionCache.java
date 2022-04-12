@@ -31,12 +31,9 @@ import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.execute.Execution;
 import org.apache.geode.cache.execute.FunctionService;
-import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.modules.util.BootstrappingFunction;
 import org.apache.geode.modules.util.CreateRegionFunction;
-import org.apache.geode.modules.util.RegionConfiguration;
 import org.apache.geode.modules.util.RegionStatus;
 import org.apache.geode.modules.util.SessionCustomExpiry;
 
@@ -101,8 +98,8 @@ public class ClientServerSessionCache extends AbstractSessionCache {
   // Private methods
 
   private void bootstrapServers() {
-    Execution execution = FunctionService.onServers(cache);
-    ResultCollector collector = execution.execute(new BootstrappingFunction());
+    var execution = FunctionService.onServers(cache);
+    var collector = execution.execute(new BootstrappingFunction());
     // Get the result. Nothing is being done with it.
     try {
       collector.getResult();
@@ -136,17 +133,17 @@ public class ClientServerSessionCache extends AbstractSessionCache {
 
   private void createSessionRegionOnServers() {
     // Create the RegionConfiguration
-    RegionConfiguration configuration = createRegionConfiguration();
+    var configuration = createRegionConfiguration();
 
     // Send it to the server tier
-    Execution execution = FunctionService.onServer(cache).setArguments(configuration);
-    ResultCollector collector = execution.execute(CreateRegionFunction.ID);
+    var execution = FunctionService.onServer(cache).setArguments(configuration);
+    var collector = execution.execute(CreateRegionFunction.ID);
 
     // Verify the region was successfully created on the servers
-    List<RegionStatus> results = (List<RegionStatus>) collector.getResult();
-    for (RegionStatus status : results) {
+    var results = (List<RegionStatus>) collector.getResult();
+    for (var status : results) {
       if (status == RegionStatus.INVALID) {
-        final String builder =
+        final var builder =
             "An exception occurred on the server while attempting to create or validate region named "
                 + properties.get(CacheProperty.REGION_NAME)
                 + ". See the server log for additional details.";
@@ -159,7 +156,7 @@ public class ClientServerSessionCache extends AbstractSessionCache {
     ClientRegionFactory<String, HttpSession> factory = null;
     boolean enableLocalCache = (Boolean) properties.get(CacheProperty.ENABLE_LOCAL_CACHE);
 
-    String regionName = (String) properties.get(CacheProperty.REGION_NAME);
+    var regionName = (String) properties.get(CacheProperty.REGION_NAME);
     if (enableLocalCache) {
       // Create the region factory with caching and heap LRU enabled
       factory = cache

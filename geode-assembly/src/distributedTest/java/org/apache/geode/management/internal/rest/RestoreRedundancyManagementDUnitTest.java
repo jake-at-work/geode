@@ -23,7 +23,6 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.IntStream;
@@ -34,19 +33,14 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.PartitionAttributesImpl;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.management.api.ClusterManagementException;
-import org.apache.geode.management.api.ClusterManagementOperationResult;
 import org.apache.geode.management.api.ClusterManagementResult;
 import org.apache.geode.management.api.ClusterManagementService;
 import org.apache.geode.management.cluster.client.ClusterManagementServiceBuilder;
 import org.apache.geode.management.operation.RestoreRedundancyRequest;
-import org.apache.geode.management.runtime.RegionRedundancyStatus;
-import org.apache.geode.management.runtime.RestoreRedundancyResults;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.rules.MemberStarterRule;
@@ -78,11 +72,11 @@ public class RestoreRedundancyManagementDUnitTest {
   @Before
   public void setup() {
     locator1 = cluster.startLocatorVM(0, MemberStarterRule::withHttpService);
-    int locator1Port = locator1.getPort();
-    MemberVM locator2 = cluster.startLocatorVM(1,
+    var locator1Port = locator1.getPort();
+    var locator2 = cluster.startLocatorVM(1,
         l -> l.withHttpService().withConnectionToLocator(locator1Port));
     servers = new ArrayList<>();
-    int locatorPort = locator1.getPort();
+    var locatorPort = locator1.getPort();
     IntStream.range(0, SERVERS_TO_START)
         .forEach(i -> servers.add(cluster.startServerVM(i + 2, locatorPort)));
 
@@ -106,23 +100,23 @@ public class RestoreRedundancyManagementDUnitTest {
   public void restoreRedundancyWithNoArgumentsRestoresRedundancyForAllRegions()
       throws ExecutionException, InterruptedException {
 
-    List<String> regionNames = getAllRegionNames();
+    var regionNames = getAllRegionNames();
     createAndPopulateRegions(regionNames);
 
-    int numberOfServers = servers.size();
+    var numberOfServers = servers.size();
     regionNames.forEach(region -> locator1
         .waitUntilRegionIsReadyOnExactlyThisManyServers(SEPARATOR + region, numberOfServers));
 
-    RestoreRedundancyRequest restoreRedundancyRequest = new RestoreRedundancyRequest();
+    var restoreRedundancyRequest = new RestoreRedundancyRequest();
 
     restoreRedundancyRequest.setIncludeRegions(regionNames);
 
     verifyClusterManagementOperationRequestAndResponse(restoreRedundancyRequest, client1, client1);
 
     // Confirm all regions have their configured redundancy and that primaries were balanced
-    int numberOfActiveServers = servers.size();
+    var numberOfActiveServers = servers.size();
     servers.get(0).invoke(() -> {
-      for (String regionName : regionNames) {
+      for (var regionName : regionNames) {
         assertRedundancyStatusForRegion(regionName, true);
         assertPrimariesBalanced(regionName, numberOfActiveServers, true);
       }
@@ -133,14 +127,14 @@ public class RestoreRedundancyManagementDUnitTest {
   public void canReadRestoreRedundancyResultFromDifferentLocator()
       throws ExecutionException, InterruptedException {
 
-    List<String> regionNames = getAllRegionNames();
+    var regionNames = getAllRegionNames();
     createAndPopulateRegions(regionNames);
 
-    int numberOfServers = servers.size();
+    var numberOfServers = servers.size();
     regionNames.forEach(region -> locator1
         .waitUntilRegionIsReadyOnExactlyThisManyServers(SEPARATOR + region, numberOfServers));
 
-    RestoreRedundancyRequest restoreRedundancyRequest = new RestoreRedundancyRequest();
+    var restoreRedundancyRequest = new RestoreRedundancyRequest();
 
     restoreRedundancyRequest.setIncludeRegions(regionNames);
 
@@ -148,9 +142,9 @@ public class RestoreRedundancyManagementDUnitTest {
     verifyClusterManagementOperationRequestAndResponse(restoreRedundancyRequest, client1, client2);
 
     // Confirm all regions have their configured redundancy and that primaries were balanced
-    int numberOfActiveServers = servers.size();
+    var numberOfActiveServers = servers.size();
     servers.get(0).invoke(() -> {
-      for (String regionName : regionNames) {
+      for (var regionName : regionNames) {
         assertRedundancyStatusForRegion(regionName, true);
         assertPrimariesBalanced(regionName, numberOfActiveServers, true);
       }
@@ -160,18 +154,18 @@ public class RestoreRedundancyManagementDUnitTest {
   @Test
   public void testOperationStatusWhenLocatorLeftTheMembership() {
 
-    List<String> regionNames = getAllRegionNames();
+    var regionNames = getAllRegionNames();
     createAndPopulateRegions(regionNames);
 
-    int numberOfServers = servers.size();
+    var numberOfServers = servers.size();
     regionNames.forEach(region -> locator1
         .waitUntilRegionIsReadyOnExactlyThisManyServers(SEPARATOR + region, numberOfServers));
 
-    RestoreRedundancyRequest restoreRedundancyRequest = new RestoreRedundancyRequest();
+    var restoreRedundancyRequest = new RestoreRedundancyRequest();
 
     restoreRedundancyRequest.setIncludeRegions(regionNames);
 
-    ClusterManagementOperationResult<RestoreRedundancyRequest, RestoreRedundancyResults> startResult =
+    var startResult =
         client1.start(restoreRedundancyRequest);
 
     // This should cause status of restoreRedundancyRequest to be ERROR
@@ -193,21 +187,21 @@ public class RestoreRedundancyManagementDUnitTest {
       RestoreRedundancyRequest restoreRedundancyRequest, ClusterManagementService startClient,
       ClusterManagementService readResultClient)
       throws InterruptedException, ExecutionException {
-    ClusterManagementOperationResult<RestoreRedundancyRequest, RestoreRedundancyResults> startResult =
+    var startResult =
         startClient.start(restoreRedundancyRequest);
 
     assertThat(startResult.isSuccessful()).isTrue();
 
-    ClusterManagementOperationResult<RestoreRedundancyRequest, RestoreRedundancyResults> endResult =
+    var endResult =
         readResultClient.getFuture(restoreRedundancyRequest, startResult.getOperationId()).get();
-    RestoreRedundancyResults restoreRedundancyResult = endResult.getOperationResult();
+    var restoreRedundancyResult = endResult.getOperationResult();
 
     assertThat(restoreRedundancyResult.getSuccess()).isTrue();
 
     boolean found;
-    for (String regionName : restoreRedundancyRequest.getIncludeRegions()) {
+    for (var regionName : restoreRedundancyRequest.getIncludeRegions()) {
       found = false;
-      for (Map.Entry<String, RegionRedundancyStatus> region : restoreRedundancyResult
+      for (var region : restoreRedundancyResult
           .getSatisfiedRedundancyRegionResults().entrySet()) {
         if (region.getValue().getRegionName().compareTo(regionName) == 0) {
           found = true;
@@ -219,8 +213,8 @@ public class RestoreRedundancyManagementDUnitTest {
           .isTrue();
     }
 
-    for (String regionName : restoreRedundancyRequest.getIncludeRegions()) {
-      for (Map.Entry<String, RegionRedundancyStatus> region : restoreRedundancyResult
+    for (var regionName : restoreRedundancyRequest.getIncludeRegions()) {
+      for (var region : restoreRedundancyResult
           .getUnderRedundancyRegionResults().entrySet()) {
         assertThat(regionName)
             .describedAs("One of regions we expect to be satisfied is marked as Under Redundancy")
@@ -228,8 +222,8 @@ public class RestoreRedundancyManagementDUnitTest {
       }
     }
 
-    for (String regionName : restoreRedundancyRequest.getIncludeRegions()) {
-      for (Map.Entry<String, RegionRedundancyStatus> region : restoreRedundancyResult
+    for (var regionName : restoreRedundancyRequest.getIncludeRegions()) {
+      for (var region : restoreRedundancyResult
           .getZeroRedundancyRegionResults().entrySet()) {
         assertThat(regionName)
             .describedAs("One of regions we expect to be satisfied is marked as Zero Redundancy")
@@ -245,14 +239,14 @@ public class RestoreRedundancyManagementDUnitTest {
       filteredExclude = new ArrayList<>();
     }
 
-    for (String regionName : restoreRedundancyRequest.getIncludeRegions()) {
+    for (var regionName : restoreRedundancyRequest.getIncludeRegions()) {
       filteredExclude.remove(regionName);
     }
 
     // Testing for the absence of the region name...
-    for (String regionName : filteredExclude) {
+    for (var regionName : filteredExclude) {
       found = false;
-      for (Map.Entry<String, RegionRedundancyStatus> region : restoreRedundancyResult
+      for (var region : restoreRedundancyResult
           .getSatisfiedRedundancyRegionResults().entrySet()) {
         if (region.getValue().getRegionName().compareTo(regionName) == 0) {
           found = true;
@@ -288,10 +282,10 @@ public class RestoreRedundancyManagementDUnitTest {
       createRegions(regionNames);
     }));
 
-    int numberOfActiveServers = servers.size();
+    var numberOfActiveServers = servers.size();
     servers.get(0).invoke(() -> {
       // Confirm that redundancy is impaired for all regions
-      for (String regionName : regionNames) {
+      for (var regionName : regionNames) {
         assertRedundancyStatusForRegion(regionName, false);
         assertPrimariesBalanced(regionName, numberOfActiveServers, false);
       }
@@ -316,22 +310,22 @@ public class RestoreRedundancyManagementDUnitTest {
   }
 
   private static void createHighRedundancyRegion() {
-    PartitionAttributesImpl attributes = getAttributes(HIGH_REDUNDANCY_COPIES);
-    InternalCache cache = Objects.requireNonNull(ClusterStartupRule.getCache());
+    var attributes = getAttributes(HIGH_REDUNDANCY_COPIES);
+    var cache = Objects.requireNonNull(ClusterStartupRule.getCache());
     cache.createRegionFactory(RegionShortcut.PARTITION).setPartitionAttributes(attributes)
         .create(HIGH_REDUNDANCY_REGION_NAME);
   }
 
   private static void createLowRedundancyRegion() {
-    PartitionAttributesImpl attributes = getAttributes(SINGLE_REDUNDANT_COPY);
-    InternalCache cache = Objects.requireNonNull(ClusterStartupRule.getCache());
+    var attributes = getAttributes(SINGLE_REDUNDANT_COPY);
+    var cache = Objects.requireNonNull(ClusterStartupRule.getCache());
     cache.createRegionFactory(RegionShortcut.PARTITION).setPartitionAttributes(attributes)
         .create(LOW_REDUNDANCY_REGION_NAME);
   }
 
   private static void createColocatedRegions() {
-    PartitionAttributesImpl attributes = getAttributes(SINGLE_REDUNDANT_COPY);
-    InternalCache cache = Objects.requireNonNull(ClusterStartupRule.getCache());
+    var attributes = getAttributes(SINGLE_REDUNDANT_COPY);
+    var cache = Objects.requireNonNull(ClusterStartupRule.getCache());
     // Create parent region
     cache.createRegionFactory(RegionShortcut.PARTITION).setPartitionAttributes(attributes)
         .create(PARENT_REGION_NAME);
@@ -343,14 +337,14 @@ public class RestoreRedundancyManagementDUnitTest {
   }
 
   private static void createNoConfiguredRedundancyRegion() {
-    PartitionAttributesImpl attributes = getAttributes(0);
-    InternalCache cache = Objects.requireNonNull(ClusterStartupRule.getCache());
+    var attributes = getAttributes(0);
+    var cache = Objects.requireNonNull(ClusterStartupRule.getCache());
     cache.createRegionFactory(RegionShortcut.PARTITION).setPartitionAttributes(attributes)
         .create(NO_CONFIGURED_REDUNDANCY_REGION_NAME);
   }
 
   private static PartitionAttributesImpl getAttributes(int redundantCopies) {
-    PartitionAttributesImpl attributes = new PartitionAttributesImpl();
+    var attributes = new PartitionAttributesImpl();
     attributes.setStartupRecoveryDelay(-1);
     attributes.setRecoveryDelay(-1);
     attributes.setRedundantCopies(redundantCopies);
@@ -365,7 +359,7 @@ public class RestoreRedundancyManagementDUnitTest {
 
     // Populate all the regions
     regionNames.forEach(regionName -> {
-      Region<Object, Object> region = cache.getRegion(regionName);
+      var region = cache.getRegion(regionName);
       IntStream.range(0, 5 * GLOBAL_MAX_BUCKETS_DEFAULT)
           .forEach(i -> region.put("key" + i, "value" + i));
     });
@@ -379,7 +373,7 @@ public class RestoreRedundancyManagementDUnitTest {
     }
     Cache cache = Objects.requireNonNull(ClusterStartupRule.getCache());
 
-    PartitionedRegion region = (PartitionedRegion) cache.getRegion(regionName);
+    var region = (PartitionedRegion) cache.getRegion(regionName);
     assertThat(region.getRedundancyProvider().isRedundancyImpaired())
         .isNotEqualTo(shouldBeSatisfied);
   }
@@ -392,14 +386,14 @@ public class RestoreRedundancyManagementDUnitTest {
     }
     Cache cache = Objects.requireNonNull(ClusterStartupRule.getCache());
 
-    PartitionedRegion region = (PartitionedRegion) cache.getRegion(regionName);
-    int primariesOnServer = region.getLocalPrimaryBucketsListTestOnly().size();
+    var region = (PartitionedRegion) cache.getRegion(regionName);
+    var primariesOnServer = region.getLocalPrimaryBucketsListTestOnly().size();
     // Add one to the expected number of primaries to deal with integer rounding errors
-    int expectedPrimaries = (GLOBAL_MAX_BUCKETS_DEFAULT / numberOfServers) + 1;
+    var expectedPrimaries = (GLOBAL_MAX_BUCKETS_DEFAULT / numberOfServers) + 1;
     // Because of the way reassigning primaries works, it is sometimes only possible to get the
     // difference between the most loaded member and the least loaded member to be 2, not 1 as would
     // be the case for perfect balance
-    String message = "Primaries should be balanced for region " + regionName
+    var message = "Primaries should be balanced for region " + regionName
         + ", but expectedPrimaries:actualPrimaries = "
         + expectedPrimaries + ":" + primariesOnServer;
     if (shouldBeBalanced) {

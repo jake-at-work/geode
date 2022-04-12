@@ -73,7 +73,7 @@ public class ConfigurePDXCommandTest {
 
   @Test
   public void parsingAutoCompleteShouldSucceed() throws Exception {
-    GfshParserRule.CommandCandidate candidate = gfshParserRule.complete(BASE_COMMAND_STRING);
+    var candidate = gfshParserRule.complete(BASE_COMMAND_STRING);
 
     assertThat(candidate).isNotNull();
     assertThat(candidate.getCandidates()).isNotNull();
@@ -115,7 +115,7 @@ public class ConfigurePDXCommandTest {
   @Test
   public void executionShouldIncludeWarningMessageWhenThereAreMembersAlreadyRunning() {
     Set<DistributedMember> members = new HashSet<>();
-    DistributedMember mockMember = mock(DistributedMember.class);
+    var mockMember = mock(DistributedMember.class);
     when(mockMember.getId()).thenReturn("member0");
     members.add(mockMember);
     doReturn(members).when(command).getAllNormalMembers();
@@ -203,7 +203,7 @@ public class ConfigurePDXCommandTest {
 
   @Test
   public void executionShouldCorrectlyConfigurePortableAutoSerializableClassesWhenUsingCustomPattern() {
-    String[] patterns = new String[] {"com.company.DomainObject.*#identity=id"};
+    var patterns = new String[] {"com.company.DomainObject.*#identity=id"};
 
     // Custom Settings
     gfshParserRule
@@ -220,7 +220,7 @@ public class ConfigurePDXCommandTest {
 
   @Test
   public void executionShouldCorrectlyConfigureAutoSerializableClassesWhenUsingCustomPattern() {
-    String[] patterns = new String[] {"com.company.DomainObject.*#identity=id"};
+    var patterns = new String[] {"com.company.DomainObject.*#identity=id"};
 
     // Custom Settings
     gfshParserRule

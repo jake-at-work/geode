@@ -24,11 +24,11 @@ public class OffHeapStoredObjectSliceJUnitTest extends OffHeapStoredObjectJUnitT
 
   @Test
   public void sliceShouldHaveAValidDataSize() {
-    int position = 1;
-    int end = 2;
+    var position = 1;
+    var end = 2;
 
-    OffHeapStoredObject chunk = createValueAsUnserializedStoredObject(getValue());
-    OffHeapStoredObjectSlice slice = (OffHeapStoredObjectSlice) chunk.slice(position, end);
+    var chunk = createValueAsUnserializedStoredObject(getValue());
+    var slice = (OffHeapStoredObjectSlice) chunk.slice(position, end);
 
     assertNotNull(slice);
     assertEquals(OffHeapStoredObjectSlice.class, slice.getClass());
@@ -38,11 +38,11 @@ public class OffHeapStoredObjectSliceJUnitTest extends OffHeapStoredObjectJUnitT
 
   @Test
   public void sliceShouldHaveAValidBaseDataAddress() {
-    int position = 1;
-    int end = 2;
+    var position = 1;
+    var end = 2;
 
-    OffHeapStoredObject chunk = createValueAsUnserializedStoredObject(getValue());
-    OffHeapStoredObjectSlice slice = (OffHeapStoredObjectSlice) chunk.slice(position, end);
+    var chunk = createValueAsUnserializedStoredObject(getValue());
+    var slice = (OffHeapStoredObjectSlice) chunk.slice(position, end);
 
     assertNotNull(slice);
     assertEquals(OffHeapStoredObjectSlice.class, slice.getClass());
@@ -52,11 +52,11 @@ public class OffHeapStoredObjectSliceJUnitTest extends OffHeapStoredObjectJUnitT
 
   @Test
   public void sliceShouldHaveAValidBaseOffset() {
-    int position = 1;
-    int end = 2;
+    var position = 1;
+    var end = 2;
 
-    OffHeapStoredObject chunk = createValueAsUnserializedStoredObject(getValue());
-    OffHeapStoredObjectSlice slice = (OffHeapStoredObjectSlice) chunk.slice(position, end);
+    var chunk = createValueAsUnserializedStoredObject(getValue());
+    var slice = (OffHeapStoredObjectSlice) chunk.slice(position, end);
 
     assertNotNull(slice);
     assertEquals(OffHeapStoredObjectSlice.class, slice.getClass());

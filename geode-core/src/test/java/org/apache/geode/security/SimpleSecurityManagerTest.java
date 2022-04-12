@@ -64,7 +64,7 @@ public class SimpleSecurityManagerTest {
 
   @Test
   public void testAuthorization() {
-    ResourcePermission permission = new ResourcePermission(Resource.CLUSTER, Operation.READ);
+    var permission = new ResourcePermission(Resource.CLUSTER, Operation.READ);
     assertTrue(manager.authorize("clusterRead", permission));
     assertTrue(manager.authorize("cluster", permission));
     assertFalse(manager.authorize("data", permission));
@@ -79,7 +79,7 @@ public class SimpleSecurityManagerTest {
 
   @Test
   public void testMultipleRoleAuthorization() {
-    ResourcePermission permission = new ResourcePermission(Resource.CLUSTER, Operation.READ);
+    var permission = new ResourcePermission(Resource.CLUSTER, Operation.READ);
     assertTrue(manager.authorize("clusterRead,clusterWrite", permission));
     assertTrue(manager.authorize("cluster,data", permission));
     assertFalse(manager.authorize("clusterWrite,data", permission));

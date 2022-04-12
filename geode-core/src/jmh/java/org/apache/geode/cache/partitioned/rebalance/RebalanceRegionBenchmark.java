@@ -53,14 +53,14 @@ public class RebalanceRegionBenchmark {
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.MILLISECONDS)
   public int rebalance() throws UnknownHostException {
-    RebalanceModelBuilder modelBuilder = new RebalanceModelBuilder(STARTING_MEMBERS, TOTAL_BUCKETS);
-    PartitionedRegionLoadModel model =
+    var modelBuilder = new RebalanceModelBuilder(STARTING_MEMBERS, TOTAL_BUCKETS);
+    var model =
         modelBuilder.withBucketSizeStandardDeviation(deviation).createModel();
     return doMoves(new MoveBuckets(), model);
   }
 
   private int doMoves(RebalanceDirector director, PartitionedRegionLoadModel model) {
-    int moveCount = 0;
+    var moveCount = 0;
 
     model.initialize();
     director.initialize(model);

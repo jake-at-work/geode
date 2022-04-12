@@ -28,8 +28,6 @@ import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.ReplyException;
 import org.apache.geode.distributed.internal.ReplyProcessor21;
 import org.apache.geode.distributed.internal.locks.DLockService;
-import org.apache.geode.distributed.internal.locks.LockGrantorId;
-import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.util.concurrent.StoppableReentrantReadWriteLock;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 
@@ -107,24 +105,24 @@ public class TXLockServiceImpl extends TXLockService {
       throw new IllegalArgumentException(
           "regionLockReqs must not be null");
     }
-    Set participants = txParticipants;
+    var participants = txParticipants;
     if (participants == null) {
       participants = Collections.EMPTY_SET;
     }
 
-    boolean gotLocks = false;
+    var gotLocks = false;
     TXLockId txLockId = null;
     try {
       synchronized (txLockIdList) {
         txLockId = new TXLockIdImpl(dlock.getDistributionManager().getId());
         txLockIdList.add(txLockId);
       }
-      TXLockBatch batch = new TXLockBatch(txLockId, regionLockReqs, participants);
+      var batch = new TXLockBatch(txLockId, regionLockReqs, participants);
 
       logger.debug("[TXLockServiceImpl.txLock] acquire try-locks for {}", batch);
 
       // TODO: get a readWriteLock to make the following block atomic...
-      Object[] keyIfFail = new Object[1];
+      var keyIfFail = new Object[1];
       gotLocks = dlock.acquireTryLocks(batch, TIMEOUT_MILLIS, LEASE_MILLIS, keyIfFail);
       if (gotLocks) { // ...otherwise race can occur between tryLocks and readLock
         acquireRecoveryReadLock();
@@ -160,7 +158,7 @@ public class TXLockServiceImpl extends TXLockService {
   public void updateParticipants(TXLockId txLockId, final Set updatedParticipants) {
     synchronized (txLockIdList) {
       if (!txLockIdList.contains(txLockId)) {
-        IllegalArgumentException e = new IllegalArgumentException(
+        var e = new IllegalArgumentException(
             String.format("Invalid txLockId not found: %s",
                 txLockId));
         system.getDistributionManager().getCancelCriterion().checkCancelInProgress(e);
@@ -186,17 +184,17 @@ public class TXLockServiceImpl extends TXLockService {
         TXLockUpdateParticipantsMessage.updateParticipants(dlock, txLockId,
             updatedParticipants);
       } else { // not lock grantor
-        LockGrantorId lockGrantorId = txLockId.getLockGrantorId();
+        var lockGrantorId = txLockId.getLockGrantorId();
         if (lockGrantorId == null || !dlock.isLockGrantorId(lockGrantorId)) {
           return; // grantor is gone so we cannot update it
         }
-        InternalDistributedMember grantorId = lockGrantorId.getLockGrantorMember();
+        var grantorId = lockGrantorId.getLockGrantorMember();
 
         // logger.info("DEBUG: [TXLockServiceImpl.updateParticipants] sending update message to
         // Grantor " + grantorId);
-        ReplyProcessor21 processor =
+        var processor =
             new ReplyProcessor21(dlock.getDistributionManager(), grantorId);
-        TXLockUpdateParticipantsMessage dlup = new TXLockUpdateParticipantsMessage(txLockId,
+        var dlup = new TXLockUpdateParticipantsMessage(txLockId,
             dlock.getName(), updatedParticipants, processor.getProcessorId());
         dlup.setRecipient(grantorId);
         dlock.getDistributionManager().putOutgoing(dlup);

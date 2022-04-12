@@ -109,7 +109,7 @@ class ServerBuilder implements ServerFactory {
 
   @Override
   public InternalCacheServer createServer() {
-    AcceptorBuilder acceptorBuilder = new AcceptorBuilder();
+    var acceptorBuilder = new AcceptorBuilder();
     acceptorBuilder.setIsGatewayReceiver(socketCreatorType.isGateway());
     acceptorBuilder.setGatewayTransportFilters(gatewayTransportFilters);
 

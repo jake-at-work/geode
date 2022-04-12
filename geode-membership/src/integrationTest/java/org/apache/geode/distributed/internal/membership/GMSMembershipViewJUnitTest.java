@@ -42,9 +42,9 @@ public class GMSMembershipViewJUnitTest {
 
   @Before
   public void initMembers() throws Exception {
-    int numMembers = 10;
+    var numMembers = 10;
     members = new ArrayList<>(numMembers);
-    for (int i = 0; i < numMembers; i++) {
+    for (var i = 0; i < numMembers; i++) {
       members.add(createMemberID(1000 + i));
     }
     // view creator is a locator
@@ -53,7 +53,7 @@ public class GMSMembershipViewJUnitTest {
     members.get(0).setPreferredForCoordinator(true);
 
     // members who joined in view #1
-    for (int i = 1; i < (numMembers - 1); i++) {
+    for (var i = 1; i < (numMembers - 1); i++) {
       members.get(i).setVmViewId(1);
       members.get(i).setVmKind(MemberIdentifier.NORMAL_DM_TYPE);
       members.get(i).setPreferredForCoordinator(false);
@@ -65,17 +65,17 @@ public class GMSMembershipViewJUnitTest {
   }
 
   private void setFailureDetectionPorts(GMSMembershipView view) {
-    int numMembers = members.size();
+    var numMembers = members.size();
     // use the membership port as the FD port so it's easy to figure out problems
-    for (MemberIdentifier member : members) {
+    for (var member : members) {
       view.setFailureDetectionPort(member, member.getMembershipPort());
     }
   }
 
   @Test
   public void testCreateView() throws Exception {
-    int numMembers = members.size();
-    GMSMembershipView view = new GMSMembershipView(members.get(0), 2, members);
+    var numMembers = members.size();
+    var view = new GMSMembershipView(members.get(0), 2, members);
     setFailureDetectionPorts(view);
 
     assertTrue(view.getCreator().equals(members.get(0)));
@@ -88,7 +88,7 @@ public class GMSMembershipViewJUnitTest {
     assertEquals(members.get(numMembers - 1), view.getNewMembers().iterator().next());
     assertEquals(members.get(0), view.getCoordinator());
 
-    for (MemberIdentifier mbr : members) {
+    for (var mbr : members) {
       assertEquals(mbr.getMembershipPort(), view.getFailureDetectionPort(mbr));
     }
 
@@ -110,52 +110,52 @@ public class GMSMembershipViewJUnitTest {
 
   @Test
   public void testRemoveMembers() throws Exception {
-    int numMembers = members.size();
-    GMSMembershipView view = new GMSMembershipView(members.get(0), 2, new ArrayList<>(members));
+    var numMembers = members.size();
+    var view = new GMSMembershipView(members.get(0), 2, new ArrayList<>(members));
     setFailureDetectionPorts(view);
 
-    for (int i = 1; i < numMembers; i += 2) {
+    for (var i = 1; i < numMembers; i += 2) {
       view.remove(members.get(i));
       assertFalse(view.contains(members.get(i)));
     }
 
     List<MemberIdentifier> remainingMembers = view.getMembers();
-    int num = remainingMembers.size();
-    for (MemberIdentifier mbr : remainingMembers) {
+    var num = remainingMembers.size();
+    for (var mbr : remainingMembers) {
       assertEquals(mbr.getMembershipPort(), view.getFailureDetectionPort(mbr));
     }
   }
 
   @Test
   public void testRemoveAll() throws Exception {
-    int numMembers = members.size();
-    GMSMembershipView view = new GMSMembershipView(members.get(0), 2, new ArrayList<>(members));
+    var numMembers = members.size();
+    var view = new GMSMembershipView(members.get(0), 2, new ArrayList<>(members));
     setFailureDetectionPorts(view);
 
     Collection<MemberIdentifier> removals = new ArrayList<>(numMembers / 2);
-    for (int i = 1; i < numMembers; i += 2) {
+    for (var i = 1; i < numMembers; i += 2) {
       removals.add(members.get(i));
     }
 
     view.removeAll(removals);
-    for (MemberIdentifier mbr : removals) {
+    for (var mbr : removals) {
       assertFalse(view.contains(mbr));
     }
     assertEquals(numMembers - removals.size(), view.size());
 
     List<MemberIdentifier> remainingMembers = view.getMembers();
-    int num = remainingMembers.size();
-    for (MemberIdentifier mbr : remainingMembers) {
+    var num = remainingMembers.size();
+    for (var mbr : remainingMembers) {
       assertEquals(mbr.getMembershipPort(), view.getFailureDetectionPort(mbr));
     }
   }
 
   @Test
   public void testCopyView() throws Exception {
-    GMSMembershipView view = new GMSMembershipView(members.get(0), 2, new ArrayList<>(members));
+    var view = new GMSMembershipView(members.get(0), 2, new ArrayList<>(members));
     setFailureDetectionPorts(view);
 
-    GMSMembershipView newView = new GMSMembershipView(view, 3);
+    var newView = new GMSMembershipView(view, 3);
 
     assertTrue(newView.getCreator().equals(members.get(0)));
     assertEquals(3, newView.getViewId());
@@ -176,11 +176,11 @@ public class GMSMembershipViewJUnitTest {
         new GMSMembershipView(members.get(0), 2, new ArrayList<>(members));
     setFailureDetectionPorts(view);
 
-    GMSMembershipView copy = new GMSMembershipView(view, 2);
+    var copy = new GMSMembershipView(view, 2);
 
-    int oldSize = view.size();
-    for (int i = 0; i < 100; i++) {
-      MemberIdentifier mbr = createMemberID(2000 + i);
+    var oldSize = view.size();
+    for (var i = 0; i < 100; i++) {
+      var mbr = createMemberID(2000 + i);
       mbr.setVmKind(MemberIdentifier.NORMAL_DM_TYPE);
       mbr.setVmViewId(2);
       view.add(mbr);
@@ -188,7 +188,7 @@ public class GMSMembershipViewJUnitTest {
     }
 
     assertEquals(oldSize + 100, view.size());
-    for (MemberIdentifier mbr : view.getMembers()) {
+    for (var mbr : view.getMembers()) {
       assertEquals(mbr.getMembershipPort(), view.getFailureDetectionPort(mbr));
     }
 
@@ -201,12 +201,12 @@ public class GMSMembershipViewJUnitTest {
         new GMSMembershipView(members.get(0), 2, new ArrayList<>(members));
     setFailureDetectionPorts(view);
 
-    GMSMembershipView newView = new GMSMembershipView(view, 3);
-    for (MemberIdentifier member : view.getMembers()) {
+    var newView = new GMSMembershipView(view, 3);
+    for (var member : view.getMembers()) {
       view.setPublicKey(member, null);
     }
     newView.setPublicKeys(view);
-    for (MemberIdentifier member : view.getMembers()) {
+    for (var member : view.getMembers()) {
       assertNull(newView.getPublicKey(member));
       assertNull(view.getPublicKey(member));
     }
@@ -220,7 +220,7 @@ public class GMSMembershipViewJUnitTest {
     // in #47342 a new view was created that contained a member that was joining but
     // was no longer reachable. The member was included in the failed-weight and not
     // in the previous view-weight, causing a spurious network partition to be declared
-    MemberIdentifier[] members =
+    var members =
         new MemberIdentifier[] {
             createMemberID(1),
             createMemberID(2),
@@ -228,7 +228,7 @@ public class GMSMembershipViewJUnitTest {
             createMemberID(4),
             createMemberID(5),
             createMemberID(6)};
-    int i = 0;
+    var i = 0;
     // weight 3
     members[i].setVmKind(MemberIdentifier.LOCATOR_DM_TYPE);
     members[i++].setPreferredForCoordinator(true);
@@ -252,13 +252,13 @@ public class GMSMembershipViewJUnitTest {
     for (i = 0; i < members.length; i++) {
       vmbrs.add(members[i]);
     }
-    GMSMembershipView lastView =
+    var lastView =
         new GMSMembershipView(members[0], 4,
             vmbrs);
-    MemberIdentifier leader = members[2];
+    var leader = members[2];
     assertTrue(!leader.preferredForCoordinator());
 
-    MemberIdentifier joiningMember = createMemberID(7);
+    var joiningMember = createMemberID(7);
     joiningMember.setVmKind(MemberIdentifier.NORMAL_DM_TYPE);
     joiningMember.setPreferredForCoordinator(false);
 
@@ -272,11 +272,11 @@ public class GMSMembershipViewJUnitTest {
     List<MemberIdentifier> newMbrs =
         new ArrayList<>(lastView.getGMSMembers());
     newMbrs.removeAll(failedMembers);
-    GMSMembershipView newView =
+    var newView =
         new GMSMembershipView(members[0], 5, newMbrs,
             Collections.emptySet(), failedMembers);
 
-    int failedWeight = newView.getCrashedMemberWeight(lastView);
+    var failedWeight = newView.getCrashedMemberWeight(lastView);
     // System.out.println("last view = " + lastView);
     // System.out.println("failed mbrs = " + failedMembers);
     // System.out.println("failed weight = " + failedWeight);

@@ -45,7 +45,6 @@ import org.junit.experimental.categories.Category;
 import org.mockito.stubbing.Answer;
 
 import org.apache.geode.StatisticsFactory;
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.Region;
 import org.apache.geode.distributed.LocatorLauncher;
 import org.apache.geode.distributed.ServerLauncher;
@@ -172,12 +171,12 @@ public class MBeanFederationErrorHandlingDistributedTest implements Serializable
 
     locatorLauncher.start();
 
-    Cache cache = locatorLauncher.getCache();
+    var cache = locatorLauncher.getCache();
 
-    SystemManagementService service =
+    var service =
         (SystemManagementService) ManagementService.getManagementService(cache);
     service.startManager();
-    FederatingManager federatingManager = service.getFederatingManager();
+    var federatingManager = service.getFederatingManager();
     proxyFactory = federatingManager.proxyFactory();
 
     return locatorLauncher.getPort();

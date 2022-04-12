@@ -21,7 +21,6 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -51,12 +50,9 @@ import org.apache.geode.internal.cache.InitialImageOperation;
 import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.cache.NonTXEntry;
 import org.apache.geode.internal.cache.PartitionedRegion;
-import org.apache.geode.internal.cache.PartitionedRegionDataStore;
-import org.apache.geode.internal.cache.RegionEntry;
 import org.apache.geode.internal.cache.Token;
 import org.apache.geode.internal.cache.versions.RegionVersionVector;
 import org.apache.geode.internal.cache.versions.VersionSource;
-import org.apache.geode.internal.cache.versions.VersionStamp;
 import org.apache.geode.internal.cache.versions.VersionTag;
 import org.apache.geode.internal.logging.log4j.LogMarker;
 import org.apache.geode.internal.offheap.OffHeapHelper;
@@ -92,8 +88,8 @@ public class FetchEntriesMessage extends PartitionMessage {
   public static FetchEntriesResponse send(InternalDistributedMember recipient, PartitionedRegion r,
       int bucketId) throws ForceReattemptException {
     Assert.assertTrue(recipient != null, "FetchEntriesMessage NULL reply message");
-    FetchEntriesResponse p = new FetchEntriesResponse(r.getSystem(), r, recipient, bucketId);
-    FetchEntriesMessage m = new FetchEntriesMessage(recipient, r.getPRId(), p, bucketId);
+    var p = new FetchEntriesResponse(r.getSystem(), r, recipient, bucketId);
+    var m = new FetchEntriesMessage(recipient, r.getPRId(), p, bucketId);
     m.setTransactionDistributed(r.getCache().getTxManager().isDistributed());
 
     Set failures = r.getDistributionManager().putOutgoing(m);
@@ -113,7 +109,7 @@ public class FetchEntriesMessage extends PartitionMessage {
           pr.getFullPath());
     }
 
-    PartitionedRegionDataStore ds = pr.getDataStore();
+    var ds = pr.getDataStore();
     BucketRegion entries = null;
     if (ds != null) {
       entries = ds.handleRemoteGetEntries(bucketId);
@@ -214,12 +210,12 @@ public class FetchEntriesMessage extends PartitionMessage {
         throws ForceReattemptException {
 
       Assert.assertTrue(recipient != null, "FetchEntriesReplyMessage NULL reply message");
-      final int numSeries = 1;
-      final int seriesNum = 0;
+      final var numSeries = 1;
+      final var seriesNum = 0;
 
-      final RegionVersionVector rvv = keys.getVersionVector();
+      final var rvv = keys.getVersionVector();
       if (rvv != null) {
-        RegionVersionVector clone = rvv.getCloneForTransmission();
+        var clone = rvv.getCloneForTransmission();
         ReplyMessage.send(recipient, processorId, clone, dm);
       }
 
@@ -228,7 +224,7 @@ public class FetchEntriesMessage extends PartitionMessage {
         logger.debug("Starting PR entries chunking for {} entries", keys.size());
       }
       try {
-        boolean finished = chunkMap(recipient, keys, InitialImageOperation.CHUNK_SIZE_IN_BYTES,
+        var finished = chunkMap(recipient, keys, InitialImageOperation.CHUNK_SIZE_IN_BYTES,
             false, new ObjectIntProcedure() {
               int msgNum = 0;
 
@@ -241,10 +237,10 @@ public class FetchEntriesMessage extends PartitionMessage {
                */
               @Override
               public boolean executeWith(Object a, int b) {
-                HeapDataOutputStream chunk = (HeapDataOutputStream) a;
+                var chunk = (HeapDataOutputStream) a;
                 last = b > 0;
                 try {
-                  boolean okay = sendChunk(recipient, processorId, bucketId, dm, chunk, seriesNum,
+                  var okay = sendChunk(recipient, processorId, bucketId, dm, chunk, seriesNum,
                       msgNum++, numSeries, last, rvv != null);
                   return okay;
                 } catch (CancelException e) {
@@ -268,7 +264,7 @@ public class FetchEntriesMessage extends PartitionMessage {
     static boolean sendChunk(InternalDistributedMember recipient, int processorId, int bucketId,
         DistributionManager dm, HeapDataOutputStream chunk, int seriesNum, int msgNum,
         int numSeries, boolean lastInSeries, boolean hasRVV) {
-      FetchEntriesReplyMessage reply = new FetchEntriesReplyMessage(recipient, processorId,
+      var reply = new FetchEntriesReplyMessage(recipient, processorId,
           bucketId, chunk, seriesNum, msgNum, numSeries, lastInSeries, hasRVV);
       Set failures = dm.putOutgoing(reply);
       return (failures == null) || (failures.size() == 0);
@@ -285,28 +281,28 @@ public class FetchEntriesMessage extends PartitionMessage {
     static boolean chunkMap(InternalDistributedMember receiver, BucketRegion map,
         int CHUNK_SIZE_IN_BYTES, boolean includeValues, ObjectIntProcedure proc)
         throws IOException {
-      Iterator it = map.entrySet().iterator();
+      var it = map.entrySet().iterator();
 
-      boolean keepGoing = true;
-      boolean sentLastChunk = false;
+      var keepGoing = true;
+      var sentLastChunk = false;
 
       // always write at least one chunk
-      try (HeapDataOutputStream mos = new HeapDataOutputStream(
+      try (var mos = new HeapDataOutputStream(
           InitialImageOperation.CHUNK_SIZE_IN_BYTES + 2048, Versioning
               .getKnownVersionOrDefault(receiver.getVersion(), KnownVersion.CURRENT))) {
         do {
           mos.reset();
 
-          int avgItemSize = 0;
-          int itemCount = 0;
+          var avgItemSize = 0;
+          var itemCount = 0;
 
           while ((mos.size() + avgItemSize) < InitialImageOperation.CHUNK_SIZE_IN_BYTES
               && it.hasNext()) {
 
-            NonTXEntry entry = (NonTXEntry) it.next();
-            RegionEntry re = entry.getRegionEntry();
+            var entry = (NonTXEntry) it.next();
+            var re = entry.getRegionEntry();
             synchronized (re) {
-              Object value = re.getValueRetain(map, true);
+              var value = re.getValueRetain(map, true);
               try {
                 if (value == null) {
                   // only possible for disk entry
@@ -317,8 +313,8 @@ public class FetchEntriesMessage extends PartitionMessage {
                   if (Token.isInvalid(value)) {
                     value = null;
                   }
-                  VersionStamp stamp = re.getVersionStamp();
-                  VersionTag versionTag = stamp != null ? stamp.asVersionTag() : null;
+                  var stamp = re.getVersionStamp();
+                  var versionTag = stamp != null ? stamp.asVersionTag() : null;
                   if (versionTag != null) {
                     versionTag.replaceNullIDs(map.getVersionMember());
                   }
@@ -343,7 +339,7 @@ public class FetchEntriesMessage extends PartitionMessage {
           DataSerializer.writeObject(null, mos);
 
           // send 1 for last message if no more data
-          int lastMsg = it.hasNext() ? 0 : 1;
+          var lastMsg = it.hasNext() ? 0 : 1;
           keepGoing = proc.executeWith(mos, lastMsg);
           sentLastChunk = lastMsg == 1 && keepGoing;
 
@@ -361,8 +357,8 @@ public class FetchEntriesMessage extends PartitionMessage {
      */
     @Override
     public void process(final DistributionManager dm, final ReplyProcessor21 p) {
-      final long startTime = getTimestamp();
-      FetchEntriesResponse processor = (FetchEntriesResponse) p;
+      final var startTime = getTimestamp();
+      var processor = (FetchEntriesResponse) p;
 
       if (processor == null) {
         if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
@@ -413,7 +409,7 @@ public class FetchEntriesMessage extends PartitionMessage {
 
     @Override
     public String toString() {
-      StringBuilder sb = new StringBuilder();
+      var sb = new StringBuilder();
       sb.append("FetchEntriesReplyMessage ").append("processorid=").append(processorId)
           .append(",bucketId=").append(bucketId);
       if (getSender() != null) {
@@ -486,8 +482,8 @@ public class FetchEntriesMessage extends PartitionMessage {
     public void process(DistributionMessage msg) {
       // If the reply is a region version vector, store it in our RVV field.
       if (msg instanceof ReplyMessage) {
-        ReplyMessage reply = (ReplyMessage) msg;
-        Object returnValue = reply.getReturnValue();
+        var reply = (ReplyMessage) msg;
+        var returnValue = reply.getReturnValue();
         if (returnValue instanceof RegionVersionVector) {
           returnRVV = (RegionVersionVector) returnValue;
           synchronized (endLock) {
@@ -507,17 +503,17 @@ public class FetchEntriesMessage extends PartitionMessage {
       // of this message, we'll need to handle failover in this processor class and track results
       // differently.
 
-      final boolean isDebugEnabled = logger.isTraceEnabled(LogMarker.DM_VERBOSE);
+      final var isDebugEnabled = logger.isTraceEnabled(LogMarker.DM_VERBOSE);
 
-      boolean doneProcessing = false;
+      var doneProcessing = false;
 
       if (msg.getException() != null) {
         process(msg);
       } else {
-        boolean deserializingKey = true;
+        var deserializingKey = true;
         try {
-          ByteArrayInputStream byteStream = new ByteArrayInputStream(msg.chunk);
-          DataInputStream in = new DataInputStream(byteStream);
+          var byteStream = new ByteArrayInputStream(msg.chunk);
+          var in = new DataInputStream(byteStream);
           Object key;
 
           while (in.available() > 0) {
@@ -525,11 +521,11 @@ public class FetchEntriesMessage extends PartitionMessage {
             key = DataSerializer.readObject(in);
             if (key != null) {
               deserializingKey = false;
-              Object value = DataSerializer.readObject(in);
+              var value = DataSerializer.readObject(in);
               VersionTag versionTag = DataSerializer.readObject(in);
 
               // Fix for 47260 - canonicalize the mebmer ids to avoid an OOME
-              VersionSource id = versionTag == null ? null : versionTag.getMemberID();
+              var id = versionTag == null ? null : versionTag.getMemberID();
               if (id != null) {
                 if (canonicalMembers.containsKey(id)) {
                   versionTag.setMemberID(canonicalMembers.get(id));
@@ -600,7 +596,7 @@ public class FetchEntriesMessage extends PartitionMessage {
       try {
         waitForRepliesUninterruptibly();
       } catch (ReplyException e) {
-        Throwable t = e.getCause();
+        var t = e.getCause();
         if (t instanceof CancelException) {
           logger.debug("FetchKeysResponse got remote cancellation; forcing reattempt. {}",
               t.getMessage(), t);
@@ -621,9 +617,9 @@ public class FetchEntriesMessage extends PartitionMessage {
       }
       // Deserialize all CachedDeserializable here so we have access to applications thread context
       // class loader
-      for (final Map.Entry<Object, Object> objectObjectEntry : returnValue.entrySet()) {
-        Map.Entry entry = (Map.Entry) objectObjectEntry;
-        Object value = entry.getValue();
+      for (final var objectObjectEntry : returnValue.entrySet()) {
+        var entry = (Map.Entry) objectObjectEntry;
+        var value = entry.getValue();
         if (value instanceof CachedDeserializable) {
           entry.setValue(((CachedDeserializable) value).getDeserializedValue(null, null));
         }

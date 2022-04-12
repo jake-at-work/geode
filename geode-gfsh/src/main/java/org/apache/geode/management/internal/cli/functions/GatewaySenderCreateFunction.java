@@ -14,18 +14,15 @@
  */
 package org.apache.geode.management.internal.cli.functions;
 
-import java.util.List;
 
 import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.execute.FunctionContext;
-import org.apache.geode.cache.execute.ResultSender;
 import org.apache.geode.cache.wan.GatewayEventFilter;
 import org.apache.geode.cache.wan.GatewaySender;
 import org.apache.geode.cache.wan.GatewaySender.OrderPolicy;
-import org.apache.geode.cache.wan.GatewaySenderFactory;
 import org.apache.geode.cache.wan.GatewayTransportFilter;
 import org.apache.geode.internal.cache.execute.InternalFunction;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -53,16 +50,16 @@ public class GatewaySenderCreateFunction implements InternalFunction<GatewaySend
 
   @Override
   public void execute(FunctionContext<GatewaySenderFunctionArgs> context) {
-    ResultSender<Object> resultSender = context.getResultSender();
+    var resultSender = context.getResultSender();
 
-    Cache cache = context.getCache();
-    String memberNameOrId = context.getMemberName();
+    var cache = context.getCache();
+    var memberNameOrId = context.getMemberName();
 
-    GatewaySenderFunctionArgs gatewaySenderCreateArgs =
+    var gatewaySenderCreateArgs =
         context.getArguments();
 
     try {
-      GatewaySender createdGatewaySender = createGatewaySender(cache, gatewaySenderCreateArgs);
+      var createdGatewaySender = createGatewaySender(cache, gatewaySenderCreateArgs);
       resultSender.lastResult(new CliFunctionResult(memberNameOrId,
           CliFunctionResult.StatusState.OK, CliStrings.format(
               CliStrings.CREATE_GATEWAYSENDER__MSG__GATEWAYSENDER_0_CREATED_ON_1,
@@ -80,86 +77,86 @@ public class GatewaySenderCreateFunction implements InternalFunction<GatewaySend
   @SuppressWarnings("deprecation")
   private GatewaySender createGatewaySender(Cache cache,
       GatewaySenderFunctionArgs gatewaySenderCreateArgs) {
-    GatewaySenderFactory gateway = cache.createGatewaySenderFactory();
+    var gateway = cache.createGatewaySenderFactory();
 
-    Boolean isParallel = gatewaySenderCreateArgs.isParallel();
+    var isParallel = gatewaySenderCreateArgs.isParallel();
     if (isParallel != null) {
       gateway.setParallel(isParallel);
     }
 
-    Boolean groupTransactionEvents = gatewaySenderCreateArgs.mustGroupTransactionEvents();
+    var groupTransactionEvents = gatewaySenderCreateArgs.mustGroupTransactionEvents();
     if (groupTransactionEvents != null) {
       gateway.setGroupTransactionEvents(groupTransactionEvents);
     }
 
-    Boolean manualStart = gatewaySenderCreateArgs.isManualStart();
+    var manualStart = gatewaySenderCreateArgs.isManualStart();
     if (manualStart != null) {
       gateway.setManualStart(manualStart);
     }
 
-    Integer maxQueueMemory = gatewaySenderCreateArgs.getMaxQueueMemory();
+    var maxQueueMemory = gatewaySenderCreateArgs.getMaxQueueMemory();
     if (maxQueueMemory != null) {
       gateway.setMaximumQueueMemory(maxQueueMemory);
     }
 
-    Integer batchSize = gatewaySenderCreateArgs.getBatchSize();
+    var batchSize = gatewaySenderCreateArgs.getBatchSize();
     if (batchSize != null) {
       gateway.setBatchSize(batchSize);
     }
 
-    Integer batchTimeInterval = gatewaySenderCreateArgs.getBatchTimeInterval();
+    var batchTimeInterval = gatewaySenderCreateArgs.getBatchTimeInterval();
     if (batchTimeInterval != null) {
       gateway.setBatchTimeInterval(batchTimeInterval);
     }
 
-    Boolean enableBatchConflation = gatewaySenderCreateArgs.isBatchConflationEnabled();
+    var enableBatchConflation = gatewaySenderCreateArgs.isBatchConflationEnabled();
     if (enableBatchConflation != null) {
       gateway.setBatchConflationEnabled(enableBatchConflation);
     }
 
-    Integer socketBufferSize = gatewaySenderCreateArgs.getSocketBufferSize();
+    var socketBufferSize = gatewaySenderCreateArgs.getSocketBufferSize();
     if (socketBufferSize != null) {
       gateway.setSocketBufferSize(socketBufferSize);
     }
 
-    Integer socketReadTimeout = gatewaySenderCreateArgs.getSocketReadTimeout();
+    var socketReadTimeout = gatewaySenderCreateArgs.getSocketReadTimeout();
     if (socketReadTimeout != null) {
       gateway.setSocketReadTimeout(socketReadTimeout);
     }
 
-    Integer alertThreshold = gatewaySenderCreateArgs.getAlertThreshold();
+    var alertThreshold = gatewaySenderCreateArgs.getAlertThreshold();
     if (alertThreshold != null) {
       gateway.setAlertThreshold(alertThreshold);
     }
 
-    Integer dispatcherThreads = gatewaySenderCreateArgs.getDispatcherThreads();
+    var dispatcherThreads = gatewaySenderCreateArgs.getDispatcherThreads();
     if (dispatcherThreads != null) {
       gateway.setDispatcherThreads(dispatcherThreads);
     }
 
-    String orderPolicy = gatewaySenderCreateArgs.getOrderPolicy();
+    var orderPolicy = gatewaySenderCreateArgs.getOrderPolicy();
     if (orderPolicy != null && dispatcherThreads != null && dispatcherThreads > 1) {
       gateway.setOrderPolicy(OrderPolicy.valueOf(orderPolicy));
     }
 
-    Boolean isPersistenceEnabled = gatewaySenderCreateArgs.isPersistenceEnabled();
+    var isPersistenceEnabled = gatewaySenderCreateArgs.isPersistenceEnabled();
     if (isPersistenceEnabled != null) {
       gateway.setPersistenceEnabled(isPersistenceEnabled);
     }
 
-    String diskStoreName = gatewaySenderCreateArgs.getDiskStoreName();
+    var diskStoreName = gatewaySenderCreateArgs.getDiskStoreName();
     if (diskStoreName != null) {
       gateway.setDiskStoreName(diskStoreName);
     }
 
-    Boolean isDiskSynchronous = gatewaySenderCreateArgs.isDiskSynchronous();
+    var isDiskSynchronous = gatewaySenderCreateArgs.isDiskSynchronous();
     if (isDiskSynchronous != null) {
       gateway.setDiskSynchronous(isDiskSynchronous);
     }
 
-    List<String> gatewayEventFilters = gatewaySenderCreateArgs.getGatewayEventFilter();
+    var gatewayEventFilters = gatewaySenderCreateArgs.getGatewayEventFilter();
     if (gatewayEventFilters != null) {
-      for (String gatewayEventFilter : gatewayEventFilters) {
+      for (var gatewayEventFilter : gatewayEventFilters) {
         Class<?> gatewayEventFilterKlass =
             ManagementUtils.forName(gatewayEventFilter,
                 CliStrings.CREATE_GATEWAYSENDER__GATEWAYEVENTFILTER);
@@ -169,9 +166,9 @@ public class GatewaySenderCreateFunction implements InternalFunction<GatewaySend
       }
     }
 
-    List<String> gatewayTransportFilters = gatewaySenderCreateArgs.getGatewayTransportFilter();
+    var gatewayTransportFilters = gatewaySenderCreateArgs.getGatewayTransportFilter();
     if (gatewayTransportFilters != null) {
-      for (String gatewayTransportFilter : gatewayTransportFilters) {
+      for (var gatewayTransportFilter : gatewayTransportFilters) {
         Class<?> gatewayTransportFilterKlass = ManagementUtils.forName(gatewayTransportFilter,
             CliStrings.CREATE_GATEWAYSENDER__GATEWAYTRANSPORTFILTER);
         gateway.addGatewayTransportFilter((GatewayTransportFilter) CliUtils.newInstance(
@@ -179,7 +176,7 @@ public class GatewaySenderCreateFunction implements InternalFunction<GatewaySend
       }
     }
 
-    Boolean enforceThreadsConnectSameReceiver =
+    var enforceThreadsConnectSameReceiver =
         gatewaySenderCreateArgs.getEnforceThreadsConnectSameReceiver();
     if (enforceThreadsConnectSameReceiver != null) {
       gateway.setEnforceThreadsConnectSameReceiver(enforceThreadsConnectSameReceiver);

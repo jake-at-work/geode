@@ -18,7 +18,6 @@ import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.Statistics;
 import org.apache.geode.StatisticsFactory;
 import org.apache.geode.StatisticsType;
-import org.apache.geode.StatisticsTypeFactory;
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.internal.statistics.StatisticsClock;
 import org.apache.geode.internal.statistics.StatisticsClockFactory;
@@ -50,13 +49,13 @@ public class IndexStats {
   private final StatisticsClock clock;
 
   static {
-    StatisticsTypeFactory f = StatisticsTypeFactoryImpl.singleton();
+    var f = StatisticsTypeFactoryImpl.singleton();
 
-    final String numKeysDesc = "Number of keys in this index";
-    final String numValuesDesc = "Number of values in this index";
-    final String numUpdatesDesc = "Number of updates that have completed on this index";
-    final String numUsesDesc = "Number of times this index has been used while executing a query";
-    final String updateTimeDesc = "Total time spent updating this index";
+    final var numKeysDesc = "Number of keys in this index";
+    final var numValuesDesc = "Number of values in this index";
+    final var numUpdatesDesc = "Number of updates that have completed on this index";
+    final var numUsesDesc = "Number of times this index has been used while executing a query";
+    final var updateTimeDesc = "Total time spent updating this index";
 
     type = f.createType("IndexStats", "Statistics about a query index",
         new StatisticDescriptor[] {f.createLongGauge("numKeys", numKeysDesc, "keys"),

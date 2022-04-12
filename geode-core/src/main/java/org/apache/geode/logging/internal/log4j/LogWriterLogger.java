@@ -77,7 +77,7 @@ public class LogWriterLogger extends ExtendedLoggerWrapper
    */
   public static LogWriterLogger create(final String name, final String connectionName,
       final boolean isSecure) {
-    Logger wrapped = LogService.getLogger(name);
+    var wrapped = LogService.getLogger(name);
     return new LogWriterLogger(wrapped, connectionName, isSecure);
   }
 
@@ -1362,7 +1362,7 @@ public class LogWriterLogger extends ExtendedLoggerWrapper
   }
 
   public void log(int logWriterLevel, final String message, final Throwable throwable) {
-    Level level = LogWriterLevelConverter.toLevel(LogWriterLevel.find(logWriterLevel));
+    var level = LogWriterLevelConverter.toLevel(LogWriterLevel.find(logWriterLevel));
     logWrapper.logIfEnabled(loggerName, level, null, message, throwable);
   }
 
@@ -1688,7 +1688,7 @@ public class LogWriterLogger extends ExtendedLoggerWrapper
 
   @Override
   public int getLogWriterLevel() {
-    final Level log4jLevel = logWrapper.getLevel();
+    final var log4jLevel = logWrapper.getLevel();
 
     if (log4jLevel == Level.OFF) {
       return LogWriterLevel.NONE.intLevel();

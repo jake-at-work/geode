@@ -24,7 +24,6 @@ import org.apache.geode.LogWriter;
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.QueryService;
 
@@ -61,11 +60,11 @@ class Utils {
   }
 
   static Region createRegion(String regionName, Class valueConstraint) throws Exception {
-    AttributesFactory attributesFactory = new AttributesFactory();
+    var attributesFactory = new AttributesFactory();
     attributesFactory.setValueConstraint(valueConstraint);
-    RegionAttributes regionAttributes = attributesFactory.create();
+    var regionAttributes = attributesFactory.create();
 
-    Region region = _cache.createRegion(regionName, regionAttributes);
+    var region = _cache.createRegion(regionName, regionAttributes);
     return region;
   }
 
@@ -83,7 +82,7 @@ class Utils {
 
 
   static List toTokens(String s) {
-    StringTokenizer tokenizer = new StringTokenizer(s, " ");
+    var tokenizer = new StringTokenizer(s, " ");
     List l = new ArrayList();
     while (tokenizer.hasMoreTokens()) {
       l.add(tokenizer.nextToken());
@@ -110,7 +109,7 @@ class Utils {
    * ((GsSession)gsSession).shutdown(); }
    */
   static int randomInt(int low, int high) {
-    int range = high - low + 1;
+    var range = high - low + 1;
     return (int) (range * RANDOM.nextDouble()) + low;
   }
 

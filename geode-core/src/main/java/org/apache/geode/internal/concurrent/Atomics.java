@@ -26,7 +26,7 @@ public class Atomics {
    */
   public static boolean setIfGreater(AtomicLong atom, long update) {
     while (true) {
-      long cur = atom.get();
+      var cur = atom.get();
 
       if (update > cur) {
         if (atom.compareAndSet(cur, update)) {

@@ -19,7 +19,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.BrokenBarrierException;
@@ -110,7 +109,7 @@ public class ConcurrentRegionOperationsJUnitTest extends DiskRegionTestingBase {
   @Test
   public void testPersistSyncConcurrency() {
     validate = true;
-    DiskRegionProperties p = new DiskRegionProperties();
+    var p = new DiskRegionProperties();
     p.setRegionName(getName() + counter);
     p.setDiskDirs(dirs);
     p.setCompactionThreshold(99);
@@ -123,7 +122,7 @@ public class ConcurrentRegionOperationsJUnitTest extends DiskRegionTestingBase {
   @Test
   public void testPersistAsyncConcurrency() {
     validate = true;
-    DiskRegionProperties p = new DiskRegionProperties();
+    var p = new DiskRegionProperties();
     p.setRegionName(getName() + counter);
     p.setDiskDirs(dirs);
     p.setCompactionThreshold(99);
@@ -138,7 +137,7 @@ public class ConcurrentRegionOperationsJUnitTest extends DiskRegionTestingBase {
   @Test
   public void testPersistAsyncSmallQueueConcurrency() {
     validate = true;
-    DiskRegionProperties p = new DiskRegionProperties();
+    var p = new DiskRegionProperties();
     p.setRegionName(getName() + counter);
     p.setDiskDirs(dirs);
     p.setCompactionThreshold(99);
@@ -153,7 +152,7 @@ public class ConcurrentRegionOperationsJUnitTest extends DiskRegionTestingBase {
   @Test
   public void testPersistAndOverflowSyncConcurrency() {
     validate = true;
-    DiskRegionProperties p = new DiskRegionProperties();
+    var p = new DiskRegionProperties();
     p.setRegionName(getName() + counter);
     p.setDiskDirs(dirs);
     p.setCompactionThreshold(99);
@@ -168,7 +167,7 @@ public class ConcurrentRegionOperationsJUnitTest extends DiskRegionTestingBase {
   @Test
   public void testPersistAndOverflowAsyncConcurrency() {
     validate = true;
-    DiskRegionProperties p = new DiskRegionProperties();
+    var p = new DiskRegionProperties();
     p.setRegionName(getName() + counter);
     p.setDiskDirs(dirs);
     p.setCompactionThreshold(99);
@@ -184,7 +183,7 @@ public class ConcurrentRegionOperationsJUnitTest extends DiskRegionTestingBase {
   @Test
   public void testPersistAndOverflowAsyncSmallQueueConcurrency() {
     validate = true;
-    DiskRegionProperties p = new DiskRegionProperties();
+    var p = new DiskRegionProperties();
     p.setRegionName(getName() + counter);
     p.setDiskDirs(dirs);
     p.setCompactionThreshold(99);
@@ -200,7 +199,7 @@ public class ConcurrentRegionOperationsJUnitTest extends DiskRegionTestingBase {
   @Test
   public void testNVPersistSyncConcurrency() {
     validate = false;
-    DiskRegionProperties p = new DiskRegionProperties();
+    var p = new DiskRegionProperties();
     p.setRegionName(getName() + counter);
     p.setDiskDirs(dirs);
     p.setCompactionThreshold(99);
@@ -213,7 +212,7 @@ public class ConcurrentRegionOperationsJUnitTest extends DiskRegionTestingBase {
   @Test
   public void testNVPersistAsyncConcurrency() {
     validate = false;
-    DiskRegionProperties p = new DiskRegionProperties();
+    var p = new DiskRegionProperties();
     p.setRegionName(getName() + counter);
     p.setDiskDirs(dirs);
     p.setCompactionThreshold(99);
@@ -228,7 +227,7 @@ public class ConcurrentRegionOperationsJUnitTest extends DiskRegionTestingBase {
   @Test
   public void testNVPersistAsyncSmallQueueConcurrency() {
     validate = false;
-    DiskRegionProperties p = new DiskRegionProperties();
+    var p = new DiskRegionProperties();
     p.setRegionName(getName() + counter);
     p.setDiskDirs(dirs);
     p.setCompactionThreshold(99);
@@ -243,7 +242,7 @@ public class ConcurrentRegionOperationsJUnitTest extends DiskRegionTestingBase {
   @Test
   public void testNVPersistAndOverflowSyncConcurrency() {
     validate = false;
-    DiskRegionProperties p = new DiskRegionProperties();
+    var p = new DiskRegionProperties();
     p.setRegionName(getName() + counter);
     p.setDiskDirs(dirs);
     p.setCompactionThreshold(100);
@@ -258,7 +257,7 @@ public class ConcurrentRegionOperationsJUnitTest extends DiskRegionTestingBase {
   @Test
   public void testNVPersistAndOverflowAsyncConcurrency() {
     validate = false;
-    DiskRegionProperties p = new DiskRegionProperties();
+    var p = new DiskRegionProperties();
     p.setRegionName(getName() + counter);
     p.setDiskDirs(dirs);
     p.setCompactionThreshold(99);
@@ -274,7 +273,7 @@ public class ConcurrentRegionOperationsJUnitTest extends DiskRegionTestingBase {
   @Test
   public void testNVPersistAndOverflowAsyncSmallQueueConcurrency() {
     validate = false;
-    DiskRegionProperties p = new DiskRegionProperties();
+    var p = new DiskRegionProperties();
     p.setRegionName(getName() + counter);
     p.setDiskDirs(dirs);
     p.setCompactionThreshold(99);
@@ -293,7 +292,7 @@ public class ConcurrentRegionOperationsJUnitTest extends DiskRegionTestingBase {
    */
   @Test
   public void testBug35048() {
-    DiskRegionProperties p = new DiskRegionProperties();
+    var p = new DiskRegionProperties();
     p.setMaxOplogSize(1000);
     p.setRegionName(getName() + counter);
     p.setDiskDirs(dirs);
@@ -301,9 +300,9 @@ public class ConcurrentRegionOperationsJUnitTest extends DiskRegionTestingBase {
     p.setSynchronous(false);
     p.setOverFlowCapacity(5);
     p.setRolling(true);
-    byte[] val = new byte[50];
+    var val = new byte[50];
     region = DiskRegionHelperFactory.getAsyncOverFlowOnlyRegion(cache, p);
-    for (int j = 1; j < 6; ++j) {
+    for (var j = 1; j < 6; ++j) {
       region.put("" + j, val);
     }
     // This will overflow the first entry to disk. Its OplogKeyID will be now
@@ -346,7 +345,7 @@ public class ConcurrentRegionOperationsJUnitTest extends DiskRegionTestingBase {
 
   @Test
   public void testConcurrentForceRollingAndGetOperation() {
-    DiskRegionProperties p = new DiskRegionProperties();
+    var p = new DiskRegionProperties();
     p.setMaxOplogSize(1000);
     p.setRegionName(getName() + counter);
     p.setDiskDirs(dirs);
@@ -354,13 +353,13 @@ public class ConcurrentRegionOperationsJUnitTest extends DiskRegionTestingBase {
     p.setSynchronous(false);
     p.setOverFlowCapacity(5);
     p.setRolling(true);
-    byte[] val = new byte[50];
+    var val = new byte[50];
     region = DiskRegionHelperFactory.getAsyncOverFlowOnlyRegion(cache, p);
-    for (int j = 1; j < 101; ++j) {
+    for (var j = 1; j < 101; ++j) {
       region.put("" + j, val);
     }
-    Thread t1 = new Thread(() -> {
-      for (int i = 0; i < 100; ++i) {
+    var t1 = new Thread(() -> {
+      for (var i = 0; i < 100; ++i) {
         region.forceRolling();
 
         try {
@@ -370,10 +369,10 @@ public class ConcurrentRegionOperationsJUnitTest extends DiskRegionTestingBase {
         }
       }
     });
-    Thread t2 = new Thread(() -> {
+    var t2 = new Thread(() -> {
       try {
-        for (int i = 0; i < 100; ++i) {
-          for (int j = 1; j < 101; ++j) {
+        for (var i = 0; i < 100; ++i) {
+          for (var j = 1; j < 101; ++j) {
             region.get("" + j);
 
           }
@@ -410,7 +409,7 @@ public class ConcurrentRegionOperationsJUnitTest extends DiskRegionTestingBase {
 
   private Region concurrencyTest(Region r1) {
     if (validate) {
-      for (int i = 0; i < 10; i++) {
+      for (var i = 0; i < 10; i++) {
         map.put(i, new ReentrantLock());
       }
       region2 =
@@ -418,53 +417,53 @@ public class ConcurrentRegionOperationsJUnitTest extends DiskRegionTestingBase {
     }
     startLine = new CyclicBarrier(numberOfPutsThreads + numberOfGetsThreads
         + numberOfDestroysThreads + numberOfClearThreads + numberOfForceRollThreads);
-    DoesPuts doesPuts = new DoesPuts();
-    DoesGets doesGets = new DoesGets();
-    DoesDestroy doesDestroy = new DoesDestroy();
-    DoesClear doesClear = new DoesClear();
-    DoesForceRoll doesForceRoll = new DoesForceRoll();
-    Thread[] putThreads = new Thread[numberOfPutsThreads];
-    Thread[] getThreads = new Thread[numberOfGetsThreads];
-    Thread[] destroyThreads = new Thread[numberOfDestroysThreads];
-    Thread[] clearThreads = new Thread[numberOfClearThreads];
-    Thread[] forceRollThreads = new Thread[numberOfForceRollThreads];
-    for (int i = 0; i < numberOfPutsThreads; i++) {
+    var doesPuts = new DoesPuts();
+    var doesGets = new DoesGets();
+    var doesDestroy = new DoesDestroy();
+    var doesClear = new DoesClear();
+    var doesForceRoll = new DoesForceRoll();
+    var putThreads = new Thread[numberOfPutsThreads];
+    var getThreads = new Thread[numberOfGetsThreads];
+    var destroyThreads = new Thread[numberOfDestroysThreads];
+    var clearThreads = new Thread[numberOfClearThreads];
+    var forceRollThreads = new Thread[numberOfForceRollThreads];
+    for (var i = 0; i < numberOfPutsThreads; i++) {
       putThreads[i] = new Thread(doesPuts);
       putThreads[i].setName("PutThread" + i);
     }
-    for (int i = 0; i < numberOfGetsThreads; i++) {
+    for (var i = 0; i < numberOfGetsThreads; i++) {
       getThreads[i] = new Thread(doesGets);
       getThreads[i].setName("GetThread" + i);
     }
-    for (int i = 0; i < numberOfDestroysThreads; i++) {
+    for (var i = 0; i < numberOfDestroysThreads; i++) {
       destroyThreads[i] = new Thread(doesDestroy);
       destroyThreads[i].setName("DelThread" + i);
     }
 
-    for (int i = 0; i < numberOfClearThreads; i++) {
+    for (var i = 0; i < numberOfClearThreads; i++) {
       clearThreads[i] = new Thread(doesClear);
       clearThreads[i].setName("ClearThread" + i);
     }
 
-    for (int i = 0; i < numberOfForceRollThreads; i++) {
+    for (var i = 0; i < numberOfForceRollThreads; i++) {
       forceRollThreads[i] = new Thread(doesForceRoll);
       forceRollThreads[i].setName("ForceRoll" + i);
     }
     timeToStop.set(false);
     try {
-      for (int i = 0; i < numberOfPutsThreads; i++) {
+      for (var i = 0; i < numberOfPutsThreads; i++) {
         putThreads[i].start();
       }
-      for (int i = 0; i < numberOfGetsThreads; i++) {
+      for (var i = 0; i < numberOfGetsThreads; i++) {
         getThreads[i].start();
       }
-      for (int i = 0; i < numberOfDestroysThreads; i++) {
+      for (var i = 0; i < numberOfDestroysThreads; i++) {
         destroyThreads[i].start();
       }
-      for (int i = 0; i < numberOfClearThreads; i++) {
+      for (var i = 0; i < numberOfClearThreads; i++) {
         clearThreads[i].start();
       }
-      for (int i = 0; i < numberOfForceRollThreads; i++) {
+      for (var i = 0; i < numberOfForceRollThreads; i++) {
         forceRollThreads[i].start();
       }
       try {
@@ -475,25 +474,25 @@ public class ConcurrentRegionOperationsJUnitTest extends DiskRegionTestingBase {
     } finally {
       timeToStop.set(true);
     }
-    for (int i = 0; i < numberOfPutsThreads; i++) {
+    for (var i = 0; i < numberOfPutsThreads; i++) {
       ThreadUtils.join(putThreads[i], 60 * 1000);
     }
-    for (int i = 0; i < numberOfGetsThreads; i++) {
+    for (var i = 0; i < numberOfGetsThreads; i++) {
       ThreadUtils.join(getThreads[i], 60 * 1000);
     }
-    for (int i = 0; i < numberOfDestroysThreads; i++) {
+    for (var i = 0; i < numberOfDestroysThreads; i++) {
       ThreadUtils.join(destroyThreads[i], 60 * 1000);
     }
-    for (int i = 0; i < numberOfClearThreads; i++) {
+    for (var i = 0; i < numberOfClearThreads; i++) {
       ThreadUtils.join(clearThreads[i], 60 * 1000);
     }
-    for (int i = 0; i < numberOfForceRollThreads; i++) {
+    for (var i = 0; i < numberOfForceRollThreads; i++) {
       ThreadUtils.join(forceRollThreads[i], 60 * 1000);
     }
 
     if (validate) {
       Collection entrySet = region2.entrySet();
-      Iterator iterator = entrySet.iterator();
+      var iterator = entrySet.iterator();
       Map.Entry mapEntry = null;
       Object key, value = null;
       ((LocalRegion) r1).getDiskRegion().forceFlush();
@@ -540,7 +539,7 @@ public class ConcurrentRegionOperationsJUnitTest extends DiskRegionTestingBase {
     }
 
     Collection entrySet = r2.entrySet();
-    Iterator iterator = entrySet.iterator();
+    var iterator = entrySet.iterator();
     Map.Entry mapEntry = null;
     Object key, value = null;
     while (iterator.hasNext()) {
@@ -564,11 +563,11 @@ public class ConcurrentRegionOperationsJUnitTest extends DiskRegionTestingBase {
   private final Random random = new Random();
 
   void put() {
-    int randomInt1 = random.nextInt() % 10;
+    var randomInt1 = random.nextInt() % 10;
     if (randomInt1 < 0) {
       randomInt1 = randomInt1 * (-1);
     }
-    int randomInt2 = random.nextInt() % 100;
+    var randomInt2 = random.nextInt() % 100;
     Integer integer1 = randomInt1;
     Integer integer2 = randomInt2;
     Object v = null;
@@ -602,7 +601,7 @@ public class ConcurrentRegionOperationsJUnitTest extends DiskRegionTestingBase {
   }
 
   void get() {
-    int randomInt1 = random.nextInt() % 10;
+    var randomInt1 = random.nextInt() % 10;
     if (randomInt1 < 0) {
       randomInt1 = randomInt1 * (-1);
     }
@@ -639,7 +638,7 @@ public class ConcurrentRegionOperationsJUnitTest extends DiskRegionTestingBase {
   void destroy() {
     Exception exceptionOccurred1 = null;
     Exception exceptionOccurred2 = null;
-    int randomInt1 = random.nextInt() % 10;
+    var randomInt1 = random.nextInt() % 10;
     if (randomInt1 < 0) {
       randomInt1 = randomInt1 * (-1);
     }
@@ -707,21 +706,21 @@ public class ConcurrentRegionOperationsJUnitTest extends DiskRegionTestingBase {
    */
   @Test
   public void testConcurrentClearAndRegionDestroyBug() {
-    DiskRegionProperties p = new DiskRegionProperties();
+    var p = new DiskRegionProperties();
     p.setMaxOplogSize(10000);
     p.setOverflow(false);
     p.setSynchronous(true);
     p.setOverFlowCapacity(5);
     p.setRolling(true);
-    byte[] val = new byte[8000];
+    var val = new byte[8000];
     region = DiskRegionHelperFactory.getSyncPersistOnlyRegion(cache, p, Scope.LOCAL);
     region.put("key1", val);
-    DiskStoreImpl dimpl = ((LocalRegion) region).getDiskStore();
+    var dimpl = ((LocalRegion) region).getDiskStore();
     LocalRegion.ISSUE_CALLBACKS_TO_CACHE_OBSERVER = true;
-    final Thread th = new Thread(() -> region.destroyRegion());
+    final var th = new Thread(() -> region.destroyRegion());
 
     DiskStoreImpl.DEBUG_DELAY_JOINING_WITH_COMPACTOR = 8000;
-    CacheObserver old = CacheObserverHolder.setInstance(new CacheObserverAdapter() {
+    var old = CacheObserverHolder.setInstance(new CacheObserverAdapter() {
       boolean skip = false;
 
       @Override

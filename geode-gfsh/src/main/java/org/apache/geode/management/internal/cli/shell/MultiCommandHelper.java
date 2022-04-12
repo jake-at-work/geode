@@ -25,11 +25,11 @@ public class MultiCommandHelper {
 
   public static List<String> getMultipleCommands(String input) {
     Map<Integer, List<String>> listMap = new HashMap<>();
-    String[] as = input.split(GfshParser.COMMAND_DELIMITER);
-    int splitCount = 0;
-    for (String a : as) {
+    var as = input.split(GfshParser.COMMAND_DELIMITER);
+    var splitCount = 0;
+    for (var a : as) {
       if (a.endsWith("\\")) {
-        String a2 = a.substring(0, a.length() - 1);
+        var a2 = a.substring(0, a.length() - 1);
         updateList(listMap, a2, splitCount);
       } else {
         updateList(listMap, a, splitCount);
@@ -37,10 +37,10 @@ public class MultiCommandHelper {
       }
     }
     List<String> finalList = new ArrayList<>();
-    for (int i = 0; i < listMap.size(); i++) {
-      List<String> list = listMap.get(i);
-      StringBuilder sb = new StringBuilder();
-      for (int k = 0; k < list.size(); k++) {
+    for (var i = 0; i < listMap.size(); i++) {
+      var list = listMap.get(i);
+      var sb = new StringBuilder();
+      for (var k = 0; k < list.size(); k++) {
         sb.append(list.get(k));
         if (k < list.size() - 1) {
           sb.append(";");

@@ -68,28 +68,28 @@ public class DiskRegionOverflowSyncRollingOpLogJUnitTest extends DiskRegionTesti
 
     // put first 0-9999 entries
     // final String key = "K";
-    final byte[] value = new byte[ENTRY_SIZE];
+    final var value = new byte[ENTRY_SIZE];
     Arrays.fill(value, (byte) 77);
 
-    for (int i = 0; i < 10000; i++) {
+    for (var i = 0; i < 10000; i++) {
       region.put("" + i, value);
     }
 
     // Now get 0-9999 entries
-    long startTimeGet = System.currentTimeMillis();
-    for (int i = 0; i < 10000; i++) {
+    var startTimeGet = System.currentTimeMillis();
+    for (var i = 0; i < 10000; i++) {
       region.get("" + i);
     }
-    long endTimeGet = System.currentTimeMillis();
+    var endTimeGet = System.currentTimeMillis();
     System.out.println(" done with getting 0-9999 entries fuatling in from current oplog");
 
     // Perf stats for get op
     float etGet = endTimeGet - startTimeGet;
-    float etSecsGet = etGet / 1000f;
-    float opPerSecGet = etSecsGet == 0 ? 0 : (10000 / (etGet / 1000f));
-    float bytesPerSecGet = etSecsGet == 0 ? 0 : ((10000 * ENTRY_SIZE) / (etGet / 1000f));
+    var etSecsGet = etGet / 1000f;
+    var opPerSecGet = etSecsGet == 0 ? 0 : (10000 / (etGet / 1000f));
+    var bytesPerSecGet = etSecsGet == 0 ? 0 : ((10000 * ENTRY_SIZE) / (etGet / 1000f));
 
-    String statsGet =
+    var statsGet =
         "etGet=" + etGet + "ms gets/sec=" + opPerSecGet + " bytes/sec=" + bytesPerSecGet;
     log.info(statsGet);
     System.out.println("Perf Stats of get which is fauting in from current Oplog :" + statsGet);
@@ -115,22 +115,22 @@ public class DiskRegionOverflowSyncRollingOpLogJUnitTest extends DiskRegionTesti
 
     // put another 10000-19999 entries
     // final String key = "K";
-    final byte[] value = new byte[ENTRY_SIZE];
+    final var value = new byte[ENTRY_SIZE];
     Arrays.fill(value, (byte) 77);
 
-    for (int i = 10000; i < 20000; i++) {
+    for (var i = 10000; i < 20000; i++) {
       region.put("" + i, value);
     }
     // Now get 10000-19999 which will fault in from second oplog
-    long startTimeGet2 = System.currentTimeMillis();
-    for (int i = 10000; i < 20000; i++) {
+    var startTimeGet2 = System.currentTimeMillis();
+    for (var i = 10000; i < 20000; i++) {
       region.get("" + i);
     }
-    long endTimeGet2 = System.currentTimeMillis();
+    var endTimeGet2 = System.currentTimeMillis();
     System.out.println(" done with getting 10000-19999 which will fault in from second oplog");
 
     if (((LocalRegion) region).getDiskRegion().isBackup()) {
-      WaitCriterion ev = new WaitCriterion() {
+      var ev = new WaitCriterion() {
         @Override
         public boolean done() {
           return afterHavingCompacted;
@@ -145,33 +145,33 @@ public class DiskRegionOverflowSyncRollingOpLogJUnitTest extends DiskRegionTesti
     }
 
     // Now get 0-9999 entries
-    long startTimeGet1 = System.currentTimeMillis();
-    for (int i = 0; i < 10000; i++) {
+    var startTimeGet1 = System.currentTimeMillis();
+    for (var i = 0; i < 10000; i++) {
       region.get("" + i);
     }
-    long endTimeGet1 = System.currentTimeMillis();
+    var endTimeGet1 = System.currentTimeMillis();
     System.out.println(" done with getting 0-9999 entries from H-tree");
 
     region.close(); // closes disk file which will flush all buffers
 
     // Perf stats for get op (fauting in from H-tree)
     float etGet1 = endTimeGet1 - startTimeGet1;
-    float etSecsGet1 = etGet1 / 1000f;
-    float opPerSecGet1 = etSecsGet1 == 0 ? 0 : (10000 / (etGet1 / 1000f));
-    float bytesPerSecGet1 = etSecsGet1 == 0 ? 0 : ((10000 * ENTRY_SIZE) / (etGet1 / 1000f));
+    var etSecsGet1 = etGet1 / 1000f;
+    var opPerSecGet1 = etSecsGet1 == 0 ? 0 : (10000 / (etGet1 / 1000f));
+    var bytesPerSecGet1 = etSecsGet1 == 0 ? 0 : ((10000 * ENTRY_SIZE) / (etGet1 / 1000f));
 
-    String statsGet1 =
+    var statsGet1 =
         "etGet=" + etGet1 + "ms gets/sec=" + opPerSecGet1 + " bytes/sec=" + bytesPerSecGet1;
     log.info(statsGet1);
     System.out.println("Perf Stats of get which is fauting in from H-tree  :" + statsGet1);
 
     // Perf stats for get op (fauting in from second op log)
     float etGet2 = endTimeGet2 - startTimeGet2;
-    float etSecsGet2 = etGet2 / 1000f;
-    float opPerSecGet2 = etSecsGet2 == 0 ? 0 : (10000 / (etGet2 / 1000f));
-    float bytesPerSecGet2 = etSecsGet2 == 0 ? 0 : ((10000 * ENTRY_SIZE) / (etGet2 / 1000f));
+    var etSecsGet2 = etGet2 / 1000f;
+    var opPerSecGet2 = etSecsGet2 == 0 ? 0 : (10000 / (etGet2 / 1000f));
+    var bytesPerSecGet2 = etSecsGet2 == 0 ? 0 : ((10000 * ENTRY_SIZE) / (etGet2 / 1000f));
 
-    String statsGet2 =
+    var statsGet2 =
         "etGet=" + etGet2 + "ms gets/sec=" + opPerSecGet2 + " bytes/sec=" + bytesPerSecGet2;
     log.info(statsGet2);
     System.out.println("Perf Stats of get which is fauting in from Second OpLog  :" + statsGet2);

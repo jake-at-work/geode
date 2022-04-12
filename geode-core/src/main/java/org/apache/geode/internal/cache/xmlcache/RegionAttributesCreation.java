@@ -276,7 +276,7 @@ public class RegionAttributesCreation extends UserSpecifiedRegionAttributes
     compressor = attrs.getCompressor();
     offHeap = attrs.getOffHeap();
     if (attrs instanceof UserSpecifiedRegionAttributes) {
-      UserSpecifiedRegionAttributes nonDefault = (UserSpecifiedRegionAttributes) attrs;
+      var nonDefault = (UserSpecifiedRegionAttributes) attrs;
       requiresPoolName = nonDefault.requiresPoolName;
       if (!defaults) {
         // Selectively set has* fields to true, propagating those non-default
@@ -311,7 +311,7 @@ public class RegionAttributesCreation extends UserSpecifiedRegionAttributes
     if (array1.length != array2.length) {
       return false;
     }
-    for (int i = 0; i < array1.length; i++) {
+    for (var i = 0; i < array1.length; i++) {
       if (array1[i] != array2[i]) {
         return false;
       }
@@ -329,7 +329,7 @@ public class RegionAttributesCreation extends UserSpecifiedRegionAttributes
     if (array1.length != array2.length) {
       return false;
     }
-    for (int i = 0; i < array1.length; i++) {
+    for (var i = 0; i < array1.length; i++) {
       if (array1[i] != array2[i]) {
         return false;
       }
@@ -345,9 +345,9 @@ public class RegionAttributesCreation extends UserSpecifiedRegionAttributes
       return false;
     }
 
-    for (final File item : array1) {
-      boolean found = false;
-      for (final File value : array2) {
+    for (final var item : array1) {
+      var found = false;
+      for (final var value : array2) {
         if (equal(item.getAbsoluteFile(), value.getAbsoluteFile())) {
           found = true;
           break;
@@ -355,11 +355,11 @@ public class RegionAttributesCreation extends UserSpecifiedRegionAttributes
       }
 
       if (!found) {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         sb.append("Didn't find ");
         sb.append(item);
         sb.append(" in ");
-        for (final File file : array2) {
+        for (final var file : array2) {
           sb.append(file);
           sb.append(" ");
         }
@@ -514,7 +514,7 @@ public class RegionAttributesCreation extends UserSpecifiedRegionAttributes
       throw new RuntimeException("CacheWriter is not the same");
     }
     if (multicastEnabled != other.getMulticastEnabled()) {
-      String s = "MulticastEnabled is not the same: " + multicastEnabled + "!="
+      var s = "MulticastEnabled is not the same: " + multicastEnabled + "!="
           + other.getMulticastEnabled();
       throw new RuntimeException(s);
     }
@@ -540,7 +540,7 @@ public class RegionAttributesCreation extends UserSpecifiedRegionAttributes
   }
 
   public CacheLoader setCacheLoader(CacheLoader cacheLoader) {
-    CacheLoader old = this.cacheLoader;
+    var old = this.cacheLoader;
     this.cacheLoader = cacheLoader;
     setHasCacheLoader(true);
     return old;
@@ -552,7 +552,7 @@ public class RegionAttributesCreation extends UserSpecifiedRegionAttributes
   }
 
   public CacheWriter setCacheWriter(CacheWriter cacheWriter) {
-    CacheWriter old = this.cacheWriter;
+    var old = this.cacheWriter;
     this.cacheWriter = cacheWriter;
     setHasCacheWriter(true);
     return old;
@@ -584,7 +584,7 @@ public class RegionAttributesCreation extends UserSpecifiedRegionAttributes
   }
 
   public ExpirationAttributes setRegionTimeToLive(ExpirationAttributes timeToLive) {
-    ExpirationAttributes old = regionTimeToLive;
+    var old = regionTimeToLive;
     regionTimeToLive = timeToLive;
     setHasRegionTimeToLive(true);
     return old;
@@ -596,7 +596,7 @@ public class RegionAttributesCreation extends UserSpecifiedRegionAttributes
   }
 
   public ExpirationAttributes setRegionIdleTimeout(ExpirationAttributes idleTimeout) {
-    ExpirationAttributes old = regionIdleTimeout;
+    var old = regionIdleTimeout;
     regionIdleTimeout = idleTimeout;
     setHasRegionIdleTimeout(true);
     return old;
@@ -613,14 +613,14 @@ public class RegionAttributesCreation extends UserSpecifiedRegionAttributes
   }
 
   public ExpirationAttributes setEntryTimeToLive(ExpirationAttributes timeToLive) {
-    ExpirationAttributes old = entryTimeToLive;
+    var old = entryTimeToLive;
     entryTimeToLive = timeToLive;
     setHasEntryTimeToLive(true);
     return old;
   }
 
   public CustomExpiry setCustomEntryTimeToLive(CustomExpiry custom) {
-    CustomExpiry old = customEntryTimeToLive;
+    var old = customEntryTimeToLive;
     customEntryTimeToLive = custom;
     setHasCustomEntryTimeToLive(true);
     return old;
@@ -637,14 +637,14 @@ public class RegionAttributesCreation extends UserSpecifiedRegionAttributes
   }
 
   public ExpirationAttributes setEntryIdleTimeout(ExpirationAttributes idleTimeout) {
-    ExpirationAttributes old = entryIdleTimeout;
+    var old = entryIdleTimeout;
     entryIdleTimeout = idleTimeout;
     setHasEntryIdleTimeout(true);
     return old;
   }
 
   public CustomExpiry setCustomEntryIdleTimeout(CustomExpiry custom) {
-    CustomExpiry old = customEntryIdleTimeout;
+    var old = customEntryIdleTimeout;
     customEntryIdleTimeout = custom;
     setHasCustomEntryIdleTimeout(true);
     return old;
@@ -665,7 +665,7 @@ public class RegionAttributesCreation extends UserSpecifiedRegionAttributes
   }
 
   public void setMirrorType(MirrorType mirrorType) {
-    DataPolicy dp = mirrorType.getDataPolicy();
+    var dp = mirrorType.getDataPolicy();
     if (dp.withReplication()) {
       // requested a mirror type that has replication
       // if current data policy is not replicated change it
@@ -711,7 +711,7 @@ public class RegionAttributesCreation extends UserSpecifiedRegionAttributes
 
   @Override
   public CacheListener[] getCacheListeners() {
-    CacheListener[] result = new CacheListener[cacheListeners.size()];
+    var result = new CacheListener[cacheListeners.size()];
     cacheListeners.toArray(result);
     return result;
   }
@@ -985,7 +985,7 @@ public class RegionAttributesCreation extends UserSpecifiedRegionAttributes
     checkIfDirectoriesExist(diskDirs);
     this.diskDirs = diskDirs;
     diskSizes = new int[diskDirs.length];
-    for (int i = 0; i < diskDirs.length; i++) {
+    for (var i = 0; i < diskDirs.length; i++) {
       diskSizes[i] = DiskStoreFactory.DEFAULT_DISK_DIR_SIZE;
     }
     setHasDiskDirs(true);
@@ -1018,7 +1018,7 @@ public class RegionAttributesCreation extends UserSpecifiedRegionAttributes
    *
    */
   private void checkIfDirectoriesExist(File[] diskDirs) {
-    for (final File diskDir : diskDirs) {
+    for (final var diskDir : diskDirs) {
       if (!diskDir.isDirectory()) {
         throw new IllegalArgumentException(
             String.format("%s was not an existing directory.",
@@ -1048,7 +1048,7 @@ public class RegionAttributesCreation extends UserSpecifiedRegionAttributes
   }
 
   private void verifyNonNegativeDirSize(int[] sizes) {
-    for (final int size : sizes) {
+    for (final var size : sizes) {
       if (size < 0) {
         throw new IllegalArgumentException(
             String.format("Dir size cannot be negative : %s",
@@ -1118,12 +1118,12 @@ public class RegionAttributesCreation extends UserSpecifiedRegionAttributes
       if (setDefaultPool && requiresPoolName && !hasPoolName()) {
         String defaultPoolName = null;
         if (cache instanceof GemFireCacheImpl) {
-          InternalClientCache gfc = (InternalClientCache) cache;
+          var gfc = (InternalClientCache) cache;
           if (gfc.getDefaultPool() != null) {
             defaultPoolName = gfc.getDefaultPool().getName();
           }
         } else if (cache instanceof ClientCacheCreation) {
-          ClientCacheCreation ccc = (ClientCacheCreation) cache;
+          var ccc = (ClientCacheCreation) cache;
           defaultPoolName = ccc.getDefaultPoolName();
         }
 
@@ -1140,7 +1140,7 @@ public class RegionAttributesCreation extends UserSpecifiedRegionAttributes
               refid));
     }
 
-    final boolean parentIsUserSpecified = parent instanceof UserSpecifiedRegionAttributes;
+    final var parentIsUserSpecified = parent instanceof UserSpecifiedRegionAttributes;
     final UserSpecifiedRegionAttributes parentWithHas;
     if (parentIsUserSpecified) {
       parentWithHas = (UserSpecifiedRegionAttributes) parent;
@@ -1154,12 +1154,12 @@ public class RegionAttributesCreation extends UserSpecifiedRegionAttributes
         if (!hasPoolName()) {
           String defaultPoolName = null;
           if (cache instanceof GemFireCacheImpl) {
-            InternalClientCache gfc = (InternalClientCache) cache;
+            var gfc = (InternalClientCache) cache;
             if (gfc.getDefaultPool() != null) {
               defaultPoolName = gfc.getDefaultPool().getName();
             }
           } else if (cache instanceof ClientCacheCreation) {
-            ClientCacheCreation ccc = (ClientCacheCreation) cache;
+            var ccc = (ClientCacheCreation) cache;
             defaultPoolName = ccc.getDefaultPoolName();
           }
 
@@ -1572,7 +1572,7 @@ public class RegionAttributesCreation extends UserSpecifiedRegionAttributes
           && partitionAttr instanceof PartitionAttributesImpl) {
 
         // Make a copy and call merge on it to prevent bug 51616
-        PartitionAttributesImpl copy = ((PartitionAttributesImpl) partitionAttributes).copy();
+        var copy = ((PartitionAttributesImpl) partitionAttributes).copy();
         copy.merge((PartitionAttributesImpl) partitionAttr);
         partitionAttributes = copy;
       } else {

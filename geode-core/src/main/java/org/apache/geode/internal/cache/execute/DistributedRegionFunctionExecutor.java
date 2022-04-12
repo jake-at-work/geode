@@ -28,9 +28,7 @@ import org.apache.geode.cache.execute.FunctionService;
 import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.internal.cache.DistributedRegion;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.LocalRegion;
-import org.apache.geode.internal.cache.MemoryThresholdInfo;
 import org.apache.geode.internal.cache.control.InternalResourceManager;
 import org.apache.geode.internal.cache.control.MemoryThresholds;
 
@@ -157,7 +155,7 @@ public class DistributedRegionFunctionExecutor extends AbstractExecution {
           "The input function for the execute function request is null");
     }
     isFnSerializationReqd = false;
-    Function functionObject = FunctionService.getFunction(functionName);
+    var functionObject = FunctionService.getFunction(functionName);
     if (functionObject == null) {
       throw new FunctionException(
           String.format("Function named %s is not registered to FunctionService",
@@ -190,7 +188,7 @@ public class DistributedRegionFunctionExecutor extends AbstractExecution {
       throw new FunctionException(
           "Function execution on region with DataPolicy.NORMAL is not supported");
     }
-    String id = function.getId();
+    var id = function.getId();
     if (id == null) {
       throw new FunctionException(
           "The Function#getID() returned null");
@@ -210,8 +208,8 @@ public class DistributedRegionFunctionExecutor extends AbstractExecution {
       region.executeFunction(this, function, args, null, filter, sender);
       return new NoResult();
     }
-    ResultCollector inRc = (rc == null) ? new DefaultResultCollector() : rc;
-    ResultCollector rcToReturn =
+    var inRc = (rc == null) ? new DefaultResultCollector() : rc;
+    var rcToReturn =
         region.executeFunction(this, function, args, inRc, filter, sender);
     if (timeout > 0) {
       try {
@@ -313,15 +311,15 @@ public class DistributedRegionFunctionExecutor extends AbstractExecution {
    */
   @Override
   public void validateExecution(Function function, Set targetMembers) {
-    InternalCache cache = region.getGemFireCache();
+    var cache = region.getGemFireCache();
     if (cache != null && cache.getTxManager().getTXState() != null) {
       if (targetMembers.size() > 1) {
         throw new TransactionException(
             "Function inside a transaction cannot execute on more than one node");
       } else {
         assert targetMembers.size() == 1;
-        DistributedMember funcTarget = (DistributedMember) targetMembers.iterator().next();
-        DistributedMember target = cache.getTxManager().getTXState().getTarget();
+        var funcTarget = (DistributedMember) targetMembers.iterator().next();
+        var target = cache.getTxManager().getTXState().getTarget();
         if (target == null) {
           cache.getTxManager().getTXState().setTarget(funcTarget);
         } else if (!target.equals(funcTarget)) {
@@ -333,11 +331,11 @@ public class DistributedRegionFunctionExecutor extends AbstractExecution {
       }
     }
     if (!MemoryThresholds.isLowMemoryExceptionDisabled() && function.optimizeForWrite()) {
-      MemoryThresholdInfo info = region.getAtomicThresholdInfo();
+      var info = region.getAtomicThresholdInfo();
       if (info.isMemoryThresholdReached()) {
         InternalResourceManager.getInternalResourceManager(region.getCache()).getHeapMonitor()
             .updateStateAndSendEvent();
-        Set<DistributedMember> criticalMembers = info.getMembersThatReachedThreshold();
+        var criticalMembers = info.getMembersThatReachedThreshold();
         throw new LowMemoryException(
             String.format(
                 "Function: %s cannot be executed because the members %s are running low on memory",

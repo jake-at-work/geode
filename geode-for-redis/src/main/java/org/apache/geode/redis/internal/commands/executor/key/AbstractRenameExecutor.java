@@ -18,7 +18,6 @@ package org.apache.geode.redis.internal.commands.executor.key;
 import static org.apache.geode.redis.internal.RedisConstants.ERROR_NO_SUCH_KEY;
 
 import java.util.Arrays;
-import java.util.List;
 
 import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
@@ -31,9 +30,9 @@ public abstract class AbstractRenameExecutor implements CommandExecutor {
 
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
-    List<RedisKey> commandElems = command.getProcessedCommandKeys();
-    RedisKey key = commandElems.get(0);
-    RedisKey newKey = commandElems.get(1);
+    var commandElems = command.getProcessedCommandKeys();
+    var key = commandElems.get(0);
+    var newKey = commandElems.get(1);
 
     if (key.equals(newKey)) {
       return getTargetSameAsSourceResponse();
@@ -52,7 +51,7 @@ public abstract class AbstractRenameExecutor implements CommandExecutor {
 
   protected static boolean rename(ExecutionHandlerContext context, RedisKey oldKey, RedisKey newKey,
       boolean ifTargetNotExists) {
-    final List<RedisKey> keysToLock = Arrays.asList(oldKey, newKey);
+    final var keysToLock = Arrays.asList(oldKey, newKey);
 
     return context.lockedExecuteInTransaction(oldKey, keysToLock,
         () -> context.getRedisData(oldKey)

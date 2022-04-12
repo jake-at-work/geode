@@ -59,7 +59,7 @@ public class TestBlockingHARegionQueue extends TestOnlyHARegionQueue {
 
   @Override
   public boolean put(Object object) throws CacheException, InterruptedException {
-    boolean putDone = super.put(object);
+    var putDone = super.put(object);
 
     if (takeFirst) {
       take();
@@ -97,7 +97,7 @@ public class TestBlockingHARegionQueue extends TestOnlyHARegionQueue {
           object = super.peek();
 
           if (object == null) {
-            boolean interrupted = Thread.interrupted();
+            var interrupted = Thread.interrupted();
             try {
               forWaiting.wait();
             } catch (InterruptedException e) {

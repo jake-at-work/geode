@@ -34,11 +34,8 @@ import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisCluster;
 
-import org.apache.geode.internal.cache.BucketDump;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.redis.internal.services.RegionProvider;
-import org.apache.geode.redis.internal.services.cluster.RedisMemberInfo;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.dunit.rules.RedisClusterStartupRule;
@@ -56,11 +53,11 @@ public class DeltaDUnitTest {
 
   @BeforeClass
   public static void classSetup() {
-    MemberVM locator = clusterStartUp.startLocatorVM(0);
+    var locator = clusterStartUp.startLocatorVM(0);
     server1 = clusterStartUp.startRedisVM(1, locator.getPort());
     clusterStartUp.startRedisVM(2, locator.getPort());
 
-    int redisServerPort1 = clusterStartUp.getRedisPort(1);
+    var redisServerPort1 = clusterStartUp.getRedisPort(1);
     jedis1 = new Jedis(BIND_ADDRESS, redisServerPort1, REDIS_CLIENT_TIMEOUT);
     jedisCluster =
         new JedisCluster(new HostAndPort(BIND_ADDRESS, redisServerPort1), REDIS_CLIENT_TIMEOUT);
@@ -80,9 +77,9 @@ public class DeltaDUnitTest {
 
   @Test
   public void shouldCorrectlyPropagateDeltaToSecondaryServer_whenAppending() {
-    String baseValue = "value-";
+    var baseValue = "value-";
     jedis1.set(KEY, baseValue);
-    for (int i = 0; i < ITERATION_COUNT; i++) {
+    for (var i = 0; i < ITERATION_COUNT; i++) {
       jedis1.append(KEY, String.valueOf(i));
     }
     compareBuckets();
@@ -90,9 +87,9 @@ public class DeltaDUnitTest {
 
   @Test
   public void shouldCorrectlyPropagateDeltaToSecondaryServer_whenAddingToSet() {
-    List<String> members = makeMemberList(ITERATION_COUNT, "member-");
+    var members = makeMemberList(ITERATION_COUNT, "member-");
 
-    for (String member : members) {
+    for (var member : members) {
       jedis1.sadd(KEY, member);
     }
 
@@ -101,10 +98,10 @@ public class DeltaDUnitTest {
 
   @Test
   public void shouldCorrectlyPropagateDeltaToSecondaryServer_whenRemovingFromSet() {
-    List<String> members = makeMemberList(ITERATION_COUNT, "member-");
+    var members = makeMemberList(ITERATION_COUNT, "member-");
     jedis1.sadd(KEY, members.toArray(new String[] {}));
 
-    for (String member : members) {
+    for (var member : members) {
       jedis1.srem(KEY, member);
     }
     compareBuckets();
@@ -112,9 +109,9 @@ public class DeltaDUnitTest {
 
   @Test
   public void shouldCorrectlyPropagateDeltaToSecondaryServer_whenAddingToHash() {
-    Map<String, String> testMap = makeHashMap(ITERATION_COUNT, "field-", "value-");
+    var testMap = makeHashMap(ITERATION_COUNT, "field-", "value-");
 
-    for (String field : testMap.keySet()) {
+    for (var field : testMap.keySet()) {
       jedis1.hset(KEY, field, testMap.get(field));
     }
     compareBuckets();
@@ -122,16 +119,16 @@ public class DeltaDUnitTest {
 
   @Test
   public void shouldCorrectlyPropagateDeltaToSecondaryServer_whenUpdatingHashValues() {
-    Random random = new Random();
+    var random = new Random();
 
-    Map<String, String> testMap = makeHashMap(ITERATION_COUNT, "field-", "value-");
+    var testMap = makeHashMap(ITERATION_COUNT, "field-", "value-");
     jedis1.hset(KEY, testMap);
 
-    for (int i = 0; i < 100; i++) {
-      Map<String, String> retrievedMap = jedis1.hgetAll(KEY);
-      int rand = random.nextInt(retrievedMap.size());
-      String fieldToUpdate = "field-" + rand;
-      String valueToUpdate = retrievedMap.get(fieldToUpdate);
+    for (var i = 0; i < 100; i++) {
+      var retrievedMap = jedis1.hgetAll(KEY);
+      var rand = random.nextInt(retrievedMap.size());
+      var fieldToUpdate = "field-" + rand;
+      var valueToUpdate = retrievedMap.get(fieldToUpdate);
       retrievedMap.put(fieldToUpdate, valueToUpdate + " updated");
       jedis1.hset(KEY, retrievedMap);
     }
@@ -140,10 +137,10 @@ public class DeltaDUnitTest {
 
   @Test
   public void shouldCorrectlyPropagateDeltaToSecondaryServer_whenRemovingFromHash() {
-    Map<String, String> testMap = makeHashMap(ITERATION_COUNT, "field-", "value-");
+    var testMap = makeHashMap(ITERATION_COUNT, "field-", "value-");
     jedis1.hset(KEY, testMap);
 
-    for (String field : testMap.keySet()) {
+    for (var field : testMap.keySet()) {
       jedis1.hdel(KEY, field, testMap.get(field));
     }
     compareBuckets();
@@ -151,10 +148,10 @@ public class DeltaDUnitTest {
 
   @Test
   public void shouldCorrectlyPropagateDeltaToSecondaryServer_whenExpiring() {
-    String baseKey = "key-";
+    var baseKey = "key-";
 
-    for (int i = 0; i < ITERATION_COUNT; i++) {
-      String key = baseKey + i;
+    for (var i = 0; i < ITERATION_COUNT; i++) {
+      var key = baseKey + i;
       jedisCluster.set(key, "value");
       jedisCluster.expire(key, 80L);
     }
@@ -163,14 +160,14 @@ public class DeltaDUnitTest {
 
   private void compareBuckets() {
     server1.invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
-      PartitionedRegion region =
+      var cache = ClusterStartupRule.getCache();
+      var region =
           (PartitionedRegion) cache.getRegion(RegionProvider.DEFAULT_REDIS_REGION_NAME);
-      for (int j = 0; j < region.getTotalNumberOfBuckets(); j++) {
-        List<BucketDump> buckets = region.getAllBucketEntries(j);
+      for (var j = 0; j < region.getTotalNumberOfBuckets(); j++) {
+        var buckets = region.getAllBucketEntries(j);
         assertThat(buckets.size()).isEqualTo(2);
-        Map<Object, Object> bucket1 = buckets.get(0).getValues();
-        Map<Object, Object> bucket2 = buckets.get(1).getValues();
+        var bucket1 = buckets.get(0).getValues();
+        var bucket2 = buckets.get(1).getValues();
         assertThat(bucket1).containsExactlyEntriesOf(bucket2);
       }
     });
@@ -179,7 +176,7 @@ public class DeltaDUnitTest {
   private Map<String, String> makeHashMap(int hashSize, String baseFieldName,
       String baseValueName) {
     Map<String, String> map = new HashMap<>();
-    for (int i = 0; i < hashSize; i++) {
+    for (var i = 0; i < hashSize; i++) {
       map.put(baseFieldName + i, baseValueName + i);
     }
     return map;
@@ -187,17 +184,17 @@ public class DeltaDUnitTest {
 
   private List<String> makeMemberList(int setSize, String baseString) {
     List<String> members = new ArrayList<>();
-    for (int i = 0; i < setSize; i++) {
+    for (var i = 0; i < setSize; i++) {
       members.add(baseString + i);
     }
     return members;
   }
 
   private static String findKeyHostedOnServer(String prefix, String memberLike) {
-    int x = 0;
+    var x = 0;
     while (true) {
-      String key = prefix + "-" + x++;
-      RedisMemberInfo info = clusterStartUp.getMemberInfo(key);
+      var key = prefix + "-" + x++;
+      var info = clusterStartUp.getMemberInfo(key);
       if (info.getMember().getUniqueId().contains(memberLike)) {
         return key;
       }

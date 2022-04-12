@@ -28,17 +28,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
-import org.apache.geode.cache.client.Pool;
-import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.distributed.ConfigurationProperties;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.management.CacheServerMXBean;
-import org.apache.geode.management.ClientHealthStatus;
 import org.apache.geode.management.ManagementService;
 import org.apache.geode.management.internal.SystemManagementService;
 import org.apache.geode.management.internal.i18n.CliStrings;
@@ -62,12 +56,12 @@ public class ClientStatisticsPublicationSecurityDUnitTest {
 
   @Before
   public void before() {
-    Properties locatorProps = new Properties();
+    var locatorProps = new Properties();
     locatorProps.setProperty(CliStrings.START_LOCATOR__MEMBER_NAME, "locator1");
     locatorProps.setProperty("security-manager", "org.apache.geode.examples.SimpleSecurityManager");
     locator = cluster.startLocatorVM(0, locatorProps);
 
-    Properties serverProps = new Properties();
+    var serverProps = new Properties();
     serverProps.setProperty(CliStrings.START_SERVER__NAME, "server1");
     serverProps.setProperty(CliStrings.START_SERVER__LOCATORS,
         "localhost[" + locator.getPort() + "]");
@@ -76,7 +70,7 @@ public class ClientStatisticsPublicationSecurityDUnitTest {
     serverProps.setProperty("security-password", "cluster");
     server = cluster.startServerVM(1, serverProps);
     server.invoke(() -> {
-      InternalCache cache = InternalDistributedSystem.getConnectedInstance().getCache();
+      var cache = InternalDistributedSystem.getConnectedInstance().getCache();
 
       cache.createRegionFactory(RegionShortcut.REPLICATE).create("regionName");
     });
@@ -85,9 +79,9 @@ public class ClientStatisticsPublicationSecurityDUnitTest {
 
   @Test
   public void testClientCanPublishStatisticsWithSecurity() throws Exception {
-    final String regionName = "regionName";
+    final var regionName = "regionName";
 
-    ClientCache client = new ClientCacheFactory()
+    var client = new ClientCacheFactory()
         .set(ConfigurationProperties.LOG_LEVEL, "fine")
         .set(ConfigurationProperties.LOG_FILE, "")
         .set("security-manager", "org.apache.geode.examples.SimpleSecurityManager")
@@ -95,11 +89,11 @@ public class ClientStatisticsPublicationSecurityDUnitTest {
         .set("security-password", "data")
         .set(SECURITY_CLIENT_AUTH_INIT, UserPasswordAuthInit.class.getName())
         .create();
-    PoolFactory poolFactory = PoolManager.createFactory();
+    var poolFactory = PoolManager.createFactory();
     poolFactory.addServer("localhost", server.getPort());
     poolFactory.setStatisticInterval(1000);
     poolFactory.setSubscriptionEnabled(true);
-    Pool pool = poolFactory.create("poolName");
+    var pool = poolFactory.create("poolName");
 
 
     Region region =
@@ -116,15 +110,15 @@ public class ClientStatisticsPublicationSecurityDUnitTest {
 
   private void checkClientHealthStatus(int expectedNumPuts,
       String... expectedPoolStatKeys) {
-    final int serverPort = server.getPort();
+    final var serverPort = server.getPort();
     server.invoke(() -> {
       await().untilAsserted(() -> {
         Cache cache = ClusterStartupRule.getCache();
-        SystemManagementService service =
+        var service =
             (SystemManagementService) ManagementService.getExistingManagementService(cache);
-        CacheServerMXBean serviceMBean = service.getJMXAdapter().getClientServiceMXBean(serverPort);
-        String clientId = serviceMBean.getClientIds()[0];
-        ClientHealthStatus status = serviceMBean.showClientStats(clientId);
+        var serviceMBean = service.getJMXAdapter().getClientServiceMXBean(serverPort);
+        var clientId = serviceMBean.getClientIds()[0];
+        var status = serviceMBean.showClientStats(clientId);
 
         assertThat(status.getNumOfPuts()).isEqualTo(expectedNumPuts);
         assertThat(status.getPoolStats().keySet())

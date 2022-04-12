@@ -56,8 +56,8 @@ public class LuceneResultStructImpl<K, V>
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
+    final var prime = 31;
+    var result = 1;
     result = prime * result + ((key == null) ? 0 : key.hashCode());
     result = prime * result + Float.floatToIntBits(score);
     result = prime * result + ((value == null) ? 0 : value.hashCode());
@@ -75,7 +75,7 @@ public class LuceneResultStructImpl<K, V>
     if (getClass() != obj.getClass()) {
       return false;
     }
-    LuceneResultStructImpl other = (LuceneResultStructImpl) obj;
+    var other = (LuceneResultStructImpl) obj;
     if (key == null) {
       if (other.key != null) {
         return false;

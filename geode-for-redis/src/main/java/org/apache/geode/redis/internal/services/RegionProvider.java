@@ -36,7 +36,6 @@ import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.partition.PartitionListener;
 import org.apache.geode.cache.partition.PartitionRegionHelper;
 import org.apache.geode.distributed.DistributedMember;
-import org.apache.geode.distributed.internal.DistributionConfig;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.InternalRegionFactory;
 import org.apache.geode.internal.cache.PartitionedRegion;
@@ -90,9 +89,9 @@ public class RegionProvider {
     InternalRegionFactory<RedisKey, RedisData> redisDataRegionFactory =
         cache.createInternalRegionFactory(RegionShortcut.PARTITION_REDUNDANT);
 
-    PartitionAttributesFactory<RedisKey, RedisData> attributesFactory =
-        new PartitionAttributesFactory<>();
-    DistributionConfig config = cache.getInternalDistributedSystem().getConfig();
+    var attributesFactory =
+        new PartitionAttributesFactory<RedisKey, RedisData>();
+    var config = cache.getInternalDistributedSystem().getConfig();
     attributesFactory.setRedundantCopies(config.getRedisRedundantCopies());
     attributesFactory.setPartitionResolver(new RedisPartitionResolver());
     attributesFactory.setTotalNumBuckets(REDIS_REGION_BUCKETS);
@@ -162,8 +161,8 @@ public class RegionProvider {
 
   @VisibleForTesting
   static boolean areKeysCrossSlots(List<RedisKey> keysToLock) {
-    int slot = keysToLock.get(0).getSlot();
-    for (RedisKey key : keysToLock) {
+    var slot = keysToLock.get(0).getSlot();
+    for (var key : keysToLock) {
       if (key.getSlot() != slot) {
         return true;
       }
@@ -176,7 +175,7 @@ public class RegionProvider {
    * attempt to retry.
    */
   public <T> T lockedExecuteInTransaction(RedisKey key, Callable<T> callable) {
-    Callable<T> txWrappedCallable = getTxWrappedCallable(callable);
+    var txWrappedCallable = getTxWrappedCallable(callable);
     return lockedExecute(key, txWrappedCallable);
   }
 
@@ -186,14 +185,14 @@ public class RegionProvider {
    */
   public <T> T lockedExecuteInTransaction(RedisKey key, List<RedisKey> keysToLock,
       Callable<T> callable) {
-    Callable<T> txWrappedCallable = getTxWrappedCallable(callable);
+    var txWrappedCallable = getTxWrappedCallable(callable);
     return lockedExecute(key, keysToLock, txWrappedCallable);
   }
 
   private <T> Callable<T> getTxWrappedCallable(Callable<T> callable) {
     return () -> {
       T result;
-      boolean success = false;
+      var success = false;
       txManager.begin();
       try {
         result = callable.call();
@@ -249,8 +248,8 @@ public class RegionProvider {
   }
 
   private RedisDataMovedException createRedisDataMovedException(RedisKey key) {
-    RedisMemberInfo memberInfo = getRedisMemberInfo(key);
-    int slot = key.getSlot();
+    var memberInfo = getRedisMemberInfo(key);
+    var slot = key.getSlot();
     return new RedisDataMovedException(slot, memberInfo.getHostAddress(),
         memberInfo.getRedisPort());
   }
@@ -266,7 +265,7 @@ public class RegionProvider {
 
   public <T extends RedisData> T getTypedRedisDataElseRemove(RedisDataType type, RedisKey key,
       boolean updateStats) {
-    RedisData redisData = getRedisData(key, null, updateStats);
+    var redisData = getRedisData(key, null, updateStats);
     if (redisData == null) {
       return null;
     }
@@ -280,7 +279,7 @@ public class RegionProvider {
 
   public <T extends RedisData> T getTypedRedisData(RedisDataType type, RedisKey key,
       boolean updateStats) {
-    RedisData redisData = getRedisData(key, type.getNullType(), updateStats);
+    var redisData = getRedisData(key, type.getNullType(), updateStats);
     return checkType(redisData, type);
   }
 
@@ -305,7 +304,7 @@ public class RegionProvider {
   }
 
   public RedisString getRedisStringIgnoringType(RedisKey key, boolean updateStats) {
-    RedisData redisData = getRedisData(key, NULL_REDIS_STRING, updateStats);
+    var redisData = getRedisData(key, NULL_REDIS_STRING, updateStats);
     return checkStringTypeIgnoringMismatch(redisData);
   }
 
@@ -316,7 +315,7 @@ public class RegionProvider {
 
   @SuppressWarnings("unchecked")
   public Set<DistributedMember> getRegionMembers() {
-    Set<DistributedMember> result = (Set<DistributedMember>) (Set<?>) partitionedRegion
+    var result = (Set<DistributedMember>) (Set<?>) partitionedRegion
         .getRegionAdvisor().adviseDataStore(true);
     result.add(partitionedRegion.getCache().getMyId());
     return result;

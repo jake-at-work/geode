@@ -39,8 +39,6 @@ import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.ServerOperationException;
 import org.apache.geode.cache.client.internal.PoolImpl;
-import org.apache.geode.cache.server.CacheServer;
-import org.apache.geode.test.dunit.IgnoredException;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.CacheRule;
 import org.apache.geode.test.dunit.rules.ClientCacheRule;
@@ -109,7 +107,7 @@ public class RegisterInterestOnServerWithoutRegionRegressionTest implements Seri
 
     // no region is created on server
 
-    CacheServer cacheServer = cacheRule.getCache().addCacheServer();
+    var cacheServer = cacheRule.getCache().addCacheServer();
     cacheServer.setPort(0);
     cacheServer.start();
     return cacheServer.getPort();
@@ -118,7 +116,7 @@ public class RegisterInterestOnServerWithoutRegionRegressionTest implements Seri
   private void createClientCache(int port) {
     clientCacheRule.createClientCache();
 
-    PoolImpl pool = (PoolImpl) PoolManager.createFactory().addServer(hostName, port)
+    var pool = (PoolImpl) PoolManager.createFactory().addServer(hostName, port)
         .setSubscriptionEnabled(true).setMinConnections(4).create(uniqueName);
 
     ClientRegionFactory crf =
@@ -129,7 +127,7 @@ public class RegisterInterestOnServerWithoutRegionRegressionTest implements Seri
   }
 
   private void registerInterest() {
-    try (IgnoredException ie = addIgnoredException(RegionDestroyedException.class)) {
+    try (var ie = addIgnoredException(RegionDestroyedException.class)) {
       Region<Object, ?> region = clientCacheRule.getClientCache().getRegion(regionName);
       assertNotNull(region);
 
@@ -147,7 +145,7 @@ public class RegisterInterestOnServerWithoutRegionRegressionTest implements Seri
   }
 
   private void awaitConnectedServerCount(final int expectedServerCount) {
-    PoolImpl pool = (PoolImpl) PoolManager.getAll().get(uniqueName);
+    var pool = (PoolImpl) PoolManager.getAll().get(uniqueName);
     assertThat(pool).isNotNull();
 
     await().until(() -> pool.getConnectedServerCount() == expectedServerCount);

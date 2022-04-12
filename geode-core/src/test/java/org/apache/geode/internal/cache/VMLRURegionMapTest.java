@@ -27,7 +27,7 @@ public class VMLRURegionMapTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    VMLRURegionMap mockVMLRURegionMap = mock(VMLRURegionMap.class);
+    var mockVMLRURegionMap = mock(VMLRURegionMap.class);
 
     when(mockVMLRURegionMap.centralizedLruUpdateCallback()).thenReturn(1);
 

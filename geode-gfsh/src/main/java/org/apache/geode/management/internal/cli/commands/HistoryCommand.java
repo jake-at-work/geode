@@ -26,10 +26,7 @@ import org.springframework.shell.core.annotation.CliOption;
 
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.internal.cli.GfshParser;
-import org.apache.geode.management.internal.cli.result.model.InfoResultModel;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.cli.shell.Gfsh;
-import org.apache.geode.management.internal.cli.shell.jline.GfshHistory;
 import org.apache.geode.management.internal.i18n.CliStrings;
 
 public class HistoryCommand extends OfflineGfshCommand {
@@ -47,9 +44,9 @@ public class HistoryCommand extends OfflineGfshCommand {
       return executeClearHistory();
     } else {
       // Process file option
-      Gfsh gfsh = getGfsh();
+      var gfsh = getGfsh();
 
-      boolean hasFile = StringUtils.isNotBlank(saveHistoryTo);
+      var hasFile = StringUtils.isNotBlank(saveHistoryTo);
 
       File saveHistoryToFile = null;
       if (hasFile) {
@@ -62,13 +59,13 @@ public class HistoryCommand extends OfflineGfshCommand {
         }
       }
 
-      GfshHistory gfshHistory = gfsh.getGfshHistory();
+      var gfshHistory = gfsh.getGfshHistory();
       Iterator<?> it = gfshHistory.entries();
 
-      ResultModel result = new ResultModel();
-      InfoResultModel histories = result.addInfo("history");
+      var result = new ResultModel();
+      var histories = result.addInfo("history");
       while (it.hasNext()) {
-        String line = it.next().toString();
+        var line = it.next().toString();
         if (!line.isEmpty()) {
           if (hasFile) {
             FileUtils.writeStringToFile(saveHistoryToFile, line + GfshParser.LINE_SEPARATOR,

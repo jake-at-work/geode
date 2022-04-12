@@ -18,8 +18,6 @@ import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import java.lang.reflect.Method;
-
 import javax.management.NotificationBroadcasterSupport;
 import javax.management.ObjectName;
 
@@ -50,10 +48,10 @@ public class MBeanProxyInvocationHandlerTest {
 
   @Test
   public void invoke_methodName_getLastRefreshedTime_delegatesToProxyImpl() throws Exception {
-    MBeanProxyInvocationHandler mBeanProxyInvocationHandler =
+    var mBeanProxyInvocationHandler =
         new MBeanProxyInvocationHandler(member, objectName, monitoringRegion, isMXBean, emitter,
             proxyImpl);
-    Method getLastRefreshedTimeMethod = proxyImpl.getClass()
+    var getLastRefreshedTimeMethod = proxyImpl.getClass()
         .getMethod("getLastRefreshedTime");
 
     mBeanProxyInvocationHandler.invoke(proxyImpl, getLastRefreshedTimeMethod, new Object[] {});
@@ -64,10 +62,10 @@ public class MBeanProxyInvocationHandlerTest {
 
   @Test
   public void invoke_methodName_setLastRefreshedTime_delegatesToProxyImpl() throws Exception {
-    MBeanProxyInvocationHandler mBeanProxyInvocationHandler =
+    var mBeanProxyInvocationHandler =
         new MBeanProxyInvocationHandler(member, objectName, monitoringRegion, isMXBean, emitter,
             proxyImpl);
-    Method setLastRefreshedTimeMethod = proxyImpl.getClass()
+    var setLastRefreshedTimeMethod = proxyImpl.getClass()
         .getMethod("setLastRefreshedTime", long.class);
     long lastRefreshedTimeParameter = 24;
 
@@ -80,12 +78,12 @@ public class MBeanProxyInvocationHandlerTest {
 
   @Test
   public void invoke_methodName_sendNotification_delegatesToProxyImpl() throws Exception {
-    ProxyWithNotificationBroadcasterSupport proxyWithNotificationBroadcasterSupport =
+    var proxyWithNotificationBroadcasterSupport =
         mock(ProxyWithNotificationBroadcasterSupport.class);
-    MBeanProxyInvocationHandler mBeanProxyInvocationHandler =
+    var mBeanProxyInvocationHandler =
         new MBeanProxyInvocationHandler(member, objectName, monitoringRegion, isMXBean, emitter,
             proxyWithNotificationBroadcasterSupport);
-    Method setLastRefreshedTimeMethod = proxyWithNotificationBroadcasterSupport.getClass()
+    var setLastRefreshedTimeMethod = proxyWithNotificationBroadcasterSupport.getClass()
         .getMethod("setLastRefreshedTime", long.class);
     long lastRefreshedTimeParameter = 24;
 

@@ -34,10 +34,7 @@ import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.partition.PartitionRegionHelper;
 import org.apache.geode.distributed.ConfigurationProperties;
 import org.apache.geode.internal.AvailablePortHelper;
-import org.apache.geode.internal.cache.InternalCache;
-import org.apache.geode.management.DistributedRegionMXBean;
 import org.apache.geode.management.ManagementService;
-import org.apache.geode.management.internal.cli.result.model.ResultModel;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
@@ -65,7 +62,7 @@ public class RebalanceCommandDUnitTest {
 
   @Before
   public void before() throws Exception {
-    MemberVM locator = cluster.startLocatorVM(0, locatorProperties());
+    var locator = cluster.startLocatorVM(0, locatorProperties());
     server1 = cluster.startServerVM(1, locator.getPort());
     server2 = cluster.startServerVM(2, locator.getPort());
 
@@ -76,12 +73,12 @@ public class RebalanceCommandDUnitTest {
 
       RegionFactory<String, String> dataRegionFactory =
           cache.createRegionFactory(RegionShortcut.PARTITION);
-      Region<String, String> region = dataRegionFactory.create(SHARED_REGION_NAME);
-      for (int i = 0; i < SERVER1_SHARED_REGION_SIZE; i++) {
+      var region = dataRegionFactory.create(SHARED_REGION_NAME);
+      for (var i = 0; i < SERVER1_SHARED_REGION_SIZE; i++) {
         region.put("key" + (i + 200), "value" + (i + 200));
       }
       region = dataRegionFactory.create(REGION1_NAME);
-      for (int i = 0; i < SERVER1_REGION1_SIZE; i++) {
+      for (var i = 0; i < SERVER1_REGION1_SIZE; i++) {
         region.put("key" + (i + 200), "value" + (i + 200));
       }
     });
@@ -91,13 +88,13 @@ public class RebalanceCommandDUnitTest {
       RegionFactory<String, String> dataRegionFactory =
           cache.createRegionFactory(RegionShortcut.PARTITION);
 
-      Region<String, String> region = dataRegionFactory.create(SHARED_REGION_NAME);
-      for (int i = 0; i < SERVER2_SHARED_REGION_SIZE; i++) {
+      var region = dataRegionFactory.create(SHARED_REGION_NAME);
+      for (var i = 0; i < SERVER2_SHARED_REGION_SIZE; i++) {
         region.put("key" + (i + 400), "value" + (i + 400));
       }
 
       region = dataRegionFactory.create(REGION2_NAME);
-      for (int i = 0; i < SERVER2_REGION2_SIZE; i++) {
+      for (var i = 0; i < SERVER2_REGION2_SIZE; i++) {
         region.put("key" + (i + 200), "value" + (i + 200));
       }
     });
@@ -115,11 +112,11 @@ public class RebalanceCommandDUnitTest {
 
   @Test
   public void testRegionNameInResultStartsWithSlash() {
-    final String REGION_NAME_WITH_SLASH = SEPARATOR + SHARED_REGION_NAME;
-    String command = "rebalance --include-region=" + SEPARATOR + SHARED_REGION_NAME;
+    final var REGION_NAME_WITH_SLASH = SEPARATOR + SHARED_REGION_NAME;
+    var command = "rebalance --include-region=" + SEPARATOR + SHARED_REGION_NAME;
     gfsh.executeAndAssertThat(command).statusIsSuccess();
 
-    ResultModel result = gfsh.getCommandResult().getResultData();
+    var result = gfsh.getCommandResult().getResultData();
 
     assertThat(result.getTableSections().size()).isEqualTo(1);
     assertThat(result.getTableSections().get(0).getHeader().contains(REGION_NAME_WITH_SLASH))
@@ -128,21 +125,21 @@ public class RebalanceCommandDUnitTest {
 
   @Test
   public void testWithTimeOut() {
-    String command = "rebalance --time-out=1";
+    var command = "rebalance --time-out=1";
     gfsh.executeAndAssertThat(command).statusIsSuccess();
     assertRegionBalanced(SHARED_REGION_NAME);
   }
 
   @Test
   public void testWithTimeOutAndRegion() {
-    String command = "rebalance --time-out=1 --include-region=" + SEPARATOR + SHARED_REGION_NAME;
+    var command = "rebalance --time-out=1 --include-region=" + SEPARATOR + SHARED_REGION_NAME;
     gfsh.executeAndAssertThat(command).statusIsSuccess();
     assertRegionBalanced(SHARED_REGION_NAME);
   }
 
   @Test
   public void testWithSimulateAndRegion() {
-    String command = "rebalance --simulate=true --include-region=" + SEPARATOR + SHARED_REGION_NAME;
+    var command = "rebalance --simulate=true --include-region=" + SEPARATOR + SHARED_REGION_NAME;
     gfsh.executeAndAssertThat(command).statusIsSuccess();
 
     assertAllRegionsUnchanged();
@@ -150,7 +147,7 @@ public class RebalanceCommandDUnitTest {
 
   @Test
   public void testWithSimulate() {
-    String command = "rebalance --simulate=true";
+    var command = "rebalance --simulate=true";
     gfsh.executeAndAssertThat(command).statusIsSuccess();
 
     assertAllRegionsUnchanged();
@@ -158,7 +155,7 @@ public class RebalanceCommandDUnitTest {
 
   @Test
   public void testWithTwoRegions() {
-    String command =
+    var command =
         "rebalance --include-region=" + SEPARATOR + SHARED_REGION_NAME + "," + SEPARATOR
             + REGION2_NAME;
     gfsh.executeAndAssertThat(command).statusIsSuccess();
@@ -171,16 +168,16 @@ public class RebalanceCommandDUnitTest {
   @Test
   public void testWithTwoSharedRegions() {
     server1.invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
+      var cache = ClusterStartupRule.getCache();
       RegionFactory<String, String> dataRegionFactory =
           cache.createRegionFactory(RegionShortcut.PARTITION);
-      Region<String, String> region = dataRegionFactory.create(REGION2_NAME);
-      for (int i = 0; i < 15; i++) {
+      var region = dataRegionFactory.create(REGION2_NAME);
+      for (var i = 0; i < 15; i++) {
         region.put("key" + (i + 210), "value" + (i + 210));
       }
     });
 
-    String command =
+    var command =
         "rebalance --include-region=" + SEPARATOR + SHARED_REGION_NAME + "," + SEPARATOR
             + REGION2_NAME;
     gfsh.executeAndAssertThat(command).statusIsSuccess();
@@ -193,7 +190,7 @@ public class RebalanceCommandDUnitTest {
 
   @Test
   public void testWithBadRegionNames() {
-    String command =
+    var command =
         "rebalance --include-region=" + SEPARATOR + "randomGarbageString" + "," + SEPARATOR
             + "otherRandomGarbage";
     gfsh.executeAndAssertThat(command).statusIsError();
@@ -202,7 +199,7 @@ public class RebalanceCommandDUnitTest {
 
   @Test
   public void testWithOneGoodAndOneBadRegionName() {
-    String command =
+    var command =
         "rebalance --include-region=" + SEPARATOR + SHARED_REGION_NAME + "," + SEPARATOR
             + "otherRandomGarbage";
     gfsh.executeAndAssertThat(command).statusIsSuccess();
@@ -215,7 +212,7 @@ public class RebalanceCommandDUnitTest {
 
   @Test
   public void testWithNonSharedRegions() {
-    String command =
+    var command =
         "rebalance --include-region=" + SEPARATOR + REGION1_NAME + "," + SEPARATOR + REGION2_NAME;
     gfsh.executeAndAssertThat(command).statusIsError();
 
@@ -224,14 +221,14 @@ public class RebalanceCommandDUnitTest {
 
   @Test
   public void testWithSimulateAndTimeout() {
-    String command = "rebalance --simulate=true --time-out=1";
+    var command = "rebalance --simulate=true --time-out=1";
     gfsh.executeAndAssertThat(command).statusIsSuccess();
     assertAllRegionsUnchanged();
   }
 
   @Test
   public void testWithNoArgs() {
-    String command = "rebalance";
+    var command = "rebalance";
     gfsh.executeAndAssertThat(command).statusIsSuccess();
     assertRegionBalanced(SHARED_REGION_NAME);
     assertThat(server1.invoke(() -> getLocalDataSizeForRegion(REGION1_NAME)))
@@ -242,7 +239,7 @@ public class RebalanceCommandDUnitTest {
 
   @Test
   public void testWithExcludedRegion() {
-    String command = "rebalance --exclude-region=" + SEPARATOR + REGION2_NAME;
+    var command = "rebalance --exclude-region=" + SEPARATOR + REGION2_NAME;
     gfsh.executeAndAssertThat(command).statusIsSuccess();
     assertRegionBalanced(SHARED_REGION_NAME);
     assertThat(server1.invoke(() -> getLocalDataSizeForRegion(REGION1_NAME)))
@@ -253,14 +250,14 @@ public class RebalanceCommandDUnitTest {
 
   @Test
   public void testWithExcludedSharedRegion() {
-    String command = "rebalance --exclude-region=" + SEPARATOR + SHARED_REGION_NAME;
+    var command = "rebalance --exclude-region=" + SEPARATOR + SHARED_REGION_NAME;
     gfsh.executeAndAssertThat(command).statusIsSuccess();
     assertAllRegionsUnchanged();
   }
 
   @Test
   public void testWithExcludedBadRegion() {
-    String command = "rebalance --exclude-region=" + SEPARATOR + "asdf";
+    var command = "rebalance --exclude-region=" + SEPARATOR + "asdf";
     gfsh.executeAndAssertThat(command).statusIsSuccess();
     assertRegionBalanced(SHARED_REGION_NAME);
     assertThat(server1.invoke(() -> getLocalDataSizeForRegion(REGION1_NAME)))
@@ -270,10 +267,10 @@ public class RebalanceCommandDUnitTest {
   }
 
   private void assertAllRegionsUnchanged() {
-    Integer sharedServer1Size = server1.invoke(() -> getLocalDataSizeForRegion(SHARED_REGION_NAME));
-    Integer sharedServer2Size = server2.invoke(() -> getLocalDataSizeForRegion(SHARED_REGION_NAME));
-    Integer region1Server1Size = server1.invoke(() -> getLocalDataSizeForRegion(REGION1_NAME));
-    Integer region2Server2Size = server2.invoke(() -> getLocalDataSizeForRegion(REGION2_NAME));
+    var sharedServer1Size = server1.invoke(() -> getLocalDataSizeForRegion(SHARED_REGION_NAME));
+    var sharedServer2Size = server2.invoke(() -> getLocalDataSizeForRegion(SHARED_REGION_NAME));
+    var region1Server1Size = server1.invoke(() -> getLocalDataSizeForRegion(REGION1_NAME));
+    var region2Server2Size = server2.invoke(() -> getLocalDataSizeForRegion(REGION2_NAME));
 
     assertThat(sharedServer1Size).isEqualTo(server1SharedRegionInitialSize);
     assertThat(sharedServer2Size).isEqualTo(server2SharedRegionInitialSize);
@@ -282,23 +279,23 @@ public class RebalanceCommandDUnitTest {
   }
 
   private void assertRegionBalanced(String regionName) {
-    Integer size1 = server1.invoke(() -> getLocalDataSizeForRegion(regionName));
-    Integer size2 = server2.invoke(() -> getLocalDataSizeForRegion(regionName));
+    var size1 = server1.invoke(() -> getLocalDataSizeForRegion(regionName));
+    var size2 = server2.invoke(() -> getLocalDataSizeForRegion(regionName));
 
     assertThat(abs(size1 - size2)).isLessThanOrEqualTo(1);
   }
 
   private static Integer getLocalDataSizeForRegion(String regionName) {
-    InternalCache cache = ClusterStartupRule.getCache();
+    var cache = ClusterStartupRule.getCache();
     Region<?, ?> region = cache.getInternalRegionByPath(SEPARATOR + regionName);
     return PartitionRegionHelper.getLocalData(region).size();
   }
 
   private static void waitForManagerMBean() {
     await().until(() -> {
-      final ManagementService service =
+      final var service =
           ManagementService.getManagementService(ClusterStartupRule.getCache());
-      final DistributedRegionMXBean bean =
+      final var bean =
           service.getDistributedRegionMXBean(SEPARATOR + SHARED_REGION_NAME);
 
 
@@ -309,8 +306,8 @@ public class RebalanceCommandDUnitTest {
   }
 
   private Properties locatorProperties() {
-    int jmxPort = AvailablePortHelper.getRandomAvailableTCPPort();
-    Properties props = new Properties();
+    var jmxPort = AvailablePortHelper.getRandomAvailableTCPPort();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOG_LEVEL, "fine");
     props.setProperty(ConfigurationProperties.JMX_MANAGER_HOSTNAME_FOR_CLIENTS, "localhost");

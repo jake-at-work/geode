@@ -23,7 +23,6 @@ import java.io.IOException;
 import org.apache.geode.CancelException;
 import org.apache.geode.DataSerializer;
 import org.apache.geode.InternalGemFireException;
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.distributed.internal.DistributionManager;
@@ -57,15 +56,15 @@ public class RegionResponse extends AdminResponse {
    */
   public static RegionResponse create(DistributionManager dm, InternalDistributedMember recipient,
       RegionRequest request) {
-    RegionResponse m = new RegionResponse();
+    var m = new RegionResponse();
 
     try {
-      Cache cache = CacheFactory.getInstance(dm.getSystem());
+      var cache = CacheFactory.getInstance(dm.getSystem());
 
-      int cacheId = request.cacheId;
+      var cacheId = request.cacheId;
       if (System.identityHashCode(cache) == cacheId) {
         Region r;
-        int action = request.action;
+        var action = request.action;
         switch (action) {
           case RegionRequest.GET_REGION:
             r = cache.getRegion(request.path);

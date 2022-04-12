@@ -28,7 +28,6 @@ import org.apache.geode.cache.query.NameResolutionException;
 import org.apache.geode.cache.query.QueryInvocationTargetException;
 import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.TypeMismatchException;
-import org.apache.geode.internal.cache.PartitionedRegion;
 
 
 /**
@@ -75,17 +74,17 @@ public class CompiledPath extends AbstractCompiledValue {
 
     List list = new ArrayList();
     list.add(getTailID());
-    CompiledValue v = getReceiver();
-    int type = v.getType();
+    var v = getReceiver();
+    var type = v.getType();
     while (type == PATH) {
-      CompiledPath p = (CompiledPath) v;
+      var p = (CompiledPath) v;
       list.add(0, p.getTailID());
       v = p.getReceiver();
       type = v.getType();
     }
 
     if (type == Identifier) {
-      List path = v.getPathOnIterator(itr, context);
+      var path = v.getPathOnIterator(itr, context);
       if (path == null) {
         return null;
       }
@@ -100,20 +99,20 @@ public class CompiledPath extends AbstractCompiledValue {
   @Override
   public Object evaluate(ExecutionContext context) throws FunctionDomainException,
       TypeMismatchException, NameResolutionException, QueryInvocationTargetException {
-    CompiledValue rcvr = getReceiver();
-    Object evalRcvr = rcvr.evaluate(context);
+    var rcvr = getReceiver();
+    var evalRcvr = rcvr.evaluate(context);
 
     if (context.isCqQueryContext()
         && (evalRcvr instanceof Region.Entry || evalRcvr instanceof CqEntry)) {
       try {
         if (evalRcvr instanceof Region.Entry) {
-          Region.Entry re = (Region.Entry) evalRcvr;
+          var re = (Region.Entry) evalRcvr;
           if (re.isDestroyed()) {
             return QueryService.UNDEFINED;
           }
           evalRcvr = re.getValue();
         } else if (evalRcvr instanceof CqEntry) {
-          CqEntry re = (CqEntry) evalRcvr;
+          var re = (CqEntry) evalRcvr;
           evalRcvr = re.getValue();
         }
       } catch (EntryDestroyedException ede) {
@@ -148,9 +147,9 @@ public class CompiledPath extends AbstractCompiledValue {
     // getTailID());
     // }
 
-    Object obj = PathUtils.evaluateAttribute(context, evalRcvr, getTailID());
+    var obj = PathUtils.evaluateAttribute(context, evalRcvr, getTailID());
     // check for BucketRegion substitution
-    PartitionedRegion pr = context.getPartitionedRegion();
+    var pr = context.getPartitionedRegion();
     if (pr != null && (obj instanceof Region)) {
       if (pr.getFullPath().equals(((Region) obj).getFullPath())) {
         obj = context.getBucketRegion();

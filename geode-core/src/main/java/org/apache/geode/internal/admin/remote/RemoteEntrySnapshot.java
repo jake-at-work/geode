@@ -34,19 +34,19 @@ public class RemoteEntrySnapshot implements EntrySnapshot, DataSerializable {
   private RemoteCacheStatistics stats;
 
   public RemoteEntrySnapshot(Region.Entry entry, boolean statsEnabled) throws CacheException {
-    Object entryName = entry.getKey();
+    var entryName = entry.getKey();
     if (entryName instanceof String || entryName instanceof Number) {
       name = entryName;
     } else {
       name = new RemoteObjectName(entryName);
     }
-    Object val = entry.getValue();
+    var val = entry.getValue();
     if (val != null) {
       value = val.getClass().getName() + "\"" + val + "\"";
     } else {
       value = null;
     }
-    Object attr = entry.getUserAttribute();
+    var attr = entry.getUserAttribute();
     if (attr != null) {
       userAttribute = attr.getClass().getName() + "\"" + attr + "\"";
     } else {
@@ -110,7 +110,7 @@ public class RemoteEntrySnapshot implements EntrySnapshot, DataSerializable {
       return true;
     }
     if (other instanceof RemoteEntrySnapshot) {
-      RemoteEntrySnapshot snap = (RemoteEntrySnapshot) other;
+      var snap = (RemoteEntrySnapshot) other;
       return name.equals(snap.name);
     }
     return false;

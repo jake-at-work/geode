@@ -20,7 +20,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.util.Arrays;
-import java.util.List;
 
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -32,8 +31,8 @@ public class DistributionMessageTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    DistributionMessage mockDistributionMessage = mock(DistributionMessage.class);
-    ReplySender mockReplySender = mock(ReplySender.class);
+    var mockDistributionMessage = mock(DistributionMessage.class);
+    var mockReplySender = mock(ReplySender.class);
 
     mockDistributionMessage.setReplySender(mockReplySender);
 
@@ -42,8 +41,8 @@ public class DistributionMessageTest {
 
   @Test
   public void membershipMessengerThreadsAreRecognized() {
-    List<String> threadNames = Arrays.asList("unicast receiver", "multicast receiver", "Geode UDP");
-    for (String threadName : threadNames) {
+    var threadNames = Arrays.asList("unicast receiver", "multicast receiver", "Geode UDP");
+    for (var threadName : threadNames) {
       assertThat(DistributionMessage.isMembershipMessengerThreadName(threadName)).isTrue();
     }
   }

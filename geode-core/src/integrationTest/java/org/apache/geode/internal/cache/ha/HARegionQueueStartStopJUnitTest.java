@@ -39,7 +39,7 @@ import org.apache.geode.test.junit.categories.ClientSubscriptionTest;
 public class HARegionQueueStartStopJUnitTest {
 
   private InternalCache createCache() throws CacheExistsException, RegionExistsException {
-    final Properties props = new Properties();
+    final var props = new Properties();
     props.setProperty(LOCATORS, "");
     props.setProperty(MCAST_PORT, "0");
     return (InternalCache) CacheFactory.create(DistributedSystem.connect(props));
@@ -54,7 +54,7 @@ public class HARegionQueueStartStopJUnitTest {
 
   @Test
   public void testStartStop() throws Exception {
-    InternalCache cache = createCache();
+    var cache = createCache();
     createHARegionQueue("test", cache);
     Assert.assertTrue(HARegionQueue.getDispatchedMessagesMapForTesting() != null);
     HARegionQueue.stopHAServices();

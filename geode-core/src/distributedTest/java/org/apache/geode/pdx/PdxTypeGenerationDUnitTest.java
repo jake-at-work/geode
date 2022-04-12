@@ -24,12 +24,8 @@ import org.junit.Test;
 import util.TestException;
 
 import org.apache.geode.cache.DataPolicy;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.pdx.internal.PeerTypeRegistration;
-import org.apache.geode.test.dunit.AsyncInvocation;
-import org.apache.geode.test.dunit.rules.ClientVM;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
 
@@ -44,16 +40,16 @@ public class PdxTypeGenerationDUnitTest {
 
   @Before
   public void before() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty("log-level", "WARN");
 
     locator = cluster.startLocatorVM(0, props);
 
-    int locatorPort1 = locator.getPort();
+    var locatorPort1 = locator.getPort();
     server1 = cluster.startServerVM(1,
         x -> x.withProperties(props).withConnectionToLocator(locatorPort1));
 
-    int locatorPort2 = locator.getPort();
+    var locatorPort2 = locator.getPort();
     server2 = cluster.startServerVM(2,
         x -> x.withProperties(props).withConnectionToLocator(locatorPort2));
   }
@@ -70,8 +66,8 @@ public class PdxTypeGenerationDUnitTest {
     server1.invoke(PdxTypeGenerationDUnitTest::createPdxOnServer);
 
     server1.invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
-      PeerTypeRegistration registration =
+      var cache = ClusterStartupRule.getCache();
+      var registration =
           (PeerTypeRegistration) (cache.getPdxRegistry().getTypeRegistration());
 
       assertThat(registration.getLocalSize()).isEqualTo(numOfTypes + numOfEnums);
@@ -80,9 +76,9 @@ public class PdxTypeGenerationDUnitTest {
     });
 
     server1.stop(false);
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty("log-level", "WARN");
-    int locatorPort1 = locator.getPort();
+    var locatorPort1 = locator.getPort();
     server1 = cluster.startServerVM(1,
         x -> x.withProperties(props).withConnectionToLocator(locatorPort1));
 
@@ -91,15 +87,15 @@ public class PdxTypeGenerationDUnitTest {
 
   @Test
   public void testNoConflictsWhenGeneratingPdxTypesFromJSONOnMultipleServers() {
-    int repeats = 10000;
+    var repeats = 10000;
 
-    AsyncInvocation invocation1 = server1.invokeAsync(() -> {
-      for (int i = 0; i < repeats; ++i) {
+    var invocation1 = server1.invokeAsync(() -> {
+      for (var i = 0; i < repeats; ++i) {
         JSONFormatter.fromJSON("{\"counter" + i + "\": " + i + "}");
       }
     });
-    AsyncInvocation invocation2 = server2.invokeAsync(() -> {
-      for (int i = 0; i < repeats; ++i) {
+    var invocation2 = server2.invokeAsync(() -> {
+      for (var i = 0; i < repeats; ++i) {
         JSONFormatter.fromJSON("{\"counter" + i + "\": " + i + "}");
       }
     });
@@ -112,9 +108,9 @@ public class PdxTypeGenerationDUnitTest {
     }
 
     server1.invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
-      int numberOfTypesInRegion = cache.getPdxRegistry().getTypeRegistration().getLocalSize();
-      int numberOfTypesInLocalMap =
+      var cache = ClusterStartupRule.getCache();
+      var numberOfTypesInRegion = cache.getPdxRegistry().getTypeRegistration().getLocalSize();
+      var numberOfTypesInLocalMap =
           ((PeerTypeRegistration) cache.getPdxRegistry().getTypeRegistration()).getTypeToIdSize();
 
       assertThat(numberOfTypesInRegion)
@@ -129,9 +125,9 @@ public class PdxTypeGenerationDUnitTest {
     });
 
     server2.invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
-      int numberOfTypesInRegion = cache.getRegion(PeerTypeRegistration.REGION_FULL_PATH).size();
-      int numberOfTypesInLocalMap =
+      var cache = ClusterStartupRule.getCache();
+      var numberOfTypesInRegion = cache.getRegion(PeerTypeRegistration.REGION_FULL_PATH).size();
+      var numberOfTypesInLocalMap =
           ((PeerTypeRegistration) cache.getPdxRegistry().getTypeRegistration()).getTypeToIdSize();
 
       assertThat(numberOfTypesInRegion)
@@ -148,7 +144,7 @@ public class PdxTypeGenerationDUnitTest {
 
   @Test
   public void testEnumsAndPdxTypesCreatedOnClientAreEnteredIntoTypeRegistry() throws Exception {
-    final String regionName = "regionName";
+    final var regionName = "regionName";
     server1.invoke(() -> {
       ClusterStartupRule.getCache().createRegionFactory().setDataPolicy(
           DataPolicy.REPLICATE).create(regionName);
@@ -157,29 +153,29 @@ public class PdxTypeGenerationDUnitTest {
       ClusterStartupRule.getCache().createRegionFactory().setDataPolicy(
           DataPolicy.REPLICATE).create(regionName);
     });
-    int port = locator.getPort();
+    var port = locator.getPort();
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty("log-level", "WARN");
-    ClientVM client = cluster.startClientVM(3,
+    var client = cluster.startClientVM(3,
         cf -> cf.withLocatorConnection(port).withPoolSubscription(true).withProperties(props));
 
     client.invoke(() -> {
-      ClientCache cache = ClusterStartupRule.getClientCache();
+      var cache = ClusterStartupRule.getClientCache();
       cache.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY).create(regionName);
 
-      for (int i = 0; i < numOfTypes; ++i) {
+      for (var i = 0; i < numOfTypes; ++i) {
         JSONFormatter.fromJSON("{\"counter" + i + "\": " + i + "}");
       }
-      for (int i = 0; i < numOfEnums; ++i) {
+      for (var i = 0; i < numOfEnums; ++i) {
         cache.createPdxEnum("ClassName", "EnumName" + i, i);
       }
     });
 
     server1.invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
+      var cache = ClusterStartupRule.getCache();
       assertThat(cache).isNotNull();
-      int numberOfTypesInRegion = cache.getPdxRegistry().getTypeRegistration().getLocalSize();
+      var numberOfTypesInRegion = cache.getPdxRegistry().getTypeRegistration().getLocalSize();
 
       assertThat(numberOfTypesInRegion)
           .withFailMessage("Expected number of PdxTypes and Enums in region to be %s but was %s",
@@ -189,15 +185,15 @@ public class PdxTypeGenerationDUnitTest {
   }
 
   private static void createPdxOnServer() {
-    InternalCache cache = ClusterStartupRule.getCache();
+    var cache = ClusterStartupRule.getCache();
 
-    for (int i = 0; i < numOfTypes; ++i) {
+    for (var i = 0; i < numOfTypes; ++i) {
       JSONFormatter.fromJSON("{\"counter" + i + "\": " + i + "}");
     }
-    for (int i = 0; i < numOfEnums; ++i) {
+    for (var i = 0; i < numOfEnums; ++i) {
       cache.createPdxEnum("ClassName", "EnumName" + i, i);
     }
-    PeerTypeRegistration registration =
+    var registration =
         (PeerTypeRegistration) (cache.getPdxRegistry().getTypeRegistration());
 
     assertThat(registration.getLocalSize()).isEqualTo(numOfTypes + numOfEnums);
@@ -206,8 +202,8 @@ public class PdxTypeGenerationDUnitTest {
   }
 
   private static void defineNewTypeAndAssertLocalMapsUpdated() {
-    InternalCache cache = ClusterStartupRule.getCache();
-    PeerTypeRegistration registration =
+    var cache = ClusterStartupRule.getCache();
+    var registration =
         (PeerTypeRegistration) (cache.getPdxRegistry().getTypeRegistration());
 
     assertThat(registration.getLocalSize()).isEqualTo(numOfTypes + numOfEnums);

@@ -67,7 +67,7 @@ public class NestedObjectSeralizerIntegrationTest extends LuceneIntegrationTest 
         .addField("contacts.homepage.content").addField("contacts.homepage.id")
         .addField(LuceneService.REGION_VALUE_FIELD).create(INDEX_NAME, REGION_NAME);
 
-    Region region = createRegion(REGION_NAME, RegionShortcut.PARTITION);
+    var region = createRegion(REGION_NAME, RegionShortcut.PARTITION);
     return region;
   }
 
@@ -76,40 +76,40 @@ public class NestedObjectSeralizerIntegrationTest extends LuceneIntegrationTest 
         .addField("name").addField("contacts").addField("contacts.page")
         .addField("contacts.missing").addField("missing2").create(INDEX_NAME, REGION_NAME);
 
-    Region region = createRegion(REGION_NAME, RegionShortcut.PARTITION);
+    var region = createRegion(REGION_NAME, RegionShortcut.PARTITION);
     return region;
   }
 
   protected void feedSomeNestedObjects(Region region) throws InterruptedException {
-    Person contact1 = new Person("Tommi Jackson", new String[] {"5036330001", "5036330002"}, 1);
-    Person contact2 = new Person("Tommi2 Skywalker", new String[] {"5036330003", "5036330004"}, 2);
+    var contact1 = new Person("Tommi Jackson", new String[] {"5036330001", "5036330002"}, 1);
+    var contact2 = new Person("Tommi2 Skywalker", new String[] {"5036330003", "5036330004"}, 2);
     HashSet<Person> contacts1 = new HashSet();
     contacts1.add(contact1);
     contacts1.add(contact2);
-    Page[] myHomePages1 = new Page[] {new Page(131), new Page(132)};
+    var myHomePages1 = new Page[] {new Page(131), new Page(132)};
     ArrayList<String> phoneNumbers = new ArrayList();
     phoneNumbers.add("5035330001");
     phoneNumbers.add("5035330002");
-    Customer customer13 =
+    var customer13 =
         getCustomerFactory().create("Tommy Jackson", phoneNumbers, contacts1, myHomePages1);
     region.put("object-13", customer13);
 
-    Person contact3 = new Person("Johnni Jackson", new String[] {"5036330005", "5036330006"}, 3);
-    Person contact4 = new Person("Jackson Skywalker", new String[] {"5036330007", "5036330008"}, 4);
+    var contact3 = new Person("Johnni Jackson", new String[] {"5036330005", "5036330006"}, 3);
+    var contact4 = new Person("Jackson Skywalker", new String[] {"5036330007", "5036330008"}, 4);
     ArrayList<Person> contacts2 = new ArrayList();
     contacts2.add(contact3);
     contacts2.add(contact4);
     phoneNumbers = new ArrayList();
     phoneNumbers.add("5035330003");
     phoneNumbers.add("5035330004");
-    Page[] myHomePages2 = new Page[] {new Page(14), new Page(141)};
+    var myHomePages2 = new Page[] {new Page(14), new Page(141)};
 
-    Customer customer14 =
+    var customer14 =
         getCustomerFactory().create("Johnny Jackson", phoneNumbers, contacts2, myHomePages2);
     region.put("object-14", customer14);
 
-    Person contact5 = new Person("Johnni Jackson2", new String[] {"5036330009", "5036330010"}, 5);
-    Person contact6 =
+    var contact5 = new Person("Johnni Jackson2", new String[] {"5036330009", "5036330010"}, 5);
+    var contact6 =
         new Person("Jackson2 Skywalker", new String[] {"5036330011", "5036330012"}, 6);
     ArrayList<Person> contacts3 = new ArrayList();
     contacts3.add(contact5);
@@ -117,14 +117,14 @@ public class NestedObjectSeralizerIntegrationTest extends LuceneIntegrationTest 
     phoneNumbers = new ArrayList();
     phoneNumbers.add("5035330005");
     phoneNumbers.add("5035330006");
-    Page[] myHomePages3 = new Page[] {new Page(15), new Page(151)};
+    var myHomePages3 = new Page[] {new Page(15), new Page(151)};
 
-    Customer customer15 =
+    var customer15 =
         getCustomerFactory().create("Johnny Jackson2", phoneNumbers, contacts3, myHomePages3);
     region.put("object-15", customer15);
 
-    Person contact7 = new Person("Johnni Jackson21", new String[] {"5036330013", "5036330014"}, 7);
-    Person contact8 =
+    var contact7 = new Person("Johnni Jackson21", new String[] {"5036330013", "5036330014"}, 7);
+    var contact8 =
         new Person("Jackson21 Skywalker", new String[] {"5036330015", "5036330016"}, 8);
     ArrayList<Person> contacts4 = new ArrayList();
     contacts4.add(contact7);
@@ -132,9 +132,9 @@ public class NestedObjectSeralizerIntegrationTest extends LuceneIntegrationTest 
     phoneNumbers = new ArrayList();
     phoneNumbers.add("5035330007");
     phoneNumbers.add("5035330008");
-    Page[] myHomePages4 = new Page[] {new Page(16), new Page(161)};
+    var myHomePages4 = new Page[] {new Page(16), new Page(161)};
 
-    Customer customer16 =
+    var customer16 =
         getCustomerFactory().create("Johnny Jackson21", phoneNumbers, contacts4, myHomePages4);
     region.put("object-16", customer16);
 
@@ -150,7 +150,7 @@ public class NestedObjectSeralizerIntegrationTest extends LuceneIntegrationTest 
   @Test
   public void queryOnTopLevelObjectCollectionField_AND_BothExist()
       throws InterruptedException, LuceneQueryException {
-    Region region = createRegionAndIndex();
+    var region = createRegionAndIndex();
     feedSomeNestedObjects(region);
 
     query = luceneService.createLuceneQueryFactory().create(INDEX_NAME, REGION_NAME, "131 AND 132",
@@ -163,7 +163,7 @@ public class NestedObjectSeralizerIntegrationTest extends LuceneIntegrationTest 
   @Test
   public void queryOnTopLevelObjectCollectionField_AND_OneExist()
       throws InterruptedException, LuceneQueryException {
-    Region region = createRegionAndIndex();
+    var region = createRegionAndIndex();
     feedSomeNestedObjects(region);
 
     query = luceneService.createLuceneQueryFactory().create(INDEX_NAME, REGION_NAME, "131 AND 133",
@@ -175,7 +175,7 @@ public class NestedObjectSeralizerIntegrationTest extends LuceneIntegrationTest 
   @Test
   public void queryOnTopLevelObjectCollectionField_OR_OneExist()
       throws InterruptedException, LuceneQueryException {
-    Region region = createRegionAndIndex();
+    var region = createRegionAndIndex();
     feedSomeNestedObjects(region);
 
     query = luceneService.createLuceneQueryFactory().create(INDEX_NAME, REGION_NAME, "131 OR 133",
@@ -188,7 +188,7 @@ public class NestedObjectSeralizerIntegrationTest extends LuceneIntegrationTest 
   @Test
   public void queryOnTopLevelStringCollectionField_AND_BothExist()
       throws InterruptedException, LuceneQueryException {
-    Region region = createRegionAndIndex();
+    var region = createRegionAndIndex();
     feedSomeNestedObjects(region);
 
     query = luceneService.createLuceneQueryFactory().create(INDEX_NAME, REGION_NAME,
@@ -201,7 +201,7 @@ public class NestedObjectSeralizerIntegrationTest extends LuceneIntegrationTest 
   @Test
   public void queryOnTopLevelStringCollectionField_AND_OneExist()
       throws InterruptedException, LuceneQueryException {
-    Region region = createRegionAndIndex();
+    var region = createRegionAndIndex();
     feedSomeNestedObjects(region);
     query = luceneService.createLuceneQueryFactory().create(INDEX_NAME, REGION_NAME,
         "5035330007 AND 5035330009", "phoneNumbers");
@@ -212,7 +212,7 @@ public class NestedObjectSeralizerIntegrationTest extends LuceneIntegrationTest 
   @Test
   public void queryOnTopLevelStringCollectionField_OR_OneExist()
       throws InterruptedException, LuceneQueryException {
-    Region region = createRegionAndIndex();
+    var region = createRegionAndIndex();
     feedSomeNestedObjects(region);
 
     query = luceneService.createLuceneQueryFactory().create(INDEX_NAME, REGION_NAME,
@@ -224,7 +224,7 @@ public class NestedObjectSeralizerIntegrationTest extends LuceneIntegrationTest 
 
   @Test
   public void queryOnContactNameWithExpression() throws InterruptedException, LuceneQueryException {
-    Region region = createRegionAndIndex();
+    var region = createRegionAndIndex();
     feedSomeNestedObjects(region);
 
     query = luceneService.createLuceneQueryFactory().create(INDEX_NAME, REGION_NAME,
@@ -236,7 +236,7 @@ public class NestedObjectSeralizerIntegrationTest extends LuceneIntegrationTest 
 
   @Test
   public void queryOnContactNameWithExactMath() throws InterruptedException, LuceneQueryException {
-    Region region = createRegionAndIndex();
+    var region = createRegionAndIndex();
     feedSomeNestedObjects(region);
 
     query = luceneService.createLuceneQueryFactory().create(INDEX_NAME, REGION_NAME,
@@ -248,7 +248,7 @@ public class NestedObjectSeralizerIntegrationTest extends LuceneIntegrationTest 
 
   @Test
   public void queryOnNameWithWrongValue() throws InterruptedException, LuceneQueryException {
-    Region region = createRegionAndIndex();
+    var region = createRegionAndIndex();
     feedSomeNestedObjects(region);
 
     query = luceneService.createLuceneQueryFactory().create(INDEX_NAME, REGION_NAME,
@@ -259,7 +259,7 @@ public class NestedObjectSeralizerIntegrationTest extends LuceneIntegrationTest 
 
   @Test
   public void queryOnNameWithExactMatch() throws InterruptedException, LuceneQueryException {
-    Region region = createRegionAndIndex();
+    var region = createRegionAndIndex();
     feedSomeNestedObjects(region);
 
     query = luceneService.createLuceneQueryFactory().create(INDEX_NAME, REGION_NAME,
@@ -271,7 +271,7 @@ public class NestedObjectSeralizerIntegrationTest extends LuceneIntegrationTest 
 
   @Test
   public void queryOnContactEmailWithAnalyzer() throws InterruptedException, LuceneQueryException {
-    Region region = createRegionAndIndex();
+    var region = createRegionAndIndex();
     feedSomeNestedObjects(region);
 
     query = luceneService.createLuceneQueryFactory().create(INDEX_NAME, REGION_NAME,
@@ -283,7 +283,7 @@ public class NestedObjectSeralizerIntegrationTest extends LuceneIntegrationTest 
 
   @Test
   public void queryOnNonExistEmailField() throws InterruptedException, LuceneQueryException {
-    Region region = createRegionAndIndex();
+    var region = createRegionAndIndex();
     feedSomeNestedObjects(region);
 
     query = luceneService.createLuceneQueryFactory().create(INDEX_NAME, REGION_NAME,
@@ -295,7 +295,7 @@ public class NestedObjectSeralizerIntegrationTest extends LuceneIntegrationTest 
   @Test
   public void queryOnContactAddressWithStandardAnalyzer()
       throws InterruptedException, LuceneQueryException {
-    Region region = createRegionAndIndex();
+    var region = createRegionAndIndex();
     feedSomeNestedObjects(region);
 
     query = luceneService.createLuceneQueryFactory().create(INDEX_NAME, REGION_NAME, "97006",
@@ -307,7 +307,7 @@ public class NestedObjectSeralizerIntegrationTest extends LuceneIntegrationTest 
 
   @Test
   public void queryOnNonExistAddressField() throws InterruptedException, LuceneQueryException {
-    Region region = createRegionAndIndex();
+    var region = createRegionAndIndex();
     feedSomeNestedObjects(region);
 
     query = luceneService.createLuceneQueryFactory().create(INDEX_NAME, REGION_NAME, "97006",
@@ -318,7 +318,7 @@ public class NestedObjectSeralizerIntegrationTest extends LuceneIntegrationTest 
 
   @Test
   public void queryOnThreeLayerField() throws InterruptedException, LuceneQueryException {
-    Region region = createRegionAndIndex();
+    var region = createRegionAndIndex();
     feedSomeNestedObjects(region);
 
     query = luceneService.createLuceneQueryFactory().create(INDEX_NAME, REGION_NAME,
@@ -331,7 +331,7 @@ public class NestedObjectSeralizerIntegrationTest extends LuceneIntegrationTest 
   @Test
   public void queryOnThirdLayerFieldDirectlyShouldNotGetResult()
       throws InterruptedException, LuceneQueryException {
-    Region region = createRegionAndIndex();
+    var region = createRegionAndIndex();
     feedSomeNestedObjects(region);
 
     query = luceneService.createLuceneQueryFactory().create(INDEX_NAME, REGION_NAME, "Hello",
@@ -342,7 +342,7 @@ public class NestedObjectSeralizerIntegrationTest extends LuceneIntegrationTest 
 
   @Test
   public void queryOnRegionValueField() throws InterruptedException, LuceneQueryException {
-    Region region = createRegionAndIndex();
+    var region = createRegionAndIndex();
     feedSomeNestedObjects(region);
 
     query = luceneService.createLuceneQueryFactory().create(INDEX_NAME, REGION_NAME, "region",
@@ -354,7 +354,7 @@ public class NestedObjectSeralizerIntegrationTest extends LuceneIntegrationTest 
 
   @Test
   public void nonExistFieldsShouldBeIgnored() throws InterruptedException, LuceneQueryException {
-    Region region = createRegionAndIndexOnInvalidFields();
+    var region = createRegionAndIndexOnInvalidFields();
     feedSomeNestedObjects(region);
 
     LuceneQuery query = luceneService.createLuceneQueryFactory().create(INDEX_NAME, REGION_NAME,
@@ -367,7 +367,7 @@ public class NestedObjectSeralizerIntegrationTest extends LuceneIntegrationTest 
   @Test
   public void queryOnNotIndexedFieldShouldReturnNothing()
       throws InterruptedException, LuceneQueryException {
-    Region region = createRegionAndIndexOnInvalidFields();
+    var region = createRegionAndIndexOnInvalidFields();
     feedSomeNestedObjects(region);
 
     query = luceneService.createLuceneQueryFactory().create(INDEX_NAME, REGION_NAME,
@@ -379,7 +379,7 @@ public class NestedObjectSeralizerIntegrationTest extends LuceneIntegrationTest 
   @Test
   public void queryWithExactMatchWhileIndexOnSomeWrongFields()
       throws InterruptedException, LuceneQueryException {
-    Region region = createRegionAndIndexOnInvalidFields();
+    var region = createRegionAndIndexOnInvalidFields();
     feedSomeNestedObjects(region);
 
     query = luceneService.createLuceneQueryFactory().create(INDEX_NAME, REGION_NAME,
@@ -392,7 +392,7 @@ public class NestedObjectSeralizerIntegrationTest extends LuceneIntegrationTest 
   @Test
   public void queryOnNotIndexedFieldWithAnalyzerShouldReturnNothing()
       throws InterruptedException, LuceneQueryException {
-    Region region = createRegionAndIndexOnInvalidFields();
+    var region = createRegionAndIndexOnInvalidFields();
     feedSomeNestedObjects(region);
 
     query = luceneService.createLuceneQueryFactory().create(INDEX_NAME, REGION_NAME,
@@ -404,7 +404,7 @@ public class NestedObjectSeralizerIntegrationTest extends LuceneIntegrationTest 
   @Test
   public void queryOnNotIndexedContactAddressFieldShouldReturnNothing()
       throws InterruptedException, LuceneQueryException {
-    Region region = createRegionAndIndexOnInvalidFields();
+    var region = createRegionAndIndexOnInvalidFields();
     feedSomeNestedObjects(region);
 
     query = luceneService.createLuceneQueryFactory().create(INDEX_NAME, REGION_NAME, "97006",
@@ -416,7 +416,7 @@ public class NestedObjectSeralizerIntegrationTest extends LuceneIntegrationTest 
   @Test
   public void queryOnNotIndexedThreeLayerFieldShouldReturnNothing()
       throws InterruptedException, LuceneQueryException {
-    Region region = createRegionAndIndexOnInvalidFields();
+    var region = createRegionAndIndexOnInvalidFields();
     feedSomeNestedObjects(region);
 
     query = luceneService.createLuceneQueryFactory().create(INDEX_NAME, REGION_NAME,
@@ -428,7 +428,7 @@ public class NestedObjectSeralizerIntegrationTest extends LuceneIntegrationTest 
   @Test
   public void queryOnNotExistSecondLevelFieldShouldReturnNothing()
       throws InterruptedException, LuceneQueryException {
-    Region region = createRegionAndIndexOnInvalidFields();
+    var region = createRegionAndIndexOnInvalidFields();
     feedSomeNestedObjects(region);
 
     query = luceneService.createLuceneQueryFactory().create(INDEX_NAME, REGION_NAME, "*",
@@ -440,7 +440,7 @@ public class NestedObjectSeralizerIntegrationTest extends LuceneIntegrationTest 
   @Test
   public void queryOnNotExistTopLevelFieldShouldReturnNothing()
       throws InterruptedException, LuceneQueryException {
-    Region region = createRegionAndIndexOnInvalidFields();
+    var region = createRegionAndIndexOnInvalidFields();
     feedSomeNestedObjects(region);
 
     query =
@@ -467,15 +467,15 @@ public class NestedObjectSeralizerIntegrationTest extends LuceneIntegrationTest 
         .addField("position1.country").addField("position1.secId").addField("positions.secId")
         .addField("positions.country").create(INDEX_NAME, REGION_NAME);
 
-    Region region = createRegion(REGION_NAME, RegionShortcut.PARTITION);
+    var region = createRegion(REGION_NAME, RegionShortcut.PARTITION);
     return region;
   }
 
   protected void feedSomePdxObjects(Region region) throws InterruptedException {
     SimplePortfolioPdx.resetCounter();
     SimplePositionPdx.resetCounter();
-    for (int i = 1; i < 10; i++) {
-      SimplePortfolioPdx pdx = new SimplePortfolioPdx(i);
+    for (var i = 1; i < 10; i++) {
+      var pdx = new SimplePortfolioPdx(i);
       region.put("object-" + i, pdx);
     }
 
@@ -485,7 +485,7 @@ public class NestedObjectSeralizerIntegrationTest extends LuceneIntegrationTest 
 
   @Test
   public void queryOnTopLevelPdxField() throws InterruptedException, LuceneQueryException {
-    Region region = createRegionAndIndexForPdxObject();
+    var region = createRegionAndIndexForPdxObject();
     feedSomePdxObjects(region);
 
     query = luceneService.createLuceneQueryFactory().create(INDEX_NAME, REGION_NAME, "active",
@@ -498,7 +498,7 @@ public class NestedObjectSeralizerIntegrationTest extends LuceneIntegrationTest 
 
   @Test
   public void queryOnTopLevelPdxArrayField() throws InterruptedException, LuceneQueryException {
-    Region region = createRegionAndIndexForPdxObject();
+    var region = createRegionAndIndexForPdxObject();
     feedSomePdxObjects(region);
 
     query = luceneService.createLuceneQueryFactory().create(INDEX_NAME, REGION_NAME, "bbb AND ccc",
@@ -512,7 +512,7 @@ public class NestedObjectSeralizerIntegrationTest extends LuceneIntegrationTest 
   @Test
   public void queryOnSecondLevelPdxCollectionField()
       throws InterruptedException, LuceneQueryException {
-    Region region = createRegionAndIndexForPdxObject();
+    var region = createRegionAndIndexForPdxObject();
     feedSomePdxObjects(region);
 
     query = luceneService.createLuceneQueryFactory().create(INDEX_NAME, REGION_NAME, "NOVL",
@@ -524,7 +524,7 @@ public class NestedObjectSeralizerIntegrationTest extends LuceneIntegrationTest 
 
   @Test
   public void queryOnSecondLevelPdxField() throws InterruptedException, LuceneQueryException {
-    Region region = createRegionAndIndexForPdxObject();
+    var region = createRegionAndIndexForPdxObject();
     feedSomePdxObjects(region);
 
     query = luceneService.createLuceneQueryFactory().create(INDEX_NAME, REGION_NAME, "DELL",
@@ -538,9 +538,9 @@ public class NestedObjectSeralizerIntegrationTest extends LuceneIntegrationTest 
   public void insertAndQueryJSONObject() throws InterruptedException, LuceneQueryException {
     SimplePortfolioPdx.resetCounter();
     SimplePositionPdx.resetCounter();
-    Region region = createRegionAndIndexForPdxObject();
+    var region = createRegionAndIndexForPdxObject();
 
-    String jsonCustomer = "{" + "\"ID\" : 3," + "\"position1\" : {" + "\"country\" : \"USA\","
+    var jsonCustomer = "{" + "\"ID\" : 3," + "\"position1\" : {" + "\"country\" : \"USA\","
         + "\"secId\" : \"DELL\"," + "\"sharesOutstanding\" : 9000.0," + "\"pid\" : 9,"
         + "\"portfolioId\" : 0" + "}," + "\"positions\" : [ {" + "\"country\" : \"USA\","
         + "\"secId\" : \"NOVL\"," + "\"sharesOutstanding\" : 11000.0," + "\"pid\" : 11,"
@@ -642,7 +642,7 @@ public class NestedObjectSeralizerIntegrationTest extends LuceneIntegrationTest 
       if (!(o instanceof SimplePortfolioPdx)) {
         return false;
       }
-      SimplePortfolioPdx p2 = (SimplePortfolioPdx) o;
+      var p2 = (SimplePortfolioPdx) o;
       return ID == p2.getID();
     }
 
@@ -653,8 +653,8 @@ public class NestedObjectSeralizerIntegrationTest extends LuceneIntegrationTest 
 
 
     public String toString() {
-      String out = "SimplePortfolioPdx [ID=" + ID + " status=" + status + "\n ";
-      for (final Object position : positions) {
+      var out = "SimplePortfolioPdx [ID=" + ID + " status=" + status + "\n ";
+      for (final var position : positions) {
         out += position + ", ";
       }
       out += "\n P1:" + position1;

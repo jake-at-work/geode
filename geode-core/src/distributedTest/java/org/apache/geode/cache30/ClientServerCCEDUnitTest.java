@@ -26,7 +26,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,7 +39,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.AttributesFactory;
-import org.apache.geode.cache.AttributesMutator;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.EntryEvent;
@@ -55,28 +53,22 @@ import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
 import org.apache.geode.distributed.internal.DistributionMessage;
 import org.apache.geode.distributed.internal.DistributionMessageObserver;
 import org.apache.geode.distributed.internal.locks.DLockService;
-import org.apache.geode.distributed.internal.locks.DistributedLockStats;
 import org.apache.geode.internal.AvailablePortHelper;
-import org.apache.geode.internal.cache.CachePerfStats;
 import org.apache.geode.internal.cache.DistributedRegion;
 import org.apache.geode.internal.cache.DistributedTombstoneOperation.TombstoneMessage;
 import org.apache.geode.internal.cache.EntryEventImpl;
 import org.apache.geode.internal.cache.EventID;
 import org.apache.geode.internal.cache.KeyInfo;
 import org.apache.geode.internal.cache.LocalRegion;
-import org.apache.geode.internal.cache.RegionMap;
 import org.apache.geode.internal.cache.Token;
 import org.apache.geode.internal.cache.entries.AbstractRegionEntry;
 import org.apache.geode.internal.cache.ha.HARegionQueue;
 import org.apache.geode.internal.cache.partitioned.PRTombstoneMessage;
-import org.apache.geode.internal.cache.tier.sockets.CacheClientNotifier;
-import org.apache.geode.internal.cache.tier.sockets.CacheClientProxy;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
 import org.apache.geode.test.dunit.Assert;
 import org.apache.geode.test.dunit.AsyncInvocation;
@@ -126,25 +118,25 @@ public class ClientServerCCEDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testClientEventsAreNotConflatedByGlobalRegionOnServer() throws Exception {
-    VM[] serverVMs = new VM[] {Host.getHost(0).getVM(0), Host.getHost(0).getVM(1)};
-    VM[] clientVMs = new VM[] {Host.getHost(0).getVM(2), Host.getHost(0).getVM(3)};
-    final String name = getUniqueName() + "Region";
+    var serverVMs = new VM[] {Host.getHost(0).getVM(0), Host.getHost(0).getVM(1)};
+    var clientVMs = new VM[] {Host.getHost(0).getVM(2), Host.getHost(0).getVM(3)};
+    final var name = getUniqueName() + "Region";
 
-    int[] serverPorts = new int[] {createServerRegion(serverVMs[0], name, true, Scope.GLOBAL),
+    var serverPorts = new int[] {createServerRegion(serverVMs[0], name, true, Scope.GLOBAL),
         createServerRegion(serverVMs[1], name, true, Scope.GLOBAL)};
 
-    for (int i = 0; i < clientVMs.length; i++) {
+    for (var i = 0; i < clientVMs.length; i++) {
       createClientRegion(clientVMs[i], name, serverPorts[i], false,
           ClientRegionShortcut.CACHING_PROXY, false);
     }
 
     getBlackboard().initBlackboard();
 
-    final int numIterations = 500;
+    final var numIterations = 500;
 
-    AsyncInvocation[] asyncInvocations = new AsyncInvocation[clientVMs.length];
-    for (int i = 0; i < clientVMs.length; i++) {
-      final String clientGateName = "client" + i + "Ready";
+    var asyncInvocations = new AsyncInvocation[clientVMs.length];
+    for (var i = 0; i < clientVMs.length; i++) {
+      final var clientGateName = "client" + i + "Ready";
       asyncInvocations[i] = clientVMs[i].invokeAsync("doOps Thread", () -> {
         doOps(name, numIterations, clientGateName);
       });
@@ -153,11 +145,11 @@ public class ClientServerCCEDUnitTest extends JUnit4CacheTestCase {
 
     getBlackboard().signalGate("proceed");
 
-    for (final AsyncInvocation asyncInvocation : asyncInvocations) {
+    for (final var asyncInvocation : asyncInvocations) {
       asyncInvocation.join();
     }
 
-    for (final VM serverVM : serverVMs) {
+    for (final var serverVM : serverVMs) {
       serverVM.invoke("verify thread", () -> {
         verifyServerState(name, numIterations);
       });
@@ -166,17 +158,17 @@ public class ClientServerCCEDUnitTest extends JUnit4CacheTestCase {
 
   private void verifyServerState(String name, int numIterations) {
     Cache cache = getCache();
-    DistributedRegion region = (DistributedRegion) cache.getRegion(name);
-    CachePerfStats stats = region.getCachePerfStats();
+    var region = (DistributedRegion) cache.getRegion(name);
+    var stats = region.getCachePerfStats();
     assertEquals(0, stats.getConflatedEventsCount());
 
-    DLockService dLockService = (DLockService) region.getLockService();
-    DistributedLockStats distributedLockStats = dLockService.getStats();
+    var dLockService = (DLockService) region.getLockService();
+    var distributedLockStats = dLockService.getStats();
     assertEquals(numIterations, distributedLockStats.getLockReleasesCompleted());
   }
 
   private void doOps(String name, int numIterations, String clientGateName) {
-    ClientCache cache = (ClientCache) getCache();
+    var cache = (ClientCache) getCache();
     Region region = cache.getRegion(name);
     getBlackboard().signalGate(clientGateName);
     try {
@@ -184,10 +176,10 @@ public class ClientServerCCEDUnitTest extends JUnit4CacheTestCase {
     } catch (TimeoutException | InterruptedException e) {
       throw new RuntimeException("failed to start", e);
     }
-    String key = "lockingKey";
-    String value = "lockingValue";
-    for (int j = 0; j < numIterations; j++) {
-      int operation = j % 5;
+    var key = "lockingKey";
+    var value = "lockingValue";
+    for (var j = 0; j < numIterations; j++) {
+      var operation = j % 5;
       switch (operation) {
         case 0:
           region.remove(key);
@@ -217,20 +209,20 @@ public class ClientServerCCEDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testClientDoesNotExpireEntryPrematurely() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    final String name = getUniqueName() + "Region";
-    final String key = "testKey";
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    final var name = getUniqueName() + "Region";
+    final var key = "testKey";
 
-    int port = createServerRegion(vm0, name, true);
+    var port = createServerRegion(vm0, name, true);
 
     vm0.invoke(new SerializableCallable("create old entry") {
       @Override
       public Object call() throws Exception {
-        LocalRegion r = (LocalRegion) basicGetCache().getRegion(name);
+        var r = (LocalRegion) basicGetCache().getRegion(name);
         r.put(key, "value");
-        AbstractRegionEntry entry = (AbstractRegionEntry) r.basicGetEntry(key);
+        var entry = (AbstractRegionEntry) r.basicGetEntry(key);
         // set an old timestamp in the entry - thirty minutes ago
         entry.getVersionStamp().setVersionTimeStamp(System.currentTimeMillis() - 1800000L);
         return null;
@@ -242,11 +234,11 @@ public class ClientServerCCEDUnitTest extends JUnit4CacheTestCase {
     vm1.invoke(new SerializableCallable("fetch entry and validate") {
       @Override
       public Object call() throws Exception {
-        final Long[] expirationTimeMillis = new Long[1];
-        int expirationSeconds = 1;
+        final var expirationTimeMillis = new Long[1];
+        var expirationSeconds = 1;
 
-        LocalRegion r = (LocalRegion) basicGetCache().getRegion(name);
-        AttributesMutator mutator = r.getAttributesMutator();
+        var r = (LocalRegion) basicGetCache().getRegion(name);
+        var mutator = r.getAttributesMutator();
         mutator.setEntryIdleTimeout(
             new ExpirationAttributes(expirationSeconds, ExpirationAction.LOCAL_DESTROY));
         mutator.addCacheListener(new CacheListenerAdapter() {
@@ -256,7 +248,7 @@ public class ClientServerCCEDUnitTest extends JUnit4CacheTestCase {
           }
         });
 
-        final long expirationTime = System.currentTimeMillis() + (expirationSeconds * 1000);
+        final var expirationTime = System.currentTimeMillis() + (expirationSeconds * 1000);
         // Set the expiration time on the client entry.
         r.get(key);
 
@@ -299,12 +291,12 @@ public class ClientServerCCEDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testPutAllInNonCCEClient() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    final String name = getUniqueName() + "Region";
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    final var name = getUniqueName() + "Region";
 
-    int port = createServerRegion(vm0, name, true);
+    var port = createServerRegion(vm0, name, true);
     createClientRegion(vm1, name, port, false, ClientRegionShortcut.CACHING_PROXY);
     doPutAllInClient(vm1);
   }
@@ -316,16 +308,16 @@ public class ClientServerCCEDUnitTest extends JUnit4CacheTestCase {
    * @param replicatedRegion whether to use a RR or PR in the servers
    */
   private void clientServerTombstoneGCTest(String uniqueName, boolean replicatedRegion) {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
-    final String name = uniqueName + "Region";
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
+    final var name = uniqueName + "Region";
 
 
     createServerRegion(vm0, name, replicatedRegion);
-    int port = createServerRegion(vm1, name, replicatedRegion);
+    var port = createServerRegion(vm1, name, replicatedRegion);
     createClientRegion(vm2, name, port, true, ClientRegionShortcut.CACHING_PROXY);
     createClientRegion(vm3, name, port, true, ClientRegionShortcut.CACHING_PROXY);
     createEntries(vm2);
@@ -342,11 +334,11 @@ public class ClientServerCCEDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testTombstoneMessageSentToReplicatesAreNotProcessedInLine() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
-    final String name = "Region";
+    final var name = "Region";
 
     createServerRegion(vm0, name, true);
     createEntries(vm0);
@@ -360,7 +352,7 @@ public class ClientServerCCEDUnitTest extends JUnit4CacheTestCase {
       forceGC(vm0);
 
       vm1.invoke(() -> {
-        PRTombstoneMessageObserver mo =
+        var mo =
             (PRTombstoneMessageObserver) DistributionMessageObserver.getInstance();
         await().until(() -> {
           return mo.tsMessageProcessed >= 1;
@@ -378,13 +370,13 @@ public class ClientServerCCEDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testTombstoneGcMessagesAreOnlySentToPRNodesWithInterestRegistration() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
 
-    final String name = "Region";
+    final var name = "Region";
 
     createServerRegion(vm0, name, false);
     // Create all the buckets on this vm.
@@ -392,7 +384,7 @@ public class ClientServerCCEDUnitTest extends JUnit4CacheTestCase {
 
     createServerRegion(vm1, name, false);
 
-    int port = createServerRegion(vm2, name, false);
+    var port = createServerRegion(vm2, name, false);
 
     // Create client and register interest on one server.
     createClientRegion(vm3, name, port, true, ClientRegionShortcut.CACHING_PROXY);
@@ -410,7 +402,7 @@ public class ClientServerCCEDUnitTest extends JUnit4CacheTestCase {
 
       // vm2 should receive tombstone GC messages
       vm2.invoke(() -> {
-        PRTombstoneMessageObserver mo =
+        var mo =
             (PRTombstoneMessageObserver) DistributionMessageObserver.getInstance();
         // Should receive tombstone message for each bucket.
         await().until(() -> {
@@ -421,7 +413,7 @@ public class ClientServerCCEDUnitTest extends JUnit4CacheTestCase {
 
       // Since there is no interest registered, vm1 should not receive any tombstone GC messages
       vm1.invoke(() -> {
-        PRTombstoneMessageObserver mo =
+        var mo =
             (PRTombstoneMessageObserver) DistributionMessageObserver.getInstance();
         assertEquals("Tombstone GC message is not expected.", 0, mo.prTsMessageProcessed);
       });
@@ -472,15 +464,15 @@ public class ClientServerCCEDUnitTest extends JUnit4CacheTestCase {
    * test that clients receive tombstones in register-interest results
    */
   private void clientRIGetsTombstoneTest(String uniqueName, boolean replicatedRegion) {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    final String name = uniqueName + "Region";
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    final var name = uniqueName + "Region";
 
 
     createServerRegion(vm0, name, replicatedRegion);
-    int port = createServerRegion(vm1, name, replicatedRegion);
+    var port = createServerRegion(vm1, name, replicatedRegion);
     createEntries(vm0);
     destroyEntries(vm0);
 
@@ -501,7 +493,7 @@ public class ClientServerCCEDUnitTest extends JUnit4CacheTestCase {
         .info("***************** clear cache and register interest on four keys");
     clearLocalCache(vm2);
     keys = new ArrayList(4);
-    for (int i = 0; i < 4; i++) {
+    for (var i = 0; i < 4; i++) {
       keys.add("Object" + i);
     }
     registerInterest(vm2, keys);
@@ -530,15 +522,15 @@ public class ClientServerCCEDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void clientRIGetsInvalidEntriesTest(String uniqueName, boolean replicatedRegion) {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    final String name = uniqueName + "Region";
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    final var name = uniqueName + "Region";
 
 
     createServerRegion(vm0, name, replicatedRegion);
-    int port = createServerRegion(vm1, name, replicatedRegion);
+    var port = createServerRegion(vm1, name, replicatedRegion);
     createEntries(vm0);
     invalidateEntries(vm0);
 
@@ -559,7 +551,7 @@ public class ClientServerCCEDUnitTest extends JUnit4CacheTestCase {
         .info("***************** clear cache and register interest on four keys");
     clearLocalCache(vm2);
     keys = new ArrayList(4);
-    for (int i = 0; i < 4; i++) {
+    for (var i = 0; i < 4; i++) {
       keys.add("Object" + i);
     }
     registerInterest(vm2, keys);
@@ -589,23 +581,22 @@ public class ClientServerCCEDUnitTest extends JUnit4CacheTestCase {
 
   private void clientInvalidateAfterDestroyLeavesInvalidEntryTest(String uniqueName,
       boolean useReplicateRegion) {
-    Host host = Host.getHost(0);
-    VM serverVM = host.getVM(0);
-    VM clientVM = host.getVM(1);
-    final String name = uniqueName + "Region";
+    var host = Host.getHost(0);
+    var serverVM = host.getVM(0);
+    var clientVM = host.getVM(1);
+    final var name = uniqueName + "Region";
 
-
-    int port = createServerRegion(serverVM, name, useReplicateRegion);
+    var port = createServerRegion(serverVM, name, useReplicateRegion);
 
     createClientRegion(clientVM, name, port, true, ClientRegionShortcut.CACHING_PROXY, false);
-    final String key = "Object0";
+    final var key = "Object0";
 
     // use the client cache to create and destroy an entry
     clientVM.invoke(() -> {
       TestRegion.put(key, "some value"); // v1
       TestRegion.destroy(key); // v2
-      RegionMap map = TestRegion.getRegionMap();
-      AbstractRegionEntry regionEntry = (AbstractRegionEntry) map.getEntry(key);
+      var map = TestRegion.getRegionMap();
+      var regionEntry = (AbstractRegionEntry) map.getEntry(key);
       assertEquals(Token.TOMBSTONE, regionEntry.getValueAsToken());
     });
 
@@ -616,10 +607,10 @@ public class ClientServerCCEDUnitTest extends JUnit4CacheTestCase {
 
     // now invalidate the entry in the client cache and show that it holds an INVALID entry
     clientVM.invoke(() -> {
-      RegionMap map = TestRegion.getRegionMap();
-      AbstractRegionEntry regionEntry = (AbstractRegionEntry) map.getEntry(key);
+      var map = TestRegion.getRegionMap();
+      var regionEntry = (AbstractRegionEntry) map.getEntry(key);
 
-      EntryEventImpl invalidateEvent = new EntryEventImpl();
+      var invalidateEvent = new EntryEventImpl();
       invalidateEvent.setRegion(TestRegion);
       invalidateEvent.setKeyInfo(new KeyInfo(key, Token.INVALID, null));
       invalidateEvent.setOperation(Operation.INVALIDATE);
@@ -642,15 +633,15 @@ public class ClientServerCCEDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testClientCacheListenerDoesNotSeeTombstones() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    final String name = getUniqueName() + "Region";
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    final var name = getUniqueName() + "Region";
 
 
     createServerRegion(vm0, name, true);
-    int port = createServerRegion(vm1, name, true);
+    var port = createServerRegion(vm1, name, true);
     createEntries(vm0);
     destroyEntries(vm0);
 
@@ -663,7 +654,7 @@ public class ClientServerCCEDUnitTest extends JUnit4CacheTestCase {
     getAll(vm2);
 
     vm2.invoke(() -> {
-      RecordingCacheListener listener = (RecordingCacheListener) TestRegion.getCacheListener();
+      var listener = (RecordingCacheListener) TestRegion.getCacheListener();
       assertEquals(Collections.emptyList(), listener.events);
     });
   }
@@ -718,7 +709,7 @@ public class ClientServerCCEDUnitTest extends JUnit4CacheTestCase {
     vm.invoke(new SerializableCallable("check all are tombstones") {
       @Override
       public Object call() {
-        for (int i = 0; i < 10; i++) {
+        for (var i = 0; i < 10; i++) {
           assertTrue("expected a tombstone for Object" + i,
               TestRegion.containsTombstone("Object" + i));
         }
@@ -731,7 +722,7 @@ public class ClientServerCCEDUnitTest extends JUnit4CacheTestCase {
     vm.invoke(new SerializableCallable("check tombstones in list") {
       @Override
       public Object call() {
-        for (Object key : keys) {
+        for (var key : keys) {
           assertTrue("expected to find a tombstone for " + key, TestRegion.containsTombstone(key));
         }
         return null;
@@ -743,7 +734,7 @@ public class ClientServerCCEDUnitTest extends JUnit4CacheTestCase {
     vm.invoke(new SerializableCallable("check all are tombstones") {
       @Override
       public Object call() {
-        for (int i = 0; i < 10; i++) {
+        for (var i = 0; i < 10; i++) {
           assertTrue("expected to find an entry for Object" + i,
               TestRegion.containsKey("Object" + i));
           assertTrue("expected to find entry invalid for Object" + i,
@@ -758,7 +749,7 @@ public class ClientServerCCEDUnitTest extends JUnit4CacheTestCase {
     vm.invoke(new SerializableCallable("check tombstones in list") {
       @Override
       public Object call() {
-        for (Object key : keys) {
+        for (var key : keys) {
           assertTrue("expected to find an entry for " + key, TestRegion.containsKey(key));
           assertTrue("expected to find entry invalid for " + key, !TestRegion.containsValue(key));
         }
@@ -773,11 +764,11 @@ public class ClientServerCCEDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run() {
         Set<String> keys = new HashSet();
-        for (int i = 0; i < 10; i++) {
+        for (var i = 0; i < 10; i++) {
           keys.add("Object" + i);
         }
-        Map result = TestRegion.getAll(keys);
-        for (int i = 0; i < 10; i++) {
+        var result = TestRegion.getAll(keys);
+        for (var i = 0; i < 10; i++) {
           assertNull("expected no result for Object" + i, result.get("Object" + i));
         }
       }
@@ -810,16 +801,15 @@ public class ClientServerCCEDUnitTest extends JUnit4CacheTestCase {
    * test that distributed GC messages are properly cleaned out of durable client HA queues
    */
   private void clientServerTombstoneMessageTest(boolean replicatedRegion) {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
-    final String name = getUniqueName() + "Region";
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
+    final var name = getUniqueName() + "Region";
 
-
-    int port1 = createServerRegion(vm0, name, replicatedRegion);
-    int port2 = createServerRegion(vm1, name, replicatedRegion);
+    var port1 = createServerRegion(vm0, name, replicatedRegion);
+    var port2 = createServerRegion(vm1, name, replicatedRegion);
     createDurableClientRegion(vm2, name, port1, port2, true);
     createDurableClientRegion(vm3, name, port1, port2, true);
     createEntries(vm2);
@@ -850,7 +840,7 @@ public class ClientServerCCEDUnitTest extends JUnit4CacheTestCase {
     vm.invoke(new SerializableCallable("create entries") {
       @Override
       public Object call() {
-        for (int i = 0; i < 10; i++) {
+        for (var i = 0; i < 10; i++) {
           TestRegion.create("Object" + i, i);
         }
         return null;
@@ -863,7 +853,7 @@ public class ClientServerCCEDUnitTest extends JUnit4CacheTestCase {
     vm.invoke(new SerializableCallable("destroy entries") {
       @Override
       public Object call() {
-        for (int i = 0; i < 10; i++) {
+        for (var i = 0; i < 10; i++) {
           TestRegion.destroy("Object" + i, i);
         }
         assertEquals(0, TestRegion.size());
@@ -880,12 +870,12 @@ public class ClientServerCCEDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run() {
         Map map = new HashMap();
-        for (int i = 1000; i < 1100; i++) {
+        for (var i = 1000; i < 1100; i++) {
           map.put("object_" + i, i);
         }
         try {
           TestRegion.putAll(map);
-          for (int i = 1000; i < 1100; i++) {
+          for (var i = 1000; i < 1100; i++) {
             assertTrue("expected key object_" + i + " to be in the cache but it isn't",
                 TestRegion.containsKey("object_" + i));
           }
@@ -901,7 +891,7 @@ public class ClientServerCCEDUnitTest extends JUnit4CacheTestCase {
     vm.invoke(new SerializableCallable("invalidate entries") {
       @Override
       public Object call() {
-        for (int i = 0; i < 10; i++) {
+        for (var i = 0; i < 10; i++) {
           TestRegion.invalidate("Object" + i, i);
         }
         assertEquals(10, TestRegion.size());
@@ -925,7 +915,7 @@ public class ClientServerCCEDUnitTest extends JUnit4CacheTestCase {
     vm.invoke(new SerializableCallable("check that GC happened") {
       @Override
       public Object call() throws Exception {
-        WaitCriterion wc = new WaitCriterion() {
+        var wc = new WaitCriterion() {
 
           @Override
           public boolean done() {
@@ -952,18 +942,18 @@ public class ClientServerCCEDUnitTest extends JUnit4CacheTestCase {
 
       @Override
       public Object call() throws Exception {
-        WaitCriterion wc = new WaitCriterion() {
+        var wc = new WaitCriterion() {
           // boolean firstTime = true;
 
           @Override
           public boolean done() {
-            CacheClientNotifier singleton = getInstance();
-            Collection<CacheClientProxy> proxies = singleton.getClientProxies();
+            var singleton = getInstance();
+            var proxies = singleton.getClientProxies();
             // boolean first = firstTime;
             // firstTime = false;
-            for (CacheClientProxy proxy : proxies) {
+            for (var proxy : proxies) {
               if (!proxy.isPrimary()) { // bug #50683 only applies to backup queues
-                int size = proxy.getQueueSize();
+                var size = proxy.getQueueSize();
                 if (size > 0) {
                   // if (first) {
                   // ((LocalRegion)proxy.getHARegion()).dumpBackingMap();
@@ -975,7 +965,7 @@ public class ClientServerCCEDUnitTest extends JUnit4CacheTestCase {
               }
             }
             // also ensure that server regions have been cleaned up
-            int regionEntryCount = TestRegion.getRegionMap().size();
+            var regionEntryCount = TestRegion.getRegionMap().size();
             if (regionEntryCount > 0) {
               getLogWriter()
                   .info("TestRegion has unexpected entries - all should have been GC'd but we have "
@@ -1019,11 +1009,11 @@ public class ClientServerCCEDUnitTest extends JUnit4CacheTestCase {
 
   private int createServerRegion(VM vm, final String regionName, final boolean replicatedRegion,
       Scope regionScope) {
-    SerializableCallable createRegion = new SerializableCallable() {
+    var createRegion = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
         // TombstoneService.VERBOSE = true;
-        AttributesFactory af = new AttributesFactory();
+        var af = new AttributesFactory();
         if (replicatedRegion) {
           af.setScope(regionScope);
           af.setDataPolicy(DataPolicy.REPLICATE);
@@ -1035,8 +1025,8 @@ public class ClientServerCCEDUnitTest extends JUnit4CacheTestCase {
         af.setConcurrencyChecksEnabled(true);
         TestRegion = (LocalRegion) createRootRegion(regionName, af.create());
 
-        CacheServer server = getCache().addCacheServer();
-        int port = AvailablePortHelper.getRandomAvailableTCPPort();
+        var server = getCache().addCacheServer();
+        var port = AvailablePortHelper.getRandomAvailableTCPPort();
         server.setPort(port);
         server.start();
         return port;
@@ -1055,16 +1045,16 @@ public class ClientServerCCEDUnitTest extends JUnit4CacheTestCase {
   private void createClientRegion(final VM vm, final String regionName, final int port,
       final boolean ccEnabled, final ClientRegionShortcut clientRegionShortcut,
       final boolean registerInterest) {
-    SerializableCallable createRegion = new SerializableCallable() {
+    var createRegion = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        ClientCacheFactory cf = new ClientCacheFactory();
+        var cf = new ClientCacheFactory();
         cf.addPoolServer(NetworkUtils.getServerHostName(vm.getHost()), port);
         if (registerInterest) {
           cf.setPoolSubscriptionEnabled(true);
         }
         cf.set(LOG_LEVEL, LogWriterUtils.getDUnitLogLevel());
-        ClientCache cache = getClientCache(cf);
+        var cache = getClientCache(cf);
         ClientRegionFactory crf = cache.createClientRegionFactory(clientRegionShortcut);
         crf.setConcurrencyChecksEnabled(ccEnabled);
         crf.setStatisticsEnabled(true);
@@ -1082,10 +1072,10 @@ public class ClientServerCCEDUnitTest extends JUnit4CacheTestCase {
   // durable attributes. We also need to invoke readyForEvents()
   private void createDurableClientRegion(final VM vm, final String regionName, final int port1,
       final int port2, final boolean ccEnabled) {
-    SerializableCallable createRegion = new SerializableCallable() {
+    var createRegion = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        ClientCacheFactory cf = new ClientCacheFactory();
+        var cf = new ClientCacheFactory();
         cf.addPoolServer(NetworkUtils.getServerHostName(vm.getHost()), port1);
         cf.addPoolServer(NetworkUtils.getServerHostName(vm.getHost()), port2);
         cf.setPoolSubscriptionEnabled(true);
@@ -1094,7 +1084,7 @@ public class ClientServerCCEDUnitTest extends JUnit4CacheTestCase {
         cf.set(DURABLE_CLIENT_ID, "" + vm.getId());
         cf.set(DURABLE_CLIENT_TIMEOUT, "" + 200);
         cf.set(LOG_LEVEL, LogWriterUtils.getDUnitLogLevel());
-        ClientCache cache = getClientCache(cf);
+        var cache = getClientCache(cf);
         ClientRegionFactory crf =
             cache.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY);
         crf.setConcurrencyChecksEnabled(ccEnabled);

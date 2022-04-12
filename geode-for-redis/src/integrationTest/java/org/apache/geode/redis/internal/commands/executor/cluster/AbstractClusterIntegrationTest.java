@@ -50,7 +50,7 @@ public abstract class AbstractClusterIntegrationTest implements RedisIntegration
 
   @Test
   public void testCluster_givenWrongNumberOfArguments() {
-    final Jedis connection = new Jedis(jedis.getConnectionFromSlot(0));
+    final var connection = new Jedis(jedis.getConnectionFromSlot(0));
     assertThatThrownBy(() -> connection.sendCommand(Protocol.Command.CLUSTER))
         .hasMessage(String.format(WRONG_NUMBER_OF_ARGUMENTS_FOR_COMMAND, "cluster"));
     assertThatThrownBy(
@@ -76,7 +76,7 @@ public abstract class AbstractClusterIntegrationTest implements RedisIntegration
 
   @Test
   public void keyslot_ReturnsCorrectSlot() {
-    final Jedis connection = new Jedis(jedis.getConnectionFromSlot(0));
+    final var connection = new Jedis(jedis.getConnectionFromSlot(0));
     assertThat(connection.clusterKeySlot("nohash")).isEqualTo(9072);
     assertThat(connection.clusterKeySlot("with{hash}")).isEqualTo(238);
     assertThat(connection.clusterKeySlot("with{two}{hashes}")).isEqualTo(2127);
@@ -89,8 +89,8 @@ public abstract class AbstractClusterIntegrationTest implements RedisIntegration
     assertThat(connection.clusterKeySlot("bar{hash_tag}")).isEqualTo(2515L);
     assertThat(connection.clusterKeySlot("hash_tag")).isEqualTo(2515L);
 
-    for (int i = 0; i < NUM_KEYS_TO_TEST; i++) {
-      String key = RandomStringUtils.random(i % MAX_KEY_LENGTH + 1);
+    for (var i = 0; i < NUM_KEYS_TO_TEST; i++) {
+      var key = RandomStringUtils.random(i % MAX_KEY_LENGTH + 1);
       assertThat(connection.clusterKeySlot(key))
           .withFailMessage("Failure for key %s", key)
           .isEqualTo(JedisClusterCRC16.getCRC16(key) % (long) REDIS_SLOTS);

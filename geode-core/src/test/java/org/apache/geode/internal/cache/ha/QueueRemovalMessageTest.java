@@ -217,8 +217,8 @@ public class QueueRemovalMessageTest {
   @Test
   public void synchronizeQueueWithPrimaryInvokedAfterProcessEachRegionQueue() {
     addToMessagesList();
-    Iterator<Object> iterator = messagesList.iterator();
-    InternalDistributedMember sender = mock(InternalDistributedMember.class);
+    var iterator = messagesList.iterator();
+    var sender = mock(InternalDistributedMember.class);
     doReturn(sender).when(queueRemovalMessage).getSender();
 
     queueRemovalMessage.processRegionQueues(cache, iterator);

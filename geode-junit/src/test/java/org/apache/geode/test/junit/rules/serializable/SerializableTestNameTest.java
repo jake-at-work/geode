@@ -20,7 +20,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.Serializable;
-import java.lang.reflect.Field;
 import java.util.Arrays;
 
 import org.apache.commons.lang3.SerializationUtils;
@@ -36,23 +35,23 @@ public class SerializableTestNameTest {
 
   @Test
   public void hasOneFields() throws Exception {
-    Field[] fields = TestName.class.getDeclaredFields();
+    var fields = TestName.class.getDeclaredFields();
     assertThat(fields.length).as("Fields: " + Arrays.asList(fields)).isEqualTo(1);
   }
 
   @Test
   public void fieldNameShouldExist() throws Exception {
-    Field field = TestName.class.getDeclaredField(FIELD_NAME);
+    var field = TestName.class.getDeclaredField(FIELD_NAME);
     assertThat(field.getType()).isEqualTo(String.class);
   }
 
   @Test
   public void fieldsCanBeRead() throws Exception {
-    String name = "foo";
-    Description mockDescription = mock(Description.class);
+    var name = "foo";
+    var mockDescription = mock(Description.class);
     when(mockDescription.getMethodName()).thenReturn(name);
 
-    SerializableTestName instance = new SerializableTestName();
+    var instance = new SerializableTestName();
     instance.starting(mockDescription);
 
     assertThat(instance.getMethodName()).isEqualTo(name);
@@ -65,16 +64,16 @@ public class SerializableTestNameTest {
 
   @Test
   public void canBeSerialized() throws Exception {
-    String name = "bar";
-    Description mockDescription = mock(Description.class);
+    var name = "bar";
+    var mockDescription = mock(Description.class);
     when(mockDescription.getMethodName()).thenReturn(name);
 
-    SerializableTestName instance = new SerializableTestName();
+    var instance = new SerializableTestName();
     instance.starting(mockDescription);
 
     assertThat(instance.getMethodName()).isEqualTo(name);
 
-    SerializableTestName cloned = SerializationUtils.clone(instance);
+    var cloned = SerializationUtils.clone(instance);
 
     assertThat(cloned.getMethodName()).isEqualTo(name);
   }

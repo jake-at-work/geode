@@ -29,8 +29,8 @@ public class PdxToJSONTest {
 
   @Test
   public void testWriteValueAsJsonException() throws IOException {
-    PdxToJSON p2j = new PdxToJSON(mock(PdxInstance.class));
-    Date value = new Date();
+    var p2j = new PdxToJSON(mock(PdxInstance.class));
+    var value = new Date();
     assertThatThrownBy(
         () -> p2j.writeValue(mock(JsonGenerator.class), value, "myDate"))
             .isInstanceOf(IllegalStateException.class)
@@ -40,15 +40,15 @@ public class PdxToJSONTest {
 
   @Test
   public void testGetJSONStringFromArray() throws IOException {
-    PdxToJSON p2j = new PdxToJSON(mock(PdxInstance.class));
-    Date value = new Date();
+    var p2j = new PdxToJSON(mock(PdxInstance.class));
+    var value = new Date();
     assertThatThrownBy(
         () -> p2j.getJSONStringFromArray(mock(JsonGenerator.class), value, "myDate"))
             .isInstanceOf(IllegalStateException.class)
             .hasMessage("Expected an array for pdx field myDate, but got an object of type "
                 + value.getClass());
 
-    Date[] values = new Date[2];
+    var values = new Date[2];
     assertThatThrownBy(
         () -> p2j.getJSONStringFromArray(mock(JsonGenerator.class), values, "myDates"))
             .isInstanceOf(IllegalStateException.class)

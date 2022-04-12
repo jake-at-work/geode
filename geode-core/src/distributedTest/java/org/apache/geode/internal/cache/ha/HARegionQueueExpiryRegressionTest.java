@@ -42,7 +42,6 @@ import org.apache.geode.cache.CacheListener;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.Scope;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.internal.lang.SystemProperty;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.cache.CacheTestCase;
@@ -133,13 +132,13 @@ public class HARegionQueueExpiryRegressionTest extends CacheTestCase {
         String.valueOf(1));
     System.setProperty("slowStartTimeForTesting", String.valueOf(DISPATCHER_SLOWSTART_TIME));
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.REPLICATE);
 
     getCache().createRegion(uniqueName, factory.create());
 
-    CacheServer server = getCache().addCacheServer();
+    var server = getCache().addCacheServer();
     server.setPort(0);
     server.setNotifyBySubscription(true);
     server.start();
@@ -147,7 +146,7 @@ public class HARegionQueueExpiryRegressionTest extends CacheTestCase {
   }
 
   private void createClientCache() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(MCAST_PORT, "0");
     config.setProperty(LOCATORS, "");
 
@@ -155,13 +154,13 @@ public class HARegionQueueExpiryRegressionTest extends CacheTestCase {
 
     spyCacheListener = spy(CacheListener.class);
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.addCacheListener(spyCacheListener);
     factory.setScope(Scope.DISTRIBUTED_ACK);
 
     configureConnectionPool(factory, hostName, serverPort, -1, true, -1, 2, null);
 
-    Region region = getCache().createRegion(uniqueName, factory.create());
+    var region = getCache().createRegion(uniqueName, factory.create());
 
     region.registerInterest("ALL_KEYS");
   }
@@ -177,7 +176,7 @@ public class HARegionQueueExpiryRegressionTest extends CacheTestCase {
    */
   private void generateEvents() throws InterruptedException {
     Region<String, String> region = getCache().getRegion(uniqueName);
-    for (int i = 0; i < PUT_COUNT - 1; i++) {
+    for (var i = 0; i < PUT_COUNT - 1; i++) {
       region.put("key" + i, "val-" + i);
     }
 

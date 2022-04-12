@@ -48,9 +48,9 @@ public class GeodeConnectionConfigTest {
 
   @BeforeClass
   public static void beforeClass() throws Exception {
-    File keyFile = new File(ClientClusterManagementSSLTest.class.getClassLoader()
+    var keyFile = new File(ClientClusterManagementSSLTest.class.getClassLoader()
         .getResource("ssl/trusted.keystore").getFile());
-    Properties sslProps = new Properties();
+    var sslProps = new Properties();
     sslProps.setProperty(SSL_KEYSTORE, keyFile.getCanonicalPath());
     sslProps.setProperty(SSL_TRUSTSTORE, keyFile.getCanonicalPath());
     sslProps.setProperty(SSL_KEYSTORE_PASSWORD, "password");
@@ -60,7 +60,7 @@ public class GeodeConnectionConfigTest {
     locator = cluster.startLocatorVM(0, l -> l.withHttpService().withProperties(sslProps)
         .withSecurityManager(SimpleSecurityManager.class));
 
-    int locatorPort = locator.getPort();
+    var locatorPort = locator.getPort();
     server = cluster.startServerVM(1, s -> s.withConnectionToLocator(locatorPort)
         .withProperties(sslProps)
         .withCredential("cluster", "cluster"));
@@ -72,7 +72,7 @@ public class GeodeConnectionConfigTest {
 
   @Test
   public void connectionConfigPopulatesCorrectlyFromInternalCache() {
-    int port = locator.getHttpPort();
+    var port = locator.getHttpPort();
     server.invoke(() -> {
       ConnectionConfig connectionConfig =
           new GeodeConnectionConfig(ClusterStartupRule.getCache());
@@ -88,7 +88,7 @@ public class GeodeConnectionConfigTest {
 
   @Test
   public void invokeFromClientCacheWithLocatorPool() {
-    int port = locator.getHttpPort();
+    var port = locator.getHttpPort();
     client.invoke(() -> {
       ConnectionConfig connectionConfig =
           new GeodeConnectionConfig(ClusterStartupRule.getClientCache());

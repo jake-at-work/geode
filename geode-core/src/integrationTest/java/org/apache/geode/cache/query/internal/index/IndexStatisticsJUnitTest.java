@@ -28,15 +28,12 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.Index;
-import org.apache.geode.cache.query.IndexStatistics;
 import org.apache.geode.cache.query.IndexType;
-import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.data.Numbers;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.cache.query.data.Position;
-import org.apache.geode.cache.query.internal.QueryObserver;
 import org.apache.geode.cache.query.internal.QueryObserverAdapter;
 import org.apache.geode.cache.query.internal.QueryObserverHolder;
 import org.apache.geode.test.junit.categories.OQLIndexTest;
@@ -58,7 +55,7 @@ public class IndexStatisticsJUnitTest {
       region = CacheUtils.createRegion("portfolio", Portfolio.class);
       Position.cnt = 0;
       if (region.size() == 0) {
-        for (int i = 0; i < 100; i++) {
+        for (var i = 0; i < 100; i++) {
           region.put(Integer.toString(i), new Portfolio(i, i));
         }
       }
@@ -90,14 +87,14 @@ public class IndexStatisticsJUnitTest {
 
     assertTrue(keyIndex1 instanceof RangeIndex);
 
-    IndexStatistics keyIndex1Stats = keyIndex1.getStatistics();
+    var keyIndex1Stats = keyIndex1.getStatistics();
 
     // Initial stats test (keys, values & updates)
     assertEquals(4, keyIndex1Stats.getNumberOfKeys());
     assertEquals(200, keyIndex1Stats.getNumberOfValues());
     assertEquals(200, keyIndex1Stats.getNumUpdates());
 
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       region.put(Integer.toString(i), new Portfolio(i, i));
     }
 
@@ -106,11 +103,11 @@ public class IndexStatisticsJUnitTest {
     assertEquals(400, keyIndex1Stats.getNumUpdates());
 
     // IndexUsed stats test
-    String queryStr = "select * from " + SEPARATOR
+    var queryStr = "select * from " + SEPARATOR
         + "portfolio p, p.positions.values pos where pos.secId = 'YHOO'";
-    Query query = qs.newQuery(queryStr);
+    var query = qs.newQuery(queryStr);
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       query.execute();
     }
 
@@ -119,7 +116,7 @@ public class IndexStatisticsJUnitTest {
     assertEquals(0, keyIndex1Stats.getReadLockCountLong());
 
     // NumOfValues should be reduced.
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       region.invalidate(Integer.toString(i));
     }
 
@@ -128,7 +125,7 @@ public class IndexStatisticsJUnitTest {
     assertEquals(450, keyIndex1Stats.getNumUpdates());
 
     // Should not have any effect as invalidated values are destroyed
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       region.destroy(Integer.toString(i));
     }
 
@@ -137,7 +134,7 @@ public class IndexStatisticsJUnitTest {
     assertEquals(450, keyIndex1Stats.getNumUpdates());
 
     // NumOfKeys should get zero as all values are destroyed
-    for (int i = 50; i < 100; i++) {
+    for (var i = 50; i < 100; i++) {
       region.destroy(Integer.toString(i));
     }
 
@@ -156,22 +153,22 @@ public class IndexStatisticsJUnitTest {
 
     assertTrue(keyIndex2 instanceof RangeIndex);
 
-    IndexStatistics keyIndex1Stats = keyIndex2.getStatistics();
+    var keyIndex1Stats = keyIndex2.getStatistics();
 
     // Initial stats test (keys, values & updates)
     assertEquals(4, keyIndex1Stats.getNumberOfKeys());
     assertEquals(200, keyIndex1Stats.getNumberOfValues());
     assertEquals(200, keyIndex1Stats.getNumUpdates());
 
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       region.put(Integer.toString(i), new Portfolio(i, i));
     }
 
-    String queryStr = "select * from " + SEPARATOR
+    var queryStr = "select * from " + SEPARATOR
         + "portfolio p, p.positions.values pos where pos.secId = 'YHOO'";
-    Query query = qs.newQuery(queryStr);
+    var query = qs.newQuery(queryStr);
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       query.execute();
     }
 
@@ -187,7 +184,7 @@ public class IndexStatisticsJUnitTest {
     assertEquals(800, keyIndex1Stats.getNumUpdates());
     assertEquals(50, keyIndex1Stats.getTotalUses());
 
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       region.put(Integer.toString(i), new Portfolio(i, i));
     }
 
@@ -195,7 +192,7 @@ public class IndexStatisticsJUnitTest {
     assertEquals(200, keyIndex1Stats.getNumberOfValues());
     assertEquals(1000, keyIndex1Stats.getNumUpdates());
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       query.execute();
     }
 
@@ -217,14 +214,14 @@ public class IndexStatisticsJUnitTest {
 
     assertTrue(keyIndex2 instanceof CompactRangeIndex);
 
-    IndexStatistics keyIndex1Stats = keyIndex2.getStatistics();
+    var keyIndex1Stats = keyIndex2.getStatistics();
 
     // Initial stats test (keys, values & updates)
     assertEquals(100, keyIndex1Stats.getNumberOfKeys());
     assertEquals(100, keyIndex1Stats.getNumberOfValues());
     assertEquals(100, keyIndex1Stats.getNumUpdates());
 
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       region.put(Integer.toString(i), new Portfolio(i, i));
     }
 
@@ -233,10 +230,10 @@ public class IndexStatisticsJUnitTest {
     assertEquals(200, keyIndex1Stats.getNumUpdates());
 
     // IndexUsed stats test
-    String queryStr = "select * from " + SEPARATOR + "portfolio where ID > 0";
-    Query query = qs.newQuery(queryStr);
+    var queryStr = "select * from " + SEPARATOR + "portfolio where ID > 0";
+    var query = qs.newQuery(queryStr);
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       query.execute();
     }
 
@@ -245,7 +242,7 @@ public class IndexStatisticsJUnitTest {
     assertEquals(50, keyIndex1Stats.getTotalUses());
 
     // NumOfValues should be reduced.
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       region.invalidate(Integer.toString(i));
     }
 
@@ -253,7 +250,7 @@ public class IndexStatisticsJUnitTest {
     assertEquals(50, keyIndex1Stats.getNumberOfValues());
     assertEquals(250, keyIndex1Stats.getNumUpdates());
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       region.destroy(Integer.toString(i));
     }
 
@@ -262,7 +259,7 @@ public class IndexStatisticsJUnitTest {
     assertEquals(250, keyIndex1Stats.getNumUpdates());
 
     // NumOfKeys should get zero as all values are destroyed
-    for (int i = 50; i < 100; i++) {
+    for (var i = 50; i < 100; i++) {
       region.destroy(Integer.toString(i));
     }
 
@@ -282,21 +279,21 @@ public class IndexStatisticsJUnitTest {
 
     assertTrue(keyIndex2 instanceof CompactRangeIndex);
 
-    IndexStatistics keyIndex1Stats = keyIndex2.getStatistics();
+    var keyIndex1Stats = keyIndex2.getStatistics();
 
     // Initial stats test (keys, values & updates)
     assertEquals(100, keyIndex1Stats.getNumberOfKeys());
     assertEquals(100, keyIndex1Stats.getNumberOfValues());
     assertEquals(100, keyIndex1Stats.getNumUpdates());
 
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       region.put(Integer.toString(i), new Portfolio(i, i));
     }
 
-    String queryStr = "select * from " + SEPARATOR + "portfolio where ID > 0";
-    Query query = qs.newQuery(queryStr);
+    var queryStr = "select * from " + SEPARATOR + "portfolio where ID > 0";
+    var query = qs.newQuery(queryStr);
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       query.execute();
     }
 
@@ -312,7 +309,7 @@ public class IndexStatisticsJUnitTest {
     assertEquals(400, keyIndex1Stats.getNumUpdates());
     assertEquals(50, keyIndex1Stats.getTotalUses());
 
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       region.put(Integer.toString(i), new Portfolio(i, i));
     }
 
@@ -320,7 +317,7 @@ public class IndexStatisticsJUnitTest {
     assertEquals(100, keyIndex1Stats.getNumberOfValues());
     assertEquals(500, keyIndex1Stats.getNumUpdates());
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       query.execute();
     }
 
@@ -339,19 +336,19 @@ public class IndexStatisticsJUnitTest {
         "positions['DELL', 'YHOO']", SEPARATOR + "portfolio p");
     assertTrue(keyIndex3 instanceof CompactMapRangeIndex);
 
-    Object[] indexes =
+    var indexes =
         ((CompactMapRangeIndex) keyIndex3).getRangeIndexHolderForTesting().values().toArray();
     assertTrue(indexes[0] instanceof CompactRangeIndex);
     assertTrue(indexes[1] instanceof CompactRangeIndex);
 
-    IndexStatistics keyIndexStats = keyIndex3.getStatistics();
+    var keyIndexStats = keyIndex3.getStatistics();
 
     assertEquals(2, keyIndexStats.getNumberOfMapIndexKeys());
     assertEquals(100, keyIndexStats.getNumberOfKeys());
     assertEquals(200, keyIndexStats.getNumberOfValues());
     assertEquals(200, keyIndexStats.getNumUpdates());
 
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       region.put(Integer.toString(i), new Portfolio(i, i));
     }
 
@@ -360,12 +357,12 @@ public class IndexStatisticsJUnitTest {
     assertEquals(200, keyIndexStats.getNumberOfValues());
     assertEquals(400, keyIndexStats.getNumUpdates());
 
-    String queryStr =
+    var queryStr =
         "select * from " + SEPARATOR
             + "portfolio where positions['DELL'] != NULL OR positions['YHOO'] != NULL";
-    Query query = qs.newQuery(queryStr);
+    var query = qs.newQuery(queryStr);
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       query.execute();
     }
 
@@ -374,7 +371,7 @@ public class IndexStatisticsJUnitTest {
 
     assertEquals(100, keyIndexStats.getTotalUses());
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       region.invalidate(Integer.toString(i));
     }
 
@@ -383,7 +380,7 @@ public class IndexStatisticsJUnitTest {
     assertEquals(100, keyIndexStats.getNumberOfValues());
     assertEquals(500, keyIndexStats.getNumUpdates());
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       region.destroy(Integer.toString(i));
     }
 
@@ -392,7 +389,7 @@ public class IndexStatisticsJUnitTest {
     assertEquals(100, keyIndexStats.getNumberOfValues());
     assertEquals(500, keyIndexStats.getNumUpdates());
 
-    for (int i = 50; i < 100; i++) {
+    for (var i = 50; i < 100; i++) {
       region.destroy(Integer.toString(i));
     }
 
@@ -417,12 +414,12 @@ public class IndexStatisticsJUnitTest {
 
     assertTrue(keyIndex3 instanceof MapRangeIndex);
 
-    Object[] indexes =
+    var indexes =
         ((MapRangeIndex) keyIndex3).getRangeIndexHolderForTesting().values().toArray();
     assertTrue(indexes[0] instanceof RangeIndex);
     assertTrue(indexes[1] instanceof RangeIndex);
 
-    IndexStatistics mapIndexStats = keyIndex3.getStatistics();
+    var mapIndexStats = keyIndex3.getStatistics();
 
     assertEquals(2, mapIndexStats.getNumberOfMapIndexKeys());
     assertEquals(100, mapIndexStats.getNumberOfKeys());
@@ -431,7 +428,7 @@ public class IndexStatisticsJUnitTest {
 
 
     Position.cnt = 0;
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       region.put(Integer.toString(i), new Portfolio(i, i));
     }
 
@@ -439,12 +436,12 @@ public class IndexStatisticsJUnitTest {
     assertEquals(100, mapIndexStats.getNumberOfKeys());
     assertEquals(200, mapIndexStats.getNumberOfValues());
     assertEquals(400, mapIndexStats.getNumUpdates());
-    String queryStr =
+    var queryStr =
         "select * from " + SEPARATOR
             + "portfolio where positions['DELL'] != NULL OR positions['YHOO'] != NULL";
-    Query query = qs.newQuery(queryStr);
+    var query = qs.newQuery(queryStr);
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       query.execute();
     }
 
@@ -454,7 +451,7 @@ public class IndexStatisticsJUnitTest {
 
     assertEquals(100, mapIndexStats.getTotalUses());
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       region.invalidate(Integer.toString(i));
     }
 
@@ -463,7 +460,7 @@ public class IndexStatisticsJUnitTest {
     assertEquals(100, mapIndexStats.getNumberOfValues());
     assertEquals(600, mapIndexStats.getNumUpdates());
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       region.destroy(Integer.toString(i));
     }
 
@@ -472,7 +469,7 @@ public class IndexStatisticsJUnitTest {
     assertEquals(100, mapIndexStats.getNumberOfValues());
     assertEquals(600, mapIndexStats.getNumUpdates());
 
-    for (int i = 50; i < 100; i++) {
+    for (var i = 50; i < 100; i++) {
       region.destroy(Integer.toString(i));
     }
 
@@ -499,20 +496,20 @@ public class IndexStatisticsJUnitTest {
         SEPARATOR + "portfolio p, p.positions.values pos");
 
     // Recreate all entries in the region
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       region.put(Integer.toString(i), new Portfolio(i, i));
     }
 
     assertTrue(keyIndex1 instanceof RangeIndex);
 
-    IndexStatistics keyIndex1Stats = keyIndex1.getStatistics();
+    var keyIndex1Stats = keyIndex1.getStatistics();
 
     // Initial stats test (keys, values & updates)
     assertEquals(4, keyIndex1Stats.getNumberOfKeys());
     assertEquals(200, keyIndex1Stats.getNumberOfValues());
     assertEquals(200, keyIndex1Stats.getNumUpdates());
 
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       region.put(Integer.toString(i), new Portfolio(i, i));
     }
 
@@ -521,18 +518,18 @@ public class IndexStatisticsJUnitTest {
     assertEquals(400, keyIndex1Stats.getNumUpdates());
 
     // IndexUsed stats test
-    String queryStr = "select * from " + SEPARATOR
+    var queryStr = "select * from " + SEPARATOR
         + "portfolio p, p.positions.values pos where pos.secId = 'YHOO'";
-    Query query = qs.newQuery(queryStr);
+    var query = qs.newQuery(queryStr);
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       query.execute();
     }
 
     assertEquals(50, keyIndex1Stats.getTotalUses());
 
     // NumOfValues should be reduced.
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       region.invalidate(Integer.toString(i));
     }
 
@@ -541,7 +538,7 @@ public class IndexStatisticsJUnitTest {
     assertEquals(450, keyIndex1Stats.getNumUpdates());
 
     // Should not have any effect as invalidated values are destroyed
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       region.destroy(Integer.toString(i));
     }
 
@@ -550,7 +547,7 @@ public class IndexStatisticsJUnitTest {
     assertEquals(450, keyIndex1Stats.getNumUpdates());
 
     // NumOfKeys should get zero as all values are destroyed
-    for (int i = 50; i < 100; i++) {
+    for (var i = 50; i < 100; i++) {
       region.destroy(Integer.toString(i));
     }
 
@@ -577,20 +574,20 @@ public class IndexStatisticsJUnitTest {
             SEPARATOR + "portfolio ");
 
     // Recreate all entries in the region
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       region.put(Integer.toString(i), new Portfolio(i, i));
     }
 
     assertTrue(keyIndex2 instanceof CompactRangeIndex);
 
-    IndexStatistics keyIndex1Stats = keyIndex2.getStatistics();
+    var keyIndex1Stats = keyIndex2.getStatistics();
 
     // Initial stats test (keys, values & updates)
     assertEquals(100, keyIndex1Stats.getNumberOfKeys());
     assertEquals(100, keyIndex1Stats.getNumberOfValues());
     assertEquals(100, keyIndex1Stats.getNumUpdates());
 
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       region.put(Integer.toString(i), new Portfolio(i, i));
     }
 
@@ -599,17 +596,17 @@ public class IndexStatisticsJUnitTest {
     assertEquals(200, keyIndex1Stats.getNumUpdates());
 
     // IndexUsed stats test
-    String queryStr = "select * from " + SEPARATOR + "portfolio where ID > 0";
-    Query query = qs.newQuery(queryStr);
+    var queryStr = "select * from " + SEPARATOR + "portfolio where ID > 0";
+    var query = qs.newQuery(queryStr);
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       query.execute();
     }
 
     assertEquals(50, keyIndex1Stats.getTotalUses());
 
     // NumOfValues should be reduced.
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       region.invalidate(Integer.toString(i));
     }
 
@@ -617,7 +614,7 @@ public class IndexStatisticsJUnitTest {
     assertEquals(50, keyIndex1Stats.getNumberOfValues());
     assertEquals(250, keyIndex1Stats.getNumUpdates());
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       region.destroy(Integer.toString(i));
     }
 
@@ -626,7 +623,7 @@ public class IndexStatisticsJUnitTest {
     assertEquals(250, keyIndex1Stats.getNumUpdates());
 
     // NumOfKeys should get zero as all values are destroyed
-    for (int i = 50; i < 100; i++) {
+    for (var i = 50; i < 100; i++) {
       region.destroy(Integer.toString(i));
     }
 
@@ -651,13 +648,13 @@ public class IndexStatisticsJUnitTest {
 
     keyIndex3 = (IndexProtocol) qs.createIndex("multiKeyIndex6", IndexType.FUNCTIONAL,
         "positions['DELL', 'YHOO']", SEPARATOR + "portfolio");
-    Object[] indexes =
+    var indexes =
         ((MapRangeIndex) keyIndex3).getRangeIndexHolderForTesting().values().toArray();
     assertEquals(indexes.length, 0);
 
     // Recreate all entries in the region
     Position.cnt = 0;
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       region.put(Integer.toString(i), new Portfolio(i, i));
     }
     assertTrue(keyIndex3 instanceof MapRangeIndex);
@@ -665,9 +662,9 @@ public class IndexStatisticsJUnitTest {
     assertTrue(indexes[0] instanceof RangeIndex);
     assertTrue(indexes[1] instanceof RangeIndex);
 
-    IndexStatistics keyIndex1Stats = ((RangeIndex) indexes[0]).getStatistics();
-    IndexStatistics keyIndex2Stats = ((RangeIndex) indexes[1]).getStatistics();
-    IndexStatistics mapIndexStats = keyIndex3.getStatistics();
+    var keyIndex1Stats = ((RangeIndex) indexes[0]).getStatistics();
+    var keyIndex2Stats = ((RangeIndex) indexes[1]).getStatistics();
+    var mapIndexStats = keyIndex3.getStatistics();
 
     assertEquals(100, mapIndexStats.getNumberOfKeys());
     assertEquals(200, mapIndexStats.getNumberOfValues());
@@ -675,7 +672,7 @@ public class IndexStatisticsJUnitTest {
 
 
     Position.cnt = 0;
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       region.put(Integer.toString(i), new Portfolio(i, i));
     }
 
@@ -683,18 +680,18 @@ public class IndexStatisticsJUnitTest {
     assertEquals(200, mapIndexStats.getNumberOfValues());
     assertEquals(400, mapIndexStats.getNumUpdates());
 
-    String queryStr =
+    var queryStr =
         "select * from " + SEPARATOR
             + "portfolio where positions['DELL'] != NULL OR positions['YHOO'] != NULL";
-    Query query = qs.newQuery(queryStr);
+    var query = qs.newQuery(queryStr);
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       query.execute();
     }
 
     assertEquals(100, mapIndexStats.getTotalUses());
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       region.invalidate(Integer.toString(i));
     }
 
@@ -703,7 +700,7 @@ public class IndexStatisticsJUnitTest {
     assertEquals(600, mapIndexStats.getNumUpdates());
 
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       region.destroy(Integer.toString(i));
     }
 
@@ -711,7 +708,7 @@ public class IndexStatisticsJUnitTest {
     assertEquals(100, mapIndexStats.getNumberOfValues());
     assertEquals(600, mapIndexStats.getNumUpdates());
 
-    for (int i = 50; i < 100; i++) {
+    for (var i = 50; i < 100; i++) {
       region.destroy(Integer.toString(i));
     }
 
@@ -725,14 +722,14 @@ public class IndexStatisticsJUnitTest {
 
   @Test
   public void testCompactRangeIndexNumKeysStats() throws Exception {
-    String regionName = "testCompactRegionIndexNumKeysStats_region";
-    Region region = CacheUtils.createRegion(regionName, Numbers.class);
+    var regionName = "testCompactRegionIndexNumKeysStats_region";
+    var region = CacheUtils.createRegion(regionName, Numbers.class);
 
-    Index index = qs.createIndex("idIndexName", "r.max1", SEPARATOR + regionName + " r");
-    IndexStatistics stats = index.getStatistics();
+    var index = qs.createIndex("idIndexName", "r.max1", SEPARATOR + regionName + " r");
+    var stats = index.getStatistics();
 
     // Add an object and check stats
-    Numbers obj1 = new Numbers(1);
+    var obj1 = new Numbers(1);
     obj1.max1 = 20;
     region.put(1, obj1);
     assertEquals(1, stats.getNumberOfValues());
@@ -741,7 +738,7 @@ public class IndexStatisticsJUnitTest {
     assertEquals(1, stats.getNumUpdates());
 
     // add a second object with the same index key
-    Numbers obj2 = new Numbers(1);
+    var obj2 = new Numbers(1);
     obj2.max1 = 20;
     region.put(2, obj2);
     assertEquals(2, stats.getNumberOfValues());
@@ -793,11 +790,11 @@ public class IndexStatisticsJUnitTest {
   }
 
   public void verifyReadLockCountStatsForCompactRangeIndex(boolean isPr) throws Exception {
-    QueryObserverImpl observer = new QueryObserverImpl();
-    QueryObserver old = QueryObserverHolder.setInstance(observer);
+    var observer = new QueryObserverImpl();
+    var old = QueryObserverHolder.setInstance(observer);
 
-    String regionName = "exampleRegion";
-    String name = SEPARATOR + regionName;
+    var regionName = "exampleRegion";
+    var name = SEPARATOR + regionName;
 
     final Cache cache = CacheUtils.getCache();
     Region r1 = null;
@@ -807,18 +804,18 @@ public class IndexStatisticsJUnitTest {
       r1 = cache.createRegionFactory(RegionShortcut.REPLICATE).create(regionName);
     }
 
-    QueryService qs = cache.getQueryService();
-    Index statusIndex = qs.createIndex("status", "status", name);
+    var qs = cache.getQueryService();
+    var statusIndex = qs.createIndex("status", "status", name);
     assertEquals(cache.getQueryService().getIndexes().size(), 1);
 
-    for (int i = 0; i < 3; i++) {
+    for (var i = 0; i < 3; i++) {
       r1.put("key-" + i, new Portfolio(i));
     }
 
-    String query = "select distinct * from " + name + " where status = 'active'";
+    var query = "select distinct * from " + name + " where status = 'active'";
 
-    final Query q = cache.getQueryService().newQuery(query);
-    SelectResults sr = (SelectResults) q.execute();
+    final var q = cache.getQueryService().newQuery(query);
+    var sr = (SelectResults) q.execute();
 
     assertEquals("Read locks should have been taken by the query ", 1, observer.readLockCount);
     assertEquals("Read lock count should have been released by the query ", 0,
@@ -831,28 +828,28 @@ public class IndexStatisticsJUnitTest {
   }
 
   public void verifyReadLockCountStatsForRangeIndex(boolean isPr) throws Exception {
-    QueryObserverImpl observer = new QueryObserverImpl();
-    QueryObserver old = QueryObserverHolder.setInstance(observer);
+    var observer = new QueryObserverImpl();
+    var old = QueryObserverHolder.setInstance(observer);
 
-    String regionName = "exampleRegion";
-    String name = SEPARATOR + regionName;
+    var regionName = "exampleRegion";
+    var name = SEPARATOR + regionName;
 
     final Cache cache = CacheUtils.getCache();
     Region r1 = cache.getRegion(regionName);
 
-    QueryService qs = cache.getQueryService();
-    Index secIdIndex = qs.createIndex("secId", "pos.secId", name + " p, p.positions.values pos");
+    var qs = cache.getQueryService();
+    var secIdIndex = qs.createIndex("secId", "pos.secId", name + " p, p.positions.values pos");
     assertEquals(cache.getQueryService().getIndexes().size(), 1);
 
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       r1.put("key-" + i, new Portfolio(i));
     }
 
-    String query =
+    var query =
         "select distinct * from " + name + " p, p.positions.values pos where pos.secId = 'IBM' ";
 
-    final Query q = cache.getQueryService().newQuery(query);
-    SelectResults sr = (SelectResults) q.execute();
+    final var q = cache.getQueryService().newQuery(query);
+    var sr = (SelectResults) q.execute();
 
     assertEquals("Read locks should have been taken by the query ", 1, observer.readLockCount);
     assertEquals("Read lock count should have been released by the query ", 0,

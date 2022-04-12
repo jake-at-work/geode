@@ -23,7 +23,6 @@ import org.apache.geode.admin.internal.AdminDistributedSystemImpl;
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
 import org.apache.geode.distributed.internal.DistributionMessage;
 import org.apache.geode.distributed.internal.PooledDistributionMessage;
-import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.serialization.DataSerializableFixedID;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
@@ -69,7 +68,7 @@ public class ClientMembershipMessage extends PooledDistributionMessage {
    */
   @Override
   protected void process(ClusterDistributionManager dm) {
-    AdminDistributedSystemImpl adminDs = AdminDistributedSystemImpl.getConnectedInstance();
+    var adminDs = AdminDistributedSystemImpl.getConnectedInstance();
 
     /*
      * Disconnect can be called on AdminDistributedSystem from Agent and it is not synchronous with
@@ -78,7 +77,7 @@ public class ClientMembershipMessage extends PooledDistributionMessage {
      */
     if (adminDs != null) {
       String senderId = null;
-      InternalDistributedMember msgSender = getSender();
+      var msgSender = getSender();
       if (msgSender != null) {
         senderId = msgSender.getId();
       }
@@ -160,7 +159,7 @@ public class ClientMembershipMessage extends PooledDistributionMessage {
    */
   @Override
   public String toString() {
-    String clientMembership = "JOINED";
+    var clientMembership = "JOINED";
 
     switch (eventType) {
       case LEFT:

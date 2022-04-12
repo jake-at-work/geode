@@ -35,7 +35,6 @@ import org.apache.geode.cache.query.internal.utils.PDXUtils;
 import org.apache.geode.cache.query.types.CollectionType;
 import org.apache.geode.cache.query.types.ObjectType;
 import org.apache.geode.internal.HeapDataOutputStream;
-import org.apache.geode.internal.serialization.BufferDataOutputStream.LongUpdater;
 import org.apache.geode.internal.serialization.DataSerializableFixedID;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.KnownVersion;
@@ -136,9 +135,9 @@ public class CumulativeNonDistinctResults<E> implements SelectResults<E>, DataSe
   public int occurrences(E element) {
 
     // expensive!!
-    int count = 0;
+    var count = 0;
     /* this.base.iterator() */
-    for (E v : this) {
+    for (var v : this) {
       if (element == null ? v == null : element.equals(v)) {
         count++;
       }
@@ -182,7 +181,7 @@ public class CumulativeNonDistinctResults<E> implements SelectResults<E>, DataSe
     @Override
     public int size() {
 
-      int totalSize = 0;
+      var totalSize = 0;
       for (Collection<E> result : results) {
         totalSize += result.size();
       }
@@ -213,10 +212,10 @@ public class CumulativeNonDistinctResults<E> implements SelectResults<E>, DataSe
 
       protected CumulativeCollectionIterator() {
         iterators = new Iterator[results.size()];
-        Iterator<? extends Collection<E>> listIter = results.iterator();
-        int index = 0;
+        var listIter = results.iterator();
+        var index = 0;
         while (listIter.hasNext()) {
-          Iterator<E> temp = listIter.next().iterator();
+          var temp = listIter.next().iterator();
           iterators[index++] = temp;
         }
         isStruct = collectionType.getElementType().isStructType();
@@ -227,9 +226,9 @@ public class CumulativeNonDistinctResults<E> implements SelectResults<E>, DataSe
         if (cachedHasNext != null) {
           return cachedHasNext;
         }
-        boolean hasNext = false;
+        var hasNext = false;
 
-        for (int i = currentIterator; i < iterators.length; ++i) {
+        for (var i = currentIterator; i < iterators.length; ++i) {
           if (iterators[i].hasNext()) {
             hasNext = true;
             currentIterator = i;
@@ -247,9 +246,9 @@ public class CumulativeNonDistinctResults<E> implements SelectResults<E>, DataSe
           hasNext();
         }
         cachedHasNext = null;
-        Metadata metadata = collectionsMetdata.get(currentIterator);
-        E original = iterators[currentIterator].next();
-        Object e = PDXUtils.convertPDX(original, isStruct, metadata.getDomainObjectForPdx,
+        var metadata = collectionsMetdata.get(currentIterator);
+        var original = iterators[currentIterator].next();
+        var e = PDXUtils.convertPDX(original, isStruct, metadata.getDomainObjectForPdx,
             metadata.getDeserializedObject, metadata.localResults, objectChangedMarker, false);
         if (isStruct) {
           if (objectChangedMarker[0]) {
@@ -282,14 +281,14 @@ public class CumulativeNonDistinctResults<E> implements SelectResults<E>, DataSe
       DeserializationContext context) throws IOException, ClassNotFoundException {
     ObjectType elementType = context.getDeserializer().readObject(in);
     collectionType = new CollectionTypeImpl(CumulativeNonDistinctResults.class, elementType);
-    boolean isStruct = elementType.isStructType();
+    var isStruct = elementType.isStructType();
 
-    long size = in.readLong();
+    var size = in.readLong();
     data = new ArrayList<>((int) size);
-    long numLeft = size;
+    var numLeft = size;
     while (numLeft > 0) {
       if (isStruct) {
-        Object[] fields = DataSerializer.readObjectArray(in);
+        var fields = DataSerializer.readObjectArray(in);
         data.add((E) new StructImpl((StructTypeImpl) elementType, fields));
       } else {
         E element = context.getDeserializer().readObject(in);
@@ -310,17 +309,17 @@ public class CumulativeNonDistinctResults<E> implements SelectResults<E>, DataSe
   @Override
   public void toData(DataOutput out,
       SerializationContext context) throws IOException {
-    boolean isStruct = collectionType.getElementType().isStructType();
+    var isStruct = collectionType.getElementType().isStructType();
     context.getSerializer().writeObject(collectionType.getElementType(), out);
 
-    HeapDataOutputStream hdos = new HeapDataOutputStream(1024, null);
-    LongUpdater lu = hdos.reserveLong();
-    Iterator<E> iter = iterator();
-    int numElements = 0;
+    var hdos = new HeapDataOutputStream(1024, null);
+    var lu = hdos.reserveLong();
+    var iter = iterator();
+    var numElements = 0;
     while (iter.hasNext()) {
-      E data = iter.next();
+      var data = iter.next();
       if (isStruct) {
-        Object[] fields = ((Struct) data).getFieldValues();
+        var fields = ((Struct) data).getFieldValues();
         DataSerializer.writeObjectArray(fields, hdos);
       } else {
         context.getSerializer().writeObject(data, hdos);
@@ -334,9 +333,9 @@ public class CumulativeNonDistinctResults<E> implements SelectResults<E>, DataSe
 
   @Override
   public String toString() {
-    StringBuilder builder = new StringBuilder("CumulativeNonDistinctResults::");
+    var builder = new StringBuilder("CumulativeNonDistinctResults::");
     builder.append('[');
-    for (final E e : this) {
+    for (final var e : this) {
       builder.append(e).append(',');
     }
     builder.deleteCharAt(builder.length() - 1);

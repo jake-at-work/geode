@@ -31,14 +31,11 @@ import org.apache.geode.SystemFailure;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.execute.FunctionException;
 import org.apache.geode.cache.execute.FunctionService;
-import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.cache.query.QueryInvalidException;
-import org.apache.geode.cache.query.internal.CompiledValue;
 import org.apache.geode.cache.query.internal.QCompiler;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.management.DistributedRegionMXBean;
 import org.apache.geode.management.internal.ManagementConstants;
 import org.apache.geode.management.internal.SystemManagementService;
 import org.apache.geode.management.internal.util.ManagementUtils;
@@ -105,18 +102,18 @@ public class DataQueryEngine {
     }
 
     try {
-      Set<String> regionsInQuery = compileQuery(query);
+      var regionsInQuery = compileQuery(query);
 
       // Validate region existence
       if (regionsInQuery.size() > 0) {
-        for (String regionPath : regionsInQuery) {
-          DistributedRegionMXBean regionMBean = service.getDistributedRegionMXBean(regionPath);
+        for (var regionPath : regionsInQuery) {
+          var regionMBean = service.getDistributedRegionMXBean(regionPath);
           if (regionMBean == null) {
             return new JsonisedErrorMessage(
                 String.format("Cannot find regions %s in any of the members", regionPath))
                     .toString();
           } else {
-            Set<DistributedMember> associatedMembers =
+            var associatedMembers =
                 ManagementUtils.getRegionAssociatedMembers(regionPath, cache, true);
 
             if (inputMembers != null && inputMembers.size() > 0) {
@@ -135,8 +132,8 @@ public class DataQueryEngine {
 
       // Validate
       if (regionsInQuery.size() > 1 && inputMembers == null) {
-        for (String regionPath : regionsInQuery) {
-          DistributedRegionMXBean regionMBean = service.getDistributedRegionMXBean(regionPath);
+        for (var regionPath : regionsInQuery) {
+          var regionMBean = service.getDistributedRegionMXBean(regionPath);
 
           if (regionMBean.getRegionType().equals(DataPolicy.PARTITION.toString())
               || regionMBean.getRegionType().equals(DataPolicy.PERSISTENT_PARTITION.toString())) {
@@ -147,14 +144,14 @@ public class DataQueryEngine {
         }
       }
 
-      String randomRegion = regionsInQuery.iterator().next();
+      var randomRegion = regionsInQuery.iterator().next();
 
       // get the first available member
-      Set<DistributedMember> associatedMembers =
+      var associatedMembers =
           ManagementUtils.getQueryRegionsAssociatedMembers(regionsInQuery, cache, false);
 
       if (associatedMembers != null && associatedMembers.size() > 0) {
-        Object[] functionArgs = new Object[6];
+        var functionArgs = new Object[6];
         if (inputMembers != null && inputMembers.size() > 0) {// on input
           // members
 
@@ -193,10 +190,10 @@ public class DataQueryEngine {
 
     try {
       if (members.size() == 1) {
-        DistributedMember member = members.iterator().next();
-        ResultCollector collector = FunctionService.onMember(member).setArguments(functionArgs)
+        var member = members.iterator().next();
+        var collector = FunctionService.onMember(member).setArguments(functionArgs)
             .execute(ManagementConstants.QUERY_DATA_FUNCTION);
-        List list = (List) collector.getResult();
+        var list = (List) collector.getResult();
         Object object = null;
         if (list.size() > 0) {
           object = list.get(0);
@@ -206,11 +203,11 @@ public class DataQueryEngine {
           throw (Throwable) object;
         }
 
-        byte[] result = (byte[]) object;
+        var result = (byte[]) object;
         if (zipResult) { // The result is already compressed
           return result;
         } else {
-          Object[] functionArgsList = (Object[]) functionArgs;
+          var functionArgsList = (Object[]) functionArgs;
           boolean showMember = (Boolean) functionArgsList[DISPLAY_MEMBERWISE];
           if (showMember) {// Added to show a single member similar to multiple
             // member.
@@ -224,11 +221,11 @@ public class DataQueryEngine {
         }
 
       } else { // More than 1 Member
-        ResultCollector coll = FunctionService.onMembers(members).setArguments(functionArgs)
+        var coll = FunctionService.onMembers(members).setArguments(functionArgs)
             .execute(ManagementConstants.QUERY_DATA_FUNCTION);
 
-        List list = (List) coll.getResult();
-        Object object = list.get(0);
+        var list = (List) coll.getResult();
+        var object = list.get(0);
         if (object instanceof Throwable) {
           throw (Throwable) object;
         }
@@ -262,7 +259,7 @@ public class DataQueryEngine {
   }
 
   private static String wrapResult(final String str) {
-    StringWriter w = new StringWriter();
+    var w = new StringWriter();
     synchronized (w.getBuffer()) {
       w.write("{\"result\":");
       w.write(str);
@@ -273,10 +270,10 @@ public class DataQueryEngine {
 
   private Set<String> compileQuery(final String query)
       throws QueryInvalidException {
-    QCompiler compiler = new QCompiler();
+    var compiler = new QCompiler();
     Set<String> regionsInQuery;
     try {
-      CompiledValue compiledQuery = compiler.compileQuery(query);
+      var compiledQuery = compiler.compileQuery(query);
       Set<String> regions = new HashSet<>();
       compiledQuery.getRegionsInQuery(regions, null);
       regionsInQuery = Collections.unmodifiableSet(regions);

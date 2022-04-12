@@ -33,12 +33,10 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.Executors;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.index.IndexWriter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -98,7 +96,7 @@ public class PartitionedRepositoryManagerJUnitTest {
     when(userRegion.getDataStore()).thenReturn(userDataStore);
     when(cache.getRegion(SEPARATOR + "testRegion")).thenReturn(userRegion);
     serializer = new HeterogeneousLuceneSerializer();
-    DLockService lockService = mock(DLockService.class);
+    var lockService = mock(DLockService.class);
     when(lockService.lock(any(), anyLong(), anyLong())).thenReturn(true);
     when(userRegion.getRegionService()).thenReturn(cache);
     DLockService.addLockServiceForTests(PartitionedRegionHelper.PARTITION_LOCK_SERVICE_NAME,
@@ -133,10 +131,10 @@ public class PartitionedRepositoryManagerJUnitTest {
     when(indexForPR.getRegionPath()).thenReturn(SEPARATOR + "testRegion");
 
     prRoot = Mockito.mock(DistributedRegion.class);
-    CacheDistributionAdvisor cda = mock(CacheDistributionAdvisor.class);
+    var cda = mock(CacheDistributionAdvisor.class);
     when(prRoot.getDistributionAdvisor()).thenReturn(cda);
     doNothing().when(cda).addMembershipListener(any());
-    InternalRegionFactory regionFactory = mock(InternalRegionFactory.class);
+    var regionFactory = mock(InternalRegionFactory.class);
     when(regionFactory.create(eq(PR_ROOT_REGION_NAME))).thenReturn(prRoot);
     when(cache.createInternalRegionFactory(any())).thenReturn(regionFactory);
 
@@ -154,11 +152,11 @@ public class PartitionedRepositoryManagerJUnitTest {
     setUpMockBucket(0);
     setUpMockBucket(1);
 
-    IndexRepositoryImpl repo0 =
+    var repo0 =
         (IndexRepositoryImpl) repoManager.getRepository(userRegion, 0, null);
-    IndexRepositoryImpl repo1 =
+    var repo1 =
         (IndexRepositoryImpl) repoManager.getRepository(userRegion, 1, null);
-    IndexRepositoryImpl repo113 =
+    var repo113 =
         (IndexRepositoryImpl) repoManager.getRepository(userRegion, 113, null);
 
     assertNotNull(repo0);
@@ -179,21 +177,21 @@ public class PartitionedRepositoryManagerJUnitTest {
       throws BucketNotFoundException, IOException {
     setUpMockBucket(0);
 
-    IndexRepositoryImpl repo0 =
+    var repo0 =
         (IndexRepositoryImpl) repoManager.getRepository(userRegion, 0, null);
 
     assertNotNull(repo0);
     checkRepository(repo0, 0);
 
-    BucketRegion fileBucket0 = fileAndChunkBuckets.get(0);
-    BucketRegion dataBucket0 = dataBuckets.get(0);
+    var fileBucket0 = fileAndChunkBuckets.get(0);
+    var dataBucket0 = dataBuckets.get(0);
 
     // Simulate rebalancing of a bucket by marking the old bucket is destroyed
     // and creating a new bucket
     when(dataBucket0.isDestroyed()).thenReturn(true);
     setUpMockBucket(0);
 
-    IndexRepositoryImpl newRepo0 =
+    var newRepo0 =
         (IndexRepositoryImpl) repoManager.getRepository(userRegion, 0, null);
     assertNotEquals(repo0, newRepo0);
     checkRepository(newRepo0, 0);
@@ -232,15 +230,15 @@ public class PartitionedRepositoryManagerJUnitTest {
     when(indexForPR.isIndexAvailable(0)).thenReturn(true);
     when(indexForPR.isIndexAvailable(1)).thenReturn(true);
 
-    int[] buckets = new int[] {2, 0, 1};
-    InternalRegionFunctionContext ctx = Mockito.mock(InternalRegionFunctionContext.class);
+    var buckets = new int[] {2, 0, 1};
+    var ctx = Mockito.mock(InternalRegionFunctionContext.class);
     when(ctx.getLocalBucketArray((any()))).thenReturn(buckets);
-    Collection<IndexRepository> repos = repoManager.getRepositories(ctx);
+    var repos = repoManager.getRepositories(ctx);
     assertEquals(2, repos.size());
 
-    Iterator<IndexRepository> itr = repos.iterator();
-    IndexRepositoryImpl repo0 = (IndexRepositoryImpl) itr.next();
-    IndexRepositoryImpl repo1 = (IndexRepositoryImpl) itr.next();
+    var itr = repos.iterator();
+    var repo0 = (IndexRepositoryImpl) itr.next();
+    var repo1 = (IndexRepositoryImpl) itr.next();
 
     assertNotNull(repo0);
     assertNotNull(repo1);
@@ -258,9 +256,9 @@ public class PartitionedRepositoryManagerJUnitTest {
     setUpMockBucket(0);
     when(indexForPR.isIndexAvailable(0)).thenReturn(true);
 
-    int[] buckets = new int[] {2, 0, 1};
+    var buckets = new int[] {2, 0, 1};
 
-    InternalRegionFunctionContext ctx = Mockito.mock(InternalRegionFunctionContext.class);
+    var ctx = Mockito.mock(InternalRegionFunctionContext.class);
     when(ctx.getLocalBucketArray((any()))).thenReturn(buckets);
     repoManager.getRepositories(ctx);
   }
@@ -273,9 +271,9 @@ public class PartitionedRepositoryManagerJUnitTest {
       throws BucketNotFoundException {
     setUpMockBucket(0);
 
-    int[] buckets = new int[] {2, 0, 1};
+    var buckets = new int[] {2, 0, 1};
 
-    InternalRegionFunctionContext ctx = Mockito.mock(InternalRegionFunctionContext.class);
+    var ctx = Mockito.mock(InternalRegionFunctionContext.class);
     when(ctx.getLocalBucketArray((any()))).thenReturn(buckets);
     repoManager.getRepositories(ctx);
   }
@@ -288,8 +286,8 @@ public class PartitionedRepositoryManagerJUnitTest {
     when(indexForPR.isIndexAvailable(0)).thenReturn(true);
     when(indexForPR.isIndexAvailable(1)).thenReturn(true);
 
-    int[] buckets = new int[] {2, 0, 1};
-    InternalRegionFunctionContext ctx = Mockito.mock(InternalRegionFunctionContext.class);
+    var buckets = new int[] {2, 0, 1};
+    var ctx = Mockito.mock(InternalRegionFunctionContext.class);
     when(ctx.getLocalBucketArray((any()))).thenReturn(buckets);
 
     await().until(() -> {
@@ -301,9 +299,9 @@ public class PartitionedRepositoryManagerJUnitTest {
       return repositories.size() == 2;
     });
 
-    Iterator<IndexRepository> itr = repoManager.getRepositories(ctx).iterator();
-    IndexRepositoryImpl repo0 = (IndexRepositoryImpl) itr.next();
-    IndexRepositoryImpl repo1 = (IndexRepositoryImpl) itr.next();
+    var itr = repoManager.getRepositories(ctx).iterator();
+    var repo0 = (IndexRepositoryImpl) itr.next();
+    var repo1 = (IndexRepositoryImpl) itr.next();
 
     assertNotNull(repo0);
     assertNotNull(repo1);
@@ -314,11 +312,11 @@ public class PartitionedRepositoryManagerJUnitTest {
   }
 
   protected void checkRepository(IndexRepositoryImpl repo0, int... bucketIds) {
-    IndexWriter writer0 = repo0.getWriter();
-    RegionDirectory dir0 = (RegionDirectory) writer0.getDirectory();
-    boolean result = false;
-    for (int bucketId : bucketIds) {
-      BucketTargetingMap bucketTargetingMap =
+    var writer0 = repo0.getWriter();
+    var dir0 = (RegionDirectory) writer0.getDirectory();
+    var result = false;
+    for (var bucketId : bucketIds) {
+      var bucketTargetingMap =
           new BucketTargetingMap(fileAndChunkBuckets.get(bucketId), bucketId);
       result |= bucketTargetingMap.equals(dir0.getFileSystem().getFileAndChunkRegion());
     }
@@ -328,8 +326,8 @@ public class PartitionedRepositoryManagerJUnitTest {
   }
 
   protected BucketRegion setUpMockBucket(int id) throws BucketNotFoundException {
-    BucketRegion mockBucket = Mockito.mock(BucketRegion.class);
-    BucketRegion fileAndChunkBucket = Mockito.mock(BucketRegion.class);
+    var mockBucket = Mockito.mock(BucketRegion.class);
+    var fileAndChunkBucket = Mockito.mock(BucketRegion.class);
     // Allowing the fileAndChunkBucket to behave like a map so that the IndexWriter operations don't
     // fail
     Fakes.addMapBehavior(fileAndChunkBucket);
@@ -344,7 +342,7 @@ public class PartitionedRepositoryManagerJUnitTest {
     fileAndChunkBuckets.put(id, fileAndChunkBucket);
     dataBuckets.put(id, mockBucket);
 
-    BucketAdvisor mockBucketAdvisor = Mockito.mock(BucketAdvisor.class);
+    var mockBucketAdvisor = Mockito.mock(BucketAdvisor.class);
     when(fileAndChunkBucket.getBucketAdvisor()).thenReturn(mockBucketAdvisor);
     when(mockBucketAdvisor.isPrimary()).thenReturn(true);
     return mockBucket;

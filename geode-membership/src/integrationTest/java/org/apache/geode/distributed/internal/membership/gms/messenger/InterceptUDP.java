@@ -85,11 +85,11 @@ public class InterceptUDP extends Protocol {
     } else {
       o = msg.getHeader(unicastHeaderId);
       if (o != null) {
-        UNICAST3.Header hdr = (UNICAST3.Header) o;
+        var hdr = (UNICAST3.Header) o;
         switch (hdr.type()) {
           case UNICAST3.Header.DATA:
             unicastSentDataMessages++;
-            Message response = new Message(uuid, msg.getDest(), null);
+            var response = new Message(uuid, msg.getDest(), null);
             response.putHeader(unicastHeaderId, UNICAST3.Header.createAckHeader(hdr.seqno(),
                 hdr.connId(), System.currentTimeMillis()));
             up_prot.up(new Event(Event.MSG, response));

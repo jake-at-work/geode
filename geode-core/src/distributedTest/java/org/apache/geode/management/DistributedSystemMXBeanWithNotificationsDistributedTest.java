@@ -38,13 +38,10 @@ import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
 import java.io.Serializable;
-import java.util.Map;
-import java.util.Properties;
 
 import javax.management.Notification;
 import javax.management.NotificationBroadcasterSupport;
 import javax.management.NotificationListener;
-import javax.management.ObjectName;
 
 import org.junit.After;
 import org.junit.Before;
@@ -55,8 +52,6 @@ import org.junit.experimental.categories.Category;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.cache.InternalCache;
-import org.apache.geode.management.internal.NotificationHub;
-import org.apache.geode.management.internal.NotificationHub.NotificationHubListener;
 import org.apache.geode.management.internal.SystemManagementService;
 import org.apache.geode.management.internal.beans.MemberMBean;
 import org.apache.geode.management.internal.beans.SequenceNumber;
@@ -125,14 +120,14 @@ public class DistributedSystemMXBeanWithNotificationsDistributedTest implements 
 
     managerVM.invoke(this::createManager);
 
-    for (VM memberVM : toArray(memberVM1, memberVM2, memberVM3)) {
+    for (var memberVM : toArray(memberVM1, memberVM2, memberVM3)) {
       memberVM.invoke(() -> createMember(memberVM.getId()));
     }
   }
 
   @After
   public void tearDown() throws Exception {
-    for (VM vm : toArray(managerVM, memberVM1, memberVM2, memberVM3)) {
+    for (var vm : toArray(managerVM, memberVM1, memberVM2, memberVM3)) {
       vm.invoke(() -> {
         if (cache != null) {
           cache.close();
@@ -153,18 +148,18 @@ public class DistributedSystemMXBeanWithNotificationsDistributedTest implements 
       await().untilAsserted(
           () -> assertThat(distributedSystemMXBean.listMemberObjectNames()).hasSize(CLUSTER_SIZE));
 
-      for (ObjectName objectName : distributedSystemMXBean.listMemberObjectNames()) {
+      for (var objectName : distributedSystemMXBean.listMemberObjectNames()) {
         getPlatformMBeanServer().addNotificationListener(objectName, notificationListener, null,
             null);
       }
     });
 
     // verify each Member VM has one spy listener in addition to one for DistributedSystemMXBean
-    for (VM memberVM : toArray(memberVM1, memberVM2, memberVM3)) {
+    for (var memberVM : toArray(memberVM1, memberVM2, memberVM3)) {
       memberVM.invoke(() -> {
-        Map<ObjectName, NotificationHubListener> listenerObjectMap =
+        var listenerObjectMap =
             managementService.getNotificationHub().getListenerObjectMap();
-        NotificationHubListener hubListener =
+        var hubListener =
             listenerObjectMap.get(getMemberMBeanName(distributedMember));
 
         assertThat(hubListener.getNumCounter())
@@ -173,9 +168,9 @@ public class DistributedSystemMXBeanWithNotificationsDistributedTest implements 
     }
 
     // send a dummy notification from each Member VM (no actual region is created)
-    for (VM memberVM : toArray(memberVM1, memberVM2, memberVM3)) {
+    for (var memberVM : toArray(memberVM1, memberVM2, memberVM3)) {
       memberVM.invoke(() -> {
-        Notification notification =
+        var notification =
             new Notification(REGION_CREATED, getMemberNameOrUniqueId(distributedMember),
                 SequenceNumber.next(), System.currentTimeMillis(),
                 REGION_CREATED_PREFIX + SEPARATOR + "test");
@@ -189,17 +184,17 @@ public class DistributedSystemMXBeanWithNotificationsDistributedTest implements 
       verify(notificationListener, timeout(TIMEOUT).times(THREE_MEMBERS))
           .handleNotification(isA(Notification.class), isNull());
 
-      for (ObjectName objectName : distributedSystemMXBean.listMemberObjectNames()) {
+      for (var objectName : distributedSystemMXBean.listMemberObjectNames()) {
         getPlatformMBeanServer().removeNotificationListener(objectName, notificationListener);
       }
     });
 
     // verify each Member VM has just one listener for DistributedSystemMXBean
-    for (VM memberVM : toArray(memberVM1, memberVM2, memberVM3)) {
+    for (var memberVM : toArray(memberVM1, memberVM2, memberVM3)) {
       memberVM.invoke(() -> {
-        Map<ObjectName, NotificationHubListener> listenerObjectMap =
+        var listenerObjectMap =
             managementService.getNotificationHub().getListenerObjectMap();
-        NotificationHubListener hubListener =
+        var hubListener =
             listenerObjectMap.get(getMemberMBeanName(distributedMember));
 
         assertThat(hubListener.getNumCounter()).isEqualTo(ONE_LISTENER_FOR_MANAGER);
@@ -207,9 +202,9 @@ public class DistributedSystemMXBeanWithNotificationsDistributedTest implements 
     }
 
     // verify NotificationHub#cleanUpListeners() behavior in each Member VM
-    for (VM memberVM : toArray(memberVM1, memberVM2, memberVM3)) {
+    for (var memberVM : toArray(memberVM1, memberVM2, memberVM3)) {
       memberVM.invoke(() -> {
-        NotificationHub notificationHub = managementService.getNotificationHub();
+        var notificationHub = managementService.getNotificationHub();
         notificationHub.cleanUpListeners();
 
         assertThat(notificationHub.getListenerObjectMap()).isEmpty();
@@ -218,7 +213,7 @@ public class DistributedSystemMXBeanWithNotificationsDistributedTest implements 
   }
 
   private void createManager() {
-    Properties config = getDistributedSystemProperties();
+    var config = getDistributedSystemProperties();
     config.setProperty(NAME, MANAGER_NAME);
     config.setProperty(JMX_MANAGER, "true");
     config.setProperty(JMX_MANAGER_START, "true");
@@ -234,7 +229,7 @@ public class DistributedSystemMXBeanWithNotificationsDistributedTest implements 
   }
 
   private void createMember(int vmId) {
-    Properties config = getDistributedSystemProperties();
+    var config = getDistributedSystemProperties();
     config.setProperty(NAME, MEMBER_NAME + vmId);
     config.setProperty(JMX_MANAGER, "false");
 

@@ -20,7 +20,6 @@ import java.util.Set;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.NameResolutionException;
 import org.apache.geode.cache.query.TypeMismatchException;
-import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.pdx.internal.PdxString;
 
 /**
@@ -48,7 +47,7 @@ public class CompiledBindArgument extends AbstractCompiledValue {
     // When compiling a new query, a context is created where there are no bind arguments at this
     // point
     if (context.isBindArgsSet()) {
-      Object bindArgumentValue = context.getBindArgument(index);
+      var bindArgumentValue = context.getBindArgument(index);
       if (bindArgumentValue instanceof Region) {
         clauseBuffer.insert(0, ((Region) bindArgumentValue).getFullPath());
       } else if (bindArgumentValue instanceof String) {
@@ -65,10 +64,10 @@ public class CompiledBindArgument extends AbstractCompiledValue {
     if (!context.isBindArgsSet()) {
       return null;
     }
-    Object obj = context.getBindArgument(index);
+    var obj = context.getBindArgument(index);
     // check for BucketRegion substitution
     if (obj instanceof Region) {
-      PartitionedRegion pr = context.getPartitionedRegion();
+      var pr = context.getPartitionedRegion();
       if (pr != null) {
         if (pr.getFullPath().equals(((Region) obj).getFullPath())) {
           obj = context.getBucketRegion();
@@ -92,7 +91,7 @@ public class CompiledBindArgument extends AbstractCompiledValue {
 
   @Override
   public void getRegionsInQuery(Set regionsInQuery, Object[] parameters) {
-    Object v = parameters[index - 1];
+    var v = parameters[index - 1];
     if (v instanceof Region) {
       regionsInQuery.add(((Region) v).getFullPath());
     }

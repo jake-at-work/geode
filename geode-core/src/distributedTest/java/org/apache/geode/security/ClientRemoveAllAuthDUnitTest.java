@@ -26,9 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.test.dunit.AsyncInvocation;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.VM;
@@ -56,17 +54,17 @@ public class ClientRemoveAllAuthDUnitTest extends JUnit4DistributedTestCase {
   public void testRemoveAll() throws Exception {
 
     AsyncInvocation ai1 = client1.invokeAsync(() -> {
-      ClientCache cache = createClientCache("authRegionReader", "1234567", server.getPort());
+      var cache = createClientCache("authRegionReader", "1234567", server.getPort());
 
-      Region region = createProxyRegion(cache, REGION_NAME);
+      var region = createProxyRegion(cache, REGION_NAME);
       assertNotAuthorized(() -> region.removeAll(Arrays.asList("key1", "key2", "key3", "key4")),
           "DATA:WRITE:AuthRegion");
     });
 
     AsyncInvocation ai2 = client2.invokeAsync(() -> {
-      ClientCache cache = createClientCache("authRegionWriter", "1234567", server.getPort());
+      var cache = createClientCache("authRegionWriter", "1234567", server.getPort());
 
-      Region region = createProxyRegion(cache, REGION_NAME);
+      var region = createProxyRegion(cache, REGION_NAME);
       region.removeAll(Arrays.asList("key1", "key2", "key3", "key4"));
       assertFalse(region.containsKey("key1"));
       assertNotAuthorized(() -> region.containsKeyOnServer("key1"), "DATA:READ:AuthRegion:key1");

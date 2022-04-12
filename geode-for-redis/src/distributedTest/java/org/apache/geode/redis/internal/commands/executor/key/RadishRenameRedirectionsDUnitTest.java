@@ -18,7 +18,6 @@ package org.apache.geode.redis.internal.commands.executor.key;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.dunit.rules.RedisClusterStartupRule;
 
 public class RadishRenameRedirectionsDUnitTest extends AbstractRenameRedirectionsDUnitTest {
@@ -30,7 +29,7 @@ public class RadishRenameRedirectionsDUnitTest extends AbstractRenameRedirection
 
   @BeforeClass
   public static void setupClass() {
-    MemberVM locator = clusterStartUp.startLocatorVM(0);
+    var locator = clusterStartUp.startLocatorVM(0);
     clusterStartUp.startRedisVM(1, locator.getPort());
     clusterStartUp.startRedisVM(2, locator.getPort());
     clusterStartUp.startRedisVM(3, locator.getPort());

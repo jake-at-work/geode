@@ -52,10 +52,10 @@ public class GatewaySenderOverflowMonitorTest {
 
   @Before
   public void setUp() {
-    final long startTime = System.currentTimeMillis();
-    TestStatisticsManager manager =
+    final var startTime = System.currentTimeMillis();
+    var manager =
         new TestStatisticsManager(1, getClass().getSimpleName(), startTime);
-    StatArchiveHandlerConfig mockStatArchiveHandlerConfig = mock(StatArchiveHandlerConfig.class,
+    var mockStatArchiveHandlerConfig = mock(StatArchiveHandlerConfig.class,
         getClass().getSimpleName() + "$" + StatArchiveHandlerConfig.class.getSimpleName());
     when(mockStatArchiveHandlerConfig.getArchiveFileName()).thenReturn(new File(""));
     when(mockStatArchiveHandlerConfig.getArchiveFileSizeLimit()).thenReturn(0L);
@@ -67,7 +67,7 @@ public class GatewaySenderOverflowMonitorTest {
         .thenReturn(getClass().getSimpleName());
 
     StatisticsSampler sampler = new TestStatisticsSampler(manager);
-    SampleCollector sampleCollector = new SampleCollector(sampler);
+    var sampleCollector = new SampleCollector(sampler);
     sampleCollector.initialize(mockStatArchiveHandlerConfig, NanoTimer.getTime(),
         new MainWithChildrenRollingFileHandler());
     gatewaySenderOverflowMonitor =
@@ -172,7 +172,7 @@ public class GatewaySenderOverflowMonitorTest {
 
   @Test
   public void addStatisticsToMonitorShouldAddListenerAndMonitor() {
-    Statistics statistics = mock(Statistics.class);
+    var statistics = mock(Statistics.class);
     gatewaySenderOverflowMonitor.addStatisticsToMonitor(statistics);
 
     assertThat(gatewaySenderOverflowMonitor.getMonitors().size()).isEqualTo(1);
@@ -181,9 +181,9 @@ public class GatewaySenderOverflowMonitorTest {
 
   @Test
   public void stopListenerShouldRemoveListenerAndMonitor() {
-    Statistics statistics = mock(Statistics.class);
-    ValueMonitor regionMonitor = mock(ValueMonitor.class);
-    GatewaySenderOverflowMonitor.GatewaySenderOverflowStatisticsListener listener =
+    var statistics = mock(Statistics.class);
+    var regionMonitor = mock(ValueMonitor.class);
+    var listener =
         mock(GatewaySenderOverflowMonitor.GatewaySenderOverflowStatisticsListener.class);
     gatewaySenderOverflowMonitor.getListeners().put(statistics, listener);
     gatewaySenderOverflowMonitor.getMonitors().put(statistics, regionMonitor);

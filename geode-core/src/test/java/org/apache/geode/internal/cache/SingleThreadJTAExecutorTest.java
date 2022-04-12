@@ -28,7 +28,6 @@ import java.util.concurrent.Executors;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InOrder;
 
 import org.apache.geode.CancelCriterion;
 
@@ -52,7 +51,7 @@ public class SingleThreadJTAExecutorTest {
 
   @Test
   public void executeBeforeCompletionCallsDoOps() {
-    InOrder inOrder = inOrder(beforeCompletion, afterCompletion);
+    var inOrder = inOrder(beforeCompletion, afterCompletion);
 
     singleThreadJTAExecutor.executeBeforeCompletion(txState, executor, cancelCriterion);
 

@@ -77,19 +77,19 @@ public class ColocatedRegionDetails implements DataSerializable {
 
   @Override
   public void fromData(DataInput in) throws IOException, ClassNotFoundException {
-    boolean hasHost = in.readBoolean();
+    var hasHost = in.readBoolean();
     if (hasHost) {
       host = DataSerializer.readString(in);
     }
-    boolean hasMember = in.readBoolean();
+    var hasMember = in.readBoolean();
     if (hasMember) {
       member = DataSerializer.readString(in);
     }
-    boolean hasParent = in.readBoolean();
+    var hasParent = in.readBoolean();
     if (hasParent) {
       parent = DataSerializer.readString(in);
     }
-    boolean hasChild = in.readBoolean();
+    var hasChild = in.readBoolean();
     if (hasChild) {
       child = DataSerializer.readString(in);
     }
@@ -117,7 +117,7 @@ public class ColocatedRegionDetails implements DataSerializable {
 
   @Override
   public String toString() {
-    StringBuilder result = new StringBuilder();
+    var result = new StringBuilder();
     result.append("[");
     if (host != null) {
       result.append("host:" + host);
@@ -145,8 +145,8 @@ public class ColocatedRegionDetails implements DataSerializable {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
+    final var prime = 31;
+    var result = 1;
     result = prime * result + ((host == null) ? 0 : host.hashCode());
     result = prime * result + ((member == null) ? 0 : member.hashCode());
     result = prime * result + ((parent == null) ? 0 : parent.hashCode());
@@ -165,7 +165,7 @@ public class ColocatedRegionDetails implements DataSerializable {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    ColocatedRegionDetails other = (ColocatedRegionDetails) obj;
+    var other = (ColocatedRegionDetails) obj;
     if (host == null) {
       if (other.host != null) {
         return false;

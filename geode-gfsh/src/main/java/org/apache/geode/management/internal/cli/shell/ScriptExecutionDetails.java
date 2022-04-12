@@ -20,7 +20,6 @@ import java.util.List;
 import org.apache.geode.management.cli.Result;
 import org.apache.geode.management.internal.cli.LogWrapper;
 import org.apache.geode.management.internal.cli.result.CommandResult;
-import org.apache.geode.management.internal.cli.result.model.DataResultModel;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
 
 class ScriptExecutionDetails {
@@ -37,15 +36,15 @@ class ScriptExecutionDetails {
   }
 
   ResultModel getResult() {
-    ResultModel result = new ResultModel();
+    var result = new ResultModel();
     result.setHeader(
         "************************* Execution Summary ***********************\nScript file: "
             + filePath);
 
-    for (int i = 0; i < commandAndStatusList.size(); i++) {
-      int commandSrNo = i + 1;
-      DataResultModel commandDetail = result.addData("command" + commandSrNo);
-      CommandAndStatus commandAndStatus = commandAndStatusList.get(i);
+    for (var i = 0; i < commandAndStatusList.size(); i++) {
+      var commandSrNo = i + 1;
+      var commandDetail = result.addData("command" + commandSrNo);
+      var commandAndStatus = commandAndStatusList.get(i);
       commandDetail.addData("Command-" + commandSrNo, commandAndStatus.command);
       commandDetail.addData("Status", commandAndStatus.status);
       if (commandAndStatus.status.equals("FAILED")) {

@@ -26,66 +26,66 @@ public class JdbcPooledDataSourceFactoryTest {
 
   @Test
   public void validateThatConnectionUrlConvertedToJdbcUrl() throws Exception {
-    Properties poolProperties = new Properties();
+    var poolProperties = new Properties();
     poolProperties.setProperty("connection-url", "foo");
-    Properties hikariProperties = instance.convertToHikari(poolProperties);
+    var hikariProperties = instance.convertToHikari(poolProperties);
 
     assertThat(hikariProperties.stringPropertyNames()).contains("jdbcUrl");
   }
 
   @Test
   public void validateThatUserNameConvertedToUsername() throws Exception {
-    Properties poolProperties = new Properties();
+    var poolProperties = new Properties();
     poolProperties.setProperty("user-name", "foo");
-    Properties hikariProperties = instance.convertToHikari(poolProperties);
+    var hikariProperties = instance.convertToHikari(poolProperties);
 
     assertThat(hikariProperties.stringPropertyNames()).contains("username");
   }
 
   @Test
   public void validateThatJdbcDriverClassConvertedToDriverClassName() throws Exception {
-    Properties poolProperties = new Properties();
+    var poolProperties = new Properties();
     poolProperties.setProperty("jdbc-driver-class", "foo");
-    Properties hikariProperties = instance.convertToHikari(poolProperties);
+    var hikariProperties = instance.convertToHikari(poolProperties);
 
     assertThat(hikariProperties.stringPropertyNames()).contains("driverClassName");
   }
 
   @Test
   public void validateThatMaxPoolSizeConvertedToMaximumPoolSize() throws Exception {
-    Properties poolProperties = new Properties();
+    var poolProperties = new Properties();
     poolProperties.setProperty("max-pool-size", "foo");
-    Properties hikariProperties = instance.convertToHikari(poolProperties);
+    var hikariProperties = instance.convertToHikari(poolProperties);
 
     assertThat(hikariProperties.stringPropertyNames()).contains("maximumPoolSize");
   }
 
   @Test
   public void validateThatIdleTimeoutSecondsConvertedToIdleTimeout() throws Exception {
-    Properties poolProperties = new Properties();
+    var poolProperties = new Properties();
     poolProperties.setProperty("idle-timeout-seconds", "20");
-    Properties hikariProperties = instance.convertToHikari(poolProperties);
+    var hikariProperties = instance.convertToHikari(poolProperties);
 
     assertThat(hikariProperties.stringPropertyNames()).contains("idleTimeout");
   }
 
   @Test
   public void validateThatIdleTimeoutSecondsConvertedToMilliseconds() throws Exception {
-    Properties poolProperties = new Properties();
+    var poolProperties = new Properties();
     poolProperties.setProperty("idle-timeout-seconds", "20");
-    Properties hikariProperties = instance.convertToHikari(poolProperties);
+    var hikariProperties = instance.convertToHikari(poolProperties);
 
     assertThat(hikariProperties.getProperty("idleTimeout")).isEqualTo("20000");
   }
 
   @Test
   public void validateThatHyphensConvertedToCamelCase() throws Exception {
-    Properties poolProperties = new Properties();
+    var poolProperties = new Properties();
     poolProperties.setProperty("foo-bar-zoo", "value");
     poolProperties.setProperty("foo", "value");
     poolProperties.setProperty("-bar", "value");
     poolProperties.setProperty("zoo-", "value");
-    Properties hikariProperties = instance.convertToHikari(poolProperties);
+    var hikariProperties = instance.convertToHikari(poolProperties);
 
     assertThat(hikariProperties.stringPropertyNames()).containsExactlyInAnyOrder("foo", "Bar",
         "zoo", "fooBarZoo");

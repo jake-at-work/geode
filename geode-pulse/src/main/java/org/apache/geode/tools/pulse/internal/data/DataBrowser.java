@@ -24,7 +24,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.util.Iterator;
 import java.util.ResourceBundle;
 import java.util.Scanner;
 
@@ -65,14 +64,14 @@ public class DataBrowser {
    * @param queryText Query text to execute
    */
   public boolean addQueryInHistory(String queryText, String userId) {
-    boolean operationStatus = false;
+    var operationStatus = false;
     if (StringUtils.isNotBlank(queryText) && StringUtils.isNotBlank(userId)) {
 
       // Fetch all queries from query log file
-      ObjectNode queries = fetchAllQueriesFromFile();
+      var queries = fetchAllQueriesFromFile();
 
       // Get user's query history list
-      ObjectNode userQueries = (ObjectNode) queries.get(userId);
+      var userQueries = (ObjectNode) queries.get(userId);
       if (userQueries == null) {
         userQueries = mapper.createObjectNode();
       }
@@ -96,14 +95,14 @@ public class DataBrowser {
    */
   public boolean deleteQueryById(String userId, String queryId) {
 
-    boolean operationStatus = false;
+    var operationStatus = false;
     if (StringUtils.isNotBlank(queryId) && StringUtils.isNotBlank(userId)) {
 
       // Fetch all queries from query log file
-      ObjectNode queries = fetchAllQueriesFromFile();
+      var queries = fetchAllQueriesFromFile();
 
       // Get user's query history list
-      ObjectNode userQueries = (ObjectNode) queries.get(userId);
+      var userQueries = (ObjectNode) queries.get(userId);
 
       if (userQueries != null) {
         // Remove user's query
@@ -125,21 +124,21 @@ public class DataBrowser {
    */
   public ArrayNode getQueryHistoryByUserId(String userId) {
 
-    ArrayNode queryList = mapper.createArrayNode();
+    var queryList = mapper.createArrayNode();
 
     if (StringUtils.isNotBlank(userId)) {
 
       // Fetch all queries from query log file
-      ObjectNode queries = fetchAllQueriesFromFile();
+      var queries = fetchAllQueriesFromFile();
 
       // Get user's query history list
-      ObjectNode userQueries = (ObjectNode) queries.get(userId);
+      var userQueries = (ObjectNode) queries.get(userId);
 
       if (userQueries != null) {
-        Iterator<String> it = userQueries.fieldNames();
+        var it = userQueries.fieldNames();
         while (it.hasNext()) {
-          String key = it.next();
-          ObjectNode queryItem = mapper.createObjectNode();
+          var key = it.next();
+          var queryItem = mapper.createObjectNode();
           queryItem.put("queryId", key);
           queryItem.put("queryText", userQueries.get(key).toString());
           queryItem.put("queryDateTime", simpleDateFormat.format(Long.valueOf(key)));
@@ -163,7 +162,7 @@ public class DataBrowser {
     try {
       inputStream =
           new FileInputStream(repository.getPulseConfig().getQueryHistoryFileName());
-      String inputStreamString = new Scanner(inputStream, "UTF-8").useDelimiter("\\A").next();
+      var inputStreamString = new Scanner(inputStream, "UTF-8").useDelimiter("\\A").next();
       queriesJSON = mapper.readTree(inputStreamString);
     } catch (FileNotFoundException e) {
       logger.debug(resourceBundle.getString("LOG_MSG_DATA_BROWSER_QUERY_HISTORY_FILE_NOT_FOUND"),
@@ -190,10 +189,10 @@ public class DataBrowser {
    * @return Boolean true is operation is successful, false otherwise
    */
   private boolean storeQueriesInFile(ObjectNode queries) {
-    boolean operationStatus = false;
+    var operationStatus = false;
     FileOutputStream fileOut = null;
 
-    File file = new File(repository.getPulseConfig().getQueryHistoryFileName());
+    var file = new File(repository.getPulseConfig().getQueryHistoryFileName());
     try {
       fileOut = new FileOutputStream(file);
 
@@ -203,7 +202,7 @@ public class DataBrowser {
       }
 
       // get the content in bytes
-      byte[] contentInBytes = queries.toString().getBytes();
+      var contentInBytes = queries.toString().getBytes();
 
       fileOut.write(contentInBytes);
       fileOut.flush();

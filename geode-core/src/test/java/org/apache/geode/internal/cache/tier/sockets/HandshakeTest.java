@@ -66,7 +66,7 @@ public class HandshakeTest {
 
   @Test
   public void verifyCredentialsShouldThrowCacheClosedException() {
-    Properties properties = new Properties();
+    var properties = new Properties();
     when(securityService.isIntegratedSecurity()).thenReturn(true);
     doThrow(new CacheClosedException()).when(securityService).login(properties);
     assertThatThrownBy(

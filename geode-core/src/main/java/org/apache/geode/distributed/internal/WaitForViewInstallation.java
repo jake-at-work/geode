@@ -32,7 +32,7 @@ public class WaitForViewInstallation extends HighPriorityDistributionMessage
 
   public static void send(ClusterDistributionManager dm) throws InterruptedException {
     long viewId = dm.getDistribution().getView().getViewId();
-    ReplyProcessor21 rp = new ReplyProcessor21(dm, dm.getOtherDistributionManagerIds());
+    var rp = new ReplyProcessor21(dm, dm.getOtherDistributionManagerIds());
     rp.enableSevereAlertProcessing();
     dm.putOutgoing(new WaitForViewInstallation(viewId, rp.getProcessorId()));
     try {
@@ -112,7 +112,7 @@ public class WaitForViewInstallation extends HighPriorityDistributionMessage
    */
   @Override
   protected void process(ClusterDistributionManager dm) {
-    boolean interrupted = false;
+    var interrupted = false;
     try {
       dm.waitForViewInstallation(viewId);
     } catch (InterruptedException e) {

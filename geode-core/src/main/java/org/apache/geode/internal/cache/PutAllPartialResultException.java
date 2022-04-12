@@ -198,10 +198,10 @@ public class PutAllPartialResultException extends GemFireException {
 
     @Override
     public String toString() {
-      StringBuilder sb = new StringBuilder("Key " + firstFailedKey
+      var sb = new StringBuilder("Key " + firstFailedKey
           + " and possibly others failed the operation due to " + firstCauseOfFailure + "\n");
       if (totalMapSize > 0) {
-        int failedKeyNum = totalMapSize - succeededKeys.size();
+        var failedKeyNum = totalMapSize - succeededKeys.size();
         sb.append("The bulk operation failed on " + failedKeyNum + " out of " + totalMapSize
             + " entries. ");
       }
@@ -213,13 +213,13 @@ public class PutAllPartialResultException extends GemFireException {
     }
 
     public String getKeyListString() {
-      StringBuilder sb = new StringBuilder();
+      var sb = new StringBuilder();
 
       sb.append("The keys for the successful entries are: ");
-      int cnt = 0;
+      var cnt = 0;
       final Iterator iterator = succeededKeys.iterator();
       while (iterator.hasNext()) {
-        Object key = iterator.next();
+        var key = iterator.next();
         sb.append(" ").append(key);
         cnt++;
       }

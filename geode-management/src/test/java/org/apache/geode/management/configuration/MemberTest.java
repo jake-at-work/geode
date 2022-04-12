@@ -24,7 +24,7 @@ public class MemberTest {
 
   @Test
   public void getUri() {
-    Member config = new Member();
+    var config = new Member();
     config.setId("memberA");
     assertThat(config.getLinks().getList()).isEqualTo("/members");
     assertThat(config.getLinks().getSelf())

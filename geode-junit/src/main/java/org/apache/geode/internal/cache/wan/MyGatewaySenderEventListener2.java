@@ -40,7 +40,7 @@ public class MyGatewaySenderEventListener2 implements AsyncEventListener, Serial
    */
   @Override
   public boolean processEvents(List<AsyncEvent> events) {
-    for (AsyncEvent event : events) {
+    for (var event : events) {
       eventsMap.put(event.getKey(), event.getDeserializedValue());
     }
     return true;
@@ -65,7 +65,7 @@ public class MyGatewaySenderEventListener2 implements AsyncEventListener, Serial
     if (!(obj instanceof MyGatewaySenderEventListener2)) {
       return false;
     }
-    MyGatewaySenderEventListener2 listener = (MyGatewaySenderEventListener2) obj;
+    var listener = (MyGatewaySenderEventListener2) obj;
     return id.equals(listener.id);
   }
 

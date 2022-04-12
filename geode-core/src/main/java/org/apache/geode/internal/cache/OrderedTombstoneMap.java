@@ -17,7 +17,6 @@ package org.apache.geode.internal.cache;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import org.apache.geode.internal.Assert;
@@ -50,13 +49,13 @@ public class OrderedTombstoneMap<T> {
    */
   public void put(VersionTag tag, T entry) {
     // Add the version tag to the appropriate map
-    VersionSource member = tag.getMemberID();
-    TreeMap<VersionTag, T> memberMap = tombstoneMap.get(member);
+    var member = tag.getMemberID();
+    var memberMap = tombstoneMap.get(member);
     if (memberMap == null) {
       memberMap = new TreeMap<>(new VersionTagComparator());
       tombstoneMap.put(member, memberMap);
     }
-    T oldValue = memberMap.put(tag, entry);
+    var oldValue = memberMap.put(tag, entry);
     Assert.assertTrue(oldValue == null);
   }
 
@@ -70,11 +69,11 @@ public class OrderedTombstoneMap<T> {
     } else {
       // Otherwise, look at all of the members and find the tag with the
       // lowest timestamp.
-      long lowestTimestamp = Long.MAX_VALUE;
+      var lowestTimestamp = Long.MAX_VALUE;
       TreeMap<VersionTag, T> lowestMap = null;
-      for (TreeMap<VersionTag, T> memberMap : tombstoneMap.values()) {
-        VersionTag firstTag = memberMap.firstKey();
-        long stamp = firstTag.getVersionTimeStamp();
+      for (var memberMap : tombstoneMap.values()) {
+        var firstTag = memberMap.firstKey();
+        var stamp = firstTag.getVersionTimeStamp();
         if (stamp < lowestTimestamp) {
           lowestTimestamp = stamp;
           lowestMap = memberMap;
@@ -84,7 +83,7 @@ public class OrderedTombstoneMap<T> {
         return null;
       }
       // Remove the lowest entry
-      Entry<VersionTag, T> result = lowestMap.firstEntry();
+      var result = lowestMap.firstEntry();
       lowestMap.remove(result.getKey());
       if (lowestMap.isEmpty()) {
         // if this is the last entry from a given member,
@@ -105,7 +104,7 @@ public class OrderedTombstoneMap<T> {
 
     @Override
     public int compare(VersionTag o1, VersionTag o2) {
-      long result = o1.getRegionVersion() - o2.getRegionVersion();
+      var result = o1.getRegionVersion() - o2.getRegionVersion();
       if (result == 0) {
         result = o1.getVersionTimeStamp() - o2.getVersionTimeStamp();
       }

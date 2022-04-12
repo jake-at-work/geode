@@ -77,7 +77,7 @@ public class NetSearchMessagingDUnitTest implements Serializable {
 
   @After
   public void tearDown() {
-    for (VM vm : toArray(vm0, vm1, vm2, vm3)) {
+    for (var vm : toArray(vm0, vm1, vm2, vm3)) {
       vm.invoke(() -> {
         DistributionMessageObserver.setInstance(null);
         cacheRule.closeAndNullCache();
@@ -94,10 +94,10 @@ public class NetSearchMessagingDUnitTest implements Serializable {
     createEmpty(vm3);
 
     // Test with a null value
-    long vm0Count = getReceivedMessages(vm0);
-    long vm1Count = getReceivedMessages(vm1);
-    long vm2Count = getReceivedMessages(vm2);
-    long vm3Count = getReceivedMessages(vm3);
+    var vm0Count = getReceivedMessages(vm0);
+    var vm1Count = getReceivedMessages(vm1);
+    var vm2Count = getReceivedMessages(vm2);
+    var vm3Count = getReceivedMessages(vm3);
 
     assertThat(get(vm3, "a")).isNull();
 
@@ -141,10 +141,10 @@ public class NetSearchMessagingDUnitTest implements Serializable {
     createEmpty(vm3);
 
     // Test with a null value
-    long vm0Count = getReceivedMessages(vm0);
-    long vm1Count = getReceivedMessages(vm1);
-    long vm2Count = getReceivedMessages(vm2);
-    long vm3Count = getReceivedMessages(vm3);
+    var vm0Count = getReceivedMessages(vm0);
+    var vm1Count = getReceivedMessages(vm1);
+    var vm2Count = getReceivedMessages(vm2);
+    var vm3Count = getReceivedMessages(vm3);
 
     assertThat(get(vm3, "a")).isNull();
 
@@ -195,9 +195,9 @@ public class NetSearchMessagingDUnitTest implements Serializable {
     put(vm2, "f", "6");
 
     boolean evicted = vm2.invoke("verify eviction of 'a'", () -> {
-      InternalRegion region1 = (InternalRegion) getCache().getRegion(regionName);
-      RegionEntry re1 = region1.getRegionEntry("a");
-      Object o1 = re1.getValueInVM(region1);
+      var region1 = (InternalRegion) getCache().getRegion(regionName);
+      var re1 = region1.getRegionEntry("a");
+      var o1 = re1.getValueInVM(region1);
       return o1 == null || o1 == Token.NOT_AVAILABLE;
     });
     assertThat(evicted).isTrue();
@@ -207,18 +207,18 @@ public class NetSearchMessagingDUnitTest implements Serializable {
     assertThat("1").isEqualTo(value);
 
     evicted = vm2.invoke("verify eviction of 'a'", () -> {
-      InternalRegion region1 = (InternalRegion) getCache().getRegion(regionName);
-      RegionEntry re1 = region1.getRegionEntry("a");
-      Object o1 = re1.getValueInVM(region1);
+      var region1 = (InternalRegion) getCache().getRegion(regionName);
+      var re1 = region1.getRegionEntry("a");
+      var o1 = re1.getValueInVM(region1);
       return o1 == null || o1 == Token.NOT_AVAILABLE;
     });
     assertThat(evicted).isTrue();
     vm2.invoke("verify other entries are not evicted", () -> {
-      LocalRegion region = (LocalRegion) getCache().getRegion(regionName);
-      String[] keys = new String[] {"b", "c", "d", "e", "f"};
-      for (String key : keys) {
-        RegionEntry re = region.getRegionEntry(key);
-        Object o = re.getValueInVM(region);
+      var region = (LocalRegion) getCache().getRegion(regionName);
+      var keys = new String[] {"b", "c", "d", "e", "f"};
+      for (var key : keys) {
+        var re = region.getRegionEntry(key);
+        var o = re.getValueInVM(region);
         assertThat((o != null) && (o != Token.NOT_AVAILABLE)).isTrue();
       }
     });
@@ -277,7 +277,7 @@ public class NetSearchMessagingDUnitTest implements Serializable {
 
     put(vm2, "a", "b");
 
-    boolean disconnected = false;
+    var disconnected = false;
     while (!disconnected) {
       // get() causes vm2 to send a query message to all replicated members. All members with that
       // key reply. vm2 then sends a net search request to the first one that replies. If that
@@ -390,7 +390,7 @@ public class NetSearchMessagingDUnitTest implements Serializable {
       listenerHasFinished.set(false);
       logger.info("DBG GEODE-7474: installListenerToDisconnectOnNetSearchRequest 2");
 
-      DistributionMessageObserver observer = new DistributionMessageObserver() {
+      var observer = new DistributionMessageObserver() {
         @Override
         public void beforeProcessMessage(ClusterDistributionManager dm,
             DistributionMessage message) {

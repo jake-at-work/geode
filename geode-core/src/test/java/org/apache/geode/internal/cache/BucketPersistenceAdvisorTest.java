@@ -32,18 +32,18 @@ public class BucketPersistenceAdvisorTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    BucketPersistenceAdvisor mockBucketAdvisor = mock(BucketPersistenceAdvisor.class);
+    var mockBucketAdvisor = mock(BucketPersistenceAdvisor.class);
     when(mockBucketAdvisor.isRecovering()).thenReturn(true);
     assertTrue(mockBucketAdvisor.isRecovering());
   }
 
   @Test
   public void atomicCreationShouldNotBeSetForPersistentRegion() throws Exception {
-    PersistentMemberID mockPersistentID = mock(PersistentMemberID.class);
-    PersistentMemberView mockStorage = mock(PersistentMemberView.class);
+    var mockPersistentID = mock(PersistentMemberID.class);
+    var mockStorage = mock(PersistentMemberView.class);
     when(mockStorage.getMyPersistentID()).thenReturn(mockPersistentID);
 
-    BucketPersistenceAdvisor bpa = new BucketPersistenceAdvisor(
+    var bpa = new BucketPersistenceAdvisor(
         mock(CacheDistributionAdvisor.class), mock(DistributedLockService.class), mockStorage,
         SEPARATOR + "region", mock(DiskRegionStats.class), mock(PersistentMemberManager.class),
         mock(BucketLock.class), mock(ProxyBucketRegion.class));

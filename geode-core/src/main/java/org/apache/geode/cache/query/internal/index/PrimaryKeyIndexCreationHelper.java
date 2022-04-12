@@ -21,10 +21,8 @@ import org.apache.geode.cache.query.IndexInvalidException;
 import org.apache.geode.cache.query.internal.CompiledIteratorDef;
 import org.apache.geode.cache.query.internal.CompiledValue;
 import org.apache.geode.cache.query.internal.ExecutionContext;
-import org.apache.geode.cache.query.internal.RuntimeIterator;
 import org.apache.geode.cache.query.internal.parse.OQLLexerTokenTypes;
 import org.apache.geode.internal.cache.InternalCache;
-import org.apache.geode.internal.cache.PartitionedRegion;
 
 public class PrimaryKeyIndexCreationHelper extends IndexCreationHelper {
 
@@ -55,18 +53,18 @@ public class PrimaryKeyIndexCreationHelper extends IndexCreationHelper {
           "The fromClause for a Primary Key index should only have one iterator and the collection must be a Region Path only");
     }
     try {
-      CompiledIteratorDef iterDef = (CompiledIteratorDef) list.get(0);
+      var iterDef = (CompiledIteratorDef) list.get(0);
       if (iterDef.getCollectionExpr().getType() != OQLLexerTokenTypes.RegionPath) {
         throw new IndexInvalidException(
             "The fromClause for a Primary Key index should be a Region Path only");
       }
       iterDef.computeDependencies(context);
-      RuntimeIterator rIter = (iterDef.getRuntimeIterator(context));
-      String definition = rIter.getDefinition();
+      var rIter = (iterDef.getRuntimeIterator(context));
+      var definition = rIter.getDefinition();
       canonicalizedIteratorDefinitions = new String[1];
       canonicalizedIteratorDefinitions[0] = definition;
       // Bind the Index_Internal_ID to the RuntimeIterator
-      PartitionedRegion pr = context.getPartitionedRegion();
+      var pr = context.getPartitionedRegion();
       canonicalizedIteratorNames = new String[1];
       String name = null;
       if (pr != null) {
@@ -93,14 +91,14 @@ public class PrimaryKeyIndexCreationHelper extends IndexCreationHelper {
           String.format("Invalid indexed expressoion : ' %s '",
               indexedExpression));
     }
-    CompiledValue expr = (CompiledValue) ((Object[]) indexedExprs.get(0))[1];
+    var expr = (CompiledValue) ((Object[]) indexedExprs.get(0))[1];
     if (expr.getType() == CompiledValue.LITERAL) {
       throw new IndexInvalidException(
           String.format("Invalid indexed expressoion : ' %s '",
               indexedExpression));
     }
     try {
-      StringBuilder sb = new StringBuilder();
+      var sb = new StringBuilder();
       expr.generateCanonicalizedExpression(sb, context);
       this.indexedExpression = sb.toString();
     } catch (Exception e) {

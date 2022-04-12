@@ -43,7 +43,6 @@ import org.apache.geode.cache.query.internal.RuntimeIterator;
 import org.apache.geode.cache.query.internal.parse.OQLLexerTokenTypes;
 import org.apache.geode.cache.query.types.ObjectType;
 import org.apache.geode.internal.cache.InternalCache;
-import org.apache.geode.internal.cache.PartitionedRegion;
 
 class FunctionalIndexCreationHelper extends IndexCreationHelper {
 
@@ -108,7 +107,7 @@ class FunctionalIndexCreationHelper extends IndexCreationHelper {
     prepareFromClause(imgr);
     prepareIndexExpression(indexedExpression);
     prepareProjectionAttributes(projectionAttributes);
-    Object[] data = modifyIterDefToSuiteIMQ((CompiledIteratorDef) fromClauseIterators.get(0));
+    var data = modifyIterDefToSuiteIMQ((CompiledIteratorDef) fromClauseIterators.get(0));
     if (data[0] == null || data[1] == null) {
       throw new IndexInvalidException(
           String.format("Invalid FROM Clause : ' %s '",
@@ -164,18 +163,18 @@ class FunctionalIndexCreationHelper extends IndexCreationHelper {
               fromClause));
     }
 
-    int size = list.size();
+    var size = list.size();
     canonicalizedIteratorNames = new String[size];
     canonicalizedIteratorDefinitions = new String[size];
-    StringBuilder tempBuff = new StringBuilder();
-    boolean isFromClauseNull = true;
+    var tempBuff = new StringBuilder();
+    var isFromClauseNull = true;
 
     try {
-      PartitionedRegion pr = context.getPartitionedRegion();
-      for (int i = 0; i < size; i++) {
-        CompiledIteratorDef iterDef = (CompiledIteratorDef) list.get(i);
+      var pr = context.getPartitionedRegion();
+      for (var i = 0; i < size; i++) {
+        var iterDef = (CompiledIteratorDef) list.get(i);
         iterDef.computeDependencies(context);
-        RuntimeIterator rIter = iterDef.getRuntimeIterator(context);
+        var rIter = iterDef.getRuntimeIterator(context);
         context.addToIndependentRuntimeItrMapForIndexCreation(iterDef);
         context.bindIterator(rIter);
         if (i != 0 && !iterDef.isDependentOnCurrentScope(context)) {
@@ -185,7 +184,7 @@ class FunctionalIndexCreationHelper extends IndexCreationHelper {
                   fromClause));
         }
 
-        String definition = rIter.getDefinition();
+        var definition = rIter.getDefinition();
         canonicalizedIteratorDefinitions[i] = definition;
 
         // Bind the Index_Internal_ID to the RuntimeIterator
@@ -206,9 +205,9 @@ class FunctionalIndexCreationHelper extends IndexCreationHelper {
         CompiledIteratorDef newItr;
 
         if (i == 0) {
-          CompiledValue cv = iterDef.getCollectionExpr();
+          var cv = iterDef.getCollectionExpr();
           addnlProjType = rIter.getElementType();
-          String name = iterDef.getName();
+          var name = iterDef.getName();
           if (isEmpty(name)) {
             // In case the name of iterator is null or blank set it to index_internal_id
             name = canonicalizedIteratorNames[i];
@@ -245,7 +244,7 @@ class FunctionalIndexCreationHelper extends IndexCreationHelper {
 
             int firstTokenType = (Integer) reconstruct.get(0);
             if (firstTokenType == CompiledValue.PATH) {
-              String tailID = (String) reconstruct.get(1);
+              var tailID = (String) reconstruct.get(1);
 
               if (tailID.equals("asList") || tailID.equals("asSet") || tailID.equals("values")
                   || tailID.equals("toArray") || tailID.equals("getValues")) {
@@ -263,7 +262,7 @@ class FunctionalIndexCreationHelper extends IndexCreationHelper {
               }
 
               remove(reconstruct, 2, 0);
-              int secondTokenType = reconstruct.size() > 1 ? (Integer) reconstruct.get(0) : -1;
+              var secondTokenType = reconstruct.size() > 1 ? (Integer) reconstruct.get(0) : -1;
               if (!isFirstIteratorRegionEntry
                   && secondTokenType == OQLLexerTokenTypes.TOK_LBRACK) {
 
@@ -274,7 +273,7 @@ class FunctionalIndexCreationHelper extends IndexCreationHelper {
                 // don't have a corresponding list of entries. If the field is keys , an exception
                 // should be thrown as IndexOpn on set is not defined.
                 if (tailID.equals("values") || tailID.equals("getValues")) {
-                  boolean returnEntryForRegionCollection = true;
+                  var returnEntryForRegionCollection = true;
                   additionalProj = new CompiledIndexOperation(new CompiledBindArgument(1),
                       (CompiledValue) reconstruct.get(1), returnEntryForRegionCollection);
                   isFirstIteratorRegionEntry = true;
@@ -299,7 +298,7 @@ class FunctionalIndexCreationHelper extends IndexCreationHelper {
 
                 // Check if the second token name is toList or toArray or asSet.We need to remove
                 // those
-                String secTokName = (String) reconstruct.get(1);
+                var secTokName = (String) reconstruct.get(1);
                 if (secTokName.equals("asList") || secTokName.equals("asSet")
                     || secTokName.equals("toArray")) {
                   remove(reconstruct, secondTokenType == OQLLexerTokenTypes.METHOD_INV ? 3 : 2, 0);
@@ -307,13 +306,13 @@ class FunctionalIndexCreationHelper extends IndexCreationHelper {
               }
 
             } else if (firstTokenType == OQLLexerTokenTypes.TOK_LBRACK) {
-              boolean returnEntryForRegionCollection = true;
+              var returnEntryForRegionCollection = true;
               additionalProj = new CompiledIndexOperation(new CompiledBindArgument(1),
                   (CompiledValue) reconstruct.get(1), returnEntryForRegionCollection);
               isFirstIteratorRegionEntry = true;
 
             } else if (firstTokenType == OQLLexerTokenTypes.METHOD_INV) {
-              String methodName = (String) reconstruct.get(1);
+              var methodName = (String) reconstruct.get(1);
               if (methodName.equals("asList") || methodName.equals("asSet")
                   || methodName.equals("values") || methodName.equals("toArray")
                   || methodName.equals("getValues")) {
@@ -325,9 +324,9 @@ class FunctionalIndexCreationHelper extends IndexCreationHelper {
               } else if (methodName.equals("entries") || methodName.equals("getEntries")
                   || methodName.equals("entrySet")) {
                 isFirstIteratorRegionEntry = true;
-                List args = (List) reconstruct.get(2);
+                var args = (List) reconstruct.get(2);
                 if (args != null && args.size() == 1) {
-                  Object obj = args.get(0);
+                  var obj = args.get(0);
                   if (obj instanceof CompiledBindArgument) {
                     throw new IndexInvalidException(
                         "FunctionalIndexCreationHelper::prepareFromClause:entries method called with CompiledBindArgument");
@@ -336,12 +335,12 @@ class FunctionalIndexCreationHelper extends IndexCreationHelper {
               }
 
               remove(reconstruct, 3, 0);
-              int secondTokenType = reconstruct.size() > 1 ? (Integer) reconstruct.get(0) : -1;
+              var secondTokenType = reconstruct.size() > 1 ? (Integer) reconstruct.get(0) : -1;
               if (!isFirstIteratorRegionEntry
                   && secondTokenType == OQLLexerTokenTypes.TOK_LBRACK) {
 
                 if (methodName.equals("values") || methodName.equals("getValues")) {
-                  boolean returnEntryForRegionCollection = true;
+                  var returnEntryForRegionCollection = true;
                   newCollExpr = new CompiledIndexOperation(new CompiledBindArgument(1),
                       (CompiledValue) reconstruct.get(1), returnEntryForRegionCollection);
                 } else if (methodName.equals("toList") || methodName.equals("toArray")) {
@@ -363,7 +362,7 @@ class FunctionalIndexCreationHelper extends IndexCreationHelper {
 
                 // Check if the second token name is toList or toArray or asSet.We need to remove
                 // those
-                String secTokName = (String) reconstruct.get(1);
+                var secTokName = (String) reconstruct.get(1);
                 if (secTokName.equals("asList") || secTokName.equals("asSet")
                     || secTokName.equals("toArray")) {
                   remove(reconstruct, secondTokenType == OQLLexerTokenTypes.METHOD_INV ? 3 : 2, 0);
@@ -373,9 +372,9 @@ class FunctionalIndexCreationHelper extends IndexCreationHelper {
 
             if (!isFirstIteratorRegionEntry) {
               additionalProj = missingLink;
-              int len = reconstruct.size();
-              for (int j = 0; j < len; ++j) {
-                Object obj = reconstruct.get(j);
+              var len = reconstruct.size();
+              for (var j = 0; j < len; ++j) {
+                var obj = reconstruct.get(j);
                 if (obj instanceof Integer) {
                   int tokenType = (Integer) obj;
                   if (tokenType == CompiledValue.PATH) {
@@ -433,7 +432,7 @@ class FunctionalIndexCreationHelper extends IndexCreationHelper {
    * TODO: refactor large method prepareIndexExpression
    */
   private void prepareIndexExpression(String indexedExpression) throws IndexInvalidException {
-    CompiledValue expr = compiler.compileQuery(indexedExpression);
+    var expr = compiler.compileQuery(indexedExpression);
     if (expr == null) {
       throw new IndexInvalidException(
           String.format("Invalid indexed expression : ' %s '",
@@ -449,10 +448,10 @@ class FunctionalIndexCreationHelper extends IndexCreationHelper {
     }
 
     try {
-      StringBuilder sb = new StringBuilder();
+      var sb = new StringBuilder();
       if (expr instanceof MapIndexable) {
-        MapIndexable mi = (MapIndexable) expr;
-        List<CompiledValue> indexingKeys = mi.getIndexingKeys();
+        var mi = (MapIndexable) expr;
+        var indexingKeys = mi.getIndexingKeys();
 
         if (indexingKeys.size() == 1 && indexingKeys.get(0) == CompiledValue.MAP_INDEX_ALL_KEYS) {
           isMapTypeIndex = true;
@@ -472,14 +471,14 @@ class FunctionalIndexCreationHelper extends IndexCreationHelper {
           expr = mi.getReceiverSansIndexArgs();
           expr.generateCanonicalizedExpression(sb, context);
           sb.append('[');
-          String prefixStr = sb.toString();
-          StringBuilder sb2 = new StringBuilder();
+          var prefixStr = sb.toString();
+          var sb2 = new StringBuilder();
 
-          int size = indexingKeys.size();
-          for (int j = 0; j < size; ++j) {
-            CompiledValue cv = indexingKeys.get(size - j - 1);
+          var size = indexingKeys.size();
+          for (var j = 0; j < size; ++j) {
+            var cv = indexingKeys.get(size - j - 1);
             mapKeys[size - j - 1] = cv.evaluate(context);
-            StringBuilder sb3 = new StringBuilder();
+            var sb3 = new StringBuilder();
             cv.generateCanonicalizedExpression(sb3, context);
             sb3.insert(0, prefixStr);
             sb3.append(']');
@@ -525,10 +524,10 @@ class FunctionalIndexCreationHelper extends IndexCreationHelper {
       throws IndexInvalidException {
     Object[] retValues = {null, null};
     try {
-      CompiledValue def = iterDef.getCollectionExpr();
+      var def = iterDef.getCollectionExpr();
       if (def instanceof CompiledRegion) {
-        CompiledBindArgument bindArg = new CompiledBindArgument(1);
-        CompiledIteratorDef newDef = new CompiledIteratorDef(iterDef.getName(), null, bindArg);
+        var bindArg = new CompiledBindArgument(1);
+        var newDef = new CompiledIteratorDef(iterDef.getName(), null, bindArg);
         retValues[0] = def.evaluate(context);
         retValues[1] = newDef;
         return retValues;
@@ -536,11 +535,11 @@ class FunctionalIndexCreationHelper extends IndexCreationHelper {
 
       if (def instanceof CompiledPath || def instanceof CompiledOperation
           || def instanceof CompiledIndexOperation) {
-        CompiledValue cv = def;
+        var cv = def;
         List reconstruct = new ArrayList();
 
         while (!(cv instanceof CompiledRegion)) {
-          CompiledValue prevCV = cv;
+          var prevCV = cv;
           if (cv instanceof CompiledOperation) {
             reconstruct.add(0, ((CompiledOperation) cv).getArguments());
             reconstruct.add(0, ((CompiledOperation) cv).getMethodName());
@@ -558,11 +557,11 @@ class FunctionalIndexCreationHelper extends IndexCreationHelper {
           reconstruct.add(0, prevCV.getType());
         }
 
-        CompiledValue v = cv;
+        var v = cv;
         cv = new CompiledBindArgument(1);
-        int len = reconstruct.size();
-        for (int j = 0; j < len; ++j) {
-          Object obj = reconstruct.get(j);
+        var len = reconstruct.size();
+        for (var j = 0; j < len; ++j) {
+          var obj = reconstruct.get(j);
           if (obj instanceof Integer) {
             int tokenType = (Integer) obj;
             if (tokenType == CompiledValue.PATH) {
@@ -576,7 +575,7 @@ class FunctionalIndexCreationHelper extends IndexCreationHelper {
           }
         }
 
-        CompiledIteratorDef newDef = new CompiledIteratorDef(iterDef.getName(), null, cv);
+        var newDef = new CompiledIteratorDef(iterDef.getName(), null, cv);
         retValues[0] = v.evaluate(context);
         retValues[1] = newDef;
         return retValues;
@@ -597,9 +596,9 @@ class FunctionalIndexCreationHelper extends IndexCreationHelper {
       throws TypeMismatchException, NameResolutionException {
 
     if (cv instanceof CompiledIteratorDef) {
-      CompiledIteratorDef iterDef = (CompiledIteratorDef) cv;
-      RuntimeIterator rItr = (RuntimeIterator) context.getCurrentIterators().get(currItrID);
-      String canonFrmClause = rItr.getDefinition();
+      var iterDef = (CompiledIteratorDef) cv;
+      var rItr = (RuntimeIterator) context.getCurrentIterators().get(currItrID);
+      var canonFrmClause = rItr.getDefinition();
 
       // TODO: original value of isDependent is always ignored
       isDependent = canonFrmClause.startsWith(canonicalizedIteratorNames[0]);
@@ -609,18 +608,18 @@ class FunctionalIndexCreationHelper extends IndexCreationHelper {
               isDependent));
 
     } else if (cv instanceof CompiledPath) {
-      CompiledPath path = (CompiledPath) cv;
+      var path = (CompiledPath) cv;
       return new CompiledPath(
           getModifiedDependentCompiledValue(context, currItrID, path.getReceiver(), isDependent),
           path.getTailID());
 
     } else if (cv instanceof CompiledOperation) {
-      CompiledOperation oper = (CompiledOperation) cv;
-      List list = oper.getArguments();
+      var oper = (CompiledOperation) cv;
+      var list = oper.getArguments();
       List newList = new ArrayList();
-      for (Object aList : list) {
-        CompiledValue cv1 = (CompiledValue) aList;
-        StringBuilder sb = new StringBuilder();
+      for (var aList : list) {
+        var cv1 = (CompiledValue) aList;
+        var sb = new StringBuilder();
         cv1.generateCanonicalizedExpression(sb, context);
         if (sb.toString().startsWith(canonicalizedIteratorNames[0])) {
           newList.add(getModifiedDependentCompiledValue(context, currItrID, cv1, true));
@@ -630,7 +629,7 @@ class FunctionalIndexCreationHelper extends IndexCreationHelper {
       }
 
       // What if the receiver is null?
-      CompiledValue rec = oper.getReceiver(context);
+      var rec = oper.getReceiver(context);
       if (rec == null) {
         if (isDependent) {
           rec = missingLink;
@@ -643,14 +642,14 @@ class FunctionalIndexCreationHelper extends IndexCreationHelper {
       }
 
     } else if (cv instanceof CompiledFunction) {
-      CompiledFunction cf = (CompiledFunction) cv;
-      CompiledValue[] cvArray = cf.getArguments();
-      int function = cf.getFunction();
-      int len = cvArray.length;
-      CompiledValue[] newCvArray = new CompiledValue[len];
-      for (int i = 0; i < len; ++i) {
-        CompiledValue cv1 = cvArray[i];
-        StringBuilder sb = new StringBuilder();
+      var cf = (CompiledFunction) cv;
+      var cvArray = cf.getArguments();
+      var function = cf.getFunction();
+      var len = cvArray.length;
+      var newCvArray = new CompiledValue[len];
+      for (var i = 0; i < len; ++i) {
+        var cv1 = cvArray[i];
+        var sb = new StringBuilder();
         cv1.generateCanonicalizedExpression(sb, context);
         if (sb.toString().startsWith(canonicalizedIteratorNames[0])) {
           newCvArray[i] = getModifiedDependentCompiledValue(context, currItrID, cv1, true);
@@ -661,8 +660,8 @@ class FunctionalIndexCreationHelper extends IndexCreationHelper {
       return new CompiledFunction(newCvArray, function);
 
     } else if (cv instanceof CompiledID) {
-      CompiledID id = (CompiledID) cv;
-      RuntimeIterator rItr0 = (RuntimeIterator) context.getCurrentIterators().get(0);
+      var id = (CompiledID) cv;
+      var rItr0 = (RuntimeIterator) context.getCurrentIterators().get(0);
       if (isDependent) {
         String name;
         if ((name = rItr0.getName()) != null && name.equals(id.getId())) {
@@ -677,9 +676,9 @@ class FunctionalIndexCreationHelper extends IndexCreationHelper {
       }
 
     } else if (cv instanceof CompiledIndexOperation) {
-      CompiledIndexOperation co = (CompiledIndexOperation) cv;
-      CompiledValue cv1 = co.getExpression();
-      StringBuilder sb = new StringBuilder();
+      var co = (CompiledIndexOperation) cv;
+      var cv1 = co.getExpression();
+      var sb = new StringBuilder();
       cv1.generateCanonicalizedExpression(sb, context);
       if (sb.toString().startsWith(canonicalizedIteratorNames[0])) {
         cv1 = getModifiedDependentCompiledValue(context, currItrID, cv1, true);
@@ -695,7 +694,7 @@ class FunctionalIndexCreationHelper extends IndexCreationHelper {
   }
 
   private void remove(List list, int count, int index) {
-    for (int j = 0; j < count; ++j) {
+    for (var j = 0; j < count; ++j) {
       list.remove(index);
     }
   }

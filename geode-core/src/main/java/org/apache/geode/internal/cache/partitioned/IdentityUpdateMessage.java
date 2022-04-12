@@ -95,8 +95,8 @@ public class IdentityUpdateMessage extends DistributionMessage implements Messag
       int currentPRId) {
     Assert.assertTrue(recipients != null, "IdentityUpdateMessage NULL recipients set");
     IdentityRequestMessage.setLatestId(currentPRId); // set local value
-    IdentityUpdateResponse p = new IdentityUpdateResponse(is, recipients);
-    IdentityUpdateMessage m =
+    var p = new IdentityUpdateResponse(is, recipients);
+    var m =
         new IdentityUpdateMessage(recipients, p.getProcessorId(), currentPRId);
     is.getDistributionManager().putOutgoing(m); // set remote values
     return p;

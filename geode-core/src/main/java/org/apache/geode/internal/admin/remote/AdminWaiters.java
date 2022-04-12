@@ -65,7 +65,7 @@ public class AdminWaiters {
         if (failures != null && failures.size() > 0) { // didn't go out
           if (dm.getDistributionManagerIds().contains(msg.getRecipient())) {
             // it's still in the view
-            String s = " (" + msg + ")";
+            var s = " (" + msg + ")";
             throw new RuntimeAdminException(
                 String.format("Could not send request.%s", s));
           }
@@ -75,12 +75,12 @@ public class AdminWaiters {
         }
         // sent it
 
-        long timeout = getWaitTimeout();
-        boolean gotResponse = msg.waitForResponse(timeout);
+        var timeout = getWaitTimeout();
+        var gotResponse = msg.waitForResponse(timeout);
         if (!gotResponse) {
           if (dm.isCurrentMember(msg.getRecipient())) { // still here?
             // no one ever replied
-            final String sb = "Administration request " + msg
+            final var sb = "Administration request " + msg
                 + " sent to "
                 + msg.getRecipient()
                 + " timed out after "
@@ -90,7 +90,7 @@ public class AdminWaiters {
             throw new RuntimeAdminException(sb);
           } // still here?
           // recipient vanished
-          String s = " (" + msg + ")";
+          var s = " (" + msg + ")";
           throw new OperationCancelledException(
               String.format("Request sent to %s failed since member departed.%s",
                   msg.getRecipient(), s));
@@ -101,13 +101,13 @@ public class AdminWaiters {
     } catch (InterruptedException ex) {
       Thread.currentThread().interrupt();
       dm.getCancelCriterion().checkCancelInProgress(ex);
-      String s = "Request wait was interrupted.";
+      var s = "Request wait was interrupted.";
       s += " (" + msg + ")";
       throw new RuntimeAdminException(s, ex);
     }
 
     if (result == null) {
-      String s = " (" + msg + ")";
+      var s = " (" + msg + ")";
       throw new OperationCancelledException(
           String.format("Request sent to %s was cancelled. %s",
               msg.getRecipient(), s));
@@ -124,8 +124,8 @@ public class AdminWaiters {
    * Call to send a {@link AdminResponse} and notify the thread waiting for it.
    */
   public static void sendResponse(AdminResponse msg) {
-    int id = msg.getMsgId();
-    ReplyProcessor21 processor = ReplyProcessor21.getProcessor(id);
+    var id = msg.getMsgId();
+    var processor = ReplyProcessor21.getProcessor(id);
 
     if (processor == null) {
       return; // must've been cancelled
@@ -145,18 +145,18 @@ public class AdminWaiters {
   }
 
   public static void cancelRequest(int msgId, ClusterDistributionManager dm) {
-    AdminReplyProcessor processor = (AdminReplyProcessor) ReplyProcessor21.getProcessor(msgId);
+    var processor = (AdminReplyProcessor) ReplyProcessor21.getProcessor(msgId);
     if (processor != null) {
-      InternalDistributedMember recipient = processor.getResponder();
+      var recipient = processor.getResponder();
       dm.putOutgoing(CancellationMessage.create(recipient, msgId));
       processor.cancel();
     }
   }
 
   private static long getWaitTimeout() {
-    String prop = System.getProperty("remote.call.timeout", "1800");
+    var prop = System.getProperty("remote.call.timeout", "1800");
     try {
-      int val = Integer.parseInt(prop);
+      var val = Integer.parseInt(prop);
       return Math.abs(val * 1000L);
     } catch (NumberFormatException nfe) {
       return 1800 * 1000L;

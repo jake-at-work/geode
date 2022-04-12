@@ -74,12 +74,12 @@ public class ConnectExceptions extends GemFireCheckedException {
 
   @Override
   public String getMessage() {
-    StringBuilder sb = new StringBuilder();
-    for (InternalDistributedMember member : members) {
+    var sb = new StringBuilder();
+    for (var member : members) {
       sb.append(' ').append(member);
     }
     sb.append(" ").append("Causes:");
-    for (Throwable cause : causes) {
+    for (var cause : causes) {
       sb.append(" {").append(cause).append("}");
     }
     return String.format("Could not connect to: %s", sb);

@@ -22,7 +22,6 @@ import org.jetbrains.annotations.NotNull;
 import org.apache.geode.CancelException;
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.cache.TransactionInDoubtException;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.Assert;
 import org.apache.geode.internal.cache.TXCommitMessage;
@@ -59,12 +58,12 @@ public class CommitCommand extends BaseCommand {
 
 
     serverConnection.setAsTrue(REQUIRES_RESPONSE);
-    TXManagerImpl txMgr = (TXManagerImpl) serverConnection.getCache().getCacheTransactionManager();
-    InternalDistributedMember client =
+    var txMgr = (TXManagerImpl) serverConnection.getCache().getCacheTransactionManager();
+    var client =
         (InternalDistributedMember) serverConnection.getProxyID().getDistributedMember();
-    int uniqId = clientMessage.getTransactionId();
-    TXId txId = new TXId(client, uniqId);
-    TXCommitMessage commitMsg = txMgr.getRecentlyCompletedMessage(txId);
+    var uniqId = clientMessage.getTransactionId();
+    var txId = new TXId(client, uniqId);
+    var commitMsg = txMgr.getRecentlyCompletedMessage(txId);
     if (commitMsg != null) {
       if (logger.isDebugEnabled()) {
         logger.debug("TX: returning a recently committed txMessage for tx: {}", txId);
@@ -79,8 +78,8 @@ public class CommitCommand extends BaseCommand {
       txMgr.removeHostedTXState(txId);
       return;
     }
-    boolean wasInProgress = txMgr.setInProgress(true); // fixes bug 43350
-    final TXStateProxy txProxy = txMgr.getTXState();
+    var wasInProgress = txMgr.setInProgress(true); // fixes bug 43350
+    final var txProxy = txMgr.getTXState();
     Assert.assertTrue(txProxy != null);
     if (logger.isDebugEnabled()) {
       logger.debug("TX: committing client tx: {}", txId);
@@ -94,7 +93,7 @@ public class CommitCommand extends BaseCommand {
       boolean wasInProgress, TXStateProxy txProxy) throws IOException {
     Exception txException = null;
     TXCommitMessage commitMsg = null;
-    TXId txId = txProxy.getTxId();
+    var txId = txProxy.getTxId();
     try {
       txProxy.setCommitOnBehalfOfRemoteStub(true);
       txMgr.commit();
@@ -118,7 +117,7 @@ public class CommitCommand extends BaseCommand {
       }
     }
     if (txException != null) {
-      DistributedMember target = txProxy.getTarget();
+      var target = txProxy.getTarget();
       // a TransactionInDoubtException caused by the TX host shutting down means that
       // the transaction may still be active and hold locks. We must wait for the transaction
       // host to finish shutting down before responding to the client or it could encounter
@@ -129,7 +128,7 @@ public class CommitCommand extends BaseCommand {
           // base the wait time on the client's read-timeout setting so that we respond before
           // it gives up reading. Since we've already done a commit we've eaten up some time
           // so we use a WAG of half the read-timeout
-          int timeToWait = serverConnection.getHandshake().getClientReadTimeout() / 2;
+          var timeToWait = serverConnection.getHandshake().getClientReadTimeout() / 2;
           if (timeToWait < 0) {
             return;
           }
@@ -158,7 +157,7 @@ public class CommitCommand extends BaseCommand {
 
   protected static void writeCommitResponse(TXCommitMessage response, Message origMsg,
       ServerConnection servConn) throws IOException {
-    Message responseMsg = servConn.getResponseMessage();
+    var responseMsg = servConn.getResponseMessage();
     responseMsg.setMessageType(MessageType.RESPONSE);
     responseMsg.setTransactionId(origMsg.getTransactionId());
     responseMsg.setNumberOfParts(1);

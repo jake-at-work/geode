@@ -51,7 +51,7 @@ class BackupReplyProcessor extends AdminMultipleReplyProcessor {
   @Override
   protected void process(DistributionMessage message, boolean warn) {
     if (message instanceof BackupResponse) {
-      BackupResponse response = (BackupResponse) message;
+      var response = (BackupResponse) message;
       resultCollector.addToResults(response.getSender(), response.getPersistentIds());
     }
     super.process(message, warn);

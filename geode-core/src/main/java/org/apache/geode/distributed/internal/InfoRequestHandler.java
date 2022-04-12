@@ -17,7 +17,6 @@ package org.apache.geode.distributed.internal;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 
 import org.apache.geode.distributed.internal.tcpserver.InfoResponse;
 import org.apache.geode.distributed.internal.tcpserver.TcpHandler;
@@ -29,18 +28,18 @@ public class InfoRequestHandler implements TcpHandler {
 
   @Override
   public Object processRequest(final Object request) throws IOException {
-    String[] info = new String[2];
+    var info = new String[2];
     info[0] = System.getProperty("user.dir");
 
-    URL url = GemFireVersion.getJarURL();
+    var url = GemFireVersion.getJarURL();
     if (url == null) {
-      String s = "Could not find gemfire jar";
+      var s = "Could not find gemfire jar";
       throw new IllegalStateException(s);
     }
 
-    File gemfireJar = new File(url.getPath());
-    File lib = gemfireJar.getParentFile();
-    File product = lib.getParentFile();
+    var gemfireJar = new File(url.getPath());
+    var lib = gemfireJar.getParentFile();
+    var product = lib.getParentFile();
     info[1] = product.getAbsolutePath();
 
     return new InfoResponse(info);

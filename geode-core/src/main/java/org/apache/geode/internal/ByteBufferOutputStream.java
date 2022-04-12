@@ -52,11 +52,11 @@ public class ByteBufferOutputStream extends OutputStream {
   }
 
   private void expand(int amount) {
-    int oldcap = buffer.capacity();
-    int newcap = oldcap + amount + 1024;
+    var oldcap = buffer.capacity();
+    var newcap = oldcap + amount + 1024;
     // System.out.println("buffer.capacity=" + buffer.capacity() + " expand amt = " + amount);
     // System.out.println("reallocating buffer size to " + newcap);
-    ByteBuffer tmp = ByteBuffer.allocate(newcap);
+    var tmp = ByteBuffer.allocate(newcap);
     buffer.flip();
     tmp.put(buffer);
     buffer = tmp;

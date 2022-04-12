@@ -23,7 +23,6 @@ import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.DataSerializer;
 import org.apache.geode.cache.ExpirationAction;
-import org.apache.geode.cache.Region;
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
@@ -41,7 +40,7 @@ public class DestroyEntryMessage extends RegionAdminMessage {
   private ExpirationAction action;
 
   public static DestroyEntryMessage create(Object key, ExpirationAction action) {
-    DestroyEntryMessage m = new DestroyEntryMessage();
+    var m = new DestroyEntryMessage();
     m.action = action;
     m.key = key;
     return m;
@@ -49,7 +48,7 @@ public class DestroyEntryMessage extends RegionAdminMessage {
 
   @Override
   public void process(ClusterDistributionManager dm) {
-    Region r = getRegion(dm.getSystem());
+    var r = getRegion(dm.getSystem());
     if (r != null) {
       try {
         if (action == ExpirationAction.LOCAL_DESTROY) {

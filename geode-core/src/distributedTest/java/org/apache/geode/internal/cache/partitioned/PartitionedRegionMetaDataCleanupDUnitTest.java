@@ -20,7 +20,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.ExpirationAttributes;
-import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.test.dunit.Assert;
@@ -42,13 +41,13 @@ public class PartitionedRegionMetaDataCleanupDUnitTest extends JUnit4CacheTestCa
 
   @Test
   public void testCleanupOnCloseCache() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     createPR(vm0, "region1", 5);
     createPR(vm1, "region2", 10);
     // This should fail
-    IgnoredException ex = IgnoredException.addIgnoredException("IllegalStateException", vm1);
+    var ex = IgnoredException.addIgnoredException("IllegalStateException", vm1);
     try {
       createPR(vm1, "region1", 10);
       fail("Should have received an exception");
@@ -63,13 +62,13 @@ public class PartitionedRegionMetaDataCleanupDUnitTest extends JUnit4CacheTestCa
 
   @Test
   public void testCleanupOnCloseRegion() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     createPR(vm0, "region1", 5);
     createPR(vm1, "region2", 10);
     // This should fail
-    IgnoredException ex = IgnoredException.addIgnoredException("IllegalStateException", vm1);
+    var ex = IgnoredException.addIgnoredException("IllegalStateException", vm1);
     try {
       createPR(vm1, "region1", 10);
       fail("Should have received an exception");
@@ -84,13 +83,13 @@ public class PartitionedRegionMetaDataCleanupDUnitTest extends JUnit4CacheTestCa
 
   @Test
   public void testCrash() throws InterruptedException {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     createPR(vm0, "region1", 5);
     createPR(vm1, "region2", 10);
     // This should fail
-    IgnoredException ex = IgnoredException.addIgnoredException("IllegalStateException", vm1);
+    var ex = IgnoredException.addIgnoredException("IllegalStateException", vm1);
     try {
       createPR(vm1, "region1", 10);
       fail("Should have received an exception");
@@ -124,7 +123,7 @@ public class PartitionedRegionMetaDataCleanupDUnitTest extends JUnit4CacheTestCa
     vm0.invoke(new SerializableRunnable() {
       @Override
       public void run() {
-        InternalDistributedSystem ds =
+        var ds =
             (InternalDistributedSystem) getCache().getDistributedSystem();
         // Shutdown without closing the cache.
         ds.getDistributionManager().close();
@@ -167,15 +166,15 @@ public class PartitionedRegionMetaDataCleanupDUnitTest extends JUnit4CacheTestCa
     vm0.invoke(new SerializableRunnable() {
       @Override
       public void run() {
-        RegionFactory<Object, Object> rf = getCache().createRegionFactory(RegionShortcut.PARTITION)
+        var rf = getCache().createRegionFactory(RegionShortcut.PARTITION)
             // .setEvictionAttributes(EvictionAttributes.createLIFOEntryAttributes(evictionEntries,
             // EvictionAction.LOCAL_DESTROY))
             .setEntryTimeToLive(new ExpirationAttributes(expirationTime));
 
         // We may log an exception if the create fails. Ignore thse.
-        IgnoredException ex = IgnoredException.addIgnoredException("IllegalStateException");
+        var ex = IgnoredException.addIgnoredException("IllegalStateException");
         try {
-          int i = 0;
+          var i = 0;
           // Loop until a successful create
           while (true) {
             try {

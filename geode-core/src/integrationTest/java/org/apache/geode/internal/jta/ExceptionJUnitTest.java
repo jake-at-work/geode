@@ -44,7 +44,7 @@ public class ExceptionJUnitTest {
 
   @BeforeClass
   public static void beforeClass() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     ds = DistributedSystem.connect(props);
     tm = TransactionManagerImpl.getTransactionManager();
@@ -88,12 +88,12 @@ public class ExceptionJUnitTest {
   public void testRollbackIllegalStateException() throws Exception {
     try {
       utx.begin();
-      GlobalTransaction gtx = tm.getGlobalTransaction();
+      var gtx = tm.getGlobalTransaction();
       gtx.setStatus(Status.STATUS_UNKNOWN);
       utx.rollback();
       fail("IllegalStateException not thrown on rollback");
     } catch (IllegalStateException e) {
-      GlobalTransaction gtx = tm.getGlobalTransaction();
+      var gtx = tm.getGlobalTransaction();
       gtx.setStatus(Status.STATUS_ACTIVE);
       utx.commit();
     }
@@ -103,7 +103,7 @@ public class ExceptionJUnitTest {
   public void testAddNullTransaction() throws Exception {
     try {
       utx.begin();
-      GlobalTransaction gtx = tm.getGlobalTransaction();
+      var gtx = tm.getGlobalTransaction();
       Transaction txn = null;
       gtx.addTransaction(txn);
       utx.commit();

@@ -77,8 +77,8 @@ public class TXLockIdImpl implements TXLockId, DataSerializableFixedID {
 
   @Override
   public int hashCode() {
-    int result = 17;
-    final int mult = 37;
+    var result = 17;
+    final var mult = 37;
 
     result = mult * result + (memberId == null ? 0 : memberId.hashCode());
     result = mult * result + id;
@@ -97,7 +97,7 @@ public class TXLockIdImpl implements TXLockId, DataSerializableFixedID {
     if (!(other instanceof TXLockIdImpl)) {
       return false;
     }
-    final TXLockIdImpl that = (TXLockIdImpl) other;
+    final var that = (TXLockIdImpl) other;
 
     if (memberId != that.memberId
         && !(memberId != null && memberId.equals(that.memberId))) {
@@ -148,7 +148,7 @@ public class TXLockIdImpl implements TXLockId, DataSerializableFixedID {
 
   public static TXLockIdImpl createFromData(DataInput in)
       throws IOException, ClassNotFoundException {
-    TXLockIdImpl result = new TXLockIdImpl();
+    var result = new TXLockIdImpl();
     result.fromData(in, InternalDataSerializer.createDeserializationContext(in));
     return result;
   }

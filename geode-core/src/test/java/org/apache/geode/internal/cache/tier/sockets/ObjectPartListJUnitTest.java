@@ -32,17 +32,17 @@ public class ObjectPartListJUnitTest {
 
   @Test
   public void testValueAsObject() throws Exception {
-    VersionedObjectList list = new VersionedObjectList(100, false, false);
-    byte[] normalBytes = "value1".getBytes();
+    var list = new VersionedObjectList(100, false, false);
+    var normalBytes = "value1".getBytes();
     list.addObjectPart("key", normalBytes, false, null);
     list.addObjectPart("key", "value2", true, null);
-    byte[] serializedObjectBytes = BlobHelper.serializeToBlob("value3");
+    var serializedObjectBytes = BlobHelper.serializeToBlob("value3");
     list.addObjectPart("key", serializedObjectBytes, true, null);
     list.addExceptionPart("key", new AssertionError("hello"));
     list.addObjectPartForAbsentKey("key", null);
 
     // Create a clone of the this.
-    VersionedObjectList newList = CopyHelper.copy(list);
+    var newList = CopyHelper.copy(list);
 
     checkObjectValues(newList);
 
@@ -71,16 +71,16 @@ public class ObjectPartListJUnitTest {
   @Test
   public void testValueAsObjectByteArray() throws Exception {
     ObjectPartList list = new VersionedObjectList(100, false, false, true);
-    byte[] normalBytes = "value1".getBytes();
+    var normalBytes = "value1".getBytes();
     list.addObjectPart("key", normalBytes, false, null);
     list.addObjectPart("key", "value2", true, null);
-    byte[] serializedObjectBytes = BlobHelper.serializeToBlob("value3");
+    var serializedObjectBytes = BlobHelper.serializeToBlob("value3");
     list.addObjectPart("key", serializedObjectBytes, true, null);
     list.addExceptionPart("key", new AssertionError("hello"));
     list.addObjectPartForAbsentKey("key", null);
 
     // Create a clone of the this list.
-    ObjectPartList newList = CopyHelper.copy(list);
+    var newList = CopyHelper.copy(list);
 
     checkSerializedValues(newList);
 

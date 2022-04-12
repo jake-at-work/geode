@@ -44,8 +44,8 @@ public class PulseControllerTestContext {
 
   @Bean
   public Repository repository() {
-    Repository repository = mock(Repository.class);
-    ResourceBundle resourceBundle = getResourceBundle();
+    var repository = mock(Repository.class);
+    var resourceBundle = getResourceBundle();
     when(repository.getResourceBundle()).thenReturn(resourceBundle);
     return repository;
   }
@@ -57,8 +57,8 @@ public class PulseControllerTestContext {
 
   @Bean
   public PropertiesFileLoader propertiesLoader() {
-    PropertiesFileLoader propertiesFileLoader = mock(PropertiesFileLoader.class);
-    Properties properties = new Properties();
+    var propertiesFileLoader = mock(PropertiesFileLoader.class);
+    var properties = new Properties();
     properties.setProperty(PulseConstants.PROPERTY_BUILD_ID, "not empty");
     properties.setProperty(PulseConstants.PROPERTY_PULSE_VERSION, "not empty");
     properties.setProperty(PulseConstants.PROPERTY_SOURCE_DATE, "not empty");

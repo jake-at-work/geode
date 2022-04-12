@@ -61,7 +61,7 @@ public class CommandRequest {
     this.fileList = fileList;
     this.parseResult = parseResult;
 
-    CliMetaData metaData = parseResult.getMethod().getDeclaredAnnotation(CliMetaData.class);
+    var metaData = parseResult.getMethod().getDeclaredAnnotation(CliMetaData.class);
     downloadFile = (metaData != null && metaData.isFileDownloadOverHttp());
   }
 

@@ -22,9 +22,7 @@ import static org.apache.geode.tools.pulse.internal.util.NameUtil.makeCompliantN
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +30,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-import org.apache.geode.tools.pulse.internal.data.Cluster;
 import org.apache.geode.tools.pulse.internal.data.Repository;
 
 /**
@@ -66,15 +63,15 @@ public class MemberRegionsService implements PulseService {
   public ObjectNode execute(final HttpServletRequest request) throws Exception {
 
     // get cluster object
-    Cluster cluster = repository.getCluster();
+    var cluster = repository.getCluster();
 
     // json object to be sent as response
-    ObjectNode responseJSON = mapper.createObjectNode();
+    var responseJSON = mapper.createObjectNode();
 
-    JsonNode requestDataJSON = mapper.readTree(request.getParameter("pulseData"));
-    String memberName = requestDataJSON.get("MemberRegions").get("memberName").textValue();
+    var requestDataJSON = mapper.readTree(request.getParameter("pulseData"));
+    var memberName = requestDataJSON.get("MemberRegions").get("memberName").textValue();
 
-    Cluster.Member clusterMember = cluster.getMember(makeCompliantName(memberName));
+    var clusterMember = cluster.getMember(makeCompliantName(memberName));
 
     if (clusterMember != null) {
       responseJSON.put("memberId", clusterMember.getId());
@@ -82,19 +79,19 @@ public class MemberRegionsService implements PulseService {
       responseJSON.put("host", clusterMember.getHost());
 
       // member's regions
-      Cluster.Region[] memberRegions = clusterMember.getMemberRegionsList();
-      ArrayNode regionsListJson = mapper.createArrayNode();
-      for (Cluster.Region memberRegion : memberRegions) {
-        ObjectNode regionJSON = mapper.createObjectNode();
+      var memberRegions = clusterMember.getMemberRegionsList();
+      var regionsListJson = mapper.createArrayNode();
+      for (var memberRegion : memberRegions) {
+        var regionJSON = mapper.createObjectNode();
         regionJSON.put(NAME, memberRegion.getName());
 
         regionJSON.put("fullPath", memberRegion.getFullPath());
 
         regionJSON.put("type", memberRegion.getRegionType());
         regionJSON.put("entryCount", memberRegion.getSystemRegionEntryCount());
-        long entrySize = memberRegion.getEntrySize();
+        var entrySize = memberRegion.getEntrySize();
 
-        String entrySizeInMB = FOUR_PLACE_DECIMAL_FORMAT.format(entrySize / (1024f * 1024f));
+        var entrySizeInMB = FOUR_PLACE_DECIMAL_FORMAT.format(entrySize / (1024f * 1024f));
 
         if (entrySize < 0) {
           regionJSON.put(ENTRY_SIZE, VALUE_NA);
@@ -102,7 +99,7 @@ public class MemberRegionsService implements PulseService {
           regionJSON.put(ENTRY_SIZE, entrySizeInMB);
         }
         regionJSON.put("scope", memberRegion.getScope());
-        String diskStoreName = memberRegion.getDiskStoreName();
+        var diskStoreName = memberRegion.getDiskStoreName();
         if (StringUtils.isNotBlank(diskStoreName)) {
           regionJSON.put(DISC_STORE_NAME, diskStoreName);
           regionJSON.put(DISC_SYNCHRONOUS, memberRegion.isDiskSynchronous());

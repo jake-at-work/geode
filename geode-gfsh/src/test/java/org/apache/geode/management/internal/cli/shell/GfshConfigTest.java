@@ -50,7 +50,7 @@ public class GfshConfigTest {
 
   @Test
   public void getInitFileNameReturnsNullIfNotProvided() {
-    GfshConfig gfshConfig = new GfshConfig(gfshHistoryFilePath.toString(), "", 0,
+    var gfshConfig = new GfshConfig(gfshHistoryFilePath.toString(), "", 0,
         gfshLogDirPath.toString(), null, null, null, null);
 
     assertThat(gfshConfig.getInitFileName())
@@ -61,10 +61,10 @@ public class GfshConfigTest {
   @Test
   public void getInitFileNameReturnsNameIfProvidedButDoesNotExist() {
     // Construct the file name but not the file
-    Path initFilePath =
+    var initFilePath =
         temporaryFolder.getRoot().toPath().resolve(DEFAULT_INIT_FILE_NAME).toAbsolutePath();
 
-    GfshConfig gfshConfig = new GfshConfig(gfshHistoryFilePath.toString(), "", 0,
+    var gfshConfig = new GfshConfig(gfshHistoryFilePath.toString(), "", 0,
         gfshLogDirPath.toString(), null, null, null, initFilePath.toString());
 
     assertThat(gfshConfig.getInitFileName())
@@ -74,11 +74,11 @@ public class GfshConfigTest {
 
   @Test
   public void getInitFileNameReturnsNameIfProvidedButEmpty() throws Exception {
-    Path initFilePath =
+    var initFilePath =
         temporaryFolder.getRoot().toPath().resolve(DEFAULT_INIT_FILE_NAME).toAbsolutePath();
     createFile(initFilePath);
 
-    GfshConfig gfshConfig = new GfshConfig(gfshHistoryFilePath.toString(), "", 0,
+    var gfshConfig = new GfshConfig(gfshHistoryFilePath.toString(), "", 0,
         gfshLogDirPath.toString(), null, null, null, initFilePath.toString());
 
     assertThat(gfshConfig.getInitFileName())
@@ -88,12 +88,12 @@ public class GfshConfigTest {
 
   @Test
   public void getInitFileNameReturnsNameIfProvidedWithGoodCommand() throws Exception {
-    Path initFilePath =
+    var initFilePath =
         temporaryFolder.getRoot().toPath().resolve(DEFAULT_INIT_FILE_NAME).toAbsolutePath();
     writeStringToFile(initFilePath.toFile(), "echo --string=hello" + lineSeparator(),
         defaultCharset());
 
-    GfshConfig gfshConfig = new GfshConfig(gfshHistoryFilePath.toString(), "", 0,
+    var gfshConfig = new GfshConfig(gfshHistoryFilePath.toString(), "", 0,
         gfshLogDirPath.toString(), null, null, null, initFilePath.toString());
 
     assertThat(gfshConfig.getInitFileName())
@@ -103,14 +103,14 @@ public class GfshConfigTest {
 
   @Test
   public void getInitFileNameReturnsNameIfProvidedWithGoodCommands() throws Exception {
-    Path initFilePath =
+    var initFilePath =
         temporaryFolder.getRoot().toPath().resolve(DEFAULT_INIT_FILE_NAME).toAbsolutePath();
     writeStringToFile(initFilePath.toFile(), "echo --string=hello" + lineSeparator(),
         defaultCharset());
     writeStringToFile(initFilePath.toFile(), "echo --string=goodbye" + lineSeparator(),
         defaultCharset(), true);
 
-    GfshConfig gfshConfig = new GfshConfig(gfshHistoryFilePath.toString(), "", 0,
+    var gfshConfig = new GfshConfig(gfshHistoryFilePath.toString(), "", 0,
         gfshLogDirPath.toString(), null, null, null, initFilePath.toString());
 
     assertThat(gfshConfig.getInitFileName())
@@ -120,11 +120,11 @@ public class GfshConfigTest {
 
   @Test
   public void getInitFileNameReturnsNameIfProvidedWithBadCommand() throws Exception {
-    Path initFilePath =
+    var initFilePath =
         temporaryFolder.getRoot().toPath().resolve(DEFAULT_INIT_FILE_NAME).toAbsolutePath();
     writeStringToFile(initFilePath.toFile(), "fail" + lineSeparator(), defaultCharset());
 
-    GfshConfig gfshConfig = new GfshConfig(gfshHistoryFilePath.toString(), "", 0,
+    var gfshConfig = new GfshConfig(gfshHistoryFilePath.toString(), "", 0,
         gfshLogDirPath.toString(), null, null, null, initFilePath.toString());
 
     assertThat(gfshConfig.getInitFileName())
@@ -134,12 +134,12 @@ public class GfshConfigTest {
 
   @Test
   public void getInitFileNameReturnsNameIfProvidedWithBadCommands() throws Exception {
-    Path initFilePath =
+    var initFilePath =
         temporaryFolder.getRoot().toPath().resolve(DEFAULT_INIT_FILE_NAME).toAbsolutePath();
     writeStringToFile(initFilePath.toFile(), "fail" + lineSeparator(), defaultCharset());
     writeStringToFile(initFilePath.toFile(), "fail" + lineSeparator(), defaultCharset(), true);
 
-    GfshConfig gfshConfig = new GfshConfig(gfshHistoryFilePath.toString(), "", 0,
+    var gfshConfig = new GfshConfig(gfshHistoryFilePath.toString(), "", 0,
         gfshLogDirPath.toString(), null, null, null, initFilePath.toString());
 
     assertThat(gfshConfig.getInitFileName())
@@ -149,13 +149,13 @@ public class GfshConfigTest {
 
   @Test
   public void getInitFileNameReturnsNameIfProvidedWithGoodAndBadCommands() throws Exception {
-    Path initFilePath =
+    var initFilePath =
         temporaryFolder.getRoot().toPath().resolve(DEFAULT_INIT_FILE_NAME).toAbsolutePath();
     writeStringToFile(initFilePath.toFile(), "fail" + lineSeparator(), defaultCharset());
     writeStringToFile(initFilePath.toFile(), "echo --string=goodbye" + lineSeparator(),
         defaultCharset(), true);
 
-    GfshConfig gfshConfig = new GfshConfig(gfshHistoryFilePath.toString(), "", 0,
+    var gfshConfig = new GfshConfig(gfshHistoryFilePath.toString(), "", 0,
         gfshLogDirPath.toString(), null, null, null, initFilePath.toString());
 
     assertThat(gfshConfig.getInitFileName())

@@ -33,89 +33,89 @@ public class ConnectionConfigTest {
 
   @Test
   public void distributionConfig_doesNotContainDsQuorumCheckerProperty() {
-    QuorumChecker quorumChecker = mock(QuorumChecker.class);
-    Properties properties = new Properties();
+    var quorumChecker = mock(QuorumChecker.class);
+    var properties = new Properties();
     properties.put(DS_QUORUM_CHECKER_NAME, quorumChecker);
 
-    ConnectionConfigImpl config = new ConnectionConfigImpl(properties);
+    var config = new ConnectionConfigImpl(properties);
 
-    DistributionConfigImpl result = (DistributionConfigImpl) config.distributionConfig();
+    var result = (DistributionConfigImpl) config.distributionConfig();
     assertThat(result.getProps()).doesNotContainKey(DS_QUORUM_CHECKER_NAME);
   }
 
   @Test
   public void distributionConfig_doesNotContainDsReconnectingProperty() {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.put(DS_RECONNECTING_NAME, Boolean.TRUE);
 
-    ConnectionConfigImpl config = new ConnectionConfigImpl(properties);
+    var config = new ConnectionConfigImpl(properties);
 
-    DistributionConfigImpl result = (DistributionConfigImpl) config.distributionConfig();
+    var result = (DistributionConfigImpl) config.distributionConfig();
     assertThat(result.getProps()).doesNotContainKey(DS_RECONNECTING_NAME);
   }
 
   @Test
   public void distributionConfig_doesNotContainDsConfigProperty() {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.put(DS_CONFIG_NAME, mock(DistributionConfig.class));
 
-    ConnectionConfigImpl config = new ConnectionConfigImpl(properties);
+    var config = new ConnectionConfigImpl(properties);
 
-    DistributionConfigImpl result = (DistributionConfigImpl) config.distributionConfig();
+    var result = (DistributionConfigImpl) config.distributionConfig();
     assertThat(result.getProps()).doesNotContainKey(DS_CONFIG_NAME);
   }
 
   @Test
   public void isReconnecting_isTrue_ifReconnectingPropertyIsTrue() {
-    Properties properties = new Properties();
+    var properties = new Properties();
 
     properties.put(DS_RECONNECTING_NAME, Boolean.TRUE);
 
-    ConnectionConfigImpl config = new ConnectionConfigImpl(properties);
+    var config = new ConnectionConfigImpl(properties);
 
     assertThat(config.isReconnecting()).isTrue();
   }
 
   @Test
   public void isReconnecting_isFalse_ifReconnectingPropertyIsFalse() {
-    Properties properties = new Properties();
+    var properties = new Properties();
 
     properties.put(DS_RECONNECTING_NAME, Boolean.FALSE);
 
-    ConnectionConfigImpl config = new ConnectionConfigImpl(properties);
+    var config = new ConnectionConfigImpl(properties);
 
     assertThat(config.isReconnecting()).isFalse();
   }
 
   @Test
   public void isReconnecting_isFalse_ifReconnectingPropertyDoesNotExist() {
-    Properties properties = new Properties();
+    var properties = new Properties();
 
     properties.remove(DS_RECONNECTING_NAME);
 
-    ConnectionConfigImpl config = new ConnectionConfigImpl(properties);
+    var config = new ConnectionConfigImpl(properties);
 
     assertThat(config.isReconnecting()).isFalse();
   }
 
   @Test
   public void isReconnecting_isFalse_ifReconnectingPropertyIsNotBoolean() {
-    Properties properties = new Properties();
+    var properties = new Properties();
 
     properties.put(DS_RECONNECTING_NAME, "a string, not a boolean");
 
-    ConnectionConfigImpl config = new ConnectionConfigImpl(properties);
+    var config = new ConnectionConfigImpl(properties);
 
     assertThat(config.isReconnecting()).isFalse();
   }
 
   @Test
   public void quorumChecker_returnsQuorumCheckerProperty_ifPropertyIsAQuorumChecker() {
-    QuorumChecker quorumCheckerFromProperties = mock(QuorumChecker.class);
-    Properties properties = new Properties();
+    var quorumCheckerFromProperties = mock(QuorumChecker.class);
+    var properties = new Properties();
     properties.put(DS_QUORUM_CHECKER_NAME, quorumCheckerFromProperties);
 
-    ConnectionConfigImpl config = new ConnectionConfigImpl(properties);
+    var config = new ConnectionConfigImpl(properties);
 
     assertThat(config.quorumChecker())
         .isSameAs(quorumCheckerFromProperties);
@@ -123,33 +123,33 @@ public class ConnectionConfigTest {
 
   @Test
   public void quorumChecker_returnsNull_ifQuorumCheckerPropertyDoesNotExist() {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.remove(DS_QUORUM_CHECKER_NAME);
 
-    ConnectionConfigImpl config = new ConnectionConfigImpl(properties);
+    var config = new ConnectionConfigImpl(properties);
 
     assertThat(config.quorumChecker()).isNull();
   }
 
   @Test
   public void quorumChecker_returnsNull_ifQuorumCheckerPropertyIsNotAQuorumChecker() {
-    Properties properties = new Properties();
+    var properties = new Properties();
 
     properties.put(DS_QUORUM_CHECKER_NAME, "a string, not a quorum checker");
 
-    ConnectionConfigImpl config = new ConnectionConfigImpl(properties);
+    var config = new ConnectionConfigImpl(properties);
 
     assertThat(config.quorumChecker()).isNull();
   }
 
   @Test
   public void distributionConfig_returnsConfigProperty_ifPropertyIsADistributionConfigImpl() {
-    DistributionConfigImpl distributionConfigFromProperties =
+    var distributionConfigFromProperties =
         new DistributionConfigImpl(new Properties());
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.put(DS_CONFIG_NAME, distributionConfigFromProperties);
 
-    ConnectionConfigImpl config = new ConnectionConfigImpl(properties);
+    var config = new ConnectionConfigImpl(properties);
 
     assertThat(config.distributionConfig())
         .isSameAs(distributionConfigFromProperties);
@@ -157,10 +157,10 @@ public class ConnectionConfigTest {
 
   @Test
   public void distributionConfig_returnsDistributionConfigImpl_ifConfigPropertyDoesNotExist() {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.remove(DS_CONFIG_NAME);
 
-    ConnectionConfigImpl config = new ConnectionConfigImpl(properties);
+    var config = new ConnectionConfigImpl(properties);
 
     assertThat(config.distributionConfig())
         .isInstanceOf(DistributionConfigImpl.class);
@@ -168,11 +168,11 @@ public class ConnectionConfigTest {
 
   @Test
   public void distributionConfig_returnsDistributionConfigImpl_ifConfigPropertyIsNotADistributionConfigImpl() {
-    String distributionConfigFromProperties = "a string, not a distribution config";
-    Properties properties = new Properties();
+    var distributionConfigFromProperties = "a string, not a distribution config";
+    var properties = new Properties();
     properties.put(DS_CONFIG_NAME, distributionConfigFromProperties);
 
-    ConnectionConfigImpl config = new ConnectionConfigImpl(properties);
+    var config = new ConnectionConfigImpl(properties);
 
     assertThat(config.distributionConfig())
         .isInstanceOf(DistributionConfigImpl.class)

@@ -28,7 +28,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.examples.SimpleSecurityManager;
 import org.apache.geode.test.dunit.IgnoredException;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
@@ -56,7 +55,7 @@ public class SecurityWithoutClusterConfigDUnitTest {
     IgnoredException
         .addIgnoredException(
             "A server must use cluster configuration when joining a secured cluster.");
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(SECURITY_MANAGER, SimpleSecurityManager.class.getName());
     props.setProperty(SECURITY_POST_PROCESSOR, PDXPostProcessor.class.getName());
     props.setProperty(ENABLE_CLUSTER_CONFIGURATION, "false");
@@ -69,7 +68,7 @@ public class SecurityWithoutClusterConfigDUnitTest {
   // or no security manager at all. Currently this is valid, but not recommended.
   public void testStartServerWithClusterConfig() throws Exception {
 
-    Properties props = new Properties();
+    var props = new Properties();
     // the following are needed for peer-to-peer authentication
     props.setProperty("security-username", "cluster");
     props.setProperty("security-password", "cluster");
@@ -78,11 +77,11 @@ public class SecurityWithoutClusterConfigDUnitTest {
 
     // initial security properties should only contain initial set of values
     serverStarter.withProperties(props).withConnectionToLocator(locator.getPort()).startServer();
-    DistributedSystem ds = serverStarter.getCache().getDistributedSystem();
+    var ds = serverStarter.getCache().getDistributedSystem();
     assertEquals(3, ds.getSecurityProperties().size());
 
     // after cache is created, we got the security props passed in by cluster config
-    Properties secProps = ds.getSecurityProperties();
+    var secProps = ds.getSecurityProperties();
     assertEquals(3, secProps.size());
     assertEquals(TestSecurityManager.class.getName(), secProps.getProperty("security-manager"));
     assertFalse(secProps.containsKey("security-post-processor"));

@@ -138,11 +138,11 @@ public class JmxServerReconnectDistributedTest implements Serializable {
     locator2VM = getVM(1);
     serverVM = getVM(2);
 
-    File locator1Dir = temporaryFolder.newFolder(LOCATOR_1_NAME);
-    File locator2Dir = temporaryFolder.newFolder(LOCATOR_2_NAME);
-    File serverDir = temporaryFolder.newFolder(SERVER_NAME);
+    var locator1Dir = temporaryFolder.newFolder(LOCATOR_1_NAME);
+    var locator2Dir = temporaryFolder.newFolder(LOCATOR_2_NAME);
+    var serverDir = temporaryFolder.newFolder(SERVER_NAME);
 
-    int[] port = getRandomAvailableTCPPorts(4);
+    var port = getRandomAvailableTCPPorts(4);
     locator1Port = port[0];
     locator2Port = port[1];
     locator1JmxPort = port[2];
@@ -162,7 +162,7 @@ public class JmxServerReconnectDistributedTest implements Serializable {
 
     gfsh.connectAndVerify(locator1JmxPort, PortType.jmxManager);
 
-    String createRegionCommand = "create region --type=REPLICATE --name=" + SEPARATOR + REGION_NAME;
+    var createRegionCommand = "create region --type=REPLICATE --name=" + SEPARATOR + REGION_NAME;
     gfsh.executeAndAssertThat(createRegionCommand).statusIsSuccess();
 
     addIgnoredException(AlertingIOException.class);
@@ -228,7 +228,7 @@ public class JmxServerReconnectDistributedTest implements Serializable {
 
   @Test
   public void locatorsHaveMemberTypeMXBeansForServer() {
-    for (VM locatorVM : toArray(locator1VM, locator2VM)) {
+    for (var locatorVM : toArray(locator1VM, locator2VM)) {
       locatorVM.invoke(() -> {
         await().untilAsserted(() -> {
           assertThat(getPlatformMBeanServer().queryNames(GEMFIRE_MXBEANS, QUERY_ALL))
@@ -260,7 +260,7 @@ public class JmxServerReconnectDistributedTest implements Serializable {
 
   @Test
   public void locatorsHaveDistributedTypeMXBeans() {
-    for (VM locatorVM : toArray(locator1VM, locator2VM)) {
+    for (var locatorVM : toArray(locator1VM, locator2VM)) {
       locatorVM.invoke(() -> {
         await().untilAsserted(() -> {
           assertThat(getPlatformMBeanServer().queryNames(GEMFIRE_MXBEANS, QUERY_ALL))
@@ -293,12 +293,12 @@ public class JmxServerReconnectDistributedTest implements Serializable {
     });
 
     locator1VM.invoke(() -> {
-      InternalLocator locator = (InternalLocator) locatorLauncher.get().getLocator();
+      var locator = (InternalLocator) locatorLauncher.get().getLocator();
 
       await().untilAsserted(() -> {
-        boolean isReconnected = locator.isReconnected();
-        boolean isSharedConfigurationRunning = locator.isSharedConfigurationRunning();
-        Set<ObjectName> mbeanNames =
+        var isReconnected = locator.isReconnected();
+        var isSharedConfigurationRunning = locator.isSharedConfigurationRunning();
+        var mbeanNames =
             getPlatformMBeanServer().queryNames(GEMFIRE_MXBEANS, QUERY_ALL);
 
         assertThat(isReconnected)
@@ -344,8 +344,8 @@ public class JmxServerReconnectDistributedTest implements Serializable {
     });
 
     serverVM.invoke(() -> {
-      InternalCache cache = (InternalCache) serverLauncher.get().getCache();
-      InternalDistributedSystem system = cache.getInternalDistributedSystem();
+      var cache = (InternalCache) serverLauncher.get().getCache();
+      var system = cache.getInternalDistributedSystem();
 
       await().untilAsserted(() -> {
         assertThat(system.isReconnecting())
@@ -419,7 +419,7 @@ public class JmxServerReconnectDistributedTest implements Serializable {
     locator1VM.invoke(() -> {
       BEFORE.get().countDown();
 
-      InternalLocator locator = (InternalLocator) locatorLauncher.get().getLocator();
+      var locator = (InternalLocator) locatorLauncher.get().getLocator();
 
       await().untilAsserted(() -> {
         assertThat(locator.isSharedConfigurationRunning())
@@ -470,7 +470,7 @@ public class JmxServerReconnectDistributedTest implements Serializable {
       });
     });
 
-    for (VM locatorVM : toArray(locator1VM, locator2VM)) {
+    for (var locatorVM : toArray(locator1VM, locator2VM)) {
       locatorVM.invoke(() -> {
         await().untilAsserted(() -> {
           assertThat(getPlatformMBeanServer().queryNames(GEMFIRE_MXBEANS, QUERY_ALL))
@@ -511,7 +511,7 @@ public class JmxServerReconnectDistributedTest implements Serializable {
 
   private static LocatorLauncher startLocator(String name, File workingDirectory, int locatorPort,
       int jmxPort, String locators) {
-    LocatorLauncher locatorLauncher = new LocatorLauncher.Builder()
+    var locatorLauncher = new LocatorLauncher.Builder()
         .setMemberName(name)
         .setPort(locatorPort)
         .setWorkingDirectory(workingDirectory.getAbsolutePath())
@@ -527,7 +527,7 @@ public class JmxServerReconnectDistributedTest implements Serializable {
 
     locatorLauncher.start();
 
-    InternalLocator locator = (InternalLocator) locatorLauncher.getLocator();
+    var locator = (InternalLocator) locatorLauncher.getLocator();
 
     await().untilAsserted(() -> {
       assertThat(locator.isSharedConfigurationRunning())
@@ -539,7 +539,7 @@ public class JmxServerReconnectDistributedTest implements Serializable {
   }
 
   private static ServerLauncher startServer(File workingDirectory, String locators) {
-    ServerLauncher serverLauncher = new ServerLauncher.Builder()
+    var serverLauncher = new ServerLauncher.Builder()
         .setDisableDefaultServer(true)
         .setMemberName(SERVER_NAME)
         .setWorkingDirectory(workingDirectory.getAbsolutePath())

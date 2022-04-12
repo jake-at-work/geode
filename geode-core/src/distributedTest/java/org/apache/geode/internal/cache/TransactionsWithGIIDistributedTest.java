@@ -24,10 +24,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
@@ -45,9 +43,6 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.TransactionDataRebalancedException;
 import org.apache.geode.cache.util.CacheListenerAdapter;
-import org.apache.geode.internal.cache.control.InternalResourceManager;
-import org.apache.geode.internal.cache.versions.VersionStamp;
-import org.apache.geode.internal.cache.versions.VersionTag;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
 import org.apache.geode.test.dunit.AsyncInvocation;
@@ -99,7 +94,7 @@ public class TransactionsWithGIIDistributedTest implements Serializable {
   }
 
   private void createPartitionedRegion(String regionName) {
-    PartitionAttributesFactory partitionAttributesFactory = new PartitionAttributesFactory();
+    var partitionAttributesFactory = new PartitionAttributesFactory();
     partitionAttributesFactory.setRedundantCopies(0);
     partitionAttributesFactory.setRecoveryDelay(-1);
     partitionAttributesFactory.setStartupRecoveryDelay(-1);
@@ -127,7 +122,7 @@ public class TransactionsWithGIIDistributedTest implements Serializable {
   }
 
   private void doRebalance() throws TimeoutException, InterruptedException {
-    InternalResourceManager manager = cacheRule.getCache().getInternalResourceManager();
+    var manager = cacheRule.getCache().getInternalResourceManager();
     manager.createRebalanceFactory().includeRegions(null).excludeRegions(null)
         .start().getResults(TIMEOUT_SECONDS, SECONDS);
 
@@ -135,42 +130,42 @@ public class TransactionsWithGIIDistributedTest implements Serializable {
   }
 
   private void doConcurrentPutInTx(String s) throws Exception {
-    for (int i = 0; i < workers; i++) {
+    for (var i = 0; i < workers; i++) {
       queue.add(i);
     }
 
-    ExecutorService pool = Executors.newCachedThreadPool();
+    var pool = Executors.newCachedThreadPool();
     Collection<Callable<Object>> tasks = new ArrayList<>();
-    Callable<Object> task = () -> {
+    var task = (Callable<Object>) () -> {
       doPutOpInTx(s);
       return null;
     };
-    for (int i = 0; i < workers; i++) {
+    for (var i = 0; i < workers; i++) {
       tasks.add(task);
     }
 
-    List<Future<Object>> futures = pool.invokeAll(tasks);
+    var futures = pool.invokeAll(tasks);
     for (Future future : futures) {
       future.get();
     }
   }
 
   private void doConcurrentDestroyInTx() throws Exception {
-    for (int i = 0; i < workers; i++) {
+    for (var i = 0; i < workers; i++) {
       queue.add(i);
     }
 
-    ExecutorService pool = Executors.newCachedThreadPool();
+    var pool = Executors.newCachedThreadPool();
     Collection<Callable<Object>> tasks = new ArrayList<>();
-    Callable<Object> task = () -> {
+    var task = (Callable<Object>) () -> {
       doDestroyOpInTx();
       return null;
     };
-    for (int i = 0; i < workers; i++) {
+    for (var i = 0; i < workers; i++) {
       tasks.add(task);
     }
 
-    List<Future<Object>> futures = pool.invokeAll(tasks);
+    var futures = pool.invokeAll(tasks);
     for (Future future : futures) {
       future.get();
     }
@@ -181,7 +176,7 @@ public class TransactionsWithGIIDistributedTest implements Serializable {
     if (!queue.isEmpty()) {
       worker = queue.poll();
       Region<Number, String> region = cacheRule.getCache().getRegion(regionName);
-      for (int i = 0; i < numOfEntry; i++) {
+      for (var i = 0; i < numOfEntry; i++) {
         if (i % workers == worker) {
           doTXPut(region, i, s);
         }
@@ -194,7 +189,7 @@ public class TransactionsWithGIIDistributedTest implements Serializable {
     if (!queue.isEmpty()) {
       worker = queue.poll();
       Region<Number, String> region = cacheRule.getCache().getRegion(regionName);
-      for (int i = 0; i < numOfEntry; i++) {
+      for (var i = 0; i < numOfEntry; i++) {
         if (i % workers == worker) {
           doTxDestroy(region, i);
         }
@@ -204,13 +199,13 @@ public class TransactionsWithGIIDistributedTest implements Serializable {
 
   private void doPut(String s) {
     Region<Number, String> region = cacheRule.getCache().getRegion(regionName);
-    for (int i = 0; i < numOfEntry; i++) {
+    for (var i = 0; i < numOfEntry; i++) {
       region.put(i, s);
     }
   }
 
   private void doTXPut(Region<Number, String> region, int i, String s) {
-    TXManagerImpl manager = cacheRule.getCache().getTxManager();
+    var manager = cacheRule.getCache().getTxManager();
     manager.begin();
     try {
       region.put(i, s);
@@ -224,7 +219,7 @@ public class TransactionsWithGIIDistributedTest implements Serializable {
   }
 
   private void doTxDestroy(Region<Number, String> region, int i) {
-    TXManagerImpl manager = cacheRule.getCache().getTxManager();
+    var manager = cacheRule.getCache().getTxManager();
     manager.begin();
     try {
       region.remove(i);
@@ -239,7 +234,7 @@ public class TransactionsWithGIIDistributedTest implements Serializable {
 
   private void doDestroy() {
     Region<Number, String> region = cacheRule.getCache().getRegion(regionName);
-    for (int i = 0; i < numOfEntry; i++) {
+    for (var i = 0; i < numOfEntry; i++) {
       try {
         region.destroy(i);
       } catch (EntryNotFoundException ignore) {
@@ -248,7 +243,7 @@ public class TransactionsWithGIIDistributedTest implements Serializable {
   }
 
   private void validateVersionsInVms(boolean isPartition, VM... vms) {
-    for (VM vm : vms) {
+    for (var vm : vms) {
       if (isPartition) {
         vm.invoke(this::validateEntryVersions);
       } else {
@@ -258,11 +253,11 @@ public class TransactionsWithGIIDistributedTest implements Serializable {
   }
 
   private void validateEntryVersions() {
-    PartitionedRegion region = (PartitionedRegion) cacheRule.getCache().getRegion(regionName);
-    for (int i = 0; i < numOfEntry; i++) {
-      BucketRegion bucketRegion = region.getDataStore().getLocalBucketByKey(i);
+    var region = (PartitionedRegion) cacheRule.getCache().getRegion(regionName);
+    for (var i = 0; i < numOfEntry; i++) {
+      var bucketRegion = region.getDataStore().getLocalBucketByKey(i);
       if (bucketRegion != null) {
-        RegionEntry entry = bucketRegion.getRegionMap().getEntry(i);
+        var entry = bucketRegion.getRegionMap().getEntry(i);
         validateVersion(entry);
       }
     }
@@ -288,7 +283,7 @@ public class TransactionsWithGIIDistributedTest implements Serializable {
   private void createRegion(String regionName) {
     RegionFactory<Integer, String> regionFactory =
         cacheRule.getOrCreateCache().createRegionFactory(REPLICATE);
-    CacheListenerAdapter<Integer, String> listener = new CacheListenerAdapter<Integer, String>() {
+    var listener = new CacheListenerAdapter<Integer, String>() {
       @Override
       public void afterDestroy(EntryEvent<Integer, String> e) {
         assertThat(e.getOperation().isEntry()).isTrue();
@@ -299,16 +294,16 @@ public class TransactionsWithGIIDistributedTest implements Serializable {
 
   private void validateEntryVersionsInReplicateRegion() {
     LocalRegion region = uncheckedCast(cacheRule.getCache().getRegion(regionName));
-    for (int i = 0; i < numOfEntry; i++) {
-      RegionEntry entry = region.getRegionMap().getEntry(i);
+    for (var i = 0; i < numOfEntry; i++) {
+      var entry = region.getRegionMap().getEntry(i);
       validateVersion(entry);
     }
   }
 
   private void validateVersion(RegionEntry entry) {
     if (entry != null) {
-      VersionStamp stamp = entry.getVersionStamp();
-      VersionTag tag = stamp.asVersionTag();
+      var stamp = entry.getVersionStamp();
+      var tag = stamp.asVersionTag();
       if (tag.getEntryVersion() < 3) {
         logger.info("tag for key {} is " + tag, entry.getKey());
       }

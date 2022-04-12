@@ -32,7 +32,7 @@ public class BLPopExecutor implements CommandExecutor {
 
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
-    List<byte[]> arguments = command.getCommandArguments();
+    var arguments = command.getCommandArguments();
     double timeoutSeconds;
     try {
       timeoutSeconds = Coder.bytesToDouble(arguments.get(arguments.size() - 1));
@@ -44,16 +44,16 @@ public class BLPopExecutor implements CommandExecutor {
       return RedisResponse.error(ERROR_NEGATIVE_TIMEOUT);
     }
 
-    int keyCount = arguments.size() - 1;
+    var keyCount = arguments.size() - 1;
     List<RedisKey> keys = new ArrayList<>(keyCount);
-    for (int i = 0; i < keyCount; i++) {
+    for (var i = 0; i < keyCount; i++) {
       keys.add(new RedisKey(arguments.get(i)));
     }
     // The order of keys is important and, since locking may alter the order passed into
     // lockedExecute, we create a copy here.
     List<RedisKey> keysForLocking = new ArrayList<>(keys);
 
-    List<byte[]> popped = context.lockedExecute(keys.get(0), keysForLocking,
+    var popped = context.lockedExecute(keys.get(0), keysForLocking,
         () -> RedisList.blpop(context, command, keys, timeoutSeconds));
 
     return popped == null ? RedisResponse.BLOCKED : RedisResponse.array(popped, true);

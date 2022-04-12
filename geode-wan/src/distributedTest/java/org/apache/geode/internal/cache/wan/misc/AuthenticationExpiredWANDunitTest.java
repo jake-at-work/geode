@@ -34,8 +34,6 @@ import org.junit.Test;
 import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.Region;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.security.ExpirableSecurityManager;
 import org.apache.geode.security.UpdatableUserAuthInitialize;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
@@ -67,8 +65,8 @@ public class AuthenticationExpiredWANDunitTest {
         l -> l.withSecurityManager(ExpirableSecurityManager.class)
             .withProperty(DISTRIBUTED_SYSTEM_ID, "1"));
 
-    int locatorPort = locator.getPort();
-    MemberVM remoteLocator = clusterStartupRule.startLocatorVM(1,
+    var locatorPort = locator.getPort();
+    var remoteLocator = clusterStartupRule.startLocatorVM(1,
         l -> l.withSecurityManager(ExpirableSecurityManager.class)
             .withProperty(REMOTE_LOCATORS, "localhost[" + locatorPort + "]")
             .withProperty(DISTRIBUTED_SYSTEM_ID, "2"));
@@ -78,17 +76,17 @@ public class AuthenticationExpiredWANDunitTest {
             .withCredential("test", "test")
             .withConnectionToLocator(locatorPort));
 
-    int locator1Port = remoteLocator.getPort();
+    var locator1Port = remoteLocator.getPort();
     remoteServer = clusterStartupRule.startServerVM(3,
         s -> s.withSecurityManager(ExpirableSecurityManager.class)
             .withCredential("test", "test")
             .withConnectionToLocator(locator1Port));
 
     remoteServer.invoke(() -> {
-      InternalCache internalCache = ClusterStartupRule.getCache();
+      var internalCache = ClusterStartupRule.getCache();
       assertThat(internalCache).isNotNull();
 
-      int receiverPort = getRandomAvailableTCPPort();
+      var receiverPort = getRandomAvailableTCPPort();
       internalCache.createGatewayReceiverFactory().setStartPort(receiverPort)
           .setEndPort(receiverPort)
           .setHostnameForSenders("localhost").create().start();
@@ -97,7 +95,7 @@ public class AuthenticationExpiredWANDunitTest {
     });
 
     server.invoke(() -> {
-      InternalCache internalCache = ClusterStartupRule.getCache();
+      var internalCache = ClusterStartupRule.getCache();
       assertThat(internalCache).isNotNull();
 
       internalCache.createGatewaySenderFactory().setParallel(false).create("sId", 2)
@@ -109,7 +107,7 @@ public class AuthenticationExpiredWANDunitTest {
 
   @Test
   public void clientCanPutWithExpirationOnWAN() throws Exception {
-    String regionName = "regionName";
+    var regionName = "regionName";
 
     UpdatableUserAuthInitialize.setUser("user1");
     clientCacheRule
@@ -118,7 +116,7 @@ public class AuthenticationExpiredWANDunitTest {
         .withLocatorConnection(locator.getPort());
 
     clientCacheRule.createCache();
-    Region<Object, Object> region = clientCacheRule.createProxyRegion(regionName);
+    var region = clientCacheRule.createProxyRegion(regionName);
     region.put("0", "value0");
 
     VMProvider.invokeInEveryMember(() -> getSecurityManager().addExpiredUser("user1"), locator,
@@ -128,16 +126,16 @@ public class AuthenticationExpiredWANDunitTest {
     region.put("1", "value1");
 
     server.invoke(() -> {
-      InternalCache internalCache = ClusterStartupRule.getCache();
+      var internalCache = ClusterStartupRule.getCache();
       assertThat(internalCache).isNotNull();
 
-      Region<Object, Object> region1 = internalCache.getRegion(SEPARATOR + regionName);
+      var region1 = internalCache.getRegion(SEPARATOR + regionName);
       await().untilAsserted(() -> {
         assertEquals("value0", region1.get("0"));
         assertEquals("value1", region1.get("1"));
       });
 
-      ExpirableSecurityManager securityManager = getSecurityManager();
+      var securityManager = getSecurityManager();
       assertThat(securityManager.getExpiredUsers()).containsExactly("user1");
       assertThat(securityManager.getUnAuthorizedOps().get("user1"))
           .containsExactly("DATA:WRITE:regionName:1");
@@ -148,16 +146,16 @@ public class AuthenticationExpiredWANDunitTest {
     });
 
     remoteServer.invoke(() -> {
-      InternalCache internalCache = ClusterStartupRule.getCache();
+      var internalCache = ClusterStartupRule.getCache();
       assertThat(internalCache).isNotNull();
 
-      Region<Object, Object> region2 = internalCache.getRegion(SEPARATOR + "regionName");
+      var region2 = internalCache.getRegion(SEPARATOR + "regionName");
       await().untilAsserted(() -> {
         assertEquals("value0", region2.get("0"));
         assertEquals("value1", region2.get("1"));
       });
 
-      ExpirableSecurityManager securityManager1 = getSecurityManager();
+      var securityManager1 = getSecurityManager();
       assertThat(securityManager1.getExpiredUsers()).hasSize(0);
       assertThat(securityManager1.getUnAuthorizedOps()).hasSize(0);
       assertThat(securityManager1.getAuthorizedOps()).hasSize(0);

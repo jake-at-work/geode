@@ -40,12 +40,12 @@ public class WanSnapshotJUnitTest extends SnapshotTestCase {
 
   @Test
   public void testWanCallback() throws Exception {
-    int count = 1000;
-    for (int i = 0; i < count; i++) {
+    var count = 1000;
+    for (var i = 0; i < count; i++) {
       region.put(i, new MyObject(i, "clienttest " + i));
     }
 
-    File snapshot = new File(getSnapshotDirectory(), "wan.snapshot.gfd");
+    var snapshot = new File(getSnapshotDirectory(), "wan.snapshot.gfd");
     region.getSnapshotService().save(snapshot, SnapshotFormat.GEODE);
     region.clear();
 

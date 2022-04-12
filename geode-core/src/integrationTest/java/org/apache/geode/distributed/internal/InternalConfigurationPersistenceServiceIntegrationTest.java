@@ -21,7 +21,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.UncheckedIOException;
-import java.nio.file.Path;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -35,7 +34,7 @@ public class InternalConfigurationPersistenceServiceIntegrationTest {
   @Test
   public void loadConfigFromDirWhenDirDoesNotExist() {
     // first make sure config dir does not exist on disk
-    Path configDir = locator.getWorkingDir().toPath().resolve(CLUSTER_CONFIG_ARTIFACTS_DIR_NAME);
+    var configDir = locator.getWorkingDir().toPath().resolve(CLUSTER_CONFIG_ARTIFACTS_DIR_NAME);
     assertThat(configDir).doesNotExist();
 
     // when the dir does not exist but load_cluster_configuration_from_dir is set to true, the

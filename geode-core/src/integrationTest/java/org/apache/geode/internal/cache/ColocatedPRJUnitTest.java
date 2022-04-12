@@ -19,24 +19,21 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.util.List;
-
 import org.junit.Test;
 
-import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.PartitionAttributesFactory;
 
 public class ColocatedPRJUnitTest {
   @SuppressWarnings("rawtypes")
   @Test
   public void destroyColocatedPRCheckForLeak() {
-    PartitionedRegion parent =
+    var parent =
         (PartitionedRegion) PartitionedRegionTestHelper.createPartionedRegion("PARENT");
-    List<PartitionedRegion> colocatedList = parent.getColocatedByList();
+    var colocatedList = parent.getColocatedByList();
     assertEquals(0, colocatedList.size());
-    PartitionAttributes PRatts =
+    var PRatts =
         new PartitionAttributesFactory().setColocatedWith(SEPARATOR + "PARENT").create();
-    PartitionedRegion child =
+    var child =
         (PartitionedRegion) PartitionedRegionTestHelper.createPartionedRegion("CHILD", PRatts);
     assertTrue(colocatedList.contains(child));
     child.destroyRegion();

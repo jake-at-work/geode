@@ -22,13 +22,10 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import org.apache.geode.management.api.ClusterManagementGetResult;
-import org.apache.geode.management.api.ClusterManagementListResult;
 import org.apache.geode.management.api.ClusterManagementResult;
 import org.apache.geode.management.api.ClusterManagementService;
 import org.apache.geode.management.cluster.client.ClusterManagementServiceBuilder;
 import org.apache.geode.management.configuration.Member;
-import org.apache.geode.management.runtime.MemberInformation;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.rules.MemberStarterRule;
@@ -51,14 +48,14 @@ public class MemberManagementServiceDunitTest {
 
   @Test
   public void listAllMembers() {
-    Member config = new Member();
-    ClusterManagementListResult<Member, MemberInformation> result = cmsClient.list(config);
+    var config = new Member();
+    var result = cmsClient.list(config);
 
     assertThat(result.isSuccessful()).isTrue();
     assertThat(result.getStatusCode()).isEqualTo(ClusterManagementResult.StatusCode.OK);
     assertThat(result.getRuntimeResult().size()).isEqualTo(2);
 
-    MemberInformation memberConfig = result.getRuntimeResult().stream()
+    var memberConfig = result.getRuntimeResult().stream()
         .filter(r -> "locator-0".equals(r.getMemberName())).findFirst().orElse(null);
     assertThat(memberConfig.isCoordinator()).isTrue();
     assertThat(memberConfig.isServer()).isFalse();
@@ -67,15 +64,15 @@ public class MemberManagementServiceDunitTest {
 
   @Test
   public void listOneMember() {
-    Member config = new Member();
+    var config = new Member();
     config.setId("locator-0");
 
-    ClusterManagementListResult<Member, MemberInformation> result = cmsClient.list(config);
+    var result = cmsClient.list(config);
     assertThat(result.isSuccessful()).isTrue();
     assertThat(result.getStatusCode()).isEqualTo(ClusterManagementResult.StatusCode.OK);
     assertThat(result.getRuntimeResult().size()).isEqualTo(1);
 
-    MemberInformation memberConfig = result.getRuntimeResult().get(0);
+    var memberConfig = result.getRuntimeResult().get(0);
     assertThat(memberConfig.isCoordinator()).isTrue();
     assertThat(memberConfig.isServer()).isFalse();
     assertThat(memberConfig.getLocatorPort()).isEqualTo(locator.getPort());
@@ -83,15 +80,15 @@ public class MemberManagementServiceDunitTest {
 
   @Test
   public void getOneMember() {
-    Member config = new Member();
+    var config = new Member();
     config.setId("locator-0");
 
-    ClusterManagementGetResult<Member, MemberInformation> result = cmsClient.get(config);
+    var result = cmsClient.get(config);
     assertThat(result.isSuccessful()).isTrue();
     assertThat(result.getStatusCode()).isEqualTo(ClusterManagementResult.StatusCode.OK);
     assertThat(result.getResult().getRuntimeInfos().size()).isEqualTo(1);
 
-    MemberInformation memberConfig = result.getResult().getRuntimeInfos().get(0);
+    var memberConfig = result.getResult().getRuntimeInfos().get(0);
     assertThat(memberConfig.isCoordinator()).isTrue();
     assertThat(memberConfig.isServer()).isFalse();
     assertThat(memberConfig.getLocatorPort()).isEqualTo(locator.getPort());
@@ -99,7 +96,7 @@ public class MemberManagementServiceDunitTest {
 
   @Test
   public void getNonExistentMember() {
-    Member config = new Member();
+    var config = new Member();
     config.setId("locator-42");
 
     assertThatThrownBy(() -> cmsClient.get(config))
@@ -108,16 +105,16 @@ public class MemberManagementServiceDunitTest {
 
   @Test
   public void getImproperlySpecifiedMember() {
-    Member config = new Member();
+    var config = new Member();
     assertThatThrownBy(() -> cmsClient.get(config))
         .hasMessageContaining("Unable to construct the URI with the current configuration.");
   }
 
   @Test
   public void listNonExistentMember() {
-    Member config = new Member();
+    var config = new Member();
     config.setId("locator");
-    ClusterManagementListResult<Member, MemberInformation> result = cmsClient.list(config);
+    var result = cmsClient.list(config);
     assertThat(result.isSuccessful()).isTrue();
     assertThat(result.getStatusCode())
         .isEqualTo(ClusterManagementResult.StatusCode.OK);

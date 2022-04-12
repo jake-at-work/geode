@@ -77,13 +77,13 @@ public class GroupJunction extends AbstractGroupOrRangeJunction {
     // and evaluate operands that can use indexes first
 
     List<Object> evalOperands = new ArrayList<>(_operands.length);
-    int indexCount = 0;
-    boolean foundPreferredCondition = false;
+    var indexCount = 0;
+    var foundPreferredCondition = false;
     if (getOperator() == LITERAL_and) {
       if (context instanceof QueryExecutionContext && ((QueryExecutionContext) context).hasHints()
           && ((QueryExecutionContext) context).hasMultiHints()) {
         // Hint was provided, so allow multi index usage
-        for (CompiledValue operand : _operands) {
+        for (var operand : _operands) {
           if (operand.getPlanInfo(context).evalAsFilter) {
             indexCount++;
             evalOperands.add(0, operand);
@@ -105,10 +105,10 @@ public class GroupJunction extends AbstractGroupOrRangeJunction {
          */
 
         Filter currentBestFilter = null;
-        int currentBestFilterSize = -1;
+        var currentBestFilterSize = -1;
         indexCount = 1;
 
-        for (CompiledValue operand : _operands) {
+        for (var operand : _operands) {
           // Asif : If we are inside this function this iteslf indicates
           // that there exists atleast on operand which can be evalauted
           // as an auxFilterEvaluate. If any operand even if its flag of
@@ -126,7 +126,7 @@ public class GroupJunction extends AbstractGroupOrRangeJunction {
           // We are here itself implies, that any independent operand can be
           // either tru or false for an AND junction but always false for an
           // OR Junction.
-          PlanInfo pi = operand.getPlanInfo(context);
+          var pi = operand.getPlanInfo(context);
           // we check for size == 1 now because of the join optimization can
           // leave an operand with two indexes, but the key element is not set
           // this will throw an npe

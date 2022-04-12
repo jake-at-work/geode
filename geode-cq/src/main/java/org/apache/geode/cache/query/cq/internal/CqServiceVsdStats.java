@@ -20,13 +20,10 @@ import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.Statistics;
 import org.apache.geode.StatisticsFactory;
 import org.apache.geode.StatisticsType;
-import org.apache.geode.StatisticsTypeFactory;
 import org.apache.geode.cache.query.CqException;
-import org.apache.geode.cache.query.CqQuery;
 import org.apache.geode.cache.query.internal.DefaultQueryService;
 import org.apache.geode.cache.query.internal.cq.CqService;
 import org.apache.geode.internal.NanoTimer;
-import org.apache.geode.internal.cache.FilterProfile;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.statistics.StatisticsTypeFactoryImpl;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -108,8 +105,8 @@ public class CqServiceVsdStats {
    * Static initializer to create and initialize the <code>StatisticsType</code>
    */
   static {
-    String statName = "CqServiceStats";
-    StatisticsTypeFactory f = StatisticsTypeFactoryImpl.singleton();
+    var statName = "CqServiceStats";
+    var f = StatisticsTypeFactoryImpl.singleton();
 
     _type = f.createType(statName, statName,
         new StatisticDescriptor[] {
@@ -300,7 +297,7 @@ public class CqServiceVsdStats {
    * @param start long time value.
    */
   void endCqQueryExecution(long start) {
-    long ts = NanoTimer.getTime();
+    var ts = NanoTimer.getTime();
     _stats.incLong(_cqQueryExecutionTimeId, ts - start);
     _stats.incInt(_cqQueryExecutionInProgressId, -1);
     _stats.incLong(_cqQueryExecutionsCompletedId, 1);
@@ -340,7 +337,7 @@ public class CqServiceVsdStats {
     if (cache == null) {
       return 0;
     }
-    DefaultQueryService queryService = (DefaultQueryService) cache.getQueryService();
+    var queryService = (DefaultQueryService) cache.getQueryService();
     CqService cqService;
     try {
       cqService = queryService.getCqService();
@@ -354,7 +351,7 @@ public class CqServiceVsdStats {
     if (((CqServiceImpl) cqService).isServer()) {
       // If we are on the server, look at the number of CQs in the filter profile.
       try {
-        FilterProfile fp = cache.getFilterProfile(regionName);
+        var fp = cache.getFilterProfile(regionName);
         if (fp == null) {
           return 0;
         }
@@ -367,7 +364,7 @@ public class CqServiceVsdStats {
       }
     } else {
       try {
-        CqQuery[] cqs = queryService.getCqs(regionName);
+        var cqs = queryService.getCqs(regionName);
 
         if (cqs != null) {
           return cqs.length;

@@ -49,14 +49,14 @@ public class FileUploaderTest {
   @Test
   // this is to make sure that the naming convention of the fileuploader is MBean compliant
   public void fileUploaderAndInterfaceInTheSamePackage() {
-    String fileUploaderClassName = FileUploader.class.getName();
-    String parentName = FileUploader.class.getInterfaces()[0].getName();
+    var fileUploaderClassName = FileUploader.class.getName();
+    var parentName = FileUploader.class.getInterfaces()[0].getName();
     assertThat(fileUploaderClassName + "MBean").isEqualTo(parentName);
   }
 
   @Test
   public void deleteFileNotInTheUploadedDir() throws IOException {
-    File file = temporaryFolder.newFile("a.jar");
+    var file = temporaryFolder.newFile("a.jar");
     files.add(file.getAbsolutePath());
 
     assertThatThrownBy(() -> fileUploader.deleteFiles(files))
@@ -65,8 +65,8 @@ public class FileUploaderTest {
 
   @Test
   public void deleteFilesInUploadedDir() throws IOException {
-    File dir = temporaryFolder.newFolder(FileUploader.STAGED_DIR_PREFIX + "test");
-    File file = new File(dir, "test.txt");
+    var dir = temporaryFolder.newFolder(FileUploader.STAGED_DIR_PREFIX + "test");
+    var file = new File(dir, "test.txt");
     FileUtils.writeStringToFile(file, "test", "UTF-8");
 
     assertThat(file).exists();

@@ -22,7 +22,6 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.lang.reflect.Method;
-import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
@@ -34,7 +33,6 @@ import org.junit.rules.TestName;
 
 import org.apache.geode.CancelCriterion;
 import org.apache.geode.Statistics;
-import org.apache.geode.StatisticsType;
 import org.apache.geode.internal.inet.LocalHostUtil;
 import org.apache.geode.internal.stats50.VMStats50;
 import org.apache.geode.test.junit.categories.StatisticsTest;
@@ -80,7 +78,7 @@ public class SimpleStatSamplerIntegrationTest extends StatSamplerTestCase {
   public void testBasics() throws Exception {
     initStatisticsFactory();
 
-    SimpleStatSampler statSampler = getSimpleStatSampler();
+    var statSampler = getSimpleStatSampler();
     assertTrue(statSampler.waitForInitialization(5000));
 
     assertEquals(new File(System.getProperty(SimpleStatSampler.ARCHIVE_FILE_NAME_PROPERTY)),
@@ -90,7 +88,7 @@ public class SimpleStatSamplerIntegrationTest extends StatSamplerTestCase {
     assertEquals(SimpleStatSampler.DEFAULT_SAMPLE_RATE, statSampler.getSampleRate());
     assertEquals(true, statSampler.isSamplingEnabled());
 
-    int statsCount = statSampler.getStatisticsManager().getStatisticsCount();
+    var statsCount = statSampler.getStatisticsManager().getStatisticsCount();
 
     assertEquals(statsCount, statSampler.getStatisticsModCount());
     assertEquals(statsCount, statSampler.getStatisticsManager().getStatisticsCount());
@@ -102,7 +100,7 @@ public class SimpleStatSamplerIntegrationTest extends StatSamplerTestCase {
     assertEquals(LocalHostUtil.getLocalHostName(),
         statSampler.getSystemDirectoryPath());
 
-    VMStatsContract vmStats = statSampler.getVMStats();
+    var vmStats = statSampler.getVMStats();
     assertNotNull(vmStats);
     assertTrue(vmStats instanceof VMStats50);
     /*
@@ -127,16 +125,16 @@ public class SimpleStatSamplerIntegrationTest extends StatSamplerTestCase {
    */
   @Test
   public void testArchiveFileExists() throws Exception {
-    final String dir = testDir.getAbsolutePath();
-    final String archiveFileName = dir + File.separator + testName + ".gfs";
-    final File archiveFile1 = new File(dir + File.separator + testName + ".gfs");
+    final var dir = testDir.getAbsolutePath();
+    final var archiveFileName = dir + File.separator + testName + ".gfs";
+    final var archiveFile1 = new File(dir + File.separator + testName + ".gfs");
     System.setProperty(SimpleStatSampler.ARCHIVE_FILE_NAME_PROPERTY, archiveFileName);
     initStatisticsFactory();
 
-    SimpleStatSampler statSampler = getSimpleStatSampler();
+    var statSampler = getSimpleStatSampler();
     assertTrue(statSampler.waitForInitialization(5000));
 
-    final File archiveFile = statSampler.getArchiveFileName();
+    final var archiveFile = statSampler.getArchiveFileName();
     assertNotNull(archiveFile);
     assertEquals(archiveFile1, archiveFile);
 
@@ -156,24 +154,24 @@ public class SimpleStatSamplerIntegrationTest extends StatSamplerTestCase {
   public void testSampleRate() throws Exception {
     initStatisticsFactory();
 
-    SimpleStatSampler statSampler = getSimpleStatSampler();
+    var statSampler = getSimpleStatSampler();
     assertTrue(statSampler.waitForInitialization(5000));
 
     assertEquals(SimpleStatSampler.DEFAULT_SAMPLE_RATE, statSampler.getSampleRate());
 
     assertTrue(getStatisticsManager().getStatListModCount() > 0);
 
-    List<Statistics> statistics = getStatisticsManager().getStatsList();
+    var statistics = getStatisticsManager().getStatsList();
     assertNotNull(statistics);
     assertTrue(statistics.size() > 0);
 
-    StatisticsType statSamplerType = getStatisticsManager().findType("StatSampler");
-    Statistics[] statsArray = getStatisticsManager().findStatisticsByType(statSamplerType);
+    var statSamplerType = getStatisticsManager().findType("StatSampler");
+    var statsArray = getStatisticsManager().findStatisticsByType(statSamplerType);
     assertEquals(1, statsArray.length);
 
-    final Statistics statSamplerStats = statsArray[0];
-    final int initialSampleCount = statSamplerStats.getInt("sampleCount");
-    final int expectedSampleCount = initialSampleCount + 2;
+    final var statSamplerStats = statsArray[0];
+    final var initialSampleCount = statSamplerStats.getInt("sampleCount");
+    final var expectedSampleCount = initialSampleCount + 2;
 
     waitForStatSample(statSamplerStats, expectedSampleCount, 20000, 10);
   }
@@ -185,7 +183,7 @@ public class SimpleStatSamplerIntegrationTest extends StatSamplerTestCase {
   public void testLocalStatListener() throws Exception {
     initStatisticsFactory();
 
-    SimpleStatSampler statSampler = getSimpleStatSampler();
+    var statSampler = getSimpleStatSampler();
     assertTrue(statSampler.waitForInitialization(5000));
 
     Method getLocalListeners = null;
@@ -225,17 +223,17 @@ public class SimpleStatSamplerIntegrationTest extends StatSamplerTestCase {
   public void testStop() throws Exception {
     initStatisticsFactory();
 
-    SimpleStatSampler statSampler = getSimpleStatSampler();
+    var statSampler = getSimpleStatSampler();
     assertTrue(statSampler.waitForInitialization(5000));
 
     // validate the stat sampler is running
-    StatisticsType statSamplerType = getStatisticsManager().findType("StatSampler");
-    Statistics[] statsArray = getStatisticsManager().findStatisticsByType(statSamplerType);
+    var statSamplerType = getStatisticsManager().findType("StatSampler");
+    var statsArray = getStatisticsManager().findStatisticsByType(statSamplerType);
     assertEquals(1, statsArray.length);
 
-    final Statistics statSamplerStats = statsArray[0];
-    final int initialSampleCount = statSamplerStats.getInt("sampleCount");
-    final int expectedSampleCount = initialSampleCount + 2;
+    final var statSamplerStats = statsArray[0];
+    final var initialSampleCount = statSamplerStats.getInt("sampleCount");
+    final var expectedSampleCount = initialSampleCount + 2;
 
     waitForStatSample(statSamplerStats, expectedSampleCount, 20000, 10);
 
@@ -243,7 +241,7 @@ public class SimpleStatSamplerIntegrationTest extends StatSamplerTestCase {
     statSampler.stop();
 
     // validate the stat sampler has stopped
-    final int stoppedSampleCount = statSamplerStats.getInt("sampleCount");
+    final var stoppedSampleCount = statSamplerStats.getInt("sampleCount");
 
     // the following should timeout without completing
     assertStatValueDoesNotChange(statSamplerStats, "sampleCount", stoppedSampleCount, 5000, 10);
@@ -260,20 +258,20 @@ public class SimpleStatSamplerIntegrationTest extends StatSamplerTestCase {
     // set the system property to use KB instead of MB for file size
     System.setProperty(HostStatSampler.TEST_FILE_SIZE_LIMIT_IN_KB_PROPERTY, "true");
 
-    final String dir = testDir.getAbsolutePath() + File.separator + testName;
+    final var dir = testDir.getAbsolutePath() + File.separator + testName;
     new File(dir).mkdir();
 
-    final String archiveFileName = dir + File.separator + testName + ".gfs";
+    final var archiveFileName = dir + File.separator + testName + ".gfs";
     System.setProperty(SimpleStatSampler.ARCHIVE_FILE_NAME_PROPERTY, archiveFileName);
     System.setProperty(SimpleStatSampler.FILE_SIZE_LIMIT_PROPERTY, "1");
     System.setProperty(SimpleStatSampler.DISK_SPACE_LIMIT_PROPERTY, "0");
     System.setProperty(SimpleStatSampler.SAMPLE_RATE_PROPERTY, "1000");
     initStatisticsFactory();
 
-    final File archiveFile1 = new File(dir + File.separator + testName + "-01-01.gfs");
-    final File archiveFile2 = new File(dir + File.separator + testName + "-01-02.gfs");
-    final File archiveFile3 = new File(dir + File.separator + testName + "-01-03.gfs");
-    final File archiveFile4 = new File(dir + File.separator + testName + "-01-04.gfs");
+    final var archiveFile1 = new File(dir + File.separator + testName + "-01-01.gfs");
+    final var archiveFile2 = new File(dir + File.separator + testName + "-01-02.gfs");
+    final var archiveFile3 = new File(dir + File.separator + testName + "-01-03.gfs");
+    final var archiveFile4 = new File(dir + File.separator + testName + "-01-04.gfs");
 
     assertTrue(getSimpleStatSampler().waitForInitialization(5000));
 
@@ -295,22 +293,22 @@ public class SimpleStatSamplerIntegrationTest extends StatSamplerTestCase {
     // set the system property to use KB instead of MB for file size
     System.setProperty(HostStatSampler.TEST_FILE_SIZE_LIMIT_IN_KB_PROPERTY, "true");
 
-    final String dir = testDir.getAbsolutePath() + File.separator + testName;
+    final var dir = testDir.getAbsolutePath() + File.separator + testName;
     new File(dir).mkdir();
 
-    final String archiveFileName = dir + File.separator + testName + ".gfs";
-    final int sampleRate = 1000;
+    final var archiveFileName = dir + File.separator + testName + ".gfs";
+    final var sampleRate = 1000;
     System.setProperty(SimpleStatSampler.ARCHIVE_FILE_NAME_PROPERTY, archiveFileName);
     System.setProperty(SimpleStatSampler.FILE_SIZE_LIMIT_PROPERTY, "1");
     System.setProperty(SimpleStatSampler.DISK_SPACE_LIMIT_PROPERTY, "12");
     System.setProperty(SimpleStatSampler.SAMPLE_RATE_PROPERTY, String.valueOf(sampleRate));
     initStatisticsFactory();
 
-    final File archiveFile1 = new File(dir + File.separator + testName + "-01-01.gfs");
-    final File archiveFile2 = new File(dir + File.separator + testName + "-01-02.gfs");
-    final File archiveFile3 = new File(dir + File.separator + testName + "-01-03.gfs");
-    final File archiveFile4 = new File(dir + File.separator + testName + "-01-04.gfs");
-    final File archiveFile5 = new File(dir + File.separator + testName + "-01-05.gfs");
+    final var archiveFile1 = new File(dir + File.separator + testName + "-01-01.gfs");
+    final var archiveFile2 = new File(dir + File.separator + testName + "-01-02.gfs");
+    final var archiveFile3 = new File(dir + File.separator + testName + "-01-03.gfs");
+    final var archiveFile4 = new File(dir + File.separator + testName + "-01-04.gfs");
+    final var archiveFile5 = new File(dir + File.separator + testName + "-01-05.gfs");
 
     assertTrue(getSimpleStatSampler().waitForInitialization(5000));
 
@@ -332,7 +330,7 @@ public class SimpleStatSamplerIntegrationTest extends StatSamplerTestCase {
   }
 
   private void initStatisticsFactory() {
-    CancelCriterion stopper = new CancelCriterion() {
+    var stopper = new CancelCriterion() {
       @Override
       public String cancelInProgress() {
         return null;

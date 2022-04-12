@@ -57,21 +57,21 @@ public class AlertingSessionRegistryProvider
 
   @Override
   public synchronized void createSession(final AlertingService alertingService) {
-    for (AlertingSessionListener listener : listeners) {
+    for (var listener : listeners) {
       listener.createSession(alertingService);
     }
   }
 
   @Override
   public synchronized void startSession() {
-    for (AlertingSessionListener listener : listeners) {
+    for (var listener : listeners) {
       listener.startSession();
     }
   }
 
   @Override
   public synchronized void stopSession() {
-    for (AlertingSessionListener listener : listeners) {
+    for (var listener : listeners) {
       listener.stopSession();
     }
   }

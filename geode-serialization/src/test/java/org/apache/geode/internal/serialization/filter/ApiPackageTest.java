@@ -40,7 +40,7 @@ public class ApiPackageTest {
 
   @Test
   public void qualifyNullStringThrowsNullPointerException() {
-    Throwable thrown = catchThrowable(() -> {
+    var thrown = catchThrowable(() -> {
       JAVA_IO.qualify(null);
     });
 
@@ -51,10 +51,10 @@ public class ApiPackageTest {
 
   @Test
   public void qualifyReturnsPrefixedClassName() {
-    ApiPackage apiPackage = JAVA_IO;
-    String className = "className";
+    var apiPackage = JAVA_IO;
+    var className = "className";
 
-    String qualifiedClassName = apiPackage.qualify(className);
+    var qualifiedClassName = apiPackage.qualify(className);
 
     assertThat(qualifiedClassName).isEqualTo(apiPackage.getPrefix() + className);
   }

@@ -23,7 +23,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
@@ -35,7 +34,6 @@ import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.cache.Declarable;
 import org.apache.geode.cache.GemFireCache;
@@ -44,12 +42,10 @@ import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.client.internal.ClientMetadataService;
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.execute.FunctionService;
 import org.apache.geode.cache.lucene.internal.LuceneServiceImpl;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache30.CacheSerializableRunnable;
 import org.apache.geode.distributed.Locator;
 import org.apache.geode.distributed.internal.DistributionConfig;
@@ -81,8 +77,8 @@ public abstract class LuceneSearchWithRollingUpgradeTestBase extends JUnit4Distr
 
   protected void deleteVMFiles() {
     System.out.println("deleting files in vm" + VM.getCurrentVMNum());
-    File pwd = new File(".");
-    for (File entry : pwd.listFiles()) {
+    var pwd = new File(".");
+    for (var entry : pwd.listFiles()) {
       try {
         if (entry.isDirectory()) {
           FileUtils.deleteDirectory(entry);
@@ -108,7 +104,7 @@ public abstract class LuceneSearchWithRollingUpgradeTestBase extends JUnit4Distr
 
 
   Properties getLocatorPropertiesPre91(String locatorsString) {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(DistributionConfig.MCAST_PORT_NAME, "0");
     props.setProperty(DistributionConfig.LOCATORS_NAME, locatorsString);
     props.setProperty(DistributionConfig.LOG_LEVEL_NAME, DUnitLauncher.logLevel);
@@ -122,7 +118,7 @@ public abstract class LuceneSearchWithRollingUpgradeTestBase extends JUnit4Distr
       ClientRegionShortcut shortcut,
       String regionName, String[] hostNames, int[] locatorPorts,
       boolean subscriptionEnabled, boolean singleHopEnabled) {
-    VM rollClient = rollClientToCurrent(oldClient, hostNames, locatorPorts, subscriptionEnabled,
+    var rollClient = rollClientToCurrent(oldClient, hostNames, locatorPorts, subscriptionEnabled,
         singleHopEnabled);
     // recreate region on "rolled" client
     invokeRunnableInVMs(invokeCreateClientRegion(regionName, shortcut), rollClient);
@@ -133,7 +129,7 @@ public abstract class LuceneSearchWithRollingUpgradeTestBase extends JUnit4Distr
       int[] locatorPorts,
       boolean subscriptionEnabled, boolean singleHopEnabled) {
     oldClient.invoke(invokeCloseCache());
-    VM rollClient = Host.getHost(0).getVM(VersionManager.CURRENT_VERSION, oldClient.getId());
+    var rollClient = Host.getHost(0).getVM(VersionManager.CURRENT_VERSION, oldClient.getId());
     rollClient.invoke(invokeCreateClientCache(getClientSystemProperties(), hostNames, locatorPorts,
         subscriptionEnabled, singleHopEnabled));
     rollClient.invoke(invokeAssertVersion(KnownVersion.CURRENT_ORDINAL));
@@ -176,7 +172,7 @@ public abstract class LuceneSearchWithRollingUpgradeTestBase extends JUnit4Distr
   }
 
   protected static void startCacheServer(GemFireCache cache, int port) throws Exception {
-    CacheServer cacheServer = ((GemFireCacheImpl) cache).addCacheServer();
+    var cacheServer = ((GemFireCacheImpl) cache).addCacheServer();
     cacheServer.setPort(port);
     cacheServer.start();
   }
@@ -200,7 +196,7 @@ public abstract class LuceneSearchWithRollingUpgradeTestBase extends JUnit4Distr
   }
 
   Properties getClientSystemProperties() {
-    Properties p = new Properties();
+    var p = new Properties();
     p.setProperty("mcast-port", "0");
     return p;
   }
@@ -209,14 +205,14 @@ public abstract class LuceneSearchWithRollingUpgradeTestBase extends JUnit4Distr
   protected static ClientCache createClientCache(Properties systemProperties,
       String[] hosts,
       int[] ports, boolean subscriptionEnabled, boolean singleHopEnabled) {
-    ClientCacheFactory cf = new ClientCacheFactory(systemProperties);
+    var cf = new ClientCacheFactory(systemProperties);
     if (subscriptionEnabled) {
       cf.setPoolSubscriptionEnabled(true);
       cf.setPoolSubscriptionRedundancy(-1);
     }
     cf.setPoolPRSingleHopEnabled(singleHopEnabled);
-    int hostsLength = hosts.length;
-    for (int i = 0; i < hostsLength; i++) {
+    var hostsLength = hosts.length;
+    for (var i = 0; i < hostsLength; i++) {
       cf.addPoolLocator(hosts[i], ports[i]);
     }
 
@@ -235,27 +231,27 @@ public abstract class LuceneSearchWithRollingUpgradeTestBase extends JUnit4Distr
 
   void putSerializableObject(VM putter, String regionName, int start, int end)
       throws Exception {
-    for (int i = start; i < end; i++) {
+    for (var i = start; i < end; i++) {
       Class aClass = Thread.currentThread().getContextClassLoader()
           .loadClass("org.apache.geode.cache.query.data.Portfolio");
-      Constructor portfolioConstructor = aClass.getConstructor(int.class);
-      Object serializableObject = portfolioConstructor.newInstance(i);
+      var portfolioConstructor = aClass.getConstructor(int.class);
+      var serializableObject = portfolioConstructor.newInstance(i);
       putter.invoke(invokePut(regionName, i, serializableObject));
     }
   }
 
   private void waitForRegionToHaveExpectedSize(String regionName, int expectedRegionSize) {
     await().untilAsserted(() -> {
-      Object region =
+      var region =
           cache.getClass().getMethod("getRegion", String.class).invoke(cache, regionName);
-      int regionSize = (int) region.getClass().getMethod("size").invoke(region);
+      var regionSize = (int) region.getClass().getMethod("size").invoke(region);
       assertEquals("Region size not as expected after 60 seconds", expectedRegionSize,
           regionSize);
     });
   }
 
   void updateClientSingleHopMetadata(String regionName) {
-    ClientMetadataService cms = ((InternalCache) cache)
+    var cms = ((InternalCache) cache)
         .getClientMetadataService();
     cms.scheduleGetPRMetaData(
         (LocalRegion) ((InternalCache) cache).getRegion(regionName), true);
@@ -267,26 +263,26 @@ public abstract class LuceneSearchWithRollingUpgradeTestBase extends JUnit4Distr
       throws Exception {
     Class luceneServiceProvider = Thread.currentThread().getContextClassLoader()
         .loadClass("org.apache.geode.cache.lucene.LuceneServiceProvider");
-    Method getLuceneService = luceneServiceProvider.getMethod("get", GemFireCache.class);
-    Object luceneService = getLuceneService.invoke(luceneServiceProvider, cache);
+    var getLuceneService = luceneServiceProvider.getMethod("get", GemFireCache.class);
+    var luceneService = getLuceneService.invoke(luceneServiceProvider, cache);
     assertTrue((Boolean) luceneService.getClass()
         .getMethod("waitUntilFlushed", String.class, String.class, long.class, TimeUnit.class)
         .invoke(luceneService, INDEX_NAME, regionName, 60, TimeUnit.SECONDS));
-    Method createLuceneQueryFactoryMethod =
+    var createLuceneQueryFactoryMethod =
         luceneService.getClass().getMethod("createLuceneQueryFactory");
     createLuceneQueryFactoryMethod.setAccessible(true);
-    Object luceneQueryFactory = createLuceneQueryFactoryMethod.invoke(luceneService);
-    Object luceneQuery = luceneQueryFactory.getClass()
+    var luceneQueryFactory = createLuceneQueryFactoryMethod.invoke(luceneService);
+    var luceneQuery = luceneQueryFactory.getClass()
         .getMethod("create", String.class, String.class, String.class, String.class)
         .invoke(luceneQueryFactory, INDEX_NAME, regionName, "active", "status");
 
-    Collection resultsActive = executeLuceneQuery(luceneQuery);
+    var resultsActive = executeLuceneQuery(luceneQuery);
 
     luceneQuery = luceneQueryFactory.getClass()
         .getMethod("create", String.class, String.class, String.class, String.class)
         .invoke(luceneQueryFactory, INDEX_NAME, regionName, "inactive", "status");
 
-    Collection resultsInactive = executeLuceneQuery(luceneQuery);
+    var resultsInactive = executeLuceneQuery(luceneQuery);
 
     assertEquals("Result size not as expected ", expectedRegionSize,
         resultsActive.size() + resultsInactive.size());
@@ -295,7 +291,7 @@ public abstract class LuceneSearchWithRollingUpgradeTestBase extends JUnit4Distr
   protected Collection executeLuceneQuery(Object luceneQuery)
       throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
     Collection results = null;
-    int retryCount = 10;
+    var retryCount = 10;
     while (true) {
       try {
         results = (Collection) luceneQuery.getClass().getMethod("findKeys").invoke(luceneQuery);
@@ -315,7 +311,7 @@ public abstract class LuceneSearchWithRollingUpgradeTestBase extends JUnit4Distr
 
   protected void verifyLuceneQueryResultInEachVM(String regionName, int expectedRegionSize,
       VM... vms) {
-    for (VM vm : vms) {
+    for (var vm : vms) {
       vm.invoke(() -> waitForRegionToHaveExpectedSize(regionName, expectedRegionSize));
       vm.invoke(() -> verifyLuceneQueryResults(regionName, expectedRegionSize));
     }
@@ -323,7 +319,7 @@ public abstract class LuceneSearchWithRollingUpgradeTestBase extends JUnit4Distr
   }
 
   void invokeRunnableInVMs(CacheSerializableRunnable runnable, VM... vms) {
-    for (VM vm : vms) {
+    for (var vm : vms) {
       vm.invoke(runnable);
     }
   }
@@ -331,7 +327,7 @@ public abstract class LuceneSearchWithRollingUpgradeTestBase extends JUnit4Distr
   // Used to close cache and make sure we attempt on all vms even if some do not have a cache
   void invokeRunnableInVMs(boolean catchErrors, CacheSerializableRunnable runnable,
       VM... vms) {
-    for (VM vm : vms) {
+    for (var vm : vms) {
       try {
         vm.invoke(runnable);
       } catch (Exception e) {
@@ -345,7 +341,7 @@ public abstract class LuceneSearchWithRollingUpgradeTestBase extends JUnit4Distr
   private VM rollServerToCurrent(VM oldServer, int[] locatorPorts) {
     // Roll the server
     oldServer.invoke(invokeCloseCache());
-    VM rollServer = Host.getHost(0).getVM(VersionManager.CURRENT_VERSION, oldServer.getId());
+    var rollServer = Host.getHost(0).getVM(VersionManager.CURRENT_VERSION, oldServer.getId());
     rollServer.invoke(invokeCreateCache(locatorPorts == null ? getSystemPropertiesPost71()
         : getSystemPropertiesPost71(locatorPorts)));
     rollServer.invoke(invokeAssertVersion(KnownVersion.CURRENT_ORDINAL));
@@ -356,7 +352,7 @@ public abstract class LuceneSearchWithRollingUpgradeTestBase extends JUnit4Distr
       String regionType,
       File diskdir, String shortcutName, String regionName, int[] locatorPorts,
       boolean reindex) {
-    VM rollServer = rollServerToCurrent(oldServer, locatorPorts);
+    var rollServer = rollServerToCurrent(oldServer, locatorPorts);
     return createLuceneIndexAndRegionOnRolledServer(regionType, diskdir, shortcutName, regionName,
         rollServer, reindex);
   }
@@ -370,7 +366,7 @@ public abstract class LuceneSearchWithRollingUpgradeTestBase extends JUnit4Distr
     rollServer.invoke(() -> createLuceneIndex(cache, regionName, INDEX_NAME));
     // recreate region on "rolled" server
     if ((regionType.equals("persistentPartitioned"))) {
-      CacheSerializableRunnable runnable =
+      var runnable =
           invokeCreatePersistentPartitionedRegion(regionName, diskdir);
       invokeRunnableInVMs(runnable, rollServer);
     } else {
@@ -382,10 +378,10 @@ public abstract class LuceneSearchWithRollingUpgradeTestBase extends JUnit4Distr
 
   VM rollServerToCurrentAndCreateRegionOnly(VM oldServer, String regionType, File diskdir,
       String shortcutName, String regionName, int[] locatorPorts) {
-    VM rollServer = rollServerToCurrent(oldServer, locatorPorts);
+    var rollServer = rollServerToCurrent(oldServer, locatorPorts);
     // recreate region on "rolled" server
     if ((regionType.equals("persistentPartitioned"))) {
-      CacheSerializableRunnable runnable =
+      var runnable =
           invokeCreatePersistentPartitionedRegion(regionName, diskdir);
       invokeRunnableInVMs(runnable, rollServer);
     } else {
@@ -399,8 +395,8 @@ public abstract class LuceneSearchWithRollingUpgradeTestBase extends JUnit4Distr
       final String testName, final String locatorString) {
     // Roll the locator
     oldLocator.invoke(invokeStopLocator());
-    VM rollLocator = Host.getHost(0).getVM(VersionManager.CURRENT_VERSION, oldLocator.getId());
-    final Properties props = new Properties();
+    var rollLocator = Host.getHost(0).getVM(VersionManager.CURRENT_VERSION, oldLocator.getId());
+    final var props = new Properties();
     props.setProperty(DistributionConfig.ENABLE_CLUSTER_CONFIGURATION_NAME, "false");
     rollLocator.invoke(invokeStartLocator(serverHostName, port, testName, locatorString, props));
     return rollLocator;
@@ -408,18 +404,18 @@ public abstract class LuceneSearchWithRollingUpgradeTestBase extends JUnit4Distr
 
   // Due to licensing changes
   private Properties getSystemPropertiesPost71() {
-    Properties props = getSystemProperties();
+    var props = getSystemProperties();
     return props;
   }
 
   // Due to licensing changes
   private Properties getSystemPropertiesPost71(int[] locatorPorts) {
-    Properties props = getSystemProperties(locatorPorts);
+    var props = getSystemProperties(locatorPorts);
     return props;
   }
 
   private Properties getSystemProperties() {
-    Properties props = DistributedTestUtils.getAllDistributedSystemProperties(new Properties());
+    var props = DistributedTestUtils.getAllDistributedSystemProperties(new Properties());
     props.remove("disable-auto-reconnect");
     props.remove(DistributionConfig.OFF_HEAP_MEMORY_SIZE_NAME);
     props.remove(DistributionConfig.LOCK_MEMORY_NAME);
@@ -427,22 +423,22 @@ public abstract class LuceneSearchWithRollingUpgradeTestBase extends JUnit4Distr
   }
 
   Properties getSystemProperties(int[] locatorPorts) {
-    Properties p = new Properties();
-    String locatorString = getLocatorString(locatorPorts);
+    var p = new Properties();
+    var locatorString = getLocatorString(locatorPorts);
     p.setProperty("locators", locatorString);
     p.setProperty("mcast-port", "0");
     return p;
   }
 
   static String getLocatorString(int locatorPort) {
-    String locatorString = getDUnitLocatorAddress() + "[" + locatorPort + "]";
+    var locatorString = getDUnitLocatorAddress() + "[" + locatorPort + "]";
     return locatorString;
   }
 
   static String getLocatorString(int[] locatorPorts) {
-    StringBuilder locatorString = new StringBuilder();
-    int numLocators = locatorPorts.length;
-    for (int i = 0; i < numLocators; i++) {
+    var locatorString = new StringBuilder();
+    var numLocators = locatorPorts.length;
+    for (var i = 0; i < numLocators; i++) {
       locatorString.append(getLocatorString(locatorPorts[i]));
       if (i + 1 < numLocators) {
         locatorString.append(",");
@@ -601,7 +597,7 @@ public abstract class LuceneSearchWithRollingUpgradeTestBase extends JUnit4Distr
 
     Class distConfigClass = Thread.currentThread().getContextClassLoader()
         .loadClass("org.apache.geode.distributed.internal.DistributionConfigImpl");
-    boolean disableConfig = true;
+    var disableConfig = true;
     try {
       distConfigClass.getDeclaredField("useSharedConfiguration");
     } catch (NoSuchFieldException e) {
@@ -613,13 +609,13 @@ public abstract class LuceneSearchWithRollingUpgradeTestBase extends JUnit4Distr
 
     Class cacheFactoryClass = Thread.currentThread().getContextClassLoader()
         .loadClass("org.apache.geode.cache.CacheFactory");
-    Constructor constructor = cacheFactoryClass.getConstructor(Properties.class);
+    var constructor = cacheFactoryClass.getConstructor(Properties.class);
     constructor.setAccessible(true);
-    Object cacheFactory = constructor.newInstance(systemProperties);
+    var cacheFactory = constructor.newInstance(systemProperties);
 
-    Method createMethod = cacheFactoryClass.getMethod("create");
+    var createMethod = cacheFactoryClass.getMethod("create");
     createMethod.setAccessible(true);
-    Object cache = createMethod.invoke(cacheFactory);
+    var cache = createMethod.invoke(cacheFactory);
     return cache;
   }
 
@@ -629,7 +625,7 @@ public abstract class LuceneSearchWithRollingUpgradeTestBase extends JUnit4Distr
 
   protected static Object put(Object cache, String regionName, Object key, Object value)
       throws Exception {
-    Object region = getRegion(cache, regionName);
+    var region = getRegion(cache, regionName);
     return region.getClass().getMethod("put", Object.class, Object.class).invoke(region, key,
         value);
   }
@@ -638,20 +634,20 @@ public abstract class LuceneSearchWithRollingUpgradeTestBase extends JUnit4Distr
       throws Exception {
     Class aClass = Thread.currentThread().getContextClassLoader()
         .loadClass("org.apache.geode.cache.RegionShortcut");
-    Object[] enumConstants = aClass.getEnumConstants();
+    var enumConstants = aClass.getEnumConstants();
     Object shortcut = null;
-    int length = enumConstants.length;
-    for (Object constant : enumConstants) {
+    var length = enumConstants.length;
+    for (var constant : enumConstants) {
       if (((Enum) constant).name().equals(shortcutName)) {
         shortcut = constant;
         break;
       }
     }
 
-    Method createRegionFactoryMethod = cache.getClass().getMethod("createRegionFactory", aClass);
+    var createRegionFactoryMethod = cache.getClass().getMethod("createRegionFactory", aClass);
     createRegionFactoryMethod.setAccessible(true);
-    Object regionFactory = createRegionFactoryMethod.invoke(cache, shortcut);
-    Method createMethod = regionFactory.getClass().getMethod("create", String.class);
+    var regionFactory = createRegionFactoryMethod.invoke(cache, shortcut);
+    var createMethod = regionFactory.getClass().getMethod("create", String.class);
     createMethod.setAccessible(true);
     createMethod.invoke(regionFactory, regionName);
   }
@@ -660,12 +656,12 @@ public abstract class LuceneSearchWithRollingUpgradeTestBase extends JUnit4Distr
       throws Exception {
     Class luceneServiceProvider = Thread.currentThread().getContextClassLoader()
         .loadClass("org.apache.geode.cache.lucene.LuceneServiceProvider");
-    Method getLuceneService = luceneServiceProvider.getMethod("get", GemFireCache.class);
-    Object luceneService = getLuceneService.invoke(luceneServiceProvider, cache);
-    Method createLuceneIndexFactoryMethod =
+    var getLuceneService = luceneServiceProvider.getMethod("get", GemFireCache.class);
+    var luceneService = getLuceneService.invoke(luceneServiceProvider, cache);
+    var createLuceneIndexFactoryMethod =
         luceneService.getClass().getMethod("createIndexFactory");
     createLuceneIndexFactoryMethod.setAccessible(true);
-    Object luceneIndexFactory = createLuceneIndexFactoryMethod.invoke(luceneService);
+    var luceneIndexFactory = createLuceneIndexFactoryMethod.invoke(luceneService);
     luceneIndexFactory.getClass().getMethod("addField", String.class).invoke(luceneIndexFactory,
         "status");
     luceneIndexFactory.getClass().getMethod("create", String.class, String.class)
@@ -676,12 +672,12 @@ public abstract class LuceneSearchWithRollingUpgradeTestBase extends JUnit4Distr
       String indexName) throws Exception {
     Class luceneServiceProvider = Thread.currentThread().getContextClassLoader()
         .loadClass("org.apache.geode.cache.lucene.LuceneServiceProvider");
-    Method getLuceneService = luceneServiceProvider.getMethod("get", GemFireCache.class);
-    Object luceneService = getLuceneService.invoke(luceneServiceProvider, cache);
-    Method createLuceneIndexFactoryMethod =
+    var getLuceneService = luceneServiceProvider.getMethod("get", GemFireCache.class);
+    var luceneService = getLuceneService.invoke(luceneServiceProvider, cache);
+    var createLuceneIndexFactoryMethod =
         luceneService.getClass().getMethod("createIndexFactory");
     createLuceneIndexFactoryMethod.setAccessible(true);
-    Object luceneIndexFactory = createLuceneIndexFactoryMethod.invoke(luceneService);
+    var luceneIndexFactory = createLuceneIndexFactoryMethod.invoke(luceneService);
     luceneIndexFactory.getClass().getMethod("addField", String.class).invoke(luceneIndexFactory,
         "status");
     luceneIndexFactory.getClass().getMethod("create", String.class, String.class, boolean.class)
@@ -690,18 +686,18 @@ public abstract class LuceneSearchWithRollingUpgradeTestBase extends JUnit4Distr
 
   protected static void createPersistentPartitonedRegion(Object cache, String regionName,
       File diskStore) throws Exception {
-    Object store = cache.getClass().getMethod("findDiskStore", String.class).invoke(cache, "store");
+    var store = cache.getClass().getMethod("findDiskStore", String.class).invoke(cache, "store");
     Class dataPolicyObject = Thread.currentThread().getContextClassLoader()
         .loadClass("org.apache.geode.cache.DataPolicy");
-    Object dataPolicy = dataPolicyObject.getField("PERSISTENT_PARTITION").get(null);
+    var dataPolicy = dataPolicyObject.getField("PERSISTENT_PARTITION").get(null);
     if (store == null) {
-      Object dsf = cache.getClass().getMethod("createDiskStoreFactory").invoke(cache);
+      var dsf = cache.getClass().getMethod("createDiskStoreFactory").invoke(cache);
       dsf.getClass().getMethod("setMaxOplogSize", long.class).invoke(dsf, 1L);
       dsf.getClass().getMethod("setDiskDirs", File[].class).invoke(dsf,
           new Object[] {new File[] {diskStore.getAbsoluteFile()}});
       dsf.getClass().getMethod("create", String.class).invoke(dsf, "store");
     }
-    Object rf = cache.getClass().getMethod("createRegionFactory").invoke(cache);
+    var rf = cache.getClass().getMethod("createRegionFactory").invoke(cache);
     rf.getClass().getMethod("setDiskStoreName", String.class).invoke(rf, "store");
     rf.getClass().getMethod("setDataPolicy", dataPolicy.getClass()).invoke(rf, dataPolicy);
     rf.getClass().getMethod("create", String.class).invoke(rf, regionName);
@@ -710,13 +706,13 @@ public abstract class LuceneSearchWithRollingUpgradeTestBase extends JUnit4Distr
   protected static void assertVersion(Object cache, short ordinal) throws Exception {
     Class idmClass = Thread.currentThread().getContextClassLoader()
         .loadClass("org.apache.geode.distributed.internal.membership.InternalDistributedMember");
-    Method getDSMethod = cache.getClass().getMethod("getDistributedSystem");
+    var getDSMethod = cache.getClass().getMethod("getDistributedSystem");
     getDSMethod.setAccessible(true);
-    Object ds = getDSMethod.invoke(cache);
+    var ds = getDSMethod.invoke(cache);
 
-    Method getDistributedMemberMethod = ds.getClass().getMethod("getDistributedMember");
+    var getDistributedMemberMethod = ds.getClass().getMethod("getDistributedMember");
     getDistributedMemberMethod.setAccessible(true);
-    Object member = getDistributedMemberMethod.invoke(ds);
+    var member = getDistributedMemberMethod.invoke(ds);
 
     Method getVersionMethod;
     /*
@@ -737,8 +733,8 @@ public abstract class LuceneSearchWithRollingUpgradeTestBase extends JUnit4Distr
     }
 
     getVersionMethod.setAccessible(true);
-    Object thisVersion = getVersionMethod.invoke(member);
-    Method getOrdinalMethod = thisVersion.getClass().getMethod("ordinal");
+    var thisVersion = getVersionMethod.invoke(member);
+    var getOrdinalMethod = thisVersion.getClass().getMethod("ordinal");
     getOrdinalMethod.setAccessible(true);
     short thisOrdinal = (Short) getOrdinalMethod.invoke(thisVersion);
     if (ordinal != thisOrdinal) {
@@ -748,11 +744,11 @@ public abstract class LuceneSearchWithRollingUpgradeTestBase extends JUnit4Distr
   }
 
   protected static void stopCacheServers(Object cache) throws Exception {
-    Method getCacheServersMethod = cache.getClass().getMethod("getCacheServers");
+    var getCacheServersMethod = cache.getClass().getMethod("getCacheServers");
     getCacheServersMethod.setAccessible(true);
-    List cacheServers = (List) getCacheServersMethod.invoke(cache);
+    var cacheServers = (List) getCacheServersMethod.invoke(cache);
     Method stopMethod = null;
-    for (Object cs : cacheServers) {
+    for (var cs : cacheServers) {
       if (stopMethod == null) {
         stopMethod = cs.getClass().getMethod("stop");
       }
@@ -765,19 +761,19 @@ public abstract class LuceneSearchWithRollingUpgradeTestBase extends JUnit4Distr
     if (cache == null) {
       return;
     }
-    Method isClosedMethod = cache.getClass().getMethod("isClosed");
+    var isClosedMethod = cache.getClass().getMethod("isClosed");
     isClosedMethod.setAccessible(true);
     boolean cacheClosed = (Boolean) isClosedMethod.invoke(cache);
     if (cache != null && !cacheClosed) {
       stopCacheServers(cache);
-      Method method = cache.getClass().getMethod("close");
+      var method = cache.getClass().getMethod("close");
       method.setAccessible(true);
       method.invoke(cache);
-      long startTime = System.currentTimeMillis();
+      var startTime = System.currentTimeMillis();
       while (!cacheClosed && System.currentTimeMillis() - startTime < 30000) {
         try {
           Thread.sleep(1000);
-          Method cacheClosedMethod = cache.getClass().getMethod("isClosed");
+          var cacheClosedMethod = cache.getClass().getMethod("isClosed");
           cacheClosedMethod.setAccessible(true);
           cacheClosed = (Boolean) cacheClosedMethod.invoke(cache);
         } catch (InterruptedException e) {
@@ -788,26 +784,26 @@ public abstract class LuceneSearchWithRollingUpgradeTestBase extends JUnit4Distr
   }
 
   protected static void rebalance(Object cache) throws Exception {
-    Method getRMMethod = cache.getClass().getMethod("getResourceManager");
+    var getRMMethod = cache.getClass().getMethod("getResourceManager");
     getRMMethod.setAccessible(true);
-    Object manager = getRMMethod.invoke(cache);
+    var manager = getRMMethod.invoke(cache);
 
-    Method createRebalanceFactoryMethod = manager.getClass().getMethod("createRebalanceFactory");
+    var createRebalanceFactoryMethod = manager.getClass().getMethod("createRebalanceFactory");
     createRebalanceFactoryMethod.setAccessible(true);
-    Object rebalanceFactory = createRebalanceFactoryMethod.invoke(manager);
-    Method m = rebalanceFactory.getClass().getMethod("start");
+    var rebalanceFactory = createRebalanceFactoryMethod.invoke(manager);
+    var m = rebalanceFactory.getClass().getMethod("start");
     m.setAccessible(true);
-    Object op = m.invoke(rebalanceFactory);
+    var op = m.invoke(rebalanceFactory);
 
     // Wait until the rebalance is complete
     try {
-      Method getResultsMethod = op.getClass().getMethod("getResults");
+      var getResultsMethod = op.getClass().getMethod("getResults");
       getResultsMethod.setAccessible(true);
-      Object results = getResultsMethod.invoke(op);
-      Method getTotalTimeMethod = results.getClass().getMethod("getTotalTime");
+      var results = getResultsMethod.invoke(op);
+      var getTotalTimeMethod = results.getClass().getMethod("getTotalTime");
       getTotalTimeMethod.setAccessible(true);
       System.out.println("Took " + getTotalTimeMethod.invoke(results) + " milliseconds\n");
-      Method getTotalBucketsMethod = results.getClass().getMethod("getTotalBucketTransferBytes");
+      var getTotalBucketsMethod = results.getClass().getMethod("getTotalBucketTransferBytes");
       getTotalBucketsMethod.setAccessible(true);
       System.out.println("Transfered " + getTotalBucketsMethod.invoke(results) + "bytes\n");
     } catch (Exception e) {
@@ -823,7 +819,7 @@ public abstract class LuceneSearchWithRollingUpgradeTestBase extends JUnit4Distr
       final String testName, final String locatorsString, final Properties props) throws Exception {
     props.setProperty(DistributionConfig.MCAST_PORT_NAME, "0");
     props.setProperty(DistributionConfig.LOCATORS_NAME, locatorsString);
-    Logger logger = LogService.getLogger();
+    var logger = LogService.getLogger();
     props.setProperty(DistributionConfig.LOG_LEVEL_NAME, logger.getLevel().name());
 
     InetAddress bindAddr;
@@ -833,10 +829,10 @@ public abstract class LuceneSearchWithRollingUpgradeTestBase extends JUnit4Distr
       throw new Error("While resolving bind address ", uhe);
     }
 
-    File logFile = new File(testName + "-locator" + port + ".log");
+    var logFile = new File(testName + "-locator" + port + ".log");
     Class locatorClass = Thread.currentThread().getContextClassLoader()
         .loadClass("org.apache.geode.distributed.Locator");
-    Method startLocatorAndDSMethod =
+    var startLocatorAndDSMethod =
         locatorClass.getMethod("startLocatorAndDS", int.class, File.class, InetAddress.class,
             Properties.class, boolean.class, boolean.class, String.class);
     startLocatorAndDSMethod.setAccessible(true);
@@ -861,10 +857,10 @@ public abstract class LuceneSearchWithRollingUpgradeTestBase extends JUnit4Distr
   protected static void stopLocator() throws Exception {
     Class internalLocatorClass = Thread.currentThread().getContextClassLoader()
         .loadClass("org.apache.geode.distributed.internal.InternalLocator");
-    Method locatorMethod = internalLocatorClass.getMethod("getLocator");
+    var locatorMethod = internalLocatorClass.getMethod("getLocator");
     locatorMethod.setAccessible(true);
-    Object locator = locatorMethod.invoke(null);
-    Method stopLocatorMethod = locator.getClass().getMethod("stop");
+    var locator = locatorMethod.invoke(null);
+    var stopLocatorMethod = locator.getClass().getMethod("stop");
     stopLocatorMethod.setAccessible(true);
     stopLocatorMethod.invoke(locator);
   }
@@ -880,7 +876,7 @@ public abstract class LuceneSearchWithRollingUpgradeTestBase extends JUnit4Distr
 
   protected Object executeDummyFunction(String regionName) {
     Region region = ((InternalCache) cache).getRegion(regionName);
-    Object result = FunctionService.onRegion(region).execute("TestFunction").getResult();
+    var result = FunctionService.onRegion(region).execute("TestFunction").getResult();
     ArrayList<Boolean> list = (ArrayList) result;
     assertThat(list.get(0)).isTrue();
     return result;

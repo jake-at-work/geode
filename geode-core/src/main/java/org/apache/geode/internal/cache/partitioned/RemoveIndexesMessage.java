@@ -126,9 +126,9 @@ public class RemoveIndexesMessage extends PartitionMessage {
     // TODO Auto-generated method stub
 
     ReplyException replyEx = null;
-    boolean result = true;
-    int bucketIndexRemoved = 0; // invalid
-    int numIndexesRemoved = 0;
+    var result = true;
+    var bucketIndexRemoved = 0; // invalid
+    var numIndexesRemoved = 0;
 
     logger.info("Will remove the indexes on this pr : {}", pr);
     try {
@@ -178,7 +178,7 @@ public class RemoveIndexesMessage extends PartitionMessage {
   public static PartitionResponse send(PartitionedRegion pr, Index ind, boolean removeAllIndex) {
     RemoveIndexesResponse processor = null;
     // PartitionResponse processor = null;
-    RegionAdvisor advisor = (RegionAdvisor) (pr.getDistributionAdvisor());
+    var advisor = (RegionAdvisor) (pr.getDistributionAdvisor());
     final Set recipients = new HashSet(advisor.adviseDataStore());
     // removing the originator for remove index command.
     recipients.remove(pr.getDistributionManager().getDistributionManagerId());
@@ -192,12 +192,12 @@ public class RemoveIndexesMessage extends PartitionMessage {
 
     }
     if (removeAllIndex) {
-      RemoveIndexesMessage rm = new RemoveIndexesMessage(recipients, pr.getPRId(), processor);
+      var rm = new RemoveIndexesMessage(recipients, pr.getPRId(), processor);
       rm.setTransactionDistributed(pr.getCache().getTxManager().isDistributed());
       /* Set failures = */ pr.getDistributionManager().putOutgoing(rm);
     } else {
       // remove a single index.
-      RemoveIndexesMessage rm =
+      var rm =
           new RemoveIndexesMessage(recipients, pr.getPRId(), processor, true, ind.getName());
       rm.setTransactionDistributed(pr.getCache().getTxManager().isDistributed());
       /* Set failures = */ pr.getDistributionManager().putOutgoing(rm);
@@ -243,7 +243,7 @@ public class RemoveIndexesMessage extends PartitionMessage {
   public void process(final ClusterDistributionManager dm) {
 
     Throwable thr = null;
-    boolean sendReply = true;
+    var sendReply = true;
     PartitionedRegion pr = null;
 
     try {
@@ -480,7 +480,7 @@ public class RemoveIndexesMessage extends PartitionMessage {
     public static void send(InternalDistributedMember recipient, int processorId,
         DistributionManager dm, ReplyException ex, boolean result, int numBucketsIndexesRemoved,
         int numTotalBuckets) {
-      RemoveIndexesReplyMessage rmIndMsg = new RemoveIndexesReplyMessage(processorId, ex, result,
+      var rmIndMsg = new RemoveIndexesReplyMessage(processorId, ex, result,
           numBucketsIndexesRemoved, numTotalBuckets);
       rmIndMsg.setRecipient(recipient);
       dm.putOutgoing(rmIndMsg);
@@ -493,7 +493,7 @@ public class RemoveIndexesMessage extends PartitionMessage {
      */
     @Override
     public void process(final DistributionManager dm, final ReplyProcessor21 p) {
-      RemoveIndexesResponse processor = (RemoveIndexesResponse) p;
+      var processor = (RemoveIndexesResponse) p;
       if (processor != null) {
         processor.setResponse(result, numBucketsIndexesRemoved, numTotalBuckets);
         processor.process(this);

@@ -220,7 +220,7 @@ public abstract class DataSerializer {
       // the first CLASS byte indicates it's a Class, the second
       // one indicates it's a non-primitive Class
       out.writeByte(DSCODE.CLASS.toByte());
-      String cname = c.getName();
+      var cname = c.getName();
       cname = InternalDataSerializer.processOutgoingClassName(cname, out);
       writeString(cname, out);
     }
@@ -258,9 +258,9 @@ public abstract class DataSerializer {
 
     InternalDataSerializer.checkIn(in);
 
-    byte typeCode = in.readByte();
+    var typeCode = in.readByte();
     if (typeCode == DSCODE.CLASS.toByte()) {
-      String className = readString(in);
+      var className = readString(in);
       return InternalDataSerializer.getCachedClass(className);
     } else {
       return StaticSerialization.decodePrimitiveClass(typeCode);
@@ -305,7 +305,7 @@ public abstract class DataSerializer {
    */
   public static <K, V> Region<K, V> readRegion(DataInput in)
       throws IOException, ClassNotFoundException {
-    String fullPath = readString(in);
+    var fullPath = readString(in);
     Region<K, V> rgn = null;
     if (fullPath != null) {
       // use getExisting to fix bug 43151
@@ -363,7 +363,7 @@ public abstract class DataSerializer {
   public static Date readDate(DataInput in) throws IOException {
     InternalDataSerializer.checkIn(in);
 
-    long time = in.readLong();
+    var time = in.readLong();
     Date date = null;
     if (time != -1L) {
       date = new Date(time);
@@ -409,7 +409,7 @@ public abstract class DataSerializer {
   public static File readFile(DataInput in) throws IOException {
     InternalDataSerializer.checkIn(in);
 
-    String s = readString(in);
+    var s = readString(in);
     File file = null;
     if (s != null) {
       file = new File(s);
@@ -460,7 +460,7 @@ public abstract class DataSerializer {
   public static InetAddress readInetAddress(DataInput in) throws IOException {
 
     InternalDataSerializer.checkIn(in);
-    InetAddress address = StaticSerialization.readInetAddress(in);
+    var address = StaticSerialization.readInetAddress(in);
 
     if (logger.isTraceEnabled(LogMarker.SERIALIZER_VERBOSE)) {
       logger.trace(LogMarker.SERIALIZER_VERBOSE, "Read InetAddress {}", address);
@@ -483,7 +483,7 @@ public abstract class DataSerializer {
 
     InternalDataSerializer.checkOut(out);
 
-    final boolean isTraceSerialzerVerbose = logger.isTraceEnabled(LogMarker.SERIALIZER_VERBOSE);
+    final var isTraceSerialzerVerbose = logger.isTraceEnabled(LogMarker.SERIALIZER_VERBOSE);
     if (isTraceSerialzerVerbose) {
       logger.trace(LogMarker.SERIALIZER_VERBOSE, "Writing String \"{}\"", value);
     }
@@ -805,7 +805,7 @@ public abstract class DataSerializer {
   public static boolean readPrimitiveBoolean(DataInput in) throws IOException {
     InternalDataSerializer.checkIn(in);
 
-    boolean value = in.readBoolean();
+    var value = in.readBoolean();
     if (logger.isTraceEnabled(LogMarker.SERIALIZER_VERBOSE)) {
       logger.trace(LogMarker.SERIALIZER_VERBOSE, "Read Boolean {}", value);
     }
@@ -841,7 +841,7 @@ public abstract class DataSerializer {
   public static byte readPrimitiveByte(DataInput in) throws IOException {
     InternalDataSerializer.checkIn(in);
 
-    byte value = in.readByte();
+    var value = in.readByte();
     if (logger.isTraceEnabled(LogMarker.SERIALIZER_VERBOSE)) {
       logger.trace(LogMarker.SERIALIZER_VERBOSE, "Read Byte {}", value);
     }
@@ -877,7 +877,7 @@ public abstract class DataSerializer {
   public static char readPrimitiveChar(DataInput in) throws IOException {
     InternalDataSerializer.checkIn(in);
 
-    char value = in.readChar();
+    var value = in.readChar();
     if (logger.isTraceEnabled(LogMarker.SERIALIZER_VERBOSE)) {
       logger.trace(LogMarker.SERIALIZER_VERBOSE, "Read Char {}", value);
     }
@@ -913,7 +913,7 @@ public abstract class DataSerializer {
   public static short readPrimitiveShort(DataInput in) throws IOException {
     InternalDataSerializer.checkIn(in);
 
-    short value = in.readShort();
+    var value = in.readShort();
     if (logger.isTraceEnabled(LogMarker.SERIALIZER_VERBOSE)) {
       logger.trace(LogMarker.SERIALIZER_VERBOSE, "Read Short {}", value);
     }
@@ -950,7 +950,7 @@ public abstract class DataSerializer {
   public static int readUnsignedByte(DataInput in) throws IOException {
     InternalDataSerializer.checkIn(in);
 
-    int value = in.readUnsignedByte();
+    var value = in.readUnsignedByte();
     if (logger.isTraceEnabled(LogMarker.SERIALIZER_VERBOSE)) {
       logger.trace(LogMarker.SERIALIZER_VERBOSE, "Read Unsigned Byte {}", value);
     }
@@ -987,7 +987,7 @@ public abstract class DataSerializer {
   public static int readUnsignedShort(DataInput in) throws IOException {
     InternalDataSerializer.checkIn(in);
 
-    int value = in.readUnsignedShort();
+    var value = in.readUnsignedShort();
     if (logger.isTraceEnabled(LogMarker.SERIALIZER_VERBOSE)) {
       logger.trace(LogMarker.SERIALIZER_VERBOSE, "Read Unsigned Short {}", value);
     }
@@ -1022,7 +1022,7 @@ public abstract class DataSerializer {
   public static int readPrimitiveInt(DataInput in) throws IOException {
     InternalDataSerializer.checkIn(in);
 
-    int value = in.readInt();
+    var value = in.readInt();
     if (logger.isTraceEnabled(LogMarker.SERIALIZER_VERBOSE)) {
       logger.trace(LogMarker.SERIALIZER_VERBOSE, "Read Integer {}", value);
     }
@@ -1058,7 +1058,7 @@ public abstract class DataSerializer {
   public static long readPrimitiveLong(DataInput in) throws IOException {
     InternalDataSerializer.checkIn(in);
 
-    long value = in.readLong();
+    var value = in.readLong();
     if (logger.isTraceEnabled(LogMarker.SERIALIZER_VERBOSE)) {
       logger.trace(LogMarker.SERIALIZER_VERBOSE, "Read Long {}", value);
     }
@@ -1094,7 +1094,7 @@ public abstract class DataSerializer {
   public static float readPrimitiveFloat(DataInput in) throws IOException {
     InternalDataSerializer.checkIn(in);
 
-    float value = in.readFloat();
+    var value = in.readFloat();
     if (logger.isTraceEnabled(LogMarker.SERIALIZER_VERBOSE)) {
       logger.trace(LogMarker.SERIALIZER_VERBOSE, "Read Float {}", value);
     }
@@ -1130,7 +1130,7 @@ public abstract class DataSerializer {
   public static double readPrimitiveDouble(DataInput in) throws IOException {
     InternalDataSerializer.checkIn(in);
 
-    double value = in.readDouble();
+    var value = in.readDouble();
     if (logger.isTraceEnabled(LogMarker.SERIALIZER_VERBOSE)) {
       logger.trace(LogMarker.SERIALIZER_VERBOSE, "Read Double {}", value);
     }
@@ -1146,7 +1146,7 @@ public abstract class DataSerializer {
    * @see #readByteArray
    */
   public static void writeByteArray(byte[] array, DataOutput out) throws IOException {
-    int len = 0;
+    var len = 0;
     if (array != null) {
       len = array.length;
     }
@@ -1168,7 +1168,7 @@ public abstract class DataSerializer {
 
     InternalDataSerializer.checkOut(out);
 
-    int length = len; // to avoid warnings about parameter assignment
+    var length = len; // to avoid warnings about parameter assignment
 
     if (array == null) {
       length = -1;
@@ -1202,10 +1202,10 @@ public abstract class DataSerializer {
    * @since GemFire 5.0.2
    */
   public static void writeObjectAsByteArray(Object obj, DataOutput out) throws IOException {
-    Object object = obj;
+    var object = obj;
     if (obj instanceof CachedDeserializable) {
       if (obj instanceof StoredObject) {
-        StoredObject so = (StoredObject) obj;
+        var so = (StoredObject) obj;
         if (logger.isTraceEnabled(LogMarker.SERIALIZER_VERBOSE)) {
           logger.trace(LogMarker.SERIALIZER_VERBOSE, "writeObjectAsByteArray StoredObject");
         }
@@ -1235,7 +1235,7 @@ public abstract class DataSerializer {
       if (object instanceof HeapDataOutputStream) {
         hdos = (HeapDataOutputStream) object;
       } else {
-        KnownVersion v = StaticSerialization.getVersionForDataStreamOrNull(out);
+        var v = StaticSerialization.getVersionForDataStreamOrNull(out);
         if (v == null) {
           v = KnownVersion.CURRENT;
         }
@@ -1262,7 +1262,7 @@ public abstract class DataSerializer {
 
     InternalDataSerializer.checkIn(in);
 
-    byte[] result = StaticSerialization.readByteArray(in);
+    var result = StaticSerialization.readByteArray(in);
 
     if (logger.isTraceEnabled(LogMarker.SERIALIZER_VERBOSE)) {
       logger.trace(LogMarker.SERIALIZER_VERBOSE, "Read byte array of length {}",
@@ -1311,7 +1311,7 @@ public abstract class DataSerializer {
 
     InternalDataSerializer.checkIn(in);
 
-    String[] array = StaticSerialization.readStringArray(in);
+    var array = StaticSerialization.readStringArray(in);
 
     if (logger.isTraceEnabled(LogMarker.SERIALIZER_VERBOSE)) {
       logger.trace(LogMarker.SERIALIZER_VERBOSE, "Read String array of length {}",
@@ -1344,7 +1344,7 @@ public abstract class DataSerializer {
       logger.trace(LogMarker.SERIALIZER_VERBOSE, "Writing short array of length {}", length);
     }
     if (length > 0) {
-      for (int i = 0; i < length; i++) {
+      for (var i = 0; i < length; i++) {
         out.writeShort(array[i]);
       }
     }
@@ -1361,12 +1361,12 @@ public abstract class DataSerializer {
 
     InternalDataSerializer.checkIn(in);
 
-    int length = InternalDataSerializer.readArrayLength(in);
+    var length = InternalDataSerializer.readArrayLength(in);
     if (length == -1) {
       return null;
     } else {
-      short[] array = new short[length];
-      for (int i = 0; i < length; i++) {
+      var array = new short[length];
+      for (var i = 0; i < length; i++) {
         array[i] = in.readShort();
       }
 
@@ -1402,12 +1402,12 @@ public abstract class DataSerializer {
 
     InternalDataSerializer.checkIn(in);
 
-    int length = InternalDataSerializer.readArrayLength(in);
+    var length = InternalDataSerializer.readArrayLength(in);
     if (length == -1) {
       return null;
     } else {
-      char[] array = new char[length];
-      for (int i = 0; i < length; i++) {
+      var array = new char[length];
+      for (var i = 0; i < length; i++) {
         array[i] = in.readChar();
       }
 
@@ -1442,7 +1442,7 @@ public abstract class DataSerializer {
       logger.trace(LogMarker.SERIALIZER_VERBOSE, "Writing boolean array of length {}", length);
     }
     if (length > 0) {
-      for (int i = 0; i < length; i++) {
+      for (var i = 0; i < length; i++) {
         out.writeBoolean(array[i]);
       }
     }
@@ -1460,12 +1460,12 @@ public abstract class DataSerializer {
 
     InternalDataSerializer.checkIn(in);
 
-    int length = InternalDataSerializer.readArrayLength(in);
+    var length = InternalDataSerializer.readArrayLength(in);
     if (length == -1) {
       return null;
     } else {
-      boolean[] array = new boolean[length];
-      for (int i = 0; i < length; i++) {
+      var array = new boolean[length];
+      for (var i = 0; i < length; i++) {
         array[i] = in.readBoolean();
       }
 
@@ -1508,7 +1508,7 @@ public abstract class DataSerializer {
 
     InternalDataSerializer.checkIn(in);
 
-    int[] result = StaticSerialization.readIntArray(in);
+    var result = StaticSerialization.readIntArray(in);
 
     if (logger.isTraceEnabled(LogMarker.SERIALIZER_VERBOSE)) {
       logger.trace(LogMarker.SERIALIZER_VERBOSE, "Read int array of length {}",
@@ -1541,7 +1541,7 @@ public abstract class DataSerializer {
       logger.trace(LogMarker.SERIALIZER_VERBOSE, "Writing long array of length {}", length);
     }
     if (length > 0) {
-      for (int i = 0; i < length; i++) {
+      for (var i = 0; i < length; i++) {
         out.writeLong(array[i]);
       }
     }
@@ -1558,12 +1558,12 @@ public abstract class DataSerializer {
 
     InternalDataSerializer.checkIn(in);
 
-    int length = InternalDataSerializer.readArrayLength(in);
+    var length = InternalDataSerializer.readArrayLength(in);
     if (length == -1) {
       return null;
     } else {
-      long[] array = new long[length];
-      for (int i = 0; i < length; i++) {
+      var array = new long[length];
+      for (var i = 0; i < length; i++) {
         array[i] = in.readLong();
       }
 
@@ -1598,7 +1598,7 @@ public abstract class DataSerializer {
       logger.trace(LogMarker.SERIALIZER_VERBOSE, "Writing float array of length {}", length);
     }
     if (length > 0) {
-      for (int i = 0; i < length; i++) {
+      for (var i = 0; i < length; i++) {
         out.writeFloat(array[i]);
       }
     }
@@ -1615,12 +1615,12 @@ public abstract class DataSerializer {
 
     InternalDataSerializer.checkIn(in);
 
-    int length = InternalDataSerializer.readArrayLength(in);
+    var length = InternalDataSerializer.readArrayLength(in);
     if (length == -1) {
       return null;
     } else {
-      float[] array = new float[length];
-      for (int i = 0; i < length; i++) {
+      var array = new float[length];
+      for (var i = 0; i < length; i++) {
         array[i] = in.readFloat();
       }
 
@@ -1655,7 +1655,7 @@ public abstract class DataSerializer {
       logger.trace(LogMarker.SERIALIZER_VERBOSE, "Writing double array of length {}", length);
     }
     if (length > 0) {
-      for (int i = 0; i < length; i++) {
+      for (var i = 0; i < length; i++) {
         out.writeDouble(array[i]);
       }
     }
@@ -1672,12 +1672,12 @@ public abstract class DataSerializer {
 
     InternalDataSerializer.checkIn(in);
 
-    int length = InternalDataSerializer.readArrayLength(in);
+    var length = InternalDataSerializer.readArrayLength(in);
     if (length == -1) {
       return null;
     } else {
-      double[] array = new double[length];
-      for (int i = 0; i < length; i++) {
+      var array = new double[length];
+      for (var i = 0; i < length; i++) {
         array[i] = in.readDouble();
       }
 
@@ -1714,19 +1714,19 @@ public abstract class DataSerializer {
 
     InternalDataSerializer.checkIn(in);
 
-    int length = InternalDataSerializer.readArrayLength(in);
+    var length = InternalDataSerializer.readArrayLength(in);
     if (length == -1) {
       return null;
     } else {
       Class<?> c;
-      byte typeCode = in.readByte();
+      var typeCode = in.readByte();
       String typeString = null;
       if (typeCode == DSCODE.CLASS.toByte()) {
         typeString = readString(in);
       }
 
       InternalCache cache = GemFireCacheImpl.getInstance();
-      boolean lookForPdxInstance = false;
+      var lookForPdxInstance = false;
       ClassNotFoundException cnfEx = null;
       if (typeCode == DSCODE.CLASS.toByte() && cache != null
           && cache.getPdxReadSerializedByAnyGemFireServices()) {
@@ -1752,17 +1752,17 @@ public abstract class DataSerializer {
           c = Object.class;
         }
       }
-      Object[] array = (Object[]) Array.newInstance(c, length);
+      var array = (Object[]) Array.newInstance(c, length);
       if (length > 0) {
         array[0] = o;
       }
-      for (int i = 1; i < length; i++) {
+      for (var i = 1; i < length; i++) {
         o = readObject(in);
         if (lookForPdxInstance && o instanceof PdxInstance) {
           // create an Object[] and copy all the entries we already did into it
           lookForPdxInstance = false;
           c = Object.class;
-          Object[] newArray = (Object[]) Array.newInstance(c, length);
+          var newArray = (Object[]) Array.newInstance(c, length);
           System.arraycopy(array, 0, newArray, 0, i);
           array = newArray;
         }
@@ -1806,7 +1806,7 @@ public abstract class DataSerializer {
       logger.trace(LogMarker.SERIALIZER_VERBOSE, "Writing byte[][] of length {}", length);
     }
     if (length >= 0) {
-      for (int i = 0; i < length; i++) {
+      for (var i = 0; i < length; i++) {
         writeByteArray(array[i], out);
       }
     }
@@ -1822,12 +1822,12 @@ public abstract class DataSerializer {
 
     InternalDataSerializer.checkIn(in);
 
-    int length = InternalDataSerializer.readArrayLength(in);
+    var length = InternalDataSerializer.readArrayLength(in);
     if (length == -1) {
       return null;
     } else {
-      byte[][] array = new byte[length][];
-      for (int i = 0; i < length; i++) {
+      var array = new byte[length][];
+      for (var i = 0; i < length; i++) {
         array[i] = readByteArray(in);
       }
 
@@ -1868,7 +1868,7 @@ public abstract class DataSerializer {
           list);
     }
     if (size > 0) {
-      for (int i = 0; i < size; i++) {
+      for (var i = 0; i < size; i++) {
         writeObject(list.get(i), out);
       }
     }
@@ -1890,12 +1890,12 @@ public abstract class DataSerializer {
 
     InternalDataSerializer.checkIn(in);
 
-    int size = InternalDataSerializer.readArrayLength(in);
+    var size = InternalDataSerializer.readArrayLength(in);
     if (size == -1) {
       return null;
     } else {
-      ArrayList<E> list = new ArrayList<>(size);
-      for (int i = 0; i < size; i++) {
+      var list = new ArrayList<E>(size);
+      for (var i = 0; i < size; i++) {
         E element = DataSerializer.readObject(in);
         list.add(element);
       }
@@ -1936,7 +1936,7 @@ public abstract class DataSerializer {
       logger.trace(LogMarker.SERIALIZER_VERBOSE, "Writing Vector with {} elements: {}", size, list);
     }
     if (size > 0) {
-      for (int i = 0; i < size; i++) {
+      for (var i = 0; i < size; i++) {
         writeObject(list.get(i), out);
       }
     }
@@ -1956,12 +1956,12 @@ public abstract class DataSerializer {
 
     InternalDataSerializer.checkIn(in);
 
-    int size = InternalDataSerializer.readArrayLength(in);
+    var size = InternalDataSerializer.readArrayLength(in);
     if (size == -1) {
       return null;
     } else {
-      Vector<E> list = new Vector<>(size);
-      for (int i = 0; i < size; i++) {
+      var list = new Vector<E>(size);
+      for (var i = 0; i < size; i++) {
         E element = DataSerializer.readObject(in);
         list.add(element);
       }
@@ -2001,7 +2001,7 @@ public abstract class DataSerializer {
       logger.trace(LogMarker.SERIALIZER_VERBOSE, "Writing Stack with {} elements: {}", size, list);
     }
     if (size > 0) {
-      for (int i = 0; i < size; i++) {
+      for (var i = 0; i < size; i++) {
         writeObject(list.get(i), out);
       }
     }
@@ -2021,12 +2021,12 @@ public abstract class DataSerializer {
 
     InternalDataSerializer.checkIn(in);
 
-    int size = InternalDataSerializer.readArrayLength(in);
+    var size = InternalDataSerializer.readArrayLength(in);
     if (size == -1) {
       return null;
     } else {
-      Stack<E> list = new Stack<>();
-      for (int i = 0; i < size; i++) {
+      var list = new Stack<E>();
+      for (var i = 0; i < size; i++) {
         E element = DataSerializer.readObject(in);
         list.add(element);
       }
@@ -2087,12 +2087,12 @@ public abstract class DataSerializer {
 
     InternalDataSerializer.checkIn(in);
 
-    int size = InternalDataSerializer.readArrayLength(in);
+    var size = InternalDataSerializer.readArrayLength(in);
     if (size == -1) {
       return null;
     } else {
-      LinkedList<E> list = new LinkedList<>();
-      for (int i = 0; i < size; i++) {
+      var list = new LinkedList<E>();
+      for (var i = 0; i < size; i++) {
         E element = DataSerializer.readObject(in);
         list.add(element);
       }
@@ -2136,12 +2136,12 @@ public abstract class DataSerializer {
 
     InternalDataSerializer.checkIn(in);
 
-    int size = InternalDataSerializer.readArrayLength(in);
+    var size = InternalDataSerializer.readArrayLength(in);
     if (size == -1) {
       return null;
     } else {
-      HashSet<E> set = new HashSet<>(size);
-      for (int i = 0; i < size; i++) {
+      var set = new HashSet<E>(size);
+      for (var i = 0; i < size; i++) {
         E element = DataSerializer.readObject(in);
         set.add(element);
       }
@@ -2185,12 +2185,12 @@ public abstract class DataSerializer {
 
     InternalDataSerializer.checkIn(in);
 
-    int size = InternalDataSerializer.readArrayLength(in);
+    var size = InternalDataSerializer.readArrayLength(in);
     if (size == -1) {
       return null;
     } else {
-      LinkedHashSet<E> set = new LinkedHashSet<>(size);
-      for (int i = 0; i < size; i++) {
+      var set = new LinkedHashSet<E>(size);
+      for (var i = 0; i < size; i++) {
         E element = DataSerializer.readObject(in);
         set.add(element);
       }
@@ -2252,12 +2252,12 @@ public abstract class DataSerializer {
 
     InternalDataSerializer.checkIn(in);
 
-    int size = InternalDataSerializer.readArrayLength(in);
+    var size = InternalDataSerializer.readArrayLength(in);
     if (size == -1) {
       return null;
     } else {
-      HashMap<K, V> map = new HashMap<>(size);
-      for (int i = 0; i < size; i++) {
+      var map = new HashMap<K, V>(size);
+      for (var i = 0; i < size; i++) {
         K key = DataSerializer.readObject(in);
         V value = DataSerializer.readObject(in);
         map.put(key, value);
@@ -2322,12 +2322,12 @@ public abstract class DataSerializer {
 
     InternalDataSerializer.checkIn(in);
 
-    int size = InternalDataSerializer.readArrayLength(in);
+    var size = InternalDataSerializer.readArrayLength(in);
     if (size == -1) {
       return null;
     } else {
-      IdentityHashMap<K, V> map = new IdentityHashMap<>(size);
-      for (int i = 0; i < size; i++) {
+      var map = new IdentityHashMap<K, V>(size);
+      for (var i = 0; i < size; i++) {
         K key = DataSerializer.readObject(in);
         V value = DataSerializer.readObject(in);
         map.put(key, value);
@@ -2379,7 +2379,7 @@ public abstract class DataSerializer {
           size, entrySnapshot);
     }
     if (size > 0) {
-      for (Map.Entry<?, ?> entry : entrySnapshot) {
+      for (var entry : entrySnapshot) {
         writeObject(entry.getKey(), out);
         writeObject(entry.getValue(), out);
       }
@@ -2401,12 +2401,12 @@ public abstract class DataSerializer {
 
     InternalDataSerializer.checkIn(in);
 
-    int size = InternalDataSerializer.readArrayLength(in);
+    var size = InternalDataSerializer.readArrayLength(in);
     if (size == -1) {
       return null;
     } else {
-      ConcurrentHashMap<K, V> map = new ConcurrentHashMap<>(size);
-      for (int i = 0; i < size; i++) {
+      var map = new ConcurrentHashMap<K, V>(size);
+      for (var i = 0; i < size; i++) {
         K key = DataSerializer.readObject(in);
         V value = DataSerializer.readObject(in);
         map.put(key, value);
@@ -2471,12 +2471,12 @@ public abstract class DataSerializer {
 
     InternalDataSerializer.checkIn(in);
 
-    int size = InternalDataSerializer.readArrayLength(in);
+    var size = InternalDataSerializer.readArrayLength(in);
     if (size == -1) {
       return null;
     } else {
-      Hashtable<K, V> map = new Hashtable<>(size);
-      for (int i = 0; i < size; i++) {
+      var map = new Hashtable<K, V>(size);
+      for (var i = 0; i < size; i++) {
         K key = DataSerializer.readObject(in);
         V value = DataSerializer.readObject(in);
         map.put(key, value);
@@ -2543,13 +2543,13 @@ public abstract class DataSerializer {
 
     InternalDataSerializer.checkIn(in);
 
-    int size = InternalDataSerializer.readArrayLength(in);
+    var size = InternalDataSerializer.readArrayLength(in);
     if (size == -1) {
       return null;
     } else {
       Comparator<? super K> c = InternalDataSerializer.readNonPdxInstanceObject(in);
-      TreeMap<K, V> map = new TreeMap<>(c);
-      for (int i = 0; i < size; i++) {
+      var map = new TreeMap<K, V>(c);
+      for (var i = 0; i < size; i++) {
         K key = DataSerializer.readObject(in);
         V value = DataSerializer.readObject(in);
         map.put(key, value);
@@ -2611,12 +2611,12 @@ public abstract class DataSerializer {
 
     InternalDataSerializer.checkIn(in);
 
-    int size = InternalDataSerializer.readArrayLength(in);
+    var size = InternalDataSerializer.readArrayLength(in);
     if (size == -1) {
       return null;
     } else {
-      LinkedHashMap<K, V> map = new LinkedHashMap<>(size);
-      for (int i = 0; i < size; i++) {
+      var map = new LinkedHashMap<K, V>(size);
+      for (var i = 0; i < size; i++) {
         K key = DataSerializer.readObject(in);
         V value = DataSerializer.readObject(in);
         map.put(key, value);
@@ -2682,14 +2682,14 @@ public abstract class DataSerializer {
 
     InternalDataSerializer.checkIn(in);
 
-    int size = InternalDataSerializer.readArrayLength(in);
+    var size = InternalDataSerializer.readArrayLength(in);
     if (size == -1) {
       return null;
     } else {
       Comparator<? super E> c =
           InternalDataSerializer.readNonPdxInstanceObject(in);
-      TreeSet<E> set = new TreeSet<>(c);
-      for (int i = 0; i < size; i++) {
+      var set = new TreeSet<E>(c);
+      for (var i = 0; i < size; i++) {
         E element = DataSerializer.readObject(in);
         set.add(element);
       }
@@ -2735,12 +2735,12 @@ public abstract class DataSerializer {
           props);
     }
     if (size > 0) {
-      for (Map.Entry<Object, Object> entry : s) {
+      for (var entry : s) {
         // although we should have just String instances in a Properties
         // object our security code stores byte[] instances in them
         // so the following code must use writeObject instead of writeString.
-        Object key = entry.getKey();
-        Object val = entry.getValue();
+        var key = entry.getKey();
+        var val = entry.getValue();
         writeObject(key, out);
         writeObject(val, out);
       }
@@ -2761,14 +2761,14 @@ public abstract class DataSerializer {
 
     InternalDataSerializer.checkIn(in);
 
-    int size = InternalDataSerializer.readArrayLength(in);
+    var size = InternalDataSerializer.readArrayLength(in);
     if (size == -1) {
       return null;
     } else {
-      Properties props = new Properties();
-      for (int index = 0; index < size; index++) {
-        Object key = readObject(in);
-        Object value = readObject(in);
+      var props = new Properties();
+      for (var index = 0; index < size; index++) {
+        var key = readObject(in);
+        var value = readObject(in);
         props.put(key, value);
       }
       if (logger.isTraceEnabled(LogMarker.SERIALIZER_VERBOSE)) {
@@ -2987,7 +2987,7 @@ public abstract class DataSerializer {
   @Override
   public boolean equals(Object o) {
     if (o instanceof DataSerializer) {
-      DataSerializer oDS = (DataSerializer) o;
+      var oDS = (DataSerializer) o;
       return oDS.getId() == getId() && getClass().equals(oDS.getClass());
     } else {
       return false;
@@ -3052,7 +3052,7 @@ public abstract class DataSerializer {
    */
   @SuppressWarnings("unchecked")
   private static <E extends Enum> E[] getEnumConstantsForClass(Class<E> clazz) {
-    E[] returnVal = (E[]) knownEnums.get(clazz);
+    var returnVal = (E[]) knownEnums.get(clazz);
     if (returnVal == null) {
       returnVal = clazz.getEnumConstants();
       knownEnums.put(clazz, returnVal);
@@ -3111,7 +3111,7 @@ public abstract class DataSerializer {
           String.format("Class %s is not an enum", clazz.getName()));
     }
 
-    int ordinal = InternalDataSerializer.readArrayLength(in);
+    var ordinal = InternalDataSerializer.readArrayLength(in);
 
     return getEnumConstantsForClass(clazz)[ordinal];
   }

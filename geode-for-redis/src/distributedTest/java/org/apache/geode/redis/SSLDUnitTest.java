@@ -21,12 +21,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.FileInputStream;
 import java.security.KeyStore;
-import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 import java.util.function.Consumer;
@@ -52,7 +50,6 @@ import org.apache.geode.internal.net.filewatch.PollingFileWatcher;
 import org.apache.geode.redis.internal.ssl.TestSSLServer;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
 import org.apache.geode.test.dunit.IgnoredException;
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.dunit.rules.RedisClusterStartupRule;
 
 public class SSLDUnitTest {
@@ -80,19 +77,19 @@ public class SSLDUnitTest {
         .isCA()
         .generate();
 
-    CertificateMaterial serverCertificate = new CertificateBuilder()
+    var serverCertificate = new CertificateBuilder()
         .commonName("server")
         .issuedBy(ca)
         .generate();
 
-    CertStores serverStore = CertStores.serverStore();
+    var serverStore = CertStores.serverStore();
     serverStore.withCertificate("server", serverCertificate);
     serverStore.trust("ca", ca);
-    Properties serverProperties = serverStore.propertiesWith("all", true, false);
+    var serverProperties = serverStore.propertiesWith("all", true, false);
 
     propertyConfigurer.accept(serverProperties);
 
-    MemberVM server = cluster.startRedisVM(0, x -> x.withProperties(serverProperties));
+    var server = cluster.startRedisVM(0, x -> x.withProperties(serverProperties));
 
     redisPort = cluster.getRedisPort(server);
     serverKeyStoreFilename = serverProperties.getProperty("ssl-keystore");
@@ -103,31 +100,31 @@ public class SSLDUnitTest {
   public void givenMutualAuthentication_clientCanConnect() throws Exception {
     setup();
 
-    try (Jedis jedis = createClient(true, false)) {
+    try (var jedis = createClient(true, false)) {
       assertThat(jedis.ping()).isEqualTo("PONG");
     }
   }
 
   @Test
   public void givenServerHasCipherAndProtocol_clientCanConnect() throws Exception {
-    SSLContext ssl = SSLContext.getInstance("TLSv1.2");
+    var ssl = SSLContext.getInstance("TLSv1.2");
     ssl.init(null, null, new java.security.SecureRandom());
-    String[] cipherSuites = ssl.getServerSocketFactory().getSupportedCipherSuites();
-    String rsaCipher = Arrays.stream(cipherSuites).filter(c -> c.contains("RSA")).findFirst().get();
+    var cipherSuites = ssl.getServerSocketFactory().getSupportedCipherSuites();
+    var rsaCipher = Arrays.stream(cipherSuites).filter(c -> c.contains("RSA")).findFirst().get();
 
     setup(p -> {
       p.setProperty("ssl-protocols", "TLSv1.2");
       p.setProperty("ssl-ciphers", rsaCipher);
     });
 
-    try (Jedis jedis = createClient(true, false)) {
+    try (var jedis = createClient(true, false)) {
       assertThat(jedis.ping()).isEqualTo("PONG");
     }
 
     IgnoredException.addIgnoredException(SSLHandshakeException.class);
     IgnoredException.addIgnoredException(NotSslRecordException.class);
 
-    TestSSLServer tServer = new TestSSLServer("localhost", redisPort).execute();
+    var tServer = new TestSSLServer("localhost", redisPort).execute();
 
     assertThat(tServer.getCipherSuiteNames()).containsExactly(rsaCipher);
   }
@@ -141,7 +138,7 @@ public class SSLDUnitTest {
 
     // Sometimes the client is created successfully - perhaps this is platform/JDK specific
     assertThatThrownBy(() -> {
-      Jedis jedis = createClient(false, false);
+      var jedis = createClient(false, false);
       jedis.ping();
     }).satisfiesAnyOf(
         e -> assertThat(e).isInstanceOf(JedisConnectionException.class),
@@ -161,7 +158,7 @@ public class SSLDUnitTest {
 
     // Sometimes the client is created successfully - perhaps this is platform/JDK specific
     assertThatThrownBy(() -> {
-      Jedis jedis = createClient(true, true);
+      var jedis = createClient(true, true);
       jedis.ping();
     }).satisfiesAnyOf(
         e -> assertThat(e).isInstanceOf(JedisConnectionException.class),
@@ -178,7 +175,7 @@ public class SSLDUnitTest {
 
     IgnoredException.addIgnoredException(NotSslRecordException.class);
 
-    try (Jedis jedis = new Jedis(BIND_ADDRESS, redisPort)) {
+    try (var jedis = new Jedis(BIND_ADDRESS, redisPort)) {
       assertThatThrownBy(jedis::ping)
           .isInstanceOf(JedisConnectionException.class);
     }
@@ -190,20 +187,20 @@ public class SSLDUnitTest {
   public void givenServerCertificateIsRotated_clientCanStillConnect() throws Exception {
     setup();
 
-    String newServerName = "updated-server";
+    var newServerName = "updated-server";
 
-    try (Jedis jedis = createClient(true, false)) {
+    try (var jedis = createClient(true, false)) {
       assertThat(jedis.ping()).isEqualTo("PONG");
     }
 
     // create a new certificate for the server
-    CertificateMaterial serverCertificate = new CertificateBuilder()
+    var serverCertificate = new CertificateBuilder()
         .commonName(newServerName)
         .issuedBy(ca)
         .sanDnsName(newServerName)
         .generate();
 
-    CertStores serverStore = CertStores.serverStore();
+    var serverStore = CertStores.serverStore();
     serverStore.withCertificate("server", serverCertificate);
     serverStore.trust("ca", ca);
 
@@ -215,7 +212,7 @@ public class SSLDUnitTest {
     // Try long enough for the file change to be detected
     GeodeAwaitility.await().atMost(Duration.ofSeconds(PollingFileWatcher.PERIOD_SECONDS * 3))
         .untilAsserted(() -> {
-          try (Jedis jedis = createClient(true, false)) {
+          try (var jedis = createClient(true, false)) {
             jedis.ping();
             assertThat(hostnameVerifier.getSubjectAltNames()).contains(newServerName);
           }
@@ -226,21 +223,21 @@ public class SSLDUnitTest {
   public void givenServerCAandKeyIsRotated_clientCannotConnect() throws Exception {
     setup();
 
-    try (Jedis jedis = createClient(true, false)) {
+    try (var jedis = createClient(true, false)) {
       assertThat(jedis.ping()).isEqualTo("PONG");
     }
 
-    CertificateMaterial newCA = new CertificateBuilder()
+    var newCA = new CertificateBuilder()
         .commonName("New Test CA")
         .isCA()
         .generate();
 
-    CertificateMaterial serverCertificate = new CertificateBuilder()
+    var serverCertificate = new CertificateBuilder()
         .commonName("server")
         .issuedBy(newCA)
         .generate();
 
-    CertStores serverStore = CertStores.serverStore();
+    var serverStore = CertStores.serverStore();
     serverStore.withCertificate("server", serverCertificate);
     serverStore.trust("ca", newCA);
 
@@ -262,39 +259,39 @@ public class SSLDUnitTest {
   }
 
   private Jedis createClient(boolean mutualAuthentication, boolean isSelfSigned) throws Exception {
-    CertificateMaterial clientCertificate = new CertificateBuilder()
+    var clientCertificate = new CertificateBuilder()
         .commonName("redis-client")
         .issuedBy(isSelfSigned ? null : ca)
         .generate();
 
-    CertStores clientStore = CertStores.clientStore();
+    var clientStore = CertStores.clientStore();
     clientStore.withCertificate("redis-client", clientCertificate);
     clientStore.trust("ca", ca);
 
-    Properties clientProperties = clientStore.propertiesWith("all");
+    var clientProperties = clientStore.propertiesWith("all");
 
     KeyManager[] keyManagers = null;
 
     if (mutualAuthentication) {
-      KeyStore keyStore = KeyStore.getInstance("JKS");
+      var keyStore = KeyStore.getInstance("JKS");
       keyStore.load(new FileInputStream(clientProperties.getProperty("ssl-keystore")),
           commonPassword.toCharArray());
 
-      KeyManagerFactory keyManagerFactory =
+      var keyManagerFactory =
           KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
       keyManagerFactory.init(keyStore, commonPassword.toCharArray());
       keyManagers = keyManagerFactory.getKeyManagers();
     }
 
-    KeyStore trustStore = KeyStore.getInstance("JKS");
+    var trustStore = KeyStore.getInstance("JKS");
     trustStore.load(new FileInputStream(clientProperties.getProperty("ssl-truststore")),
         commonPassword.toCharArray());
 
-    TrustManagerFactory trustManagerFactory =
+    var trustManagerFactory =
         TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
     trustManagerFactory.init(trustStore);
 
-    SSLContext sslContext = SSLContext.getInstance("TLS");
+    var sslContext = SSLContext.getInstance("TLS");
     sslContext.init(keyManagers, trustManagerFactory.getTrustManagers(), null);
 
     return new Jedis(BIND_ADDRESS, redisPort, true, sslContext.getSocketFactory(),
@@ -313,11 +310,11 @@ public class SSLDUnitTest {
       subjectAltNames.clear();
 
       try {
-        Certificate[] certs = sslSession.getPeerCertificates();
-        X509Certificate x509 = (X509Certificate) certs[0];
-        Collection<List<?>> entries = x509.getSubjectAlternativeNames();
+        var certs = sslSession.getPeerCertificates();
+        var x509 = (X509Certificate) certs[0];
+        var entries = x509.getSubjectAlternativeNames();
 
-        for (List<?> entry : entries) {
+        for (var entry : entries) {
           if (entry.size() > 1) {
             subjectAltNames.add((String) entry.get(1));
           }

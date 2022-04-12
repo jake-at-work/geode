@@ -41,13 +41,13 @@ public class DestroyAsyncEventQueueFunction
 
   @Override
   public void execute(FunctionContext<DestroyAsyncEventQueueFunctionArgs> context) {
-    DestroyAsyncEventQueueFunctionArgs aeqArgs =
+    var aeqArgs =
         context.getArguments();
-    String aeqId = aeqArgs.getId();
-    String memberId = context.getMemberName();
+    var aeqId = aeqArgs.getId();
+    var memberId = context.getMemberName();
 
     try {
-      AsyncEventQueueImpl aeq = (AsyncEventQueueImpl) context.getCache().getAsyncEventQueue(aeqId);
+      var aeq = (AsyncEventQueueImpl) context.getCache().getAsyncEventQueue(aeqId);
       if (aeq == null) {
         if (aeqArgs.isIfExists()) {
           context.getResultSender()
@@ -62,13 +62,13 @@ public class DestroyAsyncEventQueueFunction
         }
       } else {
         // this is the XmlEntity that needs to be removed from the cluster config
-        XmlEntity xmlEntity = getAEQXmlEntity("id", aeqId);
+        var xmlEntity = getAEQXmlEntity("id", aeqId);
 
         aeq.stop();
         aeq.destroy();
 
         @SuppressWarnings("deprecation")
-        final CliFunctionResult lastResult =
+        final var lastResult =
             new CliFunctionResult(memberId, xmlEntity, String.format(
                 DestroyAsyncEventQueueCommand.DESTROY_ASYNC_EVENT_QUEUE__AEQ_0_DESTROYED, aeqId));
         context.getResultSender()

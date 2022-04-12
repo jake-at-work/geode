@@ -23,7 +23,6 @@ import org.apache.geode.cache.CacheWriter;
 import org.apache.geode.cache.CacheWriterException;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.RegionEvent;
-import org.apache.geode.cache.SerializedCacheValue;
 import org.apache.geode.connectors.jdbc.internal.AbstractJdbcCallback;
 import org.apache.geode.connectors.jdbc.internal.SqlHandler;
 import org.apache.geode.internal.cache.InternalCache;
@@ -90,19 +89,19 @@ public class JdbcWriter<K, V> extends AbstractJdbcCallback implements CacheWrite
   }
 
   private PdxInstance getPdxNewValue(EntryEvent<K, V> event) {
-    Boolean initialPdxReadSerialized = cache.getPdxReadSerializedOverride();
+    var initialPdxReadSerialized = cache.getPdxReadSerializedOverride();
     cache.setPdxReadSerializedOverride(true);
     try {
       Object newValue = event.getNewValue();
       if (!(newValue instanceof PdxInstance)) {
-        SerializedCacheValue<V> serializedNewValue = event.getSerializedNewValue();
+        var serializedNewValue = event.getSerializedNewValue();
         if (serializedNewValue != null) {
           newValue = serializedNewValue.getDeserializedValue();
         } else {
           newValue = CopyHelper.copy(newValue);
         }
         if (newValue != null && !(newValue instanceof PdxInstance)) {
-          String valueClassName = newValue.getClass().getName();
+          var valueClassName = newValue.getClass().getName();
           throw new IllegalArgumentException(getClass().getSimpleName()
               + " only supports PDX values; newValue is " + valueClassName);
         }

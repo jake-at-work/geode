@@ -97,7 +97,7 @@ public class InternalDistributedSystemIntegrationTest {
    * Creates a <code>DistributedSystem</code> with the given configuration properties.
    */
   private InternalDistributedSystem createSystem(Properties props) {
-    MetricsService.Builder metricsSessionBuilder = mock(MetricsService.Builder.class);
+    var metricsSessionBuilder = mock(MetricsService.Builder.class);
     when(metricsSessionBuilder.build(any())).thenReturn(mock(MetricsService.class));
     return createSystem(props, metricsSessionBuilder);
   }
@@ -116,7 +116,7 @@ public class InternalDistributedSystemIntegrationTest {
 
   @Test
   public void testUnknownArgument() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.put("UNKNOWN", "UNKNOWN");
 
     assertThatThrownBy(() -> createSystem(props)).isInstanceOf(IllegalArgumentException.class);
@@ -131,11 +131,11 @@ public class InternalDistributedSystemIntegrationTest {
   @ClearSystemProperty(key = "gemfire.membership-port-range")
   @ReadsSystemProperty
   public void testDefaultProperties() {
-    Properties props = new Properties();
+    var props = new Properties();
     // a loner is all this test needs
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
-    DistributionConfig config = createSystem(props).getConfig();
+    var config = createSystem(props).getConfig();
 
     assertThat(DistributionConfig.DEFAULT_NAME).isEqualTo(config.getName());
 
@@ -192,32 +192,32 @@ public class InternalDistributedSystemIntegrationTest {
 
   @Test
   public void testGetName() {
-    String name = "testGetName";
+    var name = "testGetName";
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.put(NAME, name);
     // a loner is all this test needs
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
 
-    DistributionConfig config = createSystem(props).getOriginalConfig();
+    var config = createSystem(props).getOriginalConfig();
     assertThat(name).isEqualTo(config.getName());
   }
 
   @Test
   public void testMemberTimeout() {
-    Properties props = new Properties();
-    int memberTimeout = 100;
+    var props = new Properties();
+    var memberTimeout = 100;
     props.put(MEMBER_TIMEOUT, String.valueOf(memberTimeout));
     props.put(MCAST_PORT, "0");
 
-    DistributionConfig config = createSystem(props).getOriginalConfig();
+    var config = createSystem(props).getOriginalConfig();
     assertThat(memberTimeout).isEqualTo(config.getMemberTimeout());
   }
 
   @Test
   public void testMalformedLocators() {
-    Properties props = new Properties();
+    var props = new Properties();
 
     // Totally bogus locator
     props.put(LOCATORS, "14lasfk^5234");
@@ -247,7 +247,7 @@ public class InternalDistributedSystemIntegrationTest {
    * @since GemFire 4.0
    */
   private void checkLocator(String locator) {
-    Properties props = new Properties();
+    var props = new Properties();
     props.put(LOCATORS, locator);
     new DistributionConfigImpl(props);
   }
@@ -260,11 +260,11 @@ public class InternalDistributedSystemIntegrationTest {
    */
   @Test
   public void testLocatorSyntax() throws Exception {
-    String localhost = java.net.InetAddress.getLocalHost().getCanonicalHostName();
+    var localhost = java.net.InetAddress.getLocalHost().getCanonicalHostName();
     checkLocator(localhost + "[12345]");
     checkLocator(localhost + ":12345");
 
-    String bindAddress = getHostAddress(java.net.InetAddress.getLocalHost());
+    var bindAddress = getHostAddress(java.net.InetAddress.getLocalHost());
     if (bindAddress.indexOf(':') < 0) {
       checkLocator(localhost + ":" + bindAddress + "[12345]");
     }
@@ -282,44 +282,44 @@ public class InternalDistributedSystemIntegrationTest {
    */
   @Test
   public void testGetLogLevel() {
-    Level logLevel = Level.FINER;
-    Properties props = new Properties();
+    var logLevel = Level.FINER;
+    var props = new Properties();
     // a loner is all this test needs
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     props.put(LOG_LEVEL, logLevel.toString());
 
-    DistributionConfig config = createSystem(props).getConfig();
+    var config = createSystem(props).getConfig();
     assertThat(logLevel.intValue()).isEqualTo(config.getLogLevel());
   }
 
   @Test
   public void testInvalidLogLevel() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.put(LOG_LEVEL, "blah blah blah");
     assertThatThrownBy(() -> createSystem(props)).isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void testGetStatisticSamplingEnabled() {
-    Properties props = new Properties();
+    var props = new Properties();
     // a loner is all this test needs
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     props.put(STATISTIC_SAMPLING_ENABLED, "true");
-    DistributionConfig config = createSystem(props).getConfig();
+    var config = createSystem(props).getConfig();
     assertThat(config.getStatisticSamplingEnabled()).isTrue();
   }
 
   @Test
   public void testGetStatisticSampleRate() {
-    String rate = String.valueOf(DistributionConfig.MIN_STATISTIC_SAMPLE_RATE);
-    Properties props = new Properties();
+    var rate = String.valueOf(DistributionConfig.MIN_STATISTIC_SAMPLE_RATE);
+    var props = new Properties();
     // a loner is all this test needs
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     props.put(STATISTIC_SAMPLE_RATE, rate);
-    DistributionConfig config = createSystem(props).getConfig();
+    var config = createSystem(props).getConfig();
     // The fix for 48228 causes the rate to be 1000 even if we try to set it less
     assertThat(1000).isEqualTo(config.getStatisticSampleRate());
   }
@@ -329,11 +329,11 @@ public class InternalDistributedSystemIntegrationTest {
   @ClearSystemProperty(key = "AvailablePort.upperBound")
   @ClearSystemProperty(key = "gemfire.membership-port-range")
   public void testMembershipPortRange() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     props.setProperty(MEMBERSHIP_PORT_RANGE, "45100-45200");
-    DistributionConfig config = createSystem(props).getConfig();
+    var config = createSystem(props).getConfig();
     assertThat(45100).isEqualTo(config.getMembershipPortRange()[0]);
     assertThat(45200).isEqualTo(config.getMembershipPortRange()[1]);
   }
@@ -343,7 +343,7 @@ public class InternalDistributedSystemIntegrationTest {
   @ClearSystemProperty(key = "AvailablePort.upperBound")
   @ClearSystemProperty(key = "gemfire.membership-port-range")
   public void testBadMembershipPortRange() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     props.setProperty(MEMBERSHIP_PORT_RANGE, "5200-5100");
@@ -353,112 +353,112 @@ public class InternalDistributedSystemIntegrationTest {
 
   @Test
   public void testGetStatisticArchiveFile() {
-    String fileName = "testGetStatisticArchiveFile";
-    Properties props = new Properties();
+    var fileName = "testGetStatisticArchiveFile";
+    var props = new Properties();
     // a loner is all this test needs
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     props.put(STATISTIC_ARCHIVE_FILE, fileName);
-    DistributionConfig config = createSystem(props).getConfig();
+    var config = createSystem(props).getConfig();
     assertThat(fileName).isEqualTo(config.getStatisticArchiveFile().getName());
   }
 
   @Test
   public void testGetCacheXmlFile() {
-    String fileName = "blah";
-    Properties props = new Properties();
+    var fileName = "blah";
+    var props = new Properties();
     // a loner is all this test needs
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     props.put(CACHE_XML_FILE, fileName);
-    DistributionConfig config = createSystem(props).getConfig();
+    var config = createSystem(props).getConfig();
     assertThat(fileName).isEqualTo(config.getCacheXmlFile().getPath());
   }
 
   @Test
   public void testGetArchiveDiskSpaceLimit() {
-    String value = String.valueOf(DistributionConfig.MIN_ARCHIVE_DISK_SPACE_LIMIT);
-    Properties props = new Properties();
+    var value = String.valueOf(DistributionConfig.MIN_ARCHIVE_DISK_SPACE_LIMIT);
+    var props = new Properties();
     // a loner is all this test needs
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     props.put(ARCHIVE_DISK_SPACE_LIMIT, value);
-    DistributionConfig config = createSystem(props).getConfig();
+    var config = createSystem(props).getConfig();
     assertThat(Integer.parseInt(value)).isEqualTo(config.getArchiveDiskSpaceLimit());
   }
 
   @Test
   public void testInvalidArchiveDiskSpaceLimit() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.put(ARCHIVE_DISK_SPACE_LIMIT, "blah");
     assertThatThrownBy(() -> createSystem(props)).isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void testGetArchiveFileSizeLimit() {
-    String value = String.valueOf(DistributionConfig.MIN_ARCHIVE_FILE_SIZE_LIMIT);
-    Properties props = new Properties();
+    var value = String.valueOf(DistributionConfig.MIN_ARCHIVE_FILE_SIZE_LIMIT);
+    var props = new Properties();
     // a loner is all this test needs
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     props.put(ARCHIVE_FILE_SIZE_LIMIT, value);
-    DistributionConfig config = createSystem(props).getConfig();
+    var config = createSystem(props).getConfig();
     assertThat(Integer.parseInt(value)).isEqualTo(config.getArchiveFileSizeLimit());
   }
 
   @Test
   public void testInvalidArchiveFileSizeLimit() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.put(ARCHIVE_FILE_SIZE_LIMIT, "blah");
     assertThatThrownBy(() -> createSystem(props)).isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void testGetLogDiskSpaceLimit() {
-    String value = String.valueOf(DistributionConfig.MIN_LOG_DISK_SPACE_LIMIT);
-    Properties props = new Properties();
+    var value = String.valueOf(DistributionConfig.MIN_LOG_DISK_SPACE_LIMIT);
+    var props = new Properties();
     // a loner is all this test needs
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     props.put(LOG_DISK_SPACE_LIMIT, value);
-    DistributionConfig config = createSystem(props).getConfig();
+    var config = createSystem(props).getConfig();
     assertThat(Integer.parseInt(value)).isEqualTo(config.getLogDiskSpaceLimit());
   }
 
   @Test
   public void testInvalidLogDiskSpaceLimit() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.put(LOG_DISK_SPACE_LIMIT, "blah");
     assertThatThrownBy(() -> createSystem(props)).isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void testGetLogFileSizeLimit() {
-    String value = String.valueOf(DistributionConfig.MIN_LOG_FILE_SIZE_LIMIT);
-    Properties props = new Properties();
+    var value = String.valueOf(DistributionConfig.MIN_LOG_FILE_SIZE_LIMIT);
+    var props = new Properties();
     // a loner is all this test needs
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     props.put(LOG_FILE_SIZE_LIMIT, value);
-    DistributionConfig config = createSystem(props).getConfig();
+    var config = createSystem(props).getConfig();
     assertThat(Integer.parseInt(value)).isEqualTo(config.getLogFileSizeLimit());
   }
 
   @Test
   public void testInvalidLogFileSizeLimit() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.put(LOG_FILE_SIZE_LIMIT, "blah");
     assertThatThrownBy(() -> createSystem(props)).isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void testAccessingClosedDistributedSystem() {
-    Properties props = new Properties();
+    var props = new Properties();
 
     // a loner is all this test needs
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
-    InternalDistributedSystem system = createSystem(props);
+    var system = createSystem(props);
     system.disconnect();
 
     assertThatThrownBy(system::getDistributionManager)
@@ -471,26 +471,26 @@ public class InternalDistributedSystemIntegrationTest {
   @SetSystemProperty(key = GeodeGlossary.GEMFIRE_PREFIX + LOG_LEVEL, value = "finest")
   public void testPropertySources() throws Exception {
     // TODO: fix this test on Windows: the File renameTo and delete in finally fails on Windows
-    String os = System.getProperty("os.name");
+    var os = System.getProperty("os.name");
     if (os != null) {
       if (os.contains("Windows")) {
         return;
       }
     }
-    File propFile = new File(GeodeGlossary.GEMFIRE_PREFIX + "properties");
-    boolean propFileExisted = propFile.exists();
-    File spropFile = new File("gfsecurity.properties");
-    boolean spropFileExisted = spropFile.exists();
+    var propFile = new File(GeodeGlossary.GEMFIRE_PREFIX + "properties");
+    var propFileExisted = propFile.exists();
+    var spropFile = new File("gfsecurity.properties");
+    var spropFileExisted = spropFile.exists();
     try {
-      Properties apiProps = new Properties();
+      var apiProps = new Properties();
       apiProps.setProperty(GROUPS, "foo, bar");
       {
         if (propFileExisted) {
           propFile.renameTo(new File(GeodeGlossary.GEMFIRE_PREFIX + "properties.sav"));
         }
-        Properties fileProps = new Properties();
+        var fileProps = new Properties();
         fileProps.setProperty("name", "myName");
-        FileWriter fw = new FileWriter(GeodeGlossary.GEMFIRE_PREFIX + "properties");
+        var fw = new FileWriter(GeodeGlossary.GEMFIRE_PREFIX + "properties");
         fileProps.store(fw, null);
         fw.close();
       }
@@ -498,13 +498,13 @@ public class InternalDistributedSystemIntegrationTest {
         if (spropFileExisted) {
           spropFile.renameTo(new File("gfsecurity.properties.sav"));
         }
-        Properties fileProps = new Properties();
+        var fileProps = new Properties();
         fileProps.setProperty(STATISTIC_SAMPLE_RATE, "999");
-        FileWriter fw = new FileWriter("gfsecurity.properties");
+        var fw = new FileWriter("gfsecurity.properties");
         fileProps.store(fw, null);
         fw.close();
       }
-      DistributionConfigImpl dci = new DistributionConfigImpl(apiProps);
+      var dci = new DistributionConfigImpl(apiProps);
       assertThat(dci.getAttributeSource(MCAST_PORT)).isNull();
       assertThat(ConfigSource.api()).isEqualTo(dci.getAttributeSource(GROUPS));
       assertThat(ConfigSource.sysprop()).isEqualTo(dci.getAttributeSource(LOG_LEVEL));
@@ -528,8 +528,8 @@ public class InternalDistributedSystemIntegrationTest {
    */
   @Test
   public void testNonDefaultConnectionName() {
-    String name = "BLAH";
-    Properties props = new Properties();
+    var name = "BLAH";
+    var props = new Properties();
     // a loner is all this test needs
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
@@ -539,14 +539,14 @@ public class InternalDistributedSystemIntegrationTest {
 
   @Test
   public void testNonDefaultLogLevel() {
-    Level level = Level.FINE;
+    var level = Level.FINE;
 
-    Properties props = new Properties();
+    var props = new Properties();
     // a loner is all this test needs
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     props.put(LOG_LEVEL, level.toString());
-    InternalDistributedSystem system = createSystem(props);
+    var system = createSystem(props);
     assertThat(level.intValue()).isEqualTo(system.getConfig().getLogLevel());
     assertThat(level.intValue())
         .isEqualTo(((InternalLogWriter) system.getLogWriter()).getLogWriterLevel());
@@ -554,15 +554,15 @@ public class InternalDistributedSystemIntegrationTest {
 
   @Test
   public void testStartLocator() {
-    Properties props = new Properties();
-    int unusedPort = getRandomAvailableTCPPort();
+    var props = new Properties();
+    var unusedPort = getRandomAvailableTCPPort();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(START_LOCATOR, "localhost[" + unusedPort + "],server=false,peer=true");
     deleteStateFile(unusedPort);
     createSystem(props);
     Collection<Locator> locators = Locator.getLocators();
     assertThat(locators).hasSize(1);
-    Locator locator = locators.iterator().next();
+    var locator = locators.iterator().next();
     // Assert.assertIndexDetailsEquals("127.0.0.1", locator.getBindAddress().getHostAddress());
     // removed this check for ipv6 testing
     assertThat(unusedPort).isEqualTo(locator.getPort());
@@ -570,7 +570,7 @@ public class InternalDistributedSystemIntegrationTest {
   }
 
   private void deleteStateFile(int port) {
-    File stateFile = new File("locator" + port + "state.dat");
+    var stateFile = new File("locator" + port + "state.dat");
     if (stateFile.exists()) {
       stateFile.delete();
     }
@@ -578,13 +578,13 @@ public class InternalDistributedSystemIntegrationTest {
 
   @Test
   public void testValidateProps() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     Config config1 = new DistributionConfigImpl(props, false);
-    MetricsService.Builder metricsSessionBuilder = mock(MetricsService.Builder.class);
+    var metricsSessionBuilder = mock(MetricsService.Builder.class);
     when(metricsSessionBuilder.build(any())).thenReturn(mock(MetricsService.class));
-    InternalDistributedSystem sys =
+    var sys =
         new InternalDistributedSystem.Builder(config1.toProperties(), metricsSessionBuilder)
             .build();
     try {
@@ -603,14 +603,14 @@ public class InternalDistributedSystemIntegrationTest {
   @Test
   public void testDeprecatedSSLProps() {
     // ssl-* props are copied to cluster-ssl-*.
-    Properties props = getCommonProperties();
+    var props = getCommonProperties();
     props.setProperty(CLUSTER_SSL_ENABLED, "true");
     Config config1 = new DistributionConfigImpl(props, false);
-    Properties props1 = config1.toProperties();
+    var props1 = config1.toProperties();
     assertThat("true").isEqualTo(props1.getProperty(CLUSTER_SSL_ENABLED));
     Config config2 = new DistributionConfigImpl(props1, false);
     assertThat(config1.sameAs(config2)).isTrue();
-    Properties props3 = new Properties(props1);
+    var props3 = new Properties(props1);
     props3.setProperty(CLUSTER_SSL_ENABLED, "false");
     Config config3 = new DistributionConfigImpl(props3, false);
     assertThat(config1.sameAs(config3)).isFalse();
@@ -618,22 +618,22 @@ public class InternalDistributedSystemIntegrationTest {
 
   @Test
   public void testEmptySecurityAuthTokenProp() {
-    Properties props = getCommonProperties();
+    var props = getCommonProperties();
     props.setProperty(SECURITY_AUTH_TOKEN_ENABLED_COMPONENTS, "");
     DistributionConfig config1 = new DistributionConfigImpl(props, false);
     assertThat(config1.getSecurityAuthTokenEnabledComponents()).hasSize(0);
-    Properties securityProps = config1.getSecurityProps();
+    var securityProps = config1.getSecurityProps();
     assertThat(securityProps.getProperty(SECURITY_AUTH_TOKEN_ENABLED_COMPONENTS)).isEqualTo("");
     assertThat(config1.getSecurityAuthTokenEnabledComponents()).hasSize(0);
   }
 
   @Test
   public void testSecurityAuthTokenProp() {
-    Properties props = getCommonProperties();
+    var props = getCommonProperties();
     props.setProperty(SECURITY_AUTH_TOKEN_ENABLED_COMPONENTS, "management");
     DistributionConfig config1 = new DistributionConfigImpl(props, false);
     assertThat(config1.getSecurityAuthTokenEnabledComponents()).containsExactly("MANAGEMENT");
-    Properties securityProps = config1.getSecurityProps();
+    var securityProps = config1.getSecurityProps();
     assertThat(securityProps.getProperty(SECURITY_AUTH_TOKEN_ENABLED_COMPONENTS))
         .isEqualTo("management");
     assertThat(config1.getSecurityAuthTokenEnabledComponents()).containsExactly("MANAGEMENT");
@@ -641,7 +641,7 @@ public class InternalDistributedSystemIntegrationTest {
 
   @Test
   public void testSSLEnabledComponents() {
-    Properties props = getCommonProperties();
+    var props = getCommonProperties();
     props.setProperty(SSL_ENABLED_COMPONENTS, "cluster,server");
     Config config1 = new DistributionConfigImpl(props, false);
     assertThat("cluster,server").isEqualTo(config1.getAttribute(SSL_ENABLED_COMPONENTS));
@@ -649,7 +649,7 @@ public class InternalDistributedSystemIntegrationTest {
 
   @Test()
   public void testSSLEnabledComponentsWrongComponentName() {
-    Properties props = getCommonProperties();
+    var props = getCommonProperties();
     props.setProperty(SSL_ENABLED_COMPONENTS, "testing");
     assertThatThrownBy(() -> new DistributionConfigImpl(props, false))
         .withFailMessage("There is no registered component for the name: testing")
@@ -659,7 +659,7 @@ public class InternalDistributedSystemIntegrationTest {
 
   @Test
   public void testSSLEnabledComponentsWithLegacyJMXSSLSettings() {
-    Properties props = getCommonProperties();
+    var props = getCommonProperties();
     props.setProperty(SSL_ENABLED_COMPONENTS, "all");
     props.setProperty(JMX_MANAGER_SSL_ENABLED, "true");
     assertThatThrownBy(() -> new DistributionConfigImpl(props, false))
@@ -670,7 +670,7 @@ public class InternalDistributedSystemIntegrationTest {
 
   @Test
   public void testSSLEnabledComponentsWithLegacyGatewaySSLSettings() {
-    Properties props = getCommonProperties();
+    var props = getCommonProperties();
     props.setProperty(SSL_ENABLED_COMPONENTS, "all");
     props.setProperty(GATEWAY_SSL_ENABLED, "true");
     assertThatThrownBy(() -> new DistributionConfigImpl(props, false))
@@ -681,7 +681,7 @@ public class InternalDistributedSystemIntegrationTest {
 
   @Test
   public void testSSLEnabledComponentsWithLegacyServerSSLSettings() {
-    Properties props = getCommonProperties();
+    var props = getCommonProperties();
     props.setProperty(SSL_ENABLED_COMPONENTS, "all");
     props.setProperty(SERVER_SSL_ENABLED, "true");
     assertThatThrownBy(() -> new DistributionConfigImpl(props, false))
@@ -692,7 +692,7 @@ public class InternalDistributedSystemIntegrationTest {
 
   @Test
   public void testSSLEnabledComponentsWithLegacyHTTPServiceSSLSettings() {
-    Properties props = getCommonProperties();
+    var props = getCommonProperties();
     props.setProperty(SSL_ENABLED_COMPONENTS, "all");
     props.setProperty(HTTP_SERVICE_SSL_ENABLED, "true");
     assertThatThrownBy(() -> new DistributionConfigImpl(props, false))
@@ -703,8 +703,8 @@ public class InternalDistributedSystemIntegrationTest {
 
   @Test
   public void usesSessionBuilderToCreateMetricsSession() {
-    MetricsService metricsSession = mock(MetricsService.class);
-    MetricsService.Builder metricsSessionBuilder = mock(MetricsService.Builder.class);
+    var metricsSession = mock(MetricsService.class);
+    var metricsSessionBuilder = mock(MetricsService.Builder.class);
     when(metricsSessionBuilder.build(any())).thenReturn(metricsSession);
 
     createSystem(getCommonProperties(), metricsSessionBuilder);
@@ -714,8 +714,8 @@ public class InternalDistributedSystemIntegrationTest {
 
   @Test
   public void startsMetricsSession() {
-    MetricsService metricsSession = mock(MetricsService.class);
-    MetricsService.Builder metricsSessionBuilder = mock(MetricsService.Builder.class);
+    var metricsSession = mock(MetricsService.class);
+    var metricsSessionBuilder = mock(MetricsService.Builder.class);
     when(metricsSessionBuilder.build(any())).thenReturn(metricsSession);
     when(metricsSession.getMeterRegistry()).thenReturn(mock(MeterRegistry.class));
 
@@ -726,12 +726,12 @@ public class InternalDistributedSystemIntegrationTest {
 
   @Test
   public void getMeterRegistry_returnsMetricsSessionMeterRegistry() {
-    MeterRegistry sessionMeterRegistry = mock(MeterRegistry.class);
+    var sessionMeterRegistry = mock(MeterRegistry.class);
 
-    MetricsService metricsSession = mock(MetricsService.class);
+    var metricsSession = mock(MetricsService.class);
     when(metricsSession.getMeterRegistry()).thenReturn(sessionMeterRegistry);
 
-    MetricsService.Builder metricsSessionBuilder = mock(MetricsService.Builder.class);
+    var metricsSessionBuilder = mock(MetricsService.Builder.class);
     when(metricsSessionBuilder.build(any())).thenReturn(metricsSession);
     when(metricsSession.getMeterRegistry()).thenReturn(sessionMeterRegistry);
 
@@ -742,8 +742,8 @@ public class InternalDistributedSystemIntegrationTest {
 
   @Test
   public void connect() {
-    String theName = "theName";
-    Properties configProperties = new Properties();
+    var theName = "theName";
+    var configProperties = new Properties();
     configProperties.setProperty(NAME, theName);
 
     system = (InternalDistributedSystem) DistributedSystem.connect(configProperties);
@@ -755,17 +755,17 @@ public class InternalDistributedSystemIntegrationTest {
   @Test
   @SetSystemProperty(key = ALLOW_MULTIPLE_SYSTEMS_PROPERTY, value = "true")
   public void connectWithAllowsMultipleSystems() {
-    String name1 = "name1";
-    Properties configProperties1 = new Properties();
+    var name1 = "name1";
+    var configProperties1 = new Properties();
     configProperties1.setProperty(NAME, name1);
 
     system = (InternalDistributedSystem) DistributedSystem.connect(configProperties1);
 
-    String name2 = "name2";
-    Properties configProperties2 = new Properties();
+    var name2 = "name2";
+    var configProperties2 = new Properties();
     configProperties2.setProperty(NAME, name2);
 
-    final InternalDistributedSystem system2 =
+    final var system2 =
         (InternalDistributedSystem) DistributedSystem.connect(configProperties2);
     try {
       assertThat(system.isConnected()).isTrue();
@@ -781,16 +781,16 @@ public class InternalDistributedSystemIntegrationTest {
   }
 
   private Properties getCommonProperties() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     return props;
   }
 
   public static String getHostAddress(InetAddress addr) {
-    String address = addr.getHostAddress();
+    var address = addr.getHostAddress();
     if (addr instanceof Inet4Address || (!addr.isLinkLocalAddress() && !addr.isLoopbackAddress())) {
-      int idx = address.indexOf('%');
+      var idx = address.indexOf('%');
       if (idx >= 0) {
         address = address.substring(0, idx);
       }

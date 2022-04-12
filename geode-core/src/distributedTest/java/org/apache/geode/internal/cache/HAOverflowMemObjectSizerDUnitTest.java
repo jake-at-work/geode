@@ -23,9 +23,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.Iterator;
 import java.util.Properties;
-import java.util.Set;
 
 import org.junit.Test;
 
@@ -34,9 +32,7 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache30.ClientServerTestCase;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.distributed.internal.InternalLocator;
@@ -88,7 +84,7 @@ public class HAOverflowMemObjectSizerDUnitTest extends JUnit4DistributedTestCase
   @Override
   public final void postSetUp() throws Exception {
     disconnectAllFromDS();
-    Host host = Host.getHost(0);
+    var host = Host.getHost(0);
     client = host.getVM(1);
     serverVM = host.getVM(3);
   }
@@ -103,7 +99,7 @@ public class HAOverflowMemObjectSizerDUnitTest extends JUnit4DistributedTestCase
   public static void cleanUp(Long limit) {
     ConflationDUnitTestHelper.unsetIsSlowStart();
     if (region != null) {
-      Set entries = region.entrySet();
+      var entries = region.entrySet();
       entries = region.entrySet();
       long timeElapsed = 0, startTime = System.currentTimeMillis();
       while (entries.size() > 0 && timeElapsed <= limit) {
@@ -128,15 +124,15 @@ public class HAOverflowMemObjectSizerDUnitTest extends JUnit4DistributedTestCase
    */
   public static Integer createCacheServer(Boolean notification) throws Exception {
     new HAOverflowMemObjectSizerDUnitTest().createCache(new Properties());
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.NORMAL);
-    RegionAttributes attrs = factory.create();
-    Region region = cache.createRegion(regionName, attrs);
+    var attrs = factory.create();
+    var region = cache.createRegion(regionName, attrs);
     assertNotNull(region);
-    CacheServer server1 = cache.addCacheServer();
+    var server1 = cache.addCacheServer();
     assertNotNull(server1);
-    int port = getRandomAvailableTCPPort();
+    var port = getRandomAvailableTCPPort();
     server1.setPort(port);
     server1.setNotifyBySubscription(notification);
     server1.getClientSubscriptionConfig().setCapacity(capacity);
@@ -156,18 +152,18 @@ public class HAOverflowMemObjectSizerDUnitTest extends JUnit4DistributedTestCase
    * create client cache
    */
   public static void createCacheClient(Integer port1, String host) throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     new HAOverflowMemObjectSizerDUnitTest().createCache(props);
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.NORMAL);
     int[] ports = {port1};
     ClientServerTestCase.configureConnectionPool(factory, host, ports, true, -1,
         2, null);
-    RegionAttributes attrs = factory.create();
-    Region region = cache.createRegion(regionName, attrs);
+    var attrs = factory.create();
+    var region = cache.createRegion(regionName, attrs);
     assertNotNull(region);
     region.registerInterest("ALL_KEYS");
   }
@@ -181,7 +177,7 @@ public class HAOverflowMemObjectSizerDUnitTest extends JUnit4DistributedTestCase
   @Test
   public void testSizerImplementationofMemCapacityControllerWhenNotificationBySubscriptionIsTrue() {
 
-    Integer port1 = serverVM
+    var port1 = serverVM
         .invoke(() -> HAOverflowMemObjectSizerDUnitTest.createCacheServer(Boolean.TRUE));
     serverPort1 = port1;
     serverVM.invoke(() -> ConflationDUnitTestHelper.setIsSlowStart("15000"));
@@ -203,7 +199,7 @@ public class HAOverflowMemObjectSizerDUnitTest extends JUnit4DistributedTestCase
    */
   @Test
   public void testSizerImplementationofMemCapacityControllerWhenNotificationBySubscriptionIsFalse() {
-    Integer port2 = serverVM
+    var port2 = serverVM
         .invoke(() -> HAOverflowMemObjectSizerDUnitTest.createCacheServer(Boolean.FALSE));
     serverPort2 = port2;
 
@@ -228,17 +224,17 @@ public class HAOverflowMemObjectSizerDUnitTest extends JUnit4DistributedTestCase
     region = cache.getRegion(
         SEPARATOR + CacheServerImpl.generateNameForClientMsgsRegion(port));
     assertNotNull(region);
-    Set entries = region.entrySet();
+    var entries = region.entrySet();
     assertTrue(entries.size() > 0);
-    Iterator iter = entries.iterator();
+    var iter = entries.iterator();
     for (; iter.hasNext();) {
-      Region.Entry entry = (Region.Entry) iter.next();
-      ClientUpdateMessageImpl cum = (ClientUpdateMessageImpl) entry.getValue();
+      var entry = (Region.Entry) iter.next();
+      var cum = (ClientUpdateMessageImpl) entry.getValue();
       // passed null to get the size of value ie CUM only ,
       // but this function also add overhead per entry
       // so to get exact size calculated by memCapacityController
       // we need substract this over head
-      int perEntryOverhead = ((MemoryLRUController) cc).getPerEntryOverhead();
+      var perEntryOverhead = ((MemoryLRUController) cc).getPerEntryOverhead();
       assertEquals(cum.getSizeInBytes(), cc.entrySize(null, entry.getValue()) - perEntryOverhead);
     }
     cache.getLogger().fine("Test passed. Now, doing a cleanup job.");
@@ -279,7 +275,7 @@ public class HAOverflowMemObjectSizerDUnitTest extends JUnit4DistributedTestCase
   public static void performPut(Long lowerLimit, Long higerlimit) {
     assertNotNull(lowerLimit);
     assertNotNull(higerlimit);
-    LocalRegion region = (LocalRegion) cache.getRegion(SEPARATOR + regionName);
+    var region = (LocalRegion) cache.getRegion(SEPARATOR + regionName);
     assertNotNull(region);
     for (long i = lowerLimit; i < higerlimit; i++) {
       region.put(i, i);

@@ -20,11 +20,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
-import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
@@ -52,12 +50,12 @@ public final class RedisProxy {
     bossGroup = new NioEventLoopGroup(1);
     workerGroup = new NioEventLoopGroup(2, new DefaultThreadFactory("RedisProxy"));
 
-    ChannelFuture future = new ServerBootstrap().group(bossGroup, workerGroup)
+    var future = new ServerBootstrap().group(bossGroup, workerGroup)
         .channel(NioServerSocketChannel.class)
         .childHandler(new ChannelInitializer<SocketChannel>() {
           @Override
           protected void initChannel(SocketChannel ch) {
-            ChannelPipeline p = ch.pipeline();
+            var p = ch.pipeline();
             p.addLast(new RedisEncoder());
             p.addLast(new RedisDecoder());
             p.addLast(new RedisBulkStringAggregator());

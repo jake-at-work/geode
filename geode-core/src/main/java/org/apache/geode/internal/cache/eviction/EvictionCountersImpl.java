@@ -84,7 +84,7 @@ class EvictionCountersImpl implements EvictionCounters {
 
   @Override
   public void setLimit(long newValue) {
-    long oldValue = limit.get();
+    var oldValue = limit.get();
     if (oldValue != newValue) {
       limit.set(newValue);
       stats.setLimit(newValue);
@@ -102,7 +102,7 @@ class EvictionCountersImpl implements EvictionCounters {
   @Override
   public void decrementCounter(long delta) {
     if (delta != 0) {
-      long newValue = counter.addAndGet(-delta);
+      var newValue = counter.addAndGet(-delta);
       stats.setCounter(newValue);
     }
   }

@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import io.lettuce.core.KeyValue;
 import io.lettuce.core.RestoreArgs;
 import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.cluster.api.sync.RedisAdvancedClusterCommands;
@@ -58,7 +57,7 @@ public abstract class AbstractDumpRestoreIntegrationTest implements RedisIntegra
   public void setup() {
     jedis = new JedisCluster(new HostAndPort(BIND_ADDRESS, getPort()), REDIS_CLIENT_TIMEOUT);
 
-    RedisClusterClient client =
+    var client =
         RedisClusterClient.create(String.format("redis://%s:%d", BIND_ADDRESS, getPort()));
     lettuce = client.connect().sync();
 
@@ -120,9 +119,9 @@ public abstract class AbstractDumpRestoreIntegrationTest implements RedisIntegra
   public void dumpAndRestoreString() {
     lettuce.set("dumped", STRING_VALUE);
 
-    byte[] rawBytes = lettuce.dump("dumped");
+    var rawBytes = lettuce.dump("dumped");
     lettuce.restore("restored", 0, rawBytes);
-    String response = lettuce.get("restored");
+    var response = lettuce.get("restored");
 
     assertThat(response).isEqualTo(STRING_VALUE);
     assertThat(lettuce.ttl("restored")).isEqualTo(-1);
@@ -131,7 +130,7 @@ public abstract class AbstractDumpRestoreIntegrationTest implements RedisIntegra
   @Test
   public void restore_withTTL_setsTTL() {
     lettuce.restore("restored", 2000, RESTORE_BYTES);
-    String response = lettuce.get("restored");
+    var response = lettuce.get("restored");
 
     assertThat(response).isEqualTo(STRING_VALUE);
     assertThat(lettuce.pttl("restored"))
@@ -145,7 +144,7 @@ public abstract class AbstractDumpRestoreIntegrationTest implements RedisIntegra
     lettuce.expire("restored", 10);
 
     lettuce.restore("restored", RESTORE_BYTES, new RestoreArgs().replace());
-    String response = lettuce.get("restored");
+    var response = lettuce.get("restored");
 
     assertThat(response).isEqualTo(STRING_VALUE);
     assertThat(lettuce.pttl("restored")).isEqualTo(-1);
@@ -153,10 +152,10 @@ public abstract class AbstractDumpRestoreIntegrationTest implements RedisIntegra
 
   @Test
   public void restore_withAbsTTL() {
-    long absttl = System.currentTimeMillis() + 10000;
+    var absttl = System.currentTimeMillis() + 10000;
     lettuce.restore("restored", RESTORE_BYTES, new RestoreArgs().ttl(absttl).absttl());
 
-    String response = lettuce.get("restored");
+    var response = lettuce.get("restored");
 
     assertThat(response).isEqualTo(STRING_VALUE);
     assertThat(lettuce.ttl("restored"))
@@ -166,10 +165,10 @@ public abstract class AbstractDumpRestoreIntegrationTest implements RedisIntegra
 
   @Test
   public void restore_withAbsTTL_inThePast_notReplacing() {
-    long absttl = System.currentTimeMillis() - 10000;
+    var absttl = System.currentTimeMillis() - 10000;
     lettuce.restore("restored", RESTORE_BYTES, new RestoreArgs().ttl(absttl).absttl());
 
-    String response = lettuce.get("restored");
+    var response = lettuce.get("restored");
 
     assertThat(response).isNull();
   }
@@ -177,10 +176,10 @@ public abstract class AbstractDumpRestoreIntegrationTest implements RedisIntegra
   @Test
   public void restore_withAbsTTL_inThePast_andReplacing() {
     lettuce.set("restored", "already exists");
-    long absttl = System.currentTimeMillis() - 10000;
+    var absttl = System.currentTimeMillis() - 10000;
     lettuce.restore("restored", RESTORE_BYTES, new RestoreArgs().ttl(absttl).absttl().replace());
 
-    String response = lettuce.get("restored");
+    var response = lettuce.get("restored");
 
     assertThat(response).isNull();
   }
@@ -189,7 +188,7 @@ public abstract class AbstractDumpRestoreIntegrationTest implements RedisIntegra
   public void restore_withAbsTTL_ofZero() {
     lettuce.restore("restored", RESTORE_BYTES, new RestoreArgs().ttl(0).absttl());
 
-    String response = lettuce.get("restored");
+    var response = lettuce.get("restored");
 
     assertThat(lettuce.ttl("restored")).isEqualTo(-1);
     assertThat(response).isEqualTo(STRING_VALUE);
@@ -199,10 +198,10 @@ public abstract class AbstractDumpRestoreIntegrationTest implements RedisIntegra
   public void restore_withReplaceAndAbsttl() {
     lettuce.set("restored", "already exists");
     lettuce.expire("restored", 5);
-    long absttl = System.currentTimeMillis() + 10000;
+    var absttl = System.currentTimeMillis() + 10000;
     lettuce.restore("restored", RESTORE_BYTES, new RestoreArgs().ttl(absttl).absttl().replace());
 
-    String response = lettuce.get("restored");
+    var response = lettuce.get("restored");
 
     assertThat(response).isEqualTo(STRING_VALUE);
     assertThat(lettuce.ttl("restored")).isGreaterThan(5);
@@ -211,14 +210,14 @@ public abstract class AbstractDumpRestoreIntegrationTest implements RedisIntegra
   @Test
   public void dumpAndRestoreSet() {
     Set<String> smembers = new HashSet<>();
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       lettuce.sadd("set", "member-" + i);
       smembers.add("member-" + i);
     }
-    byte[] dump = lettuce.dump("set");
+    var dump = lettuce.dump("set");
 
     lettuce.restore("restored", 0, dump);
-    Set<String> result = lettuce.smembers("restored");
+    var result = lettuce.smembers("restored");
 
     assertThat(result).containsExactlyInAnyOrderElementsOf(smembers);
   }
@@ -226,15 +225,15 @@ public abstract class AbstractDumpRestoreIntegrationTest implements RedisIntegra
   @Test
   public void dumpAndRestoreHash() {
     Map<String, String> hashy = new HashMap<>();
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       lettuce.hset("hash", "field-" + i, "value-" + i);
       hashy.put("field-" + i, "value-" + i);
     }
-    byte[] dump = lettuce.dump("hash");
+    var dump = lettuce.dump("hash");
 
     lettuce.restore("restored", 0, dump);
-    String[] fields = Arrays.copyOf(hashy.keySet().toArray(), hashy.size(), String[].class);
-    List<KeyValue<String, String>> restored = lettuce.hmget("restored", fields);
+    var fields = Arrays.copyOf(hashy.keySet().toArray(), hashy.size(), String[].class);
+    var restored = lettuce.hmget("restored", fields);
     Map<String, String> restoredMap = new HashMap<>();
     restored.forEach(e -> restoredMap.put(e.getKey(), e.getValue()));
 
@@ -246,16 +245,16 @@ public abstract class AbstractDumpRestoreIntegrationTest implements RedisIntegra
   public void dumpAndRestoreSortedSet() {
     List<String> members = new ArrayList<>();
     List<Double> scores = new ArrayList<>();
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       lettuce.zadd("sorted-set", i, "member-" + i);
       members.add("member-" + i);
       scores.add((double) i);
     }
-    byte[] dump = lettuce.dump("sorted-set");
+    var dump = lettuce.dump("sorted-set");
 
     lettuce.restore("restored", 0, dump);
 
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       assertThat(lettuce.zscore("sorted-set", "member-" + i)).isEqualTo(i);
     }
   }

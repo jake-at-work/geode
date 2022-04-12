@@ -20,7 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Map;
 import java.util.Properties;
 
 import org.apache.logging.log4j.Logger;
@@ -28,7 +27,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.AttributesFactory;
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.PartitionAttributesFactory;
@@ -48,7 +46,6 @@ import org.apache.geode.cache.query.Struct;
 import org.apache.geode.cache.query.data.PortfolioPdx;
 import org.apache.geode.cache.query.data.PositionPdx;
 import org.apache.geode.cache.query.internal.Undefined;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache30.CacheSerializableRunnable;
 import org.apache.geode.cache30.ClientServerTestCase;
 import org.apache.geode.internal.AvailablePortHelper;
@@ -57,12 +54,9 @@ import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.pdx.FieldType;
 import org.apache.geode.pdx.JSONFormatter;
 import org.apache.geode.pdx.PdxInstance;
-import org.apache.geode.pdx.PdxInstanceFactory;
 import org.apache.geode.pdx.internal.ClientTypeRegistration;
 import org.apache.geode.pdx.internal.PdxInstanceFactoryImpl;
-import org.apache.geode.pdx.internal.PdxType;
 import org.apache.geode.pdx.internal.PeerTypeRegistration;
-import org.apache.geode.pdx.internal.TypeRegistration;
 import org.apache.geode.test.dunit.Assert;
 import org.apache.geode.test.dunit.DistributedTestCase;
 import org.apache.geode.test.dunit.DistributedTestUtils;
@@ -90,10 +84,10 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
   @Test
   public void testServerQuery() throws CacheException {
 
-    final Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    final int numberOfEntries = 5;
+    final var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    final var numberOfEntries = 5;
 
     // Start server1
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
@@ -101,7 +95,7 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       public void run2() throws CacheException {
         configAndStartBridgeServer();
         Region region = getRootRegion().getSubregion(regionName);
-        for (int i = 0; i < numberOfEntries; i++) {
+        for (var i = 0; i < numberOfEntries; i++) {
           region.put("key-" + i, new TestObject(i, "vmware"));
         }
       }
@@ -117,10 +111,10 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
         assertEquals(0, TestObject.numInstance.get());
 
         // Execute query with different type of Results.
-        QueryService qs = getCache().getQueryService();
+        var qs = getCache().getQueryService();
         Query query = null;
         SelectResults sr = null;
-        for (int i = 0; i < queryString.length; i++) {
+        for (var i = 0; i < queryString.length; i++) {
           try {
             query = qs.newQuery(queryString[i]);
             sr = (SelectResults) query.execute();
@@ -128,7 +122,7 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
             fail("Failed to execute query, " + ex.getMessage());
           }
 
-          for (Object o : sr.asSet()) {
+          for (var o : sr.asSet()) {
             if (i == 0 && !(o instanceof Integer)) {
               fail("Expected type Integer, not found in result set. Found type :" + o.getClass());
             } else if (i == 1 && !(o instanceof TestObject)) {
@@ -156,12 +150,12 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
   @Test
   public void testClientServerQueryWithProjections() throws CacheException {
 
-    final Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
-    final int numberOfEntries = 10;
+    final var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
+    final var numberOfEntries = 10;
 
     // Start server1
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
@@ -176,7 +170,7 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
             super(id, ticker);
           }
         }
-        for (int i = 0; i < numberOfEntries; i++) {
+        for (var i = 0; i < numberOfEntries; i++) {
           region.put("key-" + i, new PdxObject(i, "vmware"));
         }
       }
@@ -197,10 +191,10 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
     final int port0 = vm0.invoke(PdxQueryDUnitTest::getCacheServerPort);
     final int port1 = vm1.invoke(PdxQueryDUnitTest::getCacheServerPort);
 
-    final String host0 = NetworkUtils.getServerHostName(vm0.getHost());
+    final var host0 = NetworkUtils.getServerHostName(vm0.getHost());
 
     // Create client pool.
-    final String poolName = "testClientServerQueriesWithParamsPool";
+    final var poolName = "testClientServerQueriesWithParamsPool";
     createPool(vm2, poolName, new String[] {host0}, new int[] {port0}, true);
     createPool(vm3, poolName, new String[] {host0}, new int[] {port1}, true);
 
@@ -217,7 +211,7 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
         }
         try {
           logger.info("### Executing Query :" + queryString[0]);
-          Query query = qService.newQuery(queryString[0]);
+          var query = qService.newQuery(queryString[0]);
           results = (SelectResults) query.execute();
         } catch (Exception e) {
           Assert.fail("Failed executing " + queryString[0], e);
@@ -248,18 +242,18 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
    */
   @Test
   public void testClientServerQueryWithCompression() throws CacheException {
-    final String randomString =
+    final var randomString =
         "asddfjkhaskkfdjhzjc0943509328kvnhfjkldsg09q3485ibjafdp9q8y43p9u7hgavpiuaha48uy9afliasdnuaiuqa498qa4"
             + "asddfjkhaskkfdjhzjc0943509328kvnhfjkldsg09q3485ibjafdp9q8y43p9u7hgavpiuaha48uy9afliasdnuaiuqa498qa4"
             + "asddfjkhaskkfdjhzjc0943509328kvnhfjkldsg09q3485ibjafdp9q8y43p9u7hgavpiuaha48uy9afliasdnuaiuqa498qa4"
             + "asddfjkhaskkfdjhzjc0943509328kvnhfjkldsg09q3485ibjafdp9q8y43p9u7hgavpiuaha48uy9afliasdnuaiuqa498qa4";
 
-    final Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
-    final int numberOfEntries = 10;
+    final var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
+    final var numberOfEntries = 10;
 
     // Start server1
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
@@ -268,7 +262,7 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
         configAndStartBridgeServer(false, false, false, compressor);
         Region region = getRootRegion().getSubregion(regionName);
         assert (region.getAttributes().getCompressor() != null);
-        for (int i = 0; i < numberOfEntries; i++) {
+        for (var i = 0; i < numberOfEntries; i++) {
           region.put("key-" + i, new TestObject(i, randomString));
         }
       }
@@ -289,10 +283,10 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
     final int port0 = vm0.invoke(PdxQueryDUnitTest::getCacheServerPort);
     final int port1 = vm1.invoke(PdxQueryDUnitTest::getCacheServerPort);
 
-    final String host0 = NetworkUtils.getServerHostName(vm0.getHost());
+    final var host0 = NetworkUtils.getServerHostName(vm0.getHost());
 
     // Create client pool.
-    final String poolName = "testClientServerQueriesWithParamsPool";
+    final var poolName = "testClientServerQueriesWithParamsPool";
     createPool(vm2, poolName, new String[] {host0}, new int[] {port0}, true);
     createPool(vm3, poolName, new String[] {host0}, new int[] {port1}, true);
 
@@ -310,13 +304,13 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
         }
         try {
           logger.info("### Executing Query :" + queryString[2]);
-          Query query = qService.newQuery(queryString[2]);
+          var query = qService.newQuery(queryString[2]);
           results = (SelectResults<String>) query.execute();
         } catch (Exception e) {
           Assert.fail("Failed executing " + queryString[2], e);
         }
         assertEquals(numberOfEntries, results.size());
-        for (String result : results) {
+        for (var result : results) {
           assertEquals(randomString, result);
         }
       }
@@ -345,12 +339,12 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
   @Test
   public void testVersionedClass() throws CacheException {
 
-    final Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
-    final int numberOfEntries = 10;
+    final var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
+    final var numberOfEntries = 10;
 
     // Start server1
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
@@ -359,13 +353,13 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
         configAndStartBridgeServer();
         Region region = getRootRegion().getSubregion(regionName);
         try {
-          for (int i = 0; i < numberOfEntries; i++) {
-            PdxInstanceFactory pdxFactory =
+          for (var i = 0; i < numberOfEntries; i++) {
+            var pdxFactory =
                 PdxInstanceFactoryImpl.newCreator("PdxTestObject", false, getCache());
             pdxFactory.writeInt("id", i);
             pdxFactory.writeString("ticker", "vmware");
             pdxFactory.writeString("idTickers", i + "vmware");
-            PdxInstance pdxInstance = pdxFactory.create();
+            var pdxInstance = pdxFactory.create();
             region.put("key-" + i, pdxInstance);
           }
         } catch (Exception ex) {
@@ -390,10 +384,10 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
     final int port0 = vm0.invoke(PdxQueryDUnitTest::getCacheServerPort);
     final int port1 = vm1.invoke(PdxQueryDUnitTest::getCacheServerPort);
 
-    final String host0 = NetworkUtils.getServerHostName(vm0.getHost());
+    final var host0 = NetworkUtils.getServerHostName(vm0.getHost());
 
     // Create client pool.
-    final String poolName = "testClientServerQueriesWithParamsPool";
+    final var poolName = "testClientServerQueriesWithParamsPool";
     createPool(vm2, poolName, new String[] {host0}, new int[] {port0}, true);
     createPool(vm3, poolName, new String[] {host0}, new int[] {port1}, true);
 
@@ -410,7 +404,7 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
         }
         try {
           logger.info("### Executing Query :" + queryString[0]);
-          Query query = qService.newQuery(queryString[0]);
+          var query = qService.newQuery(queryString[0]);
           results = (SelectResults) query.execute();
         } catch (Exception e) {
           Assert.fail("Failed executing " + queryString[0], e);
@@ -443,12 +437,12 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
   @Test
   public void testClientServerQuery() throws CacheException {
 
-    final Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
-    final int numberOfEntries = 10;
+    final var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
+    final var numberOfEntries = 10;
 
     // Start server1
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
@@ -456,7 +450,7 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       public void run2() throws CacheException {
         configAndStartBridgeServer();
         Region region = getRootRegion().getSubregion(regionName);
-        for (int i = 0; i < numberOfEntries; i++) {
+        for (var i = 0; i < numberOfEntries; i++) {
           region.put("key-" + i, new TestObject(i, "vmware"));
         }
       }
@@ -476,10 +470,10 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
     final int port0 = vm0.invoke(PdxQueryDUnitTest::getCacheServerPort);
     final int port1 = vm1.invoke(PdxQueryDUnitTest::getCacheServerPort);
 
-    final String host0 = NetworkUtils.getServerHostName(vm0.getHost());
+    final var host0 = NetworkUtils.getServerHostName(vm0.getHost());
 
     // Create client pool.
-    final String poolName = "testClientServerQueryPool";
+    final var poolName = "testClientServerQueryPool";
     createPool(vm2, poolName, new String[] {host0}, new int[] {port0}, true);
     createPool(vm3, poolName, new String[] {host0}, new int[] {port1}, true);
 
@@ -489,11 +483,11 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       public void run2() throws CacheException {
         QueryService localQueryService = null;
 
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
         ClientServerTestCase.configureConnectionPool(factory, host0, port1, -1, true, -1, -1, null);
-        Region region = createRegion(regionName, rootRegionName, factory.create());
-        for (int i = 0; i < numberOfEntries; i++) {
+        var region = createRegion(regionName, rootRegionName, factory.create());
+        for (var i = 0; i < numberOfEntries; i++) {
           region.put("key-" + i, new TestObject(i, "vmware"));
         }
 
@@ -503,10 +497,10 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
         } catch (Exception e) {
           Assert.fail("Failed to get QueryService.", e);
         }
-        for (int i = 0; i < 3; i++) {
+        for (var i = 0; i < 3; i++) {
           try {
-            Query query = localQueryService.newQuery(queryString[i]);
-            SelectResults results = (SelectResults) query.execute();
+            var query = localQueryService.newQuery(queryString[i]);
+            var results = (SelectResults) query.execute();
             assertEquals(numberOfEntries, results.size());
           } catch (Exception e) {
             Assert.fail("Failed executing " + queryString[i], e);
@@ -521,7 +515,7 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       public void run2() throws CacheException {
         QueryService remoteQueryService = null;
         QueryService localQueryService = null;
-        SelectResults[][] rs = new SelectResults[1][2];
+        var rs = new SelectResults[1][2];
         try {
           remoteQueryService = (PoolManager.find(poolName)).getQueryService();
           localQueryService = getCache().getQueryService();
@@ -529,10 +523,10 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
           Assert.fail("Failed to get QueryService.", e);
         }
 
-        for (int i = 1; i < 3; i++) {
+        for (var i = 1; i < 3; i++) {
           try {
             logger.info("### Executing Query on server:" + queryString[i]);
-            Query query = remoteQueryService.newQuery(queryString[i]);
+            var query = remoteQueryService.newQuery(queryString[i]);
             rs[0][0] = (SelectResults) query.execute();
             assertEquals(numberOfEntries, rs[0][0].size());
 
@@ -578,13 +572,13 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
   @Test
   public void testClientServerQueryWithRangeIndex() throws CacheException {
 
-    final Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
+    final var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
 
-    final String[] qs = new String[] {"SELECT * FROM " + regName + " p WHERE p.ID > 0",
+    final var qs = new String[] {"SELECT * FROM " + regName + " p WHERE p.ID > 0",
         "SELECT p FROM " + regName + " p WHERE p.ID > 0",
         "SELECT * FROM " + regName + " p WHERE p.ID = 1",
         "SELECT * FROM " + regName + " p WHERE p.ID < 10",
@@ -614,7 +608,7 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
         configAndStartBridgeServer(false, false, true, null); // Async index
         Region region = getRootRegion().getSubregion(regionName);
         // Create Range index.
-        QueryService qs = getCache().getQueryService();
+        var qs = getCache().getQueryService();
         try {
           qs.createIndex("idIndex", "p.ID", regName + " p");
           qs.createIndex("statusIndex", "p.status", regName + " p");
@@ -639,10 +633,10 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
     final int port0 = vm0.invoke(PdxQueryDUnitTest::getCacheServerPort);
     final int port1 = vm1.invoke(PdxQueryDUnitTest::getCacheServerPort);
 
-    final String host0 = NetworkUtils.getServerHostName(vm0.getHost());
+    final var host0 = NetworkUtils.getServerHostName(vm0.getHost());
 
     // Create client pool.
-    final String poolName = "testClientServerQueryPool";
+    final var poolName = "testClientServerQueryPool";
     createPool(vm2, poolName, new String[] {host0}, new int[] {port0}, true);
     createPool(vm3, poolName, new String[] {host0}, new int[] {port1}, true);
 
@@ -651,12 +645,12 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       @Override
       public void run2() throws CacheException {
 
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
         ClientServerTestCase.configureConnectionPool(factory, host0, port1, -1, true, -1, -1, null);
-        Region region = createRegion(regionName, rootRegionName, factory.create());
-        int j = 0;
-        for (int i = 0; i < 100; i++) {
+        var region = createRegion(regionName, rootRegionName, factory.create());
+        var j = 0;
+        for (var i = 0; i < 100; i++) {
           region.put("key-" + i, new PortfolioPdx(j, j++));
           // To add duplicate:
           if (i % 24 == 0) {
@@ -672,15 +666,15 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       @Override
       public void run2() throws CacheException {
         // Execute query locally.
-        QueryService queryService = getCache().getQueryService();
-        for (final String q : qs) {
+        var queryService = getCache().getQueryService();
+        for (final var q : qs) {
           try {
-            Query query = queryService.newQuery(q);
-            SelectResults results = (SelectResults) query.execute();
-            for (Object o : results.asList()) {
+            var query = queryService.newQuery(q);
+            var results = (SelectResults) query.execute();
+            for (var o : results.asList()) {
               if (o instanceof Struct) {
-                Object[] values = ((Struct) o).getFieldValues();
-                for (int c = 0; c < values.length; c++) {
+                var values = ((Struct) o).getFieldValues();
+                for (var c = 0; c < values.length; c++) {
                   if (values[c] instanceof PdxInstance) {
                     fail("Found unexpected PdxInstance in the query results. At struct field [" + c
                         + "] query :" + q + " Object is: " + values[c]);
@@ -705,18 +699,18 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       @Override
       public void run2() throws CacheException {
         // Execute query locally.
-        GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
+        var cache = (GemFireCacheImpl) getCache();
         cache.setReadSerializedForTest(true);
         try {
-          QueryService queryService = getCache().getQueryService();
-          for (final String q : qs) {
+          var queryService = getCache().getQueryService();
+          for (final var q : qs) {
             try {
-              Query query = queryService.newQuery(q);
-              SelectResults results = (SelectResults) query.execute();
-              for (Object o : results.asList()) {
+              var query = queryService.newQuery(q);
+              var results = (SelectResults) query.execute();
+              for (var o : results.asList()) {
                 if (o instanceof Struct) {
-                  Object[] values = ((Struct) o).getFieldValues();
-                  for (int c = 0; c < values.length; c++) {
+                  var values = ((Struct) o).getFieldValues();
+                  for (var c = 0; c < values.length; c++) {
                     if (!(values[c] instanceof PdxInstance)) {
                       fail(
                           "Didn't found expected PdxInstance in the query results. At struct field ["
@@ -752,13 +746,13 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
   @Test
   public void testClientServerCountQuery() throws CacheException {
 
-    final Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
-    final int numberOfEntries = 10;
-    final String queryStr = "SELECT COUNT(*) FROM " + regName + " WHERE id >= 0";
+    final var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
+    final var numberOfEntries = 10;
+    final var queryStr = "SELECT COUNT(*) FROM " + regName + " WHERE id >= 0";
 
     // Start server1
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
@@ -766,7 +760,7 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       public void run2() throws CacheException {
         configAndStartBridgeServer();
         Region region = getRootRegion().getSubregion(regionName);
-        for (int i = 0; i < numberOfEntries; i++) {
+        for (var i = 0; i < numberOfEntries; i++) {
           region.put("key-" + i, new TestObject(i, "vmware"));
         }
       }
@@ -785,10 +779,10 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
     final int port0 = vm0.invoke(PdxQueryDUnitTest::getCacheServerPort);
     final int port1 = vm1.invoke(PdxQueryDUnitTest::getCacheServerPort);
 
-    final String host0 = NetworkUtils.getServerHostName(vm0.getHost());
+    final var host0 = NetworkUtils.getServerHostName(vm0.getHost());
 
     // Create client pool.
-    final String poolName = "testClientServerQueryPool";
+    final var poolName = "testClientServerQueryPool";
     createPool(vm2, poolName, new String[] {host0}, new int[] {port0}, true);
     createPool(vm3, poolName, new String[] {host0}, new int[] {port1}, true);
 
@@ -798,11 +792,11 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       public void run2() throws CacheException {
         QueryService localQueryService = null;
 
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
         ClientServerTestCase.configureConnectionPool(factory, host0, port1, -1, true, -1, -1, null);
-        Region region = createRegion(regionName, rootRegionName, factory.create());
-        for (int i = 0; i < numberOfEntries; i++) {
+        var region = createRegion(regionName, rootRegionName, factory.create());
+        for (var i = 0; i < numberOfEntries; i++) {
           region.put("key-" + i, new TestObject(i, "vmware"));
         }
 
@@ -813,8 +807,8 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
           Assert.fail("Failed to get QueryService.", e);
         }
         try {
-          Query query = localQueryService.newQuery(queryStr);
-          SelectResults results = (SelectResults) query.execute();
+          var query = localQueryService.newQuery(queryStr);
+          var results = (SelectResults) query.execute();
           assertEquals(numberOfEntries, ((Integer) results.asList().get(0)).intValue());
         } catch (Exception e) {
           Assert.fail("Failed executing " + queryStr, e);
@@ -829,7 +823,7 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       public void run2() throws CacheException {
         QueryService remoteQueryService = null;
         QueryService localQueryService = null;
-        SelectResults[][] rs = new SelectResults[1][2];
+        var rs = new SelectResults[1][2];
         try {
           remoteQueryService = (PoolManager.find(poolName)).getQueryService();
           localQueryService = getCache().getQueryService();
@@ -839,7 +833,7 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
 
         try {
           logger.info("### Executing Query on server:" + queryStr);
-          Query query = remoteQueryService.newQuery(queryStr);
+          var query = remoteQueryService.newQuery(queryStr);
           rs[0][0] = (SelectResults) query.execute();
           assertEquals(numberOfEntries, ((Integer) rs[0][0].asList().get(0)).intValue());
 
@@ -884,14 +878,14 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
   @Test
   public void testVersionedClientServerQuery() throws CacheException {
 
-    final Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
-    final int numberOfEntries = 10;
+    final var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
+    final var numberOfEntries = 10;
 
-    final String[] queryStr = new String[] {"SELECT DISTINCT ID FROM " + regName, // 0
+    final var queryStr = new String[] {"SELECT DISTINCT ID FROM " + regName, // 0
         "SELECT * FROM " + regName, // 1
         "SELECT pkid FROM " + regName, // 2
         "SELECT * FROM " + regName + " WHERE ID > 5", // 3
@@ -944,10 +938,10 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
     final int port0 = vm0.invoke(PdxQueryDUnitTest::getCacheServerPort);
     final int port1 = vm1.invoke(PdxQueryDUnitTest::getCacheServerPort);
 
-    final String host0 = NetworkUtils.getServerHostName(vm0.getHost());
+    final var host0 = NetworkUtils.getServerHostName(vm0.getHost());
 
     // Create client pool.
-    final String poolName = "testClientServerQueryPool";
+    final var poolName = "testClientServerQueryPool";
     createPool(vm2, poolName, new String[] {host0}, new int[] {port0}, true);
     createPool(vm3, poolName, new String[] {host0}, new int[] {port1}, true);
 
@@ -957,20 +951,20 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       public void run2() throws CacheException {
 
         // Load client/server region.
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
         ClientServerTestCase.configureConnectionPool(factory, host0, port1, -1, true, -1, -1, null);
-        Region region = createRegion(regionName, rootRegionName, factory.create());
+        var region = createRegion(regionName, rootRegionName, factory.create());
 
         try {
 
           // Load TestObject
-          for (int i = 0; i < numberOfEntries; i++) {
-            PortfolioPdxVersion portfolioPdxVersion =
+          for (var i = 0; i < numberOfEntries; i++) {
+            var portfolioPdxVersion =
                 new PortfolioPdxVersion(i, i);
-            PdxInstanceFactory pdxFactory =
+            var pdxFactory =
                 PdxInstanceFactoryImpl.newCreator("PortfolioPdxVersion", false, getCache());
-            PdxInstance pdxInstance = portfolioPdxVersion.createPdxInstance(pdxFactory);
+            var pdxInstance = portfolioPdxVersion.createPdxInstance(pdxFactory);
             region.put("key-" + i, pdxInstance);
           }
         } catch (Exception ex) {
@@ -980,7 +974,7 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
         // Execute query:
         QueryService remoteQueryService = null;
         QueryService localQueryService = null;
-        SelectResults[][] rs = new SelectResults[1][2];
+        var rs = new SelectResults[1][2];
 
         try {
           remoteQueryService = (PoolManager.find(poolName)).getQueryService();
@@ -989,10 +983,10 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
           Assert.fail("Failed to get QueryService.", e);
         }
 
-        for (final String s : queryStr) {
+        for (final var s : queryStr) {
           try {
             logger.info("### Executing Query on server:" + s);
-            Query query = remoteQueryService.newQuery(s);
+            var query = remoteQueryService.newQuery(s);
             rs[0][0] = (SelectResults) query.execute();
             logger.info("### Executing Query locally:" + s);
             query = localQueryService.newQuery(s);
@@ -1024,18 +1018,18 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
   @Test
   public void testClientServerQueryMixedTypes() throws CacheException {
 
-    final String[] testQueries =
+    final var testQueries =
         new String[] {"select ticker from " + SEPARATOR + "root" + SEPARATOR + regionName,
             "select ticker from " + SEPARATOR + "root" + SEPARATOR + regionName
                 + " p where IS_DEFINED(p.ticker)",
             "select ticker from " + SEPARATOR + "root" + SEPARATOR + regionName
                 + " where ticker = 'vmware'",};
-    final Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
-    final int numberOfEntries = 10;
+    final var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
+    final var numberOfEntries = 10;
 
     // Start server1
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
@@ -1043,10 +1037,10 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       public void run2() throws CacheException {
         configAndStartBridgeServer();
         Region region = getRootRegion().getSubregion(regionName);
-        for (int i = 0; i < numberOfEntries; i++) {
+        for (var i = 0; i < numberOfEntries; i++) {
           region.put("key-" + i, new TestObject(i, "vmware"));
         }
-        for (int i = numberOfEntries; i < (numberOfEntries + 10); i++) {
+        for (var i = numberOfEntries; i < (numberOfEntries + 10); i++) {
           region.put("key-" + i, new TestObject2(i));
         }
       }
@@ -1065,10 +1059,10 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
     final int port0 = vm0.invoke(PdxQueryDUnitTest::getCacheServerPort);
     final int port1 = vm1.invoke(PdxQueryDUnitTest::getCacheServerPort);
 
-    final String host0 = NetworkUtils.getServerHostName(vm0.getHost());
+    final var host0 = NetworkUtils.getServerHostName(vm0.getHost());
 
     // Create client pool.
-    final String poolName = "testClientServerQueryPool";
+    final var poolName = "testClientServerQueryPool";
     createPool(vm2, poolName, new String[] {host0}, new int[] {port0}, true);
     createPool(vm3, poolName, new String[] {host0}, new int[] {port1}, true);
 
@@ -1078,14 +1072,14 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       public void run2() throws CacheException {
         QueryService localQueryService = null;
 
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
         ClientServerTestCase.configureConnectionPool(factory, host0, port1, -1, true, -1, -1, null);
-        Region region = createRegion(regionName, rootRegionName, factory.create());
-        for (int i = 0; i < numberOfEntries; i++) {
+        var region = createRegion(regionName, rootRegionName, factory.create());
+        for (var i = 0; i < numberOfEntries; i++) {
           region.put("key-" + i, new TestObject(i, "vmware"));
         }
-        for (int i = numberOfEntries; i < (numberOfEntries + 10); i++) {
+        for (var i = numberOfEntries; i < (numberOfEntries + 10); i++) {
           region.put("key-" + i, new TestObject2(i));
         }
         // Execute query locally.
@@ -1094,10 +1088,10 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
         } catch (Exception e) {
           Assert.fail("Failed to get QueryService.", e);
         }
-        for (int i = 0; i < 3; i++) {
+        for (var i = 0; i < 3; i++) {
           try {
-            Query query = localQueryService.newQuery(testQueries[i]);
-            SelectResults results = (SelectResults) query.execute();
+            var query = localQueryService.newQuery(testQueries[i]);
+            var results = (SelectResults) query.execute();
             if (i == 0) {
               assertEquals(numberOfEntries + 10, results.size());
             } else {
@@ -1116,7 +1110,7 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       public void run2() throws CacheException {
         QueryService remoteQueryService = null;
         QueryService localQueryService = null;
-        SelectResults[][] rs = new SelectResults[1][2];
+        var rs = new SelectResults[1][2];
         try {
           remoteQueryService = (PoolManager.find(poolName)).getQueryService();
           localQueryService = getCache().getQueryService();
@@ -1124,10 +1118,10 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
           Assert.fail("Failed to get QueryService.", e);
         }
 
-        for (int i = 0; i < 3; i++) {
+        for (var i = 0; i < 3; i++) {
           try {
             logger.info("### Executing Query on server:" + testQueries[i]);
-            Query query = remoteQueryService.newQuery(testQueries[i]);
+            var query = remoteQueryService.newQuery(testQueries[i]);
             rs[0][0] = (SelectResults) query.execute();
             if (i == 0) {
               // defined and undefined values returned
@@ -1178,12 +1172,12 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
   @Test
   public void testQueryOnPR() throws CacheException {
 
-    final Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
-    final int numberOfEntries = 100;
+    final var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
+    final var numberOfEntries = 100;
 
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
       @Override
@@ -1211,7 +1205,7 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       @Override
       public void run2() throws CacheException {
         Region region = getRootRegion().getSubregion(regionName);
-        for (int i = 0; i < numberOfEntries; i++) {
+        for (var i = 0; i < numberOfEntries; i++) {
           region.put("key-" + i, new TestObject(i, "vmware"));
         }
       }
@@ -1220,10 +1214,10 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
     // Client pool.
     final int port1 = vm1.invoke(PdxQueryDUnitTest::getCacheServerPort);
 
-    final String host0 = NetworkUtils.getServerHostName(vm0.getHost());
+    final var host0 = NetworkUtils.getServerHostName(vm0.getHost());
 
     // Create client pool.
-    final String poolName = "testClientServerQueryPool";
+    final var poolName = "testClientServerQueryPool";
     createPool(vm3, poolName, new String[] {host0}, new int[] {port1}, true);
 
     // Execute client queries
@@ -1238,11 +1232,11 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
           Assert.fail("Failed to get QueryService.", e);
         }
 
-        for (int i = 1; i < 3; i++) {
+        for (var i = 1; i < 3; i++) {
           try {
             logger.info("### Executing Query on server:" + queryString[i]);
-            Query query = remoteQueryService.newQuery(queryString[i]);
-            SelectResults rs = (SelectResults) query.execute();
+            var query = remoteQueryService.newQuery(queryString[i]);
+            var rs = (SelectResults) query.execute();
             assertEquals(numberOfEntries, rs.size());
           } catch (Exception e) {
             Assert.fail("Failed executing " + queryString[i], e);
@@ -1282,10 +1276,10 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
     vm1.invoke(new CacheSerializableRunnable("Create cache server") {
       @Override
       public void run2() throws CacheException {
-        QueryService qs = getCache().getQueryService();
+        var qs = getCache().getQueryService();
         Query query = null;
         SelectResults sr = null;
-        for (int i = 0; i < queryString.length; i++) {
+        for (var i = 0; i < queryString.length; i++) {
           try {
             query = qs.newQuery(queryString[i]);
             sr = (SelectResults) query.execute();
@@ -1293,7 +1287,7 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
             fail("Failed to execute query, " + ex.getMessage());
           }
 
-          for (Object o : sr.asSet()) {
+          for (var o : sr.asSet()) {
             if (i == 0 && !(o instanceof Integer)) {
               fail("Expected type Integer, not found in result set. Found type :" + o.getClass());
             } else if (i == 1 && !(o instanceof TestObject)) {
@@ -1332,12 +1326,12 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
   @Test
   public void testLocalPRQuery() throws CacheException {
 
-    final Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
-    final int numberOfEntries = 100;
+    final var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
+    final var numberOfEntries = 100;
 
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
       @Override
@@ -1375,12 +1369,12 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
         Region region = getRootRegion().getSubregion(regionName);
         try {
           // Load TestObject
-          for (int i = 0; i < numberOfEntries; i++) {
-            PdxInstanceFactory pdxInstanceFactory =
+          for (var i = 0; i < numberOfEntries; i++) {
+            var pdxInstanceFactory =
                 PdxInstanceFactoryImpl.newCreator("PortfolioPdxVersion", false, getCache());
-            PortfolioPdxVersion portfolioPdxVersion =
+            var portfolioPdxVersion =
                 new PortfolioPdxVersion(i, i);
-            PdxInstance pdxInstance = portfolioPdxVersion.createPdxInstance(pdxInstanceFactory);
+            var pdxInstance = portfolioPdxVersion.createPdxInstance(pdxInstanceFactory);
             region.put("key-" + i, pdxInstance);
           }
         } catch (Exception ex) {
@@ -1395,11 +1389,11 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
           Assert.fail("Failed to get QueryService.", e);
         }
 
-        for (int i = 1; i < 3; i++) {
+        for (var i = 1; i < 3; i++) {
           try {
             logger.info("### Executing Query on server:" + queryString[i]);
-            Query query = localQueryService.newQuery(queryString[i]);
-            SelectResults rs = (SelectResults) query.execute();
+            var query = localQueryService.newQuery(queryString[i]);
+            var rs = (SelectResults) query.execute();
             assertEquals(numberOfEntries, rs.size());
           } catch (Exception e) {
             Assert.fail("Failed executing " + queryString[i], e);
@@ -1420,12 +1414,12 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
   @Test
   public void testPdxReadSerializedForPRQuery() throws CacheException {
 
-    final Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
-    final int numberOfEntries = 100;
+    final var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
+    final var numberOfEntries = 100;
 
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
       @Override
@@ -1463,12 +1457,12 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
         Region region = getRootRegion().getSubregion(regionName);
         try {
           // Load TestObject
-          for (int i = 0; i < numberOfEntries; i++) {
-            PortfolioPdxVersion portfolioPdxVersion =
+          for (var i = 0; i < numberOfEntries; i++) {
+            var portfolioPdxVersion =
                 new PortfolioPdxVersion(i, i);
-            PdxInstanceFactory pdxInstanceFactory =
+            var pdxInstanceFactory =
                 PdxInstanceFactoryImpl.newCreator("PortfolioPdxVersion", false, getCache());
-            PdxInstance pdxInstance = portfolioPdxVersion.createPdxInstance(pdxInstanceFactory);
+            var pdxInstance = portfolioPdxVersion.createPdxInstance(pdxInstanceFactory);
             region.put("key-" + i, pdxInstance);
           }
         } catch (Exception ex) {
@@ -1483,11 +1477,11 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
           Assert.fail("Failed to get QueryService.", e);
         }
 
-        for (int i = 1; i < 3; i++) {
+        for (var i = 1; i < 3; i++) {
           try {
             logger.info("### Executing Query on server:" + queryString[i]);
-            Query query = localQueryService.newQuery(queryString[i]);
-            SelectResults rs = (SelectResults) query.execute();
+            var query = localQueryService.newQuery(queryString[i]);
+            var rs = (SelectResults) query.execute();
             assertEquals(numberOfEntries, rs.size());
           } catch (Exception e) {
             Assert.fail("Failed executing " + queryString[i], e);
@@ -1496,7 +1490,7 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       }
     });
 
-    final String[] qs = new String[] {"SELECT * FROM " + regName,
+    final var qs = new String[] {"SELECT * FROM " + regName,
         "SELECT * FROM " + regName + " WHERE ID > 5", "SELECT p FROM " + regName
             + " p, p.positions.values pos WHERE p.ID > 2 or pos.secId = 'vmware'",};
 
@@ -1505,7 +1499,7 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       @Override
       public void run2() throws CacheException {
         Region region = getRootRegion().getSubregion(regionName);
-        GemFireCacheImpl c = (GemFireCacheImpl) region.getCache();
+        var c = (GemFireCacheImpl) region.getCache();
         try {
           // Set read serialized.
           c.setReadSerializedForTest(true);
@@ -1519,12 +1513,12 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
           }
 
           // This should not throw class not found exception.
-          for (int i = 1; i < qs.length; i++) {
+          for (var i = 1; i < qs.length; i++) {
             try {
               logger.info("### Executing Query on server:" + qs[i]);
-              Query query = localQueryService.newQuery(qs[i]);
-              SelectResults rs = (SelectResults) query.execute();
-              for (Object o : rs.asSet()) {
+              var query = localQueryService.newQuery(qs[i]);
+              var rs = (SelectResults) query.execute();
+              for (var o : rs.asSet()) {
                 if (!(o instanceof PdxInstance)) {
                   fail("Expected type PdxInstance, not found in result set. Found type :"
                       + o.getClass());
@@ -1548,16 +1542,16 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
 
   @Test
   public void testPdxReadSerializedForPRSelectAllQuery() throws CacheException {
-    VM vm0 = VM.getVM(0);
-    VM vm1 = VM.getVM(1);
+    var vm0 = VM.getVM(0);
+    var vm1 = VM.getVM(1);
 
-    final int numPuts = 10;
+    final var numPuts = 10;
 
     vm0.invoke(new CacheSerializableRunnable("Create Bridge Server") {
       @Override
       public void run2() throws CacheException {
         configAndStartBridgeServer(true, false);
-        GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
+        var cache = (GemFireCacheImpl) getCache();
         cache.setReadSerializedForTest(true);
       }
     });
@@ -1566,24 +1560,24 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       @Override
       public void run2() throws CacheException {
         configAndStartBridgeServer(true, false);
-        GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
+        var cache = (GemFireCacheImpl) getCache();
         cache.setReadSerializedForTest(true);
       }
     });
 
     vm0.invoke(() -> {
       Region region = getRootRegion().getSubregion(regionName);
-      for (int i = 0; i < numPuts; i++) {
+      for (var i = 0; i < numPuts; i++) {
         region.put("key-" + i, new TestObject(i, "val-" + i));
       }
     });
 
     vm0.invoke(() -> {
-      QueryService qs = getCache().getQueryService();
-      Query query = qs.newQuery(queryString[1]);
-      SelectResults sr = (SelectResults) query.execute();
+      var qs = getCache().getQueryService();
+      var query = qs.newQuery(queryString[1]);
+      var sr = (SelectResults) query.execute();
       assertThat(sr.size()).isEqualTo(numPuts);
-      for (Object result : sr) {
+      for (var result : sr) {
         assertThat(result).isInstanceOf(PdxInstance.class);
       }
     });
@@ -1595,12 +1589,12 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
   @Test
   public void testIndex() throws CacheException {
 
-    final Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
-    final int numberOfEntries = 10;
+    final var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
+    final var numberOfEntries = 10;
 
     // Start server1
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
@@ -1608,7 +1602,7 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       public void run2() throws CacheException {
         configAndStartBridgeServer();
         Region region = getRootRegion().getSubregion(regionName);
-        for (int i = 0; i < numberOfEntries; i++) {
+        for (var i = 0; i < numberOfEntries; i++) {
           if (i % 2 == 0) {
             region.put("key-" + i, new TestObject(i, "vmware"));
           } else {
@@ -1617,7 +1611,7 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
         }
 
         try {
-          QueryService qs = getCache().getQueryService();
+          var qs = getCache().getQueryService();
           qs.createIndex("idIndex", IndexType.FUNCTIONAL, "id", regName);
           qs.createIndex("tickerIndex", IndexType.FUNCTIONAL, "p.ticker", regName + " p");
           qs.createIndex("tickerIdTickerMapIndex", IndexType.FUNCTIONAL, "p.ticker",
@@ -1637,7 +1631,7 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
         Region region = getRootRegion().getSubregion(regionName);
 
         try {
-          QueryService qs = getCache().getQueryService();
+          var qs = getCache().getQueryService();
           qs.createIndex("idIndex", IndexType.FUNCTIONAL, "id", regName);
           qs.createIndex("tickerIndex", IndexType.FUNCTIONAL, "p.ticker", regName + " p");
           qs.createIndex("tickerIdTickerMapIndex", IndexType.FUNCTIONAL, "p.ticker",
@@ -1653,10 +1647,10 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
     final int port0 = vm0.invoke(PdxQueryDUnitTest::getCacheServerPort);
     final int port1 = vm1.invoke(PdxQueryDUnitTest::getCacheServerPort);
 
-    final String host0 = NetworkUtils.getServerHostName(vm0.getHost());
+    final var host0 = NetworkUtils.getServerHostName(vm0.getHost());
 
     // Create client pool.
-    final String poolName = "testClientServerQueryPool";
+    final var poolName = "testClientServerQueryPool";
     createPool(vm2, poolName, new String[] {host0}, new int[] {port0}, true);
     createPool(vm3, poolName, new String[] {host0}, new int[] {port1}, true);
 
@@ -1665,11 +1659,11 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       @Override
       public void run2() throws CacheException {
 
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
         ClientServerTestCase.configureConnectionPool(factory, host0, port1, -1, true, -1, -1, null);
-        Region region = createRegion(regionName, rootRegionName, factory.create());
-        for (int i = 0; i < numberOfEntries * 2; i++) {
+        var region = createRegion(regionName, rootRegionName, factory.create());
+        for (var i = 0; i < numberOfEntries * 2; i++) {
           if (i % 2 == 0) {
             region.put("key-" + i, new TestObject(i, "vmware"));
           } else {
@@ -1703,7 +1697,7 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       public void run2() throws CacheException {
         QueryService remoteQueryService = null;
         QueryService localQueryService = null;
-        SelectResults[][] rs = new SelectResults[1][2];
+        var rs = new SelectResults[1][2];
         try {
           remoteQueryService = (PoolManager.find(poolName)).getQueryService();
           localQueryService = getCache().getQueryService();
@@ -1711,10 +1705,10 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
           Assert.fail("Failed to get QueryService.", e);
         }
 
-        for (int i = 0; i < 3; i++) {
+        for (var i = 0; i < 3; i++) {
           try {
             logger.info("### Executing Query on server:" + queryString[i]);
-            Query query = remoteQueryService.newQuery(queryString[i]);
+            var query = remoteQueryService.newQuery(queryString[i]);
             rs[0][0] = (SelectResults) query.execute();
             assertEquals(numberOfEntries * 2, rs[0][0].size());
 
@@ -1735,10 +1729,10 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
         }
         assertEquals(4 * numberOfEntries, TestObject.numInstance.get());
 
-        for (int i = 3; i < queryString.length; i++) {
+        for (var i = 3; i < queryString.length; i++) {
           try {
             logger.info("### Executing Query on server:" + queryString[i]);
-            Query query = remoteQueryService.newQuery(queryString[i]);
+            var query = remoteQueryService.newQuery(queryString[i]);
             rs[0][0] = (SelectResults) query.execute();
 
             logger.info("### Executing Query locally:" + queryString[i]);
@@ -1790,14 +1784,14 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
   @Test
   public void testRegionIterators() throws CacheException {
 
-    final Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
-    final int numberOfEntries = 10;
+    final var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
+    final var numberOfEntries = 10;
 
-    final String[] queries = new String[] {
+    final var queries = new String[] {
         "SELECT entry.value FROM " + regName + ".entries entry WHERE entry.value.id > 0",
         "SELECT entry.value FROM  " + regName + ".entries entry WHERE entry.key = 'key-1'",
         "SELECT e.value FROM " + regName + ".entrySet e where  e.value.id >= 0",
@@ -1809,7 +1803,7 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       public void run2() throws CacheException {
         configAndStartBridgeServer();
         Region region = getRootRegion().getSubregion(regionName);
-        for (int i = 0; i < numberOfEntries; i++) {
+        for (var i = 0; i < numberOfEntries; i++) {
           region.put("key-" + i, new TestObject(i, "vmware"));
         }
       }
@@ -1829,10 +1823,10 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
     final int port0 = vm0.invoke(PdxQueryDUnitTest::getCacheServerPort);
     final int port1 = vm1.invoke(PdxQueryDUnitTest::getCacheServerPort);
 
-    final String host0 = NetworkUtils.getServerHostName(vm0.getHost());
+    final var host0 = NetworkUtils.getServerHostName(vm0.getHost());
 
     // Create client pool.
-    final String poolName = "testClientServerQueryPool";
+    final var poolName = "testClientServerQueryPool";
     createPool(vm2, poolName, new String[] {host0}, new int[] {port0}, true);
     createPool(vm3, poolName, new String[] {host0}, new int[] {port1}, true);
 
@@ -1842,11 +1836,11 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       public void run2() throws CacheException {
         QueryService localQueryService = null;
 
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
         ClientServerTestCase.configureConnectionPool(factory, host0, port1, -1, true, -1, -1, null);
-        Region region = createRegion(regionName, rootRegionName, factory.create());
-        for (int i = 0; i < numberOfEntries; i++) {
+        var region = createRegion(regionName, rootRegionName, factory.create());
+        for (var i = 0; i < numberOfEntries; i++) {
           region.put("key-" + i, new TestObject(i, "vmware"));
         }
       }
@@ -1858,7 +1852,7 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       public void run2() throws CacheException {
         QueryService remoteQueryService = null;
         QueryService localQueryService = null;
-        SelectResults[][] rs = new SelectResults[1][2];
+        var rs = new SelectResults[1][2];
         try {
           remoteQueryService = (PoolManager.find(poolName)).getQueryService();
           localQueryService = getCache().getQueryService();
@@ -1866,10 +1860,10 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
           Assert.fail("Failed to get QueryService.", e);
         }
 
-        for (final String s : queries) {
+        for (final var s : queries) {
           try {
             logger.info("### Executing Query on server:" + s);
-            Query query = remoteQueryService.newQuery(s);
+            var query = remoteQueryService.newQuery(s);
             rs[0][0] = (SelectResults) query.execute();
 
             logger.info("### Executing Query locally:" + s);
@@ -1904,7 +1898,7 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       @Override
       public void run2() throws CacheException {
         Region region = getRootRegion().getSubregion(regionName);
-        QueryService qs = getCache().getQueryService();
+        var qs = getCache().getQueryService();
         try {
           qs.createIndex("idIndex", IndexType.FUNCTIONAL, "entry.value.id",
               regName + ".entries entry");
@@ -1938,14 +1932,14 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
   @Test
   public void testNestedAndCollectionPdx() throws CacheException {
 
-    final Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
-    final int numberOfEntries = 50;
+    final var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
+    final var numberOfEntries = 50;
 
-    final String[] queries = new String[] {
+    final var queries = new String[] {
         "SELECT * FROM " + regName + " pf where pf.position1.secId > '2'",
         "SELECT * FROM " + regName + " p where p.position3[1].portfolioId = 2",
         "SELECT * FROM " + regName + " p, p.positions.values AS pos WHERE pos.secId != '1'",
@@ -1973,7 +1967,7 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
         Region region1 = getRootRegion().getSubregion(regionName);
         Region region2 = getRootRegion().getSubregion(regionName2);
 
-        for (int i = 0; i < numberOfEntries; i++) {
+        for (var i = 0; i < numberOfEntries; i++) {
           region1.put("key-" + i, new PortfolioPdx(i, i));
           region2.put("key-" + i, new PortfolioPdx(i, i));
         }
@@ -1995,10 +1989,10 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
     final int port0 = vm0.invoke(PdxQueryDUnitTest::getCacheServerPort);
     final int port1 = vm1.invoke(PdxQueryDUnitTest::getCacheServerPort);
 
-    final String host0 = NetworkUtils.getServerHostName(vm0.getHost());
+    final var host0 = NetworkUtils.getServerHostName(vm0.getHost());
 
     // Create client pool.
-    final String poolName = "testClientServerQueryPool";
+    final var poolName = "testClientServerQueryPool";
     createPool(vm2, poolName, new String[] {host0}, new int[] {port0}, true);
     createPool(vm3, poolName, new String[] {host0}, new int[] {port1}, true);
 
@@ -2007,13 +2001,13 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       @Override
       public void run2() throws CacheException {
 
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
         ClientServerTestCase.configureConnectionPool(factory, host0, port1, -1, true, -1, -1, null);
-        Region region1 = createRegion(regionName, rootRegionName, factory.create());
-        Region region2 = createRegion(regionName2, rootRegionName, factory.create());
+        var region1 = createRegion(regionName, rootRegionName, factory.create());
+        var region2 = createRegion(regionName2, rootRegionName, factory.create());
 
-        for (int i = 0; i < numberOfEntries; i++) {
+        for (var i = 0; i < numberOfEntries; i++) {
           region1.put("key-" + i, new PortfolioPdx(i, i));
           region2.put("key-" + i, new PortfolioPdx(i, i));
         }
@@ -2026,7 +2020,7 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       public void run2() throws CacheException {
         QueryService remoteQueryService = null;
         QueryService localQueryService = null;
-        SelectResults[][] rs = new SelectResults[1][2];
+        var rs = new SelectResults[1][2];
         try {
           remoteQueryService = (PoolManager.find(poolName)).getQueryService();
           localQueryService = getCache().getQueryService();
@@ -2034,10 +2028,10 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
           Assert.fail("Failed to get QueryService.", e);
         }
 
-        for (final String s : queries) {
+        for (final var s : queries) {
           try {
             logger.info("### Executing Query on server:" + s);
-            Query query = remoteQueryService.newQuery(s);
+            var query = remoteQueryService.newQuery(s);
             rs[0][0] = (SelectResults) query.execute();
 
             logger.info("### Executing Query locally:" + s);
@@ -2073,7 +2067,7 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       @Override
       public void run2() throws CacheException {
         Region region = getRootRegion().getSubregion(regionName);
-        QueryService qs = getCache().getQueryService();
+        var qs = getCache().getQueryService();
         try {
           qs.createIndex("pkIndex", IndexType.FUNCTIONAL, "portfolio.Pk", regName + " portfolio");
           qs.createIndex("secIdIndex", IndexType.FUNCTIONAL, "pos.secId",
@@ -2119,14 +2113,14 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
   @Test
   public void testNestedAndCollectionPdxWithPR() throws CacheException {
 
-    final Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
-    final int numberOfEntries = 50;
+    final var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
+    final var numberOfEntries = 50;
 
-    final String[] queries = new String[] {
+    final var queries = new String[] {
         "SELECT * FROM " + regName + " pf where pf.position1.secId > '2'",
         "SELECT * FROM " + regName + " p where p.position3[1].portfolioId = 2",
         "SELECT * FROM " + regName + " p, p.positions.values AS pos WHERE pos.secId != '1'",
@@ -2180,10 +2174,10 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
     final int port0 = vm0.invoke(PdxQueryDUnitTest::getCacheServerPort);
     final int port1 = vm1.invoke(PdxQueryDUnitTest::getCacheServerPort);
 
-    final String host0 = NetworkUtils.getServerHostName(vm0.getHost());
+    final var host0 = NetworkUtils.getServerHostName(vm0.getHost());
 
     // Create client pool.
-    final String poolName = "testClientServerQueryPool";
+    final var poolName = "testClientServerQueryPool";
     createPool(vm2, poolName, new String[] {host0}, new int[] {port0}, true);
     createPool(vm3, poolName, new String[] {host0}, new int[] {port1}, true);
 
@@ -2193,13 +2187,13 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       public void run2() throws CacheException {
         QueryService localQueryService = null;
 
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
         ClientServerTestCase.configureConnectionPool(factory, host0, port1, -1, true, -1, -1, null);
-        Region region1 = createRegion(regionName, rootRegionName, factory.create());
-        Region region2 = createRegion(regionName2, rootRegionName, factory.create());
+        var region1 = createRegion(regionName, rootRegionName, factory.create());
+        var region2 = createRegion(regionName2, rootRegionName, factory.create());
 
-        for (int i = 0; i < numberOfEntries; i++) {
+        for (var i = 0; i < numberOfEntries; i++) {
           region1.put("key-" + i, new PortfolioPdx(i, i));
           region2.put("key-" + i, new PortfolioPdx(i, i));
         }
@@ -2212,7 +2206,7 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       public void run2() throws CacheException {
         QueryService remoteQueryService = null;
         QueryService localQueryService = null;
-        SelectResults[][] rs = new SelectResults[1][2];
+        var rs = new SelectResults[1][2];
         try {
           remoteQueryService = (PoolManager.find(poolName)).getQueryService();
           localQueryService = getCache().getQueryService();
@@ -2220,10 +2214,10 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
           Assert.fail("Failed to get QueryService.", e);
         }
 
-        for (final String s : queries) {
+        for (final var s : queries) {
           try {
             logger.info("### Executing Query on server:" + s);
-            Query query = remoteQueryService.newQuery(s);
+            var query = remoteQueryService.newQuery(s);
             rs[0][0] = (SelectResults) query.execute();
 
             logger.info("### Executing Query locally:" + s);
@@ -2259,7 +2253,7 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       @Override
       public void run2() throws CacheException {
         Region region = getRootRegion().getSubregion(regionName);
-        QueryService qs = getCache().getQueryService();
+        var qs = getCache().getQueryService();
         try {
           qs.createIndex("pkIndex", IndexType.FUNCTIONAL, "portfolio.Pk", regName + " portfolio");
           qs.createIndex("idIndex", IndexType.FUNCTIONAL, "pos.secId",
@@ -2324,13 +2318,13 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
   @Test
   public void testPdxIdentity() throws CacheException {
 
-    final Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
-    final int numberOfEntries = 10;
-    final String queryStr =
+    final var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
+    final var numberOfEntries = 10;
+    final var queryStr =
         "SELECT DISTINCT * FROM " + regName + " pf where pf.ID > 2 and pf.ID < 10";
     // Start server1
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
@@ -2355,26 +2349,26 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
     final int port0 = vm0.invoke(PdxQueryDUnitTest::getCacheServerPort);
     final int port1 = vm1.invoke(PdxQueryDUnitTest::getCacheServerPort);
 
-    final String host0 = NetworkUtils.getServerHostName(vm0.getHost());
+    final var host0 = NetworkUtils.getServerHostName(vm0.getHost());
 
     // Create client pool.
-    final String poolName = "testClientServerQueryPool";
+    final var poolName = "testClientServerQueryPool";
     createPool(vm2, poolName, new String[] {host0}, new int[] {port0}, true);
     createPool(vm3, poolName, new String[] {host0}, new int[] {port1}, true);
 
-    final int dupIndex = 2;
+    final var dupIndex = 2;
 
     // Create client region
     vm3.invoke(new CacheSerializableRunnable("Create region") {
       @Override
       public void run2() throws CacheException {
 
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
         ClientServerTestCase.configureConnectionPool(factory, host0, port1, -1, true, -1, -1, null);
-        Region region = createRegion(regionName, rootRegionName, factory.create());
-        int j = 0;
-        for (int i = 0; i < numberOfEntries * 2; i++) {
+        var region = createRegion(regionName, rootRegionName, factory.create());
+        var j = 0;
+        for (var i = 0; i < numberOfEntries * 2; i++) {
           // insert duplicate values.
           if (i % dupIndex == 0) {
             j++;
@@ -2390,7 +2384,7 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       public void run2() throws CacheException {
         QueryService remoteQueryService = null;
         QueryService localQueryService = null;
-        SelectResults[][] rs = new SelectResults[1][2];
+        var rs = new SelectResults[1][2];
         try {
           remoteQueryService = (PoolManager.find(poolName)).getQueryService();
           localQueryService = getCache().getQueryService();
@@ -2398,11 +2392,11 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
           Assert.fail("Failed to get QueryService.", e);
         }
 
-        int expectedResultSize = 7;
+        var expectedResultSize = 7;
 
         try {
           logger.info("### Executing Query on server:" + queryStr);
-          Query query = remoteQueryService.newQuery(queryStr);
+          var query = remoteQueryService.newQuery(queryStr);
           rs[0][0] = (SelectResults) query.execute();
           assertEquals(expectedResultSize, rs[0][0].size());
 
@@ -2446,13 +2440,13 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
    */
   @Test
   public void testFunctionCalls() throws CacheException {
-    final Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
-    final int numberOfEntries = 10;
-    final String[] queryStr =
+    final var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
+    final var numberOfEntries = 10;
+    final var queryStr =
         new String[] {"SELECT * FROM " + regName + " pf where pf.getIdValue() > 0", // 0
             "SELECT * FROM " + regName + " pf where pf.test.getId() > 0", // 1
             "SELECT * FROM " + regName + " pf, pf.positions.values pos where "
@@ -2467,9 +2461,9 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
                 + "pf.getIdValue() > 0 and pos.secId != 'IBM'", // 6
         };
 
-    final int numPositionsPerTestObject = 2;
+    final var numPositionsPerTestObject = 2;
 
-    final int[] numberOfTestObjectForAllQueries = new int[] {numberOfEntries, // Query 0
+    final var numberOfTestObjectForAllQueries = new int[] {numberOfEntries, // Query 0
         0, // Query 1
         0, // Query 2
         numberOfEntries, // Query 3
@@ -2478,7 +2472,7 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
         numberOfEntries, // Query 6
     };
 
-    final int[] numberOfTestObject2ForAllQueries = new int[] {numberOfEntries, // Query 0
+    final var numberOfTestObject2ForAllQueries = new int[] {numberOfEntries, // Query 0
         numberOfEntries, // Query 1
         0, // Query 2
         numberOfEntries, // Query 3
@@ -2487,7 +2481,7 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
         numberOfEntries, // Query 6
     };
 
-    final int[] numberOfPositionPdxForAllQueries =
+    final var numberOfPositionPdxForAllQueries =
         new int[] {(numberOfEntries * numPositionsPerTestObject), // Query 0
             0, // Query 1
             (numberOfEntries * numPositionsPerTestObject), // 2
@@ -2521,26 +2515,26 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
     final int port0 = vm0.invoke(PdxQueryDUnitTest::getCacheServerPort);
     final int port1 = vm1.invoke(PdxQueryDUnitTest::getCacheServerPort);
 
-    final String host0 = NetworkUtils.getServerHostName(vm0.getHost());
+    final var host0 = NetworkUtils.getServerHostName(vm0.getHost());
 
     // Create client pool.
-    final String poolName = "testClientServerQueryPool";
+    final var poolName = "testClientServerQueryPool";
     createPool(vm2, poolName, new String[] {host0}, new int[] {port0}, true);
     createPool(vm3, poolName, new String[] {host0}, new int[] {port1}, true);
 
-    final int dupIndex = 2;
+    final var dupIndex = 2;
 
     // Create client region
     vm3.invoke(new CacheSerializableRunnable("Create region") {
       @Override
       public void run2() throws CacheException {
 
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setScope(Scope.LOCAL);
         ClientServerTestCase.configureConnectionPool(factory, host0, port1, -1, true, -1, -1, null);
-        Region region = createRegion(regionName, rootRegionName, factory.create());
-        int j = 0;
-        for (int i = 0; i < numberOfEntries; i++) {
+        var region = createRegion(regionName, rootRegionName, factory.create());
+        var j = 0;
+        for (var i = 0; i < numberOfEntries; i++) {
           // insert duplicate values.
           if (i % dupIndex == 0) {
             j++;
@@ -2551,10 +2545,10 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
     });
 
 
-    for (int i = 0; i < queryStr.length; i++) {
-      final int testObjectCnt = numberOfTestObjectForAllQueries[i];
-      final int positionObjectCnt = numberOfPositionPdxForAllQueries[i];
-      final int testObjCnt = numberOfTestObject2ForAllQueries[i];
+    for (var i = 0; i < queryStr.length; i++) {
+      final var testObjectCnt = numberOfTestObjectForAllQueries[i];
+      final var positionObjectCnt = numberOfPositionPdxForAllQueries[i];
+      final var testObjCnt = numberOfTestObject2ForAllQueries[i];
 
       executeClientQueries(vm3, poolName, queryStr[i]);
       // Check for TestObject instances on Server2.
@@ -2586,23 +2580,23 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
    */
   @Test
   public void testPutAllWithIndexes() {
-    final String name = "testRegion";
-    final Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
+    final var name = "testRegion";
+    final var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
 
-    final Properties config = new Properties();
+    final var config = new Properties();
     config.setProperty("locators", "localhost[" + DistributedTestUtils.getDUnitLocatorPort() + "]");
 
     // Start server
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
       @Override
       public void run2() throws CacheException {
-        Cache cache = new CacheFactory(config).create();
-        AttributesFactory factory = new AttributesFactory();
-        PartitionAttributesFactory prfactory = new PartitionAttributesFactory();
+        var cache = new CacheFactory(config).create();
+        var factory = new AttributesFactory();
+        var prfactory = new PartitionAttributesFactory();
         prfactory.setRedundantCopies(0);
         factory.setPartitionAttributes(prfactory.create());
         cache.createRegionFactory(factory.create()).create(name);
@@ -2624,9 +2618,9 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
     vm1.invoke(new CacheSerializableRunnable("Create cache server") {
       @Override
       public void run2() throws CacheException {
-        Cache cache = new CacheFactory(config).create();
-        AttributesFactory factory = new AttributesFactory();
-        PartitionAttributesFactory prfactory = new PartitionAttributesFactory();
+        var cache = new CacheFactory(config).create();
+        var factory = new AttributesFactory();
+        var prfactory = new PartitionAttributesFactory();
         prfactory.setRedundantCopies(0);
         factory.setPartitionAttributes(prfactory.create());
         cache.createRegionFactory(factory.create()).create(name);
@@ -2642,9 +2636,9 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
     vm2.invoke(new CacheSerializableRunnable("Create cache server") {
       @Override
       public void run2() throws CacheException {
-        Cache cache = new CacheFactory(config).create();
-        AttributesFactory factory = new AttributesFactory();
-        PartitionAttributesFactory prfactory = new PartitionAttributesFactory();
+        var cache = new CacheFactory(config).create();
+        var factory = new AttributesFactory();
+        var prfactory = new PartitionAttributesFactory();
         prfactory.setRedundantCopies(0);
         factory.setPartitionAttributes(prfactory.create());
         cache.createRegionFactory(factory.create()).create(name);
@@ -2658,15 +2652,15 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
 
     // Create client region
     final int port = vm0.invoke(PdxQueryDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName(vm2.getHost());
+    final var host0 = NetworkUtils.getServerHostName(vm2.getHost());
     vm3.invoke(new CacheSerializableRunnable("Create region") {
       @Override
       public void run2() throws CacheException {
-        Properties config = new Properties();
+        var config = new Properties();
         config.setProperty("mcast-port", "0");
-        ClientCache cache = new ClientCacheFactory(config).addPoolServer(host0, port)
+        var cache = new ClientCacheFactory(config).addPoolServer(host0, port)
             .setPoolPRSingleHopEnabled(true).setPoolSubscriptionEnabled(true).create();
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         cache.createClientRegionFactory(ClientRegionShortcut.PROXY).create(name);
       }
     });
@@ -2676,19 +2670,19 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       @Override
       public void run2() throws CacheException {
         try {
-          ClientCache cache = new ClientCacheFactory().create();
+          var cache = new ClientCacheFactory().create();
           Region region = cache.getRegion(name);
-          QueryService queryService = cache.getQueryService();
+          var queryService = cache.getQueryService();
           String k;
-          for (int x = 0; x < 285; x++) {
+          for (var x = 0; x < 285; x++) {
             k = Integer.valueOf(x).toString();
-            PortfolioPdx v = new PortfolioPdx(x, x);
+            var v = new PortfolioPdx(x, x);
             region.put(k, v);
           }
-          Query q =
+          var q =
               queryService.newQuery("SELECT DISTINCT * from " + SEPARATOR + name + " WHERE ID = 2");
-          SelectResults qResult = (SelectResults) q.execute();
-          for (Object o : qResult.asList()) {
+          var qResult = (SelectResults) q.execute();
+          for (var o : qResult.asList()) {
             System.out.println("o = " + o);
           }
         } catch (Exception e) {
@@ -2710,14 +2704,14 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
   @Test
   public void testLocalMapInPeerTypePdxRegistry() throws CacheException {
 
-    final Host host = Host.getHost(0);
-    final VM vm0 = host.getVM(0);
-    final VM vm1 = host.getVM(1);
-    final VM vm2 = host.getVM(2);
-    final VM vm3 = host.getVM(3);
-    final int numberOfEntries = 10;
-    final String name = SEPARATOR + regionName;
-    final String[] qs = {"select * from " + name + " where pdxStatus = 'active'",
+    final var host = Host.getHost(0);
+    final var vm0 = host.getVM(0);
+    final var vm1 = host.getVM(1);
+    final var vm2 = host.getVM(2);
+    final var vm3 = host.getVM(3);
+    final var numberOfEntries = 10;
+    final var name = SEPARATOR + regionName;
+    final var qs = new String[] {"select * from " + name + " where pdxStatus = 'active'",
         "select pdxStatus from " + name + " where id > 4"};
 
     // Start server1
@@ -2726,8 +2720,8 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       public Object call() throws Exception {
         getCache().createRegionFactory(RegionShortcut.REPLICATE).create(regionName);
 
-        CacheServer server = getCache().addCacheServer();
-        int port = AvailablePortHelper.getRandomAvailableTCPPort();
+        var server = getCache().addCacheServer();
+        var port = AvailablePortHelper.getRandomAvailableTCPPort();
         server.setPort(port);
         server.start();
         return port;
@@ -2740,8 +2734,8 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       public Object call() throws Exception {
         Region r1 = getCache().createRegionFactory(RegionShortcut.REPLICATE).create(regionName);
 
-        CacheServer server = getCache().addCacheServer();
-        int port = AvailablePortHelper.getRandomAvailableTCPPort();
+        var server = getCache().addCacheServer();
+        var port = AvailablePortHelper.getRandomAvailableTCPPort();
         server.setPort(port);
         server.start();
         return port;
@@ -2752,19 +2746,19 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
     vm2.invoke(new SerializableCallable("Create client") {
       @Override
       public Object call() throws Exception {
-        ClientCacheFactory cf = new ClientCacheFactory();
+        var cf = new ClientCacheFactory();
         cf.addPoolServer(NetworkUtils.getServerHostName(vm0.getHost()), port1);
-        ClientCache cache = getClientCache(cf);
+        var cache = getClientCache(cf);
         Region region =
             cache.createClientRegionFactory(ClientRegionShortcut.PROXY).create(regionName);
 
         // Load version 1 objects
-        for (int i = 0; i < numberOfEntries; i++) {
-          PdxInstanceFactory pdxInstanceFactory =
+        for (var i = 0; i < numberOfEntries; i++) {
+          var pdxInstanceFactory =
               PdxInstanceFactoryImpl.newCreator("PdxVersionedNewPortfolio", false, getCache());
           pdxInstanceFactory.writeInt("id", i);
           pdxInstanceFactory.writeString("pdxStatus", (i % 2 == 0 ? "active" : "inactive"));
-          PdxInstance pdxInstance = pdxInstanceFactory.create();
+          var pdxInstance = pdxInstanceFactory.create();
           region.put("key-" + i, pdxInstance);
         }
 
@@ -2776,31 +2770,31 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
     vm3.invoke(new SerializableCallable("Create client") {
       @Override
       public Object call() throws Exception {
-        ClientCacheFactory cf = new ClientCacheFactory();
+        var cf = new ClientCacheFactory();
         cf.addPoolServer(NetworkUtils.getServerHostName(vm1.getHost()), port2);
-        ClientCache cache = getClientCache(cf);
+        var cache = getClientCache(cf);
         Region region =
             cache.createClientRegionFactory(ClientRegionShortcut.PROXY).create(regionName);
         // Load version 2 objects
-        for (int i = numberOfEntries; i < numberOfEntries * 2; i++) {
-          PdxInstanceFactory pdxInstanceFactory =
+        for (var i = numberOfEntries; i < numberOfEntries * 2; i++) {
+          var pdxInstanceFactory =
               PdxInstanceFactoryImpl.newCreator("PdxVersionedNewPortfolio", false, getCache());
           pdxInstanceFactory.writeInt("id", i);
           pdxInstanceFactory.writeString("status", (i % 2 == 0 ? "active" : "inactive"));
-          PdxInstance pdxInstance = pdxInstanceFactory.create();
+          var pdxInstance = pdxInstanceFactory.create();
           region.put("key-" + i, pdxInstance);
         }
         return null;
       }
     });
 
-    final SerializableRunnableIF verifyTwoPdxTypesArePresent = () -> {
-      TypeRegistration registration = getCache().getPdxRegistry().getTypeRegistration();
+    final var verifyTwoPdxTypesArePresent = (SerializableRunnableIF) () -> {
+      var registration = getCache().getPdxRegistry().getTypeRegistration();
       assertTrue(registration instanceof PeerTypeRegistration);
 
-      final Map<Integer, PdxType> types = registration.types();
+      final var types = registration.types();
       assertEquals(2, types.size());
-      for (PdxType type : types.values()) {
+      for (var type : types.values()) {
         assertEquals("PdxVersionedNewPortfolio", type.getClassName());
       }
     };
@@ -2816,14 +2810,14 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
   @Test
   public void testPdxInstanceWithMethodButNoField() throws CacheException {
 
-    final Host host = Host.getHost(0);
-    final VM vm0 = host.getVM(0);
-    final VM vm1 = host.getVM(1);
-    final VM vm2 = host.getVM(2);
-    final VM vm3 = host.getVM(3);
-    final int numberOfEntries = 10;
-    final String name = SEPARATOR + regionName;
-    final String[] qs = {"select * from " + name + " where status = 'active'",
+    final var host = Host.getHost(0);
+    final var vm0 = host.getVM(0);
+    final var vm1 = host.getVM(1);
+    final var vm2 = host.getVM(2);
+    final var vm3 = host.getVM(3);
+    final var numberOfEntries = 10;
+    final var name = SEPARATOR + regionName;
+    final var qs = new String[] {"select * from " + name + " where status = 'active'",
         "select status from " + name + " where id >= 5"};
 
     // Start server1
@@ -2832,8 +2826,8 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       public Object call() throws Exception {
         Region r1 = getCache().createRegionFactory(RegionShortcut.PARTITION).create(regionName);
 
-        CacheServer server = getCache().addCacheServer();
-        int port = AvailablePortHelper.getRandomAvailableTCPPort();
+        var server = getCache().addCacheServer();
+        var port = AvailablePortHelper.getRandomAvailableTCPPort();
         server.setPort(port);
         server.start();
         return port;
@@ -2846,8 +2840,8 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       public Object call() throws Exception {
         Region r1 = getCache().createRegionFactory(RegionShortcut.PARTITION).create(regionName);
 
-        CacheServer server = getCache().addCacheServer();
-        int port = AvailablePortHelper.getRandomAvailableTCPPort();
+        var server = getCache().addCacheServer();
+        var port = AvailablePortHelper.getRandomAvailableTCPPort();
         server.setPort(port);
         server.start();
         return port;
@@ -2860,8 +2854,8 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       public Object call() throws Exception {
         Region r1 = getCache().createRegionFactory(RegionShortcut.PARTITION).create(regionName);
 
-        CacheServer server = getCache().addCacheServer();
-        int port = AvailablePortHelper.getRandomAvailableTCPPort();
+        var server = getCache().addCacheServer();
+        var port = AvailablePortHelper.getRandomAvailableTCPPort();
         server.setPort(port);
         server.start();
         return port;
@@ -2872,15 +2866,15 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
     vm3.invoke(new SerializableCallable("Create client") {
       @Override
       public Object call() throws Exception {
-        ClientCacheFactory cf = new ClientCacheFactory();
+        var cf = new ClientCacheFactory();
         cf.addPoolServer(NetworkUtils.getServerHostName(vm0.getHost()), port1);
         cf.addPoolServer(NetworkUtils.getServerHostName(vm1.getHost()), port2);
         cf.addPoolServer(NetworkUtils.getServerHostName(vm2.getHost()), port3);
-        ClientCache cache = getClientCache(cf);
+        var cache = getClientCache(cf);
         Region region =
             cache.createClientRegionFactory(ClientRegionShortcut.PROXY).create(regionName);
 
-        for (int i = 0; i < numberOfEntries; i++) {
+        for (var i = 0; i < numberOfEntries; i++) {
           region.put("key-" + i, new TestObject(i, "vmware"));
         }
         return null;
@@ -2898,9 +2892,9 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
           Assert.fail("Failed to get QueryService.", e);
         }
 
-        for (final String q : qs) {
+        for (final var q : qs) {
           try {
-            SelectResults sr = (SelectResults) remoteQueryService.newQuery(q).execute();
+            var sr = (SelectResults) remoteQueryService.newQuery(q).execute();
             assertEquals(5, sr.size());
           } catch (Exception e) {
             Assert.fail("Failed executing " + q, e);
@@ -2939,9 +2933,9 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
           Assert.fail("Failed to get QueryService.", e);
         }
 
-        for (final String q : qs) {
+        for (final var q : qs) {
           try {
-            SelectResults sr = (SelectResults) remoteQueryService.newQuery(q).execute();
+            var sr = (SelectResults) remoteQueryService.newQuery(q).execute();
             assertEquals(5, sr.size());
           } catch (Exception e) {
             Assert.fail("Failed executing " + q, e);
@@ -2962,14 +2956,14 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
   @Test
   public void testPdxInstanceFieldInOtherVersion() throws CacheException {
 
-    final Host host = Host.getHost(0);
-    final VM vm0 = host.getVM(0);
-    final VM vm1 = host.getVM(1);
-    final VM vm2 = host.getVM(2);
-    final VM vm3 = host.getVM(3);
-    final int numberOfEntries = 10;
-    final String name = SEPARATOR + regionName;
-    final String[] qs = {"select pdxStatus from " + name + " where pdxStatus = 'active'",
+    final var host = Host.getHost(0);
+    final var vm0 = host.getVM(0);
+    final var vm1 = host.getVM(1);
+    final var vm2 = host.getVM(2);
+    final var vm3 = host.getVM(3);
+    final var numberOfEntries = 10;
+    final var name = SEPARATOR + regionName;
+    final var qs = new String[] {"select pdxStatus from " + name + " where pdxStatus = 'active'",
         "select pdxStatus from " + name + " where id > 8 and id < 14"};
 
     // Start server1
@@ -2978,8 +2972,8 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       public Object call() throws Exception {
         Region r1 = getCache().createRegionFactory(RegionShortcut.REPLICATE).create(regionName);
 
-        CacheServer server = getCache().addCacheServer();
-        int port = AvailablePortHelper.getRandomAvailableTCPPort();
+        var server = getCache().addCacheServer();
+        var port = AvailablePortHelper.getRandomAvailableTCPPort();
         server.setPort(port);
         server.start();
         return port;
@@ -2992,8 +2986,8 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       public Object call() throws Exception {
         Region r1 = getCache().createRegionFactory(RegionShortcut.REPLICATE).create(regionName);
 
-        CacheServer server = getCache().addCacheServer();
-        int port = AvailablePortHelper.getRandomAvailableTCPPort();
+        var server = getCache().addCacheServer();
+        var port = AvailablePortHelper.getRandomAvailableTCPPort();
         server.setPort(port);
         server.start();
         return port;
@@ -3004,19 +2998,19 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
     vm2.invoke(new SerializableCallable("Create client") {
       @Override
       public Object call() throws Exception {
-        ClientCacheFactory cf = new ClientCacheFactory();
+        var cf = new ClientCacheFactory();
         cf.addPoolServer(NetworkUtils.getServerHostName(vm0.getHost()), port1);
-        ClientCache cache = getClientCache(cf);
+        var cache = getClientCache(cf);
         Region region =
             cache.createClientRegionFactory(ClientRegionShortcut.PROXY).create(regionName);
 
         // Load version 1 objects
-        for (int i = 0; i < numberOfEntries; i++) {
-          PdxInstanceFactory pdxInstanceFactory =
+        for (var i = 0; i < numberOfEntries; i++) {
+          var pdxInstanceFactory =
               PdxInstanceFactoryImpl.newCreator("PdxVersionedNewPortfolio", false, getCache());
           pdxInstanceFactory.writeInt("id", i);
           pdxInstanceFactory.writeString("pdxStatus", (i % 2 == 0 ? "active" : "inactive"));
-          PdxInstance pdxInstance = pdxInstanceFactory.create();
+          var pdxInstance = pdxInstanceFactory.create();
           region.put("key-" + i, pdxInstance);
         }
 
@@ -3028,18 +3022,18 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
     vm3.invoke(new SerializableCallable("Create client") {
       @Override
       public Object call() throws Exception {
-        ClientCacheFactory cf = new ClientCacheFactory();
+        var cf = new ClientCacheFactory();
         cf.addPoolServer(NetworkUtils.getServerHostName(vm1.getHost()), port2);
-        ClientCache cache = getClientCache(cf);
+        var cache = getClientCache(cf);
         Region region =
             cache.createClientRegionFactory(ClientRegionShortcut.PROXY).create(regionName);
         // Load version 2 objects
-        for (int i = numberOfEntries; i < numberOfEntries * 2; i++) {
-          PdxInstanceFactory pdxInstanceFactory =
+        for (var i = numberOfEntries; i < numberOfEntries * 2; i++) {
+          var pdxInstanceFactory =
               PdxInstanceFactoryImpl.newCreator("PdxVersionedNewPortfolio", false, getCache());
           pdxInstanceFactory.writeInt("id", i);
           pdxInstanceFactory.writeString("status", (i % 2 == 0 ? "active" : "inactive"));
-          PdxInstance pdxInstance = pdxInstanceFactory.create();
+          var pdxInstance = pdxInstanceFactory.create();
           region.put("key-" + i, pdxInstance);
         }
         return null;
@@ -3058,12 +3052,12 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
           Assert.fail("Failed to get QueryService.", e);
         }
 
-        for (int i = 0; i < qs.length; i++) {
+        for (var i = 0; i < qs.length; i++) {
           try {
-            SelectResults sr = (SelectResults) remoteQueryService.newQuery(qs[i]).execute();
+            var sr = (SelectResults) remoteQueryService.newQuery(qs[i]).execute();
             assertEquals(5, sr.size());
             if (i == 1) {
-              for (Object o : sr) {
+              for (var o : sr) {
                 if (o == null) {
                 } else if (o instanceof String) {
                 } else {
@@ -3091,12 +3085,12 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
           Assert.fail("Failed to get QueryService.", e);
         }
 
-        for (int i = 0; i < qs.length; i++) {
+        for (var i = 0; i < qs.length; i++) {
           try {
-            SelectResults sr = (SelectResults) remoteQueryService.newQuery(qs[i]).execute();
+            var sr = (SelectResults) remoteQueryService.newQuery(qs[i]).execute();
             assertEquals(5, sr.size());
             if (i == 1) {
-              for (Object o : sr) {
+              for (var o : sr) {
                 if (o == null) {
                 } else if (o instanceof String) {
                 } else {
@@ -3116,7 +3110,7 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
     vm0.invoke(new SerializableCallable("Create client") {
       @Override
       public Object call() throws Exception {
-        GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
+        var cache = (GemFireCacheImpl) getCache();
         cache.setReadSerializedForTest(true);
         QueryService queryService = null;
         try {
@@ -3125,12 +3119,12 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
           Assert.fail("Failed to get QueryService.", e);
         }
 
-        for (int i = 0; i < qs.length; i++) {
+        for (var i = 0; i < qs.length; i++) {
           try {
-            SelectResults sr = (SelectResults) queryService.newQuery(qs[i]).execute();
+            var sr = (SelectResults) queryService.newQuery(qs[i]).execute();
             assertEquals(5, sr.size());
             if (i == 1) {
-              for (Object o : sr) {
+              for (var o : sr) {
                 if (o == null) {
                 } else if (o instanceof String) {
                 } else {
@@ -3175,9 +3169,9 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
           Assert.fail("Failed to get QueryService.", e);
         }
 
-        for (final String q : qs) {
+        for (final var q : qs) {
           try {
-            SelectResults sr = (SelectResults) remoteQueryService.newQuery(q).execute();
+            var sr = (SelectResults) remoteQueryService.newQuery(q).execute();
             assertEquals(5, sr.size());
           } catch (Exception e) {
             Assert.fail("Failed executing " + q, e);
@@ -3199,14 +3193,14 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
   @Test
   public void testClientForFieldInOtherVersion() throws CacheException {
 
-    final Host host = Host.getHost(0);
-    final VM vm0 = host.getVM(0);
-    final VM vm1 = host.getVM(1);
-    final VM vm2 = host.getVM(2);
-    final VM vm3 = host.getVM(3);
-    final int numberOfEntries = 10;
-    final String name = SEPARATOR + regionName;
-    final String[] qs = {"select pdxStatus from " + name + " where pdxStatus = 'active'",
+    final var host = Host.getHost(0);
+    final var vm0 = host.getVM(0);
+    final var vm1 = host.getVM(1);
+    final var vm2 = host.getVM(2);
+    final var vm3 = host.getVM(3);
+    final var numberOfEntries = 10;
+    final var name = SEPARATOR + regionName;
+    final var qs = new String[] {"select pdxStatus from " + name + " where pdxStatus = 'active'",
         "select status from " + name + " where id > 8 and id < 14"};
 
     // Start server1
@@ -3215,8 +3209,8 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       public Object call() throws Exception {
         Region r1 = getCache().createRegionFactory(RegionShortcut.REPLICATE).create(regionName);
 
-        CacheServer server = getCache().addCacheServer();
-        int port = AvailablePortHelper.getRandomAvailableTCPPort();
+        var server = getCache().addCacheServer();
+        var port = AvailablePortHelper.getRandomAvailableTCPPort();
         server.setPort(port);
         server.start();
         return port;
@@ -3229,8 +3223,8 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       public Object call() throws Exception {
         Region r1 = getCache().createRegionFactory(RegionShortcut.REPLICATE).create(regionName);
 
-        CacheServer server = getCache().addCacheServer();
-        int port = AvailablePortHelper.getRandomAvailableTCPPort();
+        var server = getCache().addCacheServer();
+        var port = AvailablePortHelper.getRandomAvailableTCPPort();
         server.setPort(port);
         server.start();
         return port;
@@ -3241,10 +3235,10 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
     vm2.invoke(new SerializableCallable("Create client") {
       @Override
       public Object call() throws Exception {
-        ClientCacheFactory cf = new ClientCacheFactory();
+        var cf = new ClientCacheFactory();
         cf.setPoolSubscriptionEnabled(true);
         cf.addPoolServer(NetworkUtils.getServerHostName(vm1.getHost()), port2);
-        ClientCache cache = getClientCache(cf);
+        var cache = getClientCache(cf);
         Region region =
             cache.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY).create(regionName);
         region.registerInterest("ALL_KEYS");
@@ -3256,27 +3250,27 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
     vm3.invoke(new SerializableCallable("Create client") {
       @Override
       public Object call() throws Exception {
-        ClientCacheFactory cf = new ClientCacheFactory();
+        var cf = new ClientCacheFactory();
         cf.addPoolServer(NetworkUtils.getServerHostName(vm0.getHost()), port1);
-        ClientCache cache = getClientCache(cf);
+        var cache = getClientCache(cf);
         Region region =
             cache.createClientRegionFactory(ClientRegionShortcut.PROXY).create(regionName);
 
         // Load version 1 objects
-        for (int i = 0; i < numberOfEntries; i++) {
-          PdxInstanceFactory pdxFactory = cache.createPdxInstanceFactory("PdxPortfolio");
+        for (var i = 0; i < numberOfEntries; i++) {
+          var pdxFactory = cache.createPdxInstanceFactory("PdxPortfolio");
           pdxFactory.writeString("pdxStatus", (i % 2 == 0 ? "active" : "inactive"));
           pdxFactory.writeInt("id", i);
-          PdxInstance pdxInstance = pdxFactory.create();
+          var pdxInstance = pdxFactory.create();
           region.put("key-" + i, pdxInstance);
 
         }
         // Load version 2 objects
-        for (int i = numberOfEntries; i < numberOfEntries * 2; i++) {
-          PdxInstanceFactory pdxFactory = cache.createPdxInstanceFactory("PdxPortfolio");
+        for (var i = numberOfEntries; i < numberOfEntries * 2; i++) {
+          var pdxFactory = cache.createPdxInstanceFactory("PdxPortfolio");
           pdxFactory.writeString("status", i % 2 == 0 ? "active" : "inactive");
           pdxFactory.writeInt("id", i);
-          PdxInstance pdxInstance = pdxFactory.create();
+          var pdxInstance = pdxFactory.create();
           region.put("key-" + i, pdxInstance);
         }
 
@@ -3288,7 +3282,7 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
     vm2.invoke(new SerializableCallable("Create client") {
       @Override
       public Object call() throws Exception {
-        GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
+        var cache = (GemFireCacheImpl) getCache();
         cache.setReadSerializedForTest(true);
         QueryService localQueryService = null;
         // Execute query remotely
@@ -3298,12 +3292,12 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
           Assert.fail("Failed to get QueryService.", e);
         }
 
-        for (int i = 0; i < qs.length; i++) {
+        for (var i = 0; i < qs.length; i++) {
           try {
-            SelectResults sr = (SelectResults) localQueryService.newQuery(qs[i]).execute();
+            var sr = (SelectResults) localQueryService.newQuery(qs[i]).execute();
             assertEquals(5, sr.size());
             if (i == 1) {
-              for (Object o : sr) {
+              for (var o : sr) {
                 if (o == null) {
                 } else if (o instanceof String) {
                 } else {
@@ -3316,11 +3310,11 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
           }
         }
         // check if the types registered on server are fetched by the client
-        TypeRegistration registration = getCache().getPdxRegistry().getTypeRegistration();
+        var registration = getCache().getPdxRegistry().getTypeRegistration();
         assertTrue(registration instanceof ClientTypeRegistration);
-        Map<Integer, PdxType> m = registration.types();
+        var m = registration.types();
         assertEquals(2, m.size());
-        for (PdxType type : m.values()) {
+        for (var type : m.values()) {
           assertEquals("PdxPortfolio", type.getClassName());
         }
         return null;
@@ -3338,12 +3332,12 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
   @Test
   public void testPdxInstanceNoFieldNoMethod() throws CacheException {
 
-    final Host host = Host.getHost(0);
-    final VM vm0 = host.getVM(0);
-    final VM vm3 = host.getVM(3);
-    final int numberOfEntries = 10;
-    final String name = SEPARATOR + regionName;
-    final String[] qs = {"select * from " + name + " where pdxStatus = 'active'",
+    final var host = Host.getHost(0);
+    final var vm0 = host.getVM(0);
+    final var vm3 = host.getVM(3);
+    final var numberOfEntries = 10;
+    final var name = SEPARATOR + regionName;
+    final var qs = new String[] {"select * from " + name + " where pdxStatus = 'active'",
         "select pdxStatus from " + name + " where id > 4"};
 
     // Start server1
@@ -3352,8 +3346,8 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       public Object call() throws Exception {
         Region r1 = getCache().createRegionFactory(RegionShortcut.REPLICATE).create(regionName);
 
-        CacheServer server = getCache().addCacheServer();
-        int port = AvailablePortHelper.getRandomAvailableTCPPort();
+        var server = getCache().addCacheServer();
+        var port = AvailablePortHelper.getRandomAvailableTCPPort();
         server.setPort(port);
         server.start();
         return port;
@@ -3364,19 +3358,19 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
     vm3.invoke(new SerializableCallable("Create client") {
       @Override
       public Object call() throws Exception {
-        ClientCacheFactory cf = new ClientCacheFactory();
+        var cf = new ClientCacheFactory();
         cf.addPoolServer(NetworkUtils.getServerHostName(vm0.getHost()), port1);
-        ClientCache cache = getClientCache(cf);
+        var cache = getClientCache(cf);
         Region region =
             cache.createClientRegionFactory(ClientRegionShortcut.PROXY).create(regionName);
 
         // Load version 1 objects
-        for (int i = 0; i < numberOfEntries; i++) {
-          PdxInstanceFactory pdxInstanceFactory =
+        for (var i = 0; i < numberOfEntries; i++) {
+          var pdxInstanceFactory =
               PdxInstanceFactoryImpl.newCreator("PdxVersionedNewPortfolio", false, getCache());
           pdxInstanceFactory.writeInt("id", i);
           pdxInstanceFactory.writeString("status", (i % 2 == 0 ? "active" : "inactive"));
-          PdxInstance pdxInstance = pdxInstanceFactory.create();
+          var pdxInstance = pdxInstanceFactory.create();
           region.put("key-" + i, pdxInstance);
         }
         return null;
@@ -3396,12 +3390,12 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
           Assert.fail("Failed to get QueryService.", e);
         }
 
-        for (int i = 0; i < qs.length; i++) {
+        for (var i = 0; i < qs.length; i++) {
           try {
-            SelectResults sr = (SelectResults) remoteQueryService.newQuery(qs[i]).execute();
+            var sr = (SelectResults) remoteQueryService.newQuery(qs[i]).execute();
             if (i == 1) {
               assertEquals(5, sr.size());
-              for (Object o : sr) {
+              for (var o : sr) {
                 if (!(o instanceof Undefined)) {
                   fail("Result should be Undefined and not " + o.getClass());
                 }
@@ -3427,12 +3421,12 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
    */
   @Test
   public void testDefaultValuesInPdxFieldTypes() throws Exception {
-    final Host host = Host.getHost(0);
-    final VM vm0 = host.getVM(0);
-    final VM vm1 = host.getVM(1);
-    final int numberOfEntries = 10;
-    final String name = SEPARATOR + regionName;
-    final String query =
+    final var host = Host.getHost(0);
+    final var vm0 = host.getVM(0);
+    final var vm1 = host.getVM(1);
+    final var numberOfEntries = 10;
+    final var name = SEPARATOR + regionName;
+    final var query =
         "select stringField, booleanField, charField, shortField, intField, longField, floatField, doubleField from "
             + name;
 
@@ -3441,8 +3435,8 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       @Override
       public Object call() throws Exception {
         Region r1 = getCache().createRegionFactory(RegionShortcut.REPLICATE).create(regionName);
-        CacheServer server = getCache().addCacheServer();
-        int port = AvailablePortHelper.getRandomAvailableTCPPort();
+        var server = getCache().addCacheServer();
+        var port = AvailablePortHelper.getRandomAvailableTCPPort();
         server.setPort(port);
         server.start();
         return port;
@@ -3453,34 +3447,34 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
     vm1.invoke(new SerializableCallable("Create client") {
       @Override
       public Object call() throws Exception {
-        ClientCacheFactory cf = new ClientCacheFactory();
+        var cf = new ClientCacheFactory();
         cf.addPoolServer(NetworkUtils.getServerHostName(vm0.getHost()), port1);
-        ClientCache cache = getClientCache(cf);
+        var cache = getClientCache(cf);
         Region region =
             cache.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY).create(regionName);
 
         // Load version 1 objects
-        for (int i = 0; i < numberOfEntries; i++) {
-          PdxInstanceFactory pdxInstanceFactory =
+        for (var i = 0; i < numberOfEntries; i++) {
+          var pdxInstanceFactory =
               PdxInstanceFactoryImpl.newCreator("PdxVersionedFieldType", false, getCache());
           pdxInstanceFactory.writeString("stringField", "" + i);
           pdxInstanceFactory.writeBoolean("booleanField", (i % 2 == 0));
           pdxInstanceFactory.writeChar("charField", ((char) i));
           pdxInstanceFactory.writeShort("shortField", new Integer(i).shortValue());
-          PdxInstance pdxInstance = pdxInstanceFactory.create();
+          var pdxInstance = pdxInstanceFactory.create();
           logger.info("Putting object: " + pdxInstance);
           region.put("key-" + i, pdxInstance);
         }
 
         // Load version 2 objects
-        for (int i = numberOfEntries; i < numberOfEntries * 2; i++) {
-          PdxInstanceFactory pdxInstanceFactory =
+        for (var i = numberOfEntries; i < numberOfEntries * 2; i++) {
+          var pdxInstanceFactory =
               PdxInstanceFactoryImpl.newCreator("PdxVersionedFieldType", false, getCache());
           pdxInstanceFactory.writeInt("intField", i);
           pdxInstanceFactory.writeLong("longField", new Integer(i + 1).longValue());
           pdxInstanceFactory.writeFloat("floatField", new Integer(i + 2).floatValue());
           pdxInstanceFactory.writeDouble("doubleField", new Integer(i + 3).doubleValue());
-          PdxInstance pdxInstance = pdxInstanceFactory.create();
+          var pdxInstance = pdxInstanceFactory.create();
           logger.info("Putting object: " + pdxInstance);
           region.put("key-" + i, pdxInstance);
         }
@@ -3493,11 +3487,11 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
     vm0.invoke(new SerializableCallable("Create index") {
       @Override
       public Object call() throws Exception {
-        GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
+        var cache = (GemFireCacheImpl) getCache();
         cache.setReadSerializedForTest(true);
 
         QueryService qs = null;
-        SelectResults[][] sr = new SelectResults[1][2];
+        var sr = new SelectResults[1][2];
         // Execute query locally
         try {
           qs = getCache().getQueryService();
@@ -3548,27 +3542,27 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
         Region region = getCache().getRegion(regionName);
 
         // Load version 1 objects
-        for (int i = numberOfEntries; i < numberOfEntries * 2; i++) {
-          PdxInstanceFactory pdxInstanceFactory =
+        for (var i = numberOfEntries; i < numberOfEntries * 2; i++) {
+          var pdxInstanceFactory =
               PdxInstanceFactoryImpl.newCreator("PdxVersionedFieldType", false, getCache());
           pdxInstanceFactory.writeString("stringField", "" + i);
           pdxInstanceFactory.writeBoolean("booleanField", (i % 2 == 0));
           pdxInstanceFactory.writeChar("charField", ((char) i));
           pdxInstanceFactory.writeShort("shortField", new Integer(i).shortValue());
-          PdxInstance pdxInstance = pdxInstanceFactory.create();
+          var pdxInstance = pdxInstanceFactory.create();
           logger.info("Putting object: " + pdxInstance);
           region.put("key-" + i, pdxInstance);
         }
 
         // Load version 2 objects
-        for (int i = 0; i < numberOfEntries; i++) {
-          PdxInstanceFactory pdxInstanceFactory =
+        for (var i = 0; i < numberOfEntries; i++) {
+          var pdxInstanceFactory =
               PdxInstanceFactoryImpl.newCreator("PdxVersionedFieldType", false, getCache());
           pdxInstanceFactory.writeInt("intField", i);
           pdxInstanceFactory.writeLong("longField", new Integer(i + 1).longValue());
           pdxInstanceFactory.writeFloat("floatField", new Integer(i + 2).floatValue());
           pdxInstanceFactory.writeDouble("doubleField", new Integer(i + 3).doubleValue());
-          PdxInstance pdxInstance = pdxInstanceFactory.create();
+          var pdxInstance = pdxInstanceFactory.create();
           logger.info("Putting object: " + pdxInstance);
           region.put("key-" + i, pdxInstance);
         }
@@ -3582,7 +3576,7 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       public Object call() throws Exception {
         QueryService remoteQueryService = null;
         QueryService localQueryService = null;
-        SelectResults[][] sr = new SelectResults[1][2];
+        var sr = new SelectResults[1][2];
         // Execute query locally
         try {
           remoteQueryService = getCache().getQueryService();
@@ -3614,9 +3608,9 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
   @Test
   public void testJSONWithHeterogenousObjectsDifferingFields() throws CacheException {
 
-    final Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    final var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
     // Start server1
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
@@ -3624,9 +3618,9 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       public void run2() throws CacheException {
         configAndStartBridgeServer();
         Region region = getCache().createRegionFactory(RegionShortcut.REPLICATE).create("testJson");
-        String obj1 =
+        var obj1 =
             "{ \"FirstName\": \"Vinay\", \"LastName\": \"Upadhya\", \"Address\": [ { \"Line1\": \"NYC\", \"phones\": [ { \"number\": \"212\" }, { \"number\": \"313\" } ] }, { \"Line1\": \"NJ\", \"phones\": [ { \"number\": \"412\" }, { \"number\": \"513\" } ] } ] }";
-        String obj2 =
+        var obj2 =
             "{ \"FirstName\": \"Vinay\", \"LastName\": \"Upadhya\", \"Address\": [ { \"Line1\": \"NYC\", \"phones\": [ { \"number\": \"212\" }, { \"number\": \"313\" } ] }, { \"Line1\": \"NJ\" } ] }";
         region.put("value1", JSONFormatter.fromJSON(obj1));
         region.put("value2", JSONFormatter.fromJSON(obj2));
@@ -3642,10 +3636,10 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
         getCache().createRegionFactory(RegionShortcut.REPLICATE).create("testJson");
 
         // Execute query with different type of Results.
-        QueryService qs = getCache().getQueryService();
+        var qs = getCache().getQueryService();
 
         try {
-          SelectResults results = (SelectResults) qs
+          var results = (SelectResults) qs
               .newQuery(
                   "select r from " + SEPARATOR
                       + "testJson r, r.Address a, a.phones pn where pn.number = '412'")
@@ -3668,9 +3662,9 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
   @Test
   public void testJSONWithHeterogenousObjectsDifferingFieldTypes() throws CacheException {
 
-    final Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    final var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
     // Start server1
     vm0.invoke(new CacheSerializableRunnable("Create cache server") {
@@ -3678,9 +3672,9 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       public void run2() throws CacheException {
         configAndStartBridgeServer();
         Region region = getCache().createRegionFactory(RegionShortcut.REPLICATE).create("testJson");
-        String obj1 =
+        var obj1 =
             "{\"FirstName\": \"Vinay\", \"LastName\": \"Upadhya\", \"Address\": [ { \"Line1\": \"NYC\" }, { \"Line1\": \"NJ\" } ] }";
-        String obj2 =
+        var obj2 =
             "{ \"FirstName\": \"Vinay\", \"LastName\": \"Upadhya\", \"Address\": \"my address\" }";
         region.put("value1", JSONFormatter.fromJSON(obj2));
         region.put("value2", JSONFormatter.fromJSON(obj1));
@@ -3695,9 +3689,9 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
         configAndStartBridgeServer();
         getCache().createRegionFactory(RegionShortcut.REPLICATE).create("testJson");
         // Execute query with different type of Results.
-        QueryService qs = getCache().getQueryService();
+        var qs = getCache().getQueryService();
         try {
-          SelectResults result = (SelectResults) qs
+          var result = (SelectResults) qs
               .newQuery(
                   "select r from " + SEPARATOR + "testJson r, r.Address a where a.Line1 = 'NYC'")
               .execute();
@@ -3724,14 +3718,14 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
 
   @Test
   public void testAggregateQueries() {
-    VM vm0 = VM.getVM(0);
-    VM vm1 = VM.getVM(1);
-    VM vm2 = VM.getVM(2);
+    var vm0 = VM.getVM(0);
+    var vm1 = VM.getVM(1);
+    var vm2 = VM.getVM(2);
 
     final int port0 = vm0.invoke(() -> {
       configAndStartBridgeServer();
       Region region = getRootRegion().getSubregion(regionName);
-      for (int i = 0; i < 10; i++) {
+      for (var i = 0; i < 10; i++) {
         region.put("key-" + i, new TestObject(i, "val-" + i));
       }
       return getCacheServerPort();
@@ -3742,22 +3736,22 @@ public class PdxQueryDUnitTest extends PDXQueryTestBase {
       return getCacheServerPort();
     });
 
-    final String host0 = NetworkUtils.getServerHostName();
+    final var host0 = NetworkUtils.getServerHostName();
 
-    final String poolName = "testClientServerQueryPool";
+    final var poolName = "testClientServerQueryPool";
     createPool(vm2, poolName, new String[] {host0}, new int[] {port1}, true);
 
     vm2.invoke(() -> {
-      QueryService queryService = PoolManager.find(poolName).getQueryService();
-      Query query = queryService.newQuery("select SUM(price) from " + regName + " where id > 0");
+      var queryService = PoolManager.find(poolName).getQueryService();
+      var query = queryService.newQuery("select SUM(price) from " + regName + " where id > 0");
       SelectResults<Object> selectResults = (SelectResults) query.execute();
       assertEquals(1, selectResults.size());
       assertEquals(45, selectResults.asList().get(0));
     });
 
     vm2.invoke(() -> {
-      QueryService queryService = PoolManager.find(poolName).getQueryService();
-      Query query = queryService.newQuery("select SUM(price) from " + regName + " where id > 9");
+      var queryService = PoolManager.find(poolName).getQueryService();
+      var query = queryService.newQuery("select SUM(price) from " + regName + " where id > 9");
       SelectResults<Long> selectResults = (SelectResults) query.execute();
       assertEquals(0, selectResults.size());
       assertEquals(0, selectResults.asList().size());

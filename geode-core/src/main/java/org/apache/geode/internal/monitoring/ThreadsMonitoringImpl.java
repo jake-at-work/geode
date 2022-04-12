@@ -92,7 +92,7 @@ public class ThreadsMonitoringImpl implements ThreadsMonitoring {
 
   @Override
   public void updateThreadStatus() {
-    AbstractExecutor executor = monitorMap.get(Thread.currentThread().getId());
+    var executor = monitorMap.get(Thread.currentThread().getId());
     if (executor != null) {
       executor.setStartTime(System.currentTimeMillis());
     }
@@ -100,7 +100,7 @@ public class ThreadsMonitoringImpl implements ThreadsMonitoring {
 
   @Override
   public boolean startMonitor(Mode mode) {
-    AbstractExecutor executor = createAbstractExecutor(mode);
+    var executor = createAbstractExecutor(mode);
     executor.setStartTime(System.currentTimeMillis());
     return register(executor);
   }
@@ -112,7 +112,7 @@ public class ThreadsMonitoringImpl implements ThreadsMonitoring {
 
   @VisibleForTesting
   boolean isMonitoring() {
-    AbstractExecutor executor = monitorMap.get(Thread.currentThread().getId());
+    var executor = monitorMap.get(Thread.currentThread().getId());
     if (executor == null) {
       return false;
     }

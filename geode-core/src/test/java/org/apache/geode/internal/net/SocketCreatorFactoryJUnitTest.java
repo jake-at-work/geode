@@ -104,10 +104,10 @@ public class SocketCreatorFactoryJUnitTest {
 
   @Test
   public void testNewSSLConfigSSLComponentLocator() throws Exception {
-    Properties properties =
+    var properties =
         configureSSLProperties(SecurableCommunicationChannel.LOCATOR.getConstant());
 
-    DistributionConfigImpl distributionConfig = new DistributionConfigImpl(properties);
+    var distributionConfig = new DistributionConfigImpl(properties);
     SocketCreatorFactory.setDistributionConfig(distributionConfig);
 
     assertTrue(SocketCreatorFactory
@@ -126,9 +126,9 @@ public class SocketCreatorFactoryJUnitTest {
 
   @Test
   public void testNewSSLConfigSSLComponentALL() throws Exception {
-    Properties properties = configureSSLProperties(SecurableCommunicationChannel.ALL.getConstant());
+    var properties = configureSSLProperties(SecurableCommunicationChannel.ALL.getConstant());
 
-    DistributionConfigImpl distributionConfig = new DistributionConfigImpl(properties);
+    var distributionConfig = new DistributionConfigImpl(properties);
     SocketCreatorFactory.setDistributionConfig(distributionConfig);
 
     assertTrue(SocketCreatorFactory
@@ -147,10 +147,10 @@ public class SocketCreatorFactoryJUnitTest {
 
   @Test
   public void testNewSSLConfigSSLComponentCLUSTER() throws Exception {
-    Properties properties =
+    var properties =
         configureSSLProperties(SecurableCommunicationChannel.CLUSTER.getConstant());
 
-    DistributionConfigImpl distributionConfig = new DistributionConfigImpl(properties);
+    var distributionConfig = new DistributionConfigImpl(properties);
     SocketCreatorFactory.setDistributionConfig(distributionConfig);
 
     assertTrue(SocketCreatorFactory
@@ -169,10 +169,10 @@ public class SocketCreatorFactoryJUnitTest {
 
   @Test
   public void testNewSSLConfigSSLComponentGATEWAY() throws Exception {
-    Properties properties =
+    var properties =
         configureSSLProperties(SecurableCommunicationChannel.GATEWAY.getConstant());
 
-    DistributionConfigImpl distributionConfig = new DistributionConfigImpl(properties);
+    var distributionConfig = new DistributionConfigImpl(properties);
     SocketCreatorFactory.setDistributionConfig(distributionConfig);
 
     assertFalse(SocketCreatorFactory
@@ -191,9 +191,9 @@ public class SocketCreatorFactoryJUnitTest {
 
   @Test
   public void testNewSSLConfigSSLComponentHTTP_SERVICE() throws Exception {
-    Properties properties = configureSSLProperties(SecurableCommunicationChannel.WEB.getConstant());
+    var properties = configureSSLProperties(SecurableCommunicationChannel.WEB.getConstant());
 
-    DistributionConfigImpl distributionConfig = new DistributionConfigImpl(properties);
+    var distributionConfig = new DistributionConfigImpl(properties);
     SocketCreatorFactory.setDistributionConfig(distributionConfig);
 
     assertFalse(SocketCreatorFactory
@@ -212,9 +212,9 @@ public class SocketCreatorFactoryJUnitTest {
 
   @Test
   public void testNewSSLConfigSSLComponentJMX() throws Exception {
-    Properties properties = configureSSLProperties(SecurableCommunicationChannel.JMX.getConstant());
+    var properties = configureSSLProperties(SecurableCommunicationChannel.JMX.getConstant());
 
-    DistributionConfigImpl distributionConfig = new DistributionConfigImpl(properties);
+    var distributionConfig = new DistributionConfigImpl(properties);
     SocketCreatorFactory.setDistributionConfig(distributionConfig);
 
     assertFalse(SocketCreatorFactory
@@ -233,10 +233,10 @@ public class SocketCreatorFactoryJUnitTest {
 
   @Test
   public void testNewSSLConfigSSLComponentSERVER() throws Exception {
-    Properties properties =
+    var properties =
         configureSSLProperties(SecurableCommunicationChannel.SERVER.getConstant());
 
-    DistributionConfigImpl distributionConfig = new DistributionConfigImpl(properties);
+    var distributionConfig = new DistributionConfigImpl(properties);
 
     SocketCreatorFactory.setDistributionConfig(distributionConfig);
 
@@ -256,11 +256,11 @@ public class SocketCreatorFactoryJUnitTest {
 
   @Test
   public void testNewSSLConfigSSLComponentCombinations1() throws Exception {
-    Properties properties = configureSSLProperties(
+    var properties = configureSSLProperties(
         commaDelimitedString(SecurableCommunicationChannel.CLUSTER.getConstant(),
             SecurableCommunicationChannel.SERVER.getConstant()));
 
-    DistributionConfigImpl distributionConfig = new DistributionConfigImpl(properties);
+    var distributionConfig = new DistributionConfigImpl(properties);
     SocketCreatorFactory.setDistributionConfig(distributionConfig);
 
     assertTrue(SocketCreatorFactory
@@ -279,13 +279,13 @@ public class SocketCreatorFactoryJUnitTest {
 
   @Test
   public void testNewSSLConfigSSLComponentCombinations2() throws Exception {
-    Properties properties = configureSSLProperties(
+    var properties = configureSSLProperties(
         commaDelimitedString(SecurableCommunicationChannel.CLUSTER.getConstant(),
             SecurableCommunicationChannel.SERVER.getConstant(),
             SecurableCommunicationChannel.WEB.getConstant(),
             SecurableCommunicationChannel.JMX.getConstant()));
 
-    DistributionConfigImpl distributionConfig = new DistributionConfigImpl(properties);
+    var distributionConfig = new DistributionConfigImpl(properties);
     SocketCreatorFactory.setDistributionConfig(distributionConfig);
 
     assertTrue(SocketCreatorFactory
@@ -304,7 +304,7 @@ public class SocketCreatorFactoryJUnitTest {
 
   @Test
   public void testNewSSLConfigSSLComponentAliasWithMultiKeyStore() throws Exception {
-    Properties properties = configureSSLProperties(SecurableCommunicationChannel.ALL.getConstant());
+    var properties = configureSSLProperties(SecurableCommunicationChannel.ALL.getConstant());
 
     properties.setProperty(SSL_KEYSTORE,
         createTempFileFromResource(getClass(), "/org/apache/geode/internal/net/multiKey.jks")
@@ -316,7 +316,7 @@ public class SocketCreatorFactoryJUnitTest {
     properties.setProperty(SSL_CLUSTER_ALIAS, "clusterKey");
     properties.setProperty(SSL_DEFAULT_ALIAS, "serverKey");
 
-    DistributionConfigImpl distributionConfig = new DistributionConfigImpl(properties);
+    var distributionConfig = new DistributionConfigImpl(properties);
     SocketCreatorFactory.setDistributionConfig(distributionConfig);
 
     assertTrue(SocketCreatorFactory
@@ -335,7 +335,7 @@ public class SocketCreatorFactoryJUnitTest {
 
   @Test
   public void testNewSSLConfigSSLComponentWithoutAliasWithMultiKeyStore() throws Exception {
-    Properties properties = configureSSLProperties(SecurableCommunicationChannel.ALL.getConstant());
+    var properties = configureSSLProperties(SecurableCommunicationChannel.ALL.getConstant());
 
     properties.setProperty(SSL_KEYSTORE,
         createTempFileFromResource(getClass(), "/org/apache/geode/internal/net/multiKey.jks")
@@ -344,7 +344,7 @@ public class SocketCreatorFactoryJUnitTest {
         createTempFileFromResource(getClass(),
             "/org/apache/geode/internal/net/multiKeyTrust.jks").getAbsolutePath());
 
-    DistributionConfigImpl distributionConfig = new DistributionConfigImpl(properties);
+    var distributionConfig = new DistributionConfigImpl(properties);
     SocketCreatorFactory.setDistributionConfig(distributionConfig);
 
     assertTrue(SocketCreatorFactory
@@ -362,9 +362,9 @@ public class SocketCreatorFactoryJUnitTest {
   }
 
   private Properties configureSSLProperties(String sslComponents) throws IOException {
-    File jks = findTestJKS();
+    var jks = findTestJKS();
 
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(MCAST_PORT, "0");
     properties.setProperty(SSL_REQUIRE_AUTHENTICATION, "true");
     properties.setProperty(SSL_CIPHERS,
@@ -381,8 +381,8 @@ public class SocketCreatorFactoryJUnitTest {
   }
 
   private String commaDelimitedString(final String... sslComponents) {
-    StringBuilder stringBuilder = new StringBuilder();
-    for (String sslComponent : sslComponents) {
+    var stringBuilder = new StringBuilder();
+    for (var sslComponent : sslComponents) {
       stringBuilder.append(sslComponent);
       stringBuilder.append(",");
     }
@@ -391,9 +391,9 @@ public class SocketCreatorFactoryJUnitTest {
 
   @Test
   public void testLegacyServerSSLConfig() throws IOException {
-    File jks = findTestJKS();
+    var jks = findTestJKS();
 
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(MCAST_PORT, "0");
     properties.setProperty(SERVER_SSL_REQUIRE_AUTHENTICATION, "true");
     properties.setProperty(SERVER_SSL_ENABLED, "true");
@@ -406,7 +406,7 @@ public class SocketCreatorFactoryJUnitTest {
     properties.setProperty(SERVER_SSL_TRUSTSTORE, jks.getCanonicalPath());
     properties.setProperty(SERVER_SSL_TRUSTSTORE_PASSWORD, "password");
 
-    DistributionConfigImpl distributionConfig = new DistributionConfigImpl(properties);
+    var distributionConfig = new DistributionConfigImpl(properties);
     SocketCreatorFactory.setDistributionConfig(distributionConfig);
 
     assertFalse(SocketCreatorFactory
@@ -425,9 +425,9 @@ public class SocketCreatorFactoryJUnitTest {
 
   @Test
   public void testLegacyClusterSSLConfig() throws IOException {
-    File jks = findTestJKS();
+    var jks = findTestJKS();
 
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(MCAST_PORT, "0");
     properties.setProperty(CLUSTER_SSL_REQUIRE_AUTHENTICATION, "true");
     properties.setProperty(CLUSTER_SSL_ENABLED, "true");
@@ -440,7 +440,7 @@ public class SocketCreatorFactoryJUnitTest {
     properties.setProperty(CLUSTER_SSL_TRUSTSTORE, jks.getCanonicalPath());
     properties.setProperty(CLUSTER_SSL_TRUSTSTORE_PASSWORD, "password");
 
-    DistributionConfigImpl distributionConfig = new DistributionConfigImpl(properties);
+    var distributionConfig = new DistributionConfigImpl(properties);
     SocketCreatorFactory.setDistributionConfig(distributionConfig);
 
     assertTrue(SocketCreatorFactory
@@ -459,9 +459,9 @@ public class SocketCreatorFactoryJUnitTest {
 
   @Test
   public void testLegacyJMXSSLConfig() throws IOException {
-    File jks = findTestJKS();
+    var jks = findTestJKS();
 
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(MCAST_PORT, "0");
     properties.setProperty(JMX_MANAGER_SSL_REQUIRE_AUTHENTICATION, "true");
     properties.setProperty(JMX_MANAGER_SSL_ENABLED, "true");
@@ -474,7 +474,7 @@ public class SocketCreatorFactoryJUnitTest {
     properties.setProperty(JMX_MANAGER_SSL_TRUSTSTORE, jks.getCanonicalPath());
     properties.setProperty(JMX_MANAGER_SSL_TRUSTSTORE_PASSWORD, "password");
 
-    DistributionConfigImpl distributionConfig = new DistributionConfigImpl(properties);
+    var distributionConfig = new DistributionConfigImpl(properties);
     SocketCreatorFactory.setDistributionConfig(distributionConfig);
 
     assertFalse(SocketCreatorFactory
@@ -493,9 +493,9 @@ public class SocketCreatorFactoryJUnitTest {
 
   @Test
   public void testLegacyGatewaySSLConfig() throws IOException {
-    File jks = findTestJKS();
+    var jks = findTestJKS();
 
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(MCAST_PORT, "0");
     properties.setProperty(GATEWAY_SSL_REQUIRE_AUTHENTICATION, "true");
     properties.setProperty(GATEWAY_SSL_ENABLED, "true");
@@ -508,7 +508,7 @@ public class SocketCreatorFactoryJUnitTest {
     properties.setProperty(GATEWAY_SSL_TRUSTSTORE, jks.getCanonicalPath());
     properties.setProperty(GATEWAY_SSL_TRUSTSTORE_PASSWORD, "password");
 
-    DistributionConfigImpl distributionConfig = new DistributionConfigImpl(properties);
+    var distributionConfig = new DistributionConfigImpl(properties);
     SocketCreatorFactory.setDistributionConfig(distributionConfig);
 
     assertFalse(SocketCreatorFactory
@@ -527,9 +527,9 @@ public class SocketCreatorFactoryJUnitTest {
 
   @Test
   public void testLegacyHttpServiceSSLConfig() throws IOException {
-    File jks = findTestJKS();
+    var jks = findTestJKS();
 
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(MCAST_PORT, "0");
     properties.setProperty(HTTP_SERVICE_SSL_REQUIRE_AUTHENTICATION, "true");
     properties.setProperty(HTTP_SERVICE_SSL_ENABLED, "true");
@@ -542,7 +542,7 @@ public class SocketCreatorFactoryJUnitTest {
     properties.setProperty(HTTP_SERVICE_SSL_TRUSTSTORE, jks.getCanonicalPath());
     properties.setProperty(HTTP_SERVICE_SSL_TRUSTSTORE_PASSWORD, "password");
 
-    DistributionConfigImpl distributionConfig = new DistributionConfigImpl(properties);
+    var distributionConfig = new DistributionConfigImpl(properties);
     SocketCreatorFactory.setDistributionConfig(distributionConfig);
 
     assertFalse(SocketCreatorFactory

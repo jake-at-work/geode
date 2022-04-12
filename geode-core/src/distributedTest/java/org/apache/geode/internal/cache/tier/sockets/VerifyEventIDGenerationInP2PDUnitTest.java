@@ -31,7 +31,6 @@ import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.MirrorType;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.apache.geode.distributed.DistributedSystem;
@@ -72,7 +71,7 @@ public class VerifyEventIDGenerationInP2PDUnitTest extends JUnit4DistributedTest
 
   @Override
   public final void postSetUp() throws Exception {
-    final Host host = Host.getHost(0);
+    final var host = Host.getHost(0);
     vm0 = host.getVM(0);
     createServerCache();
     vm0.invoke(VerifyEventIDGenerationInP2PDUnitTest::createServerCache);
@@ -84,7 +83,7 @@ public class VerifyEventIDGenerationInP2PDUnitTest extends JUnit4DistributedTest
   public void testEventIDGeneration() throws Exception {
     createEntry();
     vm0.invoke(VerifyEventIDGenerationInP2PDUnitTest::get);
-    Boolean pass = vm0.invoke(VerifyEventIDGenerationInP2PDUnitTest::verifyResult);
+    var pass = vm0.invoke(VerifyEventIDGenerationInP2PDUnitTest::verifyResult);
     assertFalse(pass);
   }
 
@@ -103,7 +102,7 @@ public class VerifyEventIDGenerationInP2PDUnitTest extends JUnit4DistributedTest
 
   public static void createServerCache() throws Exception {
     new VerifyEventIDGenerationInP2PDUnitTest().createCache(new Properties());
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setMirrorType(MirrorType.NONE);
     factory.setCacheListener(new CacheListenerAdapter() {
@@ -120,7 +119,7 @@ public class VerifyEventIDGenerationInP2PDUnitTest extends JUnit4DistributedTest
 
     });
 
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME, attrs);
 
   }
@@ -151,7 +150,7 @@ public class VerifyEventIDGenerationInP2PDUnitTest extends JUnit4DistributedTest
   }
 
   public static Boolean verifyResult() {
-    boolean temp = testEventIDResult;
+    var temp = testEventIDResult;
     testEventIDResult = false;
     return temp;
   }

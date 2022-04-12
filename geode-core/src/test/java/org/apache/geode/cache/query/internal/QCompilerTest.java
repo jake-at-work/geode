@@ -22,7 +22,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -47,9 +46,9 @@ public class QCompilerTest {
 
   @Before
   public void setUp() {
-    QueryConfigurationService mockService = mock(QueryConfigurationService.class);
+    var mockService = mock(QueryConfigurationService.class);
     when(mockService.getMethodAuthorizer()).thenReturn(mock(MethodInvocationAuthorizer.class));
-    InternalCache mockCache = mock(InternalCache.class);
+    var mockCache = mock(InternalCache.class);
     when(mockCache.getService(QueryConfigurationService.class)).thenReturn(mockService);
 
     context = new QueryExecutionContext(null, mockCache);
@@ -57,10 +56,10 @@ public class QCompilerTest {
 
   @Test
   public void testStringConditioningForLike_1() {
-    String s1 = "abc%";
-    StringBuilder buffer = new StringBuilder(s1);
-    CompiledLike cl = new CompiledLike(null, null);
-    int wildCardPosition = cl.checkIfSargableAndRemoveEscapeChars(context, buffer);
+    var s1 = "abc%";
+    var buffer = new StringBuilder(s1);
+    var cl = new CompiledLike(null, null);
+    var wildCardPosition = cl.checkIfSargableAndRemoveEscapeChars(context, buffer);
     assertThat(wildCardPosition).isEqualTo(3);
     assertThat(buffer.toString()).isEqualTo(s1);
 
@@ -137,14 +136,14 @@ public class QCompilerTest {
 
   @Test
   public void testSargableRange() {
-    String pattern = "abc";
-    CompiledLiteral literal = new CompiledLiteral(pattern);
-    CompiledID cid = new CompiledID("val");
-    CompiledLike cl = new CompiledLike(cid, literal);
-    CompiledComparison[] cc = cl.getRangeIfSargable(context, cid, pattern);
+    var pattern = "abc";
+    var literal = new CompiledLiteral(pattern);
+    var cid = new CompiledID("val");
+    var cl = new CompiledLike(cid, literal);
+    var cc = cl.getRangeIfSargable(context, cid, pattern);
     assertThat(cc.length).isEqualTo(1);
 
-    ArrayList cv = (ArrayList) cc[0].getChildren();
+    var cv = (ArrayList) cc[0].getChildren();
     assertThat(cv.get(0)).isInstanceOf(CompiledID.class);
     assertThat(((CompiledID) cv.get(0)).getId()).isEqualTo("val");
     assertThat(cv.get(1)).isInstanceOf(CompiledLiteral.class);
@@ -358,10 +357,10 @@ public class QCompilerTest {
   @Test
   public void testStringConditioningForLike_2() {
     CompiledValue var = new CompiledPath(new CompiledID("p"), "ID");
-    String s1 = "abc%";
-    CompiledLiteral literal = new CompiledLiteral(s1);
-    QCompiler compiler = new QCompiler();
-    CompiledValue result = compiler.createCompiledValueForLikePredicate(var, literal);
+    var s1 = "abc%";
+    var literal = new CompiledLiteral(s1);
+    var compiler = new QCompiler();
+    var result = compiler.createCompiledValueForLikePredicate(var, literal);
     validationHelperForCompiledJunction((CompiledJunction) result, "abc", "abd");
 
     s1 = "abc\\\\%";
@@ -374,7 +373,7 @@ public class QCompilerTest {
     literal = new CompiledLiteral(s1);
     compiler = new QCompiler();
     result = compiler.createCompiledValueForLikePredicate(var, literal);
-    String lowerBoundKey = "abc" + (char) 255;
+    var lowerBoundKey = "abc" + (char) 255;
     validationHelperForCompiledJunction((CompiledJunction) result, lowerBoundKey, "abd");
 
     s1 = "abc"
@@ -391,7 +390,7 @@ public class QCompilerTest {
     compiler = new QCompiler();
     result = compiler.createCompiledValueForLikePredicate(var, literal);
     assertThat(result).isInstanceOf(CompiledComparison.class);
-    CompiledComparison cc = (CompiledComparison) result;
+    var cc = (CompiledComparison) result;
     assertThat(cc.reflectOnOperator((CompiledValue) cc.getChildren().get(1)))
         .isEqualTo(OQLLexerTokenTypes.TOK_GE);
     assertThat(((CompiledLiteral) cc.getChildren().get(1))._obj).isEqualTo("");
@@ -400,9 +399,9 @@ public class QCompilerTest {
   private void validationHelperForCompiledJunction(CompiledJunction result, String lowerBoundKey,
       String upperBoundKey) {
     assertThat(result.getOperator()).isEqualTo(OQLLexerTokenTypes.LITERAL_and);
-    List list = result.getChildren();
-    CompiledComparison lowerBound = (CompiledComparison) list.get(0);
-    CompiledComparison upperBound = (CompiledComparison) list.get(1);
+    var list = result.getChildren();
+    var lowerBound = (CompiledComparison) list.get(0);
+    var upperBound = (CompiledComparison) list.get(1);
     assertThat(lowerBound.reflectOnOperator((CompiledValue) lowerBound.getChildren().get(1)))
         .isEqualTo(OQLLexerTokenTypes.TOK_GE);
     assertThat(upperBound.reflectOnOperator((CompiledValue) upperBound.getChildren().get(1)))
@@ -423,13 +422,13 @@ public class QCompilerTest {
 
   @Test
   public void testBoundaryChar() {
-    String s1 = "!";
-    String s2 = "9";
-    String s3 = "A";
-    String s4 = "[";
-    String s5 = "a";
-    String s6 = "{";
-    String s7 = String.valueOf((char) 255);
+    var s1 = "!";
+    var s2 = "9";
+    var s3 = "A";
+    var s4 = "[";
+    var s5 = "a";
+    var s6 = "{";
+    var s7 = String.valueOf((char) 255);
     assertThat(s2.compareTo(s1) > 0).isTrue();
     assertThat(s3.compareTo(s2) > 0).isTrue();
     assertThat(s4.compareTo(s3) > 0).isTrue();
@@ -442,7 +441,7 @@ public class QCompilerTest {
   @Parameters({"MIN", "MAX", "AVG", "SUM", "COUNT"})
   public void parsingShouldSucceedWhenAggregatesAreUsedAsPartOfTheWhereClauseWithinAnInnerSelectQuery(
       String function) {
-    String[] queries = new String[] {
+    var queries = new String[] {
         "SELECT * FROM " + SEPARATOR + "region WHERE id IN (SELECT " + function + "(id) FROM "
             + SEPARATOR + "region)",
         "SELECT COUNT(id), status FROM " + SEPARATOR + "region WHERE id IN (SELECT " + function
@@ -471,8 +470,8 @@ public class QCompilerTest {
             + "(id) FROM " + SEPARATOR + "region) GROUP BY status",
     };
 
-    for (String queryString : queries) {
-      QCompiler compiler = new QCompiler();
+    for (var queryString : queries) {
+      var compiler = new QCompiler();
       assertThatCode(() -> compiler.compileQuery(queryString))
           .as(String.format("Query parsing failed for %s but should have succeeded.", queryString))
           .doesNotThrowAnyException();
@@ -483,7 +482,7 @@ public class QCompilerTest {
   @Parameters({"MIN", "MAX", "AVG", "SUM", "COUNT"})
   public void parsingShouldThrowExceptionWhenAggregatesAreUsedAsPartOfTheWhereClauseWithoutAnInnerSelectQuery(
       String function) {
-    String[] queries = new String[] {
+    var queries = new String[] {
         "SELECT * FROM " + SEPARATOR + "region WHERE " + function + "(id) > 0",
         "SELECT COUNT(id), status FROM " + SEPARATOR + "region WHERE " + function
             + "(id) > 0 GROUP BY status",
@@ -507,8 +506,8 @@ public class QCompilerTest {
             + "(id) > 0)"
     };
 
-    for (String queryString : queries) {
-      QCompiler compiler = new QCompiler();
+    for (var queryString : queries) {
+      var compiler = new QCompiler();
       assertThatThrownBy(() -> compiler.compileQuery(queryString))
           .as(String.format("Query parsing succeeded for %s but should have failed.", queryString))
           .isInstanceOf(QueryInvalidException.class)

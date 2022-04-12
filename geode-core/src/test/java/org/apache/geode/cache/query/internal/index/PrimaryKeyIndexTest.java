@@ -52,7 +52,7 @@ public class PrimaryKeyIndexTest {
   public void applyCqOrProjectionWhenContextNotForCqShouldAddValueToResults() throws Exception {
     when(context.getQuery()).thenReturn(mock(DefaultQuery.class));
     List results = new LinkedList();
-    String value = "value";
+    var value = "value";
     index.applyCqOrProjection(null, context, results, value, null, false, "key");
     assertEquals(value, results.get(0));
   }
@@ -62,7 +62,7 @@ public class PrimaryKeyIndexTest {
     when(context.isCqQueryContext()).thenReturn(true);
     when(context.getQuery()).thenReturn(mock(DefaultQuery.class));
     List results = new LinkedList();
-    String value = "value";
+    var value = "value";
     index.applyCqOrProjection(null, context, results, value, null, false, "key");
     assertTrue(results.get(0) instanceof CqEntry);
   }
@@ -70,10 +70,10 @@ public class PrimaryKeyIndexTest {
   @Test
   public void lockQueryWithoutProjectionWithMatchingResultForCqShouldReturnCorrectCqEvent()
       throws Exception {
-    String value = "value";
+    var value = "value";
     when(context.isCqQueryContext()).thenReturn(true);
     when(context.getQuery()).thenReturn(mock(DefaultQuery.class));
-    Region.Entry entry = mock(Region.Entry.class);
+    var entry = mock(Region.Entry.class);
     when(entry.getValue()).thenReturn(value);
     when(region.accessEntry(eq("key"), anyBoolean())).thenReturn(entry);
     List results = new LinkedList();
@@ -84,9 +84,9 @@ public class PrimaryKeyIndexTest {
   @Test
   public void lockQueryWithoutProjectionWithMatchingResultShouldReturnCorrectValue()
       throws Exception {
-    String value = "value";
+    var value = "value";
     when(context.getQuery()).thenReturn(mock(DefaultQuery.class));
-    Region.Entry entry = mock(Region.Entry.class);
+    var entry = mock(Region.Entry.class);
     when(entry.getValue()).thenReturn(value);
     when(region.accessEntry(eq("key"), anyBoolean())).thenReturn(entry);
     List results = new LinkedList();

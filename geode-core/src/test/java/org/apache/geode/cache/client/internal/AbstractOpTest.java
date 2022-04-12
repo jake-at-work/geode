@@ -54,7 +54,7 @@ public class AbstractOpTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    Object mockObject = mock(Object.class);
+    var mockObject = mock(Object.class);
     when(op.processObjResponse(any(), anyString())).thenReturn(mockObject);
     assertThat(op.processObjResponse(mock(Message.class), "string"))
         .isEqualTo(mockObject);
@@ -62,7 +62,7 @@ public class AbstractOpTest {
 
   @Test(expected = IOException.class)
   public void processChunkedResponseShouldThrowIOExceptionWhenSocketBroken() throws Exception {
-    ChunkedMessage msg = mock(ChunkedMessage.class);
+    var msg = mock(ChunkedMessage.class);
     doCallRealMethod().when(op).processChunkedResponse(any(ChunkedMessage.class), anyString(),
         any());
     doNothing().when(msg).readHeader();

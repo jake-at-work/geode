@@ -33,12 +33,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -62,7 +59,6 @@ import org.apache.geode.distributed.internal.ClusterDistributionManager;
 import org.apache.geode.distributed.internal.DistributionMessage;
 import org.apache.geode.distributed.internal.DistributionMessageObserver;
 import org.apache.geode.internal.cache.BucketRegion;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.PartitionedRegionDataStore;
 import org.apache.geode.internal.cache.tier.sockets.MessageTooLargeException;
@@ -73,12 +69,9 @@ import org.apache.geode.internal.offheap.MemoryAllocatorImpl;
 import org.apache.geode.internal.offheap.OffHeapClearRequired;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
 import org.apache.geode.test.dunit.AsyncInvocation;
-import org.apache.geode.test.dunit.IgnoredException;
 import org.apache.geode.test.dunit.RMIException;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.DistributedRestoreSystemProperties;
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.categories.WanTest;
 import org.apache.geode.test.junit.rules.serializable.SerializableTestName;
 
@@ -109,15 +102,15 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
 
   @After
   public void tearDown() {
-    for (VM vm : asList(vm4, vm5, vm6, vm7)) {
+    for (var vm : asList(vm4, vm5, vm6, vm7)) {
       vm.invoke(() -> DistributionMessageObserver.setInstance(null));
     }
   }
 
   @Test(timeout = 300_000)
   public void testStopOneConcurrentGatewaySenderWithSSL() throws Exception {
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2, vm3);
     vm2.invoke(() -> createReceiverWithSSL(nyPort));
@@ -131,7 +124,7 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
     vm5.invoke(() -> createConcurrentSender("ln", 2, true, 100, 10, false, true, null, true, 5,
         GatewaySender.OrderPolicy.KEY));
 
-    String regionName = getUniqueName() + "_PR";
+    var regionName = getUniqueName() + "_PR";
     vm4.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 100, isOffHeap()));
     vm5.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 100, isOffHeap()));
 
@@ -153,9 +146,9 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
 
   @Test
   public void testParallelGatewaySenderWithoutStarting() {
-    Integer[] locatorPorts = createLNAndNYLocators();
-    Integer lnPort = locatorPorts[0];
-    Integer nyPort = locatorPorts[1];
+    var locatorPorts = createLNAndNYLocators();
+    var lnPort = locatorPorts[0];
+    var nyPort = locatorPorts[1];
 
     createSendersReceiversAndPartitionedRegion(lnPort, nyPort, false, false);
 
@@ -177,9 +170,9 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
    */
   @Test
   public void testParallelGatewaySenderStartOnAccessorNode() {
-    Integer[] locatorPorts = createLNAndNYLocators();
-    Integer lnPort = locatorPorts[0];
-    Integer nyPort = locatorPorts[1];
+    var locatorPorts = createLNAndNYLocators();
+    var lnPort = locatorPorts[0];
+    var nyPort = locatorPorts[1];
 
     createSendersReceiversAndPartitionedRegion(lnPort, nyPort, true, true);
 
@@ -199,9 +192,9 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
    */
   @Test
   public void testParallelPropagationSenderPause() throws Exception {
-    Integer[] locatorPorts = createLNAndNYLocators();
-    Integer lnPort = locatorPorts[0];
-    Integer nyPort = locatorPorts[1];
+    var locatorPorts = createLNAndNYLocators();
+    var lnPort = locatorPorts[0];
+    var nyPort = locatorPorts[1];
 
     createSendersReceiversAndPartitionedRegion(lnPort, nyPort, false, true);
 
@@ -230,16 +223,16 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
    */
   @Test
   public void testParallelPropagationSenderResume() throws Exception {
-    Integer[] locatorPorts = createLNAndNYLocators();
-    Integer lnPort = locatorPorts[0];
-    Integer nyPort = locatorPorts[1];
+    var locatorPorts = createLNAndNYLocators();
+    var lnPort = locatorPorts[0];
+    var nyPort = locatorPorts[1];
 
     createSendersReceiversAndPartitionedRegion(lnPort, nyPort, false, true);
 
     // make sure all the senders are running before doing any puts
     waitForSendersRunning();
 
-    int numPuts = 1000;
+    var numPuts = 1000;
     // now, the senders are started. So, start the puts
     AsyncInvocation async = vm4.invokeAsync(() -> doPuts(getUniqueName() + "_PR", numPuts));
 
@@ -269,9 +262,9 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
    */
   @Test
   public void testParallelPropagationSenderResumeNegativeScenario() throws Exception {
-    Integer[] locatorPorts = createLNAndNYLocators();
-    Integer lnPort = locatorPorts[0];
-    Integer nyPort = locatorPorts[1];
+    var locatorPorts = createLNAndNYLocators();
+    var lnPort = locatorPorts[0];
+    var nyPort = locatorPorts[1];
 
     createCacheInVMs(nyPort, vm2, vm3);
     createReceiverInVMs(vm2, vm3);
@@ -325,9 +318,9 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
   @Test
   public void testParallelPropagationSenderStop() throws Exception {
     addIgnoredException("Broken pipe");
-    Integer[] locatorPorts = createLNAndNYLocators();
-    Integer lnPort = locatorPorts[0];
-    Integer nyPort = locatorPorts[1];
+    var locatorPorts = createLNAndNYLocators();
+    var lnPort = locatorPorts[0];
+    var nyPort = locatorPorts[1];
 
     createSendersReceiversAndPartitionedRegion(lnPort, nyPort, false, true);
 
@@ -354,10 +347,10 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
   @Test
   public void testParallelPropagationSenderStartAfterStop() throws Exception {
     addIgnoredException("Broken pipe");
-    Integer[] locatorPorts = createLNAndNYLocators();
-    Integer lnPort = locatorPorts[0];
-    Integer nyPort = locatorPorts[1];
-    String regionName = getUniqueName() + "_PR";
+    var locatorPorts = createLNAndNYLocators();
+    var lnPort = locatorPorts[0];
+    var nyPort = locatorPorts[1];
+    var regionName = getUniqueName() + "_PR";
 
     createCacheInVMs(nyPort, vm2, vm3);
     createCacheInVMs(lnPort, vm4, vm5, vm6, vm7);
@@ -440,9 +433,9 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
   @Test
   public void testParallelPropagationSenderStartAfterStop_Scenario2() throws Exception {
     addIgnoredException("Broken pipe");
-    Integer[] locatorPorts = createLNAndNYLocators();
-    Integer lnPort = locatorPorts[0];
-    Integer nyPort = locatorPorts[1];
+    var locatorPorts = createLNAndNYLocators();
+    var lnPort = locatorPorts[0];
+    var nyPort = locatorPorts[1];
 
     createSendersReceiversAndPartitionedRegion(lnPort, nyPort, false, true);
 
@@ -474,8 +467,8 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
     ArrayList<Integer> vm5List = null;
     ArrayList<Integer> vm6List = null;
     ArrayList<Integer> vm7List = null;
-    boolean foundEventsDroppedDueToPrimarySenderNotRunning = false;
-    int count = 0;
+    var foundEventsDroppedDueToPrimarySenderNotRunning = false;
+    var count = 0;
 
     do {
       stopSenders();
@@ -517,9 +510,9 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
     addIgnoredException("Broken pipe");
     addIgnoredException("Connection reset");
     addIgnoredException("Unexpected IOException");
-    Integer[] locatorPorts = createLNAndNYLocators();
-    Integer lnPort = locatorPorts[0];
-    Integer nyPort = locatorPorts[1];
+    var locatorPorts = createLNAndNYLocators();
+    var lnPort = locatorPorts[0];
+    var nyPort = locatorPorts[1];
 
     createSendersReceiversAndPartitionedRegion(lnPort, nyPort, true, true);
 
@@ -562,9 +555,9 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
    */
   @Test
   public void testStartPauseResumeParallelGatewaySender() throws Exception {
-    Integer[] locatorPorts = createLNAndNYLocators();
-    Integer lnPort = locatorPorts[0];
-    Integer nyPort = locatorPorts[1];
+    var locatorPorts = createLNAndNYLocators();
+    var lnPort = locatorPorts[0];
+    var nyPort = locatorPorts[1];
 
     createSendersReceiversAndPartitionedRegion(lnPort, nyPort, false, true);
 
@@ -616,9 +609,9 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
    */
   @Test
   public void testDestroyParallelGatewaySenderExceptionScenario() {
-    Integer[] locatorPorts = createLNAndNYLocators();
-    Integer lnPort = locatorPorts[0];
-    Integer nyPort = locatorPorts[1];
+    var locatorPorts = createLNAndNYLocators();
+    var lnPort = locatorPorts[0];
+    var nyPort = locatorPorts[1];
 
     createSendersReceiversAndPartitionedRegion(lnPort, nyPort, false, true);
 
@@ -628,7 +621,7 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
     vm4.invoke(() -> doPuts(getUniqueName() + "_PR", 1000));
 
     // try destroying on couple of nodes
-    Throwable caughtException = catchThrowable(() -> vm4.invoke(() -> destroySender("ln")));
+    var caughtException = catchThrowable(() -> vm4.invoke(() -> destroySender("ln")));
 
     assertThat(caughtException).isInstanceOf(RMIException.class);
     assertThat(caughtException.getCause()).isInstanceOf(GatewaySenderException.class);
@@ -643,9 +636,9 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
 
   @Test
   public void testDestroyParallelGatewaySender() {
-    Integer[] locatorPorts = createLNAndNYLocators();
-    Integer lnPort = locatorPorts[0];
-    Integer nyPort = locatorPorts[1];
+    var locatorPorts = createLNAndNYLocators();
+    var lnPort = locatorPorts[0];
+    var nyPort = locatorPorts[1];
 
     createSendersReceiversAndPartitionedRegion(lnPort, nyPort, false, true);
 
@@ -675,20 +668,20 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
 
   @Test
   public void destroyParallelGatewaySenderShouldNotStopDispatchingFromOtherSendersAttachedToTheRegion() {
-    String site2SenderId = "site2-sender";
-    String site3SenderId = "site3-sender";
-    String regionName = testName.getMethodName();
-    int[] ports = getRandomAvailableTCPPorts(3);
-    int site1Port = ports[0];
-    int site2Port = ports[1];
-    int site3Port = ports[2];
-    Set<String> site1RemoteLocators =
+    var site2SenderId = "site2-sender";
+    var site3SenderId = "site3-sender";
+    var regionName = testName.getMethodName();
+    var ports = getRandomAvailableTCPPorts(3);
+    var site1Port = ports[0];
+    var site2Port = ports[1];
+    var site3Port = ports[2];
+    var site1RemoteLocators =
         Stream.of("localhost[" + site2Port + "]", "localhost[" + site3Port + "]")
             .collect(Collectors.toSet());
-    Set<String> site2RemoteLocators =
+    var site2RemoteLocators =
         Stream.of("localhost[" + site1Port + "]", "localhost[" + site3Port + "]")
             .collect(Collectors.toSet());
-    Set<String> site3RemoteLocators =
+    var site3RemoteLocators =
         Stream.of("localhost[" + site1Port + "]", "localhost[" + site2Port + "]")
             .collect(Collectors.toSet());
 
@@ -724,8 +717,8 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
 
     // #################################################################################### //
 
-    final int FIRST_BATCH = 100;
-    final int SECOND_BATCH = 200;
+    final var FIRST_BATCH = 100;
+    final var SECOND_BATCH = 200;
     final Map<String, String> firstBatch = new HashMap<>();
     IntStream.range(0, FIRST_BATCH).forEach(i -> firstBatch.put("Key" + i, "Value" + i));
     final Map<String, String> secondBatch = new HashMap<>();
@@ -780,19 +773,19 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
   public void testParallelGatewaySenderMessageTooLargeException() {
     vm4.invoke(() -> System.setProperty(MAX_MESSAGE_SIZE_PROPERTY, String.valueOf(1024 * 1024)));
 
-    Integer[] locatorPorts = createLNAndNYLocators();
-    Integer lnPort = locatorPorts[0];
-    Integer nyPort = locatorPorts[1];
+    var locatorPorts = createLNAndNYLocators();
+    var lnPort = locatorPorts[0];
+    var nyPort = locatorPorts[1];
 
     // Create and start sender with reduced maximum message size and 1 dispatcher thread
-    String regionName = getUniqueName() + "_PR";
+    var regionName = getUniqueName() + "_PR";
     vm4.invoke(() -> createCache(lnPort));
     vm4.invoke(() -> setNumDispatcherThreadsForTheRun(1));
     vm4.invoke(() -> createSender("ln", 2, true, 100, 100, false, false, null, false));
     vm4.invoke(() -> createPartitionedRegion(regionName, "ln", 0, 100, isOffHeap()));
 
     // Do puts
-    int numPuts = 200;
+    var numPuts = 200;
     vm4.invoke(() -> doPuts(regionName, numPuts, new byte[11000]));
     validateRegionSizes(regionName, numPuts, vm4);
 
@@ -807,7 +800,7 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
     validateRegionSizes(regionName, numPuts, vm2);
 
     vm4.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+      var sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
       GeodeAwaitility.await()
           .untilAsserted(() -> assertThat(System.getProperty(MAX_MESSAGE_SIZE_PROPERTY))
               .isEqualTo(String.valueOf(1024 * 1024)));
@@ -819,21 +812,21 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
 
   @Test
   public void testMultiSiteReplication() {
-    String site1to2SenderId = "site1to2-sender";
-    String site1to3SenderId = "site1to3-sender";
-    String site2to3SenderId = "site2to3-sender";
-    String regionName = testName.getMethodName();
-    int[] ports = getRandomAvailableTCPPorts(3);
-    int site1Port = ports[0];
-    int site2Port = ports[1];
-    int site3Port = ports[2];
-    Set<String> site1RemoteLocators =
+    var site1to2SenderId = "site1to2-sender";
+    var site1to3SenderId = "site1to3-sender";
+    var site2to3SenderId = "site2to3-sender";
+    var regionName = testName.getMethodName();
+    var ports = getRandomAvailableTCPPorts(3);
+    var site1Port = ports[0];
+    var site2Port = ports[1];
+    var site3Port = ports[2];
+    var site1RemoteLocators =
         Stream.of("localhost[" + site2Port + "]", "localhost[" + site3Port + "]")
             .collect(Collectors.toSet());
-    Set<String> site2RemoteLocators =
+    var site2RemoteLocators =
         Stream.of("localhost[" + site1Port + "]", "localhost[" + site3Port + "]")
             .collect(Collectors.toSet());
-    Set<String> site3RemoteLocators =
+    var site3RemoteLocators =
         Stream.of("localhost[" + site1Port + "]", "localhost[" + site2Port + "]")
             .collect(Collectors.toSet());
 
@@ -893,25 +886,25 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
   @Test
   public void testParallelGatewaySenderConcurrentPutClearNoOffheapOrphans()
       throws Exception {
-    MemberVM locator = clusterStartupRule.startLocatorVM(1, new Properties());
-    Properties properties = new Properties();
+    var locator = clusterStartupRule.startLocatorVM(1, new Properties());
+    var properties = new Properties();
     properties.put(OFF_HEAP_MEMORY_SIZE_NAME, "100");
-    MemberVM server = clusterStartupRule.startServerVM(2, properties, locator.getPort());
-    final String regionName = "portfolios";
-    final String gatewaySenderId = "ln";
+    var server = clusterStartupRule.startServerVM(2, properties, locator.getPort());
+    final var regionName = "portfolios";
+    final var gatewaySenderId = "ln";
 
     server.invoke(() -> {
-      IgnoredException ie = addIgnoredException("could not get remote locator");
-      InternalCache cache = ClusterStartupRule.getCache();
-      GatewaySender sender =
+      var ie = addIgnoredException("could not get remote locator");
+      var cache = ClusterStartupRule.getCache();
+      var sender =
           cache.createGatewaySenderFactory().setParallel(true).create(gatewaySenderId, 1);
       Region userRegion = cache.createRegionFactory(RegionShortcut.PARTITION).setOffHeap(true)
           .addGatewaySenderId("ln").create(regionName);
-      PartitionedRegion shadowRegion = (PartitionedRegion) ((AbstractGatewaySender) sender)
+      var shadowRegion = (PartitionedRegion) ((AbstractGatewaySender) sender)
           .getEventProcessor().getQueue().getRegion();
-      CacheWriter mockCacheWriter = mock(CacheWriter.class);
-      CountDownLatch cacheWriterLatch = new CountDownLatch(1);
-      CountDownLatch shadowRegionClearLatch = new CountDownLatch(1);
+      var mockCacheWriter = mock(CacheWriter.class);
+      var cacheWriterLatch = new CountDownLatch(1);
+      var shadowRegionClearLatch = new CountDownLatch(1);
 
       doAnswer(invocation -> {
         // The cache writer is invoked between when the region entry is created with value of
@@ -927,7 +920,7 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
 
       shadowRegion.setCacheWriter(mockCacheWriter);
 
-      ExecutorService service = Executors.newFixedThreadPool(2);
+      var service = Executors.newFixedThreadPool(2);
 
       List<Callable<Object>> callables = new ArrayList<>();
 
@@ -967,9 +960,9 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
         }
       }));
 
-      List<Future<Object>> futures = service.invokeAll(callables, 10, TimeUnit.SECONDS);
+      var futures = service.invokeAll(callables, 10, TimeUnit.SECONDS);
 
-      for (Future<Object> future : futures) {
+      for (var future : futures) {
         try {
           future.get();
         } catch (Exception ex) {
@@ -988,9 +981,9 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
 
   @Test
   public void testParallelGWSenderUpdateAttrWhileEntriesInQueue() throws Exception {
-    Integer[] locatorPorts = createLNAndNYLocators();
-    Integer lnPort = locatorPorts[0];
-    Integer nyPort = locatorPorts[1];
+    var locatorPorts = createLNAndNYLocators();
+    var lnPort = locatorPorts[0];
+    var nyPort = locatorPorts[1];
 
     createCacheInVMs(nyPort, vm2, vm3);
 
@@ -1023,9 +1016,9 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
 
   @Test
   public void testParallelGWSenderUpdateAttrWhilePutting() throws Exception {
-    Integer[] locatorPorts = createLNAndNYLocators();
-    Integer lnPort = locatorPorts[0];
-    Integer nyPort = locatorPorts[1];
+    var locatorPorts = createLNAndNYLocators();
+    var lnPort = locatorPorts[0];
+    var nyPort = locatorPorts[1];
 
     createCacheInVMs(nyPort, vm2, vm3);
     createReceiverInVMs(vm2, vm3);
@@ -1058,9 +1051,9 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
 
   @Test
   public void testParallelGWSenderUpdateAttrWhilePaused() throws Exception {
-    Integer[] locatorPorts = createLNAndNYLocators();
-    Integer lnPort = locatorPorts[0];
-    Integer nyPort = locatorPorts[1];
+    var locatorPorts = createLNAndNYLocators();
+    var lnPort = locatorPorts[0];
+    var nyPort = locatorPorts[1];
 
     createCacheInVMs(nyPort, vm2, vm3);
     createReceiverInVMs(vm2, vm3);
@@ -1105,9 +1098,9 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
 
   @Test
   public void testParallelGWSenderUpdateFiltersWhilePutting() throws Exception {
-    Integer[] locatorPorts = createLNAndNYLocators();
-    Integer lnPort = locatorPorts[0];
-    Integer nyPort = locatorPorts[1];
+    var locatorPorts = createLNAndNYLocators();
+    var lnPort = locatorPorts[0];
+    var nyPort = locatorPorts[1];
 
     List<GatewayEventFilter> filters = new ArrayList<>();
     filters.add(new MyGatewayEventFilter_AfterAck());
@@ -1150,9 +1143,9 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
 
   @Test
   public void testParallelGWSenderUpdateFiltersWhilePuttingOnOneDispatcThread() throws Exception {
-    Integer[] locatorPorts = createLNAndNYLocators();
-    Integer lnPort = locatorPorts[0];
-    Integer nyPort = locatorPorts[1];
+    var locatorPorts = createLNAndNYLocators();
+    var lnPort = locatorPorts[0];
+    var nyPort = locatorPorts[1];
 
     List<GatewayEventFilter> filters = new ArrayList<>();
     filters.add(new MyGatewayEventFilter_AfterAck());
@@ -1237,25 +1230,25 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
     vm2.invoke(() -> validateRegionSizeRemainsSame(getUniqueName() + "_PR", 100));
 
     int parallelQueueRemovalMessageCountInVm4 = vm4.invoke(() -> {
-      CountSentPQRMObserver observer =
+      var observer =
           (CountSentPQRMObserver) DistributionMessageObserver.getInstance();
       return observer.getNumberOfSentPQRM();
     });
 
     int parallelQueueRemovalMessageCountInVm5 = vm5.invoke(() -> {
-      CountSentPQRMObserver observer =
+      var observer =
           (CountSentPQRMObserver) DistributionMessageObserver.getInstance();
       return observer.getNumberOfSentPQRM();
     });
 
     int parallelQueueRemovalMessageCountInVm6 = vm6.invoke(() -> {
-      CountSentPQRMObserver observer =
+      var observer =
           (CountSentPQRMObserver) DistributionMessageObserver.getInstance();
       return observer.getNumberOfSentPQRM();
     });
 
     int parallelQueueRemovalMessageCountInVm7 = vm7.invoke(() -> {
-      CountSentPQRMObserver observer =
+      var observer =
           (CountSentPQRMObserver) DistributionMessageObserver.getInstance();
       return observer.getNumberOfSentPQRM();
     });
@@ -1276,8 +1269,9 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
   }
 
   private void clearShadowBucketRegions(PartitionedRegion shadowRegion) {
-    PartitionedRegionDataStore.BucketVisitor bucketVisitor =
-        (bucketId, r) -> ((BucketRegion) r).clearEntries(null);
+    var bucketVisitor =
+        (PartitionedRegionDataStore.BucketVisitor) (bucketId, r) -> ((BucketRegion) r)
+            .clearEntries(null);
 
     shadowRegion.getDataStore().visitBuckets(bucketVisitor);
   }
@@ -1306,7 +1300,7 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
   }
 
   private void createPartitionedRegions(boolean createAccessors) {
-    String regionName = getUniqueName() + "_PR";
+    var regionName = getUniqueName() + "_PR";
     vm4.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 100, isOffHeap()));
     vm5.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 100, isOffHeap()));
 
@@ -1324,8 +1318,8 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
 
   private void updateBatchSize(int batchsize) {
     vm4.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
-      boolean paused = false;
+      var sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+      var paused = false;
       if (sender.isRunning() && !sender.isPaused()) {
         sender.pause();
         paused = true;
@@ -1336,8 +1330,8 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
       }
     });
     vm5.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
-      boolean paused = false;
+      var sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+      var paused = false;
       if (sender.isRunning() && !sender.isPaused()) {
         sender.pause();
         paused = true;
@@ -1348,8 +1342,8 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
       }
     });
     vm6.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
-      boolean paused = false;
+      var sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+      var paused = false;
       if (sender.isRunning() && !sender.isPaused()) {
         sender.pause();
         paused = true;
@@ -1360,8 +1354,8 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
       }
     });
     vm7.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
-      boolean paused = false;
+      var sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+      var paused = false;
       if (sender.isRunning() && !sender.isPaused()) {
         sender.pause();
         paused = true;
@@ -1375,8 +1369,8 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
 
   private void updateBatchTimeInterval(int batchTimeInterval) {
     vm4.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
-      boolean paused = false;
+      var sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+      var paused = false;
       if (sender.isRunning() && !sender.isPaused()) {
         sender.pause();
         paused = true;
@@ -1387,8 +1381,8 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
       }
     });
     vm5.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
-      boolean paused = false;
+      var sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+      var paused = false;
       if (sender.isRunning() && !sender.isPaused()) {
         sender.pause();
         paused = true;
@@ -1399,8 +1393,8 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
       }
     });
     vm6.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
-      boolean paused = false;
+      var sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+      var paused = false;
       if (sender.isRunning() && !sender.isPaused()) {
         sender.pause();
         paused = true;
@@ -1411,8 +1405,8 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
       }
     });
     vm7.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
-      boolean paused = false;
+      var sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+      var paused = false;
       if (sender.isRunning() && !sender.isPaused()) {
         sender.pause();
         paused = true;
@@ -1426,8 +1420,8 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
 
   private void updateGroupTransactionEvents(boolean groupTransactionEvents) {
     vm4.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
-      boolean paused = false;
+      var sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+      var paused = false;
       if (sender.isRunning() && !sender.isPaused()) {
         sender.pause();
         paused = true;
@@ -1438,8 +1432,8 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
       }
     });
     vm5.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
-      boolean paused = false;
+      var sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+      var paused = false;
       if (sender.isRunning() && !sender.isPaused()) {
         sender.pause();
         paused = true;
@@ -1450,8 +1444,8 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
       }
     });
     vm6.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
-      boolean paused = false;
+      var sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+      var paused = false;
       if (sender.isRunning() && !sender.isPaused()) {
         sender.pause();
         paused = true;
@@ -1462,8 +1456,8 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
       }
     });
     vm7.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
-      boolean paused = false;
+      var sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+      var paused = false;
       if (sender.isRunning() && !sender.isPaused()) {
         sender.pause();
         paused = true;
@@ -1478,8 +1472,8 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
 
   private void updateGatewayEventFilters(List<GatewayEventFilter> filters) {
     vm4.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
-      boolean paused = false;
+      var sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+      var paused = false;
       if (sender.isRunning() && !sender.isPaused()) {
         sender.pause();
         paused = true;
@@ -1490,8 +1484,8 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
       }
     });
     vm5.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
-      boolean paused = false;
+      var sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+      var paused = false;
       if (sender.isRunning() && !sender.isPaused()) {
         sender.pause();
         paused = true;
@@ -1502,8 +1496,8 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
       }
     });
     vm6.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
-      boolean paused = false;
+      var sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+      var paused = false;
       if (sender.isRunning() && !sender.isPaused()) {
         sender.pause();
         paused = true;
@@ -1514,8 +1508,8 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
       }
     });
     vm7.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
-      boolean paused = false;
+      var sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+      var paused = false;
       if (sender.isRunning() && !sender.isPaused()) {
         sender.pause();
         paused = true;
@@ -1529,57 +1523,57 @@ public class ParallelGatewaySenderOperationsDUnitTest extends WANTestBase {
 
   private void checkBatchSize(int batchsize) {
     vm4.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+      var sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
       assertThat(sender.getBatchSize()).isEqualTo(batchsize);
     });
     vm5.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+      var sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
       assertThat(sender.getBatchSize()).isEqualTo(batchsize);
     });
     vm6.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+      var sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
       assertThat(sender.getBatchSize()).isEqualTo(batchsize);
     });
     vm7.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+      var sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
       assertThat(sender.getBatchSize()).isEqualTo(batchsize);
     });
   }
 
   private void checkBatchTimeInterval(int batchTimeInterval) {
     vm4.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+      var sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
       assertThat(sender.getBatchTimeInterval()).isEqualTo(batchTimeInterval);
     });
     vm5.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+      var sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
       assertThat(sender.getBatchTimeInterval()).isEqualTo(batchTimeInterval);
     });
     vm6.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+      var sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
       assertThat(sender.getBatchTimeInterval()).isEqualTo(batchTimeInterval);
     });
     vm7.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+      var sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
       assertThat(sender.getBatchTimeInterval()).isEqualTo(batchTimeInterval);
     });
   }
 
   private void checkGroupTransactionEvents(boolean groupTransactionEvents) {
     vm4.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+      var sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
       assertThat(sender.mustGroupTransactionEvents()).isEqualTo(groupTransactionEvents);
     });
     vm5.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+      var sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
       assertThat(sender.mustGroupTransactionEvents()).isEqualTo(groupTransactionEvents);
     });
     vm6.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+      var sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
       assertThat(sender.mustGroupTransactionEvents()).isEqualTo(groupTransactionEvents);
     });
     vm7.invoke(() -> {
-      AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
+      var sender = (AbstractGatewaySender) cache.getGatewaySender("ln");
       assertThat(sender.mustGroupTransactionEvents()).isEqualTo(groupTransactionEvents);
     });
   }

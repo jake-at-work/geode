@@ -26,9 +26,9 @@ public class QueryCommandOverHttpDistributedTest extends QueryCommandDistributed
 
   @Override
   protected Properties locatorProperties(Properties configProperties) {
-    int[] ports = getRandomAvailableTCPPorts(2);
-    int httpPort = ports[0];
-    int jmxPort = ports[1];
+    var ports = getRandomAvailableTCPPorts(2);
+    var httpPort = ports[0];
+    var jmxPort = ports[1];
 
     configProperties.setProperty(HTTP_SERVICE_PORT, String.valueOf(httpPort));
     configProperties.setProperty(JMX_MANAGER_PORT, String.valueOf(jmxPort));

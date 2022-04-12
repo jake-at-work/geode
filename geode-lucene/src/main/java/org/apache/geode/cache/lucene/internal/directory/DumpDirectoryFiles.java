@@ -18,21 +18,14 @@ package org.apache.geode.cache.lucene.internal.directory;
 import static org.apache.geode.cache.Region.SEPARATOR;
 
 import java.io.File;
-import java.util.Collection;
 
 import org.apache.logging.log4j.Logger;
-import org.apache.lucene.index.IndexWriter;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.execute.FunctionException;
 import org.apache.geode.cache.execute.RegionFunctionContext;
-import org.apache.geode.cache.lucene.LuceneService;
 import org.apache.geode.cache.lucene.LuceneServiceProvider;
 import org.apache.geode.cache.lucene.internal.InternalLuceneIndex;
-import org.apache.geode.cache.lucene.internal.filesystem.FileSystem;
-import org.apache.geode.cache.lucene.internal.repository.IndexRepository;
-import org.apache.geode.cache.lucene.internal.repository.RepositoryManager;
 import org.apache.geode.internal.cache.BucketNotFoundException;
 import org.apache.geode.internal.cache.execute.InternalFunction;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -45,40 +38,39 @@ public class DumpDirectoryFiles implements InternalFunction {
 
   @Override
   public void execute(FunctionContext context) {
-    RegionFunctionContext ctx = (RegionFunctionContext) context;
+    var ctx = (RegionFunctionContext) context;
 
     if (!(context.getArguments() instanceof String[])) {
       throw new IllegalArgumentException("Arguments should be a string array");
     }
-    String[] args = (String[]) context.getArguments();
+    var args = (String[]) context.getArguments();
     if (args.length != 2) {
       throw new IllegalArgumentException("Expected 2 arguments: exportLocation, indexName");
     }
 
+    var exportLocation = args[0];
+    var indexName = args[1];
 
-    String exportLocation = args[0];
-    String indexName = args[1];
-
-    final Region<Object, Object> region = ctx.getDataSet();
-    LuceneService service = LuceneServiceProvider.get(ctx.getDataSet().getCache());
-    InternalLuceneIndex index =
+    final var region = ctx.getDataSet();
+    var service = LuceneServiceProvider.get(ctx.getDataSet().getCache());
+    var index =
         (InternalLuceneIndex) service.getIndex(indexName, region.getFullPath());
     if (index == null) {
       throw new IllegalStateException(
           "Index not found for region " + region + " index " + indexName);
     }
 
-    final RepositoryManager repoManager = index.getRepositoryManager();
+    final var repoManager = index.getRepositoryManager();
     try {
-      final Collection<IndexRepository> repositories = repoManager.getRepositories(ctx);
+      final var repositories = repoManager.getRepositories(ctx);
       repositories.stream().forEach(repo -> {
-        final IndexWriter writer = repo.getWriter();
-        RegionDirectory directory = (RegionDirectory) writer.getDirectory();
-        FileSystem fs = directory.getFileSystem();
+        final var writer = repo.getWriter();
+        var directory = (RegionDirectory) writer.getDirectory();
+        var fs = directory.getFileSystem();
 
-        String bucketName = index.getName() + "_" + repo.getRegion().getFullPath();
+        var bucketName = index.getName() + "_" + repo.getRegion().getFullPath();
         bucketName = bucketName.replace(SEPARATOR, "_");
-        File bucketDirectory = new File(exportLocation, bucketName);
+        var bucketDirectory = new File(exportLocation, bucketName);
         bucketDirectory.mkdirs();
         fs.export(bucketDirectory);
       });

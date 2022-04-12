@@ -14,17 +14,12 @@
  */
 package org.apache.geode.management.internal.cli.functions;
 
-import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.asyncqueue.AsyncEventListener;
 import org.apache.geode.cache.asyncqueue.AsyncEventQueue;
 import org.apache.geode.cache.asyncqueue.internal.AsyncEventQueueImpl;
 import org.apache.geode.cache.execute.FunctionContext;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.internal.cache.wan.AbstractGatewaySender;
 import org.apache.geode.internal.cache.xmlcache.Declarable2;
 import org.apache.geode.management.cli.CliFunction;
@@ -51,17 +46,17 @@ public class ListAsyncEventQueuesFunction extends CliFunction {
 
   @Override
   public CliFunctionResult executeFunction(final FunctionContext context) {
-    Cache cache = context.getCache();
-    DistributedMember member = cache.getDistributedSystem().getDistributedMember();
+    var cache = context.getCache();
+    var member = cache.getDistributedSystem().getDistributedMember();
 
     // Identify by name if the name is non-trivial. Otherwise, use the ID
-    String memberId = !member.getName().equals("") ? member.getName() : member.getId();
+    var memberId = !member.getName().equals("") ? member.getName() : member.getId();
 
-    Set<AsyncEventQueue> asyncEventQueues = cache.getAsyncEventQueues();
+    var asyncEventQueues = cache.getAsyncEventQueues();
 
-    List<AsyncEventQueueDetails> details = asyncEventQueues.stream().map(queue -> {
-      AsyncEventListener listener = queue.getAsyncEventListener();
-      Properties listenerProperties = new Properties();
+    var details = asyncEventQueues.stream().map(queue -> {
+      var listener = queue.getAsyncEventListener();
+      var listenerProperties = new Properties();
       if (listener instanceof Declarable2) {
         listenerProperties = ((Declarable2) listener).getConfig();
       }

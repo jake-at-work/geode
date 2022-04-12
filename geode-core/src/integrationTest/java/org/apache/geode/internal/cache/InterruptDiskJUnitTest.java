@@ -58,14 +58,14 @@ public class InterruptDiskJUnitTest {
 
   @Before
   public void setUp() {
-    String diskStoreName = getClass().getSimpleName() + "_diskStore";
-    String regionName = getClass().getSimpleName() + "_region";
+    var diskStoreName = getClass().getSimpleName() + "_diskStore";
+    var regionName = getClass().getSimpleName() + "_region";
 
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(MCAST_PORT, "0");
     config.setProperty(LOCATORS, "");
 
-    File diskDir = temporaryFolder.getRoot();
+    var diskDir = temporaryFolder.getRoot();
 
     cache = new CacheFactory(config).create();
 

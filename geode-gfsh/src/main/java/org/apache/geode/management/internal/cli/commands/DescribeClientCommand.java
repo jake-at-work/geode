@@ -18,26 +18,18 @@ package org.apache.geode.management.internal.cli.commands;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.management.ObjectName;
 
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
 import org.apache.geode.cache.execute.FunctionService;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.management.CacheServerMXBean;
 import org.apache.geode.management.ClientHealthStatus;
-import org.apache.geode.management.ManagementService;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.GfshCommand;
 import org.apache.geode.management.internal.cli.LogWrapper;
 import org.apache.geode.management.internal.cli.functions.ContinuousQueryFunction;
-import org.apache.geode.management.internal.cli.result.model.DataResultModel;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.security.ResourceOperation;
 import org.apache.geode.management.internal.util.ManagementUtils;
@@ -51,7 +43,7 @@ public class DescribeClientCommand extends GfshCommand {
   public ResultModel describeClient(@CliOption(key = CliStrings.DESCRIBE_CLIENT__ID,
       mandatory = true, help = CliStrings.DESCRIBE_CLIENT__ID__HELP) String clientId)
       throws Exception {
-    ResultModel result = new ResultModel();
+    var result = new ResultModel();
 
     if (clientId.startsWith("\"")) {
       clientId = clientId.substring(1);
@@ -65,8 +57,8 @@ public class DescribeClientCommand extends GfshCommand {
       clientId = clientId.substring(0, clientId.length() - 2);
     }
 
-    ManagementService service = getManagementService();
-    ObjectName[] cacheServers = service.getDistributedSystemMXBean().listCacheServerObjectNames();
+    var service = getManagementService();
+    var cacheServers = service.getDistributedSystemMXBean().listCacheServerObjectNames();
     if (cacheServers.length == 0) {
       return ResultModel.createError(
           CliStrings.format(CliStrings.DESCRIBE_CLIENT_COULD_NOT_RETRIEVE_SERVER_LIST));
@@ -74,8 +66,8 @@ public class DescribeClientCommand extends GfshCommand {
 
     ClientHealthStatus clientHealthStatus = null;
 
-    for (ObjectName objName : cacheServers) {
-      CacheServerMXBean serverMbean = service.getMBeanInstance(objName, CacheServerMXBean.class);
+    for (var objName : cacheServers) {
+      var serverMbean = service.getMBeanInstance(objName, CacheServerMXBean.class);
       List<String> listOfClient =
           new ArrayList<>(Arrays.asList(serverMbean.getClientIds()));
       if (listOfClient.contains(clientId)) {
@@ -100,18 +92,18 @@ public class DescribeClientCommand extends GfshCommand {
           CliStrings.format(CliStrings.DESCRIBE_CLIENT__CLIENT__ID__NOT__FOUND__0, clientId));
     }
 
-    Set<DistributedMember> dsMembers = getAllMembers();
+    var dsMembers = getAllMembers();
     String isDurable = null;
     List<String> primaryServers = new ArrayList<>();
     List<String> secondaryServers = new ArrayList<>();
 
     if (dsMembers.size() > 0) {
-      ContinuousQueryFunction continuousQueryFunction = new ContinuousQueryFunction();
+      var continuousQueryFunction = new ContinuousQueryFunction();
       FunctionService.registerFunction(continuousQueryFunction);
-      List<?> resultList = (List<?>) ManagementUtils
+      var resultList = (List<?>) ManagementUtils
           .executeFunction(continuousQueryFunction, clientId, dsMembers).getResult();
       for (Object aResultList : resultList) {
-        Object object = aResultList;
+        var object = aResultList;
         if (object instanceof Throwable) {
           LogWrapper.getInstance(getCache()).warning(
               "Exception in Describe Client " + ((Throwable) object).getMessage(),
@@ -120,7 +112,7 @@ public class DescribeClientCommand extends GfshCommand {
         }
 
         if (object != null) {
-          ContinuousQueryFunction.ClientInfo objectResult =
+          var objectResult =
               (ContinuousQueryFunction.ClientInfo) object;
           isDurable = objectResult.isDurable;
 
@@ -156,17 +148,17 @@ public class DescribeClientCommand extends GfshCommand {
   private void buildTableResult(ResultModel result, ClientHealthStatus clientHealthStatus,
       String isDurable, List<String> primaryServers, List<String> secondaryServers) {
 
-    StringBuilder primServers = new StringBuilder();
-    for (String primaryServer : primaryServers) {
+    var primServers = new StringBuilder();
+    for (var primaryServer : primaryServers) {
       primServers.append(primaryServer);
     }
 
-    StringBuilder secondServers = new StringBuilder();
-    for (String secondServer : secondaryServers) {
+    var secondServers = new StringBuilder();
+    for (var secondServer : secondaryServers) {
       secondServers.append(secondServer);
     }
 
-    DataResultModel dataSection = result.addData("infoSection");
+    var dataSection = result.addData("infoSection");
     if (clientHealthStatus != null) {
       dataSection.addData(CliStrings.DESCRIBE_CLIENT_COLUMN_PRIMARY_SERVERS, primServers);
       dataSection.addData(CliStrings.DESCRIBE_CLIENT_COLUMN_SECONDARY_SERVERS, secondServers);
@@ -189,16 +181,16 @@ public class DescribeClientCommand extends GfshCommand {
           clientHealthStatus.getUpTime());
       dataSection.addData(CliStrings.DESCRIBE_CLIENT_COLUMN_DURABLE, isDurable);
 
-      Map<String, String> poolStats = clientHealthStatus.getPoolStats();
+      var poolStats = clientHealthStatus.getPoolStats();
 
       if (poolStats.size() > 0) {
-        for (Map.Entry<String, String> entry : poolStats.entrySet()) {
-          TabularResultModel poolStatsResultTable = result.addTable(entry.getKey());
+        for (var entry : poolStats.entrySet()) {
+          var poolStatsResultTable = result.addTable(entry.getKey());
           poolStatsResultTable.setHeader("Pool Stats For Pool Name = " + entry.getKey());
-          String poolStatsStr = entry.getValue();
-          String[] str = poolStatsStr.split(";");
+          var poolStatsStr = entry.getValue();
+          var str = poolStatsStr.split(";");
 
-          LogWrapper logWrapper = LogWrapper.getInstance(getCache());
+          var logWrapper = LogWrapper.getInstance(getCache());
           logWrapper.info("describe client clientHealthStatus min conn="
               + str[0].substring(str[0].indexOf("=") + 1));
           logWrapper.info("describe client clientHealthStatus max conn ="

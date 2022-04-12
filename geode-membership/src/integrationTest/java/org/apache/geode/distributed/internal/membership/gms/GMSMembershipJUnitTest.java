@@ -50,7 +50,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.mockito.InOrder;
 
 import org.apache.geode.distributed.internal.membership.api.Authenticator;
 import org.apache.geode.distributed.internal.membership.api.LifecycleListener;
@@ -63,7 +62,6 @@ import org.apache.geode.distributed.internal.membership.api.MembershipListener;
 import org.apache.geode.distributed.internal.membership.api.MembershipView;
 import org.apache.geode.distributed.internal.membership.api.Message;
 import org.apache.geode.distributed.internal.membership.api.MessageListener;
-import org.apache.geode.distributed.internal.membership.gms.GMSMembership.StartupEvent;
 import org.apache.geode.distributed.internal.membership.gms.Services.Stopper;
 import org.apache.geode.distributed.internal.membership.gms.interfaces.HealthMonitor;
 import org.apache.geode.distributed.internal.membership.gms.interfaces.JoinLeave;
@@ -131,7 +129,7 @@ public class GMSMembershipJUnitTest {
 
     authenticator = mock(Authenticator.class);
     myMemberId = createMemberID(8887);
-    UUID uuid = new UUID(12345, 12345);
+    var uuid = new UUID(12345, 12345);
     myMemberId.setUUID(uuid);
 
     messenger = mock(Messenger.class);
@@ -153,12 +151,12 @@ public class GMSMembershipJUnitTest {
     when(services.getHealthMonitor()).thenReturn(healthMonitor);
     when(services.getJoinLeave()).thenReturn(joinLeave);
 
-    Timer t = new Timer(true);
+    var t = new Timer(true);
     when(services.getTimer()).thenReturn(t);
 
-    Random r = new Random();
+    var r = new Random();
     mockMembers = new MemberIdentifier[5];
-    for (int i = 0; i < mockMembers.length; i++) {
+    for (var i = 0; i < mockMembers.length; i++) {
       mockMembers[i] = createMemberID(DEFAULT_PORT + i);
       uuid = new UUID(r.nextLong(), r.nextLong());
       mockMembers[i].setUUID(uuid);
@@ -187,15 +185,15 @@ public class GMSMembershipJUnitTest {
   @Test
   public void testSendMessage() throws Exception {
     services.getSerializer().register(HIGH_PRIORITY_ACKED_MESSAGE, TestMessage.class);
-    TestMessage m = new TestMessage();
+    var m = new TestMessage();
     m.setRecipient(mockMembers[0]);
     manager.getGMSManager().start();
     manager.getGMSManager().started();
-    MemberIdentifier myGMSMemberId = myMemberId;
-    List<MemberIdentifier> gmsMembers =
+    var myGMSMemberId = myMemberId;
+    var gmsMembers =
         members.stream().map(x -> x).collect(Collectors.toList());
     manager.getGMSManager().installView(new GMSMembershipView<>(myGMSMemberId, 1, gmsMembers));
-    MemberIdentifier[] destinations = new MemberIdentifier[] {mockMembers[0]};
+    var destinations = new MemberIdentifier[] {mockMembers[0]};
     Set<MemberIdentifier> failures =
         manager.send(destinations, m);
     verify(messenger).send(isA(Message.class));
@@ -206,22 +204,22 @@ public class GMSMembershipJUnitTest {
 
   @Test
   public void testForceDisconnectUncleanShutdownDS() throws Exception {
-    final String reason = "For testing";
+    final var reason = "For testing";
     manager = spy(manager);
     manager.getGMSManager().start();
     manager.getGMSManager().started();
-    MemberIdentifier myGMSMemberId = myMemberId;
-    List<MemberIdentifier> gmsMembers =
+    var myGMSMemberId = myMemberId;
+    var gmsMembers =
         members.stream().map(x -> x).collect(Collectors.toList());
     manager.getGMSManager().installView(new GMSMembershipView<>(myGMSMemberId, 1, gmsMembers));
 
     GMSMembership.inhibitForcedDisconnectLogging(true);
-    GMSMembership.ManagerImpl managerImpl = (GMSMembership.ManagerImpl) manager.getGMSManager();
+    var managerImpl = (GMSMembership.ManagerImpl) manager.getGMSManager();
     managerImpl = spy(managerImpl);
     when(manager.getGMSManager()).thenReturn(managerImpl);
 
     manager.forceDisconnect(reason);
-    InOrder inOrder = inOrder(managerImpl, directChannelCallback);
+    var inOrder = inOrder(managerImpl, directChannelCallback);
     inOrder.verify(managerImpl, times(1)).uncleanShutdownDS(eq(reason),
         isA(MemberDisconnectedException.class));
     inOrder
@@ -231,23 +229,23 @@ public class GMSMembershipJUnitTest {
 
   @Test
   public void testForceDisconnectUncleanShutdownReconnectingDS() throws Exception {
-    final String reason = "For testing reconnect";
+    final var reason = "For testing reconnect";
     manager = spy(manager);
     manager.getGMSManager().start();
     manager.getGMSManager().started();
-    MemberIdentifier myGMSMemberId = myMemberId;
-    List<MemberIdentifier> gmsMembers =
+    var myGMSMemberId = myMemberId;
+    var gmsMembers =
         members.stream().map(x -> x).collect(Collectors.toList());
     manager.getGMSManager().installView(new GMSMembershipView<>(myGMSMemberId, 1, gmsMembers));
 
     GMSMembership.inhibitForcedDisconnectLogging(true);
-    GMSMembership.ManagerImpl managerImpl = (GMSMembership.ManagerImpl) manager.getGMSManager();
+    var managerImpl = (GMSMembership.ManagerImpl) manager.getGMSManager();
     managerImpl = spy(managerImpl);
     when(manager.getGMSManager()).thenReturn(managerImpl);
     when(managerImpl.isReconnectingDS()).thenReturn(true);
 
     manager.forceDisconnect(reason);
-    InOrder inOrder = inOrder(services, managerImpl, directChannelCallback);
+    var inOrder = inOrder(services, managerImpl, directChannelCallback);
     inOrder.verify(services, times(1)).setShutdownCause(isA(MemberDisconnectedException.class));
     inOrder.verify(managerImpl, times(1)).uncleanShutdownReconnectingDS(eq(reason),
         isA(MemberDisconnectedException.class));
@@ -267,32 +265,32 @@ public class GMSMembershipJUnitTest {
     manager.getGMSManager().started();
     manager.isJoining = true;
 
-    List<MemberIdentifier> viewMembers =
+    var viewMembers =
         Arrays.asList(mockMembers[0], myMemberId);
     manager.getGMSManager().installView(createView(myMemberId, 2, viewMembers));
 
     // add a surprise member that will be shunned due to it's having
     // an old view ID
-    MemberIdentifier surpriseMember = mockMembers[2];
+    var surpriseMember = mockMembers[2];
     surpriseMember.setVmViewId(1);
     manager.handleOrDeferSurpriseConnect(surpriseMember);
     assertEquals(1, manager.getStartupEvents().size());
 
     // add a surprise member that will be accepted
-    MemberIdentifier surpriseMember2 = mockMembers[3];
+    var surpriseMember2 = mockMembers[3];
     surpriseMember2.setVmViewId(3);
     manager.handleOrDeferSurpriseConnect(surpriseMember2);
     assertEquals(2, manager.getStartupEvents().size());
 
     // suspect a member
-    MemberIdentifier suspectMember = mockMembers[1];
+    var suspectMember = mockMembers[1];
     manager.handleOrDeferSuspect(
         new SuspectMember<>(mockMembers[0], suspectMember, "testing"));
     // suspect messages aren't queued - they're ignored before joining the system
     assertEquals(2, manager.getStartupEvents().size());
     verify(listener, never()).memberSuspect(suspectMember, mockMembers[0], "testing");
 
-    TestMessage m = new TestMessage();
+    var m = new TestMessage();
     mockMembers[0].setVmViewId(1);
     m.setRecipient(mockMembers[0]);
     m.setSender(mockMembers[1]);
@@ -307,7 +305,7 @@ public class GMSMembershipJUnitTest {
 
     // add a surprise member that will be shunned due to it's having
     // an old view ID
-    MemberIdentifier surpriseMember3 = mockMembers[4];
+    var surpriseMember3 = mockMembers[4];
     surpriseMember.setVmViewId(1);
     manager.handleOrDeferSurpriseConnect(surpriseMember);
     assertEquals(5, manager.getStartupEvents().size());
@@ -321,7 +319,7 @@ public class GMSMembershipJUnitTest {
     assertEquals(6, manager.getStartupEvents().size());
 
     // exercise the toString methods for code coverage
-    for (StartupEvent<MemberIdentifier> ev : manager.getStartupEvents()) {
+    for (var ev : manager.getStartupEvents()) {
       ev.toString();
     }
 
@@ -360,28 +358,28 @@ public class GMSMembershipJUnitTest {
     manager.getGMSManager().started();
     manager.isJoining = true;
 
-    List<MemberIdentifier> viewMembers =
+    var viewMembers =
         Arrays.asList(mockMembers[0], mockMembers[1], myMemberId);
-    GMSMembershipView view = createView(myMemberId, 2, viewMembers);
+    var view = createView(myMemberId, 2, viewMembers);
     manager.getGMSManager().installView(view);
     when(services.getJoinLeave().getView()).thenReturn(view);
 
-    MemberIdentifier[] destinations = new MemberIdentifier[viewMembers.size()];
-    for (int i = 0; i < destinations.length; i++) {
-      MemberIdentifier id = viewMembers.get(i);
+    var destinations = new MemberIdentifier[viewMembers.size()];
+    for (var i = 0; i < destinations.length; i++) {
+      var id = viewMembers.get(i);
       destinations[i] = createMemberID(id.getMembershipPort());
     }
     manager.checkAddressesForUUIDs(destinations);
     // each destination w/o a UUID should have been replaced with the corresponding
     // ID from the membership view
-    for (final MemberIdentifier destination : destinations) {
+    for (final var destination : destinations) {
       assertTrue(destination.hasUUID());
     }
   }
 
   @Test
   public void noDispatchWhenSick() throws MemberShunnedException, MemberStartupException {
-    final Message msg = mock(Message.class);
+    final var msg = mock(Message.class);
     when(msg.dropMessageWhenMembershipIsPlayingDead()).thenReturn(true);
 
     final GMSMembership spy = spy(manager);
@@ -398,7 +396,7 @@ public class GMSMembershipJUnitTest {
 
   @Test
   public void testIsMulticastAllowedWithOldVersionSurpriseMember() {
-    MembershipView<MemberIdentifier> view = createMembershipView();
+    var view = createMembershipView();
     manager.addSurpriseMember(createSurpriseMember(OLDER_THAN_CURRENT_VERSION));
 
     manager.processView(view);
@@ -408,7 +406,7 @@ public class GMSMembershipJUnitTest {
 
   @Test
   public void testIsMulticastAllowedWithCurrentVersionSurpriseMember() {
-    MembershipView<MemberIdentifier> view = createMembershipView();
+    var view = createMembershipView();
     manager.addSurpriseMember(createSurpriseMember(KnownVersion.CURRENT));
 
     manager.processView(view);
@@ -418,7 +416,7 @@ public class GMSMembershipJUnitTest {
 
   @Test
   public void testIsMulticastAllowedWithNewVersionSurpriseMember() {
-    MembershipView<MemberIdentifier> view = createMembershipView();
+    var view = createMembershipView();
     manager.addSurpriseMember(createSurpriseMember(NEWER_THAN_CURRENT_VERSION));
 
     manager.processView(view);
@@ -428,7 +426,7 @@ public class GMSMembershipJUnitTest {
 
   @Test
   public void testIsMulticastAllowedWithOldVersionViewMember() {
-    MembershipView<MemberIdentifier> view = createMembershipView();
+    var view = createMembershipView();
     view.getMembers().get(0).setVersionForTest(OLDER_THAN_CURRENT_VERSION);
 
     manager.processView(view);
@@ -438,7 +436,7 @@ public class GMSMembershipJUnitTest {
 
   @Test
   public void testMulticastAllowedWithCurrentVersionViewMember() {
-    MembershipView<MemberIdentifier> view = createMembershipView();
+    var view = createMembershipView();
 
     manager.processView(view);
 
@@ -447,7 +445,7 @@ public class GMSMembershipJUnitTest {
 
   @Test
   public void testMulticastAllowedWithNewVersionViewMember() {
-    MembershipView<MemberIdentifier> view = createMembershipView();
+    var view = createMembershipView();
     view.getMembers().get(0).setVersionForTest(NEWER_THAN_CURRENT_VERSION);
 
     manager.processView(view);
@@ -459,7 +457,7 @@ public class GMSMembershipJUnitTest {
   public void membershipInvokesUpstreamListenerDuringForcedDisconnect() {
     // have an exception interrupt the shutdown process and ensure that a thread is
     // launched to inform the cache of shutdown
-    IllegalStateException expectedException = new IllegalStateException();
+    var expectedException = new IllegalStateException();
     doThrow(expectedException).when(services).emergencyClose();
     assertThatThrownBy(() -> manager.uncleanShutdown("For testing",
         new MemberDisconnectedException("For Testing")))
@@ -468,21 +466,21 @@ public class GMSMembershipJUnitTest {
   }
 
   private MemberIdentifier createSurpriseMember(Version version) {
-    MemberIdentifier surpriseMember = createMemberID(DEFAULT_PORT + 5);
+    var surpriseMember = createMemberID(DEFAULT_PORT + 5);
     surpriseMember.setVmViewId(3);
     surpriseMember.setVersionForTest(version);
     return surpriseMember;
   }
 
   private MembershipView<MemberIdentifier> createMembershipView() {
-    List<MemberIdentifier> viewMembers = createMemberIdentifiers();
+    var viewMembers = createMemberIdentifiers();
     return new MembershipView<>(myMemberId, 2, viewMembers);
   }
 
   private List<MemberIdentifier> createMemberIdentifiers() {
     List<MemberIdentifier> viewMembers = new ArrayList<>();
-    for (int i = 0; i < 2; ++i) {
-      MemberIdentifier memberIdentifier = createMemberID(DEFAULT_PORT + 6 + i);
+    for (var i = 0; i < 2; ++i) {
+      var memberIdentifier = createMemberID(DEFAULT_PORT + 6 + i);
       viewMembers.add(memberIdentifier);
     }
     return viewMembers;

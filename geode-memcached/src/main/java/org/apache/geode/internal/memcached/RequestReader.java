@@ -88,13 +88,13 @@ public class RequestReader {
   }
 
   private Command readBinaryCommand() throws IOException {
-    SocketChannel channel = socket.getChannel();
+    var channel = socket.getChannel();
     if (channel == null || !channel.isOpen()) {
       throw new IllegalStateException("cannot read from channel");
     }
     Command cmd = null;
-    boolean done = false;
-    boolean read = false;
+    var done = false;
+    var read = false;
     while (!done) {
       if (!buffer.hasRemaining()) {
         buffer.clear();
@@ -109,7 +109,7 @@ public class RequestReader {
         buffer.position(0);
       }
       if (read) {
-        int bytesRead = channel.read(buffer);
+        var bytesRead = channel.read(buffer);
         if (bytesRead == -1) {
           throw new IOException("EOF");
         }
@@ -121,17 +121,17 @@ public class RequestReader {
         read = true;
         continue;
       }
-      int requestLength = buffer.remaining();
-      byte magic = buffer.get();
+      var requestLength = buffer.remaining();
+      var magic = buffer.get();
       if (magic != REQUEST_MAGIC) {
         throw new IllegalStateException("Not a valid request, magic byte incorrect");
       }
-      byte opCode = buffer.get();
+      var opCode = buffer.get();
       if (ConnectionHandler.getLogger().finerEnabled()) {
-        String str = Command.buffertoString(buffer);
+        var str = Command.buffertoString(buffer);
         ConnectionHandler.getLogger().finer("Request:" + buffer + str);
       }
-      int bodyLength = buffer.getInt(AbstractCommand.TOTAL_BODY_LENGTH_INDEX);
+      var bodyLength = buffer.getInt(AbstractCommand.TOTAL_BODY_LENGTH_INDEX);
       if ((HEADER_LENGTH + bodyLength) > requestLength) {
         // set the position back to the start of the request
         buffer.position(buffer.position() - 2 /* since we read two bytes */);
@@ -139,7 +139,7 @@ public class RequestReader {
         // ensure that the buffer is big enough
         if (buffer.capacity() < (HEADER_LENGTH + bodyLength)) {
           // allocate bigger buffer and copy the bytes to the bigger buffer
-          ByteBuffer oldBuffer = buffer;
+          var oldBuffer = buffer;
           oldBuffer.position(0);
           buffer = ByteBuffer.allocate(HEADER_LENGTH + bodyLength);
           buffer.put(oldBuffer);
@@ -157,12 +157,12 @@ public class RequestReader {
   }
 
   private Command readAsciiCommand() throws IOException {
-    SocketChannel channel = socket.getChannel();
+    var channel = socket.getChannel();
     if (channel == null || !channel.isOpen()) {
       throw new IllegalStateException("cannot read from channel");
     }
     buffer.clear();
-    int bytesRead = channel.read(buffer);
+    var bytesRead = channel.read(buffer);
     if (bytesRead == -1) {
       throw new IOException("EOF");
     }
@@ -178,12 +178,12 @@ public class RequestReader {
   }
 
   private String trimCommand(String str) {
-    int indexOfSpace = str.indexOf(' ');
-    String retVal = str;
+    var indexOfSpace = str.indexOf(' ');
+    var retVal = str;
     if (indexOfSpace != -1) {
       retVal = str.substring(0, indexOfSpace);
     }
-    int indexOfR = retVal.indexOf("\r");
+    var indexOfR = retVal.indexOf("\r");
     if (indexOfR != -1) {
       retVal = retVal.substring(0, indexOfR);
     }
@@ -198,7 +198,7 @@ public class RequestReader {
   }
 
   private int getBufferSize(SocketChannel channel) {
-    int size = 1024;
+    var size = 1024;
     try {
       size = channel.socket().getReceiveBufferSize();
     } catch (SocketException e) {
@@ -250,8 +250,8 @@ public class RequestReader {
   private static final byte[] cleanByteArray = createCleanByteArray();
 
   private static byte[] createCleanByteArray() {
-    byte[] cleanByteArray = new byte[RESPONSE_HEADER_LENGTH];
-    for (int i = 0; i < cleanByteArray.length; i++) {
+    var cleanByteArray = new byte[RESPONSE_HEADER_LENGTH];
+    for (var i = 0; i < cleanByteArray.length; i++) {
       cleanByteArray[i] = 0;
     }
     return cleanByteArray;
@@ -272,7 +272,7 @@ public class RequestReader {
             .finer("sending reply:" + reply + " " + Command.buffertoString(reply));
       }
     }
-    SocketChannel channel = socket.getChannel();
+    var channel = socket.getChannel();
     if (channel == null || !channel.isOpen()) {
       throw new IllegalStateException("cannot write to channel");
     }
@@ -280,7 +280,7 @@ public class RequestReader {
   }
 
   public void sendException(Exception e) {
-    SocketChannel channel = socket.getChannel();
+    var channel = socket.getChannel();
     if (channel == null || !channel.isOpen()) {
       throw new IllegalStateException("cannot write to channel");
     }

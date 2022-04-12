@@ -37,7 +37,7 @@ public class InMemoryFileManager extends ForwardingJavaFileManager<JavaFileManag
   @Override
   public JavaFileObject getJavaFileForOutput(Location location, String className, Kind kind,
       FileObject sibling) {
-    InMemoryClassFile file = new InMemoryClassFile(className);
+    var file = new InMemoryClassFile(className);
     compiledClassFiles.add(file);
     return file;
   }

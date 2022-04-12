@@ -33,13 +33,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.OptionalInt;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import io.micrometer.core.instrument.Gauge;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -57,7 +53,6 @@ import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.rules.ServiceJarRule;
 import org.apache.geode.test.junit.categories.MetricsTest;
-import org.apache.geode.test.junit.rules.gfsh.GfshExecution;
 import org.apache.geode.test.junit.rules.gfsh.GfshRule;
 
 @Category(MetricsTest.class)
@@ -82,19 +77,19 @@ public class RegionEntriesGaugeTest {
   public void startMembers() throws Exception {
     serviceJarPath = serviceJarRule.createJarFor("metrics-publishing-service.jar",
         MetricsPublishingService.class, SimpleMetricsPublishingService.class);
-    int[] availablePorts = getRandomAvailableTCPPorts(4);
-    int locatorPort = availablePorts[0];
-    int locatorJmxPort = availablePorts[1];
-    int serverPort1 = availablePorts[2];
-    int serverPort2 = availablePorts[3];
+    var availablePorts = getRandomAvailableTCPPorts(4);
+    var locatorPort = availablePorts[0];
+    var locatorJmxPort = availablePorts[1];
+    var serverPort1 = availablePorts[2];
+    var serverPort2 = availablePorts[3];
 
     locatorString = "localhost[" + locatorPort + "]";
 
-    File folderForLocator = temporaryFolder.newFolder("locator");
-    File folderForServer1 = temporaryFolder.newFolder("server1");
-    File folderForServer2 = temporaryFolder.newFolder("server2");
+    var folderForLocator = temporaryFolder.newFolder("locator");
+    var folderForServer1 = temporaryFolder.newFolder("server1");
+    var folderForServer2 = temporaryFolder.newFolder("server2");
 
-    String startLocatorCommand = String.join(" ",
+    var startLocatorCommand = String.join(" ",
         "start locator",
         "--name=" + "locator",
         "--dir=" + folderForLocator.getAbsolutePath(),
@@ -102,19 +97,19 @@ public class RegionEntriesGaugeTest {
         "--http-service-port=0",
         "--J=-Dgemfire.jmx-manager-port=" + locatorJmxPort);
 
-    String startServer1Command = startServerCommand("server1", serverPort1, folderForServer1);
-    String startServer2Command = startServerCommand("server2", serverPort2, folderForServer2);
+    var startServer1Command = startServerCommand("server1", serverPort1, folderForServer1);
+    var startServer2Command = startServerCommand("server2", serverPort2, folderForServer2);
 
     gfshRule.execute(startLocatorCommand, startServer1Command, startServer2Command);
 
     connectToLocatorCommand = "connect --locator=" + locatorString;
 
-    Path functionJarPath =
+    var functionJarPath =
         temporaryFolder.getRoot().toPath().resolve("function.jar").toAbsolutePath();
     writeJarFromClasses(functionJarPath.toFile(), GetMemberRegionEntriesGaugeFunction.class);
 
-    String deployCommand = "deploy --jar=" + functionJarPath.toAbsolutePath();
-    String listFunctionsCommand = "list functions";
+    var deployCommand = "deploy --jar=" + functionJarPath.toAbsolutePath();
+    var listFunctionsCommand = "list functions";
 
     gfshRule.execute(connectToLocatorCommand, deployCommand, listFunctionsCommand);
 
@@ -134,7 +129,7 @@ public class RegionEntriesGaugeTest {
       server1Pool.destroy();
     }
 
-    String shutdownCommand = String.join(" ",
+    var shutdownCommand = String.join(" ",
         "shutdown",
         "--include-locators=true");
     gfshRule.execute(connectToLocatorCommand, shutdownCommand);
@@ -142,22 +137,22 @@ public class RegionEntriesGaugeTest {
 
   @Test
   public void regionEntriesGaugeShowsCountOfLocalRegionValuesInServer() {
-    String regionName = "localRegion";
-    Region<String, String> region = createRegionInGroup(LOCAL.name(), regionName, "server1");
+    var regionName = "localRegion";
+    var region = createRegionInGroup(LOCAL.name(), regionName, "server1");
 
-    List<String> keys = asList("a", "b", "c", "d", "e", "f", "g", "h");
-    for (String key : keys) {
+    var keys = asList("a", "b", "c", "d", "e", "f", "g", "h");
+    for (var key : keys) {
       region.put(key, key);
     }
     region.destroy(keys.get(0));
-    int expectedNumberOfEntries = keys.size() - 1;
+    var expectedNumberOfEntries = keys.size() - 1;
 
-    String getGaugeValueCommand = memberRegionEntryGaugeValueCommand(regionName);
+    var getGaugeValueCommand = memberRegionEntryGaugeValueCommand(regionName);
 
     await()
         .untilAsserted(() -> {
-          GfshExecution execution = gfshRule.execute(connectToLocatorCommand, getGaugeValueCommand);
-          OptionalInt server1EntryCount = linesOf(execution.getOutputText())
+          var execution = gfshRule.execute(connectToLocatorCommand, getGaugeValueCommand);
+          var server1EntryCount = linesOf(execution.getOutputText())
               .filter(s -> s.startsWith("server1"))
               .mapToInt(RegionEntriesGaugeTest::extractEntryCount)
               .findFirst();
@@ -166,7 +161,7 @@ public class RegionEntriesGaugeTest {
               .as("Number of entries reported by server1")
               .hasValue(expectedNumberOfEntries);
 
-          String server2Response = linesOf(execution.getOutputText())
+          var server2Response = linesOf(execution.getOutputText())
               .filter(s -> s.startsWith("server2"))
               .findFirst()
               .orElse("No response from server2");
@@ -179,24 +174,24 @@ public class RegionEntriesGaugeTest {
 
   @Test
   public void regionEntriesGaugeShowsCountOfReplicateRegionValuesInServer() {
-    Region<String, String> otherRegion = createRegion(REPLICATE.name(), "otherRegionName");
+    var otherRegion = createRegion(REPLICATE.name(), "otherRegionName");
     otherRegion.put("other-region-key", "other-region-value");
 
-    String regionName = "replicateRegion";
-    Region<String, String> regionOfInterest = createRegion(REPLICATE.name(), regionName);
+    var regionName = "replicateRegion";
+    var regionOfInterest = createRegion(REPLICATE.name(), regionName);
 
-    List<String> keys = asList("a", "b", "c", "d", "e", "f", "g", "h");
-    for (String key : keys) {
+    var keys = asList("a", "b", "c", "d", "e", "f", "g", "h");
+    for (var key : keys) {
       regionOfInterest.put(key, key);
     }
     regionOfInterest.destroy(keys.get(0));
-    int expectedNumberOfEntries = keys.size() - 1;
+    var expectedNumberOfEntries = keys.size() - 1;
 
-    String getGaugeValueCommand = memberRegionEntryGaugeValueCommand(regionName);
+    var getGaugeValueCommand = memberRegionEntryGaugeValueCommand(regionName);
 
     await().untilAsserted(() -> {
-      GfshExecution execution = gfshRule.execute(connectToLocatorCommand, getGaugeValueCommand);
-      List<Integer> entryCounts = linesOf(execution.getOutputText())
+      var execution = gfshRule.execute(connectToLocatorCommand, getGaugeValueCommand);
+      var entryCounts = linesOf(execution.getOutputText())
           .filter(s -> s.startsWith("server"))
           .map(RegionEntriesGaugeTest::extractEntryCount)
           .collect(toList());
@@ -209,24 +204,24 @@ public class RegionEntriesGaugeTest {
 
   @Test
   public void regionEntriesGaugeShowsCountOfPartitionedRegionValuesInEachServer() {
-    String regionName = "partitionedRegion";
+    var regionName = "partitionedRegion";
 
-    Region<String, String> region = createRegion(PARTITION.name(), regionName);
+    var region = createRegion(PARTITION.name(), regionName);
 
-    List<String> keys = asList("a", "b", "c", "d", "e", "f", "g", "h");
-    for (String key : keys) {
+    var keys = asList("a", "b", "c", "d", "e", "f", "g", "h");
+    for (var key : keys) {
       region.put(key, key);
     }
 
     region.destroy(keys.get(0));
 
-    int expectedNumberOfEntries = keys.size() - 1;
+    var expectedNumberOfEntries = keys.size() - 1;
 
-    String getGaugeValueCommand = memberRegionEntryGaugeValueCommand(regionName);
+    var getGaugeValueCommand = memberRegionEntryGaugeValueCommand(regionName);
 
     await().untilAsserted(() -> {
-      GfshExecution execution = gfshRule.execute(connectToLocatorCommand, getGaugeValueCommand);
-      int sum = linesOf(execution.getOutputText())
+      var execution = gfshRule.execute(connectToLocatorCommand, getGaugeValueCommand);
+      var sum = linesOf(execution.getOutputText())
           .filter(s -> s.startsWith("server"))
           .mapToInt(RegionEntriesGaugeTest::extractEntryCount)
           .sum();
@@ -240,37 +235,37 @@ public class RegionEntriesGaugeTest {
   @Test
   public void regionEntriesGaugeShowsCountOfPartitionedRedundantRegionValuesInEachServer()
       throws IOException {
-    int numberOfRedundantCopies = 1;
-    String regionName = "partitionedRegion";
+    var numberOfRedundantCopies = 1;
+    var regionName = "partitionedRegion";
 
-    int server3Port = AvailablePortHelper.getRandomAvailableTCPPort();
+    var server3Port = AvailablePortHelper.getRandomAvailableTCPPort();
 
-    File folderForServer3 = temporaryFolder.newFolder("server3");
+    var folderForServer3 = temporaryFolder.newFolder("server3");
 
-    String startServer3Command = startServerCommand("server3", server3Port, folderForServer3);
+    var startServer3Command = startServerCommand("server3", server3Port, folderForServer3);
     gfshRule.execute(connectToLocatorCommand, startServer3Command);
 
-    Region<String, String> region =
+    var region =
         createPartitionedRegionWithRedundancy(regionName, numberOfRedundantCopies);
 
-    List<String> keys = asList("a", "b", "c", "d", "e", "f", "g", "h");
-    for (String key : keys) {
+    var keys = asList("a", "b", "c", "d", "e", "f", "g", "h");
+    for (var key : keys) {
       region.put(key, key);
     }
 
     region.destroy(keys.get(0));
 
-    String getGaugeValueCommand = memberRegionEntryGaugeValueCommand(regionName);
+    var getGaugeValueCommand = memberRegionEntryGaugeValueCommand(regionName);
 
-    int numberOfEntries = keys.size() - 1;
-    int totalNumberOfCopies = numberOfRedundantCopies + 1;
-    int expectedNumberOfEntries = numberOfEntries * totalNumberOfCopies;
+    var numberOfEntries = keys.size() - 1;
+    var totalNumberOfCopies = numberOfRedundantCopies + 1;
+    var expectedNumberOfEntries = numberOfEntries * totalNumberOfCopies;
 
     await()
         .untilAsserted(() -> {
-          GfshExecution execution =
+          var execution =
               gfshRule.execute(connectToLocatorCommand, getGaugeValueCommand);
-          int totalEntryCount = linesOf(execution.getOutputText())
+          var totalEntryCount = linesOf(execution.getOutputText())
               .filter(s -> s.startsWith("server"))
               .mapToInt(RegionEntriesGaugeTest::extractEntryCount)
               .sum();
@@ -282,14 +277,14 @@ public class RegionEntriesGaugeTest {
   }
 
   private static int extractEntryCount(String serverEntryCountLine) {
-    String entryCountExtractor = ".*\\[(\\d+).*].*";
-    Pattern entryCountPattern = Pattern.compile(entryCountExtractor);
-    Matcher matcher = entryCountPattern.matcher(serverEntryCountLine);
+    var entryCountExtractor = ".*\\[(\\d+).*].*";
+    var entryCountPattern = Pattern.compile(entryCountExtractor);
+    var matcher = entryCountPattern.matcher(serverEntryCountLine);
     assertThat(matcher.matches())
         .as(serverEntryCountLine)
         .withFailMessage("does not match " + entryCountExtractor)
         .isTrue();
-    String matchedGroup = matcher.group(1);
+    var matchedGroup = matcher.group(1);
     return parseInt(matchedGroup);
   }
 
@@ -300,7 +295,7 @@ public class RegionEntriesGaugeTest {
   private Region<String, String> createPartitionedRegionWithRedundancy(String regionName,
       int numberOfRedundantCopies) {
 
-    String createRegionCommand = String.join(" ",
+    var createRegionCommand = String.join(" ",
         "create region",
         "--name=" + regionName,
         "--redundant-copies=" + numberOfRedundantCopies,
@@ -313,7 +308,7 @@ public class RegionEntriesGaugeTest {
 
   private Region<String, String> createRegion(String regionType, String regionName) {
 
-    String createRegionCommand = String.join(" ",
+    var createRegionCommand = String.join(" ",
         "create region",
         "--name=" + regionName,
         "--type=" + regionType);
@@ -325,7 +320,7 @@ public class RegionEntriesGaugeTest {
 
   private Region<String, String> createRegionInGroup(String regionType, String regionName,
       String groupName) {
-    String createRegionCommand = String.join(" ",
+    var createRegionCommand = String.join(" ",
         "create region",
         "--name=" + regionName,
         "--type=" + regionType,
@@ -362,9 +357,9 @@ public class RegionEntriesGaugeTest {
 
     @Override
     public void execute(FunctionContext<String[]> context) {
-      String regionName = context.getArguments()[0];
+      var regionName = context.getArguments()[0];
 
-      Gauge memberRegionEntriesGauge = SimpleMetricsPublishingService.getRegistry()
+      var memberRegionEntriesGauge = SimpleMetricsPublishingService.getRegistry()
           .find("geode.cache.entries")
           .tag("region", regionName)
           .gauge();

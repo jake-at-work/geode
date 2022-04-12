@@ -53,8 +53,8 @@ public abstract class AbstractPersistIntegrationTest implements RedisIntegration
 
   @Test
   public void shouldPersistKey_givenKeyWith_stringValue() {
-    String stringKey = "stringKey";
-    String stringValue = "stringValue";
+    var stringKey = "stringKey";
+    var stringValue = "stringValue";
     jedis.set(stringKey, stringValue);
     jedis.expire(stringKey, 20L);
 
@@ -69,8 +69,8 @@ public abstract class AbstractPersistIntegrationTest implements RedisIntegration
 
   @Test
   public void shouldPersistKey_givenKeyWith_setValue() {
-    String setKey = "setKey";
-    String setMember = "setValue";
+    var setKey = "setKey";
+    var setMember = "setValue";
 
     jedis.sadd(setKey, setMember);
     jedis.expire(setKey, 20L);
@@ -81,9 +81,9 @@ public abstract class AbstractPersistIntegrationTest implements RedisIntegration
 
   @Test
   public void shouldPersistKey_givenKeyWith_hashValue() {
-    String hashKey = "hashKey";
-    String hashField = "hashField";
-    String hashValue = "hashValue";
+    var hashKey = "hashKey";
+    var hashField = "hashField";
+    var hashValue = "hashValue";
 
     jedis.hset(hashKey, hashField, hashValue);
     jedis.expire(hashKey, 20L);
@@ -94,8 +94,8 @@ public abstract class AbstractPersistIntegrationTest implements RedisIntegration
 
   @Test
   public void shouldPersistKey_givenKeyWith_bitMapValue() {
-    String bitMapKey = "bitMapKey";
-    long offset = 1L;
+    var bitMapKey = "bitMapKey";
+    var offset = 1L;
 
     jedis.setbit(bitMapKey, offset, false);
     jedis.expire(bitMapKey, 20L);
@@ -106,17 +106,17 @@ public abstract class AbstractPersistIntegrationTest implements RedisIntegration
 
   @Test
   public void shouldPersistKeysConcurrently() throws InterruptedException {
-    int iterationCount = 5000;
+    var iterationCount = 5000;
     setKeysWithExpiration(jedis, iterationCount);
 
-    AtomicLong persistedFromThread1 = new AtomicLong(0);
-    AtomicLong persistedFromThread2 = new AtomicLong(0);
+    var persistedFromThread1 = new AtomicLong(0);
+    var persistedFromThread2 = new AtomicLong(0);
 
-    Runnable runnable1 = () -> persistKeys(persistedFromThread1, jedis, iterationCount);
-    Runnable runnable2 = () -> persistKeys(persistedFromThread2, jedis, iterationCount);
+    var runnable1 = (Runnable) () -> persistKeys(persistedFromThread1, jedis, iterationCount);
+    var runnable2 = (Runnable) () -> persistKeys(persistedFromThread2, jedis, iterationCount);
 
-    Thread thread1 = new Thread(runnable1);
-    Thread thread2 = new Thread(runnable2);
+    var thread1 = new Thread(runnable1);
+    var thread2 = new Thread(runnable2);
 
     thread1.start();
     thread2.start();
@@ -127,8 +127,8 @@ public abstract class AbstractPersistIntegrationTest implements RedisIntegration
   }
 
   private void setKeysWithExpiration(JedisCluster jedis, int iterationCount) {
-    for (int i = 0; i < iterationCount; i++) {
-      SetParams setParams = new SetParams();
+    for (var i = 0; i < iterationCount; i++) {
+      var setParams = new SetParams();
       setParams.ex(600L);
 
       jedis.set("key" + i, "value" + i, setParams);
@@ -136,8 +136,8 @@ public abstract class AbstractPersistIntegrationTest implements RedisIntegration
   }
 
   private void persistKeys(AtomicLong atomicLong, JedisCluster jedis, int iterationCount) {
-    for (int i = 0; i < iterationCount; i++) {
-      String key = "key" + i;
+    for (var i = 0; i < iterationCount; i++) {
+      var key = "key" + i;
       atomicLong.addAndGet(jedis.persist(key));
     }
   }

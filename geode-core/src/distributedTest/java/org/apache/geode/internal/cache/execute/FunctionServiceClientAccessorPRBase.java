@@ -19,8 +19,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 
 import org.junit.Assume;
 import org.junit.Before;
@@ -28,14 +26,12 @@ import org.junit.Test;
 
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.execute.Execution;
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.execute.FunctionService;
 import org.apache.geode.cache.execute.RegionFunctionContext;
-import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.cache.partition.PartitionRegionHelper;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
@@ -49,13 +45,13 @@ public abstract class FunctionServiceClientAccessorPRBase extends FunctionServic
 
   @Before
   public void createRegions() {
-    ClientCache cache = createServersAndClient(numberOfExecutions());
+    var cache = createServersAndClient(numberOfExecutions());
 
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
 
-    for (int i = 0; i < numberOfExecutions(); i++) {
-      VM vm = host.getVM(i);
+    for (var i = 0; i < numberOfExecutions(); i++) {
+      var vm = host.getVM(i);
       createRegion(vm);
     }
 
@@ -86,17 +82,17 @@ public abstract class FunctionServiceClientAccessorPRBase extends FunctionServic
    */
   @Test
   public void nonHAFunctionResultCollectorIsPassedPartialResultsAfterBucketMove() {
-    List<InternalDistributedMember> members = getAllMembers();
+    var members = getAllMembers();
     // Only run this test if there is more than two members
     Assume.assumeTrue(members.size() >= 2);
 
-    final Iterator<InternalDistributedMember> iterator = members.iterator();
-    InternalDistributedMember firstMember = iterator.next();
-    InternalDistributedMember secondMember = iterator.next();
+    final var iterator = members.iterator();
+    var firstMember = iterator.next();
+    var secondMember = iterator.next();
 
     // Execute a function which will close the cache on one source.
     try {
-      ResultCollector rc = getExecution().withCollector(customCollector)
+      var rc = getExecution().withCollector(customCollector)
           .execute(new BucketMovingNonHAFunction(firstMember, secondMember));
       rc.getResult();
       fail("Should have thrown an exception");
@@ -124,8 +120,8 @@ public abstract class FunctionServiceClientAccessorPRBase extends FunctionServic
 
     @Override
     public void execute(FunctionContext context) {
-      RegionFunctionContext regionFunctionContext = (RegionFunctionContext) context;
-      final InternalDistributedMember myId =
+      var regionFunctionContext = (RegionFunctionContext) context;
+      final var myId =
           InternalDistributedSystem.getAnyInstance().getDistributedMember();
       // Move all buckets to the destination
       if (myId.equals(source)) {

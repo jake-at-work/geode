@@ -30,7 +30,7 @@ public class DebugCommand extends OfflineGfshCommand {
   public ResultModel debug(
       @CliOption(key = CliStrings.DEBUG__STATE, unspecifiedDefaultValue = "OFF", mandatory = true,
           optionContext = "debug", help = CliStrings.DEBUG__STATE__HELP) String state) {
-    Gfsh gfshInstance = Gfsh.getCurrentInstance();
+    var gfshInstance = Gfsh.getCurrentInstance();
     if (gfshInstance != null) {
       // Handle state
       if (state.equalsIgnoreCase("ON")) {

@@ -47,13 +47,13 @@ public class AbstractEvictionListTest {
 
   @Test
   public void sizeIsZeroByDefault() throws Exception {
-    TestEvictionList evictionList = new TestEvictionList(controller);
+    var evictionList = new TestEvictionList(controller);
     assertThat(evictionList.size()).isZero();
   }
 
   @Test
   public void sizeIncreasesWithAppendEntry() throws Exception {
-    TestEvictionList evictionList = new TestEvictionList(controller);
+    var evictionList = new TestEvictionList(controller);
 
     evictionList.appendEntry(new LinkableEvictionNode());
     assertThat(evictionList.size()).isEqualTo(1);
@@ -64,7 +64,7 @@ public class AbstractEvictionListTest {
 
   @Test
   public void sizeDecreasedWhenDecremented() throws Exception {
-    TestEvictionList evictionList = new TestEvictionList(controller);
+    var evictionList = new TestEvictionList(controller);
 
     evictionList.appendEntry(new LinkableEvictionNode());
     evictionList.decrementSize();
@@ -73,20 +73,20 @@ public class AbstractEvictionListTest {
 
   @Test
   public void getStatisticsReturnsRightObject() throws Exception {
-    TestEvictionList evictionList = new TestEvictionList(controller);
+    var evictionList = new TestEvictionList(controller);
     assertThat(evictionList.getStatistics()).isSameAs(stats);
   }
 
   @Test
   public void closeStats() throws Exception {
-    TestEvictionList evictionList = new TestEvictionList(controller);
+    var evictionList = new TestEvictionList(controller);
     evictionList.closeStats();
     verify(stats).close();
   }
 
   @Test
   public void clearWithVersionVectorDoesNotChangeStats() throws Exception {
-    TestEvictionList evictionList = new TestEvictionList(controller);
+    var evictionList = new TestEvictionList(controller);
 
     evictionList.appendEntry(new LinkableEvictionNode());
     assertThat(evictionList.size()).isEqualTo(1);
@@ -96,7 +96,7 @@ public class AbstractEvictionListTest {
 
   @Test
   public void clearWithoutBucketRegionResetsStats() throws Exception {
-    TestEvictionList noBucketRegionEvictionList = new TestEvictionList(controller);
+    var noBucketRegionEvictionList = new TestEvictionList(controller);
 
     noBucketRegionEvictionList.appendEntry(new LinkableEvictionNode());
     assertThat(noBucketRegionEvictionList.size()).isEqualTo(1);
@@ -107,9 +107,9 @@ public class AbstractEvictionListTest {
 
   @Test
   public void clearWithBucketRegionResetsBucketStats() throws Exception {
-    long bucketSize = 10L;
+    var bucketSize = 10L;
     when(bucketRegion.getCounter()).thenReturn(bucketSize);
-    TestEvictionList evictionList = new TestEvictionList(controller);
+    var evictionList = new TestEvictionList(controller);
 
     evictionList.clear(null, bucketRegion);
     verify(bucketRegion).resetCounter();
@@ -119,8 +119,8 @@ public class AbstractEvictionListTest {
 
   @Test
   public void appendEntryAlreadyInListDoesNothing() throws Exception {
-    TestEvictionList evictionList = new TestEvictionList(controller);
-    EvictionNode node = mock(EvictionNode.class);
+    var evictionList = new TestEvictionList(controller);
+    var node = mock(EvictionNode.class);
     when(node.next()).thenReturn(mock(EvictionNode.class));
 
     evictionList.appendEntry(node);
@@ -129,8 +129,8 @@ public class AbstractEvictionListTest {
 
   @Test
   public void appendingNewEntryAddsItToList() throws Exception {
-    TestEvictionList evictionList = new TestEvictionList(controller);
-    EvictionNode node = mock(EvictionNode.class);
+    var evictionList = new TestEvictionList(controller);
+    var node = mock(EvictionNode.class);
     evictionList.appendEntry(node);
 
     verify(node).setNext(evictionList.tail);
@@ -142,8 +142,8 @@ public class AbstractEvictionListTest {
 
   @Test
   public void unlinkEntryNotInListTest() throws Exception {
-    TestEvictionList evictionList = new TestEvictionList(controller);
-    EvictionNode node = mock(EvictionNode.class);
+    var evictionList = new TestEvictionList(controller);
+    var node = mock(EvictionNode.class);
 
     evictionList.destroyEntry(node);
     assertThat(evictionList.size()).isEqualTo(0);
@@ -151,8 +151,8 @@ public class AbstractEvictionListTest {
 
   @Test
   public void unlinkEntryInListTest() throws Exception {
-    TestEvictionList evictionList = new TestEvictionList(controller);
-    EvictionNode node = mock(EvictionNode.class);
+    var evictionList = new TestEvictionList(controller);
+    var node = mock(EvictionNode.class);
     when(node.next()).thenReturn(evictionList.tail);
     when(node.previous()).thenReturn(evictionList.head);
 
@@ -166,20 +166,20 @@ public class AbstractEvictionListTest {
 
   @Test
   public void unlinkHeadOnEmptyListReturnsNull() throws Exception {
-    TestEvictionList evictionList = new TestEvictionList(controller);
+    var evictionList = new TestEvictionList(controller);
     assertThat(evictionList.unlinkHeadEntry()).isNull();
   }
 
   @Test
   public void unlinkTailOnEmptyListReturnsNull() throws Exception {
-    TestEvictionList evictionList = new TestEvictionList(controller);
+    var evictionList = new TestEvictionList(controller);
     assertThat(evictionList.unlinkTailEntry()).isNull();
   }
 
   @Test
   public void unlinkHeadInListTest() throws Exception {
-    TestEvictionList evictionList = new TestEvictionList(controller);
-    EvictionNode node = mock(EvictionNode.class);
+    var evictionList = new TestEvictionList(controller);
+    var node = mock(EvictionNode.class);
     when(node.next()).thenReturn(null, evictionList.tail);
     when(node.previous()).thenReturn(evictionList.head);
     evictionList.appendEntry(node);
@@ -190,8 +190,8 @@ public class AbstractEvictionListTest {
 
   @Test
   public void unlinkTailInListTest() throws Exception {
-    TestEvictionList evictionList = new TestEvictionList(controller);
-    EvictionNode node = mock(EvictionNode.class);
+    var evictionList = new TestEvictionList(controller);
+    var node = mock(EvictionNode.class);
     when(node.next()).thenReturn(null, evictionList.tail);
     when(node.previous()).thenReturn(evictionList.head);
     evictionList.appendEntry(node);
@@ -202,8 +202,8 @@ public class AbstractEvictionListTest {
 
   @Test
   public void nodeUsedByTransactionIsNotEvictable() {
-    TestEvictionList evictionList = new TestEvictionList(controller);
-    EvictionNode node = mock(EvictionNode.class);
+    var evictionList = new TestEvictionList(controller);
+    var node = mock(EvictionNode.class);
     when(node.isInUseByTransaction()).thenReturn(true);
 
     assertThat(evictionList.isEvictable(node)).isFalse();
@@ -211,8 +211,8 @@ public class AbstractEvictionListTest {
 
   @Test
   public void evictedNodeIsNotEvictable() {
-    TestEvictionList evictionList = new TestEvictionList(controller);
-    EvictionNode node = mock(EvictionNode.class);
+    var evictionList = new TestEvictionList(controller);
+    var node = mock(EvictionNode.class);
     when(node.isEvicted()).thenReturn(true);
 
     assertThat(evictionList.isEvictable(node)).isFalse();
@@ -220,8 +220,8 @@ public class AbstractEvictionListTest {
 
   @Test
   public void defaultNodeIsEvictable() {
-    TestEvictionList evictionList = new TestEvictionList(controller);
-    EvictionNode node = mock(EvictionNode.class);
+    var evictionList = new TestEvictionList(controller);
+    var node = mock(EvictionNode.class);
 
     assertThat(evictionList.isEvictable(node)).isTrue();
   }

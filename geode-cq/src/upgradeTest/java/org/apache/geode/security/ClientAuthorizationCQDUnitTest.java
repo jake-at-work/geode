@@ -18,7 +18,6 @@ import static org.apache.geode.security.SecurityTestUtils.closeCache;
 import static org.apache.geode.test.dunit.IgnoredException.addIgnoredException;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -46,7 +45,7 @@ import org.apache.geode.test.version.VersionManager;
 public class ClientAuthorizationCQDUnitTest extends ClientAuthorizationTestCase {
   @Parameterized.Parameters(name = "from_v{0}")
   public static Collection<String> data() {
-    List<String> result = VersionManager.getInstance().getVersions();
+    var result = VersionManager.getInstance().getVersions();
     if (result.size() < 1) {
       throw new RuntimeException("No older versions of Geode were found to test against");
     } else {

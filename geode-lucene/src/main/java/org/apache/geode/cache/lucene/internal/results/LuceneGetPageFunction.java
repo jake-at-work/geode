@@ -18,7 +18,6 @@ package org.apache.geode.cache.lucene.internal.results;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 
@@ -50,15 +49,15 @@ public class LuceneGetPageFunction implements InternalFunction<Object> {
   @Override
   public void execute(FunctionContext context) {
     try {
-      RegionFunctionContext ctx = (RegionFunctionContext) context;
+      var ctx = (RegionFunctionContext) context;
       Region region = PartitionRegionHelper.getLocalDataForContext(ctx);
-      Set<?> keys = ctx.getFilter();
-      SecurityService securityService = ((InternalCache) ctx.getCache()).getSecurityService();
+      var keys = ctx.getFilter();
+      var securityService = ((InternalCache) ctx.getCache()).getSecurityService();
       List<PageEntry> results = new PageResults(keys.size());
-      Object principal = context.getPrincipal();
+      var principal = context.getPrincipal();
 
       for (Object key : keys) {
-        PageEntry entry = getEntry(region, key, securityService, principal);
+        var entry = getEntry(region, key, securityService, principal);
         if (entry != null) {
           results.add(entry);
         }
@@ -72,12 +71,12 @@ public class LuceneGetPageFunction implements InternalFunction<Object> {
 
   protected PageEntry getEntry(final Region region, final Object key,
       SecurityService securityService, Object principal) {
-    final EntrySnapshot entry = (EntrySnapshot) region.getEntry(key);
+    final var entry = (EntrySnapshot) region.getEntry(key);
     if (entry == null) {
       return null;
     }
 
-    Object value = entry.getRegionEntry().getValue(null);
+    var value = entry.getRegionEntry().getValue(null);
     if (value == null || Token.isInvalidOrRemoved(value)) {
       return null;
     } else if (securityService.needPostProcess()) {

@@ -52,7 +52,6 @@ import org.apache.geode.cache.query.security.RegExMethodAuthorizer;
 import org.apache.geode.cache.query.security.UnrestrictedMethodAuthorizer;
 import org.apache.geode.distributed.ConfigurationPersistenceService;
 import org.apache.geode.distributed.DistributedMember;
-import org.apache.geode.management.internal.cli.GfshParseResult;
 import org.apache.geode.management.internal.cli.functions.AlterQueryServiceFunction;
 import org.apache.geode.management.internal.functions.CliFunctionResult;
 import org.apache.geode.test.junit.rules.GfshParserRule;
@@ -76,7 +75,7 @@ public class AlterQueryServiceCommandTest {
 
   private void mockMembers(int amount, String memberNamePreffix) {
     IntStream.range(0, amount).forEach(i -> {
-      DistributedMember mockMember = mock(DistributedMember.class);
+      var mockMember = mock(DistributedMember.class);
       when(mockMember.getName()).thenReturn(memberNamePreffix + i);
       members.add(mockMember);
     });
@@ -84,7 +83,7 @@ public class AlterQueryServiceCommandTest {
 
   private String buildCommandString(String authorizerName, String authorizerParameters,
       Boolean forceUpdate) {
-    StringBuilder commandBuilder = new StringBuilder(COMMAND_NAME);
+    var commandBuilder = new StringBuilder(COMMAND_NAME);
     commandBuilder.append(" --").append(AUTHORIZER_NAME).append("=").append(authorizerName);
 
     if (authorizerParameters != null) {
@@ -101,25 +100,25 @@ public class AlterQueryServiceCommandTest {
 
   @Test
   public void commandParsesForceUpdateCorrectly() {
-    GfshParseResult noForceUpdate =
+    var noForceUpdate =
         gfsh.parse(COMMAND_NAME + " --" + AUTHORIZER_NAME + "=MyAuthorizer");
     assertThat(noForceUpdate.getCommandName()).isEqualTo(COMMAND_NAME);
     assertThat(noForceUpdate.getParamValue(AUTHORIZER_NAME)).isEqualTo("MyAuthorizer");
     assertThat(noForceUpdate.getParamValue(FORCE_UPDATE)).isEqualTo(false);
 
-    GfshParseResult forceUpdateWithoutValue =
+    var forceUpdateWithoutValue =
         gfsh.parse(COMMAND_NAME + " --" + AUTHORIZER_NAME + "=MyAuthorizer --" + FORCE_UPDATE);
     assertThat(forceUpdateWithoutValue.getCommandName()).isEqualTo(COMMAND_NAME);
     assertThat(forceUpdateWithoutValue.getParamValue(AUTHORIZER_NAME)).isEqualTo("MyAuthorizer");
     assertThat(forceUpdateWithoutValue.getParamValue(FORCE_UPDATE)).isEqualTo(true);
 
-    GfshParseResult forceUpdateAsFalse = gfsh.parse(
+    var forceUpdateAsFalse = gfsh.parse(
         COMMAND_NAME + " --" + AUTHORIZER_NAME + "=MyAuthorizer --" + FORCE_UPDATE + "=false");
     assertThat(forceUpdateAsFalse.getCommandName()).isEqualTo(COMMAND_NAME);
     assertThat(forceUpdateAsFalse.getParamValue(AUTHORIZER_NAME)).isEqualTo("MyAuthorizer");
     assertThat(forceUpdateAsFalse.getParamValue(FORCE_UPDATE)).isEqualTo(false);
 
-    GfshParseResult forceUpdateAsTrue = gfsh.parse(
+    var forceUpdateAsTrue = gfsh.parse(
         COMMAND_NAME + " --" + AUTHORIZER_NAME + "=MyAuthorizer --" + FORCE_UPDATE + "=true");
     assertThat(forceUpdateAsTrue.getCommandName()).isEqualTo(COMMAND_NAME);
     assertThat(forceUpdateAsTrue.getParamValue(AUTHORIZER_NAME)).isEqualTo("MyAuthorizer");
@@ -135,7 +134,7 @@ public class AlterQueryServiceCommandTest {
 
   @Test
   public void commandReturnsCorrectMessageWhenMethodAuthorizerIsSpecifiedAndNoMembersAreFound() {
-    String commandString =
+    var commandString =
         buildCommandString(UnrestrictedMethodAuthorizer.class.getName(), null, null);
 
     gfsh.executeAndAssertThat(command, commandString).statusIsSuccess()
@@ -144,18 +143,18 @@ public class AlterQueryServiceCommandTest {
 
   @Test
   public void commandReturnsCorrectResultModelWhenMethodAuthorizerIsSpecified() {
-    String memberName = "memberName";
+    var memberName = "memberName";
     mockMembers(1, memberName);
     doReturn(mockQueryConfigService).when(command).getQueryConfigService();
     doNothing().when(command).populateMethodAuthorizer(any(), any(), any());
     List<CliFunctionResult> resultList = new ArrayList<>();
     resultList.add(new CliFunctionResult(memberName, CliFunctionResult.StatusState.OK, ""));
     doReturn(resultList).when(command).executeAndGetFunctionResult(any(), any(), any());
-    String authorizerName = RegExMethodAuthorizer.class.getName();
-    String parameterString = "^java.util.List..{4,8}$;^java.util.Set..{4,8}$";
+    var authorizerName = RegExMethodAuthorizer.class.getName();
+    var parameterString = "^java.util.List..{4,8}$;^java.util.Set..{4,8}$";
     Set<String> expectedParameterSet =
         new HashSet<>(Arrays.asList(parameterString.split(SPLITTING_REGEX)));
-    String commandString = buildCommandString(authorizerName, parameterString, null);
+    var commandString = buildCommandString(authorizerName, parameterString, null);
 
     gfsh.executeAndAssertThat(command, commandString).statusIsSuccess().containsOutput(memberName);
     verify(command).populateMethodAuthorizer(authorizerName, expectedParameterSet,
@@ -166,7 +165,7 @@ public class AlterQueryServiceCommandTest {
 
   @Test
   public void commandReturnsCorrectResultModelWhenCliResultListIsPartialFailure() {
-    String memberName = "name";
+    var memberName = "name";
     mockMembers(2, memberName);
     doReturn(mockQueryConfigService).when(command).getQueryConfigService();
     doNothing().when(command).populateMethodAuthorizer(any(), any(), any());
@@ -174,7 +173,7 @@ public class AlterQueryServiceCommandTest {
     resultList.add(new CliFunctionResult(memberName + 1, CliFunctionResult.StatusState.OK, ""));
     resultList.add(new CliFunctionResult(memberName + 2, CliFunctionResult.StatusState.ERROR, ""));
     doReturn(resultList).when(command).executeAndGetFunctionResult(any(), any(), any());
-    String commandString =
+    var commandString =
         buildCommandString(UnrestrictedMethodAuthorizer.class.getName(), null, true);
 
     gfsh.executeAndAssertThat(command, commandString).statusIsSuccess()
@@ -186,12 +185,12 @@ public class AlterQueryServiceCommandTest {
 
   @Test
   public void populateMethodAuthorizerSetsAuthorizerNameAndParameters() {
-    String authorizerName = "authorizerName";
-    QueryConfigService queryConfigService = new QueryConfigService();
+    var authorizerName = "authorizerName";
+    var queryConfigService = new QueryConfigService();
     Set<String> parameters = new HashSet<>(Arrays.asList("param1", "param2"));
     command.populateMethodAuthorizer(authorizerName, parameters, queryConfigService);
 
-    QueryConfigService.MethodAuthorizer methodAuthorizer = queryConfigService.getMethodAuthorizer();
+    var methodAuthorizer = queryConfigService.getMethodAuthorizer();
     assertThat(methodAuthorizer.getClassName()).isEqualTo(authorizerName);
     assertThat(methodAuthorizer.getParameters().size()).isEqualTo(parameters.size());
     assertThat(methodAuthorizer.getParameters().stream()
@@ -201,9 +200,9 @@ public class AlterQueryServiceCommandTest {
 
   @Test
   public void getQueryConfigurationServiceReturnsExistingQueryConfigService() {
-    CacheConfig mockCacheConfig = mock(CacheConfig.class);
-    QueryConfigService mockQueryConfigService = mock(QueryConfigService.class);
-    ConfigurationPersistenceService mockConfigPersistenceService =
+    var mockCacheConfig = mock(CacheConfig.class);
+    var mockQueryConfigService = mock(QueryConfigService.class);
+    var mockConfigPersistenceService =
         mock(ConfigurationPersistenceService.class);
     doReturn(mockConfigPersistenceService).when(command).getConfigurationPersistenceService();
     when(mockConfigPersistenceService.getCacheConfig(null)).thenReturn(mockCacheConfig);
@@ -215,8 +214,8 @@ public class AlterQueryServiceCommandTest {
 
   @Test
   public void getQueryConfigurationServiceReturnsNewQueryConfigServiceWhenNoExistingServiceIsFound() {
-    CacheConfig mockCacheConfig = mock(CacheConfig.class);
-    ConfigurationPersistenceService mockConfigPersistenceService =
+    var mockCacheConfig = mock(CacheConfig.class);
+    var mockConfigPersistenceService =
         mock(ConfigurationPersistenceService.class);
     doReturn(mockConfigPersistenceService).when(command).getConfigurationPersistenceService();
     when(mockConfigPersistenceService.getCacheConfig(null)).thenReturn(mockCacheConfig);
@@ -228,9 +227,9 @@ public class AlterQueryServiceCommandTest {
 
   @Test
   public void updateConfigForGroupReplacesExistingElementWithNewElement() {
-    CacheConfig mockCacheConfig = mock(CacheConfig.class);
-    QueryConfigService newConfigService = mock(QueryConfigService.class);
-    QueryConfigService existingConfigService = mock(QueryConfigService.class);
+    var mockCacheConfig = mock(CacheConfig.class);
+    var newConfigService = mock(QueryConfigService.class);
+    var existingConfigService = mock(QueryConfigService.class);
     List<CacheElement> elements = new ArrayList<>();
     elements.add(existingConfigService);
     when(mockCacheConfig.getCustomCacheElements()).thenReturn(elements);

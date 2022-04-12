@@ -33,11 +33,8 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
-import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolManager;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.internal.cache.CacheServerImpl;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
@@ -75,7 +72,7 @@ public class RegionCloseDUnitTest extends JUnit4DistributedTestCase {
 
   @Override
   public final void postSetUp() throws Exception {
-    final Host host = Host.getHost(0);
+    final var host = Host.getHost(0);
     // Server1 VM
     server1 = host.getVM(0);
     // Client 1 VM
@@ -106,35 +103,35 @@ public class RegionCloseDUnitTest extends JUnit4DistributedTestCase {
 
   public static void createClientCache(String host, Integer port1) throws Exception {
     int PORT1 = port1;
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     new RegionCloseDUnitTest().createCache(props);
-    Pool p = PoolManager.createFactory().addServer(host, PORT1).setSubscriptionEnabled(true)
+    var p = PoolManager.createFactory().addServer(host, PORT1).setSubscriptionEnabled(true)
         .setSubscriptionRedundancy(-1).setReadTimeout(2000)
         .setSocketBufferSize(1000).setMinConnections(2)
         // .setRetryAttempts(2)
         // .setRetryInterval(250)
         .create("RegionCloseDUnitTestPool");
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setPoolName(p.getName());
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
 
     cache.createRegion(REGION_NAME, attrs);
   }
 
   public static Integer createServerCache() throws Exception {
     new RegionCloseDUnitTest().createCache(new Properties());
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.REPLICATE);
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(REGION_NAME, attrs);
-    CacheServer server = cache.addCacheServer();
+    var server = cache.addCacheServer();
     assertNotNull(server);
-    int port = getRandomAvailableTCPPort();
+    var port = getRandomAvailableTCPPort();
     server.setPort(port);
     server.setNotifyBySubscription(true);
     server.start();
@@ -142,12 +139,12 @@ public class RegionCloseDUnitTest extends JUnit4DistributedTestCase {
   }
 
   public static void VerifyClientProxyOnServerBeforeClose() {
-    Cache c = getAnyInstance();
+    var c = getAnyInstance();
     assertEquals("More than one CacheServer", 1, c.getCacheServers().size());
 
 
-    final CacheServerImpl bs = (CacheServerImpl) c.getCacheServers().iterator().next();
-    WaitCriterion ev = new WaitCriterion() {
+    final var bs = (CacheServerImpl) c.getCacheServers().iterator().next();
+    var ev = new WaitCriterion() {
       @Override
       public boolean done() {
         return bs.getAcceptor().getCacheClientNotifier().getClientProxies().size() == 1;
@@ -163,7 +160,7 @@ public class RegionCloseDUnitTest extends JUnit4DistributedTestCase {
 
     Iterator iter = bs.getAcceptor().getCacheClientNotifier().getClientProxies().iterator();
     if (iter.hasNext()) {
-      CacheClientProxy proxy = (CacheClientProxy) iter.next();
+      var proxy = (CacheClientProxy) iter.next();
       clientMembershipId = proxy.getProxyID().toString();
       assertNotNull(proxy.getHARegion());
     }
@@ -173,9 +170,9 @@ public class RegionCloseDUnitTest extends JUnit4DistributedTestCase {
     try {
       Region r = cache.getRegion(SEPARATOR + REGION_NAME);
       assertNotNull(r);
-      String poolName = r.getAttributes().getPoolName();
+      var poolName = r.getAttributes().getPoolName();
       assertNotNull(poolName);
-      Pool pool = PoolManager.find(poolName);
+      var pool = PoolManager.find(poolName);
       assertNotNull(pool);
       r.close();
       pool.destroy();
@@ -185,8 +182,8 @@ public class RegionCloseDUnitTest extends JUnit4DistributedTestCase {
   }
 
   public static void VerifyClientProxyOnServerAfterClose() {
-    final Cache c = getAnyInstance();
-    WaitCriterion ev = new WaitCriterion() {
+    final var c = getAnyInstance();
+    var ev = new WaitCriterion() {
       @Override
       public boolean done() {
         return c.getCacheServers().size() == 1;
@@ -199,7 +196,7 @@ public class RegionCloseDUnitTest extends JUnit4DistributedTestCase {
     };
     GeodeAwaitility.await().untilAsserted(ev);
 
-    final CacheServerImpl bs = (CacheServerImpl) c.getCacheServers().iterator().next();
+    final var bs = (CacheServerImpl) c.getCacheServers().iterator().next();
     ev = new WaitCriterion() {
       @Override
       public boolean done() {

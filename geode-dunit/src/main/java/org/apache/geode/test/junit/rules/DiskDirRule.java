@@ -20,8 +20,6 @@ import static org.apache.geode.internal.lang.SystemProperty.getProductStringProp
 import static org.apache.geode.internal.lang.SystemPropertyHelper.DEFAULT_DISK_DIRS_PROPERTY;
 
 import java.io.File;
-import java.lang.reflect.Method;
-import java.util.Optional;
 
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestName;
@@ -79,12 +77,12 @@ public class DiskDirRule extends DescribedExternalResource {
 
   @Override
   protected void before(Description description) throws Exception {
-    Optional<String> value = getProductStringProperty(DEFAULT_DISK_DIRS_PROPERTY);
+    var value = getProductStringProperty(DEFAULT_DISK_DIRS_PROPERTY);
     value.ifPresent(s -> originalValue = s);
 
     initializeHelperRules(description);
 
-    File diskDir = temporaryFolder.newFolder(getDiskDirName(description.getClassName()));
+    var diskDir = temporaryFolder.newFolder(getDiskDirName(description.getClassName()));
 
     System.setProperty(SystemProperty.DEFAULT_PREFIX + DEFAULT_DISK_DIRS_PROPERTY,
         diskDir.getAbsolutePath());
@@ -109,13 +107,13 @@ public class DiskDirRule extends DescribedExternalResource {
 
   private void initializeHelperRules(Description description) throws Exception {
     if (temporaryFolder != null) {
-      Method method = TemporaryFolder.class.getDeclaredMethod(BEFORE);
+      var method = TemporaryFolder.class.getDeclaredMethod(BEFORE);
       method.setAccessible(true);
       method.invoke(temporaryFolder);
     }
 
     if (testName != null) {
-      Method method = TestName.class.getDeclaredMethod(STARTING, Description.class);
+      var method = TestName.class.getDeclaredMethod(STARTING, Description.class);
       method.setAccessible(true);
       method.invoke(testName, description);
     }

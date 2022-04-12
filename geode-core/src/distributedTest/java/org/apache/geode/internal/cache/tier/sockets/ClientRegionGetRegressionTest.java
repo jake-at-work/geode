@@ -38,7 +38,6 @@ import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.test.dunit.DUnitBlackboard;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.CacheRule;
@@ -116,8 +115,8 @@ public class ClientRegionGetRegressionTest implements Serializable {
       return region.get(key);
     });
 
-    Object get1value = get1.get();
-    Object get2value = get2.get();
+    var get1value = get1.get();
+    var get2value = get2.get();
 
     assertThat(get1value).isNotSameAs(get2value);
   }
@@ -140,8 +139,8 @@ public class ClientRegionGetRegressionTest implements Serializable {
       return region.get(key);
     });
 
-    Object get1value = get1.get();
-    Object get2value = get2.get();
+    var get1value = get1.get();
+    var get2value = get2.get();
 
     assertThat(get1value).isSameAs(get2value);
   }
@@ -168,14 +167,14 @@ public class ClientRegionGetRegressionTest implements Serializable {
       return region.get(key);
     });
 
-    Object get1value = get1.get();
-    Object get2value = get2.get();
+    var get1value = get1.get();
+    var get2value = get2.get();
 
     assertThat(get1value).isNotSameAs(get2value);
   }
 
   private void createClientCache() {
-    ClientCacheFactory clientCacheFactory = new ClientCacheFactory().addPoolServer(hostName, port);
+    var clientCacheFactory = new ClientCacheFactory().addPoolServer(hostName, port);
     clientCacheRule.createClientCache(clientCacheFactory);
   }
 
@@ -185,7 +184,7 @@ public class ClientRegionGetRegressionTest implements Serializable {
     RegionFactory<?, ?> regionFactory = cacheRule.getCache().createRegionFactory(REPLICATE);
     regionFactory.setCacheLoader(new TestCacheLoader()).create(regionName);
 
-    CacheServer cacheServer = cacheRule.getCache().addCacheServer();
+    var cacheServer = cacheRule.getCache().addCacheServer();
     cacheServer.setPort(0);
     cacheServer.start();
     return cacheServer.getPort();

@@ -23,10 +23,8 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.text.DateFormat;
 import java.text.ParsePosition;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -51,15 +49,15 @@ public class GemfireLogConverter {
 
 
   public static void convertFiles(OutputStream output, File[] files) throws IOException {
-    Context context = new Context();
+    var context = new Context();
     context.appender = new OutputStreamAppender(output);
-    for (File file : files) {
+    for (var file : files) {
       context.currentMember = null;
-      BufferedReader reader = new BufferedReader(new FileReader(file));
+      var reader = new BufferedReader(new FileReader(file));
       try {
         String line;
         while ((line = reader.readLine()) != null) {
-          for (Test test : tests) {
+          for (var test : tests) {
             if (test.apply(context, line)) {
               // go to the next line
               break;
@@ -79,23 +77,23 @@ public class GemfireLogConverter {
       ExitCode.FATAL.doSystemExit();
     }
 
-    File outputFile = new File(args[0]);
+    var outputFile = new File(args[0]);
 
-    File[] files = new File[args.length - 1];
-    for (int i = 1; i < args.length; i++) {
-      String fileName = args[i];
-      File file = new File(fileName);
+    var files = new File[args.length - 1];
+    for (var i = 1; i < args.length; i++) {
+      var fileName = args[i];
+      var file = new File(fileName);
       files[i - 1] = file;
     }
 
-    try (FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
-        BufferedOutputStream output = new BufferedOutputStream(fileOutputStream)) {
+    try (var fileOutputStream = new FileOutputStream(outputFile);
+        var output = new BufferedOutputStream(fileOutputStream)) {
       convertFiles(output, files);
     }
   }
 
   private static ArrayList<Test> buildTests() {
-    ArrayList<Test> tests = new ArrayList<>();
+    var tests = new ArrayList<Test>();
 
     // Membership level events
     // [info 2011/04/27 00:43:31.020 PDT dataStoregemfire5_hs20e_16643
@@ -104,7 +102,7 @@ public class GemfireLogConverter {
     tests.add(new Test("Starting DistributionManager (.*)\\.") {
       @Override
       public void process(Context context, long timestamp, Matcher matcher) throws IOException {
-        String member = matcher.group(1);
+        var member = matcher.group(1);
         context.currentMember = member;
         context.appender.write(new Transition(timestamp, GraphType.MEMBER, "member", "start",
             "running", member, member));
@@ -117,7 +115,7 @@ public class GemfireLogConverter {
     tests.add(new Test("Member at (.*) unexpectedly left the distributed cache") {
       @Override
       public void process(Context context, long timestamp, Matcher matcher) throws IOException {
-        String member = matcher.group(1);
+        var member = matcher.group(1);
         context.appender.write(new Transition(timestamp, GraphType.MEMBER, "member", "crashed",
             "destroyed", member, member));
         context.appender.write(
@@ -134,7 +132,7 @@ public class GemfireLogConverter {
     tests.add(new Test("VM is exiting - shutting down distributed system") {
       @Override
       public void process(Context context, long timestamp, Matcher matcher) throws IOException {
-        String member = context.currentMember;
+        var member = context.currentMember;
         context.appender.write(new Transition(timestamp, GraphType.MEMBER, "member", "stop",
             "destroyed", member, member));
         context.appender.write(new Transition(timestamp, GraphType.REGION, ALL, "destroy",
@@ -152,7 +150,7 @@ public class GemfireLogConverter {
     tests.add(new Test("GemFireCache .*Now closing") {
       @Override
       public void process(Context context, long timestamp, Matcher matcher) throws IOException {
-        String member = context.currentMember;
+        var member = context.currentMember;
         context.appender.write(new Transition(timestamp, GraphType.MEMBER, "member", "stop",
             "destroyed", member, member));
         context.appender.write(new Transition(timestamp, GraphType.REGION, ALL, "destroy",
@@ -169,7 +167,7 @@ public class GemfireLogConverter {
     tests.add(new Test("Shutting down DistributionManager") {
       @Override
       public void process(Context context, long timestamp, Matcher matcher) throws IOException {
-        String member = context.currentMember;
+        var member = context.currentMember;
         context.appender.write(new Transition(timestamp, GraphType.MEMBER, "member", "stop",
             "destroyed", member, member));
         context.appender.write(new Transition(timestamp, GraphType.REGION, ALL, "destroy",
@@ -189,7 +187,7 @@ public class GemfireLogConverter {
     tests.add(new Test("initializing region (.*)") {
       @Override
       public void process(Context context, long timestamp, Matcher matcher) throws IOException {
-        String region = matcher.group(1);
+        var region = matcher.group(1);
         context.appender.write(new Transition(timestamp, GraphType.REGION, region, "create",
             "created", context.currentMember, context.currentMember));
       }
@@ -200,7 +198,7 @@ public class GemfireLogConverter {
     tests.add(new Test("Partitioned Region " + SEPARATOR + "(.*) is created with") {
       @Override
       public void process(Context context, long timestamp, Matcher matcher) throws IOException {
-        String region = matcher.group(1);
+        var region = matcher.group(1);
         context.appender.write(new Transition(timestamp, GraphType.REGION, region, "create",
             "created", context.currentMember, context.currentMember));
       }
@@ -211,8 +209,8 @@ public class GemfireLogConverter {
     tests.add(new Test(" Region (.*) requesting initial image from (.*)") {
       @Override
       public void process(Context context, long timestamp, Matcher matcher) throws IOException {
-        String region = matcher.group(1);
-        String source = matcher.group(2);
+        var region = matcher.group(1);
+        var source = matcher.group(2);
         context.appender.write(new Transition(timestamp, GraphType.REGION, region, "GII", "created",
             source, context.currentMember));
       }
@@ -226,8 +224,8 @@ public class GemfireLogConverter {
         new Test(" Region (.*) initialized persistent id: .* diskStoreId (.*) with data from ") {
           @Override
           public void process(Context context, long timestamp, Matcher matcher) throws IOException {
-            String region = matcher.group(1);
-            String store = matcher.group(2);
+            var region = matcher.group(1);
+            var store = matcher.group(2);
             context.appender.write(new Transition(timestamp, GraphType.REGION, region, "persist",
                 "persisted", context.currentMember, store));
           }
@@ -246,8 +244,8 @@ public class GemfireLogConverter {
             + "(.*) was created on this member with the persistent id .* diskStoreId (.*)\\.") {
       @Override
       public void process(Context context, long timestamp, Matcher matcher) throws IOException {
-        String region = matcher.group(1);
-        String store = matcher.group(2);
+        var region = matcher.group(1);
+        var store = matcher.group(2);
         context.appender.write(new Transition(timestamp, GraphType.REGION, region, "persist",
             "persisted", context.currentMember, store));
       }
@@ -266,8 +264,8 @@ public class GemfireLogConverter {
             + "(.*) recovered from the local disk. .* new persistent ID.*diskStoreId (.*)") {
       @Override
       public void process(Context context, long timestamp, Matcher matcher) throws IOException {
-        String region = matcher.group(1);
-        String store = matcher.group(2);
+        var region = matcher.group(1);
+        var store = matcher.group(2);
         context.appender.write(new Transition(timestamp, GraphType.REGION, region, "recover",
             "created", store, context.currentMember));
       }
@@ -277,13 +275,13 @@ public class GemfireLogConverter {
   }
 
   private static long extractDate(String line) {
-    Matcher matcher = DATE_PATTERN.matcher(line);
+    var matcher = DATE_PATTERN.matcher(line);
     if (!matcher.find()) {
       throw new IllegalStateException("Could not parse timestamp from line " + line);
     }
     matcher.start();
-    final DateFormat formatter = DateFormatter.createDateFormat();
-    Date date = formatter.parse(line, new ParsePosition(matcher.start()));
+    final var formatter = DateFormatter.createDateFormat();
+    var date = formatter.parse(line, new ParsePosition(matcher.start()));
     return date.getTime();
   }
 
@@ -301,9 +299,9 @@ public class GemfireLogConverter {
     }
 
     public boolean apply(Context context, String line) throws IOException {
-      Matcher matcher = pattern.matcher(line);
+      var matcher = pattern.matcher(line);
       if (matcher.find()) {
-        long timestamp = extractDate(line);
+        var timestamp = extractDate(line);
         process(context, timestamp, matcher);
         return true;
       }

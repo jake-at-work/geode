@@ -32,8 +32,6 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.IndexType;
 import org.apache.geode.cache.query.Query;
@@ -79,16 +77,16 @@ public class INOperatorJUnitTest {
   @Test
   public void testRegionBulkGet() throws Exception {
     Cache cache = CacheUtils.getCache();
-    AttributesFactory attributesFactory = new AttributesFactory();
-    RegionAttributes regionAttributes = attributesFactory.create();
+    var attributesFactory = new AttributesFactory();
+    var regionAttributes = attributesFactory.create();
 
-    Region region = cache.createRegion("pos", regionAttributes);
+    var region = cache.createRegion("pos", regionAttributes);
 
     region.put("6", 6);
     region.put("10", 10);
     region.put("12", 10);
 
-    QueryService qs = cache.getQueryService();
+    var qs = cache.getQueryService();
 
     Query q;
     SelectResults results;
@@ -109,7 +107,7 @@ public class INOperatorJUnitTest {
     expectedResults = new HashSet();
     assertThat(results.asSet()).isEqualTo(expectedResults);
 
-    for (int i = 0; i < 1000; i++) {
+    for (var i = 0; i < 1000; i++) {
       region.put(String.valueOf(i), i);
     }
     q = qs.newQuery("SELECT e.value FROM " + SEPARATOR + "pos.entrySet e WHERE e.key IN $1");
@@ -132,84 +130,84 @@ public class INOperatorJUnitTest {
 
   @Test
   public void testIntSet() throws Exception {
-    Query q = CacheUtils.getQueryService().newQuery("2 IN SET(1,2,3)");
+    var q = CacheUtils.getQueryService().newQuery("2 IN SET(1,2,3)");
 
-    Object result = q.execute();
+    var result = q.execute();
     assertThat(result).isEqualTo(TRUE);
   }
 
   @Test
   public void testStringSet() throws Exception {
-    Query q = CacheUtils.getQueryService().newQuery("'a' IN SET('x','y','z')");
+    var q = CacheUtils.getQueryService().newQuery("'a' IN SET('x','y','z')");
 
-    Object result = q.execute();
+    var result = q.execute();
     assertThat(result).isEqualTo(FALSE);
   }
 
   @Test
   public void testShortNumSet() throws Exception {
-    Short num = Short.valueOf("1");
-    Object[] params = new Object[1];
+    var num = Short.valueOf("1");
+    var params = new Object[1];
     params[0] = num;
-    Query q = CacheUtils.getQueryService().newQuery("$1 IN SET(1,2,3)");
-    Object result = q.execute(params);
+    var q = CacheUtils.getQueryService().newQuery("$1 IN SET(1,2,3)");
+    var result = q.execute(params);
     assertThat(result).isEqualTo(TRUE);
   }
 
   @Test
   public void testCollection() throws Exception {
-    Object e1 = new Object();
-    Object e2 = new Object();
-    Object e3 = new Object();
-    HashSet C1 = new HashSet();
+    var e1 = new Object();
+    var e2 = new Object();
+    var e3 = new Object();
+    var C1 = new HashSet();
     C1.add(e1);
     C1.add(e2);
     C1.add(e3);
-    Object[] params = new Object[3];
+    var params = new Object[3];
     params[0] = e1;
     params[1] = C1;
     params[2] = e2;
 
-    Query q = CacheUtils.getQueryService().newQuery("$3 IN $2");
-    Object result = q.execute(params);
+    var q = CacheUtils.getQueryService().newQuery("$3 IN $2");
+    var result = q.execute(params);
     assertThat(result).isEqualTo(TRUE);
   }
 
   @Test
   public void testWithSet() throws Exception {
-    String s1 = "Hello";
-    String s2 = "World";
-    HashSet H1 = new HashSet();
+    var s1 = "Hello";
+    var s2 = "World";
+    var H1 = new HashSet();
     H1.add(s1);
     H1.add(s2);
-    Object[] params = new Object[2];
+    var params = new Object[2];
     params[0] = s1;
     params[1] = H1;
-    Query q = CacheUtils.getQueryService().newQuery("$1 IN $2");
-    Object result = q.execute(params);
+    var q = CacheUtils.getQueryService().newQuery("$1 IN $2");
+    var result = q.execute(params);
     assertThat(result).isEqualTo(TRUE);
   }
 
   @Test
   public void testArrayList() throws Exception {
-    String s1 = "sss";
-    String s2 = "ddd";
-    ArrayList AL1 = new ArrayList();
+    var s1 = "sss";
+    var s2 = "ddd";
+    var AL1 = new ArrayList();
     AL1.add(s1);
     AL1.add(s2);
-    Object[] params = new Object[3];
+    var params = new Object[3];
     params[0] = s1;
     params[1] = s2;
     params[2] = AL1;
-    Query q = CacheUtils.getQueryService().newQuery("$1 IN $3");
-    Object result = q.execute(params);
+    var q = CacheUtils.getQueryService().newQuery("$1 IN $3");
+    var result = q.execute(params);
     assertThat(result).isEqualTo(TRUE);
   }
 
   @Test
   public void testNULL() throws Exception {
-    Query q = CacheUtils.getQueryService().newQuery(" null IN SET('x','y','z')");
-    Object result = q.execute();
+    var q = CacheUtils.getQueryService().newQuery(" null IN SET('x','y','z')");
+    var result = q.execute();
     assertThat(result).isEqualTo(FALSE);
 
     q = CacheUtils.getQueryService().newQuery(" null IN SET(null)");
@@ -219,8 +217,8 @@ public class INOperatorJUnitTest {
 
   @Test
   public void testUNDEFINED() throws Exception {
-    Query q = CacheUtils.getQueryService().newQuery(" UNDEFINED IN SET(1,2,3)");
-    Object result = q.execute();
+    var q = CacheUtils.getQueryService().newQuery(" UNDEFINED IN SET(1,2,3)");
+    var result = q.execute();
     assertThat(result).isEqualTo(FALSE);
 
     q = CacheUtils.getQueryService().newQuery(" UNDEFINED IN SET(UNDEFINED)");
@@ -234,12 +232,12 @@ public class INOperatorJUnitTest {
 
   @Test
   public void testMiscSet() throws Exception {
-    Query q = CacheUtils.getQueryService().newQuery(" $1 IN SET(1, 'a', $2, $3, $4, $5)");
+    var q = CacheUtils.getQueryService().newQuery(" $1 IN SET(1, 'a', $2, $3, $4, $5)");
     Object[] params = {null, 0, "str", null, new Object()};
 
-    for (int i = 1; i < params.length; i++) {
+    for (var i = 1; i < params.length; i++) {
       params[0] = params[i];
-      Object result = q.execute(params);
+      var result = q.execute(params);
       assertThat(result).isEqualTo(TRUE);
     }
   }
@@ -247,16 +245,16 @@ public class INOperatorJUnitTest {
   @Test
   public void testIndexUsageWithIn() throws Exception {
     Cache cache = CacheUtils.getCache();
-    AttributesFactory attributesFactory = new AttributesFactory();
-    RegionAttributes regionAttributes = attributesFactory.create();
+    var attributesFactory = new AttributesFactory();
+    var regionAttributes = attributesFactory.create();
 
-    Region region = cache.createRegion("pos", regionAttributes);
+    var region = cache.createRegion("pos", regionAttributes);
 
     region.put("6", 6);
     region.put("10", 10);
     region.put("12", 10);
 
-    QueryService qs = cache.getQueryService();
+    var qs = cache.getQueryService();
     qs.createIndex("In Index", IndexType.FUNCTIONAL, "e.key", SEPARATOR + "pos.entrySet e");
     Query q;
     SelectResults results;
@@ -277,7 +275,7 @@ public class INOperatorJUnitTest {
     expectedResults = new HashSet();
     assertThat(results.asSet()).isEqualTo(expectedResults);
 
-    for (int i = 0; i < 1000; i++) {
+    for (var i = 0; i < 1000; i++) {
       region.put(String.valueOf(i), i);
     }
     q = qs.newQuery("SELECT e.value FROM " + SEPARATOR + "pos.entrySet e WHERE e.key IN $1");
@@ -303,36 +301,36 @@ public class INOperatorJUnitTest {
   @Test
   public void testCacheEvalCollnWithIn() throws Exception {
     Cache cache = CacheUtils.getCache();
-    AttributesFactory attributesFactory = new AttributesFactory();
-    RegionAttributes regionAttributes = attributesFactory.create();
-    QueryService qs = cache.getQueryService();
-    Region customersRegion = cache.createRegionFactory(regionAttributes).create("customers");
-    Region receiptsRegion = cache.createRegionFactory(regionAttributes).create("receipts");
+    var attributesFactory = new AttributesFactory();
+    var regionAttributes = attributesFactory.create();
+    var qs = cache.getQueryService();
+    var customersRegion = cache.createRegionFactory(regionAttributes).create("customers");
+    var receiptsRegion = cache.createRegionFactory(regionAttributes).create("receipts");
 
     qs.createIndex("receiptsByProduct", "i.productId", SEPARATOR + "receipts r, r.items i");
     qs.createIndex("receiptsByCustomer", "r.productId", SEPARATOR + "receipts r");
     qs.createIndex("customersByProfile", "c.profile", SEPARATOR + "customers c");
 
-    int numReceiptsPerCustomer = 10;
-    for (int i = 0; i < 1000; i++) {
+    var numReceiptsPerCustomer = 10;
+    for (var i = 0; i < 1000; i++) {
       customersRegion.put(i, new Customer(i, i % 2 == 0 ? "PremiumIndividual" : "AverageJoe"));
-      for (int j = 0; j < numReceiptsPerCustomer; j++) {
-        int receiptId = i * numReceiptsPerCustomer + j;
+      for (var j = 0; j < numReceiptsPerCustomer; j++) {
+        var receiptId = i * numReceiptsPerCustomer + j;
         receiptsRegion.put(receiptId, new Receipt(receiptId, i));
       }
     }
 
-    Query q = qs.newQuery(
+    var q = qs.newQuery(
         "<trace>select r from " + SEPARATOR
             + "receipts r, r.items i where i.productId = 8 and r.customerId in (select c.id from "
             + SEPARATOR + "customers c where c.profile = 'PremiumIndividual')");
-    SelectResults results = (SelectResults) q.execute();
+    var results = (SelectResults) q.execute();
     assertThat(results).hasSize(500);
 
-    for (int i = 1000; i < 1100; i++) {
+    for (var i = 1000; i < 1100; i++) {
       customersRegion.put(i, new Customer(i, i % 2 == 0 ? "PremiumIndividual" : "AverageJoe"));
-      for (int j = 0; j < numReceiptsPerCustomer; j++) {
-        int receiptId = i * numReceiptsPerCustomer + j;
+      for (var j = 0; j < numReceiptsPerCustomer; j++) {
+        var receiptId = i * numReceiptsPerCustomer + j;
         receiptsRegion.put(receiptId, new Receipt(receiptId, i));
       }
     }
@@ -347,37 +345,37 @@ public class INOperatorJUnitTest {
   @Test
   public void testCacheEvalCollnWithInWithMultipleNestedIn() throws Exception {
     Cache cache = CacheUtils.getCache();
-    AttributesFactory attributesFactory = new AttributesFactory();
-    RegionAttributes regionAttributes = attributesFactory.create();
-    QueryService qs = cache.getQueryService();
-    Region customersRegion = cache.createRegionFactory(regionAttributes).create("customers");
-    Region receiptsRegion = cache.createRegionFactory(regionAttributes).create("receipts");
+    var attributesFactory = new AttributesFactory();
+    var regionAttributes = attributesFactory.create();
+    var qs = cache.getQueryService();
+    var customersRegion = cache.createRegionFactory(regionAttributes).create("customers");
+    var receiptsRegion = cache.createRegionFactory(regionAttributes).create("receipts");
 
     qs.createIndex("receiptsByProduct", "i.productId", SEPARATOR + "receipts r, r.items i");
     qs.createIndex("receiptsByCustomer", "r.productId", SEPARATOR + "receipts r");
     qs.createIndex("customersByProfile", "c.profile", SEPARATOR + "customers c");
 
-    int numReceiptsPerCustomer = 10;
-    for (int i = 0; i < 1000; i++) {
+    var numReceiptsPerCustomer = 10;
+    for (var i = 0; i < 1000; i++) {
       customersRegion.put(i, new Customer(i, i % 2 == 0 ? "PremiumIndividual" : "AverageJoe"));
-      for (int j = 0; j < numReceiptsPerCustomer; j++) {
-        int receiptId = i * numReceiptsPerCustomer + j;
+      for (var j = 0; j < numReceiptsPerCustomer; j++) {
+        var receiptId = i * numReceiptsPerCustomer + j;
         receiptsRegion.put(receiptId, new Receipt(receiptId, i));
       }
     }
 
-    Query q = qs.newQuery(
+    var q = qs.newQuery(
         "<trace>select r from " + SEPARATOR
             + "receipts r, r.items i where i.productId = 8 and r.customerId in (select c.id from "
             + SEPARATOR + "customers c where c.id in (select d.id from " + SEPARATOR
             + "customers d where d.profile='PremiumIndividual'))");
-    SelectResults results = (SelectResults) q.execute();
+    var results = (SelectResults) q.execute();
     assertThat(results).hasSize(500);
 
-    for (int i = 1000; i < 1100; i++) {
+    for (var i = 1000; i < 1100; i++) {
       customersRegion.put(i, new Customer(i, i % 2 == 0 ? "PremiumIndividual" : "AverageJoe"));
-      for (int j = 0; j < numReceiptsPerCustomer; j++) {
-        int receiptId = i * numReceiptsPerCustomer + j;
+      for (var j = 0; j < numReceiptsPerCustomer; j++) {
+        var receiptId = i * numReceiptsPerCustomer + j;
         receiptsRegion.put(receiptId, new Receipt(receiptId, i));
       }
     }

@@ -59,7 +59,7 @@ public class ReflectiveObjectInputFilterApi implements ObjectInputFilterApi {
     ObjectInputFilter = ObjectInputFilter();
     ObjectInputFilter_Config = ObjectInputFilter_Config();
     ObjectInputFilter_FilterInfo = ObjectInputFilter_FilterInfo();
-    Class<?> ObjectInputFilter_Status = ObjectInputFilter_Status();
+    var ObjectInputFilter_Status = ObjectInputFilter_Status();
     ObjectInputFilter_Status_ALLOWED = ObjectInputFilter_Status.getEnumConstants()[1];
     ObjectInputFilter_Status_REJECTED = ObjectInputFilter_Status.getEnumConstants()[2];
 
@@ -123,7 +123,7 @@ public class ReflectiveObjectInputFilterApi implements ObjectInputFilterApi {
   @Override
   public Object createObjectInputFilterProxy(String pattern, Collection<String> sanctionedClasses)
       throws InvocationTargetException, IllegalAccessException {
-    Object objectInputFilter =
+    var objectInputFilter =
         ObjectInputFilter_Config_createFilter.invoke(ObjectInputFilter_Config, pattern);
 
     /*
@@ -155,7 +155,7 @@ public class ReflectiveObjectInputFilterApi implements ObjectInputFilterApi {
 
   @Override
   public String toString() {
-    final StringBuilder sb = new StringBuilder("ReflectiveObjectInputFilterApi{");
+    final var sb = new StringBuilder("ReflectiveObjectInputFilterApi{");
     sb.append("apiPackage='").append(apiPackage).append('\'');
     sb.append('}');
     return sb.toString();

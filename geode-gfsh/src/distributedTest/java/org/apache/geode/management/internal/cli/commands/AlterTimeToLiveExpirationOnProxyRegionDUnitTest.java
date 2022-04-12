@@ -22,7 +22,6 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.categories.EvictionTest;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
 import org.apache.geode.test.junit.runners.GeodeParamsRunner;
@@ -48,9 +47,9 @@ public class AlterTimeToLiveExpirationOnProxyRegionDUnitTest {
   @TestCaseName("[{index}] {method} Non Proxy Region Type:{0}; Proxy Region Type:{1}")
   public void whenExpirationIsSetUsingAlterOnProxyRegionThenItShouldNotThrowException(
       String nonProxyRegionType, String proxyRegionType) throws Exception {
-    MemberVM locator = clusterStartupRule.startLocatorVM(0);
-    MemberVM server1 = clusterStartupRule.startServerVM(1, "non-proxy", locator.getPort());
-    MemberVM server2 = clusterStartupRule.startServerVM(2, "proxy", locator.getPort());
+    var locator = clusterStartupRule.startLocatorVM(0);
+    var server1 = clusterStartupRule.startServerVM(1, "non-proxy", locator.getPort());
+    var server2 = clusterStartupRule.startServerVM(2, "proxy", locator.getPort());
     gfsh.connectAndVerify(locator);
 
     gfsh.executeAndAssertThat(

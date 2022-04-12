@@ -101,12 +101,12 @@ public class NotAuthorizedException extends GemFireSecurityException {
   }
 
   private synchronized void writeObject(final ObjectOutputStream out) throws IOException {
-    final Principal thisPrincipal = principal;
+    final var thisPrincipal = principal;
     if (!isSerializable(thisPrincipal)) {
       principal = null;
     }
 
-    final Object resolvedObj = getResolvedObj();
+    final var resolvedObj = getResolvedObj();
     NamingException namingException = null;
     if (!isSerializable(resolvedObj)) {
       namingException = (NamingException) getCause();

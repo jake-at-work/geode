@@ -29,7 +29,7 @@ public class JavaWorkarounds {
    */
   public static <K, V> V computeIfAbsent(Map<K, V> map, K key,
       Function<? super K, ? extends V> mappingFunction) {
-    V existingValue = map.get(key);
+    var existingValue = map.get(key);
     if (existingValue == null) {
       return map.computeIfAbsent(key, mappingFunction);
     }

@@ -29,12 +29,12 @@ public class PageResultsJUnitTest {
 
   @Test
   public void serializationShouldNotChangeObject() throws IOException, ClassNotFoundException {
-    PageResults results = new PageResults();
+    var results = new PageResults();
     results.add(new PageEntry("key1", "value1"));
     results.add(new PageEntry("key2", "value2"));
 
-    byte[] serialized = BlobHelper.serializeToBlob(results);
-    PageResults newResults = (PageResults) BlobHelper.deserializeBlob(serialized);
+    var serialized = BlobHelper.serializeToBlob(results);
+    var newResults = (PageResults) BlobHelper.deserializeBlob(serialized);
 
     assertEquals(newResults, results);
   }

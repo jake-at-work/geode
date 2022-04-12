@@ -89,7 +89,7 @@ public class ManagementListener implements ResourceEventsListener {
       return false;
     }
 
-    InternalCache currentCache = system.getCache();
+    var currentCache = system.getCache();
     if (currentCache == null) {
       return false;
     }
@@ -123,75 +123,75 @@ public class ManagementListener implements ResourceEventsListener {
     try {
       switch (event) {
         case CACHE_CREATE:
-          InternalCache createdCache = (InternalCache) resource;
+          var createdCache = (InternalCache) resource;
           adapter.handleCacheCreation(createdCache);
           break;
         case CACHE_REMOVE:
-          InternalCache removedCache = (InternalCache) resource;
+          var removedCache = (InternalCache) resource;
           adapter.handleCacheRemoval();
           break;
         case REGION_CREATE:
-          Region createdRegion = (Region) resource;
+          var createdRegion = (Region) resource;
           adapter.handleRegionCreation(createdRegion);
           break;
         case REGION_REMOVE:
-          Region removedRegion = (Region) resource;
+          var removedRegion = (Region) resource;
           adapter.handleRegionRemoval(removedRegion);
           break;
         case DISKSTORE_CREATE:
-          DiskStore createdDisk = (DiskStore) resource;
+          var createdDisk = (DiskStore) resource;
           adapter.handleDiskCreation(createdDisk);
           break;
         case DISKSTORE_REMOVE:
-          DiskStore removedDisk = (DiskStore) resource;
+          var removedDisk = (DiskStore) resource;
           adapter.handleDiskRemoval(removedDisk);
           break;
         case GATEWAYRECEIVER_CREATE:
-          GatewayReceiver createdRecv = (GatewayReceiver) resource;
+          var createdRecv = (GatewayReceiver) resource;
           adapter.handleGatewayReceiverCreate(createdRecv);
           break;
         case GATEWAYRECEIVER_DESTROY:
-          GatewayReceiver destroyedRecv = (GatewayReceiver) resource;
+          var destroyedRecv = (GatewayReceiver) resource;
           adapter.handleGatewayReceiverDestroy();
           break;
         case GATEWAYRECEIVER_START:
-          GatewayReceiver startedRecv = (GatewayReceiver) resource;
+          var startedRecv = (GatewayReceiver) resource;
           adapter.handleGatewayReceiverStart(startedRecv);
           break;
         case GATEWAYRECEIVER_STOP:
-          GatewayReceiver stoppededRecv = (GatewayReceiver) resource;
+          var stoppededRecv = (GatewayReceiver) resource;
           adapter.handleGatewayReceiverStop();
           break;
         case GATEWAYSENDER_CREATE:
-          GatewaySender sender = (GatewaySender) resource;
+          var sender = (GatewaySender) resource;
           adapter.handleGatewaySenderCreation(sender);
           break;
         case GATEWAYSENDER_START:
-          GatewaySender startedSender = (GatewaySender) resource;
+          var startedSender = (GatewaySender) resource;
           adapter.handleGatewaySenderStart(startedSender);
           break;
         case GATEWAYSENDER_STOP:
-          GatewaySender stoppedSender = (GatewaySender) resource;
+          var stoppedSender = (GatewaySender) resource;
           adapter.handleGatewaySenderStop(stoppedSender);
           break;
         case GATEWAYSENDER_PAUSE:
-          GatewaySender pausedSender = (GatewaySender) resource;
+          var pausedSender = (GatewaySender) resource;
           adapter.handleGatewaySenderPaused(pausedSender);
           break;
         case GATEWAYSENDER_RESUME:
-          GatewaySender resumedSender = (GatewaySender) resource;
+          var resumedSender = (GatewaySender) resource;
           adapter.handleGatewaySenderResumed(resumedSender);
           break;
         case GATEWAYSENDER_REMOVE:
-          GatewaySender removedSender = (GatewaySender) resource;
+          var removedSender = (GatewaySender) resource;
           adapter.handleGatewaySenderRemoved(removedSender);
           break;
         case LOCKSERVICE_CREATE:
-          DLockService createdLockService = (DLockService) resource;
+          var createdLockService = (DLockService) resource;
           adapter.handleLockServiceCreation(createdLockService);
           break;
         case LOCKSERVICE_REMOVE:
-          DLockService removedLockService = (DLockService) resource;
+          var removedLockService = (DLockService) resource;
           adapter.handleLockServiceRemoval(removedLockService);
           break;
         case MANAGER_CREATE:
@@ -204,31 +204,31 @@ public class ManagementListener implements ResourceEventsListener {
           adapter.handleManagerStop();
           break;
         case ASYNCEVENTQUEUE_CREATE:
-          AsyncEventQueue queue = (AsyncEventQueue) resource;
+          var queue = (AsyncEventQueue) resource;
           adapter.handleAsyncEventQueueCreation(queue);
           break;
         case ASYNCEVENTQUEUE_REMOVE:
-          AsyncEventQueue removedQueue = (AsyncEventQueue) resource;
+          var removedQueue = (AsyncEventQueue) resource;
           adapter.handleAsyncEventQueueRemoval(removedQueue);
           break;
         case SYSTEM_ALERT:
-          AlertDetails details = (AlertDetails) resource;
+          var details = (AlertDetails) resource;
           adapter.handleSystemNotification(details);
           break;
         case CACHE_SERVER_START:
-          CacheServer startedServer = (CacheServer) resource;
+          var startedServer = (CacheServer) resource;
           adapter.handleCacheServerStart(startedServer);
           break;
         case CACHE_SERVER_STOP:
-          CacheServer stoppedServer = (CacheServer) resource;
+          var stoppedServer = (CacheServer) resource;
           adapter.handleCacheServerStop(stoppedServer);
           break;
         case LOCATOR_START:
-          Locator loc = (Locator) resource;
+          var loc = (Locator) resource;
           adapter.handleLocatorStart(loc);
           break;
         case CACHE_SERVICE_CREATE:
-          CacheService service = (CacheService) resource;
+          var service = (CacheService) resource;
           adapter.handleCacheServiceCreation(service);
           break;
         default:

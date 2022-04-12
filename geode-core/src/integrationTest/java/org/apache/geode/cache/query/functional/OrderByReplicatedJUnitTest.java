@@ -52,7 +52,7 @@ public class OrderByReplicatedJUnitTest extends OrderByTestImplementation {
 
   @Override
   public Region createRegion(String regionName, Class valueConstraint) {
-    Region r1 = CacheUtils.createRegion(regionName, valueConstraint);
+    var r1 = CacheUtils.createRegion(regionName, valueConstraint);
     return r1;
 
   }
@@ -86,18 +86,18 @@ public class OrderByReplicatedJUnitTest extends OrderByTestImplementation {
     // order by field
     // its null values are reported first and then the values in ascending
     // order.
-    String[] queries = getQueriesForOrderByWithNullValues();
+    var queries = getQueriesForOrderByWithNullValues();
 
-    Object[][] r = new Object[queries.length][2];
+    var r = new Object[queries.length][2];
     QueryService qs;
     qs = CacheUtils.getQueryService();
 
     // Create Regions
-    final int size = 9;
-    final int numNullValues = 3;
-    Region r1 = createRegion("portfolio1", Portfolio.class);
-    for (int i = 1; i <= size; i++) {
-      Portfolio pf = new Portfolio(i);
+    final var size = 9;
+    final var numNullValues = 3;
+    var r1 = createRegion("portfolio1", Portfolio.class);
+    for (var i = 1; i <= size; i++) {
+      var pf = new Portfolio(i);
       // Add numNullValues null values.
       if (i <= numNullValues) {
         pf.pkid = null;
@@ -109,7 +109,7 @@ public class OrderByReplicatedJUnitTest extends OrderByTestImplementation {
     Query q = null;
     SelectResults results = null;
     List list = null;
-    String str = "";
+    var str = "";
     try {
       // Query 0 - null values are first in the order.
       str = queries[0];
@@ -118,8 +118,8 @@ public class OrderByReplicatedJUnitTest extends OrderByTestImplementation {
       results = (SelectResults) q.execute();
       r[0][0] = results;
       list = results.asList();
-      for (int i = 1; i <= size; i++) {
-        Portfolio p = (Portfolio) list.get((i - 1));
+      for (var i = 1; i <= size; i++) {
+        var p = (Portfolio) list.get((i - 1));
         if (i <= numNullValues) {
           assertNull("Expected null value for pkid, p: " + p, p.pkid);
         } else {
@@ -136,8 +136,8 @@ public class OrderByReplicatedJUnitTest extends OrderByTestImplementation {
       CacheUtils.getLogger().info("Executing query: " + str);
       results = (SelectResults) q.execute();
       list = results.asList();
-      for (int i = 1; i <= size; i++) {
-        Portfolio p = (Portfolio) list.get((i - 1));
+      for (var i = 1; i <= size; i++) {
+        var p = (Portfolio) list.get((i - 1));
         if (i <= numNullValues) {
           assertNull("Expected null value for pkid", p.pkid);
         } else {
@@ -154,8 +154,8 @@ public class OrderByReplicatedJUnitTest extends OrderByTestImplementation {
       CacheUtils.getLogger().info("Executing query: " + str);
       results = (SelectResults) q.execute();
       list = results.asList();
-      for (int i = 1; i <= size; i++) {
-        Portfolio p = (Portfolio) list.get((i - 1));
+      for (var i = 1; i <= size; i++) {
+        var p = (Portfolio) list.get((i - 1));
         if (i > (size - numNullValues)) {
           assertNull("Expected null value for pkid", p.pkid);
         } else {
@@ -172,8 +172,8 @@ public class OrderByReplicatedJUnitTest extends OrderByTestImplementation {
       CacheUtils.getLogger().info("Executing query: " + str);
       results = (SelectResults) q.execute();
       list = results.asList();
-      for (int i = 1; i <= list.size(); i++) {
-        String pkid = (String) list.get((i - 1));
+      for (var i = 1; i <= list.size(); i++) {
+        var pkid = (String) list.get((i - 1));
         if (i == 1) {
           assertNull("Expected null value for pkid", pkid);
         } else {
@@ -190,8 +190,8 @@ public class OrderByReplicatedJUnitTest extends OrderByTestImplementation {
       CacheUtils.getLogger().info("Executing query: " + str);
       results = (SelectResults) q.execute();
       list = results.asList();
-      for (int i = 1; i <= list.size(); i++) {
-        String pkid = (String) list.get((i - 1));
+      for (var i = 1; i <= list.size(); i++) {
+        var pkid = (String) list.get((i - 1));
         if (i == 1) {
           assertNull("Expected null value for pkid", pkid);
         } else {
@@ -208,8 +208,8 @@ public class OrderByReplicatedJUnitTest extends OrderByTestImplementation {
       CacheUtils.getLogger().info("Executing query: " + str);
       results = (SelectResults) q.execute();
       list = results.asList();
-      for (int i = 1; i <= list.size(); i++) {
-        String pkid = (String) list.get((i - 1));
+      for (var i = 1; i <= list.size(); i++) {
+        var pkid = (String) list.get((i - 1));
         if (i == (list.size())) {
           assertNull("Expected null value for pkid", pkid);
         } else {
@@ -226,7 +226,7 @@ public class OrderByReplicatedJUnitTest extends OrderByTestImplementation {
       CacheUtils.getLogger().info("Executing query: " + str);
       results = (SelectResults) q.execute();
       list = results.asList();
-      for (int i = 1; i <= size; i++) {
+      for (var i = 1; i <= size; i++) {
         int id = (Integer) list.get((i - 1));
         // ID should be one of 1, 2, 3 because of distinct
         if (i <= numNullValues) {
@@ -246,7 +246,7 @@ public class OrderByReplicatedJUnitTest extends OrderByTestImplementation {
       CacheUtils.getLogger().info("Executing query: " + str);
       results = (SelectResults) q.execute();
       list = results.asList();
-      for (int i = 1; i <= list.size(); i++) {
+      for (var i = 1; i <= list.size(); i++) {
         int id = (Integer) list.get((i - 1));
         if (id != (numNullValues + i)) {
           fail(" Value of ID is not as expected, " + id);
@@ -259,10 +259,10 @@ public class OrderByReplicatedJUnitTest extends OrderByTestImplementation {
       CacheUtils.getLogger().info("Executing query: " + str);
       results = (SelectResults) q.execute();
       list = results.asList();
-      for (int i = 1; i <= size; i++) {
-        Struct vals = (Struct) list.get((i - 1));
+      for (var i = 1; i <= size; i++) {
+        var vals = (Struct) list.get((i - 1));
         int id = (Integer) vals.get("ID");
-        String pkid = (String) vals.get("pkid");
+        var pkid = (String) vals.get("pkid");
 
         // ID should be one of 1, 2, 3 because of distinct
         if (i <= numNullValues) {
@@ -288,10 +288,10 @@ public class OrderByReplicatedJUnitTest extends OrderByTestImplementation {
       results = (SelectResults) q.execute();
       list = results.asList();
 
-      for (int i = 1; i <= list.size(); i++) {
-        Struct vals = (Struct) list.get((i - 1));
+      for (var i = 1; i <= list.size(); i++) {
+        var vals = (Struct) list.get((i - 1));
         int id = (Integer) vals.get("ID");
-        String pkid = (String) vals.get("pkid");
+        var pkid = (String) vals.get("pkid");
 
         if (i <= numNullValues) {
           assertNull("Expected null value for pkid, " + pkid, pkid);
@@ -315,10 +315,10 @@ public class OrderByReplicatedJUnitTest extends OrderByTestImplementation {
       results = (SelectResults) q.execute();
       list = results.asList();
 
-      for (int i = 1; i <= list.size(); i++) {
-        Struct vals = (Struct) list.get((i - 1));
+      for (var i = 1; i <= list.size(); i++) {
+        var vals = (Struct) list.get((i - 1));
         int id = (Integer) vals.get("ID");
-        String pkid = (String) vals.get("pkid");
+        var pkid = (String) vals.get("pkid");
 
         if (i <= numNullValues) {
           assertNull("Expected null value for pkid, " + pkid, pkid);
@@ -342,10 +342,10 @@ public class OrderByReplicatedJUnitTest extends OrderByTestImplementation {
       results = (SelectResults) q.execute();
       list = results.asList();
 
-      for (int i = 1; i <= list.size(); i++) {
-        Struct vals = (Struct) list.get((i - 1));
+      for (var i = 1; i <= list.size(); i++) {
+        var vals = (Struct) list.get((i - 1));
         int id = (Integer) vals.get("ID");
-        String pkid = (String) vals.get("pkid");
+        var pkid = (String) vals.get("pkid");
 
         if (i <= numNullValues) {
           assertNull("Expected null value for pkid, " + pkid, pkid);
@@ -373,72 +373,76 @@ public class OrderByReplicatedJUnitTest extends OrderByTestImplementation {
     // order by field
     // its null values are reported first and then the values in ascending
     // order.
-    String[] queries = {"SELECT  distinct * FROM " + SEPARATOR + "portfolio1 pf1 order by pkid", // 0
-                                                                                                 // null
-        // values are
-        // first in the
-        // order.
-        "SELECT  distinct * FROM " + SEPARATOR + "portfolio1 pf1  order by pkid asc", // 1 same
-        // as
-        // above.
-        "SELECT  distinct * FROM " + SEPARATOR + "portfolio1 order by pkid desc", // 2 null
-        // values are
-        // last in the
-        // order.
-        "SELECT  distinct pkid FROM " + SEPARATOR + "portfolio1 pf1 order by pkid", // 3 null
-        // values
-        // are first
-        // in the
-        // order.
-        "SELECT  distinct pkid FROM " + SEPARATOR
-            + "portfolio1 pf1 where pkid != 'XXXX' order by pkid asc", // 4
-        "SELECT  distinct pkid FROM " + SEPARATOR
-            + "portfolio1 pf1 where pkid != 'XXXX' order by pkid desc", // 5
-        // null
-        // values
-        // are
-        // last
-        // in
-        // the
-        // order.
+    var queries =
+        new String[] {"SELECT  distinct * FROM " + SEPARATOR + "portfolio1 pf1 order by pkid", // 0
+            // null
+            // values are
+            // first in the
+            // order.
+            "SELECT  distinct * FROM " + SEPARATOR + "portfolio1 pf1  order by pkid asc", // 1 same
+            // as
+            // above.
+            "SELECT  distinct * FROM " + SEPARATOR + "portfolio1 order by pkid desc", // 2 null
+            // values are
+            // last in the
+            // order.
+            "SELECT  distinct pkid FROM " + SEPARATOR + "portfolio1 pf1 order by pkid", // 3 null
+            // values
+            // are first
+            // in the
+            // order.
+            "SELECT  distinct pkid FROM " + SEPARATOR
+                + "portfolio1 pf1 where pkid != 'XXXX' order by pkid asc", // 4
+            "SELECT  distinct pkid FROM " + SEPARATOR
+                + "portfolio1 pf1 where pkid != 'XXXX' order by pkid desc", // 5
+            // null
+            // values
+            // are
+            // last
+            // in
+            // the
+            // order.
 
-        "SELECT  distinct ID FROM " + SEPARATOR + "portfolio1 pf1 where ID < 1000 order by pkid", // 6
-        "SELECT  distinct ID FROM " + SEPARATOR + "portfolio1 pf1 where ID > 3 order by pkid", // 7
-        "SELECT  distinct ID, pkid FROM " + SEPARATOR
-            + "portfolio1 pf1 where ID < 1000 order by pkid", // 8
-        "SELECT  distinct ID, pkid FROM " + SEPARATOR + "portfolio1 pf1 where ID > 0 order by pkid", // 9
-        "SELECT  distinct ID, pkid FROM " + SEPARATOR
-            + "portfolio1 pf1 where ID > 0 order by pkid, ID asc", // 10
-        "SELECT  distinct ID, pkid FROM " + SEPARATOR
-            + "portfolio1 pf1 where ID > 0 order by pkid, ID desc",// 11
-    };
+            "SELECT  distinct ID FROM " + SEPARATOR
+                + "portfolio1 pf1 where ID < 1000 order by pkid", // 6
+            "SELECT  distinct ID FROM " + SEPARATOR + "portfolio1 pf1 where ID > 3 order by pkid", // 7
+            "SELECT  distinct ID, pkid FROM " + SEPARATOR
+                + "portfolio1 pf1 where ID < 1000 order by pkid", // 8
+            "SELECT  distinct ID, pkid FROM " + SEPARATOR
+                + "portfolio1 pf1 where ID > 0 order by pkid",
+            // 9
+            "SELECT  distinct ID, pkid FROM " + SEPARATOR
+                + "portfolio1 pf1 where ID > 0 order by pkid, ID asc", // 10
+            "SELECT  distinct ID, pkid FROM " + SEPARATOR
+                + "portfolio1 pf1 where ID > 0 order by pkid, ID desc",// 11
+        };
     return queries;
   }
 
   @Test
   public void testLimitApplicationOnPrimaryKeyIndex() throws Exception {
 
-    String[] queries = {
+    var queries = new String[] {
         // The PK index should be used but limit should not be applied as order by
         // cannot be applied while data is fetched
         // from index
         "SELECT  distinct ID, description, createTime FROM " + SEPARATOR
             + "portfolio1 pf1 where pf1.ID != $1 limit 10",};
 
-    Object[][] r = new Object[queries.length][2];
+    var r = new Object[queries.length][2];
     QueryService qs;
     qs = CacheUtils.getQueryService();
     Position.resetCounter();
     // Create Regions
 
-    Region r1 = createRegion("portfolio1", Portfolio.class);
+    var r1 = createRegion("portfolio1", Portfolio.class);
 
-    for (int i = 0; i < 200; i++) {
+    for (var i = 0; i < 200; i++) {
       r1.put(i + "", new Portfolio(i));
     }
 
     // Execute Queries without Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
@@ -453,30 +457,30 @@ public class OrderByReplicatedJUnitTest extends OrderByTestImplementation {
 
     createIndex("PKIDIndexPf1", IndexType.PRIMARY_KEY, "ID", SEPARATOR + "portfolio1");
     // Execute Queries with Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
         CacheUtils.getLogger().info("Executing query: " + queries[i]);
-        QueryObserverImpl observer = new QueryObserverImpl();
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         r[i][1] = q.execute("10");
-        int indexLimit = queries[i].indexOf("limit");
-        int limit = -1;
-        boolean limitQuery = indexLimit != -1;
+        var indexLimit = queries[i].indexOf("limit");
+        var limit = -1;
+        var limitQuery = indexLimit != -1;
         if (limitQuery) {
           limit = Integer.parseInt(queries[i].substring(indexLimit + 5).trim());
         }
-        boolean orderByQuery = queries[i].indexOf("order by") != -1;
-        SelectResults rcw = (SelectResults) r[i][1];
+        var orderByQuery = queries[i].indexOf("order by") != -1;
+        var rcw = (SelectResults) r[i][1];
         if (orderByQuery) {
           assertEquals("Ordered", rcw.getCollectionType().getSimpleClassName());
         }
         if (assertIndexUsedOnQueryNode() && !observer.isIndexesUsed) {
           fail("Index is NOT uesd");
         }
-        int indexDistinct = queries[i].indexOf("distinct");
-        boolean distinctQuery = indexDistinct != -1;
+        var indexDistinct = queries[i].indexOf("distinct");
+        var distinctQuery = indexDistinct != -1;
 
         if (limitQuery) {
           if (orderByQuery) {
@@ -488,15 +492,15 @@ public class OrderByReplicatedJUnitTest extends OrderByTestImplementation {
           assertFalse(observer.limitAppliedAtIndex);
         }
 
-        for (final Object o : observer.indexesUsed) {
-          String indexUsed = o.toString();
+        for (final var o : observer.indexesUsed) {
+          var indexUsed = o.toString();
           if (!(indexUsed).equals("PKIDIndexPf1")) {
             fail("<PKIDIndexPf1> was expected but found " + indexUsed);
           }
           // assertIndexDetailsEquals("statusIndexPf1",itr.next().toString());
         }
 
-        int indxs = observer.indexesUsed.size();
+        var indxs = observer.indexesUsed.size();
 
         System.out.println("**************************************************Indexes Used :::::: "
             + indxs + " Index Name: " + observer.indexName);
@@ -538,8 +542,8 @@ public class OrderByReplicatedJUnitTest extends OrderByTestImplementation {
     itert1 = coll1.iterator();
     itert2 = coll2.iterator();
     while (itert1.hasNext()) {
-      Object[] values1 = ((Struct) itert1.next()).getFieldValues();
-      Object[] values2 = ((Struct) itert2.next()).getFieldValues();
+      var values1 = ((Struct) itert1.next()).getFieldValues();
+      var values2 = ((Struct) itert2.next()).getFieldValues();
       assertEquals(values1.length, values2.length);
       assertTrue(((Integer) values1[0] != 10));
       assertTrue(((Integer) values2[0] != 10));
@@ -549,7 +553,7 @@ public class OrderByReplicatedJUnitTest extends OrderByTestImplementation {
 
   @Test
   public void testLimitAndOrderByApplicationOnPrimaryKeyIndexQuery() throws Exception {
-    String[] queries = {
+    var queries = new String[] {
         // The PK index should be used but limit should not be applied as order
         // by cannot be applied while data is fetched
         // from index
@@ -560,20 +564,20 @@ public class OrderByReplicatedJUnitTest extends OrderByTestImplementation {
 
     };
 
-    Object[][] r = new Object[queries.length][2];
+    var r = new Object[queries.length][2];
     QueryService qs;
     qs = CacheUtils.getQueryService();
     Position.resetCounter();
     // Create Regions
 
-    Region r1 = createRegion("portfolio1", Portfolio.class);
+    var r1 = createRegion("portfolio1", Portfolio.class);
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       r1.put(i + "", new Portfolio(i));
     }
 
     // Execute Queries without Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
@@ -588,22 +592,22 @@ public class OrderByReplicatedJUnitTest extends OrderByTestImplementation {
 
     createIndex("PKIDIndexPf1", IndexType.PRIMARY_KEY, "ID", SEPARATOR + "portfolio1");
     // Execute Queries with Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
         CacheUtils.getLogger().info("Executing query: " + queries[i]);
-        QueryObserverImpl observer = new QueryObserverImpl();
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         r[i][1] = q.execute("10");
-        int indexLimit = queries[i].indexOf("limit");
-        int limit = -1;
-        boolean limitQuery = indexLimit != -1;
+        var indexLimit = queries[i].indexOf("limit");
+        var limit = -1;
+        var limitQuery = indexLimit != -1;
         if (limitQuery) {
           limit = Integer.parseInt(queries[i].substring(indexLimit + 5).trim());
         }
-        boolean orderByQuery = queries[i].indexOf("order by") != -1;
-        SelectResults rcw = (SelectResults) r[i][1];
+        var orderByQuery = queries[i].indexOf("order by") != -1;
+        var rcw = (SelectResults) r[i][1];
         if (orderByQuery) {
           assertEquals("Ordered", rcw.getCollectionType().getSimpleClassName());
         }
@@ -620,15 +624,15 @@ public class OrderByReplicatedJUnitTest extends OrderByTestImplementation {
           assertFalse(observer.limitAppliedAtIndex);
         }
 
-        for (final Object o : observer.indexesUsed) {
-          String indexUsed = o.toString();
+        for (final var o : observer.indexesUsed) {
+          var indexUsed = o.toString();
           if (!(indexUsed).equals("PKIDIndexPf1")) {
             fail("<PKIDIndexPf1> was expected but found " + indexUsed);
           }
           // assertIndexDetailsEquals("statusIndexPf1",itr.next().toString());
         }
 
-        int indxs = observer.indexesUsed.size();
+        var indxs = observer.indexesUsed.size();
 
         System.out.println("**************************************************Indexes Used :::::: "
             + indxs + " Index Name: " + observer.indexName);
@@ -638,13 +642,13 @@ public class OrderByReplicatedJUnitTest extends OrderByTestImplementation {
         fail(q.getQueryString());
       }
     }
-    StructSetOrResultsSet ssOrrs = new StructSetOrResultsSet();
+    var ssOrrs = new StructSetOrResultsSet();
     ssOrrs.CompareQueryResultsWithoutAndWithIndexes(r, queries.length, true, queries);
   }
 
   @Test
   public void testOrderedResultsReplicatedRegion() throws Exception {
-    String[] queries = {
+    var queries = new String[] {
         // Test case No. IUMR021
 
         "select distinct status as st from " + SEPARATOR
@@ -661,20 +665,20 @@ public class OrderByReplicatedJUnitTest extends OrderByTestImplementation {
             + "portfolio1 key where key.status = 'inactive' order by key.status desc, key.ID"
 
     };
-    Object[][] r = new Object[queries.length][2];
+    var r = new Object[queries.length][2];
     QueryService qs;
     qs = CacheUtils.getQueryService();
     Position.resetCounter();
     // Create Regions
 
-    Region r1 = createRegion("portfolio1", Portfolio.class);
+    var r1 = createRegion("portfolio1", Portfolio.class);
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       r1.put(i + "", new Portfolio(i));
     }
 
     // Execute Queries without Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
@@ -691,12 +695,12 @@ public class OrderByReplicatedJUnitTest extends OrderByTestImplementation {
     createIndex("i3", IndexType.FUNCTIONAL, "p.position1.secId", SEPARATOR + "portfolio1 p");
 
     // Execute Queries with Indexes
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
         q = CacheUtils.getQueryService().newQuery(queries[i]);
         CacheUtils.getLogger().info("Executing query: " + queries[i]);
-        QueryObserverImpl observer = new QueryObserverImpl();
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         r[i][1] = q.execute();
 
@@ -705,7 +709,7 @@ public class OrderByReplicatedJUnitTest extends OrderByTestImplementation {
         fail(q.getQueryString());
       }
     }
-    StructSetOrResultsSet ssOrrs = new StructSetOrResultsSet();
+    var ssOrrs = new StructSetOrResultsSet();
     ssOrrs.CompareQueryResultsWithoutAndWithIndexes(r, queries.length, true, queries);
     ssOrrs.compareExternallySortedQueriesWithOrderBy(queries, r);
   }
@@ -713,7 +717,7 @@ public class OrderByReplicatedJUnitTest extends OrderByTestImplementation {
 
   @Override
   public String[] getQueriesForLimitNotAppliedIfOrderByNotUsingIndex() {
-    String[] queries = {
+    var queries = new String[] {
         // Test case No. IUMR021
         "SELECT  distinct ID, description, createTime, pkid FROM " + SEPARATOR
             + "portfolio1 pf1 where pkid = '12' and ID > 10 order by ID desc, pkid asc ",
@@ -788,7 +792,7 @@ public class OrderByReplicatedJUnitTest extends OrderByTestImplementation {
 
   @Override
   public String[] getQueriesForMultiColOrderByWithIndexResultWithProjection() {
-    String[] queries = {
+    var queries = new String[] {
         // Test case No. IUMR021
         "SELECT  distinct ID, description, createTime, pkid FROM " + SEPARATOR
             + "portfolio1 pf1 where ID > 10 order by ID desc, pkid desc ",
@@ -860,7 +864,7 @@ public class OrderByReplicatedJUnitTest extends OrderByTestImplementation {
 
   @Override
   public String[] getQueriesForMultiColOrderByWithMultiIndexResultProjection() {
-    String[] queries = {
+    var queries = new String[] {
         // Test case No. IUMR021
         "SELECT  distinct ID, description, createTime, pkid FROM " + SEPARATOR
             + "portfolio1 pf1 where pkid = '12' and ID > 10 order by ID desc, pkid asc ",

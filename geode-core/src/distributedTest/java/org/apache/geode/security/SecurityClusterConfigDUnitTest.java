@@ -30,7 +30,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.GemFireConfigException;
-import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.examples.SimpleSecurityManager;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
@@ -55,7 +54,7 @@ public class SecurityClusterConfigDUnitTest {
     addIgnoredException(
         "A server must use cluster configuration when joining a secured cluster.");
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(SECURITY_MANAGER, SimpleSecurityManager.class.getName());
     props.setProperty(SECURITY_POST_PROCESSOR, PDXPostProcessor.class.getName());
     locator = cluster.startLocatorVM(0, props);
@@ -63,7 +62,7 @@ public class SecurityClusterConfigDUnitTest {
 
   @Test
   public void testStartServerWithClusterConfig() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
 
     // the following are needed for peer-to-peer authentication
     props.setProperty("security-username", "cluster");
@@ -72,10 +71,10 @@ public class SecurityClusterConfigDUnitTest {
 
     // initial security properties should only contain initial set of values
     serverStarter.startServer(props, locator.getPort());
-    DistributedSystem ds = serverStarter.getCache().getDistributedSystem();
+    var ds = serverStarter.getCache().getDistributedSystem();
 
     // after cache is created, we got the security props passed in by cluster config
-    Properties secProps = ds.getSecurityProperties();
+    var secProps = ds.getSecurityProperties();
     assertThat(secProps).containsKey("security-username");
     assertThat(secProps).containsKey("security-password");
     assertThat(secProps).containsKey(SECURITY_MANAGER);
@@ -84,7 +83,7 @@ public class SecurityClusterConfigDUnitTest {
 
   @Test
   public void testStartServerWithSameSecurityManager() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
 
     // the following are needed for peer-to-peer authentication
     props.setProperty("security-username", "cluster");
@@ -94,10 +93,10 @@ public class SecurityClusterConfigDUnitTest {
 
     // initial security properties should only contain initial set of values
     serverStarter.startServer(props, locator.getPort());
-    DistributedSystem ds = serverStarter.getCache().getDistributedSystem();
+    var ds = serverStarter.getCache().getDistributedSystem();
 
     // after cache is created, we got the security props passed in by cluster config
-    Properties secProps = ds.getSecurityProperties();
+    var secProps = ds.getSecurityProperties();
     assertThat(secProps).containsKey("security-username");
     assertThat(secProps).containsKey("security-password");
     assertThat(secProps).containsKey(SECURITY_MANAGER);
@@ -107,7 +106,7 @@ public class SecurityClusterConfigDUnitTest {
   @Test
   public void serverWithDifferentSecurityManagerShouldThrowGemFireConfigException()
       throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
 
     // the following are needed for peer-to-peer authentication
     props.setProperty("security-username", "cluster");
@@ -124,7 +123,7 @@ public class SecurityClusterConfigDUnitTest {
 
   @Test
   public void serverWithDifferentPostProcessorShouldThrowGemFireConfigException() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
 
     // the following are needed for peer-to-peer authentication
     props.setProperty("security-username", "cluster");
@@ -142,7 +141,7 @@ public class SecurityClusterConfigDUnitTest {
 
   @Test
   public void serverConnectingToSecuredLocatorMustUseClusterConfig() throws Exception {
-    Properties props = new Properties();
+    var props = new Properties();
 
     // the following are needed for peer-to-peer authentication
     props.setProperty("security-username", "cluster");

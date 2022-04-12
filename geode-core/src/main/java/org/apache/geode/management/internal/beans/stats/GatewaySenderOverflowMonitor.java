@@ -17,10 +17,8 @@ package org.apache.geode.management.internal.beans.stats;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.Statistics;
 import org.apache.geode.distributed.ConfigurationProperties;
-import org.apache.geode.internal.statistics.StatisticId;
 import org.apache.geode.internal.statistics.StatisticNotFoundException;
 import org.apache.geode.internal.statistics.StatisticsListener;
 import org.apache.geode.internal.statistics.StatisticsNotification;
@@ -84,23 +82,23 @@ public class GatewaySenderOverflowMonitor extends MBeanStatsMonitor {
 
   Number computeDelta(Map<String, Number> statsMap, String name, Number currentValue) {
     if (name.equals(StatsKey.GATEWAYSENDER_LRU_EVICTIONS)) {
-      Number prevValue = statsMap.getOrDefault(StatsKey.GATEWAYSENDER_LRU_EVICTIONS, 0);
+      var prevValue = statsMap.getOrDefault(StatsKey.GATEWAYSENDER_LRU_EVICTIONS, 0);
       return currentValue.longValue() - prevValue.longValue();
     }
 
     if (name.equals(StatsKey.GATEWAYSENDER_ENTRIES_OVERFLOWED_TO_DISK)) {
-      Number prevValue =
+      var prevValue =
           statsMap.getOrDefault(StatsKey.GATEWAYSENDER_ENTRIES_OVERFLOWED_TO_DISK, 0);
       return currentValue.longValue() - prevValue.longValue();
     }
 
     if (name.equals(StatsKey.GATEWAYSENDER_BYTES_OVERFLOWED_TO_DISK)) {
-      Number prevValue = statsMap.getOrDefault(StatsKey.GATEWAYSENDER_BYTES_OVERFLOWED_TO_DISK, 0);
+      var prevValue = statsMap.getOrDefault(StatsKey.GATEWAYSENDER_BYTES_OVERFLOWED_TO_DISK, 0);
       return currentValue.longValue() - prevValue.longValue();
     }
 
     if (name.equals(StatsKey.GATEWAYSENDER_BYTES_IN_MEMORY)) {
-      Number prevValue = statsMap.getOrDefault(StatsKey.GATEWAYSENDER_BYTES_IN_MEMORY, 0);
+      var prevValue = statsMap.getOrDefault(StatsKey.GATEWAYSENDER_BYTES_IN_MEMORY, 0);
       return currentValue.longValue() - prevValue.longValue();
     }
 
@@ -153,7 +151,7 @@ public class GatewaySenderOverflowMonitor extends MBeanStatsMonitor {
 
   @Override
   public void addStatisticsToMonitor(Statistics stats) {
-    ValueMonitor overflowMonitor = new ValueMonitor();
+    var overflowMonitor = new ValueMonitor();
     StatisticsListener listener = new GatewaySenderOverflowStatisticsListener();
     overflowMonitor.addListener(listener);
     overflowMonitor.addStatistics(stats);
@@ -164,8 +162,8 @@ public class GatewaySenderOverflowMonitor extends MBeanStatsMonitor {
 
   @Override
   public void stopListener() {
-    for (Statistics stat : listeners.keySet()) {
-      ValueMonitor monitor = monitors.get(stat);
+    for (var stat : listeners.keySet()) {
+      var monitor = monitors.get(stat);
       monitor.removeListener(listeners.get(stat));
       monitor.removeStatistics(stat);
     }
@@ -190,9 +188,9 @@ public class GatewaySenderOverflowMonitor extends MBeanStatsMonitor {
     @Override
     public void handleNotification(StatisticsNotification notification) {
       synchronized (statsMap) {
-        for (StatisticId statId : notification) {
-          StatisticDescriptor descriptor = statId.getStatisticDescriptor();
-          String name = descriptor.getName();
+        for (var statId : notification) {
+          var descriptor = statId.getStatisticDescriptor();
+          var name = descriptor.getName();
           Number value;
 
           try {
@@ -202,7 +200,7 @@ public class GatewaySenderOverflowMonitor extends MBeanStatsMonitor {
           }
 
           log(name, value);
-          Number deltaValue = computeDelta(statsMap, name, value);
+          var deltaValue = computeDelta(statsMap, name, value);
           statsMap.put(name, value);
           increaseStats(name, deltaValue);
         }

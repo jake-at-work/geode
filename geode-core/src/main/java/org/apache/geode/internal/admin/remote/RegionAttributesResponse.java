@@ -41,7 +41,7 @@ public class RegionAttributesResponse extends AdminResponse {
    */
   public static RegionAttributesResponse create(DistributionManager dm,
       InternalDistributedMember recipient, Region r) {
-    RegionAttributesResponse m = new RegionAttributesResponse();
+    var m = new RegionAttributesResponse();
     m.setRecipient(recipient);
     m.attributes = new RemoteRegionAttributes(r.getAttributes());
     return m;

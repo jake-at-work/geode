@@ -68,9 +68,9 @@ public class JvmSizeUtils {
       referenceSize = 4;
       objectHeaderSize = 8;
     } else {
-      int scaleIndex = 0;
-      int tmpReferenceSize = 0;
-      int tmpObjectHeaderSize = 0;
+      var scaleIndex = 0;
+      var tmpReferenceSize = 0;
+      var tmpObjectHeaderSize = 0;
       if (SystemUtils.isAzulJVM()) {
         tmpObjectHeaderSize = 8;
         tmpReferenceSize = 8;
@@ -101,7 +101,7 @@ public class JvmSizeUtils {
         if (scaleIndex == 0) {
           // If our heap is > 32G (64G on java 8) then assume large oops. Otherwise assume
           // compressed oops.
-          long SMALL_OOP_BOUNDARY = 32L;
+          var SMALL_OOP_BOUNDARY = 32L;
           if (org.apache.commons.lang3.SystemUtils.isJavaVersionAtLeast(JavaVersion.JAVA_1_8)) {
             SMALL_OOP_BOUNDARY = 64L;
           }
@@ -139,7 +139,7 @@ public class JvmSizeUtils {
     // Round up to the nearest 8 bytes. Experimentally, this
     // is what we've seen the sun 32 bit VM do with object size.
     // See https://wiki.gemstone.com/display/rusage/Per+Entry+Overhead
-    long remainder = size % 8;
+    var remainder = size % 8;
     if (remainder != 0) {
       size += 8 - remainder;
     }
@@ -159,7 +159,7 @@ public class JvmSizeUtils {
     if (byteArray == null) {
       return 0;
     }
-    int result = getObjectHeaderSize();
+    var result = getObjectHeaderSize();
     result += 4; // array length field
     result += byteArray.length;
     return roundUpSize(result);
@@ -174,7 +174,7 @@ public class JvmSizeUtils {
     if (objectArray == null) {
       return 0;
     }
-    int result = getObjectHeaderSize();
+    var result = getObjectHeaderSize();
     result += 4; // array length field
     result += objectArray.length * getReferenceSize();
     return roundUpSize(result);

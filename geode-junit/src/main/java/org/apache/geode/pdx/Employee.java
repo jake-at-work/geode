@@ -72,8 +72,8 @@ public class Employee implements PdxSerializable {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
+    final var prime = 31;
+    var result = 1;
     result = prime * result + ((fname == null) ? 0 : fname.hashCode());
     result = prime * result + ((id == null) ? 0 : id.hashCode());
     result = prime * result + ((lname == null) ? 0 : lname.hashCode());
@@ -91,7 +91,7 @@ public class Employee implements PdxSerializable {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    Employee other = (Employee) obj;
+    var other = (Employee) obj;
     if (fname == null) {
       if (other.fname != null) {
         return false;

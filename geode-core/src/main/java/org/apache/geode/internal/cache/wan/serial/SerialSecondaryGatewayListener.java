@@ -14,14 +14,12 @@
  */
 package org.apache.geode.internal.cache.wan.serial;
 
-import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.asyncqueue.AsyncEvent;
 import org.apache.geode.cache.util.CacheListenerAdapter;
-import org.apache.geode.internal.cache.RegionQueue;
 import org.apache.geode.internal.cache.wan.AbstractGatewaySender;
 import org.apache.geode.internal.cache.wan.GatewaySenderEventImpl;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -56,14 +54,14 @@ public class SerialSecondaryGatewayListener extends CacheListenerAdapter<Long, A
     }
     // There is a small window where queue has not been created fully yet.
     // The underlying region of the queue is created, and it receives afterDestroy callback
-    final Set<RegionQueue> queues = sender.getQueues();
+    final var queues = sender.getQueues();
     if (queues != null && !queues.isEmpty()) {
       sender.getStatistics().incQueueSize();
     }
     // fix bug 35730
 
     // Send event to the event dispatcher
-    GatewaySenderEventImpl senderEvent = (GatewaySenderEventImpl) event.getNewValue();
+    var senderEvent = (GatewaySenderEventImpl) event.getNewValue();
     processor.handlePrimaryEvent(senderEvent);
   }
 
@@ -76,7 +74,7 @@ public class SerialSecondaryGatewayListener extends CacheListenerAdapter<Long, A
     // There is a small window where queue has not been created fully yet. The region is created,
     // and it receives afterDestroy callback.
 
-    final Set<RegionQueue> queues = sender.getQueues();
+    final var queues = sender.getQueues();
     if (queues != null && !queues.isEmpty()) {
       sender.getStatistics().decQueueSize();
     }
@@ -84,7 +82,7 @@ public class SerialSecondaryGatewayListener extends CacheListenerAdapter<Long, A
     // Send event to the event dispatcher
     Object oldValue = event.getOldValue();
     if (oldValue instanceof GatewaySenderEventImpl) {
-      GatewaySenderEventImpl senderEvent = (GatewaySenderEventImpl) oldValue;
+      var senderEvent = (GatewaySenderEventImpl) oldValue;
       if (logger.isDebugEnabled()) {
         logger.debug("Received after Destroy for Secondary event {} the key was {}", senderEvent,
             event.getKey());

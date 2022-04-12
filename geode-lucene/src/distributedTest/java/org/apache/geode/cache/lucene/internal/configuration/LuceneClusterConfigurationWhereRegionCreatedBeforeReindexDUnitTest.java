@@ -44,7 +44,7 @@ public class LuceneClusterConfigurationWhereRegionCreatedBeforeReindexDUnitTest
 
   @After
   public void clearLuceneReindexFlag() {
-    for (MemberVM server : servers) {
+    for (var server : servers) {
       if (server != null) {
         server.invoke(() -> LuceneServiceImpl.LUCENE_REINDEX = false);
       }

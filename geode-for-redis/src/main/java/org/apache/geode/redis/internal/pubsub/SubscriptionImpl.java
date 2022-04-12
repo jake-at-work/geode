@@ -47,7 +47,7 @@ public class SubscriptionImpl implements Subscription {
   }
 
   private void waitUntilReadyToPublish() {
-    CountDownLatch latch = readyForPublish;
+    var latch = readyForPublish;
     if (latch != null) {
       try {
         latch.await();

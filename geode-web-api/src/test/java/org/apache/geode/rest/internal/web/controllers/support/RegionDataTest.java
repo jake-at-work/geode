@@ -28,8 +28,8 @@ public class RegionDataTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    RegionData mockRegionData = mock(RegionData.class);
-    String regionNamePath = "regionNamePath";
+    var mockRegionData = mock(RegionData.class);
+    var regionNamePath = "regionNamePath";
 
     mockRegionData.setRegionNamePath(regionNamePath);
 

@@ -45,7 +45,7 @@ public class JCALocalTransactionTest {
   @Test
   public void testCallingBeginDoesBeginTransaction() throws ResourceException {
     // Create JCALocalTransaction
-    JCALocalTransaction jcaTransaction =
+    var jcaTransaction =
         new JCALocalTransaction(cache, transactionManager);
 
     // Once TXManagerImpl begin is called, add when/thenReturn to return the TXStateProxy

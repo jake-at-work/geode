@@ -28,9 +28,9 @@ public class DistPeerTXStateStubTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    DistPeerTXStateStub mockDistPeerTXStateStub = mock(DistPeerTXStateStub.class);
-    DistTxEntryEvent mockDistTxEntryEvent = mock(DistTxEntryEvent.class);
-    ArrayList<DistTxEntryEvent> arrayOfDistTxEntryEvents = new ArrayList<>();
+    var mockDistPeerTXStateStub = mock(DistPeerTXStateStub.class);
+    var mockDistTxEntryEvent = mock(DistTxEntryEvent.class);
+    var arrayOfDistTxEntryEvents = new ArrayList<DistTxEntryEvent>();
     arrayOfDistTxEntryEvents.add(mockDistTxEntryEvent);
 
     when(mockDistPeerTXStateStub.getPrimaryTransactionalOperations())

@@ -144,8 +144,8 @@ public final class ServerLoad implements DataSerializable {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
+    final var prime = 31;
+    var result = 1;
     result = prime * result + Float.floatToIntBits(connectionLoad);
     result = prime * result + Float.floatToIntBits(loadPerConnection);
     result = prime * result + Float.floatToIntBits(loadPerSubscriber);
@@ -164,7 +164,7 @@ public final class ServerLoad implements DataSerializable {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final ServerLoad other = (ServerLoad) obj;
+    final var other = (ServerLoad) obj;
     if (Float.floatToIntBits(connectionLoad) != Float.floatToIntBits(other.connectionLoad)) {
       return false;
     }

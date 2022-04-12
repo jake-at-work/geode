@@ -48,9 +48,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import org.apache.geode.DataSerializable;
-import org.apache.geode.Statistics;
 import org.apache.geode.cache.AttributesFactory;
-import org.apache.geode.cache.AttributesMutator;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheException;
 import org.apache.geode.cache.CacheLoader;
@@ -62,37 +60,28 @@ import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.Scope;
-import org.apache.geode.cache.client.Pool;
-import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.ServerOperationException;
 import org.apache.geode.cache.control.ResourceManager;
-import org.apache.geode.cache.execute.Execution;
 import org.apache.geode.cache.execute.FunctionAdapter;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.execute.FunctionException;
 import org.apache.geode.cache.execute.FunctionService;
 import org.apache.geode.cache.execute.RegionFunctionContext;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache30.CacheSerializableRunnable;
 import org.apache.geode.cache30.ClientServerTestCase;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
-import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.internal.cache.DistributedRegion;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.PartitionedRegionHelper;
 import org.apache.geode.internal.cache.control.HeapMemoryMonitor;
 import org.apache.geode.internal.cache.control.InternalResourceManager;
 import org.apache.geode.internal.cache.control.InternalResourceManager.ResourceType;
 import org.apache.geode.internal.cache.control.MemoryThresholds.MemoryState;
-import org.apache.geode.internal.cache.control.ResourceAdvisor;
-import org.apache.geode.internal.cache.control.ResourceListener;
 import org.apache.geode.internal.cache.control.TestMemoryThresholdListener;
-import org.apache.geode.internal.statistics.GemFireStatSampler;
 import org.apache.geode.internal.statistics.LocalStatListener;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
 import org.apache.geode.test.dunit.Assert;
@@ -192,11 +181,11 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
 
   private void doClientServerTest(final String regionName, boolean createPR) throws Exception {
     // create region on the server
-    final Host host = Host.getHost(0);
-    final VM server = host.getVM(0);
-    final VM client = host.getVM(1);
+    final var host = Host.getHost(0);
+    final var server = host.getVM(0);
+    final var client = host.getVM(1);
 
-    ServerPorts ports = startCacheServer(server, 0f, 90f, regionName, createPR, false, 0);
+    var ports = startCacheServer(server, 0f, 90f, regionName, createPR, false, 0);
     startClient(client, server, ports.getPort(), regionName);
     doPuts(client, regionName, false/* catchServerException */, false/* catchLowMemoryException */);
     doPutAlls(client, regionName, false/* catchServerException */,
@@ -206,7 +195,7 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
     server.invoke(new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        InternalResourceManager irm = (InternalResourceManager) getCache().getResourceManager();
+        var irm = (InternalResourceManager) getCache().getResourceManager();
         irm.setCriticalHeapPercentage(90f);
 
         getCache().getLogger().fine(addExpectedExString);
@@ -244,15 +233,15 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
    */
   private void doDistributedRegionRemotePutRejection(boolean localDestroy, boolean cacheClose)
       throws Exception {
-    final Host host = Host.getHost(0);
-    final VM server1 = host.getVM(0);
-    final VM server2 = host.getVM(1);
+    final var host = Host.getHost(0);
+    final var server1 = host.getVM(0);
+    final var server2 = host.getVM(1);
 
-    final String regionName = "rejectRemoteOp";
+    final var regionName = "rejectRemoteOp";
 
-    ServerPorts ports1 = startCacheServer(server1, 0f, 0f, regionName, false/* createPR */,
+    var ports1 = startCacheServer(server1, 0f, 0f, regionName, false/* createPR */,
         false/* notifyBySubscription */, 0);
-    ServerPorts ports2 = startCacheServer(server2, 0f, 90f, regionName, false/* createPR */,
+    var ports2 = startCacheServer(server2, 0f, 90f, regionName, false/* createPR */,
         false/* notifyBySubscription */, 0);
 
     registerTestMemoryThresholdListener(server1);
@@ -272,7 +261,7 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
     // make sure that local server1 puts are rejected
     doPuts(server1, regionName, false/* catchRejectedException */,
         true/* catchLowMemoryException */);
-    Range r1 = new Range(Range.DEFAULT, Range.DEFAULT.width() + 1);
+    var r1 = new Range(Range.DEFAULT, Range.DEFAULT.width() + 1);
     doPutAlls(server1, regionName, false/* catchRejectedException */,
         true/* catchLowMemoryException */, r1);
 
@@ -302,7 +291,7 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
     server1.invoke(new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        WaitCriterion wc = new WaitCriterion() {
+        var wc = new WaitCriterion() {
           @Override
           public String description() {
             return "remote localRegionDestroyed message not received";
@@ -310,7 +299,7 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
 
           @Override
           public boolean done() {
-            DistributedRegion dr = (DistributedRegion) getRootRegion().getSubregion(regionName);
+            var dr = (DistributedRegion) getRootRegion().getSubregion(regionName);
             return dr.getAtomicThresholdInfo().getMembersThatReachedThreshold().size() == 0;
           }
         };
@@ -322,14 +311,14 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
     // make sure puts succeed
     doPuts(server1, regionName, false/* catchRejectedException */,
         false/* catchLowMemoryException */);
-    Range r2 = new Range(r1, r1.width() + 1);
+    var r2 = new Range(r1, r1.width() + 1);
     doPutAlls(server1, regionName, false/* catchRejectedException */,
         false/* catchLowMemoryException */, r2);
   }
 
   @Test
   public void testBug45513() {
-    ResourceManager rm = getCache().getResourceManager();
+    var rm = getCache().getResourceManager();
     assertEquals(0.0f, rm.getCriticalHeapPercentage(), 0);
     assertEquals(0.0f, rm.getEvictionHeapPercentage(), 0);
 
@@ -352,16 +341,16 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
    */
   @Test
   public void testDistributedRegionRemoteClientPutRejection() throws Exception {
-    final Host host = Host.getHost(0);
-    final VM server1 = host.getVM(0);
-    final VM server2 = host.getVM(1);
-    final VM client = host.getVM(2);
+    final var host = Host.getHost(0);
+    final var server1 = host.getVM(0);
+    final var server2 = host.getVM(1);
+    final var client = host.getVM(2);
 
-    final String regionName = "rejectRemoteClientOp";
+    final var regionName = "rejectRemoteClientOp";
 
-    ServerPorts ports1 = startCacheServer(server1, 0f, 0f, regionName, false/* createPR */,
+    var ports1 = startCacheServer(server1, 0f, 0f, regionName, false/* createPR */,
         false/* notifyBySubscription */, 0);
-    ServerPorts ports2 = startCacheServer(server2, 0f, 90f, regionName, false/* createPR */,
+    var ports2 = startCacheServer(server2, 0f, 90f, regionName, false/* createPR */,
         false/* notifyBySubscription */, 0);
 
     startClient(client, server1, ports1.getPort(), regionName);
@@ -395,15 +384,15 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
    */
   @Test
   public void testDisabledThresholds() throws Exception {
-    final Host host = Host.getHost(0);
-    final VM server1 = host.getVM(0);
-    final VM server2 = host.getVM(1);
+    final var host = Host.getHost(0);
+    final var server1 = host.getVM(0);
+    final var server2 = host.getVM(1);
 
-    final String regionName = "disableThresholdPr";
+    final var regionName = "disableThresholdPr";
 
-    ServerPorts ports1 = startCacheServer(server1, 0f, 0f, regionName, true/* createPR */,
+    var ports1 = startCacheServer(server1, 0f, 0f, regionName, true/* createPR */,
         false/* notifyBySubscription */, 0);
-    ServerPorts ports2 = startCacheServer(server2, 0f, 0f, regionName, true/* createPR */,
+    var ports2 = startCacheServer(server2, 0f, 0f, regionName, true/* createPR */,
         false/* notifyBySubscription */, 0);
 
     registerTestMemoryThresholdListener(server1);
@@ -433,7 +422,7 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
     server2.invoke(new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        InternalResourceManager irm = getCache().getInternalResourceManager();
+        var irm = getCache().getInternalResourceManager();
         assertEquals(0, irm.getStats().getEvictionStartEvents());
         assertEquals(0, irm.getStats().getHeapCriticalEvents());
         assertEquals(0, irm.getStats().getCriticalThreshold());
@@ -449,15 +438,15 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
    */
   @Test
   public void testEventDelivery() throws Exception {
-    final Host host = Host.getHost(0);
-    final VM server1 = host.getVM(0);
-    final VM server2 = host.getVM(1);
+    final var host = Host.getHost(0);
+    final var server1 = host.getVM(0);
+    final var server2 = host.getVM(1);
 
-    final String regionName = "testEventDelivery";
+    final var regionName = "testEventDelivery";
 
-    ServerPorts ports1 = startCacheServer(server1, 0f, 0f, regionName, false/* createPR */,
+    var ports1 = startCacheServer(server1, 0f, 0f, regionName, false/* createPR */,
         false/* notifyBySubscription */, 0);
-    ServerPorts ports2 = startCacheServer(server2, 80f, 90f, regionName, false/* createPR */,
+    var ports2 = startCacheServer(server2, 80f, 90f, regionName, false/* createPR */,
         false/* notifyBySubscription */, 0);
 
     registerLoggingTestMemoryThresholdListener(server1);
@@ -467,7 +456,7 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
     server2.invoke(new SerializableCallable("NORMAL->CRITICAL") {
       @Override
       public Object call() throws Exception {
-        InternalCache gfCache = getCache();
+        var gfCache = getCache();
         getCache().getLogger().fine(addExpectedExString);
         gfCache.getInternalResourceManager().getHeapMonitor().updateStateAndSendEvent(950, "test");
         getCache().getLogger().fine(removeExpectedExString);
@@ -487,7 +476,7 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
     server2.invoke(new SerializableCallable("CRITICAL->EVICTION") {
       @Override
       public Object call() throws Exception {
-        InternalCache gfCache = getCache();
+        var gfCache = getCache();
         getCache().getLogger().fine(addExpectedBelow);
         gfCache.getInternalResourceManager().getHeapMonitor().updateStateAndSendEvent(850, "test");
         getCache().getLogger().fine(removeExpectedBelow);
@@ -505,7 +494,7 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
     server2.invoke(new SerializableCallable("EVICTION->EVICTION") {
       @Override
       public Object call() throws Exception {
-        InternalCache gfCache = getCache();
+        var gfCache = getCache();
         gfCache.getInternalResourceManager().getHeapMonitor().updateStateAndSendEvent(840, "test");
         return null;
       }
@@ -521,7 +510,7 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
     server2.invoke(new SerializableCallable("EVICTION->NORMAL") {
       @Override
       public Object call() throws Exception {
-        InternalCache gfCache = getCache();
+        var gfCache = getCache();
         gfCache.getInternalResourceManager().getHeapMonitor().updateStateAndSendEvent(750, "test");
         return null;
       }
@@ -538,7 +527,7 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
     server2.invoke(new SerializableCallable("NORMAL->CRITICAL") {
       @Override
       public Object call() throws Exception {
-        InternalCache gfCache = getCache();
+        var gfCache = getCache();
         gfCache.getInternalResourceManager().getHeapMonitor().updateStateAndSendEvent(950, "test");
         return null;
       }
@@ -554,7 +543,7 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
     server2.invoke(new SerializableCallable("CRITICAL->NORMAL") {
       @Override
       public Object call() throws Exception {
-        InternalCache gfCache = getCache();
+        var gfCache = getCache();
         gfCache.getInternalResourceManager().getHeapMonitor().updateStateAndSendEvent(750, "test");
         return null;
       }
@@ -571,7 +560,7 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
     server2.invoke(new SerializableCallable("NORMAL->EVICTION") {
       @Override
       public Object call() throws Exception {
-        InternalCache gfCache = getCache();
+        var gfCache = getCache();
         gfCache.getInternalResourceManager().getHeapMonitor().updateStateAndSendEvent(850, "test");
         return null;
       }
@@ -587,16 +576,16 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
 
   @Test
   public void testCleanAdvisorClose() throws Exception {
-    final Host host = Host.getHost(0);
-    final VM server1 = host.getVM(0);
-    final VM server2 = host.getVM(1);
-    final VM server3 = host.getVM(2);
+    final var host = Host.getHost(0);
+    final var server1 = host.getVM(0);
+    final var server2 = host.getVM(1);
+    final var server3 = host.getVM(2);
 
-    final String regionName = "testEventOrger";
+    final var regionName = "testEventOrger";
 
-    ServerPorts ports1 = startCacheServer(server1, 0f, 0f, regionName, false/* createPR */,
+    var ports1 = startCacheServer(server1, 0f, 0f, regionName, false/* createPR */,
         false/* notifyBySubscription */, 0);
-    ServerPorts ports2 = startCacheServer(server2, 0f, 0f, regionName, false/* createPR */,
+    var ports2 = startCacheServer(server2, 0f, 0f, regionName, false/* createPR */,
         false/* notifyBySubscription */, 0);
 
     verifyProfiles(server1, 2);
@@ -657,28 +646,28 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
 
   private void prRemotePutRejection(boolean cacheClose, boolean localDestroy, final boolean useTx)
       throws Exception {
-    final Host host = Host.getHost(0);
-    final VM accessor = host.getVM(0);
-    final VM server1 = host.getVM(1);
-    final VM server2 = host.getVM(2);
-    final VM server3 = host.getVM(3);
+    final var host = Host.getHost(0);
+    final var accessor = host.getVM(0);
+    final var server1 = host.getVM(1);
+    final var server2 = host.getVM(2);
+    final var server3 = host.getVM(3);
 
-    final String regionName = "testPrRejection";
-    final int redundancy = 1;
+    final var regionName = "testPrRejection";
+    final var redundancy = 1;
 
-    final ServerPorts ports1 = startCacheServer(server1, 80f, 90f, regionName, true/* createPR */,
+    final var ports1 = startCacheServer(server1, 80f, 90f, regionName, true/* createPR */,
         false/* notifyBySubscription */, redundancy);
-    ServerPorts ports2 = startCacheServer(server2, 80f, 90f, regionName, true/* createPR */,
+    var ports2 = startCacheServer(server2, 80f, 90f, regionName, true/* createPR */,
         false/* notifyBySubscription */, redundancy);
-    ServerPorts ports3 = startCacheServer(server3, 80f, 90f, regionName, true/* createPR */,
+    var ports3 = startCacheServer(server3, 80f, 90f, regionName, true/* createPR */,
         false/* notifyBySubscription */, redundancy);
     accessor.invoke(new SerializableCallable() {
       @Override
       public Object call() throws Exception {
         getSystem(getServerProperties());
         getCache();
-        AttributesFactory factory = new AttributesFactory();
-        PartitionAttributesFactory paf = new PartitionAttributesFactory();
+        var factory = new AttributesFactory();
+        var paf = new PartitionAttributesFactory();
         paf.setRedundantCopies(redundancy);
         paf.setLocalMaxMemory(0);
         paf.setTotalNumBuckets(11);
@@ -689,27 +678,27 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
     });
 
     doPuts(accessor, regionName, false, false);
-    final Range r1 = Range.DEFAULT;
+    final var r1 = Range.DEFAULT;
     doPutAlls(accessor, regionName, false, false, r1);
 
-    SerializableCallable getMyId = new SerializableCallable() {
+    var getMyId = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
         return getCache().getMyId();
       }
     };
 
-    final DistributedMember server1Id = (DistributedMember) server1.invoke(getMyId);
+    final var server1Id = (DistributedMember) server1.invoke(getMyId);
 
     setUsageAboveCriticalThreshold(server1);
 
     accessor.invoke(new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        final PartitionedRegion pr = (PartitionedRegion) getRootRegion().getSubregion(regionName);
-        final String regionPath = getRootRegion().getSubregion(regionName).getFullPath();
+        final var pr = (PartitionedRegion) getRootRegion().getSubregion(regionName);
+        final var regionPath = getRootRegion().getSubregion(regionName).getFullPath();
         // server1 is sick, look for a key on server1, and attempt put again
-        WaitCriterion wc = new WaitCriterion() {
+        var wc = new WaitCriterion() {
           @Override
           public String description() {
             return "remote bucket not marked sick";
@@ -717,12 +706,12 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
 
           @Override
           public boolean done() {
-            boolean keyFoundOnSickMember = false;
-            boolean caughtException = false;
-            for (int i = 0; i < 20; i++) {
+            var keyFoundOnSickMember = false;
+            var caughtException = false;
+            for (var i = 0; i < 20; i++) {
               Integer key = i;
-              int hKey = getHashKey(pr, null, key, null, null);
-              Set<InternalDistributedMember> owners = pr.getRegionAdvisor().getBucketOwners(hKey);
+              var hKey = getHashKey(pr, null, key, null, null);
+              var owners = pr.getRegionAdvisor().getBucketOwners(hKey);
               if (owners.contains(server1Id)) {
                 keyFoundOnSickMember = true;
                 try {
@@ -754,7 +743,7 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
     });
 
     {
-      Range r2 = new Range(r1, r1.width() + 1);
+      var r2 = new Range(r1, r1.width() + 1);
       doPutAlls(accessor, regionName, false, true, r2);
     }
 
@@ -787,7 +776,7 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
       @Override
       public Object call() throws Exception {
         final Region r = getRootRegion().getSubregion(regionName);
-        WaitCriterion wc = new WaitCriterion() {
+        var wc = new WaitCriterion() {
           @Override
           public String description() {
             return "pr should have gone un-critical";
@@ -795,8 +784,8 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
 
           @Override
           public boolean done() {
-            boolean done = true;
-            for (int i = 0; i < 20; i++) {
+            var done = true;
+            for (var i = 0; i < 20; i++) {
               try {
                 r.put(i, "value");
               } catch (LowMemoryException e) {
@@ -817,20 +806,20 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
   @Ignore("this test is DISABLED due to test issues.  It sometimes fails with a TransactionDataNotColocatedException.  See bug #52222")
   @Test
   public void testTxCommitInCritical() throws Exception {
-    final Host host = Host.getHost(0);
-    final VM accessor = host.getVM(0);
-    final VM server1 = host.getVM(1);
-    final VM server2 = host.getVM(2);
-    final VM server3 = host.getVM(3);
+    final var host = Host.getHost(0);
+    final var accessor = host.getVM(0);
+    final var server1 = host.getVM(1);
+    final var server2 = host.getVM(2);
+    final var server3 = host.getVM(3);
 
-    final String regionName = "testPrRejection";
-    final int redundancy = 1;
+    final var regionName = "testPrRejection";
+    final var redundancy = 1;
 
-    final ServerPorts ports1 = startCacheServer(server1, 80f, 90f, regionName, true/* createPR */,
+    final var ports1 = startCacheServer(server1, 80f, 90f, regionName, true/* createPR */,
         false/* notifyBySubscription */, redundancy);
-    ServerPorts ports2 = startCacheServer(server2, 80f, 90f, regionName, true/* createPR */,
+    var ports2 = startCacheServer(server2, 80f, 90f, regionName, true/* createPR */,
         false/* notifyBySubscription */, redundancy);
-    ServerPorts ports3 = startCacheServer(server3, 80f, 90f, regionName, true/* createPR */,
+    var ports3 = startCacheServer(server3, 80f, 90f, regionName, true/* createPR */,
         false/* notifyBySubscription */, redundancy);
 
     registerTestMemoryThresholdListener(server1);
@@ -842,8 +831,8 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
       public Object call() throws Exception {
         getSystem(getServerProperties());
         getCache();
-        AttributesFactory factory = new AttributesFactory();
-        PartitionAttributesFactory paf = new PartitionAttributesFactory();
+        var factory = new AttributesFactory();
+        var paf = new PartitionAttributesFactory();
         paf.setRedundantCopies(redundancy);
         paf.setLocalMaxMemory(0);
         paf.setTotalNumBuckets(11);
@@ -854,27 +843,27 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
     });
 
     doPuts(accessor, regionName, false, false);
-    final Range r1 = Range.DEFAULT;
+    final var r1 = Range.DEFAULT;
     doPutAlls(accessor, regionName, false, false, r1);
 
-    SerializableCallable getMyId = new SerializableCallable() {
+    var getMyId = new SerializableCallable() {
       @Override
       public Object call() throws Exception {
         return getCache().getMyId();
       }
     };
 
-    final DistributedMember server1Id = (DistributedMember) server1.invoke(getMyId);
+    final var server1Id = (DistributedMember) server1.invoke(getMyId);
 
-    final Integer lastKey = (Integer) accessor.invoke(new SerializableCallable() {
+    final var lastKey = (Integer) accessor.invoke(new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        final PartitionedRegion pr = (PartitionedRegion) getRootRegion().getSubregion(regionName);
+        final var pr = (PartitionedRegion) getRootRegion().getSubregion(regionName);
         getCache().getCacheTransactionManager().begin();
-        for (int i = 0; i < 20; i++) {
+        for (var i = 0; i < 20; i++) {
           Integer key = i;
-          int hKey = PartitionedRegionHelper.getHashKey(pr, key);
-          Set<InternalDistributedMember> owners = pr.getRegionAdvisor().getBucketOwners(hKey);
+          var hKey = PartitionedRegionHelper.getHashKey(pr, key);
+          var owners = pr.getRegionAdvisor().getBucketOwners(hKey);
           if (owners.contains(server1Id)) {
             pr.put(key, "txTest");
             return i;
@@ -892,13 +881,13 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
     accessor.invoke(new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        final PartitionedRegion pr = (PartitionedRegion) getRootRegion().getSubregion(regionName);
+        final var pr = (PartitionedRegion) getRootRegion().getSubregion(regionName);
         assertTrue(getCache().getCacheTransactionManager().exists());
-        boolean exceptionThrown = false;
+        var exceptionThrown = false;
         for (int i = lastKey; i < 20; i++) {
           Integer key = i;
-          int hKey = PartitionedRegionHelper.getHashKey(pr, key);
-          Set<InternalDistributedMember> owners = pr.getRegionAdvisor().getBucketOwners(hKey);
+          var hKey = PartitionedRegionHelper.getHashKey(pr, key);
+          var owners = pr.getRegionAdvisor().getBucketOwners(hKey);
           if (owners.contains(server1Id)) {
             try {
               pr.put(key, "txTest");
@@ -912,8 +901,8 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
           fail("expected exception not thrown");
         }
         getCache().getCacheTransactionManager().commit();
-        int seenCount = 0;
-        for (int i = 0; i < 20; i++) {
+        var seenCount = 0;
+        for (var i = 0; i < 20; i++) {
           if ("txTest".equals(pr.get(i))) {
             seenCount++;
           }
@@ -927,15 +916,15 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
   @Test
   public void testDRFunctionExecutionRejection() throws Exception {
     IgnoredException.addIgnoredException("LowMemoryException");
-    final Host host = Host.getHost(0);
-    final VM server1 = host.getVM(0);
-    final VM server2 = host.getVM(1);
-    final VM client = host.getVM(2);
-    final String regionName = "drFuncRej";
+    final var host = Host.getHost(0);
+    final var server1 = host.getVM(0);
+    final var server2 = host.getVM(1);
+    final var client = host.getVM(2);
+    final var regionName = "drFuncRej";
 
-    ServerPorts ports1 = startCacheServer(server1, 80f, 90f, regionName, false/* createPR */,
+    var ports1 = startCacheServer(server1, 80f, 90f, regionName, false/* createPR */,
         false/* notifyBySubscription */, 0);
-    ServerPorts ports2 = startCacheServer(server2, 80f, 90f, regionName, false/* createPR */,
+    var ports2 = startCacheServer(server2, 80f, 90f, regionName, false/* createPR */,
         false/* notifyBySubscription */, 0);
 
     startClient(client, server1, ports1.getPort(), regionName);
@@ -943,8 +932,8 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
     registerTestMemoryThresholdListener(server1);
     registerTestMemoryThresholdListener(server2);
 
-    final RejectFunction function = new RejectFunction();
-    final RejectFunction function2 = new RejectFunction("noRejFunc", false);
+    final var function = new RejectFunction();
+    final var function2 = new RejectFunction("noRejFunc", false);
     Invoke.invokeInEveryVM(new SerializableCallable("register function") {
       @Override
       public Object call() throws Exception {
@@ -1044,24 +1033,24 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
   @Test
   public void testPRFunctionExecutionRejection() throws Exception {
     IgnoredException.addIgnoredException("LowMemoryException");
-    final Host host = Host.getHost(0);
-    final VM accessor = host.getVM(0);
-    final VM server1 = host.getVM(1);
-    final VM server2 = host.getVM(2);
-    final VM client = host.getVM(3);
-    final String regionName = "prFuncRej";
+    final var host = Host.getHost(0);
+    final var accessor = host.getVM(0);
+    final var server1 = host.getVM(1);
+    final var server2 = host.getVM(2);
+    final var client = host.getVM(3);
+    final var regionName = "prFuncRej";
 
-    final ServerPorts ports1 = startCacheServer(server1, 80f, 90f, regionName, true/* createPR */,
+    final var ports1 = startCacheServer(server1, 80f, 90f, regionName, true/* createPR */,
         false/* notifyBySubscription */, 0);
-    ServerPorts ports2 = startCacheServer(server2, 80f, 90f, regionName, true/* createPR */,
+    var ports2 = startCacheServer(server2, 80f, 90f, regionName, true/* createPR */,
         false/* notifyBySubscription */, 0);
     accessor.invoke(new SerializableCallable() {
       @Override
       public Object call() throws Exception {
         getSystem(getServerProperties());
         getCache();
-        AttributesFactory factory = new AttributesFactory();
-        PartitionAttributesFactory paf = new PartitionAttributesFactory();
+        var factory = new AttributesFactory();
+        var paf = new PartitionAttributesFactory();
         paf.setRedundantCopies(0);
         paf.setLocalMaxMemory(0);
         paf.setTotalNumBuckets(11);
@@ -1076,8 +1065,8 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
     registerTestMemoryThresholdListener(server1);
     registerTestMemoryThresholdListener(server2);
 
-    final RejectFunction function = new RejectFunction();
-    final RejectFunction function2 = new RejectFunction("noRejFunc", false);
+    final var function = new RejectFunction();
+    final var function2 = new RejectFunction("noRejFunc", false);
     Invoke.invokeInEveryVM(new SerializableCallable("register function") {
       @Override
       public Object call() throws Exception {
@@ -1175,7 +1164,7 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
     server1.invoke(removeExpectedFunctionException);
     server2.invoke(removeExpectedFunctionException);
 
-    final DistributedMember server2Id =
+    final var server2Id =
         (DistributedMember) server2.invoke(new SerializableCallable() {
           @Override
           public Object call() throws Exception {
@@ -1187,20 +1176,20 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
     accessor.invoke(new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        PartitionedRegion pr = (PartitionedRegion) getRootRegion().getSubregion(regionName);
+        var pr = (PartitionedRegion) getRootRegion().getSubregion(regionName);
         Object sickKey1 = null;
         Object sickKey2 = null;
         Object healthyKey = null;
-        for (int i = 0; i < 20; i++) {
+        for (var i = 0; i < 20; i++) {
           Object key = i;
-          DistributedMember m = pr.getMemberOwning(key);
+          var m = pr.getMemberOwning(key);
           if (m.equals(server2Id)) {
             if (sickKey1 == null) {
               sickKey1 = key;
               // execute
               Set s = new HashSet();
               s.add(sickKey1);
-              Execution e = FunctionService.onRegion(pr);
+              var e = FunctionService.onRegion(pr);
               try {
                 getCache().getLogger().fine(addExpectedFunctionExString);
                 e.withFilter(s).setArguments(s).execute(function);
@@ -1215,7 +1204,7 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
               Set s = new HashSet();
               s.add(sickKey1);
               s.add(sickKey2);
-              Execution e = FunctionService.onRegion(pr);
+              var e = FunctionService.onRegion(pr);
               try {
                 e.withFilter(s).setArguments(s).execute(function);
                 fail("expected LowMemoryExcception was not thrown");
@@ -1228,7 +1217,7 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
             // execute
             Set s = new HashSet();
             s.add(healthyKey);
-            Execution e = FunctionService.onRegion(pr);
+            var e = FunctionService.onRegion(pr);
             e.withFilter(s).setArguments(s).execute(function);
           }
           if (sickKey1 != null && sickKey2 != null && healthyKey != null) {
@@ -1242,15 +1231,15 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
 
   @Test
   public void testFunctionExecutionRejection() throws Exception {
-    final Host host = Host.getHost(0);
-    final VM server1 = host.getVM(0);
-    final VM server2 = host.getVM(1);
-    final VM client = host.getVM(2);
-    final String regionName = "FuncRej";
+    final var host = Host.getHost(0);
+    final var server1 = host.getVM(0);
+    final var server2 = host.getVM(1);
+    final var client = host.getVM(2);
+    final var regionName = "FuncRej";
 
-    ServerPorts ports1 = startCacheServer(server1, 80f, 90f, regionName, false/* createPR */,
+    var ports1 = startCacheServer(server1, 80f, 90f, regionName, false/* createPR */,
         false/* notifyBySubscription */, 0);
-    ServerPorts ports2 = startCacheServer(server2, 80f, 90f, regionName, false/* createPR */,
+    var ports2 = startCacheServer(server2, 80f, 90f, regionName, false/* createPR */,
         false/* notifyBySubscription */, 0);
 
     startClient(client, server1, ports1.getPort(), regionName);
@@ -1258,8 +1247,8 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
     registerTestMemoryThresholdListener(server1);
     registerTestMemoryThresholdListener(server2);
 
-    final RejectFunction function = new RejectFunction();
-    final RejectFunction function2 = new RejectFunction("noRejFunc", false);
+    final var function = new RejectFunction();
+    final var function2 = new RejectFunction("noRejFunc", false);
     Invoke.invokeInEveryVM(new SerializableCallable("register function") {
       @Override
       public Object call() throws Exception {
@@ -1272,7 +1261,7 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
     client.invoke(new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        Pool p = PoolManager.find("pool1");
+        var p = PoolManager.find("pool1");
         assertTrue(p != null);
         FunctionService.onServers(p).execute(function);
         FunctionService.onServers(p).execute(function2);
@@ -1280,7 +1269,7 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
       }
     });
 
-    final DistributedMember s1 = (DistributedMember) server1.invoke(getDistributedMember);
+    final var s1 = (DistributedMember) server1.invoke(getDistributedMember);
 
     server2.invoke(new SerializableCallable() {
       @Override
@@ -1303,7 +1292,7 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
     client.invoke(new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        Pool p = PoolManager.find("pool1");
+        var p = PoolManager.find("pool1");
         assertTrue(p != null);
         try {
           FunctionService.onServers(p).execute(function);
@@ -1363,18 +1352,18 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
       @Override
       public Object call() throws Exception {
         getSystem(getServerProperties());
-        GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
+        var cache = (GemFireCacheImpl) getCache();
 
-        InternalResourceManager irm = cache.getInternalResourceManager();
-        HeapMemoryMonitor hmm = irm.getHeapMonitor();
+        var irm = cache.getInternalResourceManager();
+        var hmm = irm.getHeapMonitor();
         hmm.setTestMaxMemoryBytes(1000);
         HeapMemoryMonitor.setTestBytesUsedForThresholdSet(500);
         irm.setEvictionHeapPercentage(evictionThreshold);
         irm.setCriticalHeapPercentage(criticalThreshold);
 
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         if (createPR) {
-          PartitionAttributesFactory paf = new PartitionAttributesFactory();
+          var paf = new PartitionAttributesFactory();
           paf.setRedundantCopies(prRedundancy);
           paf.setTotalNumBuckets(11);
           factory.setPartitionAttributes(paf.create());
@@ -1382,14 +1371,14 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
           factory.setScope(Scope.DISTRIBUTED_ACK);
           factory.setDataPolicy(DataPolicy.REPLICATE);
         }
-        Region region = createRegion(regionName, factory.create());
+        var region = createRegion(regionName, factory.create());
         if (createPR) {
           assertTrue(region instanceof PartitionedRegion);
         } else {
           assertTrue(region instanceof DistributedRegion);
         }
-        CacheServer cacheServer = getCache().addCacheServer();
-        int port = AvailablePortHelper.getRandomAvailableTCPPorts(1)[0];
+        var cacheServer = getCache().addCacheServer();
+        var port = AvailablePortHelper.getRandomAvailableTCPPorts(1)[0];
         cacheServer.setPort(port);
         cacheServer.setNotifyBySubscription(notifyBySubscription);
         cacheServer.start();
@@ -1408,11 +1397,11 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
         getSystem(getClientProps());
         getCache();
 
-        PoolFactory pf = PoolManager.createFactory();
+        var pf = PoolManager.createFactory();
         pf.addServer(NetworkUtils.getServerHostName(server.getHost()), serverPort);
         pf.create("pool1");
 
-        AttributesFactory af = new AttributesFactory();
+        var af = new AttributesFactory();
         af.setScope(Scope.LOCAL);
         af.setPoolName("pool1");
         createRegion(regionName, af.create());
@@ -1458,7 +1447,7 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
       public Object call() throws Exception {
         Region r = getRootRegion().getSubregion(regionName);
         Map<Integer, String> temp = new HashMap<>();
-        for (int i = rng.start; i < rng.end; i++) {
+        for (var i = rng.start; i < rng.end; i++) {
           Integer k = i;
           temp.put(k, "value-" + i);
         }
@@ -1467,7 +1456,7 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
           if (catchServerException || catchLowMemoryException) {
             fail("An expected ResourceException was not thrown");
           }
-          for (Map.Entry<Integer, String> me : temp.entrySet()) {
+          for (var me : temp.entrySet()) {
             assertEquals(me.getValue(), r.get(me.getKey()));
           }
         } catch (ServerOperationException ex) {
@@ -1477,7 +1466,7 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
           if (!(ex.getCause() instanceof LowMemoryException)) {
             Assert.fail("Unexpected exception: ", ex);
           }
-          for (Integer me : temp.keySet()) {
+          for (var me : temp.keySet()) {
             assertFalse("Key " + me + " should not exist", r.containsKey(me));
           }
         } catch (LowMemoryException low) {
@@ -1485,7 +1474,7 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
           if (!catchLowMemoryException) {
             Assert.fail("Unexpected exception: ", low);
           }
-          for (Integer me : temp.keySet()) {
+          for (var me : temp.keySet()) {
             assertFalse("Key " + me + " should not exist", r.containsKey(me));
           }
         }
@@ -1541,7 +1530,7 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
     server.invoke(new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        ResourceManager irm = getCache().getResourceManager();
+        var irm = getCache().getResourceManager();
         irm.setCriticalHeapPercentage(criticalThreshold);
         irm.setEvictionHeapPercentage(evictionThreshold);
         return null;
@@ -1553,8 +1542,8 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
     vm.invoke(new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        TestMemoryThresholdListener listener = new TestMemoryThresholdListener();
-        InternalResourceManager irm = getCache().getInternalResourceManager();
+        var listener = new TestMemoryThresholdListener();
+        var irm = getCache().getInternalResourceManager();
         irm.addResourceListener(ResourceType.HEAP_MEMORY, listener);
         assertTrue(irm.getResourceListeners(ResourceType.HEAP_MEMORY).contains(listener));
         return null;
@@ -1566,8 +1555,8 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
     vm.invoke(new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        TestMemoryThresholdListener listener = new TestMemoryThresholdListener(true);
-        InternalResourceManager irm = getCache().getInternalResourceManager();
+        var listener = new TestMemoryThresholdListener(true);
+        var irm = getCache().getInternalResourceManager();
         irm.addResourceListener(ResourceType.HEAP_MEMORY, listener);
         assertTrue(irm.getResourceListeners(ResourceType.HEAP_MEMORY).contains(listener));
         return null;
@@ -1589,16 +1578,16 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
       @Override
       public Object call() throws Exception {
         WaitCriterion wc = null;
-        Set<ResourceListener<?>> listeners = getGemfireCache().getInternalResourceManager()
+        var listeners = getGemfireCache().getInternalResourceManager()
             .getResourceListeners(ResourceType.HEAP_MEMORY);
         TestMemoryThresholdListener tmp_listener = null;
-        for (final ResourceListener<?> l : listeners) {
+        for (final var l : listeners) {
           if (l instanceof TestMemoryThresholdListener) {
             tmp_listener = (TestMemoryThresholdListener) l;
             break;
           }
         }
-        final TestMemoryThresholdListener listener = tmp_listener;
+        final var listener = tmp_listener;
         switch (state) {
           case CRITICAL:
             if (useWaitCriterion) {
@@ -1700,9 +1689,9 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
     vm.invoke(new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        InternalResourceManager irm = getCache().getInternalResourceManager();
-        final ResourceAdvisor ra = irm.getResourceAdvisor();
-        WaitCriterion wc = new WaitCriterion() {
+        var irm = getCache().getInternalResourceManager();
+        final var ra = irm.getResourceAdvisor();
+        var wc = new WaitCriterion() {
           @Override
           public String description() {
             return "verify profiles failed. Current profiles: " + ra.adviseGeneric();
@@ -1720,14 +1709,14 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
   }
 
   protected Properties getClientProps() {
-    Properties p = new Properties();
+    var p = new Properties();
     p.setProperty(MCAST_PORT, "0");
     p.setProperty(LOCATORS, "");
     return p;
   }
 
   protected Properties getServerProperties() {
-    Properties p = new Properties();
+    var p = new Properties();
     p.setProperty(LOCATORS, "localhost[" + DistributedTestUtils.getDUnitLocatorPort() + "]");
     return p;
   }
@@ -1743,11 +1732,11 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
   private final SerializableCallable resetResourceManager = new SerializableCallable() {
     @Override
     public Object call() throws Exception {
-      InternalResourceManager irm = getCache().getInternalResourceManager();
+      var irm = getCache().getInternalResourceManager();
       // Reset CRITICAL_UP by informing all that heap usage is now 1 byte (0 would disable).
       irm.getHeapMonitor().updateStateAndSendEvent(1, "test");
-      Set<ResourceListener<?>> listeners = irm.getResourceListeners(ResourceType.HEAP_MEMORY);
-      for (final ResourceListener<?> l : listeners) {
+      var listeners = irm.getResourceListeners(ResourceType.HEAP_MEMORY);
+      for (final var l : listeners) {
         if (l instanceof TestMemoryThresholdListener) {
           ((TestMemoryThresholdListener) l).resetThresholdCalls();
         }
@@ -1772,7 +1761,7 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
     @Override
     public void execute(FunctionContext context) {
       if (context instanceof RegionFunctionContext) {
-        RegionFunctionContext regionContext = (RegionFunctionContext) context;
+        var regionContext = (RegionFunctionContext) context;
         Region dataSet = regionContext.getDataSet();
         dataSet.get(1);
         regionContext.getResultSender().lastResult("executed");
@@ -1821,19 +1810,19 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
    */
   @Test
   public void testLocalStatListenerRegistration() throws Exception {
-    final CountDownLatch latch = new CountDownLatch(1);
+    final var latch = new CountDownLatch(1);
     Cache cache = getCache();
-    InternalDistributedSystem internalSystem =
+    var internalSystem =
         (InternalDistributedSystem) cache.getDistributedSystem();
-    final GemFireStatSampler sampler = internalSystem.getStatSampler();
+    final var sampler = internalSystem.getStatSampler();
     sampler.waitForInitialization(10000); // fix: remove infinite wait
-    final LocalStatListener l = value -> latch.countDown();
+    final var l = (LocalStatListener) value -> latch.countDown();
 
     // fix: found race condition here...
-    WaitCriterion wc = new WaitCriterion() {
+    var wc = new WaitCriterion() {
       @Override
       public boolean done() {
-        Statistics si = getTenuredPoolStatistics(internalSystem.getStatisticsManager());
+        var si = getTenuredPoolStatistics(internalSystem.getStatisticsManager());
         if (si != null) {
           sampler.addLocalStatListener(l, si, "currentUsedMemory");
           return true;
@@ -1843,7 +1832,7 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
 
       @Override
       public String description() {
-        String tenuredPoolName = getTenuredMemoryPoolMXBean().getName();
+        var tenuredPoolName = getTenuredMemoryPoolMXBean().getName();
         return "Waiting for " + tenuredPoolName + " statistics to be added to create listener for";
       }
     };
@@ -1851,19 +1840,19 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
 
     assertTrue("expected at least one stat listener, found " + sampler.getLocalListeners().size(),
         sampler.getLocalListeners().size() > 0);
-    long maxTenuredMemory = getTenuredPoolMaxMemory();
-    AttributesFactory factory = new AttributesFactory();
+    var maxTenuredMemory = getTenuredPoolMaxMemory();
+    var factory = new AttributesFactory();
     factory.setScope(LOCAL);
-    Region r = createRegion(getUniqueName() + "region", factory.create());
+    var r = createRegion(getUniqueName() + "region", factory.create());
     // keep putting objects (of size 1% of maxTenuredMemory) and wait for stat callback
     // if we don't get a callback after 75 attempts, throw exception
-    int count = 0;
+    var count = 0;
     while (true) {
       count++;
       if (count > 75) {
         throw new AssertionError("Did not receive a stat listener callback");
       }
-      byte[] value = new byte[(int) (maxTenuredMemory * 0.01)];
+      var value = new byte[(int) (maxTenuredMemory * 0.01)];
       r.put("key-" + count, value);
       if (latch.await(50, MILLISECONDS)) {
         break;
@@ -1881,19 +1870,19 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
    */
   @Test
   public void testLRLoadRejection() throws Exception {
-    final Host host = Host.getHost(0);
-    final VM vm = host.getVM(2);
-    final String rName = getUniqueName();
-    final float criticalHeapThresh = 0.90f;
-    final int fakeHeapMaxSize = 1000;
+    final var host = Host.getHost(0);
+    final var vm = host.getVM(2);
+    final var rName = getUniqueName();
+    final var criticalHeapThresh = 0.90f;
+    final var fakeHeapMaxSize = 1000;
 
     vm.invoke(JUnit4DistributedTestCase::disconnectFromDS);
 
     vm.invoke(new CacheSerializableRunnable("test LocalRegion load passthrough when critical") {
       @Override
       public void run2() throws CacheException {
-        InternalResourceManager irm = (InternalResourceManager) getCache().getResourceManager();
-        HeapMemoryMonitor hmm = irm.getHeapMonitor();
+        var irm = (InternalResourceManager) getCache().getResourceManager();
+        var hmm = irm.getHeapMonitor();
         long fakeHeapUsage = Math.round(fakeHeapMaxSize * (criticalHeapThresh - 0.5f)); // below
                                                                                         // critical
                                                                                         // by 50%
@@ -1901,9 +1890,9 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
         irm.getHeapMonitor().setTestMaxMemoryBytes(fakeHeapMaxSize);
         HeapMemoryMonitor.setTestBytesUsedForThresholdSet(fakeHeapUsage);
         irm.setCriticalHeapPercentage((criticalHeapThresh * 100.0f));
-        AttributesFactory<Integer, String> af = new AttributesFactory<>();
+        var af = new AttributesFactory<Integer, String>();
         af.setScope(Scope.LOCAL);
-        final AtomicInteger numLoaderInvocations = new AtomicInteger();
+        final var numLoaderInvocations = new AtomicInteger();
         af.setCacheLoader(new CacheLoader<Integer, String>() {
           @Override
           public String load(LoaderHelper<Integer, String> helper) throws CacheLoaderException {
@@ -1914,10 +1903,10 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
           @Override
           public void close() {}
         });
-        Region<Integer, String> r = getCache().createRegion(rName, af.create());
+        var r = getCache().createRegion(rName, af.create());
 
         assertFalse(hmm.getState().isCritical());
-        int expectedInvocations = 0;
+        var expectedInvocations = 0;
         assertEquals(expectedInvocations++, numLoaderInvocations.get());
         {
           Integer k = 1;
@@ -1967,7 +1956,7 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
         assertEquals(expectedInvocations, numLoaderInvocations.get());
 
         // Do extra validation that the entry doesn't exist in the local region
-        for (Integer i : createRanges(2, 2, 13, 15)) {
+        for (var i : createRanges(2, 2, 13, 15)) {
           if (r.containsKey(i)) {
             fail("Expected containsKey return false for key" + i);
           }
@@ -1986,13 +1975,13 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
    */
   public static List<Integer> createRanges(int... startEnds) {
     assert startEnds.length % 2 == 0;
-    ArrayList<Integer> ret = new ArrayList<>();
-    for (int si = 0; si < startEnds.length; si++) {
-      final int start = startEnds[si++];
-      final int end = startEnds[si];
+    var ret = new ArrayList<Integer>();
+    for (var si = 0; si < startEnds.length; si++) {
+      final var start = startEnds[si++];
+      final var end = startEnds[si];
       assert end >= start;
       ret.ensureCapacity(ret.size() + ((end - start) + 1));
-      for (int i = start; i <= end; i++) {
+      for (var i = start; i <= end; i++) {
         ret.add(i);
       }
     }
@@ -2008,12 +1997,12 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
    */
   @Test
   public void testDRLoadRejection() throws Exception {
-    final Host host = Host.getHost(0);
-    final VM replicate1 = host.getVM(2);
-    final VM replicate2 = host.getVM(3);
-    final String rName = getUniqueName();
-    final float criticalHeapThresh = 0.90f;
-    final int fakeHeapMaxSize = 1000;
+    final var host = Host.getHost(0);
+    final var replicate1 = host.getVM(2);
+    final var replicate2 = host.getVM(3);
+    final var rName = getUniqueName();
+    final var criticalHeapThresh = 0.90f;
+    final var fakeHeapMaxSize = 1000;
 
     // Make sure the desired VMs will have a fresh DS.
     AsyncInvocation d1 = replicate1.invokeAsync(JUnit4DistributedTestCase::disconnectFromDS);
@@ -2022,7 +2011,7 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
     assertFalse(d1.exceptionOccurred());
     d2.join();
     assertFalse(d2.exceptionOccurred());
-    CacheSerializableRunnable establishConnectivity =
+    var establishConnectivity =
         new CacheSerializableRunnable("establishcConnectivity") {
           @Override
           public void run2() throws CacheException {
@@ -2032,25 +2021,25 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
     replicate1.invoke(establishConnectivity);
     replicate2.invoke(establishConnectivity);
 
-    CacheSerializableRunnable createRegion =
+    var createRegion =
         new CacheSerializableRunnable("create DistributedRegion") {
           @Override
           public void run2() throws CacheException {
             // Assert some level of connectivity
-            InternalDistributedSystem ds = getSystem();
+            var ds = getSystem();
             assertTrue(ds.getDistributionManager().getNormalDistributionManagerIds().size() >= 1);
 
             final long fakeHeapUsage = Math.round(fakeHeapMaxSize * (criticalHeapThresh - 0.5f)); // below
                                                                                                   // critical
                                                                                                   // by
                                                                                                   // 50%
-            InternalResourceManager irm = (InternalResourceManager) getCache().getResourceManager();
-            HeapMemoryMonitor hmm = irm.getHeapMonitor();
+            var irm = (InternalResourceManager) getCache().getResourceManager();
+            var hmm = irm.getHeapMonitor();
             assertTrue(fakeHeapMaxSize > 0);
             hmm.setTestMaxMemoryBytes(fakeHeapMaxSize);
             HeapMemoryMonitor.setTestBytesUsedForThresholdSet(fakeHeapUsage);
             irm.setCriticalHeapPercentage((criticalHeapThresh * 100.0f));
-            AttributesFactory<Integer, String> af = new AttributesFactory<>();
+            var af = new AttributesFactory<Integer, String>();
             af.setScope(Scope.DISTRIBUTED_ACK);
             af.setDataPolicy(DataPolicy.REPLICATE);
             getCache().createRegion(rName, af.create());
@@ -2062,19 +2051,19 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
     replicate1.invoke(addExpectedException);
     replicate2.invoke(addExpectedException);
 
-    final Integer expected =
+    final var expected =
         (Integer) replicate1.invoke(new SerializableCallable("test Local DistributedRegion Load") {
           @Override
           public Object call() throws Exception {
             Region<Integer, String> r = getCache().getRegion(rName);
-            AttributesMutator<Integer, String> am = r.getAttributesMutator();
+            var am = r.getAttributesMutator();
             am.setCacheLoader(new CacheLoader<Integer, String>() {
               final AtomicInteger numLoaderInvocations = new AtomicInteger();
 
               @Override
               public String load(LoaderHelper<Integer, String> helper) throws CacheLoaderException {
-                Integer expectedInvocations = (Integer) helper.getArgument();
-                final int actualInvocations = numLoaderInvocations.getAndIncrement();
+                var expectedInvocations = (Integer) helper.getArgument();
+                final var actualInvocations = numLoaderInvocations.getAndIncrement();
                 if (expectedInvocations != actualInvocations) {
                   throw new CacheLoaderException("Expected " + expectedInvocations
                       + " invocations, actual is " + actualInvocations);
@@ -2086,8 +2075,8 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
               public void close() {}
             });
 
-            int expectedInvocations = 0;
-            HeapMemoryMonitor hmm =
+            var expectedInvocations = 0;
+            var hmm =
                 ((InternalResourceManager) getCache().getResourceManager()).getHeapMonitor();
             assertFalse(hmm.getState().isCritical());
             {
@@ -2125,7 +2114,7 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
           }
         });
 
-    final CacheSerializableRunnable validateData1 =
+    final var validateData1 =
         new CacheSerializableRunnable("Validate data 1") {
           @Override
           public void run2() throws CacheException {
@@ -2148,7 +2137,7 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
       @Override
       public Object call() throws Exception {
         Region<Integer, String> r = getCache().getRegion(rName);
-        HeapMemoryMonitor hmm =
+        var hmm =
             ((InternalResourceManager) getCache().getResourceManager()).getHeapMonitor();
         assertFalse(hmm.getState().isCritical());
 
@@ -2197,7 +2186,7 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
     replicate1.invoke(removeExpectedException);
     replicate2.invoke(removeExpectedException);
 
-    final CacheSerializableRunnable validateData2 =
+    final var validateData2 =
         new CacheSerializableRunnable("Validate data 2") {
           @Override
           public void run2() throws CacheException {
@@ -2224,12 +2213,12 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
    */
   @Test
   public void testPRLoadRejection() throws Exception {
-    final Host host = Host.getHost(0);
-    final VM accessor = host.getVM(1);
-    final VM ds1 = host.getVM(2);
-    final String rName = getUniqueName();
-    final float criticalHeapThresh = 0.90f;
-    final int fakeHeapMaxSize = 1000;
+    final var host = Host.getHost(0);
+    final var accessor = host.getVM(1);
+    final var ds1 = host.getVM(2);
+    final var rName = getUniqueName();
+    final var criticalHeapThresh = 0.90f;
+    final var fakeHeapMaxSize = 1000;
 
     // Make sure the desired VMs will have a fresh DS.
     AsyncInvocation d0 = accessor.invokeAsync(JUnit4DistributedTestCase::disconnectFromDS);
@@ -2238,7 +2227,7 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
     assertFalse(d0.exceptionOccurred());
     d1.join();
     assertFalse(d1.exceptionOccurred());
-    CacheSerializableRunnable establishConnectivity =
+    var establishConnectivity =
         new CacheSerializableRunnable("establishcConnectivity") {
           @Override
           public void run2() throws CacheException {
@@ -2251,9 +2240,9 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
     ds1.invoke(createPR(rName, false, fakeHeapMaxSize, criticalHeapThresh));
     accessor.invoke(createPR(rName, true, fakeHeapMaxSize, criticalHeapThresh));
 
-    final AtomicInteger expectedInvocations = new AtomicInteger(0);
+    final var expectedInvocations = new AtomicInteger(0);
 
-    Integer ex = (Integer) accessor
+    var ex = (Integer) accessor
         .invoke(new SerializableCallable("Invoke loader from accessor, non-critical") {
           @Override
           public Object call() throws Exception {
@@ -2282,7 +2271,7 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
             Integer expectedInvocations2 = expectedInvocations.get();
             assertEquals(k.toString(), r.get(k, expectedInvocations2)); // no load
             assertEquals(k.toString(), r.get(k, expectedInvocations2)); // no load
-            String oldVal = r.remove(k);
+            var oldVal = r.remove(k);
             assertFalse(r.containsKey(k));
             assertEquals(k.toString(), oldVal);
             return expectedInvocations2;
@@ -2304,7 +2293,7 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
                                                                                                // 10%
             assertTrue(newfakeHeapUsage > 0);
             assertTrue(newfakeHeapUsage <= fakeHeapMaxSize);
-            HeapMemoryMonitor hmm =
+            var hmm =
                 ((InternalResourceManager) getCache().getResourceManager()).getHeapMonitor();
             hmm.updateStateAndSendEvent(newfakeHeapUsage, "test");
             assertTrue(hmm.getState().isCritical());
@@ -2345,9 +2334,9 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
         new SerializableCallable("Set safe state on datastore, assert local load behavior") {
           @Override
           public Object call() throws Exception {
-            HeapMemoryMonitor hmm =
+            var hmm =
                 ((InternalResourceManager) getCache().getResourceManager()).getHeapMonitor();
-            int newfakeHeapUsage = Math.round(fakeHeapMaxSize * (criticalHeapThresh - 0.3f)); // below
+            var newfakeHeapUsage = Math.round(fakeHeapMaxSize * (criticalHeapThresh - 0.3f)); // below
                                                                                               // critical
                                                                                               // by
                                                                                               // 30%
@@ -2370,7 +2359,7 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
         "Data store in safe state, assert load behavior, accessor sets critical state, assert load behavior") {
       @Override
       public Object call() throws Exception {
-        HeapMemoryMonitor hmm =
+        var hmm =
             ((InternalResourceManager) getCache().getResourceManager()).getHeapMonitor();
         assertFalse(hmm.getState().isCritical());
         Integer k = 4;
@@ -2420,29 +2409,29 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
       @Override
       public void run2() throws CacheException {
         // Assert some level of connectivity
-        InternalDistributedSystem ds = getSystem();
+        var ds = getSystem();
         assertTrue(ds.getDistributionManager().getNormalDistributionManagerIds().size() >= 2);
 
         final long fakeHeapUsage = Math.round(fakeHeapMaxSize * (criticalHeapThresh - 0.5f)); // below
                                                                                               // critical
                                                                                               // by
                                                                                               // 50%
-        InternalResourceManager irm = (InternalResourceManager) getCache().getResourceManager();
-        HeapMemoryMonitor hmm = irm.getHeapMonitor();
+        var irm = (InternalResourceManager) getCache().getResourceManager();
+        var hmm = irm.getHeapMonitor();
         assertTrue(fakeHeapMaxSize > 0);
         hmm.setTestMaxMemoryBytes(fakeHeapMaxSize);
         HeapMemoryMonitor.setTestBytesUsedForThresholdSet(fakeHeapUsage);
         irm.setCriticalHeapPercentage((criticalHeapThresh * 100.0f));
         assertFalse(hmm.getState().isCritical());
-        AttributesFactory<Integer, String> af = new AttributesFactory<>();
+        var af = new AttributesFactory<Integer, String>();
         if (!accessor) {
           af.setCacheLoader(new CacheLoader<Integer, String>() {
             final AtomicInteger numLoaderInvocations = new AtomicInteger();
 
             @Override
             public String load(LoaderHelper<Integer, String> helper) throws CacheLoaderException {
-              Integer expectedInvocations = (Integer) helper.getArgument();
-              final int actualInvocations = numLoaderInvocations.getAndIncrement();
+              var expectedInvocations = (Integer) helper.getArgument();
+              final var actualInvocations = numLoaderInvocations.getAndIncrement();
               if (expectedInvocations != actualInvocations) {
                 throw new CacheLoaderException("Expected " + expectedInvocations
                     + " invocations, actual is " + actualInvocations);
@@ -2506,15 +2495,15 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
   }
 
   private void testMemoryEventTolerance(boolean isCritical) {
-    final Host host = Host.getHost(0);
-    final VM vm = host.getVM(0);
+    final var host = Host.getHost(0);
+    final var vm = host.getVM(0);
     vm.invoke(new SerializableCallable() {
       @Override
       public Object call() throws Exception {
         HeapMemoryMonitor.setTestDisableMemoryUpdates(false);
-        GemFireCacheImpl cache = (GemFireCacheImpl) getCache();
-        InternalResourceManager irm = cache.getInternalResourceManager();
-        HeapMemoryMonitor hmm = irm.getHeapMonitor();
+        var cache = (GemFireCacheImpl) getCache();
+        var irm = cache.getInternalResourceManager();
+        var hmm = irm.getHeapMonitor();
         hmm.setTestMaxMemoryBytes(100);
         HeapMemoryMonitor.setTestBytesUsedForThresholdSet(1);
 
@@ -2524,15 +2513,15 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
           irm.setEvictionHeapPercentage(50);
         }
 
-        int previousMemoryStateChangeTolerance = hmm.getMemoryStateChangeTolerance();
-        final int criticalBytesUsed = 96;
-        final int evictionBytesUsed = 55;
-        final int memoryStateChangeTolerance = 3;
+        var previousMemoryStateChangeTolerance = hmm.getMemoryStateChangeTolerance();
+        final var criticalBytesUsed = 96;
+        final var evictionBytesUsed = 55;
+        final var memoryStateChangeTolerance = 3;
 
         try {
           hmm.setMemoryStateChangeTolerance(memoryStateChangeTolerance);
 
-          for (int i = 0; i < memoryStateChangeTolerance; i++) {
+          for (var i = 0; i < memoryStateChangeTolerance; i++) {
             if (isCritical) {
               hmm.updateStateAndSendEvent(criticalBytesUsed, "test");
               assertFalse(hmm.getState().isCritical());
@@ -2549,14 +2538,14 @@ public class MemoryThresholdsDUnitTest extends ClientServerTestCase {
             assertTrue(hmm.getState().isCritical());
             getCache().getLogger().fine(removeExpectedExString);
             getCache().getLogger().fine(addExpectedBelow);
-            final int belowCriticalBytes = 92;
+            final var belowCriticalBytes = 92;
             hmm.updateStateAndSendEvent(belowCriticalBytes, "test");
             getCache().getLogger().fine(removeExpectedBelow);
             assertFalse(hmm.getState().isCritical());
           } else {
             hmm.updateStateAndSendEvent(evictionBytesUsed, "test");
             assertTrue(hmm.getState().isEviction());
-            final int belowEvictionBytes = 45;
+            final var belowEvictionBytes = 45;
             hmm.updateStateAndSendEvent(belowEvictionBytes, "test");
             assertFalse(hmm.getState().isEviction());
 

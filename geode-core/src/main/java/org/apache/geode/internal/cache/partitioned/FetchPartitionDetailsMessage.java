@@ -77,9 +77,9 @@ public class FetchPartitionDetailsMessage extends PartitionMessage {
     Assert.assertTrue(recipients != null && !recipients.isEmpty(),
         "FetchPartitionDetailsMessage NULL recipient");
 
-    FetchPartitionDetailsResponse response =
+    var response =
         new FetchPartitionDetailsResponse(region.getSystem(), recipients, region);
-    FetchPartitionDetailsMessage msg = new FetchPartitionDetailsMessage(recipients,
+    var msg = new FetchPartitionDetailsMessage(recipients,
         region.getPRId(), response, internal, fetchOfflineMembers, probe);
     msg.setTransactionDistributed(region.getCache().getTxManager().isDistributed());
 
@@ -104,7 +104,7 @@ public class FetchPartitionDetailsMessage extends PartitionMessage {
   protected boolean operateOnPartitionedRegion(ClusterDistributionManager dm,
       PartitionedRegion region, long startTime) throws ForceReattemptException {
 
-    PartitionMemberInfoImpl details = (PartitionMemberInfoImpl) region.getRedundancyProvider()
+    var details = (PartitionMemberInfoImpl) region.getRedundancyProvider()
         .buildPartitionMemberDetails(internal, loadProbe);
     OfflineMemberDetails offlineDetails;
     if (internal && fetchOfflineMembers) {
@@ -197,7 +197,7 @@ public class FetchPartitionDetailsMessage extends PartitionMessage {
         PartitionMemberInfoImpl details, DistributionManager dm,
         OfflineMemberDetails offlineDetails, ReplyException re) {
       Assert.assertTrue(recipient != null, "FetchPartitionDetailsReplyMessage NULL recipient");
-      FetchPartitionDetailsReplyMessage m =
+      var m =
           new FetchPartitionDetailsReplyMessage(processorId, details, offlineDetails, re);
       m.setRecipient(recipient);
       dm.putOutgoing(m);
@@ -205,7 +205,7 @@ public class FetchPartitionDetailsMessage extends PartitionMessage {
 
     @Override
     public void process(final DistributionManager dm, final ReplyProcessor21 processor) {
-      final long startTime = getTimestamp();
+      final var startTime = getTimestamp();
       if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
         logger.trace(LogMarker.DM_VERBOSE,
             "FetchPartitionDetailsReplyMessage process invoking reply processor with processorId: {}",
@@ -275,7 +275,7 @@ public class FetchPartitionDetailsMessage extends PartitionMessage {
     public void fromData(DataInput in,
         DeserializationContext context) throws IOException, ClassNotFoundException {
       super.fromData(in, context);
-      byte flag = in.readByte();
+      var flag = in.readByte();
       if (flag != NO_PARTITION) {
         configuredMaxMemory = in.readLong();
         size = in.readLong();
@@ -324,8 +324,8 @@ public class FetchPartitionDetailsMessage extends PartitionMessage {
     public void process(DistributionMessage msg) {
       try {
         if (msg instanceof FetchPartitionDetailsReplyMessage) {
-          FetchPartitionDetailsReplyMessage reply = (FetchPartitionDetailsReplyMessage) msg;
-          InternalPartitionDetails details = reply.unmarshalPartitionMemberDetails();
+          var reply = (FetchPartitionDetailsReplyMessage) msg;
+          var details = reply.unmarshalPartitionMemberDetails();
           if (details != null) {
             synchronized (allDetails) {
               allDetails.add(details);

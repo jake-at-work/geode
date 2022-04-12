@@ -62,16 +62,16 @@ public class IgnoreUntilRule implements TestRule, Serializable {
 
   protected Statement throwOnIgnoreTest(Statement statement, Description description) {
     if (isTest(description)) {
-      boolean ignoreTest = false;
-      String message = "";
+      var ignoreTest = false;
+      var message = "";
 
-      IgnoreUntil testCaseAnnotation = description.getAnnotation(IgnoreUntil.class);
+      var testCaseAnnotation = description.getAnnotation(IgnoreUntil.class);
 
       if (testCaseAnnotation != null) {
         ignoreTest = evaluate(testCaseAnnotation, description);
         message = testCaseAnnotation.value();
       } else if (description.getTestClass().isAnnotationPresent(IgnoreUntil.class)) {
-        IgnoreUntil testClassAnnotation =
+        var testClassAnnotation =
             description.getTestClass().getAnnotation(IgnoreUntil.class);
 
         ignoreTest = evaluate(testClassAnnotation, description);

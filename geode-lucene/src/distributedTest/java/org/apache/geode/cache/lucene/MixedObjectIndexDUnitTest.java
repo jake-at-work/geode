@@ -51,8 +51,8 @@ public class MixedObjectIndexDUnitTest extends LuceneQueriesAccessorBase {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties result = super.getDistributedSystemProperties();
-    String filter = (String) result.get(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER);
+    var result = super.getDistributedSystemProperties();
+    var filter = (String) result.get(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER);
     filter +=
         ";org.apache.geode.cache.lucene.MixedObjectIndexDUnitTest*;org.apache.geode.cache.lucene.test.LuceneTestUtilities*";
     result.put(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER, filter);
@@ -64,7 +64,7 @@ public class MixedObjectIndexDUnitTest extends LuceneQueriesAccessorBase {
   @Parameters(method = "getPartitionRegionTypes")
   public void luceneCanIndexFieldsWithSameNameButInDifferentObjects(
       RegionTestableType regionTestType) {
-    SerializableRunnableIF createIndex = getSerializableRunnableIFCreateIndexOnFieldText();
+    var createIndex = getSerializableRunnableIFCreateIndexOnFieldText();
 
     dataStore1.invoke(() -> initDataStore(createIndex, regionTestType));
     dataStore2.invoke(() -> initDataStore(createIndex, regionTestType));
@@ -81,13 +81,13 @@ public class MixedObjectIndexDUnitTest extends LuceneQueriesAccessorBase {
     waitForFlushBeforeExecuteTextSearch(accessor, 60000);
 
     accessor.invoke(() -> {
-      LuceneService luceneService = LuceneServiceProvider.get(getCache());
+      var luceneService = LuceneServiceProvider.get(getCache());
       LuceneQuery luceneQuery = luceneService.createLuceneQueryFactory().setLimit(100)
           .create(INDEX_NAME, REGION_NAME, "world", "text");
-      List resultList = luceneQuery.findResults();
-      int objectType_1_count = 0;
-      int objectType_2_count = 0;
-      for (Object luceneResultStruct : resultList) {
+      var resultList = luceneQuery.findResults();
+      var objectType_1_count = 0;
+      var objectType_2_count = 0;
+      for (var luceneResultStruct : resultList) {
         if (((LuceneResultStruct) luceneResultStruct).getValue() instanceof TestObject) {
           objectType_1_count++;
         } else if (((LuceneResultStruct) luceneResultStruct)
@@ -103,7 +103,7 @@ public class MixedObjectIndexDUnitTest extends LuceneQueriesAccessorBase {
   @Test
   @Parameters(method = "getPartitionRegionTypes")
   public void luceneMustIndexFieldsWithMixedObjects(RegionTestableType regionTestableType) {
-    SerializableRunnableIF createIndexOnTextAndDataField =
+    var createIndexOnTextAndDataField =
         getSerializableRunnableIFCreateIndexOnFieldData();
 
     dataStore1.invoke(() -> initDataStore(createIndexOnTextAndDataField, regionTestableType));
@@ -124,10 +124,10 @@ public class MixedObjectIndexDUnitTest extends LuceneQueriesAccessorBase {
     waitForFlushBeforeExecuteTextSearch(accessor, 60000);
 
     accessor.invoke(() -> {
-      LuceneService luceneService = LuceneServiceProvider.get(getCache());
+      var luceneService = LuceneServiceProvider.get(getCache());
       LuceneQuery luceneQueryForTextField = luceneService.createLuceneQueryFactory().setLimit(100)
           .create(INDEX_NAME, REGION_NAME, "world", "text");
-      List luceneResults = luceneQueryForTextField.findResults();
+      var luceneResults = luceneQueryForTextField.findResults();
       validateObjectResultCounts(luceneResults, TestObject.class, NUM_BUCKETS,
           TestObjectWithSameFieldName.class, NUM_BUCKETS, TestObjectWithNoCommonField.class, 0);
 
@@ -145,7 +145,7 @@ public class MixedObjectIndexDUnitTest extends LuceneQueriesAccessorBase {
   @Parameters(method = "getPartitionRegionTypes")
   public void luceneMustIndexFieldsWithTheSameNameInARegionWithMixedObjects(
       RegionTestableType regionTestableType) {
-    SerializableRunnableIF createIndexOnTextField =
+    var createIndexOnTextField =
         getSerializableRunnableIFCreateIndexOnFieldText();
 
     dataStore1.invoke(() -> initDataStore(createIndexOnTextField, regionTestableType));
@@ -165,10 +165,10 @@ public class MixedObjectIndexDUnitTest extends LuceneQueriesAccessorBase {
     waitForFlushBeforeExecuteTextSearch(accessor, 60000);
 
     accessor.invoke(() -> {
-      LuceneService luceneService = LuceneServiceProvider.get(getCache());
+      var luceneService = LuceneServiceProvider.get(getCache());
       LuceneQuery luceneQueryForTextField = luceneService.createLuceneQueryFactory().setLimit(100)
           .create(INDEX_NAME, REGION_NAME, "world", "text");
-      List luceneResults = luceneQueryForTextField.findResults();
+      var luceneResults = luceneQueryForTextField.findResults();
       validateObjectResultCounts(luceneResults, TestObject.class, NUM_BUCKETS,
           TestObjectWithSameFieldName.class, NUM_BUCKETS, TestObjectWithNoCommonField.class, 0);
     });
@@ -179,7 +179,7 @@ public class MixedObjectIndexDUnitTest extends LuceneQueriesAccessorBase {
   @Parameters(method = "getPartitionRegionTypes")
   public void luceneMustIndexFieldsWithTheSameNameDifferentDataTypeInARegionWithMixedObjects(
       RegionTestableType regionTestableType) {
-    SerializableRunnableIF createIndexOnTextField =
+    var createIndexOnTextField =
         getSerializableRunnableIFCreateIndexOnFieldText();
 
     dataStore1.invoke(() -> initDataStore(createIndexOnTextField, regionTestableType));
@@ -199,17 +199,17 @@ public class MixedObjectIndexDUnitTest extends LuceneQueriesAccessorBase {
     assertTrue(waitForFlushBeforeExecuteTextSearch(accessor, 60000));
 
     accessor.invoke(() -> {
-      LuceneService luceneService = LuceneServiceProvider.get(getCache());
+      var luceneService = LuceneServiceProvider.get(getCache());
 
       LuceneQuery luceneQueryForTextField = luceneService.createLuceneQueryFactory().setLimit(100)
           .create(INDEX_NAME, REGION_NAME, "world", "text");
 
-      List luceneResults = luceneQueryForTextField.findResults();
+      var luceneResults = luceneQueryForTextField.findResults();
       validateObjectResultCounts(luceneResults, TestObject.class, NUM_BUCKETS,
           TestObjectSameFieldNameButDifferentDataTypeFloat.class, 0,
           TestObjectSameFieldNameButDifferentDataTypeInteger.class, 0);
 
-      FloatRangeQueryProvider floatRangeQueryProvider =
+      var floatRangeQueryProvider =
           new FloatRangeQueryProvider("text", 999.0f, 999.2f);
       luceneQueryForTextField = luceneService.createLuceneQueryFactory().setLimit(100)
           .create(INDEX_NAME, REGION_NAME, floatRangeQueryProvider);
@@ -219,7 +219,7 @@ public class MixedObjectIndexDUnitTest extends LuceneQueriesAccessorBase {
           TestObjectSameFieldNameButDifferentDataTypeFloat.class, NUM_BUCKETS,
           TestObjectSameFieldNameButDifferentDataTypeInteger.class, 0);
 
-      IntRangeQueryProvider intRangeQueryProvider = new IntRangeQueryProvider("text", 1000, 1000);
+      var intRangeQueryProvider = new IntRangeQueryProvider("text", 1000, 1000);
       luceneQueryForTextField = luceneService.createLuceneQueryFactory().setLimit(100)
           .create(INDEX_NAME, REGION_NAME, intRangeQueryProvider);
 
@@ -233,12 +233,12 @@ public class MixedObjectIndexDUnitTest extends LuceneQueriesAccessorBase {
   private void validateObjectResultCounts(List luceneResults, Class objectType_1,
       int expectedObjectType_1_count, Class objectType_2, int expectedObjectType_2_count,
       Class objectType_3, int expectedObjectType_3_count) {
-    int actualObjectType_1_count = 0;
-    int actualObjectType_2_count = 0;
-    int actualObjectType_3_count = 0;
+    var actualObjectType_1_count = 0;
+    var actualObjectType_2_count = 0;
+    var actualObjectType_3_count = 0;
 
-    for (Object luceneResult : luceneResults) {
-      Object resultValue = ((LuceneResultStruct) luceneResult).getValue();
+    for (var luceneResult : luceneResults) {
+      var resultValue = ((LuceneResultStruct) luceneResult).getValue();
       if (objectType_1.isInstance(resultValue)) {
         actualObjectType_1_count++;
       } else if (objectType_2.isInstance(resultValue)) {
@@ -255,14 +255,14 @@ public class MixedObjectIndexDUnitTest extends LuceneQueriesAccessorBase {
 
   private SerializableRunnableIF getSerializableRunnableIFCreateIndexOnFieldText() {
     return () -> {
-      LuceneService luceneService = LuceneServiceProvider.get(getCache());
+      var luceneService = LuceneServiceProvider.get(getCache());
       luceneService.createIndexFactory().setFields("text").create(INDEX_NAME, REGION_NAME);
     };
   }
 
   private SerializableRunnableIF getSerializableRunnableIFCreateIndexOnFieldData() {
     return () -> {
-      LuceneService luceneService = LuceneServiceProvider.get(getCache());
+      var luceneService = LuceneServiceProvider.get(getCache());
       luceneService.createIndexFactory().setFields("data", "text").create(INDEX_NAME, REGION_NAME);
     };
   }
@@ -279,8 +279,8 @@ public class MixedObjectIndexDUnitTest extends LuceneQueriesAccessorBase {
 
     @Override
     public int hashCode() {
-      final int prime = 31;
-      int result = 1;
+      final var prime = 31;
+      var result = 1;
       result = prime * result + ((text == null) ? 0 : text.hashCode());
       return result;
     }
@@ -296,7 +296,7 @@ public class MixedObjectIndexDUnitTest extends LuceneQueriesAccessorBase {
       if (getClass() != obj.getClass()) {
         return false;
       }
-      MixedObjectIndexDUnitTest.TestObject other = (MixedObjectIndexDUnitTest.TestObject) obj;
+      var other = (MixedObjectIndexDUnitTest.TestObject) obj;
       if (text == null) {
         return other.text == null;
       } else
@@ -321,8 +321,8 @@ public class MixedObjectIndexDUnitTest extends LuceneQueriesAccessorBase {
 
     @Override
     public int hashCode() {
-      final int prime = 31;
-      int result = 1;
+      final var prime = 31;
+      var result = 1;
       result = prime * result + ((text == null) ? 0 : text.hashCode());
       return result;
     }
@@ -338,7 +338,7 @@ public class MixedObjectIndexDUnitTest extends LuceneQueriesAccessorBase {
       if (getClass() != obj.getClass()) {
         return false;
       }
-      TestObjectSameFieldNameButDifferentDataTypeFloat other =
+      var other =
           (TestObjectSameFieldNameButDifferentDataTypeFloat) obj;
       if (text == null) {
         return other.text == null;
@@ -363,8 +363,8 @@ public class MixedObjectIndexDUnitTest extends LuceneQueriesAccessorBase {
 
     @Override
     public int hashCode() {
-      final int prime = 31;
-      int result = 1;
+      final var prime = 31;
+      var result = 1;
       result = prime * result + ((text == null) ? 0 : text.hashCode());
       return result;
     }
@@ -380,7 +380,7 @@ public class MixedObjectIndexDUnitTest extends LuceneQueriesAccessorBase {
       if (getClass() != obj.getClass()) {
         return false;
       }
-      MixedObjectIndexDUnitTest.TestObjectSameFieldNameButDifferentDataTypeInteger other =
+      var other =
           (MixedObjectIndexDUnitTest.TestObjectSameFieldNameButDifferentDataTypeInteger) obj;
       if (text == null) {
         return other.text == null;
@@ -404,8 +404,8 @@ public class MixedObjectIndexDUnitTest extends LuceneQueriesAccessorBase {
 
     @Override
     public int hashCode() {
-      final int prime = 31;
-      int result = 1;
+      final var prime = 31;
+      var result = 1;
       result = prime * result + ((text == null) ? 0 : text.hashCode());
       return result;
     }
@@ -421,7 +421,7 @@ public class MixedObjectIndexDUnitTest extends LuceneQueriesAccessorBase {
       if (getClass() != obj.getClass()) {
         return false;
       }
-      TestObjectWithSameFieldName other = (TestObjectWithSameFieldName) obj;
+      var other = (TestObjectWithSameFieldName) obj;
       if (text == null) {
         return other.text == null;
       } else
@@ -446,8 +446,8 @@ public class MixedObjectIndexDUnitTest extends LuceneQueriesAccessorBase {
 
     @Override
     public int hashCode() {
-      final int prime = 31;
-      int result = 1;
+      final var prime = 31;
+      var result = 1;
       result = prime * result + ((data == null) ? 0 : data.hashCode());
       return result;
     }
@@ -463,7 +463,7 @@ public class MixedObjectIndexDUnitTest extends LuceneQueriesAccessorBase {
       if (getClass() != obj.getClass()) {
         return false;
       }
-      TestObjectWithNoCommonField other = (TestObjectWithNoCommonField) obj;
+      var other = (TestObjectWithNoCommonField) obj;
       if (data == null) {
         return other.data == null;
       } else

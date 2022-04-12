@@ -40,7 +40,7 @@ public class PdxListHelper {
   }
 
   public PdxListHelper(PdxListHelper parent, String name) {
-    InternalCache cache = getCache();
+    var cache = getCache();
     m_name = name;
     if (logger.isTraceEnabled()) {
       logger.trace("PdxListHelper name: {}", name);
@@ -140,7 +140,7 @@ public class PdxListHelper {
     if (logger.isTraceEnabled()) {
       logger.trace("addListField");
     }
-    PdxListHelper tmp = new PdxListHelper(this, "no-name");
+    var tmp = new PdxListHelper(this, "no-name");
     list.add(tmp.getList());
     return tmp;
   }

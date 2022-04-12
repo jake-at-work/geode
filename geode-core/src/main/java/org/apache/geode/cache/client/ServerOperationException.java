@@ -67,7 +67,7 @@ public class ServerOperationException extends ServerConnectivityException {
     // To fix bug 44679 add a description of the member the server is on.
     // Do this without changing how this class gets serialized so that old
     // clients will still work.
-    InternalDistributedSystem ids = InternalDistributedSystem.getAnyInstance();
+    var ids = InternalDistributedSystem.getAnyInstance();
     if (ids != null) {
       if (msg != null) {
         return "remote server on " + ids.getMemberId() + ": " + msg;

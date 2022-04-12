@@ -17,7 +17,6 @@ package org.apache.geode.security;
 
 import java.security.Principal;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.geode.DataSerializable;
@@ -26,7 +25,6 @@ import org.apache.geode.Instantiator;
 import org.apache.geode.LogWriter;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.operations.OperationContext;
-import org.apache.geode.cache.operations.OperationContext.OperationCode;
 import org.apache.geode.cache.operations.PutAllOperationContext;
 import org.apache.geode.cache.operations.PutOperationContext;
 import org.apache.geode.distributed.DistributedMember;
@@ -74,12 +72,12 @@ public class FilterPreAuthorization implements AccessControl {
   public boolean authorizeOperation(String regionName, OperationContext context) {
 
     assert !context.isPostOperation();
-    OperationCode opCode = context.getOperationCode();
+    var opCode = context.getOperationCode();
     if (opCode.isPut()) {
-      PutOperationContext createContext = (PutOperationContext) context;
+      var createContext = (PutOperationContext) context;
       // byte[] serializedValue = createContext.getSerializedValue();
       byte[] serializedValue = null;
-      Object value = createContext.getValue();
+      var value = createContext.getValue();
       int valLength;
       byte lastByte;
       if (value == null) {
@@ -92,12 +90,12 @@ public class FilterPreAuthorization implements AccessControl {
           valLength = serializedValue.length;
           lastByte = serializedValue[valLength - 1];
         } else {
-          ObjectWithAuthz authzObj = new ObjectWithAuthz(value, value.hashCode());
+          var authzObj = new ObjectWithAuthz(value, value.hashCode());
           createContext.setValue(authzObj, true);
           return true;
         }
       }
-      HeapDataOutputStream hos = new HeapDataOutputStream(valLength + 32, KnownVersion.CURRENT);
+      var hos = new HeapDataOutputStream(valLength + 32, KnownVersion.CURRENT);
       try {
         InternalDataSerializer.writeUserDataSerializableHeader(ObjectWithAuthz.CLASSID, hos);
         if (serializedValue != null) {
@@ -115,23 +113,23 @@ public class FilterPreAuthorization implements AccessControl {
             + createContext.getKey());
       }
     } else if (opCode.isPutAll()) {
-      PutAllOperationContext createContext = (PutAllOperationContext) context;
+      var createContext = (PutAllOperationContext) context;
       Map map = createContext.getMap();
       Collection entries = map.entrySet();
-      Iterator iterator = entries.iterator();
+      var iterator = entries.iterator();
       Map.Entry mapEntry = null;
       while (iterator.hasNext()) {
         mapEntry = (Map.Entry) iterator.next();
-        String currkey = (String) mapEntry.getKey();
-        Object value = mapEntry.getValue();
+        var currkey = (String) mapEntry.getKey();
+        var value = mapEntry.getValue();
         Integer authCode;
         if (value != null) {
-          String valStr = value.toString();
+          var valStr = value.toString();
           authCode = (int) valStr.charAt(valStr.length() - 1);
         } else {
           authCode = 0;
         }
-        ObjectWithAuthz authzObj = new ObjectWithAuthz(value, authCode);
+        var authzObj = new ObjectWithAuthz(value, authCode);
         mapEntry.setValue(authzObj);
         if (logger.fineEnabled()) {
           logger.fine(

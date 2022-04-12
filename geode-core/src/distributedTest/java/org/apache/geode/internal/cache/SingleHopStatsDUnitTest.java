@@ -25,7 +25,6 @@ import static org.junit.Assert.assertTrue;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -41,13 +40,9 @@ import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolManager;
-import org.apache.geode.cache.client.internal.ClientMetadataService;
-import org.apache.geode.cache.client.internal.ClientPartitionAdvisor;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.internal.cache.execute.data.CustId;
 import org.apache.geode.internal.cache.execute.data.OrderId;
@@ -81,7 +76,7 @@ public class SingleHopStatsDUnitTest extends JUnit4CacheTestCase {
 
   @Override
   public final void postSetUp() throws Exception {
-    Host host = Host.getHost(0);
+    var host = Host.getHost(0);
     member0 = host.getVM(0);
     member1 = host.getVM(1);
     member2 = host.getVM(2);
@@ -112,7 +107,7 @@ public class SingleHopStatsDUnitTest extends JUnit4CacheTestCase {
 
   private void closeCacheAndDisconnect() {
     try {
-      Cache cache = CacheFactory.getAnyInstance();
+      var cache = CacheFactory.getAnyInstance();
       if (cache != null && !cache.isClosed()) {
         cache.close();
         cache.getDistributedSystem().disconnect();
@@ -123,9 +118,9 @@ public class SingleHopStatsDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testClientStatsPR() {
-    Integer port0 = member0.invoke(() -> createServerForStats(0, 113, false));
-    Integer port1 = member1.invoke(() -> createServerForStats(0, 113, false));
-    Integer port2 = member2.invoke(() -> createServerForStats(0, 113, false));
+    var port0 = member0.invoke(() -> createServerForStats(0, 113, false));
+    var port1 = member1.invoke(() -> createServerForStats(0, 113, false));
+    var port2 = member2.invoke(() -> createServerForStats(0, 113, false));
 
     member3.invoke("createClient", () -> createClient(port0, port1, port2, false));
     createClient(port0, port1, port2, false);
@@ -141,9 +136,9 @@ public class SingleHopStatsDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testClientStatsColocationPR() {
-    Integer port0 = member0.invoke(() -> createServerForStats(0, 4, true));
-    Integer port1 = member1.invoke(() -> createServerForStats(0, 4, true));
-    Integer port2 = member2.invoke(() -> createServerForStats(0, 4, true));
+    var port0 = member0.invoke(() -> createServerForStats(0, 4, true));
+    var port1 = member1.invoke(() -> createServerForStats(0, 4, true));
+    var port2 = member2.invoke(() -> createServerForStats(0, 4, true));
     member3.invoke(() -> createClient(port0, port1, port2, true));
     createClient(port0, port1, port2, true);
     member3.invoke(() -> createPR("FirstClient", true));
@@ -151,11 +146,11 @@ public class SingleHopStatsDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void createClient(int port0, int port1, int port2, boolean colocated) {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     DistributedSystem distributedSystem = getSystem(props);
-    Cache cache = CacheFactory.create(distributedSystem);
+    var cache = CacheFactory.create(distributedSystem);
     assertNotNull(cache);
     CacheServerTestUtil.disableShufflingOfEndpoints();
     Pool pool;
@@ -171,7 +166,7 @@ public class SingleHopStatsDUnitTest extends JUnit4CacheTestCase {
 
   private int createServerForStats(int redundantCopies, int totalNoOfBuckets, boolean colocated) {
     Cache cache = getCache();
-    CacheServer server = cache.addCacheServer();
+    var server = cache.addCacheServer();
     server.setPort(0);
     server.setHostnameForClients("localhost");
     try {
@@ -184,7 +179,7 @@ public class SingleHopStatsDUnitTest extends JUnit4CacheTestCase {
 
     if (!colocated) {
       if (totalNoOfBuckets == 0) { // DR
-        AttributesFactory attr = new AttributesFactory();
+        var attr = new AttributesFactory();
         attr.setScope(Scope.DISTRIBUTED_ACK);
         attr.setDataPolicy(DataPolicy.REPLICATE);
         region = cache.createRegion(Region_Name, attr.create());
@@ -192,9 +187,9 @@ public class SingleHopStatsDUnitTest extends JUnit4CacheTestCase {
         LogWriterUtils.getLogWriter().info(
             "Distributed Region " + Region_Name + " created Successfully :" + region);
       } else {
-        PartitionAttributesFactory paf = new PartitionAttributesFactory();
+        var paf = new PartitionAttributesFactory();
         paf.setRedundantCopies(redundantCopies).setTotalNumBuckets(totalNoOfBuckets);
-        AttributesFactory attr = new AttributesFactory();
+        var attr = new AttributesFactory();
         attr.setPartitionAttributes(paf.create());
         region = cache.createRegion(Region_Name, attr.create());
         assertNotNull(region);
@@ -202,13 +197,13 @@ public class SingleHopStatsDUnitTest extends JUnit4CacheTestCase {
             "Partitioned Region " + Region_Name + " created Successfully :" + region);
       }
     } else {
-      PartitionAttributesFactory paf = new PartitionAttributesFactory();
+      var paf = new PartitionAttributesFactory();
       paf.setRedundantCopies(redundantCopies).setTotalNumBuckets(totalNoOfBuckets)
           .setPartitionResolver(
               new CustomerIDPartitionResolver("CustomerIDPartitio" + "nResolver"));
-      AttributesFactory attr = new AttributesFactory();
+      var attr = new AttributesFactory();
       attr.setPartitionAttributes(paf.create());
-      Region customerRegion = cache.createRegion(CUSTOMER_REGION_NAME, attr.create());
+      var customerRegion = cache.createRegion(CUSTOMER_REGION_NAME, attr.create());
       assertNotNull(customerRegion);
       LogWriterUtils.getLogWriter()
           .info("Partitioned Region CUSTOMER created Successfully :" + customerRegion);
@@ -219,7 +214,7 @@ public class SingleHopStatsDUnitTest extends JUnit4CacheTestCase {
           .setPartitionResolver(new CustomerIDPartitionResolver("CustomerIDPartitionResolver"));
       attr = new AttributesFactory();
       attr.setPartitionAttributes(paf.create());
-      Region orderRegion = cache.createRegion(ORDER_REGION_NAME, attr.create());
+      var orderRegion = cache.createRegion(ORDER_REGION_NAME, attr.create());
       assertNotNull(orderRegion);
       LogWriterUtils.getLogWriter()
           .info("Partitioned Region ORDER created Successfully :" + orderRegion);
@@ -230,7 +225,7 @@ public class SingleHopStatsDUnitTest extends JUnit4CacheTestCase {
           .setPartitionResolver(new CustomerIDPartitionResolver("CustomerIDPartitionResolver"));
       attr = new AttributesFactory();
       attr.setPartitionAttributes(paf.create());
-      Region shipmentRegion = cache.createRegion(SHIPMENT_REGION_NAME, attr.create());
+      var shipmentRegion = cache.createRegion(SHIPMENT_REGION_NAME, attr.create());
       assertNotNull(shipmentRegion);
       LogWriterUtils.getLogWriter()
           .info("Partitioned Region SHIPMENT created Successfully :" + shipmentRegion);
@@ -241,19 +236,19 @@ public class SingleHopStatsDUnitTest extends JUnit4CacheTestCase {
   private void createRegionInClientCache(String poolName, boolean colocated, Cache cache) {
     Region region;
     if (!colocated) {
-      AttributesFactory factory = new AttributesFactory();
+      var factory = new AttributesFactory();
       factory.setPoolName(poolName);
       factory.setDataPolicy(DataPolicy.EMPTY);
-      RegionAttributes attrs = factory.create();
+      var attrs = factory.create();
       region = cache.createRegion(Region_Name, attrs);
       assertNotNull(region);
       LogWriterUtils.getLogWriter()
           .info("Region " + Region_Name + " created Successfully :" + region);
     } else {
-      AttributesFactory factory = new AttributesFactory();
+      var factory = new AttributesFactory();
       factory.setPoolName(poolName);
-      RegionAttributes attrs = factory.create();
-      Region customerRegion = cache.createRegion(CUSTOMER_REGION_NAME, attrs);
+      var attrs = factory.create();
+      var customerRegion = cache.createRegion(CUSTOMER_REGION_NAME, attrs);
       assertNotNull(customerRegion);
       LogWriterUtils.getLogWriter()
           .info("Partitioned Region CUSTOMER created Successfully :" + customerRegion);
@@ -261,7 +256,7 @@ public class SingleHopStatsDUnitTest extends JUnit4CacheTestCase {
       factory = new AttributesFactory();
       factory.setPoolName(poolName);
       attrs = factory.create();
-      Region orderRegion = cache.createRegion(ORDER_REGION_NAME, attrs);
+      var orderRegion = cache.createRegion(ORDER_REGION_NAME, attrs);
       assertNotNull(orderRegion);
       LogWriterUtils.getLogWriter()
           .info("Partitioned Region ORDER created Successfully :" + orderRegion);
@@ -269,7 +264,7 @@ public class SingleHopStatsDUnitTest extends JUnit4CacheTestCase {
       factory = new AttributesFactory();
       factory.setPoolName(poolName);
       attrs = factory.create();
-      Region shipmentRegion = cache.createRegion("SHIPMENT", attrs);
+      var shipmentRegion = cache.createRegion("SHIPMENT", attrs);
       assertNotNull(shipmentRegion);
       LogWriterUtils.getLogWriter()
           .info("Partitioned Region SHIPMENT created Successfully :" + shipmentRegion);
@@ -277,23 +272,23 @@ public class SingleHopStatsDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void createPR(String fromClient, boolean colocated) {
-    GemFireCacheImpl cache = (GemFireCacheImpl) CacheFactory.getAnyInstance();
+    var cache = (GemFireCacheImpl) CacheFactory.getAnyInstance();
     Region region = cache.getRegion(Region_Name);
 
     if (!colocated) {
       if (fromClient.equals("FirstClient")) {
 
         System.out.println("first pass...");
-        for (int i = 0; i < 113; i++) {
+        for (var i = 0; i < 113; i++) {
           region.create(i, "create" + i);
         }
-        ClientMetadataService cms = cache.getClientMetadataService();
-        final Map<String, ClientPartitionAdvisor> regionMetaData =
+        var cms = cache.getClientMetadataService();
+        final var regionMetaData =
             cms.getClientPRMetadata_TEST_ONLY();
         assertEquals(0, regionMetaData.size());
 
         System.out.println("second pass...");
-        for (int i = 113; i < 226; i++) {
+        for (var i = 113; i < 226; i++) {
           region.create(i, "create" + i);
         }
         cms = cache.getClientMetadataService();
@@ -309,11 +304,11 @@ public class SingleHopStatsDUnitTest extends JUnit4CacheTestCase {
         System.out.println("metadata refresh count after second pass is " + metaDataRefreshCount);
       } else {
         System.out.println("creating keys in second client");
-        for (int i = 0; i < 226; i++) {
+        for (var i = 0; i < 226; i++) {
           region.create(i, "create" + i);
         }
-        ClientMetadataService cms = cache.getClientMetadataService();
-        Map<String, ClientPartitionAdvisor> regionMetaData = cms.getClientPRMetadata_TEST_ONLY();
+        var cms = cache.getClientMetadataService();
+        var regionMetaData = cms.getClientPRMetadata_TEST_ONLY();
         assertEquals(1, regionMetaData.size());
         assertTrue(regionMetaData.containsKey(region.getFullPath()));
 
@@ -331,26 +326,26 @@ public class SingleHopStatsDUnitTest extends JUnit4CacheTestCase {
     Region customerRegion = cache.getRegion(CUSTOMER_REGION_NAME);
     Region orderRegion = cache.getRegion(ORDER_REGION_NAME);
     Region shipmentRegion = cache.getRegion(SHIPMENT_REGION_NAME);
-    for (int i = 0; i <= 20; i++) {
-      CustId custid = new CustId(i);
-      Customer customer = new Customer("name" + i, "Address" + i);
+    for (var i = 0; i <= 20; i++) {
+      var custid = new CustId(i);
+      var customer = new Customer("name" + i, "Address" + i);
 
       customerRegion.put(custid, customer);
-      for (int j = 1; j <= 10; j++) {
-        int oid = i * 10 + j;
-        OrderId orderId = new OrderId(oid, custid);
-        Order order = new Order(ORDER_REGION_NAME + oid);
+      for (var j = 1; j <= 10; j++) {
+        var oid = i * 10 + j;
+        var orderId = new OrderId(oid, custid);
+        var order = new Order(ORDER_REGION_NAME + oid);
         orderRegion.put(orderId, order);
-        for (int k = 1; k <= 10; k++) {
-          int sid = oid * 10 + k;
-          ShipmentId shipmentId = new ShipmentId(sid, orderId);
-          Shipment shipment = new Shipment("Shipment" + sid);
+        for (var k = 1; k <= 10; k++) {
+          var sid = oid * 10 + k;
+          var shipmentId = new ShipmentId(sid, orderId);
+          var shipment = new Shipment("Shipment" + sid);
           shipmentRegion.put(shipmentId, shipment);
         }
       }
     }
-    ClientMetadataService cms = cache.getClientMetadataService();
-    Map<String, ClientPartitionAdvisor> regionMetaData = cms.getClientPRMetadata_TEST_ONLY();
+    var cms = cache.getClientMetadataService();
+    var regionMetaData = cms.getClientPRMetadata_TEST_ONLY();
     assertEquals(3, regionMetaData.size());
     assertTrue(regionMetaData.containsKey(customerRegion.getFullPath()));
     regionMetaData.get(customerRegion.getFullPath());
@@ -370,38 +365,38 @@ public class SingleHopStatsDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void getPR(String FromClient, boolean colocated) {
-    Cache cache = CacheFactory.getAnyInstance();
+    var cache = CacheFactory.getAnyInstance();
     Region region = cache.getRegion(Region_Name);
     Region customerRegion = cache.getRegion(CUSTOMER_REGION_NAME);
     Region orderRegion = cache.getRegion(ORDER_REGION_NAME);
     Region shipmentRegion = cache.getRegion("SHIPMENT");
     if (!colocated) {
-      for (int i = 0; i < 226; i++) {
+      for (var i = 0; i < 226; i++) {
         region.get(i);
       }
-      ClientMetadataService cms = ((GemFireCacheImpl) cache).getClientMetadataService();
-      Map<String, ClientPartitionAdvisor> regionMetaData = cms.getClientPRMetadata_TEST_ONLY();
+      var cms = ((GemFireCacheImpl) cache).getClientMetadataService();
+      var regionMetaData = cms.getClientPRMetadata_TEST_ONLY();
       assertEquals(1, regionMetaData.size());
       regionMetaData.get(region.getFullPath());
       assertEquals(metaDataRefreshCount,
           ((LocalRegion) region).getCachePerfStats().getMetaDataRefreshCount());
     } else {
-      for (int i = 0; i <= 20; i++) {
-        CustId custid = new CustId(i);
+      for (var i = 0; i <= 20; i++) {
+        var custid = new CustId(i);
         customerRegion.get(custid);
-        for (int j = 1; j <= 10; j++) {
-          int oid = i * 10 + j;
-          OrderId orderId = new OrderId(oid, custid);
+        for (var j = 1; j <= 10; j++) {
+          var oid = i * 10 + j;
+          var orderId = new OrderId(oid, custid);
           orderRegion.get(orderId);
-          for (int k = 1; k <= 10; k++) {
-            int sid = oid * 10 + k;
-            ShipmentId shipmentId = new ShipmentId(sid, orderId);
+          for (var k = 1; k <= 10; k++) {
+            var sid = oid * 10 + k;
+            var shipmentId = new ShipmentId(sid, orderId);
             shipmentRegion.get(shipmentId);
           }
         }
       }
-      ClientMetadataService cms = ((GemFireCacheImpl) cache).getClientMetadataService();
-      Map<String, ClientPartitionAdvisor> regionMetaData = cms.getClientPRMetadata_TEST_ONLY();
+      var cms = ((GemFireCacheImpl) cache).getClientMetadataService();
+      var regionMetaData = cms.getClientPRMetadata_TEST_ONLY();
       assertEquals(3, regionMetaData.size());
       assertTrue(regionMetaData.containsKey(customerRegion.getFullPath()));
       regionMetaData.get(customerRegion.getFullPath());
@@ -419,15 +414,15 @@ public class SingleHopStatsDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void updatePR(String FromClient, boolean colocated) {
-    Cache cache = CacheFactory.getAnyInstance();
+    var cache = CacheFactory.getAnyInstance();
     Region region = cache.getRegion(Region_Name);
     if (!colocated) {
       if (FromClient.equals("FirstClient")) {
-        for (int i = 0; i < 226; i++) {
+        for (var i = 0; i < 226; i++) {
           region.put(i, "Update" + i);
         }
-        ClientMetadataService cms = ((GemFireCacheImpl) cache).getClientMetadataService();
-        Map<String, ClientPartitionAdvisor> regionMetaData = cms.getClientPRMetadata_TEST_ONLY();
+        var cms = ((GemFireCacheImpl) cache).getClientMetadataService();
+        var regionMetaData = cms.getClientPRMetadata_TEST_ONLY();
         assertEquals(1, regionMetaData.size());
         regionMetaData.get(region.getFullPath());
         assertEquals(metaDataRefreshCount,
@@ -477,7 +472,7 @@ public class SingleHopStatsDUnitTest extends JUnit4CacheTestCase {
         return false;
       }
 
-      Customer cust = (Customer) o;
+      var cust = (Customer) o;
       return cust.name.equals(name) && cust.address.equals(address);
     }
 
@@ -520,7 +515,7 @@ public class SingleHopStatsDUnitTest extends JUnit4CacheTestCase {
       }
 
       if (obj instanceof Order) {
-        Order other = (Order) obj;
+        var other = (Order) obj;
         return other.orderName != null && other.orderName.equals(orderName);
       }
       return false;
@@ -568,7 +563,7 @@ public class SingleHopStatsDUnitTest extends JUnit4CacheTestCase {
       }
 
       if (obj instanceof Shipment) {
-        Shipment other = (Shipment) obj;
+        var other = (Shipment) obj;
         return other.shipmentName != null && other.shipmentName.equals(shipmentName);
       }
       return false;

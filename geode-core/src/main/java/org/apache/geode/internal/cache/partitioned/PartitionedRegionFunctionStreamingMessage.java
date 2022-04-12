@@ -35,7 +35,6 @@ import org.apache.geode.internal.cache.ForceReattemptException;
 import org.apache.geode.internal.cache.FunctionStreamingOrderedReplyMessage;
 import org.apache.geode.internal.cache.FunctionStreamingReplyMessage;
 import org.apache.geode.internal.cache.PartitionedRegion;
-import org.apache.geode.internal.cache.PartitionedRegionDataStore;
 import org.apache.geode.internal.cache.execute.FunctionRemoteContext;
 import org.apache.geode.internal.logging.log4j.LogMarker;
 import org.apache.geode.internal.serialization.DeserializationContext;
@@ -94,7 +93,7 @@ public class PartitionedRegionFunctionStreamingMessage extends PartitionMessage 
           r, startTime);
       return false;
     }
-    PartitionedRegionDataStore ds = r.getDataStore();
+    var ds = r.getDataStore();
     if (ds != null) {
       // check if the routingKeyorKeys is null
       // if null call executeOnDataStore otherwise execute on LocalBuckets
@@ -133,7 +132,7 @@ public class PartitionedRegionFunctionStreamingMessage extends PartitionMessage 
     if (Thread.interrupted()) {
       throw new InterruptedException();
     }
-    int msgNum = replyMsgNum;
+    var msgNum = replyMsgNum;
     replyLastMsg = lastResult;
 
     sendReply(getSender(), processorId, dm, null, oneResult, pr, startTime, msgNum, lastResult,

@@ -22,10 +22,7 @@ import static org.apache.geode.distributed.ConfigurationProperties.MCAST_PORT;
 import static org.apache.geode.test.util.ResourceUtils.createTempFileFromResource;
 import static org.junit.Assert.fail;
 
-import java.sql.Connection;
 import java.util.Properties;
-
-import javax.naming.Context;
 
 import org.junit.After;
 import org.junit.Before;
@@ -50,7 +47,7 @@ public class CleanUpJUnitTest {
   public void setUp() {
     props = new Properties();
     props.setProperty(MCAST_PORT, "0");
-    String path =
+    var path =
         createTempFileFromResource(CleanUpJUnitTest.class, "/jta/cachejta.xml")
             .getAbsolutePath();
     props.setProperty(CACHE_XML_FILE, path);
@@ -66,9 +63,9 @@ public class CleanUpJUnitTest {
   @Test
   public void testGetSimpleDataSource() throws Exception {
     try {
-      Context ctx = cache.getJNDIContext();
-      GemFireBasicDataSource ds = (GemFireBasicDataSource) ctx.lookup("java:/SimpleDataSource");
-      Connection conn = ds.getConnection();
+      var ctx = cache.getJNDIContext();
+      var ds = (GemFireBasicDataSource) ctx.lookup("java:/SimpleDataSource");
+      var conn = ds.getConnection();
       if (conn == null) {
         fail(
             "DataSourceFactoryTest-testGetSimpleDataSource() Error in creating the GemFireBasicDataSource");

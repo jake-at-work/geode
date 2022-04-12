@@ -121,8 +121,8 @@ public abstract class AbstractAuthIntegrationTest {
   @Test
   public void givenSecurity_separateClientRequest_doNotInteract() throws Exception {
     setupCacheWithSecurity(true);
-    Jedis nonAuthorizedJedis = new Jedis("localhost", getPort(), 100000);
-    Jedis authorizedJedis = new Jedis("localhost", getPort(), 100000);
+    var nonAuthorizedJedis = new Jedis("localhost", getPort(), 100000);
+    var authorizedJedis = new Jedis("localhost", getPort(), 100000);
 
     assertThat(authorizedJedis.auth(getUsername(), getPassword())).isEqualTo("OK");
     assertThat(authorizedJedis.set("foo", "bar")).isEqualTo("OK");
@@ -138,9 +138,9 @@ public abstract class AbstractAuthIntegrationTest {
   public void givenSecurity_lettuceV6AuthClient_passes() throws Exception {
     setupCacheWithSecurity(false);
 
-    RedisURI uri =
+    var uri =
         RedisURI.create(String.format("redis://%s@localhost:%d", getUsername(), getPort()));
-    RedisClient client = RedisClient.create(uri);
+    var client = RedisClient.create(uri);
 
     client.connect().sync().ping();
   }
@@ -164,14 +164,14 @@ public abstract class AbstractAuthIntegrationTest {
   public void givenSecurity_largeMultiBulkRequestsFail_whenNotAuthenticated() throws Exception {
     setupCacheWithSecurity(false);
 
-    try (Socket clientSocket = new Socket(BIND_ADDRESS, getPort())) {
+    try (var clientSocket = new Socket(BIND_ADDRESS, getPort())) {
       clientSocket.setSoTimeout(1000);
-      PrintWriter out = new PrintWriter(clientSocket.getOutputStream());
-      BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+      var out = new PrintWriter(clientSocket.getOutputStream());
+      var in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
       out.write("*100\r\n");
       out.flush();
-      String response = in.readLine();
+      var response = in.readLine();
 
       assertThat(response).contains(ERROR_UNAUTHENTICATED_MULTIBULK);
     }
@@ -182,7 +182,7 @@ public abstract class AbstractAuthIntegrationTest {
     setupCacheWithSecurity(true);
 
     List<String> msetArgs = new ArrayList<>();
-    for (int i = 0; i < ByteToCommandDecoder.UNAUTHENTICATED_MAX_ARRAY_SIZE; i++) {
+    for (var i = 0; i < ByteToCommandDecoder.UNAUTHENTICATED_MAX_ARRAY_SIZE; i++) {
       msetArgs.add("{hash}key-" + i);
       msetArgs.add("value-" + i);
     }
@@ -197,7 +197,7 @@ public abstract class AbstractAuthIntegrationTest {
     setupCacheWithoutSecurity();
 
     List<String> msetArgs = new ArrayList<>();
-    for (int i = 0; i < ByteToCommandDecoder.UNAUTHENTICATED_MAX_ARRAY_SIZE; i++) {
+    for (var i = 0; i < ByteToCommandDecoder.UNAUTHENTICATED_MAX_ARRAY_SIZE; i++) {
       msetArgs.add("{hash}key-" + i);
       msetArgs.add("value-" + i);
     }
@@ -209,14 +209,14 @@ public abstract class AbstractAuthIntegrationTest {
   public void givenSecurity_largeBulkStringRequestsFail_whenNotAuthenticated() throws Exception {
     setupCacheWithSecurity(false);
 
-    try (Socket clientSocket = new Socket(BIND_ADDRESS, getPort())) {
+    try (var clientSocket = new Socket(BIND_ADDRESS, getPort())) {
       clientSocket.setSoTimeout(1000);
-      PrintWriter out = new PrintWriter(clientSocket.getOutputStream());
-      BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+      var out = new PrintWriter(clientSocket.getOutputStream());
+      var in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
       out.write("*1\r\n$100000000\r\n");
       out.flush();
-      String response = in.readLine();
+      var response = in.readLine();
 
       assertThat(response).contains(ERROR_UNAUTHENTICATED_BULK);
     }
@@ -225,9 +225,9 @@ public abstract class AbstractAuthIntegrationTest {
   @Test
   public void givenSecurity_largeBulkStringRequestsSucceed_whenAuthenticated() throws Exception {
     setupCacheWithSecurity(true);
-    int stringSize = ByteToCommandDecoder.UNAUTHENTICATED_MAX_BULK_STRING_LENGTH + 1;
+    var stringSize = ByteToCommandDecoder.UNAUTHENTICATED_MAX_BULK_STRING_LENGTH + 1;
 
-    String largeString = StringUtils.repeat('a', stringSize);
+    var largeString = StringUtils.repeat('a', stringSize);
 
     assertThat(jedis.auth(getUsername(), getPassword())).isEqualTo("OK");
     assertThat(jedis.set("key", largeString)).isEqualTo("OK");
@@ -237,9 +237,9 @@ public abstract class AbstractAuthIntegrationTest {
   public void givenNoSecurity_largeBulkStringRequestsSucceed_whenNotAuthenticated()
       throws Exception {
     setupCacheWithoutSecurity();
-    int stringSize = ByteToCommandDecoder.UNAUTHENTICATED_MAX_BULK_STRING_LENGTH + 1;
+    var stringSize = ByteToCommandDecoder.UNAUTHENTICATED_MAX_BULK_STRING_LENGTH + 1;
 
-    String largeString = StringUtils.repeat('a', stringSize);
+    var largeString = StringUtils.repeat('a', stringSize);
 
     assertThat(jedis.set("key", largeString)).isEqualTo("OK");
   }
@@ -248,37 +248,37 @@ public abstract class AbstractAuthIntegrationTest {
   public void givenSecurity_closingConnectionLogsClientOut() throws Exception {
     setupCacheWithSecurity(false);
 
-    int localPort = AvailablePortHelper.getRandomAvailableTCPPort();
+    var localPort = AvailablePortHelper.getRandomAvailableTCPPort();
 
-    try (Socket clientSocket = new Socket(BIND_ADDRESS, getPort(), InetAddress.getLoopbackAddress(),
+    try (var clientSocket = new Socket(BIND_ADDRESS, getPort(), InetAddress.getLoopbackAddress(),
         localPort)) {
       clientSocket.setSoTimeout(1000);
-      PrintWriter out = new PrintWriter(clientSocket.getOutputStream());
-      BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+      var out = new PrintWriter(clientSocket.getOutputStream());
+      var in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
       out.write("*3\r\n$4\r\nAUTH\r\n" +
           "$" + getUsername().length() + "\r\n" + getUsername() + "\r\n" +
           "$" + getPassword().length() + "\r\n" + getPassword() + "\r\n");
       out.flush();
-      String response = in.readLine();
+      var response = in.readLine();
 
       assertThat(response).contains("OK");
     }
 
-    AtomicReference<Socket> socketRef = new AtomicReference<>(null);
+    var socketRef = new AtomicReference<Socket>(null);
 
     await().pollInterval(Duration.ofSeconds(1))
         .untilAsserted(() -> assertThatNoException().isThrownBy(() -> socketRef.set(
             new Socket(BIND_ADDRESS, getPort(), InetAddress.getLoopbackAddress(), localPort))));
 
-    try (Socket clientSocket = socketRef.get()) {
+    try (var clientSocket = socketRef.get()) {
       clientSocket.setSoTimeout(1000);
-      PrintWriter out = new PrintWriter(clientSocket.getOutputStream());
-      BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+      var out = new PrintWriter(clientSocket.getOutputStream());
+      var in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
       out.write("*1\r\n$4\r\nPING\r\n");
       out.flush();
-      String response = in.readLine();
+      var response = in.readLine();
 
       assertThat(response).contains(ERROR_NOT_AUTHENTICATED);
     }

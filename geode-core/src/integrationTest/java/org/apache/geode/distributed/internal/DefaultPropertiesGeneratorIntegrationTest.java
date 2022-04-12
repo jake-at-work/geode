@@ -49,9 +49,9 @@ public class DefaultPropertiesGeneratorIntegrationTest {
 
   @Before
   public void before() throws Exception {
-    String tmp = temporaryFolder.getRoot().getAbsolutePath();
+    var tmp = temporaryFolder.getRoot().getAbsolutePath();
     propertiesFile = tmp + "gf" + System.nanoTime() + ".properties";
-    DefaultPropertiesGenerator generator = new DefaultPropertiesGenerator();
+    var generator = new DefaultPropertiesGenerator();
     generator.generateDefaultPropertiesFile(propertiesFile);
     assertThat(new File(propertiesFile)).exists();
   }
@@ -68,7 +68,7 @@ public class DefaultPropertiesGeneratorIntegrationTest {
 
   @Test
   public void propertiesShouldNotBeEmpty() throws Exception {
-    Properties properties = loadProperties();
+    var properties = loadProperties();
     assertThat(properties).isNotEmpty();
   }
 
@@ -77,51 +77,52 @@ public class DefaultPropertiesGeneratorIntegrationTest {
    */
   @Test
   public void propertiesShouldCreateValidCache() throws Exception {
-    Properties properties = loadProperties();
-    CacheFactory cacheFactory = new CacheFactory(properties);
+    var properties = loadProperties();
+    var cacheFactory = new CacheFactory(properties);
     cache = cacheFactory.create();
     assertThat(cache).isNotNull();
   }
 
   @Test
   public void shouldGeneratePropertiesFile() throws Exception {
-    String javaHome = System.getProperty("java.home");
+    var javaHome = System.getProperty("java.home");
     assertThat(javaHome).isNotEmpty();
-    String[] command =
-        {javaHome + "/bin/java", "-cp", getClassPath(), DefaultPropertiesGenerator.class.getName()};
-    ProcessBuilder launcher = new ProcessBuilder(command).directory(temporaryFolder.getRoot());
+    var command =
+        new String[] {javaHome + "/bin/java", "-cp", getClassPath(),
+            DefaultPropertiesGenerator.class.getName()};
+    var launcher = new ProcessBuilder(command).directory(temporaryFolder.getRoot());
     process = launcher.start();
     process.waitFor(2, MINUTES);
 
-    String tmp = temporaryFolder.getRoot().getAbsolutePath();
-    File file = new File(tmp + File.separator + getDefaultFileName());
+    var tmp = temporaryFolder.getRoot().getAbsolutePath();
+    var file = new File(tmp + File.separator + getDefaultFileName());
     assertThat(file).exists();
 
-    Properties properties = loadProperties();
+    var properties = loadProperties();
     assertThat(properties).isNotEmpty();
   }
 
   @Test
   public void shouldUseSpecifiedPropertiesFile() throws Exception {
-    String targetFileName = "gf" + testName.getMethodName() + ".properties";
-    String javaHome = System.getProperty("java.home");
+    var targetFileName = "gf" + testName.getMethodName() + ".properties";
+    var javaHome = System.getProperty("java.home");
     assertThat(javaHome).isNotEmpty();
-    String[] command = {javaHome + "/bin/java", "-cp", getClassPath(),
+    var command = new String[] {javaHome + "/bin/java", "-cp", getClassPath(),
         DefaultPropertiesGenerator.class.getName(), targetFileName};
-    ProcessBuilder launcher = new ProcessBuilder(command).directory(temporaryFolder.getRoot());
+    var launcher = new ProcessBuilder(command).directory(temporaryFolder.getRoot());
     process = launcher.start();
     process.waitFor(2, MINUTES);
 
-    String tmp = temporaryFolder.getRoot().getAbsolutePath();
-    File file = new File(tmp + File.separator + targetFileName);
+    var tmp = temporaryFolder.getRoot().getAbsolutePath();
+    var file = new File(tmp + File.separator + targetFileName);
     assertThat(file).exists();
 
-    Properties properties = loadProperties();
+    var properties = loadProperties();
     assertThat(properties).isNotEmpty();
   }
 
   private Properties loadProperties() throws IOException {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.load(new FileInputStream(propertiesFile));
     assertThat(properties.getProperty(MCAST_PORT)).isEqualTo("0");
     properties.setProperty(MCAST_PORT, "0");

@@ -119,7 +119,7 @@ public class ConfigurationParameterImpl implements org.apache.geode.admin.Config
     } else if (isFile()) {
       return value.toString();
     } else if (isOctal()) {
-      String strVal = Integer.toOctalString((Integer) value);
+      var strVal = Integer.toOctalString((Integer) value);
       if (!strVal.startsWith("0")) {
         strVal = "0" + strVal;
       }
@@ -247,9 +247,9 @@ public class ConfigurationParameterImpl implements org.apache.geode.admin.Config
    * @param parm the configuration parameter the changed
    */
   protected void fireConfigurationParameterValueChanged(ConfigurationParameter parm) {
-    ConfigurationParameterListener[] listeners = (ConfigurationParameterListener[]) this.listeners
+    var listeners = (ConfigurationParameterListener[]) this.listeners
         .toArray(new ConfigurationParameterListener[0]);
-    for (final ConfigurationParameterListener listener : listeners) {
+    for (final var listener : listeners) {
       listener.configurationParameterValueChanged(parm);
     }
   }

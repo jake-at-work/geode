@@ -40,12 +40,9 @@ import org.apache.geode.internal.cache.execute.MemberMappedArgument;
 import org.apache.geode.internal.cache.execute.PartitionedRegionFunctionExecutor;
 import org.apache.geode.internal.cache.execute.ServerToClientFunctionResultSender;
 import org.apache.geode.internal.cache.execute.ServerToClientFunctionResultSender65;
-import org.apache.geode.internal.cache.tier.CachedRegionHelper;
 import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.MessageType;
-import org.apache.geode.internal.cache.tier.ServerSideHandshake;
 import org.apache.geode.internal.cache.tier.sockets.BaseCommand;
-import org.apache.geode.internal.cache.tier.sockets.ChunkedMessage;
 import org.apache.geode.internal.cache.tier.sockets.Message;
 import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
@@ -80,11 +77,11 @@ public class ExecuteRegionFunction66 extends BaseCommand {
     Set<Object> filter = null;
     byte hasResult = 0;
     Set<Object> removedNodesSet = null;
-    int partNumber = 0;
+    var partNumber = 0;
     byte functionState = 0;
-    int functionTimeout = DEFAULT_CLIENT_FUNCTION_TIMEOUT;
+    var functionTimeout = DEFAULT_CLIENT_FUNCTION_TIMEOUT;
     try {
-      byte[] bytes = clientMessage.getPart(0).getSerializedForm();
+      var bytes = clientMessage.getPart(0).getSerializedForm();
       functionState = bytes[0];
       if (bytes.length >= 5) {
         functionTimeout = Part.decodeInt(bytes, 1);
@@ -101,10 +98,10 @@ public class ExecuteRegionFunction66 extends BaseCommand {
       regionName = clientMessage.getPart(1).getCachedString();
       function = clientMessage.getPart(2).getStringOrObject();
       args = clientMessage.getPart(3).getObject();
-      Part part = clientMessage.getPart(4);
+      var part = clientMessage.getPart(4);
       memberMappedArg = extractMemberMappedArgument(part);
 
-      byte[] flags = clientMessage.getPart(5).getSerializedForm();
+      var flags = clientMessage.getPart(5).getSerializedForm();
       if (serverConnection.getClientVersion().ordinal() > KnownVersion.GFE_81.ordinal()) {
         isBucketsAsFilter = (flags[0] & ExecuteFunctionHelper.BUCKETS_AS_FILTER_MASK) != 0;
         isReExecute = (flags[0] & ExecuteFunctionHelper.IS_REXECUTE_MASK) != 0 ? (byte) 1 : 0;
@@ -113,11 +110,11 @@ public class ExecuteRegionFunction66 extends BaseCommand {
         isBucketsAsFilter = false;
       }
 
-      int filterSize = clientMessage.getPart(6).getInt();
+      var filterSize = clientMessage.getPart(6).getInt();
       filter = populateFilters(clientMessage, filterSize);
       partNumber = 7 + filterSize;
 
-      int removedNodesSize = clientMessage.getPart(partNumber).getInt();
+      var removedNodesSize = clientMessage.getPart(partNumber).getInt();
       removedNodesSet =
           populateRemovedNodes(clientMessage, removedNodesSize, partNumber);
 
@@ -134,24 +131,24 @@ public class ExecuteRegionFunction66 extends BaseCommand {
       return;
     }
     if (function == null || regionName == null) {
-      String message = generateNullArgumentMessage(regionName, function);
+      var message = generateNullArgumentMessage(regionName, function);
       logger.warn("{}: {}", serverConnection.getName(), message);
       sendError(hasResult, clientMessage, message, serverConnection);
       return;
     }
 
-    CachedRegionHelper crHelper = serverConnection.getCachedRegionHelper();
-    Region region = crHelper.getRegion(regionName);
+    var crHelper = serverConnection.getCachedRegionHelper();
+    var region = crHelper.getRegion(regionName);
     if (region == null) {
-      String message =
+      var message =
           String.format("The region named %s was not found during execute Function request.",
               regionName);
       logger.warn("{}: {}", serverConnection.getName(), message);
       sendError(hasResult, clientMessage, message, serverConnection);
       return;
     }
-    ServerSideHandshake handshake = serverConnection.getHandshake();
-    int earlierClientReadTimeout = handshake.getClientReadTimeout();
+    var handshake = serverConnection.getHandshake();
+    var earlierClientReadTimeout = handshake.getClientReadTimeout();
     handshake.setClientReadTimeout(functionTimeout);
     ServerToClientFunctionResultSender resultSender = null;
     Function<?> functionObject = null;
@@ -169,19 +166,18 @@ public class ExecuteRegionFunction66 extends BaseCommand {
 
       // check if the caller is authorized to do this operation on server
       functionObject.getRequiredPermissions(regionName, args).forEach(securityService::authorize);
-      ExecuteFunctionOperationContext executeContext =
+      var executeContext =
           getAuthorizedExecuteFunctionOperationContext(args, filter,
               functionObject.optimizeForWrite(), serverConnection.getAuthzRequest(),
               functionObject.getId(), region.getFullPath());
 
-
-      ChunkedMessage m = serverConnection.getFunctionResponseMessage();
+      var m = serverConnection.getFunctionResponseMessage();
       m.setTransactionId(clientMessage.getTransactionId());
       resultSender =
           new ServerToClientFunctionResultSender65(m, MessageType.EXECUTE_REGION_FUNCTION_RESULT,
               serverConnection, functionObject, executeContext);
 
-      AbstractExecution execution =
+      var execution =
           createExecution(args, memberMappedArg, isBucketsAsFilter, filter,
               removedNodesSet,
               region, resultSender);
@@ -209,10 +205,10 @@ public class ExecuteRegionFunction66 extends BaseCommand {
       logger.warn(String.format("Exception on server while executing function : %s",
           function),
           ioe);
-      final String message = "Server could not send the reply";
+      final var message = "Server could not send the reply";
       sendException(hasResult, clientMessage, message, serverConnection, ioe);
     } catch (FunctionException fe) {
-      String message = fe.getMessage();
+      var message = fe.getMessage();
       Object cause = fe.getCause();
       if (cause instanceof FunctionInvocationTargetException
           || cause instanceof QueryInvocationTargetException) {
@@ -231,7 +227,7 @@ public class ExecuteRegionFunction66 extends BaseCommand {
         logger.warn(String.format("Exception on server while executing function : %s",
             function),
             e);
-        String message = e.getMessage();
+        var message = e.getMessage();
         sendException(hasResult, clientMessage, message, serverConnection, e);
       }
     } finally {
@@ -273,7 +269,7 @@ public class ExecuteRegionFunction66 extends BaseCommand {
       Set<Object> removedNodesSet, Region region,
       ServerToClientFunctionResultSender resultSender) {
 
-    AbstractExecution execution = (AbstractExecution) FunctionService.onRegion(region);
+    var execution = (AbstractExecution) FunctionService.onRegion(region);
     if (execution instanceof PartitionedRegionFunctionExecutor) {
       execution = new PartitionedRegionFunctionExecutor((PartitionedRegion) region, filter, args,
           memberMappedArg, resultSender, removedNodesSet, isBucketsAsFilter);
@@ -288,21 +284,21 @@ public class ExecuteRegionFunction66 extends BaseCommand {
       Object function, byte hasResult, byte functionState,
       Function<?> functionObject) throws IOException {
     if (functionObject == null) {
-      String message =
+      var message =
           String.format("The function, %s, has not been registered",
               function);
       logger.warn("{}: {}", serverConnection.getName(), message);
       sendError(hasResult, clientMessage, message, serverConnection);
       return false;
     } else {
-      byte functionStateOnServerSide = AbstractExecution.getFunctionState(functionObject.isHA(),
+      var functionStateOnServerSide = AbstractExecution.getFunctionState(functionObject.isHA(),
           functionObject.hasResult(), functionObject.optimizeForWrite());
       if (logger.isDebugEnabled()) {
         logger.debug("Function State on server side: {} on client: {}",
             functionStateOnServerSide, functionState);
       }
       if (functionStateOnServerSide != functionState) {
-        String message =
+        var message =
             String.format("Function attributes at client and server don't match: %s",
                 function);
         logger.warn("{}: {}", serverConnection.getName(), message);
@@ -328,7 +324,7 @@ public class ExecuteRegionFunction66 extends BaseCommand {
       throws IOException, ClassNotFoundException {
     MemberMappedArgument memberMappedArg = null;
     if (part != null) {
-      Object obj = part.getObject();
+      var obj = part.getObject();
       if (obj instanceof MemberMappedArgument) {
         memberMappedArg = (MemberMappedArgument) obj;
       }
@@ -343,7 +339,7 @@ public class ExecuteRegionFunction66 extends BaseCommand {
       removedNodesSet = new HashSet<>();
       partNumber = partNumber + 1;
 
-      for (int i = 0; i < removedNodesSize; i++) {
+      for (var i = 0; i < removedNodesSize; i++) {
         removedNodesSet.add(clientMessage.getPart(partNumber + i).getStringOrObject());
       }
     }
@@ -357,7 +353,7 @@ public class ExecuteRegionFunction66 extends BaseCommand {
     if (filterSize != 0) {
       filter = new HashSet<>();
       partNumber = 7;
-      for (int i = 0; i < filterSize; i++) {
+      for (var i = 0; i < filterSize; i++) {
         filter.add(clientMessage.getPart(partNumber + i).getStringOrObject());
       }
     }
@@ -445,16 +441,16 @@ public class ExecuteRegionFunction66 extends BaseCommand {
 
   protected static void writeFunctionResponseException(Message origMsg, int messageType,
       String message, ServerConnection serverConnection, Throwable e) throws IOException {
-    ChunkedMessage functionResponseMsg = serverConnection.getFunctionResponseMessage();
-    ChunkedMessage chunkedResponseMsg = serverConnection.getChunkedResponseMessage();
-    int numParts = 0;
+    var functionResponseMsg = serverConnection.getFunctionResponseMessage();
+    var chunkedResponseMsg = serverConnection.getChunkedResponseMessage();
+    var numParts = 0;
     if (functionResponseMsg.headerHasBeenSent()) {
       if (e instanceof FunctionException
           && e.getCause() instanceof InternalFunctionInvocationTargetException) {
         functionResponseMsg.setNumberOfParts(3);
         functionResponseMsg.addObjPart(e);
         functionResponseMsg.addStringPart(BaseCommand.getExceptionTrace(e));
-        InternalFunctionInvocationTargetException fe =
+        var fe =
             (InternalFunctionInvocationTargetException) e.getCause();
         functionResponseMsg.addObjPart(fe.getFailedNodeSet());
         numParts = 3;
@@ -481,7 +477,7 @@ public class ExecuteRegionFunction66 extends BaseCommand {
         chunkedResponseMsg.setNumberOfParts(3);
         chunkedResponseMsg.addObjPart(e);
         chunkedResponseMsg.addStringPart(BaseCommand.getExceptionTrace(e));
-        InternalFunctionInvocationTargetException fe =
+        var fe =
             (InternalFunctionInvocationTargetException) e.getCause();
         chunkedResponseMsg.addObjPart(fe.getFailedNodeSet());
         numParts = 3;

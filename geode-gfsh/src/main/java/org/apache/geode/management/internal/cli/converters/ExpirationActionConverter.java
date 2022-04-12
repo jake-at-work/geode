@@ -37,7 +37,7 @@ public class ExpirationActionConverter implements Converter<ExpirationAction> {
 
   @Override
   public ExpirationAction convertFromText(String value, Class<?> targetType, String optionContext) {
-    String enumValue = value.replace('-', '_');
+    var enumValue = value.replace('-', '_');
     return Arrays.stream(actions).filter(x -> x.toString().equalsIgnoreCase(enumValue)).findFirst()
         .orElseThrow(() -> new IllegalArgumentException(
             String.format("Expiration action %s is not valid.", value)));

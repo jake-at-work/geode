@@ -29,10 +29,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import org.apache.geode.cache.GemFireCache;
-import org.apache.geode.cache.execute.Execution;
 import org.apache.geode.cache.execute.FunctionService;
-import org.apache.geode.cache.execute.ResultCollector;
-import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.management.configuration.Deployment;
 import org.apache.geode.test.compiler.ClassBuilder;
@@ -54,23 +51,23 @@ public class ClassPathLoaderDeployTest {
 
   @Test
   public void testDeployWithExistingDependentJars() throws Exception {
-    ClassBuilder classBuilder = new ClassBuilder();
-    final File parentJarFile =
+    var classBuilder = new ClassBuilder();
+    final var parentJarFile =
         new File("JarDeployerDUnitAParent.v1.jar");
-    final File usesJarFile = new File("JarDeployerDUnitUses.v1.jar");
-    final File functionJarFile =
+    final var usesJarFile = new File("JarDeployerDUnitUses.v1.jar");
+    final var functionJarFile =
         new File("JarDeployerDUnitFunction.v1.jar");
 
     // Write out a JAR files.
-    StringBuilder stringBuilder = new StringBuilder();
+    var stringBuilder = new StringBuilder();
     stringBuilder.append("package jddunit.parent;");
     stringBuilder.append("public class JarDeployerDUnitParent {");
     stringBuilder.append("public String getValueParent() {");
     stringBuilder.append("return \"PARENT\";}}");
 
-    byte[] jarBytes = classBuilder.createJarFromClassContent(
+    var jarBytes = classBuilder.createJarFromClassContent(
         "jddunit/parent/JarDeployerDUnitParent", stringBuilder.toString());
-    FileOutputStream outStream = new FileOutputStream(parentJarFile);
+    var outStream = new FileOutputStream(parentJarFile);
     outStream.write(jarBytes);
     outStream.close();
 
@@ -102,7 +99,7 @@ public class ClassPathLoaderDeployTest {
     stringBuilder.append("public boolean optimizeForWrite() {return false;}");
     stringBuilder.append("public boolean isHA() {return false;}}");
 
-    ClassBuilder functionClassBuilder = new ClassBuilder();
+    var functionClassBuilder = new ClassBuilder();
     functionClassBuilder.addToClassPath(parentJarFile.getAbsolutePath());
     functionClassBuilder.addToClassPath(usesJarFile.getAbsolutePath());
     jarBytes = functionClassBuilder.createJarFromClassContent(
@@ -113,31 +110,31 @@ public class ClassPathLoaderDeployTest {
 
     server.startServer();
 
-    GemFireCacheImpl gemFireCache = GemFireCacheImpl.getInstance();
-    DistributedSystem distributedSystem = gemFireCache.getDistributedSystem();
-    Execution execution = FunctionService.onMember(distributedSystem.getDistributedMember());
-    ResultCollector resultCollector = execution.execute("JarDeployerDUnitFunction");
-    List<String> result = (List<String>) resultCollector.getResult();
+    var gemFireCache = GemFireCacheImpl.getInstance();
+    var distributedSystem = gemFireCache.getDistributedSystem();
+    var execution = FunctionService.onMember(distributedSystem.getDistributedMember());
+    var resultCollector = execution.execute("JarDeployerDUnitFunction");
+    var result = (List<String>) resultCollector.getResult();
     assertEquals("PARENT:USES", result.get(0));
   }
 
   @Test
   public void deployNewVersionOfFunctionOverOldVersion() throws Exception {
-    File jarVersion1 = createVersionOfJar("Version1", "MyFunction", "MyJar.jar");
-    File jarVersion2 = createVersionOfJar("Version2", "MyFunction", "MyJar.jar");
+    var jarVersion1 = createVersionOfJar("Version1", "MyFunction", "MyJar.jar");
+    var jarVersion2 = createVersionOfJar("Version2", "MyFunction", "MyJar.jar");
 
     server.startServer();
 
     GemFireCache gemFireCache = server.getCache();
-    DistributedSystem distributedSystem = gemFireCache.getDistributedSystem();
+    var distributedSystem = gemFireCache.getDistributedSystem();
 
     ClassPathLoader.getLatest().getJarDeploymentService()
         .deploy(createDeploymentFromJar(jarVersion1));
 
     assertThatClassCanBeLoaded("jddunit.function.MyFunction");
-    Execution execution = FunctionService.onMember(distributedSystem.getDistributedMember());
+    var execution = FunctionService.onMember(distributedSystem.getDistributedMember());
 
-    List<String> result = (List<String>) execution.execute("MyFunction").getResult();
+    var result = (List<String>) execution.execute("MyFunction").getResult();
     assertThat(result.get(0)).isEqualTo("Version1");
 
     ClassPathLoader.getLatest().getJarDeploymentService()
@@ -148,7 +145,7 @@ public class ClassPathLoaderDeployTest {
 
   private File createVersionOfJar(String version, String functionName, String jarName)
       throws IOException {
-    String classContents =
+    var classContents =
         "package jddunit.function;" + "import org.apache.geode.cache.execute.Function;"
             + "import org.apache.geode.cache.execute.FunctionContext;" + "public class "
             + functionName + " implements Function {" + "public boolean hasResult() {return true;}"
@@ -163,8 +160,8 @@ public class ClassPathLoaderDeployTest {
       String classContents)
       throws IOException {
 
-    File jar = new File(temporaryFolder.newFolder(version), jarName);
-    ClassBuilder classBuilder = new ClassBuilder();
+    var jar = new File(temporaryFolder.newFolder(version), jarName);
+    var classBuilder = new ClassBuilder();
     classBuilder.writeJarFromContent("jddunit/function/" + functionName, classContents,
         jar);
 
@@ -175,8 +172,8 @@ public class ClassPathLoaderDeployTest {
       String classContents, String additionalClassPath)
       throws IOException {
 
-    File jar = new File(temporaryFolder.newFolder(version), jarName);
-    ClassBuilder classBuilder = new ClassBuilder();
+    var jar = new File(temporaryFolder.newFolder(version), jarName);
+    var classBuilder = new ClassBuilder();
     classBuilder.addToClassPath(additionalClassPath);
     classBuilder.writeJarFromContent("jddunit/function/" + functionName, classContents,
         jar);
@@ -189,7 +186,7 @@ public class ClassPathLoaderDeployTest {
   }
 
   private Deployment createDeploymentFromJar(File jar) {
-    Deployment deployment = new Deployment(jar.getName(), "test", Instant.now().toString());
+    var deployment = new Deployment(jar.getName(), "test", Instant.now().toString());
     deployment.setFile(jar);
     return deployment;
   }

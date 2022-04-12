@@ -24,7 +24,6 @@ import org.apache.geode.cache.EntryNotFoundException;
 import org.apache.geode.cache.RegionDestroyedException;
 import org.apache.geode.cache.client.internal.DestroyOp;
 import org.apache.geode.cache.client.internal.InvalidateOp;
-import org.apache.geode.cache.operations.InvalidateOperationContext;
 import org.apache.geode.distributed.internal.DistributionStats;
 import org.apache.geode.internal.cache.EventID;
 import org.apache.geode.internal.cache.EventIDHolder;
@@ -33,12 +32,10 @@ import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.BaseCommand;
-import org.apache.geode.internal.cache.tier.sockets.CacheServerStats;
 import org.apache.geode.internal.cache.tier.sockets.Message;
 import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
 import org.apache.geode.internal.cache.versions.VersionTag;
-import org.apache.geode.internal.security.AuthorizeRequest;
 import org.apache.geode.internal.security.SecurityService;
 import org.apache.geode.internal.util.Breadcrumbs;
 import org.apache.geode.security.GemFireSecurityException;
@@ -64,12 +61,12 @@ public class Invalidate70 extends BaseCommand {
     String regionName = null;
     Object callbackArg = null, key = null;
     Part eventPart = null;
-    StringBuilder errMessage = new StringBuilder();
-    CacheServerStats stats = serverConnection.getCacheServerStats();
+    var errMessage = new StringBuilder();
+    var stats = serverConnection.getCacheServerStats();
     serverConnection.setAsTrue(REQUIRES_RESPONSE);
 
     {
-      long oldStart = start;
+      var oldStart = start;
       start = DistributionStats.getStatTime();
       stats.incReadInvalidateRequestTime(start - oldStart);
     }
@@ -118,18 +115,18 @@ public class Invalidate70 extends BaseCommand {
       serverConnection.setAsTrue(RESPONDED);
       return;
     }
-    LocalRegion region = (LocalRegion) serverConnection.getCache().getRegion(regionName);
+    var region = (LocalRegion) serverConnection.getCache().getRegion(regionName);
     if (region == null) {
-      String reason = " was not found during invalidate request";
+      var reason = " was not found during invalidate request";
       writeRegionDestroyedEx(clientMessage, regionName, reason, serverConnection);
       serverConnection.setAsTrue(RESPONDED);
       return;
     }
     // Invalidate the entry
-    ByteBuffer eventIdPartsBuffer = ByteBuffer.wrap(eventPart.getSerializedForm());
-    long threadId = EventID.readEventIdPartsFromOptimizedByteArray(eventIdPartsBuffer);
-    long sequenceId = EventID.readEventIdPartsFromOptimizedByteArray(eventIdPartsBuffer);
-    EventID eventId =
+    var eventIdPartsBuffer = ByteBuffer.wrap(eventPart.getSerializedForm());
+    var threadId = EventID.readEventIdPartsFromOptimizedByteArray(eventIdPartsBuffer);
+    var sequenceId = EventID.readEventIdPartsFromOptimizedByteArray(eventIdPartsBuffer);
+    var eventId =
         new EventID(serverConnection.getEventMemberIDByteArray(), threadId, sequenceId);
 
     Breadcrumbs.setEventId(eventId);
@@ -141,13 +138,13 @@ public class Invalidate70 extends BaseCommand {
       securityService.authorize(ResourcePermission.Resource.DATA,
           ResourcePermission.Operation.WRITE, regionName, key);
 
-      AuthorizeRequest authzRequest = serverConnection.getAuthzRequest();
+      var authzRequest = serverConnection.getAuthzRequest();
       if (authzRequest != null) {
-        InvalidateOperationContext invalidateContext =
+        var invalidateContext =
             authzRequest.invalidateAuthorize(regionName, key, callbackArg);
         callbackArg = invalidateContext.getCallbackArg();
       }
-      EventIDHolder clientEvent = new EventIDHolder(eventId);
+      var clientEvent = new EventIDHolder(eventId);
 
       // msg.isRetry might be set by v7.0 and later clients
       if (clientMessage.isRetry()) {
@@ -199,12 +196,12 @@ public class Invalidate70 extends BaseCommand {
 
     // Update the statistics and write the reply
     {
-      long oldStart = start;
+      var oldStart = start;
       start = DistributionStats.getStatTime();
       stats.incProcessInvalidateTime(start - oldStart);
     }
     if (region instanceof PartitionedRegion) {
-      PartitionedRegion pr = (PartitionedRegion) region;
+      var pr = (PartitionedRegion) region;
       if (pr.getNetworkHopType() != PartitionedRegion.NETWORK_HOP_NONE) {
         writeReplyWithRefreshMetadata(clientMessage, serverConnection, pr, pr.getNetworkHopType(),
             tag);
@@ -225,11 +222,11 @@ public class Invalidate70 extends BaseCommand {
 
   protected void writeReplyWithRefreshMetadata(Message origMsg, ServerConnection servConn,
       PartitionedRegion pr, byte nwHop, VersionTag versionTag) throws IOException {
-    Message replyMsg = servConn.getReplyMessage();
+    var replyMsg = servConn.getReplyMessage();
     servConn.getCache().getCancelCriterion().checkCancelInProgress(null);
     replyMsg.setMessageType(MessageType.REPLY);
-    int flags = 0;
-    int numParts = 2;
+    var flags = 0;
+    var numParts = 2;
     if (versionTag != null) {
       flags |= InvalidateOp.HAS_VERSION_TAG;
       numParts++;
@@ -251,11 +248,11 @@ public class Invalidate70 extends BaseCommand {
 
   protected void writeReply(Message origMsg, ServerConnection servConn, VersionTag versionTag)
       throws IOException {
-    Message replyMsg = servConn.getReplyMessage();
+    var replyMsg = servConn.getReplyMessage();
     servConn.getCache().getCancelCriterion().checkCancelInProgress(null);
     replyMsg.setMessageType(MessageType.REPLY);
-    int flags = 0;
-    int numParts = 2;
+    var flags = 0;
+    var numParts = 2;
     if (versionTag != null) {
       flags |= DestroyOp.HAS_VERSION_TAG;
       numParts++;

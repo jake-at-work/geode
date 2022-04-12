@@ -57,7 +57,7 @@ public class LuceneQueriesDUnitTest extends LuceneQueriesAccessorBase {
   protected SerializableRunnable createIndex = new SerializableRunnable("createIndex") {
     @Override
     public void run() {
-      LuceneService luceneService = LuceneServiceProvider.get(getCache());
+      var luceneService = LuceneServiceProvider.get(getCache());
       ((LuceneIndexFactoryImpl) luceneService.createIndexFactory()).addField("text")
           .create(INDEX_NAME, REGION_NAME, LuceneServiceImpl.LUCENE_REINDEX);
     }
@@ -82,12 +82,12 @@ public class LuceneQueriesDUnitTest extends LuceneQueriesAccessorBase {
     accessor.invoke(() -> {
       Cache cache = getCache();
       try {
-        LuceneService service = LuceneServiceProvider.get(cache);
+        var service = LuceneServiceProvider.get(cache);
         LuceneQuery<Integer, TestObject> query;
         query = service.createLuceneQueryFactory().create(INDEX_NAME, REGION_NAME, "text:world",
             DEFAULT_FIELD);
         cache.getCacheTransactionManager().begin();
-        PageableLuceneQueryResults<Integer, TestObject> results = query.findPages();
+        var results = query.findPages();
         fail();
       } catch (LuceneQueryException e) {
         if (!e.getMessage()
@@ -150,12 +150,12 @@ public class LuceneQueriesDUnitTest extends LuceneQueriesAccessorBase {
     // Execute a query with a custom lucene query object
     accessor.invoke(() -> {
       Cache cache = getCache();
-      LuceneService service = LuceneServiceProvider.get(cache);
+      var service = LuceneServiceProvider.get(cache);
       LuceneQuery query =
           service.createLuceneQueryFactory().create(INDEX_NAME, REGION_NAME, index -> {
             return new TermQuery(new Term("text", "world"));
           });
-      final PageableLuceneQueryResults results = query.findPages();
+      final var results = query.findPages();
       assertEquals(3, results.size());
     });
   }
@@ -203,8 +203,8 @@ public class LuceneQueriesDUnitTest extends LuceneQueriesAccessorBase {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties result = super.getDistributedSystemProperties();
-    String filter = (String) result.get(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER);
+    var result = super.getDistributedSystemProperties();
+    var filter = (String) result.get(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER);
     filter += ";org.apache.geode.cache.lucene.LuceneQueriesDUnitTest*";
     result.put(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER, filter);
     return result;

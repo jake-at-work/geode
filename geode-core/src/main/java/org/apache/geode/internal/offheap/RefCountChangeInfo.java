@@ -55,8 +55,8 @@ public class RefCountChangeInfo extends Throwable {
 
   @Override
   public String toString() {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream(64 * 1024);
-    PrintStream ps = new PrintStream(baos);
+    var baos = new ByteArrayOutputStream(64 * 1024);
+    var ps = new PrintStream(baos);
     ps.print(getMessage());
     ps.print(" rc=");
     ps.print(rc);
@@ -84,8 +84,8 @@ public class RefCountChangeInfo extends Throwable {
     if (!getMessage().equals(other.getMessage())) {
       return false;
     }
-    Object trace = getStackTraceString();
-    Object traceOther = other.getStackTraceString();
+    var trace = getStackTraceString();
+    var traceOther = other.getStackTraceString();
     if (trace.hashCode() != traceOther.hashCode()) {
       return false;
     }
@@ -95,10 +95,10 @@ public class RefCountChangeInfo extends Throwable {
   private Object stackTraceString;
 
   Object getStackTraceString() {
-    Object result = stackTraceString;
+    var result = stackTraceString;
     if (result == null) {
-      ByteArrayOutputStream baos = new ByteArrayOutputStream(64 * 1024);
-      PrintStream spr = new PrintStream(baos);
+      var baos = new ByteArrayOutputStream(64 * 1024);
+      var spr = new PrintStream(baos);
       cleanStackTrace(spr);
       result = baos.toString();
       stackTraceString = result;
@@ -111,16 +111,16 @@ public class RefCountChangeInfo extends Throwable {
   }
 
   private void cleanStackTrace(PrintStream ps) {
-    StackTraceElement[] trace = getStackTrace();
+    var trace = getStackTrace();
     // skip the initial elements from the offheap package
-    int skip = 0;
-    for (int i = 0; i < trace.length; i++) {
+    var skip = 0;
+    for (var i = 0; i < trace.length; i++) {
       if (!(trace[i].toString().contains("org.apache.geode.internal.offheap"))) {
         skip = i;
         break;
       }
     }
-    for (int i = skip; i < trace.length; i++) {
+    for (var i = skip; i < trace.length; i++) {
       ps.println("\tat " + trace[i]);
     }
   }

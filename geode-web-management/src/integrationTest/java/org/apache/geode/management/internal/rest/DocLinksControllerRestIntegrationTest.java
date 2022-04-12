@@ -56,7 +56,7 @@ public class DocLinksControllerRestIntegrationTest {
     webContext = new LocatorWebContext(webApplicationContext);
 
     cluster.setSkipLocalDistributedSystemCleanup(true);
-    int locatorPort = webContext.getLocator().getPort();
+    var locatorPort = webContext.getLocator().getPort();
     basePath = "http://localhost";
 
     cluster.startServerVM(1, s -> s.withConnectionToLocator(locatorPort)

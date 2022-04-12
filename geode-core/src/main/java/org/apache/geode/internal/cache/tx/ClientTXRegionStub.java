@@ -60,7 +60,7 @@ public class ClientTXRegionStub implements TXRegionStub {
     if (event.getOperation().isLocal()) {
       throw new UnsupportedOperationInTransactionException();
     }
-    Object result = proxy.destroy(event.getKey(), expectedOldValue, event.getOperation(), event,
+    var result = proxy.destroy(event.getKey(), expectedOldValue, event.getOperation(), event,
         event.getCallbackArgument());
     if (result instanceof EntryNotFoundException) {
       throw (EntryNotFoundException) result;

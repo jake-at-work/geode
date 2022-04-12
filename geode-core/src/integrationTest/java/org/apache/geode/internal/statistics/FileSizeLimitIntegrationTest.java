@@ -74,15 +74,15 @@ public class FileSizeLimitIntegrationTest {
         factory.createType("statisticsType1", "statisticsType1", statisticDescriptors);
     statistics = factory.createAtomicStatistics(statisticsType, "statistics1", 1);
 
-    Answer<Statistics[]> statisticsAnswer = invocation -> factory.getStatistics();
+    var statisticsAnswer = (Answer<Statistics[]>) invocation -> factory.getStatistics();
 
-    Answer<Integer> modCountAnswer = invocation -> factory.getStatListModCount();
+    var modCountAnswer = (Answer<Integer>) invocation -> factory.getStatListModCount();
 
-    StatisticsSampler sampler = mock(StatisticsSampler.class);
+    var sampler = mock(StatisticsSampler.class);
     when(sampler.getStatistics()).thenAnswer(statisticsAnswer);
     when(sampler.getStatisticsModCount()).thenAnswer(modCountAnswer);
 
-    StatArchiveHandlerConfig config = mock(StatArchiveHandlerConfig.class);
+    var config = mock(StatArchiveHandlerConfig.class);
     when(config.getArchiveFileName()).thenReturn(new File(archiveFileName));
     when(config.getArchiveFileSizeLimit()).thenReturn(FILE_SIZE_LIMIT);
     when(config.getSystemId()).thenReturn(1L);
@@ -116,8 +116,8 @@ public class FileSizeLimitIntegrationTest {
 
   private void sampleUntilFileExists(final File file)
       throws InterruptedException, TimeoutException {
-    long timeout = System.nanoTime() + MINUTES.toNanos(1);
-    int count = 0;
+    var timeout = System.nanoTime() + MINUTES.toNanos(1);
+    var count = 0;
     do {
       sample(advanceNanosTimeStamp());
       count++;

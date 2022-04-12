@@ -29,7 +29,7 @@ public class ThrowableUtilsTest {
 
   @Test
   public void getRootCauseOfNullShouldThrowNullPointerException() {
-    Throwable thrown = catchThrowable(() -> getRootCause(null));
+    var thrown = catchThrowable(() -> getRootCause(null));
 
     assertThat(thrown).isExactlyInstanceOf(NullPointerException.class);
   }
@@ -37,7 +37,7 @@ public class ThrowableUtilsTest {
   @Test
   public void getRootCauseOfLeafExceptionShouldReturnSameInstance() {
     Throwable exception = new Exception();
-    Throwable rootCause = getRootCause(exception);
+    var rootCause = getRootCause(exception);
 
     assertThat(rootCause).isSameAs(exception);
   }
@@ -45,7 +45,7 @@ public class ThrowableUtilsTest {
   @Test
   public void getRootCauseOfExceptionShouldReturnCause() {
     Throwable cause = new Exception();
-    Throwable rootCause = getRootCause(new Exception(cause));
+    var rootCause = getRootCause(new Exception(cause));
 
     assertThat(rootCause).isSameAs(cause);
   }
@@ -53,7 +53,7 @@ public class ThrowableUtilsTest {
   @Test
   public void getRootCauseOfExceptionTreeShouldReturnCause() {
     Throwable cause = new Exception();
-    Throwable rootCause = getRootCause(new Exception(new Exception(cause)));
+    var rootCause = getRootCause(new Exception(new Exception(cause)));
 
     assertThat(rootCause).isSameAs(cause);
   }
@@ -61,21 +61,21 @@ public class ThrowableUtilsTest {
   @Test
   public void getRootCauseOfErrorTreeShouldReturnCause() {
     Throwable cause = new Error();
-    Throwable rootCause = getRootCause(new Error(new Error(cause)));
+    var rootCause = getRootCause(new Error(new Error(cause)));
 
     assertThat(rootCause).isSameAs(cause);
   }
 
   @Test
   public void hasCauseTypeOfNullClassShouldThrowNullPointerException() {
-    Throwable thrown = catchThrowable(() -> hasCauseType(new Exception(), null));
+    var thrown = catchThrowable(() -> hasCauseType(new Exception(), null));
 
     assertThat(thrown).isExactlyInstanceOf(NullPointerException.class);
   }
 
   @Test
   public void hasCauseTypeOfNullThrowableShouldThrowNullPointerException() {
-    Throwable thrown = catchThrowable(() -> hasCauseType(null, Exception.class));
+    var thrown = catchThrowable(() -> hasCauseType(null, Exception.class));
 
     assertThat(thrown).isExactlyInstanceOf(NullPointerException.class);
   }
@@ -118,28 +118,28 @@ public class ThrowableUtilsTest {
 
   @Test
   public void hasCauseMessageForNullShouldThrowNullPointerException() {
-    Throwable thrown = catchThrowable(() -> hasCauseMessage(null, "message"));
+    var thrown = catchThrowable(() -> hasCauseMessage(null, "message"));
 
     assertThat(thrown).isExactlyInstanceOf(NullPointerException.class);
   }
 
   @Test
   public void hasCauseMessageOfNullShouldThrowNullPointerException() {
-    Throwable thrown = catchThrowable(() -> hasCauseMessage(new OneException(), null));
+    var thrown = catchThrowable(() -> hasCauseMessage(new OneException(), null));
 
     assertThat(thrown).isExactlyInstanceOf(NullPointerException.class);
   }
 
   @Test
   public void hasCauseMessageForNullMessageShouldThrowNullPointerException() {
-    Throwable thrown = catchThrowable(() -> hasCauseMessage(new OneException((String) null), null));
+    var thrown = catchThrowable(() -> hasCauseMessage(new OneException((String) null), null));
 
     assertThat(thrown).isExactlyInstanceOf(NullPointerException.class);
   }
 
   @Test
   public void hasCauseMessageOfNonMatchingNullMessageShouldThrowNullPointerException() {
-    Throwable thrown = catchThrowable(() -> hasCauseMessage(new OneException("message"), null));
+    var thrown = catchThrowable(() -> hasCauseMessage(new OneException("message"), null));
 
     assertThat(thrown).isExactlyInstanceOf(NullPointerException.class);
   }
@@ -171,7 +171,7 @@ public class ThrowableUtilsTest {
 
   @Test
   public void setRootCauseShouldSetTheCause() {
-    OneException exception = new OneException(new TwoException());
+    var exception = new OneException(new TwoException());
     ThrowableUtils.setRootCause(exception, new OtherException());
 
     assertThat(exception).hasCauseInstanceOf(TwoException.class);
@@ -180,8 +180,8 @@ public class ThrowableUtilsTest {
 
   @Test
   public void setRootCauseShouldAvoidSelfCausation() {
-    TwoException cause = new TwoException();
-    OneException exception = new OneException(cause);
+    var cause = new TwoException();
+    var exception = new OneException(cause);
     ThrowableUtils.setRootCause(exception, cause);
 
     assertThat(exception).hasRootCauseInstanceOf(TwoException.class);

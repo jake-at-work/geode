@@ -29,7 +29,6 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -48,7 +47,6 @@ import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.asyncqueue.AsyncEvent;
 import org.apache.geode.cache.asyncqueue.AsyncEventListener;
 import org.apache.geode.cache.asyncqueue.AsyncEventQueue;
-import org.apache.geode.cache.asyncqueue.AsyncEventQueueFactory;
 import org.apache.geode.cache.asyncqueue.internal.InternalAsyncEventQueue;
 import org.apache.geode.cache.wan.GatewayEventSubstitutionFilter;
 import org.apache.geode.cache.wan.GatewaySender.OrderPolicy;
@@ -89,7 +87,7 @@ public class ConcurrentAsyncEventListenerDistributedTest implements Serializable
     vm1 = getVM(1);
     vm2 = getVM(2);
 
-    String className = getClass().getSimpleName();
+    var className = getClass().getSimpleName();
     partitionedRegionName = className + "_PR";
     replicateRegionName = className + "_RR";
 
@@ -310,7 +308,7 @@ public class ConcurrentAsyncEventListenerDistributedTest implements Serializable
     assertThat(asyncEventQueueId).isNotEmpty();
     assertThat(asyncEventListener).isNotNull();
 
-    AsyncEventQueueFactory asyncEventQueueFactory = getCache().createAsyncEventQueueFactory();
+    var asyncEventQueueFactory = getCache().createAsyncEventQueueFactory();
     asyncEventQueueFactory.setBatchConflationEnabled(isBatchConflationEnabled);
     asyncEventQueueFactory.setBatchSize(batchSize);
     asyncEventQueueFactory.setDispatcherThreads(dispatcherThreads);
@@ -323,14 +321,14 @@ public class ConcurrentAsyncEventListenerDistributedTest implements Serializable
 
   private void doPuts(String regionName, int numPuts) {
     Region<Integer, Integer> region = getCache().getRegion(regionName);
-    for (int i = 0; i < numPuts; i++) {
+    for (var i = 0; i < numPuts; i++) {
       region.put(i, i);
     }
   }
 
   private void doNextPuts(String regionName, int start, int numPuts) {
     Region<Integer, Integer> region = getCache().getRegion(regionName);
-    for (int i = start; i < numPuts; i++) {
+    for (var i = start; i < numPuts; i++) {
       region.put(i, i);
     }
   }
@@ -345,7 +343,7 @@ public class ConcurrentAsyncEventListenerDistributedTest implements Serializable
   }
 
   private InternalGatewaySender getInternalGatewaySender() {
-    InternalGatewaySender gatewaySender = getInternalAsyncEventQueue().getSender();
+    var gatewaySender = getInternalAsyncEventQueue().getSender();
     assertThat(gatewaySender).isNotNull();
     return gatewaySender;
   }
@@ -355,7 +353,7 @@ public class ConcurrentAsyncEventListenerDistributedTest implements Serializable
   }
 
   private AsyncEventListener getAsyncEventListener() {
-    AsyncEventListener asyncEventListener = getAsyncEventQueue().getAsyncEventListener();
+    var asyncEventListener = getAsyncEventQueue().getAsyncEventListener();
     assertThat(asyncEventListener).isNotNull();
     return asyncEventListener;
   }
@@ -367,8 +365,8 @@ public class ConcurrentAsyncEventListenerDistributedTest implements Serializable
   private AsyncEventQueue getAsyncEventQueue() {
     AsyncEventQueue value = null;
 
-    Set<AsyncEventQueue> asyncEventQueues = getCache().getAsyncEventQueues();
-    for (AsyncEventQueue asyncEventQueue : asyncEventQueues) {
+    var asyncEventQueues = getCache().getAsyncEventQueues();
+    for (var asyncEventQueue : asyncEventQueues) {
       if (asyncEventQueueId.equals(asyncEventQueue.getId())) {
         value = asyncEventQueue;
       }

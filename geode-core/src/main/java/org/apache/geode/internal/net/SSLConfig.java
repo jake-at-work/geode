@@ -365,8 +365,8 @@ public class SSLConfig {
 
     public Builder setProperties(Properties newProps) {
       properties = new Properties();
-      for (final Object o : newProps.keySet()) {
-        String key = (String) o;
+      for (final var o : newProps.keySet()) {
+        var key = (String) o;
         properties.setProperty(key, newProps.getProperty(key));
       }
       return this;
@@ -384,14 +384,14 @@ public class SSLConfig {
         sslParameterExtension = null;
         return this;
       }
-      InternalDistributedSystem ids = InternalDistributedSystem.getAnyInstance();
+      var ids = InternalDistributedSystem.getAnyInstance();
 
       if (ids == null) {
         sslParameterExtension = null;
         return this;
       }
 
-      SSLParameterExtension sslParameterExtension =
+      var sslParameterExtension =
           CallbackInstantiator.getObjectOfTypeFromClassName(sslParameterExtensionConfig,
               SSLParameterExtension.class);
       ids.getConfig().getDistributedSystemId();

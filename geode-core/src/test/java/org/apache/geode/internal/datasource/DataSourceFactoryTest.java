@@ -43,7 +43,7 @@ public class DataSourceFactoryTest {
 
   @Test
   public void creatPoolPropertiesWithNullInputReturnsEmptyOutput() {
-    Properties output = DataSourceFactory.createPoolProperties(null, null);
+    var output = DataSourceFactory.createPoolProperties(null, null);
 
     assertThat(output.isEmpty()).isTrue();
   }
@@ -52,7 +52,7 @@ public class DataSourceFactoryTest {
   public void creatPoolPropertiesWithOneConfigDataSourcePropertyReturnsEmptyOutput() {
     configProperties.add(new ConfigProperty("n1", "v1", null));
 
-    Properties output = DataSourceFactory.createPoolProperties(inputs, configProperties);
+    var output = DataSourceFactory.createPoolProperties(inputs, configProperties);
 
     assertThat(output.isEmpty()).isTrue();
   }
@@ -61,7 +61,7 @@ public class DataSourceFactoryTest {
   public void creatPoolPropertiesWithOneConfigPoolPropertyReturnsOneOutput() {
     configProperties.add(new ConfigProperty("pool.n1", "v1", null));
 
-    Properties output = DataSourceFactory.createPoolProperties(inputs, configProperties);
+    var output = DataSourceFactory.createPoolProperties(inputs, configProperties);
 
     assertThat(output.size()).isEqualTo(1);
     assertThat(output.getProperty("n1")).isEqualTo("v1");
@@ -71,7 +71,7 @@ public class DataSourceFactoryTest {
   public void creatPoolPropertiesWithOneUpperCaseConfigPoolPropertyReturnsOneOutput() {
     configProperties.add(new ConfigProperty("POOL.N1", "v1", null));
 
-    Properties output = DataSourceFactory.createPoolProperties(inputs, configProperties);
+    var output = DataSourceFactory.createPoolProperties(inputs, configProperties);
 
     assertThat(output.size()).isEqualTo(1);
     assertThat(output.getProperty("N1")).isEqualTo("v1");
@@ -79,7 +79,7 @@ public class DataSourceFactoryTest {
 
   @Test
   public void creatPoolPropertiesWithEmptyInputReturnsEmptyOutput() {
-    Properties output = DataSourceFactory.createPoolProperties(inputs, configProperties);
+    var output = DataSourceFactory.createPoolProperties(inputs, configProperties);
 
     assertThat(output.isEmpty()).isTrue();
   }
@@ -88,7 +88,7 @@ public class DataSourceFactoryTest {
   public void creatPoolPropertiesWithNullValueInputReturnsEmptyOutput() {
     inputs.put("name", null);
 
-    Properties output = DataSourceFactory.createPoolProperties(inputs, configProperties);
+    var output = DataSourceFactory.createPoolProperties(inputs, configProperties);
 
     assertThat(output.isEmpty()).isTrue();
   }
@@ -97,7 +97,7 @@ public class DataSourceFactoryTest {
   public void creatPoolPropertiesWithEmptyStringValueInputReturnsEmptyOutput() {
     inputs.put("name", "");
 
-    Properties output = DataSourceFactory.createPoolProperties(inputs, configProperties);
+    var output = DataSourceFactory.createPoolProperties(inputs, configProperties);
 
     assertThat(output.isEmpty()).isTrue();
   }
@@ -106,7 +106,7 @@ public class DataSourceFactoryTest {
   public void creatPoolPropertiesWithOneInputReturnsOneOutput() {
     inputs.put("name", "value");
 
-    Properties output = DataSourceFactory.createPoolProperties(inputs, configProperties);
+    var output = DataSourceFactory.createPoolProperties(inputs, configProperties);
 
     assertThat(output.size()).isEqualTo(1);
     assertThat(output.getProperty("name")).isEqualTo("value");
@@ -121,7 +121,7 @@ public class DataSourceFactoryTest {
     inputs.put("managed-conn-factory-class", "value");
     inputs.put("xa-datasource-class", "value");
 
-    Properties output = DataSourceFactory.createPoolProperties(inputs, configProperties);
+    var output = DataSourceFactory.createPoolProperties(inputs, configProperties);
 
     assertThat(output.isEmpty()).isTrue();
   }
@@ -142,7 +142,7 @@ public class DataSourceFactoryTest {
     configProperties.add(new ConfigProperty("dataSourceProp", "dataSourceValue", null));
     configProperties.add(new ConfigProperty("pool.n2", "v2", null));
 
-    Properties output = DataSourceFactory.createPoolProperties(inputs, configProperties);
+    var output = DataSourceFactory.createPoolProperties(inputs, configProperties);
 
     assertThat(output.size()).isEqualTo(4);
     assertThat(output.getProperty("validname1")).isEqualTo("value1");
@@ -153,14 +153,14 @@ public class DataSourceFactoryTest {
 
   @Test
   public void createDataSourcePropertiesWithNullReturnsEmpty() {
-    Properties output = DataSourceFactory.createDataSourceProperties(null);
+    var output = DataSourceFactory.createDataSourceProperties(null);
 
     assertThat(output).isEmpty();
   }
 
   @Test
   public void createDataSourcePropertiesWithEmptyListReturnsEmpty() {
-    Properties output = DataSourceFactory.createDataSourceProperties(configProperties);
+    var output = DataSourceFactory.createDataSourceProperties(configProperties);
 
     assertThat(output).isEmpty();
   }
@@ -169,7 +169,7 @@ public class DataSourceFactoryTest {
   public void createDataSourcePropertiesWithPoolPropertyReturnsEmpty() {
     configProperties.add(new ConfigProperty("pool.n1", "v1", null));
 
-    Properties output = DataSourceFactory.createDataSourceProperties(configProperties);
+    var output = DataSourceFactory.createDataSourceProperties(configProperties);
 
     assertThat(output).isEmpty();
   }
@@ -178,7 +178,7 @@ public class DataSourceFactoryTest {
   public void createDataSourcePropertiesWithNonPoolPropertyReturnsOne() {
     configProperties.add(new ConfigProperty("n1", "v1", null));
 
-    Properties output = DataSourceFactory.createDataSourceProperties(configProperties);
+    var output = DataSourceFactory.createDataSourceProperties(configProperties);
 
     assertThat(output.size()).isEqualTo(1);
     assertThat(output.getProperty("n1")).isEqualTo("v1");
@@ -190,7 +190,7 @@ public class DataSourceFactoryTest {
     configProperties.add(new ConfigProperty("pool.n3", "v3", null));
     configProperties.add(new ConfigProperty("n2", "v2", null));
 
-    Properties output = DataSourceFactory.createDataSourceProperties(configProperties);
+    var output = DataSourceFactory.createDataSourceProperties(configProperties);
 
     assertThat(output.size()).isEqualTo(2);
     assertThat(output.getProperty("n1")).isEqualTo("v1");
@@ -269,7 +269,7 @@ public class DataSourceFactoryTest {
     inputs.put("conn-pooled-datasource-class",
         "org.apache.geode.internal.datasource.DataSourceFactoryTest$TestPooledDataSourceFactory");
 
-    DataSource dataSource = new DataSourceFactory().getPooledDataSource(inputs, configProperties);
+    var dataSource = new DataSourceFactory().getPooledDataSource(inputs, configProperties);
 
     assertThat(dataSource).isInstanceOf(TestDataSource.class);
   }
@@ -292,11 +292,11 @@ public class DataSourceFactoryTest {
     configProperties.add(new ConfigProperty("dataSourceProp", "dataSourceValue", null));
     configProperties.add(new ConfigProperty("pool.n2", "v2", null));
 
-    TestDataSource dataSource =
+    var dataSource =
         (TestDataSource) new DataSourceFactory().getPooledDataSource(inputs, configProperties);
 
-    Properties poolProperties = dataSource.getPoolProperties();
-    Properties dataSourceProperties = dataSource.getDataSourceProperties();
+    var poolProperties = dataSource.getPoolProperties();
+    var dataSourceProperties = dataSource.getDataSourceProperties();
     assertThat(poolProperties.size()).isEqualTo(4);
     assertThat(poolProperties.getProperty("validname1")).isEqualTo("value1");
     assertThat(poolProperties.getProperty("validname2")).isEqualTo("value2");
@@ -310,7 +310,7 @@ public class DataSourceFactoryTest {
   public void getPooledDataSourceFailsIfClassDoesNotExist() throws DataSourceCreateException {
     inputs.put("conn-pooled-datasource-class", "doesNotExist");
 
-    Throwable throwable =
+    var throwable =
         catchThrowable(() -> new DataSourceFactory().getPooledDataSource(inputs, configProperties));
 
     assertThat(throwable).isInstanceOf(DataSourceCreateException.class).hasMessage(

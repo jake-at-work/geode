@@ -54,7 +54,7 @@ public class StartLocatorJmxSerialFilterAcceptanceTest {
 
   @Before
   public void setUpPorts() {
-    int[] ports = getRandomAvailableTCPPorts(2);
+    var ports = getRandomAvailableTCPPorts(2);
     locatorPort = ports[0];
     jmxPort = ports[1];
   }
@@ -63,7 +63,7 @@ public class StartLocatorJmxSerialFilterAcceptanceTest {
   public void startWithJmxManagerConfiguresJmxSerialFilter_onJava9orGreater() {
     assumeThat(isJavaVersionAtLeast(JAVA_9)).isTrue();
 
-    String startLocatorCommand = String.join(" ",
+    var startLocatorCommand = String.join(" ",
         "start locator",
         "--name=locator",
         "--dir=" + locatorFolder,
@@ -88,7 +88,7 @@ public class StartLocatorJmxSerialFilterAcceptanceTest {
   public void startWithJmxManagerDoesNotConfigureJmxSerialFilter_onJava8() {
     assumeThat(isJavaVersionAtMost(JAVA_1_8)).isTrue();
 
-    String startLocatorCommand = String.join(" ",
+    var startLocatorCommand = String.join(" ",
         "start locator",
         "--name=locator",
         "--dir=" + locatorFolder,

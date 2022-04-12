@@ -44,7 +44,6 @@ import org.apache.geode.internal.cache.Oplog.OPLOG_TYPE;
 import org.apache.geode.internal.cache.ProxyBucketRegion;
 import org.apache.geode.internal.cache.versions.RegionVersionHolder;
 import org.apache.geode.internal.logging.log4j.LogMarker;
-import org.apache.geode.internal.serialization.KnownVersion;
 import org.apache.geode.internal.serialization.Versioning;
 import org.apache.geode.internal.serialization.VersioningIO;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -68,9 +67,9 @@ public class DiskInitFileParser {
 
   public DiskStoreID parse() throws IOException, ClassNotFoundException {
     DiskStoreID result = null;
-    boolean endOfFile = false;
+    var endOfFile = false;
     while (!(endOfFile || dis.atEndOfFile())) {
-      byte opCode = dis.readByte();
+      var opCode = dis.readByte();
       if (logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
         logger.trace(LogMarker.PERSIST_RECOVERY_VERBOSE, "DiskInitFile opcode={}", opCode);
       }
@@ -80,9 +79,9 @@ public class DiskInitFileParser {
           gotEOF = true;
           break;
         case DiskInitFile.IFREC_INSTANTIATOR_ID: {
-          int id = dis.readInt();
-          String cn = readClassName(dis);
-          String icn = readClassName(dis);
+          var id = dis.readInt();
+          var cn = readClassName(dis);
+          var icn = readClassName(dis);
           readEndOfRecord(dis);
           interpreter.cmnInstantiatorId(id, cn, icn);
         }
@@ -94,8 +93,8 @@ public class DiskInitFileParser {
         }
           break;
         case DiskInitFile.IFREC_ONLINE_MEMBER_ID: {
-          long drId = readDiskRegionID(dis);
-          PersistentMemberID pmid = readPMID(dis);
+          var drId = readDiskRegionID(dis);
+          var pmid = readPMID(dis);
           readEndOfRecord(dis);
           if (logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
             logger.trace(LogMarker.PERSIST_RECOVERY_VERBOSE,
@@ -105,8 +104,8 @@ public class DiskInitFileParser {
         }
           break;
         case DiskInitFile.IFREC_OFFLINE_MEMBER_ID: {
-          long drId = readDiskRegionID(dis);
-          PersistentMemberID pmid = readPMID(dis);
+          var drId = readDiskRegionID(dis);
+          var pmid = readPMID(dis);
           readEndOfRecord(dis);
           if (logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
             logger.trace(LogMarker.PERSIST_RECOVERY_VERBOSE,
@@ -116,8 +115,8 @@ public class DiskInitFileParser {
         }
           break;
         case DiskInitFile.IFREC_RM_MEMBER_ID: {
-          long drId = readDiskRegionID(dis);
-          PersistentMemberID pmid = readPMID(dis);
+          var drId = readDiskRegionID(dis);
+          var pmid = readPMID(dis);
           readEndOfRecord(dis);
           if (logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
             logger.trace(LogMarker.PERSIST_RECOVERY_VERBOSE, "IFREC_RM_MEMBER_ID drId={} pmid={}",
@@ -127,8 +126,8 @@ public class DiskInitFileParser {
         }
           break;
         case DiskInitFile.IFREC_MY_MEMBER_INITIALIZING_ID: {
-          long drId = readDiskRegionID(dis);
-          PersistentMemberID pmid = readPMID(dis);
+          var drId = readDiskRegionID(dis);
+          var pmid = readPMID(dis);
           readEndOfRecord(dis);
           if (logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
             logger.trace(LogMarker.PERSIST_RECOVERY_VERBOSE,
@@ -138,7 +137,7 @@ public class DiskInitFileParser {
         }
           break;
         case DiskInitFile.IFREC_MY_MEMBER_INITIALIZED_ID: {
-          long drId = readDiskRegionID(dis);
+          var drId = readDiskRegionID(dis);
           readEndOfRecord(dis);
           if (logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
             logger.trace(LogMarker.PERSIST_RECOVERY_VERBOSE,
@@ -148,8 +147,8 @@ public class DiskInitFileParser {
         }
           break;
         case DiskInitFile.IFREC_CREATE_REGION_ID: {
-          long drId = readDiskRegionID(dis);
-          String regName = dis.readUTF();
+          var drId = readDiskRegionID(dis);
+          var regName = dis.readUTF();
           readEndOfRecord(dis);
           if (logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
             logger.trace(LogMarker.PERSIST_RECOVERY_VERBOSE,
@@ -160,7 +159,7 @@ public class DiskInitFileParser {
         }
           break;
         case DiskInitFile.IFREC_BEGIN_DESTROY_REGION_ID: {
-          long drId = readDiskRegionID(dis);
+          var drId = readDiskRegionID(dis);
           readEndOfRecord(dis);
           if (logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
             logger.trace(LogMarker.PERSIST_RECOVERY_VERBOSE,
@@ -170,7 +169,7 @@ public class DiskInitFileParser {
         }
           break;
         case DiskInitFile.IFREC_END_DESTROY_REGION_ID: {
-          long drId = readDiskRegionID(dis);
+          var drId = readDiskRegionID(dis);
           readEndOfRecord(dis);
           if (logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
             logger.trace(LogMarker.PERSIST_RECOVERY_VERBOSE, "IFREC_END_DESTROY_REGION_ID drId={}",
@@ -180,7 +179,7 @@ public class DiskInitFileParser {
         }
           break;
         case DiskInitFile.IFREC_BEGIN_PARTIAL_DESTROY_REGION_ID: {
-          long drId = readDiskRegionID(dis);
+          var drId = readDiskRegionID(dis);
           readEndOfRecord(dis);
           if (logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
             logger.trace(LogMarker.PERSIST_RECOVERY_VERBOSE,
@@ -190,7 +189,7 @@ public class DiskInitFileParser {
         }
           break;
         case DiskInitFile.IFREC_END_PARTIAL_DESTROY_REGION_ID: {
-          long drId = readDiskRegionID(dis);
+          var drId = readDiskRegionID(dis);
           readEndOfRecord(dis);
           if (logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
             logger.trace(LogMarker.PERSIST_RECOVERY_VERBOSE,
@@ -200,8 +199,8 @@ public class DiskInitFileParser {
         }
           break;
         case DiskInitFile.IFREC_CLEAR_REGION_ID: {
-          long drId = readDiskRegionID(dis);
-          long clearOplogEntryId = dis.readLong();
+          var drId = readDiskRegionID(dis);
+          var clearOplogEntryId = dis.readLong();
           readEndOfRecord(dis);
           if (logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
             logger.trace(LogMarker.PERSIST_RECOVERY_VERBOSE,
@@ -211,14 +210,14 @@ public class DiskInitFileParser {
         }
           break;
         case DiskInitFile.IFREC_CLEAR_REGION_WITH_RVV_ID: {
-          long drId = readDiskRegionID(dis);
-          int size = dis.readInt();
-          ConcurrentHashMap<DiskStoreID, RegionVersionHolder<DiskStoreID>> memberToVersion =
-              new ConcurrentHashMap<>(size);
-          for (int i = 0; i < size; i++) {
-            DiskStoreID id = new DiskStoreID();
+          var drId = readDiskRegionID(dis);
+          var size = dis.readInt();
+          var memberToVersion =
+              new ConcurrentHashMap<DiskStoreID, RegionVersionHolder<DiskStoreID>>(size);
+          for (var i = 0; i < size; i++) {
+            var id = new DiskStoreID();
             InternalDataSerializer.invokeFromData(id, dis);
-            RegionVersionHolder<DiskStoreID> holder = new RegionVersionHolder<>(dis);
+            var holder = new RegionVersionHolder<DiskStoreID>(dis);
             memberToVersion.put(id, holder);
           }
           readEndOfRecord(dis);
@@ -230,7 +229,7 @@ public class DiskInitFileParser {
         }
           break;
         case DiskInitFile.IFREC_CRF_CREATE: {
-          long oplogId = dis.readLong();
+          var oplogId = dis.readLong();
           readEndOfRecord(dis);
           if (logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
             logger.trace(LogMarker.PERSIST_RECOVERY_VERBOSE, "IFREC_CRF_CREATE oplogId={}",
@@ -240,7 +239,7 @@ public class DiskInitFileParser {
         }
           break;
         case DiskInitFile.IFREC_DRF_CREATE: {
-          long oplogId = dis.readLong();
+          var oplogId = dis.readLong();
           readEndOfRecord(dis);
           if (logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
             logger.trace(LogMarker.PERSIST_RECOVERY_VERBOSE, "IFREC_DRF_CREATE oplogId={}",
@@ -250,7 +249,7 @@ public class DiskInitFileParser {
         }
           break;
         case DiskInitFile.IFREC_KRF_CREATE: {
-          long oplogId = dis.readLong();
+          var oplogId = dis.readLong();
           readEndOfRecord(dis);
           if (logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
             logger.trace(LogMarker.PERSIST_RECOVERY_VERBOSE, "IFREC_KRF_CREATE oplogId={}",
@@ -260,7 +259,7 @@ public class DiskInitFileParser {
         }
           break;
         case DiskInitFile.IFREC_CRF_DELETE: {
-          long oplogId = dis.readLong();
+          var oplogId = dis.readLong();
           readEndOfRecord(dis);
           if (logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
             logger.trace(LogMarker.PERSIST_RECOVERY_VERBOSE, "IFREC_CRF_DELETE oplogId={}",
@@ -270,7 +269,7 @@ public class DiskInitFileParser {
         }
           break;
         case DiskInitFile.IFREC_DRF_DELETE: {
-          long oplogId = dis.readLong();
+          var oplogId = dis.readLong();
           readEndOfRecord(dis);
           if (logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
             logger.trace(LogMarker.PERSIST_RECOVERY_VERBOSE, "IFREC_DRF_DELETE oplogId={}",
@@ -280,16 +279,16 @@ public class DiskInitFileParser {
         }
           break;
         case DiskInitFile.IFREC_REGION_CONFIG_ID: {
-          long drId = readDiskRegionID(dis);
-          byte lruAlgorithm = dis.readByte();
-          byte lruAction = dis.readByte();
-          int lruLimit = dis.readInt();
-          int concurrencyLevel = dis.readInt();
-          int initialCapacity = dis.readInt();
-          float loadFactor = dis.readFloat();
-          boolean statisticsEnabled = dis.readBoolean();
-          boolean isBucket = dis.readBoolean();
-          EnumSet<DiskRegionFlag> flags = EnumSet.noneOf(DiskRegionFlag.class);
+          var drId = readDiskRegionID(dis);
+          var lruAlgorithm = dis.readByte();
+          var lruAction = dis.readByte();
+          var lruLimit = dis.readInt();
+          var concurrencyLevel = dis.readInt();
+          var initialCapacity = dis.readInt();
+          var loadFactor = dis.readFloat();
+          var statisticsEnabled = dis.readBoolean();
+          var isBucket = dis.readBoolean();
+          var flags = EnumSet.noneOf(DiskRegionFlag.class);
           readEndOfRecord(dis);
           if (logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
             logger.trace(LogMarker.PERSIST_RECOVERY_VERBOSE, "IFREC_REGION_CONFIG_ID drId={}",
@@ -302,18 +301,18 @@ public class DiskInitFileParser {
         }
           break;
         case DiskInitFile.IFREC_REGION_CONFIG_ID_66: {
-          long drId = readDiskRegionID(dis);
-          byte lruAlgorithm = dis.readByte();
-          byte lruAction = dis.readByte();
-          int lruLimit = dis.readInt();
-          int concurrencyLevel = dis.readInt();
-          int initialCapacity = dis.readInt();
-          float loadFactor = dis.readFloat();
-          boolean statisticsEnabled = dis.readBoolean();
-          boolean isBucket = dis.readBoolean();
-          EnumSet<DiskRegionFlag> flags = EnumSet.noneOf(DiskRegionFlag.class);
-          String partitionName = dis.readUTF();
-          int startingBucketId = dis.readInt();
+          var drId = readDiskRegionID(dis);
+          var lruAlgorithm = dis.readByte();
+          var lruAction = dis.readByte();
+          var lruLimit = dis.readInt();
+          var concurrencyLevel = dis.readInt();
+          var initialCapacity = dis.readInt();
+          var loadFactor = dis.readFloat();
+          var statisticsEnabled = dis.readBoolean();
+          var isBucket = dis.readBoolean();
+          var flags = EnumSet.noneOf(DiskRegionFlag.class);
+          var partitionName = dis.readUTF();
+          var startingBucketId = dis.readInt();
           readEndOfRecord(dis);
           if (logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
             logger.trace(LogMarker.PERSIST_RECOVERY_VERBOSE, "IFREC_REGION_CONFIG_ID drId={}",
@@ -325,20 +324,20 @@ public class DiskInitFileParser {
         }
           break;
         case DiskInitFile.IFREC_REGION_CONFIG_ID_80: {
-          long drId = readDiskRegionID(dis);
-          byte lruAlgorithm = dis.readByte();
-          byte lruAction = dis.readByte();
-          int lruLimit = dis.readInt();
-          int concurrencyLevel = dis.readInt();
-          int initialCapacity = dis.readInt();
-          float loadFactor = dis.readFloat();
-          boolean statisticsEnabled = dis.readBoolean();
-          boolean isBucket = dis.readBoolean();
-          EnumSet<DiskRegionFlag> flags = EnumSet.noneOf(DiskRegionFlag.class);
-          String partitionName = dis.readUTF();
-          int startingBucketId = dis.readInt();
+          var drId = readDiskRegionID(dis);
+          var lruAlgorithm = dis.readByte();
+          var lruAction = dis.readByte();
+          var lruLimit = dis.readInt();
+          var concurrencyLevel = dis.readInt();
+          var initialCapacity = dis.readInt();
+          var loadFactor = dis.readFloat();
+          var statisticsEnabled = dis.readBoolean();
+          var isBucket = dis.readBoolean();
+          var flags = EnumSet.noneOf(DiskRegionFlag.class);
+          var partitionName = dis.readUTF();
+          var startingBucketId = dis.readInt();
 
-          String compressorClassName = dis.readUTF();
+          var compressorClassName = dis.readUTF();
           if ("".equals(compressorClassName)) {
             compressorClassName = null;
           }
@@ -356,27 +355,27 @@ public class DiskInitFileParser {
         }
           break;
         case DiskInitFile.IFREC_REGION_CONFIG_ID_90: {
-          long drId = readDiskRegionID(dis);
-          byte lruAlgorithm = dis.readByte();
-          byte lruAction = dis.readByte();
-          int lruLimit = dis.readInt();
-          int concurrencyLevel = dis.readInt();
-          int initialCapacity = dis.readInt();
-          float loadFactor = dis.readFloat();
-          boolean statisticsEnabled = dis.readBoolean();
-          boolean isBucket = dis.readBoolean();
-          EnumSet<DiskRegionFlag> flags = EnumSet.noneOf(DiskRegionFlag.class);
-          String partitionName = dis.readUTF();
-          int startingBucketId = dis.readInt();
+          var drId = readDiskRegionID(dis);
+          var lruAlgorithm = dis.readByte();
+          var lruAction = dis.readByte();
+          var lruLimit = dis.readInt();
+          var concurrencyLevel = dis.readInt();
+          var initialCapacity = dis.readInt();
+          var loadFactor = dis.readFloat();
+          var statisticsEnabled = dis.readBoolean();
+          var isBucket = dis.readBoolean();
+          var flags = EnumSet.noneOf(DiskRegionFlag.class);
+          var partitionName = dis.readUTF();
+          var startingBucketId = dis.readInt();
 
-          String compressorClassName = dis.readUTF();
+          var compressorClassName = dis.readUTF();
           if ("".equals(compressorClassName)) {
             compressorClassName = null;
           }
           if (dis.readBoolean()) {
             flags.add(DiskRegionFlag.IS_WITH_VERSIONING);
           }
-          boolean offHeap = dis.readBoolean();
+          var offHeap = dis.readBoolean();
 
           readEndOfRecord(dis);
           if (logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
@@ -389,8 +388,8 @@ public class DiskInitFileParser {
         }
           break;
         case DiskInitFile.IFREC_OFFLINE_AND_EQUAL_MEMBER_ID: {
-          long drId = readDiskRegionID(dis);
-          PersistentMemberID pmid = readPMID(dis);
+          var drId = readDiskRegionID(dis);
+          var pmid = readPMID(dis);
           readEndOfRecord(dis);
           if (logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
             logger.trace(LogMarker.PERSIST_RECOVERY_VERBOSE,
@@ -400,8 +399,8 @@ public class DiskInitFileParser {
         }
           break;
         case DiskInitFile.IFREC_DISKSTORE_ID: {
-          long leastSigBits = dis.readLong();
-          long mostSigBits = dis.readLong();
+          var leastSigBits = dis.readLong();
+          var mostSigBits = dis.readLong();
           readEndOfRecord(dis);
           result = new DiskStoreID(mostSigBits, leastSigBits);
           interpreter.cmnDiskStoreID(result);
@@ -411,11 +410,11 @@ public class DiskInitFileParser {
           readOplogMagicSeqRecord(dis, OPLOG_TYPE.IF);
           break;
         case DiskInitFile.IFREC_PR_CREATE: {
-          String name = dis.readUTF();
-          int numBuckets = dis.readInt();
-          String colocatedWith = dis.readUTF();
+          var name = dis.readUTF();
+          var numBuckets = dis.readInt();
+          var colocatedWith = dis.readUTF();
           readEndOfRecord(dis);
-          PRPersistentConfig config = new PRPersistentConfig(numBuckets, colocatedWith);
+          var config = new PRPersistentConfig(numBuckets, colocatedWith);
           if (logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
             logger.trace(LogMarker.PERSIST_RECOVERY_VERBOSE, "IFREC_PR_CREATE name={}, config={}",
                 name, config);
@@ -424,13 +423,13 @@ public class DiskInitFileParser {
         }
           break;
         case DiskInitFile.IFREC_GEMFIRE_VERSION: {
-          short ver = VersioningIO.readOrdinal(dis);
+          var ver = VersioningIO.readOrdinal(dis);
           readEndOfRecord(dis);
           if (logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
             logger.trace(LogMarker.PERSIST_RECOVERY_VERBOSE, "IFREC_GEMFIRE_VERSION version={}",
                 ver);
           }
-          final KnownVersion gfversion = Versioning.getKnownVersionOrDefault(
+          final var gfversion = Versioning.getKnownVersionOrDefault(
               Versioning.getVersion(ver), null);
           if (gfversion == null) {
             throw new DiskAccessException(
@@ -441,7 +440,7 @@ public class DiskInitFileParser {
           break;
         }
         case DiskInitFile.IFREC_PR_DESTROY: {
-          String name = dis.readUTF();
+          var name = dis.readUTF();
           readEndOfRecord(dis);
           if (logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
             logger.trace(LogMarker.PERSIST_RECOVERY_VERBOSE, "IFREC_PR_DESTROY name={}", name);
@@ -450,8 +449,8 @@ public class DiskInitFileParser {
         }
           break;
         case DiskInitFile.IFREC_ADD_CANONICAL_MEMBER_ID: {
-          int id = dis.readInt();
-          Object object = DataSerializer.readObject(dis);
+          var id = dis.readInt();
+          var object = DataSerializer.readObject(dis);
           readEndOfRecord(dis);
           if (logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
             logger.trace(LogMarker.PERSIST_RECOVERY_VERBOSE,
@@ -461,7 +460,7 @@ public class DiskInitFileParser {
           break;
         }
         case DiskInitFile.IFREC_REVOKE_DISK_STORE_ID: {
-          PersistentMemberPattern pattern = new PersistentMemberPattern();
+          var pattern = new PersistentMemberPattern();
           InternalDataSerializer.invokeFromData(pattern, dis);
           readEndOfRecord(dis);
           if (logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
@@ -484,9 +483,9 @@ public class DiskInitFileParser {
   }
 
   private void readOplogMagicSeqRecord(DataInput dis, OPLOG_TYPE type) throws IOException {
-    byte[] seq = new byte[OPLOG_TYPE.getLen()];
+    var seq = new byte[OPLOG_TYPE.getLen()];
     dis.readFully(seq);
-    for (int i = 0; i < OPLOG_TYPE.getLen(); i++) {
+    for (var i = 0; i < OPLOG_TYPE.getLen(); i++) {
       if (seq[i] != type.getBytes()[i]) {
         if (logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
           logger.trace(LogMarker.PERSIST_RECOVERY_VERBOSE,
@@ -497,8 +496,8 @@ public class DiskInitFileParser {
       }
     }
     if (logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
-      StringBuilder sb = new StringBuilder();
-      for (int i = 0; i < OPLOG_TYPE.getLen(); i++) {
+      var sb = new StringBuilder();
+      for (var i = 0; i < OPLOG_TYPE.getLen(); i++) {
         sb.append(" ").append(seq[i]);
       }
       logger.trace(LogMarker.PERSIST_RECOVERY_VERBOSE, "oplog magic code: {}", sb);
@@ -512,10 +511,10 @@ public class DiskInitFileParser {
    * @return null if class can not be loaded; otherwise loaded Class
    */
   private static Class<?> readClass(DataInput di) throws IOException {
-    int len = di.readInt();
-    byte[] bytes = new byte[len];
+    var len = di.readInt();
+    var bytes = new byte[len];
     di.readFully(bytes);
-    String className = new String(bytes); // use default decoder
+    var className = new String(bytes); // use default decoder
     Class<?> result = null;
     try {
       result = InternalDataSerializer.getCachedClass(className); // see bug 41206
@@ -530,14 +529,14 @@ public class DiskInitFileParser {
    * @return class name
    */
   private static String readClassName(DataInput di) throws IOException {
-    int len = di.readInt();
-    byte[] bytes = new byte[len];
+    var len = di.readInt();
+    var bytes = new byte[len];
     di.readFully(bytes);
     return new String(bytes); // use default decoder
   }
 
   static long readDiskRegionID(CountingDataInputStream dis) throws IOException {
-    int bytesToRead = dis.readUnsignedByte();
+    var bytesToRead = dis.readUnsignedByte();
     if (bytesToRead <= DiskStoreImpl.MAX_RESERVED_DRID
         && bytesToRead >= DiskStoreImpl.MIN_RESERVED_DRID) {
       long result = dis.readByte(); // we want to sign extend this first byte
@@ -570,17 +569,17 @@ public class DiskInitFileParser {
 
   private PersistentMemberID readPMID(CountingDataInputStream dis)
       throws IOException, ClassNotFoundException {
-    int len = dis.readInt();
-    byte[] buf = new byte[len];
+    var len = dis.readInt();
+    var buf = new byte[len];
     dis.readFully(buf);
     return bytesToPMID(buf);
   }
 
   private PersistentMemberID bytesToPMID(byte[] bytes)
       throws IOException, ClassNotFoundException {
-    ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-    DataInputStream dis = new DataInputStream(bais);
-    PersistentMemberID result = new PersistentMemberID();
+    var bais = new ByteArrayInputStream(bytes);
+    var dis = new DataInputStream(bais);
+    var result = new PersistentMemberID();
     InternalDataSerializer.invokeFromData(result, dis);
     return result;
   }
@@ -595,11 +594,11 @@ public class DiskInitFileParser {
 
   public static void dump(File file) throws IOException, ClassNotFoundException {
     InputStream is = new FileInputStream(file);
-    CountingDataInputStream dis = new CountingDataInputStream(is, file.length());
+    var dis = new CountingDataInputStream(is, file.length());
 
     try {
-      DiskInitFileInterpreter interpreter = createPrintingInterpreter(null);
-      DiskInitFileParser parser = new DiskInitFileParser(dis, interpreter);
+      var interpreter = createPrintingInterpreter(null);
+      var parser = new DiskInitFileParser(dis, interpreter);
       parser.parse();
     } finally {
       is.close();
@@ -636,9 +635,9 @@ public class DiskInitFileParser {
         result = Boolean.TRUE;
       }
 
-      StringBuilder out = new StringBuilder();
+      var out = new StringBuilder();
       out.append(method.getName()).append("(");
-      for (Object arg : args) {
+      for (var arg : args) {
         out.append(arg);
         out.append(",");
       }

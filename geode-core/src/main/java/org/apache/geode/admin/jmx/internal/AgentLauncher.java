@@ -21,7 +21,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintStream;
 import java.io.Serializable;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.ArrayList;
@@ -29,7 +28,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.SortedMap;
 import java.util.StringTokenizer;
@@ -119,7 +117,7 @@ public class AgentLauncher {
   AgentLauncher(final String basename) {
     assert basename != null : "The base name used by the AgentLauncher to create files cannot be null!";
     this.basename = basename;
-    final String formattedBasename = this.basename.toLowerCase().replace(" ", "");
+    final var formattedBasename = this.basename.toLowerCase().replace(" ", "");
     startLogFileName = "start_" + formattedBasename + ".log";
     statusFileName = "." + formattedBasename + ".ser";
   }
@@ -128,19 +126,19 @@ public class AgentLauncher {
    * Prints information about the agent configuration options
    */
   public void configHelp() {
-    PrintStream out = System.out;
+    var out = System.out;
 
-    Properties props = AgentConfigImpl.getDefaultValuesForAllProperties();
+    var props = AgentConfigImpl.getDefaultValuesForAllProperties();
 
     out.println("\n");
     out.println("Agent configuration properties");
 
     SortedMap<String, String> map = new TreeMap<>();
 
-    int maxLength = 0;
-    for (final Object o : props.keySet()) {
-      String prop = (String) o;
-      int length = prop.length();
+    var maxLength = 0;
+    for (final var o : props.keySet()) {
+      var prop = (String) o;
+      var length = prop.length();
       if (length > maxLength) {
         maxLength = length;
       }
@@ -150,17 +148,17 @@ public class AgentLauncher {
               + props.getProperty(prop) + "\")");
     }
 
-    for (final Entry<String, String> entry : map.entrySet()) {
-      String prop = entry.getKey();
+    for (final var entry : map.entrySet()) {
+      var prop = entry.getKey();
       out.print("  ");
       out.println(prop);
 
-      String description = entry.getValue();
-      StringTokenizer st = new StringTokenizer(description, " ");
+      var description = entry.getValue();
+      var st = new StringTokenizer(description, " ");
       out.print("    ");
-      int printed = 6;
+      var printed = 6;
       while (st.hasMoreTokens()) {
-        String word = st.nextToken();
+        var word = st.nextToken();
         if (printed + word.length() > 72) {
           out.print("\n    ");
           printed = 6;
@@ -189,22 +187,22 @@ public class AgentLauncher {
     final List<String> vmArgs = new ArrayList<>();
     options.put(VMARGS, vmArgs);
 
-    final Properties agentProps = new Properties();
+    final var agentProps = new Properties();
     options.put(AGENT_PROPS, agentProps);
 
-    for (final String arg : args) {
+    for (final var arg : args) {
       if (arg.startsWith("-classpath=")) {
         options.put(CLASSPATH, arg.substring("-classpath=".length()));
       } else if (arg.startsWith("-dir=")) {
-        final File workingDirectory = processDirOption(options, arg.substring("-dir=".length()));
+        final var workingDirectory = processDirOption(options, arg.substring("-dir=".length()));
         System.setProperty(AgentConfigImpl.AGENT_PROPSFILE_PROPERTY_NAME,
             new File(workingDirectory, AgentConfig.DEFAULT_PROPERTY_FILE).getPath());
       } else if (arg.startsWith("-J")) {
         vmArgs.add(arg.substring(2));
       } else if (arg.contains("=")) {
-        final int index = arg.indexOf("=");
-        final String prop = arg.substring(0, index);
-        final String value = arg.substring(index + 1);
+        final var index = arg.indexOf("=");
+        final var prop = arg.substring(0, index);
+        final var value = arg.substring(index + 1);
 
         // if appendto-log-file is set, put it in options; it is not set as an agent prop
         if (prop.equals(APPENDTO_LOG_FILE)) {
@@ -243,7 +241,7 @@ public class AgentLauncher {
    * Agent.
    */
   public void start(final String[] args) throws Exception {
-    final Map<String, Object> options = getStartOptions(args);
+    final var options = getStartOptions(args);
 
     workingDirectory = IOUtils.tryGetCanonicalFileElseGetAbsoluteFile((File) options.get(DIR));
 
@@ -264,7 +262,7 @@ public class AgentLauncher {
   }
 
   private void verifyAndClearStatus() throws Exception {
-    final Status status = getStatus();
+    final var status = getStatus();
 
     if (status != null && status.state != SHUTDOWN) {
       throw new IllegalStateException(
@@ -275,15 +273,15 @@ public class AgentLauncher {
   }
 
   private String[] buildCommandLine(final Map<String, Object> options) {
-    final List<String> commands = JavaCommandBuilder.buildCommand(AgentLauncher.class.getName(),
+    final var commands = JavaCommandBuilder.buildCommand(AgentLauncher.class.getName(),
         (String) options.get(CLASSPATH), null, (List<String>) options.get(VMARGS));
 
     commands.add("server");
     commands.add("-dir=" + workingDirectory);
 
-    final Properties agentProps = (Properties) options.get(AGENT_PROPS);
+    final var agentProps = (Properties) options.get(AGENT_PROPS);
 
-    for (final Object key : agentProps.keySet()) {
+    for (final var key : agentProps.keySet()) {
       commands.add(key + "=" + agentProps.get(key.toString()));
     }
 
@@ -293,7 +291,7 @@ public class AgentLauncher {
   private void printCommandLine(final String[] commandLine) {
     if (PRINT_LAUNCH_COMMAND) {
       System.out.print("Starting " + basename + " with command:\n");
-      for (final String command : commandLine) {
+      for (final var command : commandLine) {
         System.out.print(command);
         System.out.print(' ');
       }
@@ -305,7 +303,7 @@ public class AgentLauncher {
       throws IOException {
     // initialize the startup log starting with a fresh log file (where all startup messages are
     // printed)
-    final File startLogFile = IOUtils
+    final var startLogFile = IOUtils
         .tryGetCanonicalFileElseGetAbsoluteFile(new File(workingDirectory, startLogFileName));
 
     if (startLogFile.exists() && !startLogFile.delete()) {
@@ -319,7 +317,7 @@ public class AgentLauncher {
 
     printCommandLine(commandLine);
 
-    final int pid = OSProcess.bgexec(commandLine, workingDirectory, startLogFile, false, env);
+    final var pid = OSProcess.bgexec(commandLine, workingDirectory, startLogFile, false, env);
 
     System.out.println(
         String.format("Starting JMX Agent with pid: %s", pid));
@@ -328,7 +326,7 @@ public class AgentLauncher {
   }
 
   private void pollAgentUntilRunning() throws Exception {
-    Status status = spinReadStatus();
+    var status = spinReadStatus();
 
     // TODO this loop could recurse indefinitely if the GemFire JMX Agent's state never changes from
     // STARTING
@@ -355,15 +353,15 @@ public class AgentLauncher {
    * Starts the GemFire JMX Agent "server" process with the given command line arguments.
    */
   public void server(final String[] args) throws Exception {
-    final Map<String, Object> options = getStartOptions(args);
+    final var options = getStartOptions(args);
 
     workingDirectory = IOUtils.tryGetCanonicalFileElseGetAbsoluteFile((File) options.get(DIR));
 
     writeStatus(createStatus(basename, STARTING, OSProcess.getId()));
 
-    final Agent agent = createAgent((Properties) options.get(AGENT_PROPS));
+    final var agent = createAgent((Properties) options.get(AGENT_PROPS));
 
-    final Thread thread = createAgentProcessThread(agent);
+    final var thread = createAgentProcessThread(agent);
     thread.start();
 
     // periodically check and see if the JMX Agent has been told to stop
@@ -374,7 +372,7 @@ public class AgentLauncher {
     ClusterDistributionManager.setIsDedicatedAdminVM(true);
     SystemFailure.setExitOK(true);
 
-    final AgentConfigImpl config = new AgentConfigImpl(props);
+    final var config = new AgentConfigImpl(props);
 
     // see bug 43760
     if (config.getLogFile() == null || "".equals(config.getLogFile().trim())) {
@@ -420,7 +418,7 @@ public class AgentLauncher {
       }
 
       private void handleGemFireException(final GemFireException e) {
-        String message = String.format("Server failed to start: %s",
+        var message = String.format("Server failed to start: %s",
             e.getMessage());
 
         if (e.getCause() != null) {
@@ -455,7 +453,7 @@ public class AgentLauncher {
 
       if (isStatus(SHUTDOWN_PENDING, SHUTDOWN_PENDING_AFTER_FAILED_STARTUP)) {
         agent.stop();
-        final ExitCode exitCode =
+        final var exitCode =
             (isStatus(SHUTDOWN_PENDING_AFTER_FAILED_STARTUP) ? ExitCode.FATAL : ExitCode.NORMAL);
         writeStatus(createStatus(status, SHUTDOWN));
         exitCode.doSystemExit();
@@ -472,7 +470,7 @@ public class AgentLauncher {
 
     options.put(DIR, IOUtils.tryGetCanonicalFileElseGetAbsoluteFile(new File(".")));
 
-    for (final String arg : args) {
+    for (final var arg : args) {
       if (arg.equals("stop") || arg.equals("status")) {
         // expected
       } else if (arg.startsWith("-dir=")) {
@@ -490,11 +488,11 @@ public class AgentLauncher {
    * Stops a running JMX Agent by setting the status to "shutdown pending".
    */
   public void stop(final String[] args) throws Exception {
-    final Map<String, Object> options = getStopOptions(args);
+    final var options = getStopOptions(args);
 
     workingDirectory = IOUtils.tryGetCanonicalFileElseGetAbsoluteFile((File) options.get(DIR));
 
-    ExitCode exitCode = ExitCode.FATAL;
+    var exitCode = ExitCode.FATAL;
 
     if (new File(workingDirectory, statusFileName).exists()) {
       spinReadStatus();
@@ -525,7 +523,7 @@ public class AgentLauncher {
   }
 
   private void pollAgentForShutdown() throws InterruptedException {
-    final long endTime = (System.currentTimeMillis() + 20000);
+    final var endTime = (System.currentTimeMillis() + 20000);
     long clock = 0;
 
     while (clock < endTime && !isStatus(SHUTDOWN)) {
@@ -587,7 +585,7 @@ public class AgentLauncher {
   }
 
   void deleteStatus(final File workingDirectory) throws IOException {
-    final File statusFile = new File(workingDirectory, statusFileName);
+    final var statusFile = new File(workingDirectory, statusFileName);
 
     if (statusFile.exists() && !statusFile.delete()) {
       throw new IOException("Could not delete status file (" + statusFile.getAbsolutePath() + ")");
@@ -637,7 +635,7 @@ public class AgentLauncher {
   protected Status spinReadStatus() {
     Status status = null;
 
-    final long endTime = (System.currentTimeMillis() + 20000);
+    final var endTime = (System.currentTimeMillis() + 20000);
     long clock = 0;
 
     while (status == null && clock < endTime) {
@@ -695,7 +693,7 @@ public class AgentLauncher {
 
   protected static Status createStatus(final String basename, final int state, final int pid,
       final String msg, final Throwable t) {
-    final Status status = new Status(basename);
+    final var status = new Status(basename);
     status.state = state;
     status.pid = pid;
     status.msg = msg;
@@ -724,7 +722,7 @@ public class AgentLauncher {
 
   protected static File processDirOption(final Map<String, Object> options, final String dirValue)
       throws FileNotFoundException {
-    final File workingDirectory = new File(dirValue);
+    final var workingDirectory = new File(dirValue);
 
     if (!workingDirectory.exists()) {
       throw new FileNotFoundException(
@@ -744,7 +742,7 @@ public class AgentLauncher {
    * @param message a String to output to the command line indicating the user error.
    */
   private static void usage(final String message) {
-    final PrintStream out = System.out;
+    final var out = System.out;
 
     out.println("\n** " + message + "\n");
 
@@ -785,10 +783,10 @@ public class AgentLauncher {
     // or DS code inside the current process.
     SystemFailure.loadEmergencyClasses();
 
-    final AgentLauncher launcher = new AgentLauncher("Agent");
+    final var launcher = new AgentLauncher("Agent");
 
     try {
-      final String command = args[0];
+      final var command = args[0];
 
       if (command.equalsIgnoreCase("start")) {
         launcher.start(args);
@@ -800,7 +798,7 @@ public class AgentLauncher {
         launcher.status(args);
       } else if (command.toLowerCase().matches("-{0,2}help")) {
         if (args.length > 1) {
-          final String topic = args[1];
+          final var topic = args[1];
 
           if (topic.equals("config")) {
             launcher.configHelp();
@@ -857,7 +855,7 @@ public class AgentLauncher {
 
     @Override
     public String toString() {
-      final StringBuilder buffer = new StringBuilder();
+      final var buffer = new StringBuilder();
 
       if (pid == Integer.MIN_VALUE && state == SHUTDOWN && msg != null) {
         buffer.append(msg);

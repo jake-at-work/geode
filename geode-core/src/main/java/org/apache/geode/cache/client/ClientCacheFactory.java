@@ -35,7 +35,6 @@ import org.apache.geode.internal.cache.CacheConfig;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.internal.cache.InternalCacheBuilder;
 import org.apache.geode.metrics.internal.InternalDistributedSystemMetricsService;
-import org.apache.geode.metrics.internal.MetricsService;
 import org.apache.geode.net.SSLParameterExtension;
 import org.apache.geode.pdx.PdxInstance;
 import org.apache.geode.pdx.PdxSerializer;
@@ -225,12 +224,12 @@ public class ClientCacheFactory {
 
   private ClientCache basicCreate() {
     synchronized (ClientCacheFactory.class) {
-      InternalClientCache instance = getInternalClientCache();
+      var instance = getInternalClientCache();
 
       {
-        String propValue = dsProps.getProperty(MCAST_PORT);
+        var propValue = dsProps.getProperty(MCAST_PORT);
         if (propValue != null) {
-          int mcastPort = Integer.parseInt(propValue);
+          var mcastPort = Integer.parseInt(propValue);
           if (mcastPort != 0) {
             throw new IllegalStateException(
                 "On a client cache the mcast-port must be set to 0 or not set. It was set to "
@@ -239,7 +238,7 @@ public class ClientCacheFactory {
         }
       }
       {
-        String propValue = dsProps.getProperty(LOCATORS);
+        var propValue = dsProps.getProperty(LOCATORS);
         if (propValue != null && !propValue.isEmpty()) {
           throw new IllegalStateException(
               "On a client cache the locators property must be set to an empty string or not set."
@@ -249,7 +248,7 @@ public class ClientCacheFactory {
       }
       dsProps.setProperty(MCAST_PORT, "0");
       dsProps.setProperty(LOCATORS, "");
-      InternalDistributedSystem system = connectInternalDistributedSystem();
+      var system = connectInternalDistributedSystem();
 
       if (instance != null && !instance.isClosed()) {
         // this is ok; just make sure it is a client cache
@@ -276,7 +275,7 @@ public class ClientCacheFactory {
   }
 
   private InternalDistributedSystem connectInternalDistributedSystem() {
-    MetricsService.Builder metricsServiceBuilder =
+    var metricsServiceBuilder =
         new InternalDistributedSystemMetricsService.Builder()
             .setIsClient(true);
     return InternalDistributedSystem.connectInternal(dsProps, null, metricsServiceBuilder);
@@ -711,7 +710,7 @@ public class ClientCacheFactory {
    *         ClientCacheFactory
    */
   public static synchronized ClientCache getAnyInstance() {
-    InternalClientCache instance = getInternalClientCache();
+    var instance = getInternalClientCache();
     if (instance == null) {
       throw new CacheClosedException(
           "A cache has not yet been created.");

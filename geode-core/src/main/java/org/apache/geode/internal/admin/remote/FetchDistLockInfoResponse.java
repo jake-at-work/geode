@@ -44,17 +44,17 @@ public class FetchDistLockInfoResponse extends AdminResponse {
    */
   public static FetchDistLockInfoResponse create(DistributionManager dm,
       InternalDistributedMember recipient) {
-    FetchDistLockInfoResponse m = new FetchDistLockInfoResponse();
-    InternalDistributedMember id = dm.getDistributionManagerId();
+    var m = new FetchDistLockInfoResponse();
+    var id = dm.getDistributionManagerId();
     Set entries = DLockService.snapshotAllServices().entrySet();
     List infos = new ArrayList();
-    for (final Object o : entries) {
-      Map.Entry entry = (Map.Entry) o;
-      String serviceName = entry.getKey().toString();
-      DLockService service = (DLockService) entry.getValue();
+    for (final var o : entries) {
+      var entry = (Map.Entry) o;
+      var serviceName = entry.getKey().toString();
+      var service = (DLockService) entry.getValue();
       Set serviceEntries = service.snapshotService().entrySet();
-      for (final Object serviceEntry : serviceEntries) {
-        Map.Entry token = (Map.Entry) serviceEntry;
+      for (final var serviceEntry : serviceEntries) {
+        var token = (Map.Entry) serviceEntry;
         infos.add(new RemoteDLockInfo(serviceName, token.getKey().toString(),
             (DLockToken) token.getValue(), id));
       }

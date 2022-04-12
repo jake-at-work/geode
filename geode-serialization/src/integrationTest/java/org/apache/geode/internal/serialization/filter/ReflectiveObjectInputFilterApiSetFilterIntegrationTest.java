@@ -49,7 +49,7 @@ public class ReflectiveObjectInputFilterApiSetFilterIntegrationTest {
       throws ClassNotFoundException, IllegalAccessException, InvocationTargetException,
       NoSuchMethodException {
     ObjectInputFilterApi api = new ReflectiveObjectInputFilterApi(apiPackage);
-    Object filter = api.createFilter("!*");
+    var filter = api.createFilter("!*");
 
     api.setSerialFilter(filter);
 

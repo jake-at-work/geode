@@ -29,7 +29,7 @@ public class PdxTest {
 
   @Test
   public void getUri() {
-    Pdx config = new Pdx();
+    var config = new Pdx();
     assertThat(config.getLinks().getList())
         .isEqualTo("/configurations/pdx");
     assertThat(config.getLinks().getSelf())
@@ -43,8 +43,8 @@ public class PdxTest {
 
   @Test
   public void remembersAutoSerializer() {
-    Pdx pdx = new Pdx();
-    AutoSerializer autoSerializer = new AutoSerializer(true, "pat");
+    var pdx = new Pdx();
+    var autoSerializer = new AutoSerializer(true, "pat");
 
     pdx.setAutoSerializer(autoSerializer);
 
@@ -53,8 +53,8 @@ public class PdxTest {
 
   @Test
   public void setAutoSerializerThrowsGivenNonNullPdxSerializer() {
-    Pdx pdx = new Pdx();
-    AutoSerializer autoSerializer = new AutoSerializer(true, "pat");
+    var pdx = new Pdx();
+    var autoSerializer = new AutoSerializer(true, "pat");
     pdx.setPdxSerializer(new ClassName("name"));
 
     assertThatThrownBy(() -> pdx.setAutoSerializer(autoSerializer))
@@ -64,8 +64,8 @@ public class PdxTest {
 
   @Test
   public void setPdxSerializerThrowsGivenNonNullAutoSerializer() {
-    Pdx pdx = new Pdx();
-    ClassName pdxSerializer = new ClassName("name");
+    var pdx = new Pdx();
+    var pdxSerializer = new ClassName("name");
     pdx.setAutoSerializer(new AutoSerializer(true, "pat"));
 
     assertThatThrownBy(() -> pdx.setPdxSerializer(pdxSerializer))
@@ -75,14 +75,14 @@ public class PdxTest {
 
   @Test
   public void serializationOfNonDefaultsWithAutoSerializer() throws Exception {
-    Pdx originalPdx = new Pdx();
+    var originalPdx = new Pdx();
     originalPdx.setDiskStoreName("diskStore");
     originalPdx.setIgnoreUnreadFields(true);
     originalPdx.setReadSerialized(true);
     originalPdx.setAutoSerializer(new AutoSerializer(true, "pat1"));
 
-    String json = mapper.writeValueAsString(originalPdx);
-    Pdx deserializedPdx = mapper.readValue(json, Pdx.class);
+    var json = mapper.writeValueAsString(originalPdx);
+    var deserializedPdx = mapper.readValue(json, Pdx.class);
 
     assertThat(deserializedPdx.getDiskStoreName()).as("diskStoreName").isEqualTo("diskStore");
     assertThat(deserializedPdx.isIgnoreUnreadFields()).as("IgnoreUnreadFields").isTrue();
@@ -96,14 +96,14 @@ public class PdxTest {
 
   @Test
   public void serializationOfNonDefaultsWithPdxSerializer() throws Exception {
-    Pdx originalPdx = new Pdx();
+    var originalPdx = new Pdx();
     originalPdx.setDiskStoreName("diskStore");
     originalPdx.setIgnoreUnreadFields(true);
     originalPdx.setReadSerialized(true);
     originalPdx.setPdxSerializer(new ClassName("name"));
 
-    String json = mapper.writeValueAsString(originalPdx);
-    Pdx deserializedPdx = mapper.readValue(json, Pdx.class);
+    var json = mapper.writeValueAsString(originalPdx);
+    var deserializedPdx = mapper.readValue(json, Pdx.class);
 
     assertThat(deserializedPdx.getDiskStoreName()).as("diskStoreName").isEqualTo("diskStore");
     assertThat(deserializedPdx.isIgnoreUnreadFields()).as("IgnoreUnreadFields").isTrue();
@@ -117,10 +117,10 @@ public class PdxTest {
 
   @Test
   public void serializationOfDefaults() throws Exception {
-    Pdx originalPdx = new Pdx();
+    var originalPdx = new Pdx();
 
-    String json = mapper.writeValueAsString(originalPdx);
-    Pdx deserializedPdx = mapper.readValue(json, Pdx.class);
+    var json = mapper.writeValueAsString(originalPdx);
+    var deserializedPdx = mapper.readValue(json, Pdx.class);
 
     assertThat(deserializedPdx.getDiskStoreName()).as("diskStoreName").isNull();
     assertThat(deserializedPdx.isIgnoreUnreadFields()).as("IgnoreUnreadFields").isNull();

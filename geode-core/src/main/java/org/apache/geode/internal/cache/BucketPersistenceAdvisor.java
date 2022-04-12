@@ -23,18 +23,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Function;
 
 import org.apache.logging.log4j.Logger;
 
-import org.apache.geode.CancelCriterion;
 import org.apache.geode.annotations.VisibleForTesting;
 import org.apache.geode.cache.persistence.PartitionOfflineException;
 import org.apache.geode.distributed.DistributedLockService;
-import org.apache.geode.distributed.internal.DistributionConfig;
 import org.apache.geode.distributed.internal.ReplyException;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.cache.PartitionedRegion.BucketLock;
@@ -76,10 +73,10 @@ public class BucketPersistenceAdvisor extends PersistenceAdvisorImpl {
     this(cacheDistributionAdvisor, distributedLockService, storage, regionPath, diskStats,
         memberManager, bucketLock, proxyBucketRegion,
         internalPersistenceAdvisor -> {
-          CacheDistributionAdvisor advisor =
+          var advisor =
               internalPersistenceAdvisor.getCacheDistributionAdvisor();
-          DistributionConfig config = advisor.getDistributionManager().getConfig();
-          CancelCriterion stopper = advisor.getAdvisee().getCancelCriterion();
+          var config = advisor.getDistributionManager().getConfig();
+          var stopper = advisor.getAdvisee().getCancelCriterion();
 
           return new MembershipChangeListenerFactory()
               .setWarningDelay(ofSeconds(config.getAckWaitThreshold() / 2))
@@ -112,7 +109,7 @@ public class BucketPersistenceAdvisor extends PersistenceAdvisorImpl {
     }
     // Make sure any removes that we saw during recovery are applied.
     removeListener(recoveryListener);
-    for (PersistentMemberID id : recoveryListener.getRemovedMembers()) {
+    for (var id : recoveryListener.getRemovedMembers()) {
       removeMember(id);
     }
     if (someMemberRecoveredLatch.getCount() > 0) {
@@ -146,7 +143,7 @@ public class BucketPersistenceAdvisor extends PersistenceAdvisorImpl {
       bucketLock.unlock();
     } else {
       if (membersToWaitFor != null && !membersToWaitFor.isEmpty()) {
-        String message = String.format(
+        var message = String.format(
             "Region %s bucket %s has persistent data that is no longer online stored at these locations: %s",
             proxyBucket.getPartitionedRegion().getFullPath(),
             proxyBucket.getBucketId(), membersToWaitFor);
@@ -221,16 +218,16 @@ public class BucketPersistenceAdvisor extends PersistenceAdvisorImpl {
    * those copies.
    */
   void initializeMembershipView() {
-    MembershipChangeListener listener = membershipChangeListenerProvider.apply(this);
+    var listener = membershipChangeListenerProvider.apply(this);
     addListener(listener);
-    boolean interrupted = false;
+    var interrupted = false;
     try {
       while (!isClosed) {
         cacheDistributionAdvisor.getAdvisee().getCancelCriterion().checkCancelInProgress(null);
 
         // Look for any online copies of the bucket.
         // If there are any, get a membership view from them.
-        Map<InternalDistributedMember, PersistentMemberID> onlineMembers =
+        var onlineMembers =
             cacheDistributionAdvisor.adviseInitializedPersistentMembers();
         if (onlineMembers != null) {
           if (updateMembershipView(onlineMembers.keySet())) {
@@ -238,7 +235,7 @@ public class BucketPersistenceAdvisor extends PersistenceAdvisorImpl {
           }
         }
 
-        Set<InternalDistributedMember> postRecoveryMembers =
+        var postRecoveryMembers =
             ((BucketAdvisor) cacheDistributionAdvisor).adviseRecoveredFromDisk();
         if (postRecoveryMembers != null) {
           if (updateMembershipView(postRecoveryMembers)) {
@@ -246,7 +243,7 @@ public class BucketPersistenceAdvisor extends PersistenceAdvisorImpl {
           }
         }
 
-        Set<PersistentMemberID> membersToWaitFor = getPersistedMembers();
+        var membersToWaitFor = getPersistedMembers();
 
         if (!membersToWaitFor.isEmpty()) {
           setWaitingOnMembers(membersToWaitFor, membersToWaitFor);
@@ -270,7 +267,7 @@ public class BucketPersistenceAdvisor extends PersistenceAdvisorImpl {
   }
 
   private boolean updateMembershipView(Collection<InternalDistributedMember> targets) {
-    for (InternalDistributedMember target : targets) {
+    for (var target : targets) {
       try {
         updateMembershipView(target, false);
         return true;
@@ -311,14 +308,14 @@ public class BucketPersistenceAdvisor extends PersistenceAdvisorImpl {
     if (recovering) {
       return super.getMissingMembers();
     }
-    Set<PersistentMemberID> offlineMembers = getPersistedMembers();
+    var offlineMembers = getPersistedMembers();
     offlineMembers.removeAll(cacheDistributionAdvisor.advisePersistentMembers().values());
     return offlineMembers;
   }
 
   @Override
   public PersistentMemberID generatePersistentID() {
-    PersistentMemberID id = persistentMemberView.generatePersistentID();
+    var id = persistentMemberView.generatePersistentID();
     if (id == null) {
       return id;
     }
@@ -336,7 +333,7 @@ public class BucketPersistenceAdvisor extends PersistenceAdvisorImpl {
     persistentMemberView.getOfflineAndEqualMembers();
     persistentMemberView.getMyInitializingID();
     persistentMemberView.getMyPersistentID();
-    final StringBuilder buf = new StringBuilder(2000);
+    final var buf = new StringBuilder(2000);
     if (infoMsg != null) {
       buf.append(infoMsg);
       buf.append(": ");
@@ -347,21 +344,21 @@ public class BucketPersistenceAdvisor extends PersistenceAdvisorImpl {
     buf.append(persistentMemberView.getMyInitializingID());
 
     buf.append(lineSeparator()).append("ONLINE MEMBERS:").append(lineSeparator());
-    for (PersistentMemberID id : persistentMemberView.getOnlineMembers()) {
+    for (var id : persistentMemberView.getOnlineMembers()) {
       buf.append("\t");
       buf.append(id);
       buf.append(lineSeparator());
     }
 
     buf.append(lineSeparator()).append("OFFLINE MEMBERS:").append(lineSeparator());
-    for (PersistentMemberID id : persistentMemberView.getOfflineMembers()) {
+    for (var id : persistentMemberView.getOfflineMembers()) {
       buf.append("\t");
       buf.append(id);
       buf.append(lineSeparator());
     }
 
     buf.append(lineSeparator()).append("OFFLINE AND EQUAL MEMBERS:").append(lineSeparator());
-    for (PersistentMemberID id : persistentMemberView.getOfflineAndEqualMembers()) {
+    for (var id : persistentMemberView.getOfflineAndEqualMembers()) {
       buf.append("\t");
       buf.append(id);
       buf.append(lineSeparator());
@@ -377,7 +374,7 @@ public class BucketPersistenceAdvisor extends PersistenceAdvisorImpl {
    * This method will throw an exception if the recovery thread encountered an exception.
    */
   void waitForPrimaryPersistentRecovery() {
-    boolean interupted = false;
+    var interupted = false;
     while (true) {
       try {
         someMemberRecoveredLatch.await();
@@ -392,9 +389,9 @@ public class BucketPersistenceAdvisor extends PersistenceAdvisorImpl {
     }
 
     if (recoveryException != null) {
-      StackTraceElement[] oldStack = recoveryException.getStackTrace();
+      var oldStack = recoveryException.getStackTrace();
       recoveryException.fillInStackTrace();
-      ArrayList<StackTraceElement> newStack = new ArrayList<>();
+      var newStack = new ArrayList<StackTraceElement>();
       newStack.addAll(Arrays.asList(oldStack));
       newStack.addAll(Arrays.asList(recoveryException.getStackTrace()));
 

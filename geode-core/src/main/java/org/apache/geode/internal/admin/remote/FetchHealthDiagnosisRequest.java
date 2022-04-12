@@ -41,7 +41,7 @@ public class FetchHealthDiagnosisRequest extends AdminRequest {
    * Returns a <code>FetchHealthDiagnosisRequest</code> to be sent to the specified recipient.
    */
   public static FetchHealthDiagnosisRequest create(int id, GemFireHealth.Health healthCode) {
-    FetchHealthDiagnosisRequest m = new FetchHealthDiagnosisRequest();
+    var m = new FetchHealthDiagnosisRequest();
     m.init_(id, healthCode);
     return m;
   }
@@ -75,7 +75,7 @@ public class FetchHealthDiagnosisRequest extends AdminRequest {
   public void fromData(DataInput in,
       DeserializationContext context) throws IOException, ClassNotFoundException {
     super.fromData(in, context);
-    int i = in.readInt();
+    var i = in.readInt();
     GemFireHealth.Health oHC = DataSerializer.readObject(in);
     init_(i, oHC);
   }

@@ -37,17 +37,17 @@ public class AvailableConnectionManagerTest {
   public void useFirstReturnsNullGivenEmptyManager() {
     instance.getDeque().clear();
 
-    Connection result = instance.useFirst();
+    var result = instance.useFirst();
 
     assertThat(result).isNull();
   }
 
   @Test
   public void useFirstReturnsExpectedConnectionGivenManagerWithOneItem() {
-    Connection expected = createConnection();
+    var expected = createConnection();
     instance.getDeque().addFirst(expected);
 
-    Connection result = instance.useFirst();
+    var result = instance.useFirst();
 
     assertThat(result).isSameAs(expected);
     assertThat(instance.getDeque()).isEmpty();
@@ -56,11 +56,11 @@ public class AvailableConnectionManagerTest {
 
   @Test
   public void useFirstReturnsNullGivenManagerWithOneItemThatCantBeActivated() {
-    Connection expected = createConnection();
+    var expected = createConnection();
     when(expected.activate()).thenReturn(false);
     instance.getDeque().addFirst(expected);
 
-    Connection result = instance.useFirst();
+    var result = instance.useFirst();
 
     assertThat(result).isNull();
     assertThat(instance.getDeque()).isEmpty();
@@ -71,17 +71,17 @@ public class AvailableConnectionManagerTest {
   public void useFirstWithPredicateReturnsNullGivenEmptyManager() {
     instance.getDeque().clear();
 
-    Connection result = instance.useFirst(c -> true);
+    var result = instance.useFirst(c -> true);
 
     assertThat(result).isNull();
   }
 
   @Test
   public void useFirstWithPredicateReturnsExpectedGivenManagerWithOneItem() {
-    Connection expected = createConnection();
+    var expected = createConnection();
     instance.getDeque().addFirst(expected);
 
-    Connection result = instance.useFirst(c -> c == expected);
+    var result = instance.useFirst(c -> c == expected);
 
     assertThat(result).isSameAs(expected);
     assertThat(instance.getDeque()).isEmpty();
@@ -90,10 +90,10 @@ public class AvailableConnectionManagerTest {
 
   @Test
   public void useFirstWithPredicateReturnsNullGivenManagerWithOneItemThatDoesNotMatch() {
-    Connection expected = createConnection();
+    var expected = createConnection();
     instance.getDeque().addFirst(expected);
 
-    Connection result = instance.useFirst(c -> false);
+    var result = instance.useFirst(c -> false);
 
     assertThat(result).isNull();
     assertThat(instance.getDeque()).hasSize(1);
@@ -102,11 +102,11 @@ public class AvailableConnectionManagerTest {
 
   @Test
   public void useFirstWithPredicateReturnsNullGivenManagerWithOneItemThatCantBeActivated() {
-    Connection expected = createConnection();
+    var expected = createConnection();
     when(expected.activate()).thenReturn(false);
     instance.getDeque().addFirst(expected);
 
-    Connection result = instance.useFirst(c -> c == expected);
+    var result = instance.useFirst(c -> c == expected);
 
     assertThat(result).isNull();
     assertThat(instance.getDeque()).isEmpty();
@@ -115,12 +115,12 @@ public class AvailableConnectionManagerTest {
 
   @Test
   public void useFirstWithPredicateReturnsNullGivenManagerWithOneItemThatDoesNotMatchAfterBeingActivated() {
-    Connection expected = createConnection();
+    var expected = createConnection();
     when(expected.activate()).thenReturn(true);
     instance.getDeque().addFirst(expected);
-    final AtomicBoolean firstTime = new AtomicBoolean(true);
+    final var firstTime = new AtomicBoolean(true);
 
-    Connection result = instance.useFirst(c -> {
+    var result = instance.useFirst(c -> {
       if (firstTime.get()) {
         firstTime.set(false);
         return true;
@@ -138,24 +138,24 @@ public class AvailableConnectionManagerTest {
   public void removeReturnsFalseGivenConnectionNotInManager() {
     instance.getDeque().clear();
 
-    boolean result = instance.remove(createConnection());
+    var result = instance.remove(createConnection());
 
     assertThat(result).isFalse();
   }
 
   @Test
   public void removeReturnsTrueGivenConnectionInManager() {
-    Connection connection = createConnection();
+    var connection = createConnection();
     instance.getDeque().addFirst(connection);
 
-    boolean result = instance.remove(connection);
+    var result = instance.remove(connection);
 
     assertThat(result).isTrue();
   }
 
   @Test
   public void removeEmptiesDequeGivenConnectionInManager() {
-    Connection connection = createConnection();
+    var connection = createConnection();
     instance.getDeque().addFirst(connection);
 
     instance.remove(connection);
@@ -165,7 +165,7 @@ public class AvailableConnectionManagerTest {
 
   @Test
   public void addFirstWithTrueAddsActiveConnectionToManager() {
-    Connection connection = createConnection();
+    var connection = createConnection();
 
     instance.addFirst(connection, true);
 
@@ -176,7 +176,7 @@ public class AvailableConnectionManagerTest {
 
   @Test
   public void addFirstWithFalseAddsActiveConnectionToManager() {
-    Connection connection = createConnection();
+    var connection = createConnection();
 
     instance.addFirst(connection, false);
 
@@ -187,7 +187,7 @@ public class AvailableConnectionManagerTest {
 
   @Test
   public void addFirstAddsInactiveConnectionToManager() {
-    Connection connection = createConnection();
+    var connection = createConnection();
     when(connection.isActive()).thenReturn(false);
 
     instance.addFirst(connection, true);
@@ -200,7 +200,7 @@ public class AvailableConnectionManagerTest {
 
   @Test
   public void addLastWithTrueAddsActiveConnectionToManager() {
-    Connection connection = createConnection();
+    var connection = createConnection();
 
     instance.addLast(connection, true);
 
@@ -211,7 +211,7 @@ public class AvailableConnectionManagerTest {
 
   @Test
   public void addLastWithFalseAddsActiveConnectionToManager() {
-    Connection connection = createConnection();
+    var connection = createConnection();
 
     instance.addLast(connection, false);
 
@@ -222,7 +222,7 @@ public class AvailableConnectionManagerTest {
 
   @Test
   public void addLastAddsInactiveConnectionToManager() {
-    Connection connection = createConnection();
+    var connection = createConnection();
     when(connection.isActive()).thenReturn(false);
 
     instance.addLast(connection, true);
@@ -234,19 +234,19 @@ public class AvailableConnectionManagerTest {
 
   @Test
   public void addFirstTakesPrecedenceOverAddLast() {
-    Connection expected = createConnection();
+    var expected = createConnection();
 
     instance.addLast(createConnection(), true);
     instance.addFirst(expected, true);
     instance.addLast(createConnection(), true);
-    Connection connection = instance.useFirst();
+    var connection = instance.useFirst();
 
     assertThat(instance.getDeque()).hasSize(2);
     assertThat(connection).isSameAs(expected);
   }
 
   private Connection createConnection() {
-    Connection result = mock(Connection.class);
+    var result = mock(Connection.class);
     when(result.activate()).thenReturn(true);
     when(result.isActive()).thenReturn(true);
     return result;

@@ -20,7 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,7 +42,6 @@ import org.junit.runners.Parameterized.UseParametersRunnerFactory;
 import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
 import org.apache.geode.test.compiler.JarBuilder;
-import org.apache.geode.test.junit.rules.gfsh.GfshExecution;
 import org.apache.geode.test.junit.rules.gfsh.GfshRule;
 import org.apache.geode.test.junit.rules.gfsh.GfshScript;
 import org.apache.geode.test.junit.rules.gfsh.internal.ProcessLogger;
@@ -93,20 +91,20 @@ public class StandaloneClientManagementAPIAcceptanceTest {
 
   @Test
   public void clientCreatesRegionUsingClusterManagementService() throws Exception {
-    JarBuilder jarBuilder = new JarBuilder();
-    String filePath =
+    var jarBuilder = new JarBuilder();
+    var filePath =
         createTempFileFromResource(getClass(), "/ManagementClientCreateRegion.java")
             .getAbsolutePath();
     assertThat(filePath).as("java file resource not found").isNotBlank();
 
-    File outputJar = new File(tempDir.getRoot(), "output.jar");
+    var outputJar = new File(tempDir.getRoot(), "output.jar");
     jarBuilder.buildJar(outputJar, new File(filePath));
 
-    int[] availablePorts = AvailablePortHelper.getRandomAvailableTCPPorts(3);
-    int locatorPort = availablePorts[0];
-    int httpPort = availablePorts[1];
-    int jmxPort = availablePorts[2];
-    GfshExecution startCluster =
+    var availablePorts = AvailablePortHelper.getRandomAvailableTCPPorts(3);
+    var locatorPort = availablePorts[0];
+    var httpPort = availablePorts[1];
+    var jmxPort = availablePorts[2];
+    var startCluster =
         GfshScript.of(
             String.format(
                 "start locator --port=%d --http-service-port=%d --J=-Dgemfire.JMX_MANAGER_PORT=%d %s",
@@ -118,26 +116,26 @@ public class StandaloneClientManagementAPIAcceptanceTest {
     assertThat(startCluster.getProcess().exitValue())
         .as("Cluster did not start correctly").isEqualTo(0);
 
-    Process process = launchClientProcess(outputJar, httpPort);
+    var process = launchClientProcess(outputJar, httpPort);
 
-    boolean exited = process.waitFor(30, TimeUnit.SECONDS);
+    var exited = process.waitFor(30, TimeUnit.SECONDS);
     assertThat(exited).as("Process did not exit within 10 seconds").isTrue();
     assertThat(process.exitValue()).as("Process did not exit with 0 return code").isEqualTo(0);
 
-    GfshExecution listRegionsResult = GfshScript
+    var listRegionsResult = GfshScript
         .of(String.format("connect --locator=localhost[%d]", locatorPort), "list regions")
         .withName("listRegions").execute(gfsh);
     assertThat(listRegionsResult.getOutputText()).contains("REGION1");
   }
 
   private Process launchClientProcess(File outputJar, int httpPort) throws IOException {
-    Path javaBin = Paths.get(System.getProperty("java.home"), "bin", "java");
+    var javaBin = Paths.get(System.getProperty("java.home"), "bin", "java");
 
-    ProcessBuilder pBuilder = new ProcessBuilder();
+    var pBuilder = new ProcessBuilder();
     pBuilder.directory(tempDir.newFolder());
 
-    StringBuilder classPath = new StringBuilder();
-    for (String module : Arrays.asList(
+    var classPath = new StringBuilder();
+    for (var module : Arrays.asList(
         "commons-logging",
         "commons-lang3",
         "geode-common",
@@ -178,7 +176,7 @@ public class StandaloneClientManagementAPIAcceptanceTest {
 
     System.out.format("Launching client command: %s\n", command);
 
-    Process process = pBuilder.start();
+    var process = pBuilder.start();
     clientProcessLogger = new ProcessLogger(process, "clientCreateRegion");
     clientProcessLogger.start();
     return process;
@@ -198,8 +196,8 @@ public class StandaloneClientManagementAPIAcceptanceTest {
   }
 
   private String getJarOrClassesForModule(String module) {
-    String classPathValue = System.getProperty("java.class.path");
-    String classPath = Arrays.stream(classPathValue
+    var classPathValue = System.getProperty("java.class.path");
+    var classPath = Arrays.stream(classPathValue
         .split(File.pathSeparator))
         .filter(x -> x.contains(module))
         // && (x.endsWith("/classes") || x.endsWith("/classes/java/main")

@@ -70,7 +70,7 @@ public class RVVExceptionB extends RVVException {
       receivedBaseVersion = previousVersion + 1;
       if (nextVersion > previousVersion) { // next version not known during
                                            // deserialization
-        long size = nextVersion - previousVersion;
+        var size = nextVersion - previousVersion;
         received = new BitSet((int) size);
       } else {
         received = new BitSet();
@@ -87,7 +87,7 @@ public class RVVExceptionB extends RVVException {
    * checks to see if any of the received versions can be merged into the start/end version numbers
    */
   private void consumeReceivedVersions() {
-    int idx = (int) (previousVersion - receivedBaseVersion + 1);
+    var idx = (int) (previousVersion - receivedBaseVersion + 1);
     while (previousVersion < nextVersion && received.get(idx)) {
       idx++;
       previousVersion++;
@@ -109,14 +109,14 @@ public class RVVExceptionB extends RVVException {
    */
   @Override
   public int compareTo(RVVException o) {
-    long thisVal = previousVersion;
-    long anotherVal = o.previousVersion;
+    var thisVal = previousVersion;
+    var anotherVal = o.previousVersion;
     return (thisVal < anotherVal ? -1 : (thisVal == anotherVal ? 0 : 1));
   }
 
   @Override
   public RVVExceptionB clone() {
-    RVVExceptionB clone = new RVVExceptionB(previousVersion, nextVersion);
+    var clone = new RVVExceptionB(previousVersion, nextVersion);
     if (received != null) {
       clone.received = (BitSet) received.clone();
       clone.receivedBaseVersion = receivedBaseVersion;
@@ -132,13 +132,13 @@ public class RVVExceptionB extends RVVException {
 
   @Override
   protected void writeReceived(DataOutput out) throws IOException {
-    LinkedList<Long> deltas = new LinkedList<>();
-    long last = nextVersion;
+    var deltas = new LinkedList<Long>();
+    var last = nextVersion;
 
     // TODO - it would be better just to serialize the longs[] in the BitSet
     // as is, rather than go through this delta encoding.
-    for (ReceivedVersionsReverseIterator it = receivedVersionsReverseIterator(); it.hasNext();) {
-      long version = it.next();
+    for (var it = receivedVersionsReverseIterator(); it.hasNext();) {
+      var version = it.next();
       deltas.addFirst(last - version);
       last = version;
     }
@@ -155,14 +155,14 @@ public class RVVExceptionB extends RVVException {
   @Override
   public String toString() {
     if (received != null) {
-      StringBuilder sb = new StringBuilder();
+      var sb = new StringBuilder();
       sb.append("e(n=").append(nextVersion).append("; p=").append(previousVersion);
       if (receivedBaseVersion != previousVersion + 1) {
         sb.append("; b=").append(receivedBaseVersion);
       }
-      int lastBit = (int) (nextVersion - receivedBaseVersion);
+      var lastBit = (int) (nextVersion - receivedBaseVersion);
       sb.append("; rb=[");
-      int i = received.nextSetBit((int) (previousVersion - receivedBaseVersion + 1));
+      var i = received.nextSetBit((int) (previousVersion - receivedBaseVersion + 1));
       if (i >= 0) {
         sb.append(i);
         for (i = received.nextSetBit(i + 1); (0 < i) && (i < lastBit); i =
@@ -189,7 +189,7 @@ public class RVVExceptionB extends RVVException {
     if (!super.sameAs(ex)) {
       return false;
     }
-    RVVExceptionB other = (RVVExceptionB) ex;
+    var other = (RVVExceptionB) ex;
     if (received == null) {
       return other.received == null || other.received.isEmpty();
     } else

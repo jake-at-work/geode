@@ -21,13 +21,10 @@ import static org.apache.geode.tools.pulse.internal.util.NameUtil.makeCompliantN
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -62,22 +59,22 @@ public class MemberGatewayHubService implements PulseService {
   public ObjectNode execute(final HttpServletRequest request) throws Exception {
 
     // get cluster object
-    Cluster cluster = repository.getCluster();
+    var cluster = repository.getCluster();
 
     // json object to be sent as response
-    ObjectNode responseJSON = mapper.createObjectNode();
+    var responseJSON = mapper.createObjectNode();
 
-    JsonNode requestDataJSON = mapper.readTree(request.getParameter("pulseData"));
-    String memberName = requestDataJSON.get("MemberGatewayHub").get("memberName").textValue();
+    var requestDataJSON = mapper.readTree(request.getParameter("pulseData"));
+    var memberName = requestDataJSON.get("MemberGatewayHub").get("memberName").textValue();
 
-    Cluster.Member clusterMember = cluster.getMember(makeCompliantName(memberName));
+    var clusterMember = cluster.getMember(makeCompliantName(memberName));
 
     if (clusterMember != null) {
       // response
       // get gateway receiver
-      Cluster.GatewayReceiver gatewayReceiver = clusterMember.getGatewayReceiver();
+      var gatewayReceiver = clusterMember.getGatewayReceiver();
 
-      boolean isGateway = false;
+      var isGateway = false;
 
       if (gatewayReceiver != null) {
         responseJSON.put("isGatewayReceiver", true);
@@ -89,17 +86,17 @@ public class MemberGatewayHubService implements PulseService {
       }
 
       // get gateway senders
-      Cluster.GatewaySender[] gatewaySenders = clusterMember.getMemberGatewaySenders();
+      var gatewaySenders = clusterMember.getMemberGatewaySenders();
 
       if (gatewaySenders.length > 0) {
         isGateway = true;
       }
       responseJSON.put("isGatewaySender", isGateway);
       // Senders
-      ArrayNode gatewaySendersJsonList = mapper.createArrayNode();
+      var gatewaySendersJsonList = mapper.createArrayNode();
 
-      for (Cluster.GatewaySender gatewaySender : gatewaySenders) {
-        ObjectNode gatewaySenderJSON = mapper.createObjectNode();
+      for (var gatewaySender : gatewaySenders) {
+        var gatewaySenderJSON = mapper.createObjectNode();
         gatewaySenderJSON.put("id", gatewaySender.getId());
         gatewaySenderJSON.put("queueSize", gatewaySender.getQueueSize());
         gatewaySenderJSON.put("status", gatewaySender.getStatus());
@@ -117,11 +114,11 @@ public class MemberGatewayHubService implements PulseService {
       responseJSON.set("gatewaySenders", gatewaySendersJsonList);
 
       // async event queues
-      Cluster.AsyncEventQueue[] asyncEventQueues = clusterMember.getMemberAsyncEventQueueList();
-      ArrayNode asyncEventQueueJsonList = mapper.createArrayNode();
+      var asyncEventQueues = clusterMember.getMemberAsyncEventQueueList();
+      var asyncEventQueueJsonList = mapper.createArrayNode();
 
-      for (Cluster.AsyncEventQueue asyncEventQueue : asyncEventQueues) {
-        ObjectNode asyncEventQueueJSON = mapper.createObjectNode();
+      for (var asyncEventQueue : asyncEventQueues) {
+        var asyncEventQueueJSON = mapper.createObjectNode();
         asyncEventQueueJSON.put("id", asyncEventQueue.getId());
         asyncEventQueueJSON.put("primary", asyncEventQueue.getPrimary());
         asyncEventQueueJSON.put("senderType", asyncEventQueue.isParallel());
@@ -136,15 +133,15 @@ public class MemberGatewayHubService implements PulseService {
       }
       responseJSON.set("asyncEventQueues", asyncEventQueueJsonList);
 
-      Map<String, Cluster.Region> clusterRegions = cluster.getClusterRegions();
+      var clusterRegions = cluster.getClusterRegions();
 
       List<Cluster.Region> clusterRegionsList = new ArrayList<>(clusterRegions.values());
 
-      ArrayNode regionsList = mapper.createArrayNode();
+      var regionsList = mapper.createArrayNode();
 
-      for (Cluster.Region region : clusterRegionsList) {
+      for (var region : clusterRegionsList) {
         if (region.getWanEnabled()) {
-          ObjectNode regionJSON = mapper.createObjectNode();
+          var regionJSON = mapper.createObjectNode();
           regionJSON.put("name", region.getName());
           regionsList.add(regionJSON);
         }

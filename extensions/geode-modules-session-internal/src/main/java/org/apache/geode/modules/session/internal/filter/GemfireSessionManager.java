@@ -15,7 +15,6 @@
 
 package org.apache.geode.modules.session.internal.filter;
 
-import java.util.Enumeration;
 import java.util.UUID;
 
 import javax.management.MBeanServer;
@@ -31,7 +30,6 @@ import org.slf4j.LoggerFactory;
 import org.apache.geode.cache.CacheClosedException;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.EntryNotFoundException;
-import org.apache.geode.cache.control.ResourceManager;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.modules.session.bootstrap.AbstractCache;
 import org.apache.geode.modules.session.bootstrap.ClientServerCache;
@@ -141,7 +139,7 @@ public class GemfireSessionManager implements SessionManager {
   @Override
   public void start(Object conf, ClassLoader loader) {
     referenceClassLoader = loader;
-    FilterConfig config = (FilterConfig) conf;
+    var config = (FilterConfig) conf;
 
     startDistributedSystem(config);
     initializeSessionCache(config);
@@ -153,7 +151,7 @@ public class GemfireSessionManager implements SessionManager {
       isolated = true;
     }
 
-    String sessionCookieName = config.getInitParameter(INIT_PARAM_SESSION_COOKIE_NAME);
+    var sessionCookieName = config.getInitParameter(INIT_PARAM_SESSION_COOKIE_NAME);
     if (sessionCookieName != null && !sessionCookieName.isEmpty()) {
       this.sessionCookieName = sessionCookieName;
       LOG.info("Session cookie name set to: {}", this.sessionCookieName);
@@ -189,7 +187,7 @@ public class GemfireSessionManager implements SessionManager {
    */
   @Override
   public HttpSession getSession(String id) {
-    GemfireHttpSession session = (GemfireHttpSession) sessionCache.getOperatingRegion().get(id);
+    var session = (GemfireHttpSession) sessionCache.getOperatingRegion().get(id);
 
     if (session != null) {
       if (session.justSerialized()) {
@@ -208,11 +206,11 @@ public class GemfireSessionManager implements SessionManager {
    */
   @Override
   public HttpSession wrapSession(ServletContext context, int maxInactiveInterval) {
-    String id = generateId();
-    GemfireHttpSession session = new GemfireHttpSession(id, context);
+    var id = generateId();
+    var session = new GemfireHttpSession(id, context);
 
     // Set up the attribute container depending on how things are configured
-    Object sessionPolicy = properties.get(CacheProperty.SESSION_DELTA_POLICY);
+    var sessionPolicy = properties.get(CacheProperty.SESSION_DELTA_POLICY);
     AbstractSessionAttributes attributes;
     if ("delta_queued".equals(sessionPolicy) || "queued".equals(sessionPolicy)) {
       attributes = new DeltaQueuedSessionAttributes();
@@ -248,7 +246,7 @@ public class GemfireSessionManager implements SessionManager {
   public void destroySession(String id) {
     if (!isStopping) {
       try {
-        GemfireHttpSession session = (GemfireHttpSession) sessionCache.getOperatingRegion().get(id);
+        var session = (GemfireHttpSession) sessionCache.getOperatingRegion().get(id);
         if (session != null && session.getJvmOwnerId().equals(jvmId)) {
           LOG.debug("Destroying session {}", id);
           sessionCache.getOperatingRegion().destroy(id);
@@ -301,7 +299,7 @@ public class GemfireSessionManager implements SessionManager {
    */
   private void startDistributedSystem(FilterConfig config) {
     // Get the distributedCache type
-    final String cacheType = config.getInitParameter(INIT_PARAM_CACHE_TYPE);
+    final var cacheType = config.getInitParameter(INIT_PARAM_CACHE_TYPE);
     if (CACHE_TYPE_CLIENT_SERVER.equals(cacheType)) {
       distributedCache = ClientServerCache.getInstance();
     } else if (CACHE_TYPE_PEER_TO_PEER.equals(cacheType)) {
@@ -313,13 +311,13 @@ public class GemfireSessionManager implements SessionManager {
 
     if (!distributedCache.isStarted()) {
       // Process all the init params and see if any apply to the distributed system.
-      for (Enumeration<String> e = config.getInitParameterNames(); e.hasMoreElements();) {
-        String param = e.nextElement();
+      for (var e = config.getInitParameterNames(); e.hasMoreElements();) {
+        var param = e.nextElement();
         if (!param.startsWith(GEMFIRE_PROPERTY)) {
           continue;
         }
 
-        String gemfireProperty = param.substring(GEMFIRE_PROPERTY.length());
+        var gemfireProperty = param.substring(GEMFIRE_PROPERTY.length());
         LOG.info("Setting gemfire property: {} = {}", gemfireProperty,
             config.getInitParameter(param));
         distributedCache.setProperty(gemfireProperty, config.getInitParameter(param));
@@ -334,7 +332,7 @@ public class GemfireSessionManager implements SessionManager {
    */
   private void initializeSessionCache(FilterConfig config) {
     // Retrieve the distributedCache
-    GemFireCacheImpl cache = (GemFireCacheImpl) CacheFactory.getAnyInstance();
+    var cache = (GemFireCacheImpl) CacheFactory.getAnyInstance();
     if (cache == null) {
       throw new IllegalStateException(
           "No cache exists. Please configure " + "either a PeerToPeerCacheLifecycleListener or "
@@ -342,18 +340,18 @@ public class GemfireSessionManager implements SessionManager {
     }
 
     // Process all the init params and see if any apply to the distributedCache
-    ResourceManager rm = cache.getResourceManager();
-    for (Enumeration<String> e = config.getInitParameterNames(); e.hasMoreElements();) {
-      String param = e.nextElement();
+    var rm = cache.getResourceManager();
+    for (var e = config.getInitParameterNames(); e.hasMoreElements();) {
+      var param = e.nextElement();
 
       // Uggh - don't like this non-generic stuff
       if (param.equalsIgnoreCase("criticalHeapPercentage")) {
-        float val = Float.parseFloat(config.getInitParameter(param));
+        var val = Float.parseFloat(config.getInitParameter(param));
         rm.setCriticalHeapPercentage(val);
       }
 
       if (param.equalsIgnoreCase("evictionHeapPercentage")) {
-        float val = Float.parseFloat(config.getInitParameter(param));
+        var val = Float.parseFloat(config.getInitParameter(param));
         rm.setEvictionHeapPercentage(val);
       }
 
@@ -362,7 +360,7 @@ public class GemfireSessionManager implements SessionManager {
         continue;
       }
 
-      String gemfireWebParam = param.substring(GEMFIRE_CACHE.length());
+      var gemfireWebParam = param.substring(GEMFIRE_CACHE.length());
       LOG.info("Setting cache parameter: {} = {}", gemfireWebParam, config.getInitParameter(param));
       properties.put(CacheProperty.valueOf(gemfireWebParam.toUpperCase()),
           config.getInitParameter(param));
@@ -383,9 +381,9 @@ public class GemfireSessionManager implements SessionManager {
     mbean = new SessionStatistics();
 
     try {
-      InitialContext ctx = new InitialContext();
-      MBeanServer mbs = (MBeanServer) ctx.lookup("java:comp/env/jmx/runtime");
-      ObjectName oname = new ObjectName(Constants.SESSION_STATISTICS_MBEAN_NAME);
+      var ctx = new InitialContext();
+      var mbs = (MBeanServer) ctx.lookup("java:comp/env/jmx/runtime");
+      var oname = new ObjectName(Constants.SESSION_STATISTICS_MBEAN_NAME);
 
       mbs.registerMBean(mbean, oname);
     } catch (Exception ex) {

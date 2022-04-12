@@ -28,7 +28,6 @@ import org.junit.Test;
 
 import org.apache.geode.management.cli.ConverterHint;
 import org.apache.geode.test.junit.rules.GfshParserRule;
-import org.apache.geode.test.junit.rules.GfshParserRule.CommandCandidate;
 
 public class RegionPathConverterJUnitTest {
   @ClassRule
@@ -66,7 +65,7 @@ public class RegionPathConverterJUnitTest {
 
   @Test
   public void complete() throws Exception {
-    CommandCandidate candidate = parser.complete("destroy region --name=");
+    var candidate = parser.complete("destroy region --name=");
     assertThat(candidate.size()).isEqualTo(allRegionPaths.length);
     assertThat(candidate.getFirstCandidate())
         .isEqualTo("destroy region --name=" + SEPARATOR + "region1");

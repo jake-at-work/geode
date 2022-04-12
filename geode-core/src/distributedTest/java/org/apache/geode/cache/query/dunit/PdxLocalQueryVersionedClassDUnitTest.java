@@ -21,24 +21,18 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.internal.cache.InternalCache;
-import org.apache.geode.pdx.PdxInstance;
-import org.apache.geode.pdx.PdxInstanceFactory;
 import org.apache.geode.pdx.internal.PdxInstanceFactoryImpl;
 import org.apache.geode.test.dunit.Assert;
-import org.apache.geode.test.dunit.AsyncInvocation;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.NetworkUtils;
 import org.apache.geode.test.dunit.SerializableCallable;
 import org.apache.geode.test.dunit.ThreadUtils;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.junit.categories.OQLQueryTest;
 
 @Category({OQLQueryTest.class})
@@ -53,14 +47,14 @@ public class PdxLocalQueryVersionedClassDUnitTest extends PDXQueryTestBase {
    */
   @Test
   public void testIsRemoteFlagForRemoteQueries() throws Exception {
-    final Host host = Host.getHost(0);
-    final VM server = host.getVM(0);
-    final VM client = host.getVM(1);
+    final var host = Host.getHost(0);
+    final var server = host.getVM(0);
+    final var client = host.getVM(1);
 
-    final int numberOfEntries = 1000;
-    final String name = SEPARATOR + regionName;
+    final var numberOfEntries = 1000;
+    final var name = SEPARATOR + regionName;
 
-    final String query =
+    final var query =
         "select distinct * from " + name + " where id > $1 and id < $2 and status = 'active'";
 
     // Start server
@@ -68,8 +62,8 @@ public class PdxLocalQueryVersionedClassDUnitTest extends PDXQueryTestBase {
       @Override
       public Object call() throws Exception {
         Region r1 = getCache().createRegionFactory(RegionShortcut.REPLICATE).create(regionName);
-        CacheServer server = getCache().addCacheServer();
-        int port = AvailablePortHelper.getRandomAvailableTCPPort();
+        var server = getCache().addCacheServer();
+        var port = AvailablePortHelper.getRandomAvailableTCPPort();
         server.setPort(port);
         server.start();
         return port;
@@ -81,18 +75,18 @@ public class PdxLocalQueryVersionedClassDUnitTest extends PDXQueryTestBase {
     client.invoke(new SerializableCallable("Create client") {
       @Override
       public Object call() throws Exception {
-        ClientCacheFactory cf = new ClientCacheFactory();
+        var cf = new ClientCacheFactory();
         cf.addPoolServer(NetworkUtils.getServerHostName(server.getHost()), port1);
-        ClientCache cache = getClientCache(cf);
+        var cache = getClientCache(cf);
         Region region =
             cache.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY).create(regionName);
 
-        for (int i = 0; i < numberOfEntries; i++) {
-          PdxInstanceFactory pdxInstanceFactory = PdxInstanceFactoryImpl
+        for (var i = 0; i < numberOfEntries; i++) {
+          var pdxInstanceFactory = PdxInstanceFactoryImpl
               .newCreator("PdxVersionedNewPortfolio", false, (InternalCache) cache);
           pdxInstanceFactory.writeInt("id", i);
           pdxInstanceFactory.writeString("status", (i % 2 == 0 ? "active" : "inactive"));
-          PdxInstance pdxInstance = pdxInstanceFactory.create();
+          var pdxInstance = pdxInstanceFactory.create();
           region.put("key-" + i, pdxInstance);
         }
 
@@ -103,7 +97,7 @@ public class PdxLocalQueryVersionedClassDUnitTest extends PDXQueryTestBase {
     // Execute same query remotely from client using 2 threads
     // Since this is a bind query, the query object will be shared
     // between the 2 threads.
-    AsyncInvocation a1 = client.invokeAsync(new SerializableCallable("Query from client") {
+    var a1 = client.invokeAsync(new SerializableCallable("Query from client") {
       @Override
       public Object call() throws Exception {
         QueryService qs = null;
@@ -116,7 +110,7 @@ public class PdxLocalQueryVersionedClassDUnitTest extends PDXQueryTestBase {
         }
 
         try {
-          for (int i = 0; i < 100; i++) {
+          for (var i = 0; i < 100; i++) {
             sr = (SelectResults) qs.newQuery(query).execute(new Object[] {1, 1000});
           }
           Assert.assertTrue("Size of resultset should be greater than 0 for query: " + query,
@@ -129,7 +123,7 @@ public class PdxLocalQueryVersionedClassDUnitTest extends PDXQueryTestBase {
       }
     });
 
-    AsyncInvocation a2 = client.invokeAsync(new SerializableCallable("Query from client") {
+    var a2 = client.invokeAsync(new SerializableCallable("Query from client") {
       @Override
       public Object call() throws Exception {
 
@@ -143,7 +137,7 @@ public class PdxLocalQueryVersionedClassDUnitTest extends PDXQueryTestBase {
         }
 
         try {
-          for (int i = 0; i < 100; i++) {
+          for (var i = 0; i < 100; i++) {
             sr = (SelectResults) qs.newQuery(query).execute(new Object[] {997, 1000});
           }
           Assert.assertTrue("Size of resultset should be greater than 0 for query: " + query,

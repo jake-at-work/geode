@@ -24,12 +24,10 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import org.apache.geode.cache.CacheListener;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
@@ -63,7 +61,7 @@ public class PartitionedRegionHAFailureAndRecoveryDUnitTest extends CacheTestCas
   @Before
   public void setUp() {
     vms = new VM[4];
-    for (int i = 0; i < 4; i++) {
+    for (var i = 0; i < 4; i++) {
       vms[i] = getHost(0).getVM(i);
     }
 
@@ -95,7 +93,7 @@ public class PartitionedRegionHAFailureAndRecoveryDUnitTest extends CacheTestCas
     addConfigListenerInAllVMs();
 
     // disconnect vm0.
-    InternalDistributedMember member = vms[0].invoke(this::disconnect);
+    var member = vms[0].invoke(this::disconnect);
 
     // validate that the metadata clean up is done at all the VM's.
     vms[1].invoke(() -> validateNodeFailMetaDataCleanUp(member));
@@ -128,7 +126,7 @@ public class PartitionedRegionHAFailureAndRecoveryDUnitTest extends CacheTestCas
     addConfigListenerInAllVMs();
 
     // disconnect vm0
-    InternalDistributedMember member0 = vms[0].invoke(this::disconnect);
+    var member0 = vms[0].invoke(this::disconnect);
 
     // validate that the metadata clean up is done at all the VM's for first failed node.
     vms[1].invoke(() -> validateNodeFailMetaDataCleanUp(member0));
@@ -146,7 +144,7 @@ public class PartitionedRegionHAFailureAndRecoveryDUnitTest extends CacheTestCas
     vms[3].invoke(this::clearConfigListenerState);
 
     // disconnect vm1
-    InternalDistributedMember dsMember2 = vms[1].invoke(this::disconnect);
+    var dsMember2 = vms[1].invoke(this::disconnect);
 
     // validate that the metadata clean up is done at all the VM's for first failed node.
     vms[2].invoke(() -> validateNodeFailMetaDataCleanUp(member0));
@@ -174,10 +172,10 @@ public class PartitionedRegionHAFailureAndRecoveryDUnitTest extends CacheTestCas
 
     // Create some buckets, pick one and get one of the members hosting it
     DistributedMember bucketHost = vms[0].invoke(() -> {
-      PartitionedRegion region = (PartitionedRegion) getCache().getRegion(uniqueName + "0");
+      var region = (PartitionedRegion) getCache().getRegion(uniqueName + "0");
 
       // Create some buckets
-      for (int k = 0; region.getRegionAdvisor().getBucketSet().size() < 2; k++) {
+      for (var k = 0; region.getRegionAdvisor().getBucketSet().size() < 2; k++) {
         assertThat(k).isLessThanOrEqualTo(region.getTotalNumberOfBuckets());
         region.put(k, k);
       }
@@ -187,11 +185,11 @@ public class PartitionedRegionHAFailureAndRecoveryDUnitTest extends CacheTestCas
       assertThat(bucketId).isNotNull();
 
       // Find a host for the bucket
-      Set<InternalDistributedMember> bucketOwners =
+      var bucketOwners =
           region.getRegionAdvisor().getBucketOwners(bucketId);
       assertThat(bucketOwners).hasSize(redundancy + 1);
 
-      InternalDistributedMember bucketOwner = bucketOwners.iterator().next();
+      var bucketOwner = bucketOwners.iterator().next();
       assertThat(bucketOwner).isNotNull();
       return bucketOwner;
     });
@@ -199,7 +197,7 @@ public class PartitionedRegionHAFailureAndRecoveryDUnitTest extends CacheTestCas
     assertThat(bucketHost).isNotNull();
 
     // Disconnect the selected host
-    Map<VM, Boolean> stillHasDS = invokeInEveryVM(() -> {
+    var stillHasDS = invokeInEveryVM(() -> {
       if (getSystem().getDistributedMember().equals(bucketHost)) {
         disconnectFromDS();
         return FALSE;
@@ -208,8 +206,8 @@ public class PartitionedRegionHAFailureAndRecoveryDUnitTest extends CacheTestCas
     });
 
     // Wait for each member to finish recovery of redundancy for the selected bucket
-    int count = 0;
-    for (int i = 0; i < 4; i++) {
+    var count = 0;
+    for (var i = 0; i < 4; i++) {
       if (awaitRedundancyRecovery(stillHasDS, vms[i])) {
         count++;
       }
@@ -217,7 +215,7 @@ public class PartitionedRegionHAFailureAndRecoveryDUnitTest extends CacheTestCas
     assertThat(count).isEqualTo(3);
 
     // Validate all buckets have proper redundancy
-    for (int i = 0; i < 4; i++) {
+    for (var i = 0; i < 4; i++) {
       validateBucketRedundancy(stillHasDS, vms[i]);
     }
   }
@@ -228,8 +226,8 @@ public class PartitionedRegionHAFailureAndRecoveryDUnitTest extends CacheTestCas
       vm.invoke(() -> {
         Region region = getCache().getRegion(uniqueName + "0");
         assertTrue(region instanceof PartitionedRegion);
-        PartitionedRegion partitionedRegion = (PartitionedRegion) region;
-        PartitionedRegionStats prs = partitionedRegion.getPrStats();
+        var partitionedRegion = (PartitionedRegion) region;
+        var prs = partitionedRegion.getPrStats();
 
         // Wait for recovery
         await()
@@ -245,7 +243,7 @@ public class PartitionedRegionHAFailureAndRecoveryDUnitTest extends CacheTestCas
     // only validate buckets on remaining VMs
     if (stillHasDS.get(vm)) {
       vm.invoke(() -> {
-        PartitionedRegion pr = (PartitionedRegion) getCache().getRegion(uniqueName + "0");
+        var pr = (PartitionedRegion) getCache().getRegion(uniqueName + "0");
         for (int bucketId : pr.getRegionAdvisor().getBucketSet()) {
           assertThatBucketHasRedundantCopies(pr, bucketId);
         }
@@ -269,29 +267,29 @@ public class PartitionedRegionHAFailureAndRecoveryDUnitTest extends CacheTestCas
 
   private void clearConfigListenerState() {
     Region rootReg = PartitionedRegionHelper.getPRRoot(getCache());
-    CacheListener[] cls = rootReg.getAttributes().getCacheListeners();
+    var cls = rootReg.getAttributes().getCacheListeners();
     assertThat(cls).hasSize(2);
 
-    CertifiableTestCacheListener ctcl = (CertifiableTestCacheListener) cls[1];
+    var ctcl = (CertifiableTestCacheListener) cls[1];
     ctcl.clearState();
   }
 
   private void validateNodeFailMetaDataCleanUp(final DistributedMember expectedMember) {
     Region rootReg = PartitionedRegionHelper.getPRRoot(getCache());
-    CacheListener[] cls = rootReg.getAttributes().getCacheListeners();
+    var cls = rootReg.getAttributes().getCacheListeners();
     assertThat(cls).hasSize(2);
 
-    CertifiableTestCacheListener ctcl = (CertifiableTestCacheListener) cls[1];
+    var ctcl = (CertifiableTestCacheListener) cls[1];
 
-    for (Object regionNameObject : rootReg.keySet()) {
-      String regionName = (String) regionNameObject;
+    for (var regionNameObject : rootReg.keySet()) {
+      var regionName = (String) regionNameObject;
       ctcl.waitForUpdated(regionName);
 
-      Object prConfigObject = rootReg.get(regionName);
+      var prConfigObject = rootReg.get(regionName);
       if (prConfigObject != null) {
-        PartitionRegionConfig prConfig = (PartitionRegionConfig) prConfigObject;
-        Set<Node> nodes = prConfig.getNodes();
-        for (Node node : nodes) {
+        var prConfig = (PartitionRegionConfig) prConfigObject;
+        var nodes = prConfig.getNodes();
+        for (var node : nodes) {
           DistributedMember member = node.getMemberId();
           assertThat(member).isNotEqualTo(expectedMember);
         }
@@ -302,14 +300,14 @@ public class PartitionedRegionHAFailureAndRecoveryDUnitTest extends CacheTestCas
   private void validateNodeFailBucket2NodeCleanUp(final InternalDistributedMember member) {
     getCache();
     Map prIdToPR = PartitionedRegion.getPrIdToPR();
-    for (Object prRegionObject : prIdToPR.values()) {
+    for (var prRegionObject : prIdToPR.values()) {
       if (prRegionObject == PartitionedRegion.PRIdMap.DESTROYED) {
         continue;
       }
-      PartitionedRegion prRegion = (PartitionedRegion) prRegionObject;
+      var prRegion = (PartitionedRegion) prRegionObject;
 
       for (int bucketId : prRegion.getRegionAdvisor().getBucketSet()) {
-        Set<InternalDistributedMember> bucketOwners =
+        var bucketOwners =
             prRegion.getRegionAdvisor().getBucketOwners(bucketId);
         assertThat(bucketOwners).doesNotContain(member);
       }
@@ -317,7 +315,7 @@ public class PartitionedRegionHAFailureAndRecoveryDUnitTest extends CacheTestCas
   }
 
   private InternalDistributedMember disconnect() {
-    InternalDistributedMember member = getCache().getMyId();
+    var member = getCache().getMyId();
     getCache().close();
     return member;
   }
@@ -325,8 +323,8 @@ public class PartitionedRegionHAFailureAndRecoveryDUnitTest extends CacheTestCas
   private void createPartitionRegionsInAllVMs(final String regionNamePrefix,
       final int numberOfRegions, final int localMaxMemory, final int recoveryDelay,
       final int redundancy) {
-    for (int count = 0; count < VM_COUNT; count++) {
-      VM vm = vms[count];
+    for (var count = 0; count < VM_COUNT; count++) {
+      var vm = vms[count];
       vm.invoke(() -> {
         createPartitionRegions(regionNamePrefix, numberOfRegions, localMaxMemory, recoveryDelay,
             redundancy);
@@ -336,8 +334,8 @@ public class PartitionedRegionHAFailureAndRecoveryDUnitTest extends CacheTestCas
 
   private void createPartitionRegions(final String regionNamePrefix, final int numberOfRegions,
       final int localMaxMemory, final int recoveryDelay, final int redundancy) {
-    for (int i = 0; i < numberOfRegions; i++) {
-      PartitionAttributesFactory partitionAttributesFactory = new PartitionAttributesFactory();
+    for (var i = 0; i < numberOfRegions; i++) {
+      var partitionAttributesFactory = new PartitionAttributesFactory();
       partitionAttributesFactory.setLocalMaxMemory(localMaxMemory);
       partitionAttributesFactory.setRedundantCopies(redundancy);
       partitionAttributesFactory.setRecoveryDelay(recoveryDelay);
@@ -350,8 +348,8 @@ public class PartitionedRegionHAFailureAndRecoveryDUnitTest extends CacheTestCas
   }
 
   private void addConfigListenerInAllVMs() {
-    for (int count = 0; count < 4; count++) {
-      VM vm = vms[count];
+    for (var count = 0; count < 4; count++) {
+      var vm = vms[count];
       vm.invoke(this::addConfigListener);
     }
   }

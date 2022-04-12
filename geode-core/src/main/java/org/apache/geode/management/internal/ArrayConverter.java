@@ -36,10 +36,10 @@ public class ArrayConverter extends OpenTypeConverter {
 
   @Override
   Object toNonNullOpenValue(Object value) throws OpenDataException {
-    Object[] valueArray = (Object[]) value;
-    final int len = valueArray.length;
-    final Object[] openArray = (Object[]) Array.newInstance(getOpenClass().getComponentType(), len);
-    for (int i = 0; i < len; i++) {
+    var valueArray = (Object[]) value;
+    final var len = valueArray.length;
+    final var openArray = (Object[]) Array.newInstance(getOpenClass().getComponentType(), len);
+    for (var i = 0; i < len; i++) {
       openArray[i] = elementConverter.toOpenValue(valueArray[i]);
     }
     return openArray;
@@ -47,8 +47,8 @@ public class ArrayConverter extends OpenTypeConverter {
 
   @Override
   public Object fromNonNullOpenValue(Object openValue) throws InvalidObjectException {
-    final Object[] openArray = (Object[]) openValue;
-    final Type targetType = getTargetType();
+    final var openArray = (Object[]) openValue;
+    final var targetType = getTargetType();
     final Object[] valueArray;
     final Type componentType;
     if (targetType instanceof GenericArrayType) {
@@ -59,7 +59,7 @@ public class ArrayConverter extends OpenTypeConverter {
       throw new IllegalArgumentException("Not an array: " + targetType);
     }
     valueArray = (Object[]) Array.newInstance((Class<?>) componentType, openArray.length);
-    for (int i = 0; i < openArray.length; i++) {
+    for (var i = 0; i < openArray.length; i++) {
       valueArray[i] = elementConverter.fromOpenValue(openArray[i]);
     }
     return valueArray;

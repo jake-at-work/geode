@@ -18,7 +18,6 @@ import static org.apache.geode.internal.serialization.filter.SanctionedSerializa
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.Collection;
 
 import org.junit.Test;
@@ -40,10 +39,10 @@ public abstract class SanctionedSerializablesServiceIntegrationTestBase {
   @Test
   public void serviceIsLoaded() {
     Collection<SanctionedSerializablesService> services = loadSanctionedSerializablesServices();
-    SanctionedSerializablesService service = getService();
+    var service = getService();
 
-    boolean found = false;
-    for (SanctionedSerializablesService aService : services) {
+    var found = false;
+    for (var aService : services) {
       if (service.getClass().equals(aService.getClass())) {
         found = true;
         break;
@@ -57,9 +56,9 @@ public abstract class SanctionedSerializablesServiceIntegrationTestBase {
 
   @Test
   public void serviceResourceExists() {
-    SanctionedSerializablesService service = getService();
+    var service = getService();
 
-    URL url = service.getSanctionedSerializablesURL();
+    var url = service.getSanctionedSerializablesURL();
 
     switch (getServiceResourceExpectation()) {
       case NULL:
@@ -73,9 +72,9 @@ public abstract class SanctionedSerializablesServiceIntegrationTestBase {
 
   @Test
   public void serviceResourceIsLoaded() throws IOException {
-    SanctionedSerializablesService service = getService();
+    var service = getService();
 
-    Collection<String> serializables = service.getSerializationAcceptlist();
+    var serializables = service.getSerializationAcceptlist();
 
     switch (getServiceResourceExpectation()) {
       case NULL:

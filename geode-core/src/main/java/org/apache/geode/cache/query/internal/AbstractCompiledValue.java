@@ -100,7 +100,7 @@ public abstract class AbstractCompiledValue implements CompiledValue, Filter, OQ
       // junction can be evaluated as a filter , provided all the operands
       // are also filterEvaluatable.
       planInfo = new PlanInfo();
-      Object result = evaluate(context);
+      var result = evaluate(context);
       if (!(result instanceof Boolean)) {
         throw new TypeMismatchException(
             String.format("boolean value expected, not type ' %s '",
@@ -224,7 +224,7 @@ public abstract class AbstractCompiledValue implements CompiledValue, Filter, OQ
     // if it is possible for the following assertion to be false,
     // then this method as well as protGetPlanInfo must be overridden
     Support.Assert(!isDependentOnCurrentScope(context));
-    Object result = evaluate(context);
+    var result = evaluate(context);
     if (result == null || result == QueryService.UNDEFINED) {
       return new ResultsBag(intermediateResults.getCollectionType().getElementType(), 0,
           context.getCachePerfStats());
@@ -244,17 +244,17 @@ public abstract class AbstractCompiledValue implements CompiledValue, Filter, OQ
       // StructSet based
       // on the number of iterators in the current scope.
       SelectResults emptySet = null;
-      List iterators = context.getCurrentIterators();
-      int len = iterators.size();
+      var iterators = context.getCurrentIterators();
+      var len = iterators.size();
       if (len == 1) {
-        ObjectType elementType = ((RuntimeIterator) iterators.get(0)).getElementType();
+        var elementType = ((RuntimeIterator) iterators.get(0)).getElementType();
         emptySet = context.isDistinct() ? new ResultsSet(elementType)
             : new ResultsBag(elementType, 0, context.getCachePerfStats());
       } else {
-        String[] fieldNames = new String[len];
-        ObjectType[] fieldTypes = new ObjectType[len];
-        for (int i = 0; i < len; i++) {
-          RuntimeIterator iter = (RuntimeIterator) iterators.get(i);
+        var fieldNames = new String[len];
+        var fieldTypes = new ObjectType[len];
+        for (var i = 0; i < len; i++) {
+          var iter = (RuntimeIterator) iterators.get(i);
           fieldNames[i] = iter.getInternalId();
           fieldTypes[i] = iter.getElementType();
         }
@@ -277,8 +277,8 @@ public abstract class AbstractCompiledValue implements CompiledValue, Filter, OQ
 
   @Override
   public void getRegionsInQuery(Set regionsInQuery, Object[] parameters) {
-    for (final Object o : getChildren()) {
-      CompiledValue v = (CompiledValue) o;
+    for (final var o : getChildren()) {
+      var v = (CompiledValue) o;
       if (v == null) {
         throw new NullPointerException(
             String.format("Got null as a child from %s",
@@ -303,7 +303,7 @@ public abstract class AbstractCompiledValue implements CompiledValue, Filter, OQ
   @Override
   public void visitNodes(NodeVisitor visitor) {
     visitor.visit(this);
-    for (final Object o : getChildren()) {
+    for (final var o : getChildren()) {
       if (!visitor.visit((CompiledValue) o)) {
         break;
       }

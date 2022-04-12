@@ -22,10 +22,7 @@ import org.apache.geode.annotations.Immutable;
 import org.apache.geode.internal.cache.EventID;
 import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.sockets.BaseCommand;
-import org.apache.geode.internal.cache.tier.sockets.CacheClientNotifier;
-import org.apache.geode.internal.cache.tier.sockets.CacheClientProxy;
 import org.apache.geode.internal.cache.tier.sockets.Message;
-import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
 import org.apache.geode.internal.security.SecurityService;
 
@@ -52,16 +49,16 @@ public class PeriodicAck extends BaseCommand {
           serverConnection.getSocketString());
     }
     try {
-      int numEvents = clientMessage.getNumberOfParts();
-      boolean success = false;
-      CacheClientNotifier ccn = serverConnection.getAcceptor().getCacheClientNotifier();
-      CacheClientProxy proxy = ccn.getClientProxy(serverConnection.getProxyID());
+      var numEvents = clientMessage.getNumberOfParts();
+      var success = false;
+      var ccn = serverConnection.getAcceptor().getCacheClientNotifier();
+      var proxy = ccn.getClientProxy(serverConnection.getProxyID());
       if (proxy != null) {
         proxy.getHARegionQueue().createAckedEventsMap();
-        for (int i = 0; i < numEvents; i++) {
-          Part eventIdPart = clientMessage.getPart(i);
+        for (var i = 0; i < numEvents; i++) {
+          var eventIdPart = clientMessage.getPart(i);
           eventIdPart.setVersion(serverConnection.getClientVersion());
-          EventID eid = (EventID) eventIdPart.getObject();
+          var eid = (EventID) eventIdPart.getObject();
           success = ccn.processDispatchedMessage(serverConnection.getProxyID(), eid);
           if (!success) {
             break;

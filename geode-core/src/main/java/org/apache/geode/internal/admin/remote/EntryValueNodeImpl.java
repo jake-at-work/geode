@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,7 +27,6 @@ import java.util.ConcurrentModificationException;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.geode.InternalGemFireException;
 import org.apache.geode.internal.admin.EntryValueNode;
@@ -54,7 +52,7 @@ public class EntryValueNodeImpl implements EntryValueNode, Externalizable/* , Da
     if (value != null) {
       retVal = createFromObject(constructKeyDisplay(value), value, logicalInspection);
     }
-    Map map = (Map) recursionSet.get();
+    var map = (Map) recursionSet.get();
     map.clear();
     recursionSet.set(null);
 
@@ -63,7 +61,7 @@ public class EntryValueNodeImpl implements EntryValueNode, Externalizable/* , Da
 
   private static EntryValueNodeImpl createFromPrimitive(String fieldName, String type,
       Object primitiveWrapper) {
-    EntryValueNodeImpl node = new EntryValueNodeImpl();
+    var node = new EntryValueNodeImpl();
     node.name = fieldName;
     node.type = type;
     node.primitiveVal = primitiveWrapper;
@@ -72,7 +70,7 @@ public class EntryValueNodeImpl implements EntryValueNode, Externalizable/* , Da
   }
 
   private static EntryValueNodeImpl createFromNullField(String fieldName, Class fieldType) {
-    EntryValueNodeImpl node = new EntryValueNodeImpl();
+    var node = new EntryValueNodeImpl();
     node.name = fieldName;
     if (fieldType.isArray()) {
       node.type = "array of" + fieldType.getComponentType().getName();
@@ -86,13 +84,13 @@ public class EntryValueNodeImpl implements EntryValueNode, Externalizable/* , Da
 
   private static EntryValueNodeImpl createFromArray(String fieldName, Object arrayObj,
       Class arrayClass) {
-    EntryValueNodeImpl node = new EntryValueNodeImpl();
-    Map map = (Map) recursionSet.get();
+    var node = new EntryValueNodeImpl();
+    var map = (Map) recursionSet.get();
     map.put(arrayObj, node);
 
     node.name = fieldName;
-    Class compType = arrayClass.getComponentType();
-    String elType = compType.getName();
+    var compType = arrayClass.getComponentType();
+    var elType = compType.getName();
     node.type = "array of " + elType;
     node.primitiveVal = arrayObj.toString();
     node.primitive = false;
@@ -100,9 +98,9 @@ public class EntryValueNodeImpl implements EntryValueNode, Externalizable/* , Da
     {
       EntryValueNodeImpl[] children;
       if (arrayObj instanceof Object[]) {
-        Object[] array = (Object[]) arrayObj;
+        var array = (Object[]) arrayObj;
         children = new EntryValueNodeImpl[array.length];
-        for (int i = 0; i < array.length; i++) {
+        for (var i = 0; i < array.length; i++) {
           if (array[i] != null) {
             children[i] = createFromObject("[" + i + "]", array[i], false);
           } else {
@@ -111,58 +109,58 @@ public class EntryValueNodeImpl implements EntryValueNode, Externalizable/* , Da
         }
         node.fields = children;
       } else if (arrayObj instanceof int[]) {
-        int[] array = (int[]) arrayObj;
+        var array = (int[]) arrayObj;
         children = new EntryValueNodeImpl[array.length];
-        for (int i = 0; i < array.length; i++) {
+        for (var i = 0; i < array.length; i++) {
           children[i] = createFromPrimitive("[" + i + "]", elType, array[i]);
         }
         node.fields = children;
       } else if (arrayObj instanceof boolean[]) {
-        boolean[] array = (boolean[]) arrayObj;
+        var array = (boolean[]) arrayObj;
         children = new EntryValueNodeImpl[array.length];
-        for (int i = 0; i < array.length; i++) {
+        for (var i = 0; i < array.length; i++) {
           children[i] = createFromPrimitive("[" + i + "]", elType, array[i]);
         }
         node.fields = children;
       } else if (arrayObj instanceof char[]) {
-        char[] array = (char[]) arrayObj;
+        var array = (char[]) arrayObj;
         children = new EntryValueNodeImpl[array.length];
-        for (int i = 0; i < array.length; i++) {
+        for (var i = 0; i < array.length; i++) {
           children[i] = createFromPrimitive("[" + i + "]", elType, array[i]);
         }
         node.fields = children;
       } else if (arrayObj instanceof double[]) {
-        double[] array = (double[]) arrayObj;
+        var array = (double[]) arrayObj;
         children = new EntryValueNodeImpl[array.length];
-        for (int i = 0; i < array.length; i++) {
+        for (var i = 0; i < array.length; i++) {
           children[i] = createFromPrimitive("[" + i + "]", elType, array[i]);
         }
         node.fields = children;
       } else if (arrayObj instanceof long[]) {
-        long[] array = (long[]) arrayObj;
+        var array = (long[]) arrayObj;
         children = new EntryValueNodeImpl[array.length];
-        for (int i = 0; i < array.length; i++) {
+        for (var i = 0; i < array.length; i++) {
           children[i] = createFromPrimitive("[" + i + "]", elType, array[i]);
         }
         node.fields = children;
       } else if (arrayObj instanceof float[]) {
-        float[] array = (float[]) arrayObj;
+        var array = (float[]) arrayObj;
         children = new EntryValueNodeImpl[array.length];
-        for (int i = 0; i < array.length; i++) {
+        for (var i = 0; i < array.length; i++) {
           children[i] = createFromPrimitive("[" + i + "]", elType, array[i]);
         }
         node.fields = children;
       } else if (arrayObj instanceof byte[]) {
-        byte[] array = (byte[]) arrayObj;
+        var array = (byte[]) arrayObj;
         children = new EntryValueNodeImpl[array.length];
-        for (int i = 0; i < array.length; i++) {
+        for (var i = 0; i < array.length; i++) {
           children[i] = createFromPrimitive("[" + i + "]", elType, array[i]);
         }
         node.fields = children;
       } else if (arrayObj instanceof short[]) {
-        short[] array = (short[]) arrayObj;
+        var array = (short[]) arrayObj;
         children = new EntryValueNodeImpl[array.length];
-        for (int i = 0; i < array.length; i++) {
+        for (var i = 0; i < array.length; i++) {
           children[i] = createFromPrimitive("[" + i + "]", elType, array[i]);
         }
         node.fields = children;
@@ -173,8 +171,8 @@ public class EntryValueNodeImpl implements EntryValueNode, Externalizable/* , Da
 
   private static EntryValueNodeImpl createFromObject(String fieldName, Object obj,
       boolean logicalInspection) {
-    Map map = (Map) recursionSet.get();
-    EntryValueNodeImpl stored = (EntryValueNodeImpl) map.get(obj);
+    var map = (Map) recursionSet.get();
+    var stored = (EntryValueNodeImpl) map.get(obj);
     if (stored != null) {
       return stored;
     }
@@ -183,7 +181,7 @@ public class EntryValueNodeImpl implements EntryValueNode, Externalizable/* , Da
       return createFromArray(fieldName, obj, clazz);
     }
 
-    EntryValueNodeImpl node = new EntryValueNodeImpl();
+    var node = new EntryValueNodeImpl();
     map.put(obj, node);
 
     node.name = fieldName;
@@ -198,7 +196,7 @@ public class EntryValueNodeImpl implements EntryValueNode, Externalizable/* , Da
     }
 
     if (logicalInspection && hasLogicalView(obj)) {
-      int retryCount = 0;
+      var retryCount = 0;
       boolean retry;
       List elements = new ArrayList();
       do {
@@ -208,14 +206,14 @@ public class EntryValueNodeImpl implements EntryValueNode, Externalizable/* , Da
         retry = false;
         try {
           if (obj instanceof Map) {
-            Map theMap = (Map) obj;
-            Set entries = theMap.entrySet();
+            var theMap = (Map) obj;
+            var entries = theMap.entrySet();
             if (entries != null) {
-              for (final Object o : entries) {
+              for (final var o : entries) {
                 // if (cancelled) { return; }
-                Map.Entry entry = (Map.Entry) o;
-                Object key = entry.getKey();
-                Object value = entry.getValue();
+                var entry = (Map.Entry) o;
+                var key = entry.getKey();
+                var value = entry.getValue();
                 if (key != null) {
                   elements.add(
                       createFromObject("key->" + constructKeyDisplay(key), key, logicalInspection));
@@ -233,15 +231,15 @@ public class EntryValueNodeImpl implements EntryValueNode, Externalizable/* , Da
               }
             }
           } else if (obj instanceof List) {
-            java.util.List list = (List) obj;
-            for (final Object element : list) {
+            var list = (List) obj;
+            for (final var element : list) {
               // if (cancelled) { return; }
               elements
                   .add(createFromObject(constructKeyDisplay(element), element, logicalInspection));
             }
           } else if (obj instanceof Collection) {
-            Collection coll = (Collection) obj;
-            for (final Object element : coll) {
+            var coll = (Collection) obj;
+            for (final var element : coll) {
               // if (cancelled) { return; }
               elements
                   .add(createFromObject(constructKeyDisplay(element), element, logicalInspection));
@@ -261,7 +259,7 @@ public class EntryValueNodeImpl implements EntryValueNode, Externalizable/* , Da
 
     } else { // physical inspection
 
-      Field[] fields = clazz.getDeclaredFields();
+      var fields = clazz.getDeclaredFields();
       try {
         AccessibleObject.setAccessible(fields, true);
       } catch (SecurityException se) {
@@ -270,8 +268,8 @@ public class EntryValueNodeImpl implements EntryValueNode, Externalizable/* , Da
             se);
       }
       List fieldList = new ArrayList();
-      for (final Field field : fields) {
-        int mods = field.getModifiers();
+      for (final var field : fields) {
+        var mods = field.getModifiers();
         if ((mods & Modifier.STATIC) != 0) {
           continue;
         }
@@ -283,7 +281,7 @@ public class EntryValueNodeImpl implements EntryValueNode, Externalizable/* , Da
               "Unable to build cache value display",
               e);
         }
-        String name = field.getName();
+        var name = field.getName();
         if (fieldVal == null) {
           fieldList.add(createFromNullField(name, field.getType()));
 
@@ -349,9 +347,9 @@ public class EntryValueNodeImpl implements EntryValueNode, Externalizable/* , Da
     } else if (toDisplay instanceof Boolean) {
       return toDisplay.toString();
     } else {
-      String className = toDisplay.getClass().getName();
+      var className = toDisplay.getClass().getName();
       className = className.substring(className.lastIndexOf(".") + 1);
-      char c = className.charAt(0);
+      var c = className.charAt(0);
       c = Character.toLowerCase(c);
       if (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u') {
         return "an " + className;

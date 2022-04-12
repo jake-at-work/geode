@@ -20,7 +20,6 @@ package org.apache.geode.cache.query.internal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -34,7 +33,6 @@ import org.apache.geode.cache.query.TypeMismatchException;
 import org.apache.geode.cache.query.internal.parse.OQLLexerTokenTypes;
 import org.apache.geode.cache.query.internal.types.StructTypeImpl;
 import org.apache.geode.cache.query.internal.types.TypeUtils;
-import org.apache.geode.cache.query.types.ObjectType;
 import org.apache.geode.cache.query.types.StructType;
 
 /**
@@ -113,14 +111,14 @@ public class RangeJunction extends AbstractGroupOrRangeJunction {
       QueryInvocationTargetException {
     // If the current filter is equality & comparedTo filter is also equality based , then
     // return the one with lower size estimate is better
-    boolean isThisBetter = true;
+    var isThisBetter = true;
 
     // Go with the lowest cost when hint is used.
     if (context instanceof QueryExecutionContext && ((QueryExecutionContext) context).hasHints()) {
       return thisSize <= comparedTo.getSizeEstimate(context);
     }
 
-    int thatOperator = comparedTo.getOperator();
+    var thatOperator = comparedTo.getOperator();
     switch (thatOperator) {
       case TOK_EQ:
         isThisBetter = false;
@@ -182,22 +180,22 @@ public class RangeJunction extends AbstractGroupOrRangeJunction {
       throws FunctionDomainException, TypeMismatchException,
       NameResolutionException, QueryInvocationTargetException {
     List evalOperands = new ArrayList(_operands.length);
-    int evalCount = 0;
-    int lessCondnOp = -1;
-    int greaterCondnOp = -1;
+    var evalCount = 0;
+    var lessCondnOp = -1;
+    var greaterCondnOp = -1;
     CompiledComparison lessCondnOperand = null;
     CompiledComparison greaterCondnOperand = null;
     CompiledComparison equalCondnOperand = null;
     Object equalCondKey = null;
     Object lessCondnKey = null;
     Object greaterCondnKey = null;
-    boolean emptyResults = false;
+    var emptyResults = false;
     Set notEqualTypeKeys = null;
-    boolean possibleRangeFilter = false;
+    var possibleRangeFilter = false;
     IndexInfo indxInfo = null;
-    for (CompiledValue operand : _operands) {
+    for (var operand : _operands) {
       if (operand.getPlanInfo(context).evalAsFilter) {
-        Indexable cc = (Indexable) operand;
+        var cc = (Indexable) operand;
         if (indxInfo == null) {
           indxInfo = cc.getIndexInfo(context)[0];
         }
@@ -211,9 +209,9 @@ public class RangeJunction extends AbstractGroupOrRangeJunction {
           evalOperands.add(0, operand);
           continue;
         }
-        CompiledValue ccKey = ((CompiledComparison) cc).getKey(context);
-        Object evaluatedCCKey = ccKey.evaluate(context);
-        int operator = ((CompiledComparison) cc).reflectOnOperator(ccKey);
+        var ccKey = ((CompiledComparison) cc).getKey(context);
+        var evaluatedCCKey = ccKey.evaluate(context);
+        var operator = ((CompiledComparison) cc).reflectOnOperator(ccKey);
         if (evaluatedCCKey == null) {
           evalCount++;
           evalOperands.add(0, operand);
@@ -300,7 +298,7 @@ public class RangeJunction extends AbstractGroupOrRangeJunction {
             && !isConditionSatisfied(equalCondKey, greaterCondnKey, greaterCondnOp)) {
           emptyResults = true;
         } else if (notEqualTypeKeys != null) {
-          Iterator itr = notEqualTypeKeys.iterator();
+          var itr = notEqualTypeKeys.iterator();
           while (itr.hasNext() && !emptyResults) {
             emptyResults =
                 !isConditionSatisfied(equalCondKey, itr.next(), OQLLexerTokenTypes.TOK_NE);
@@ -412,7 +410,7 @@ public class RangeJunction extends AbstractGroupOrRangeJunction {
         && isConditionSatisfied(lessCondnKey, greaterCondnKey, greaterCondnOp)) {
       // Nowremove those not equal conditions which do not satisfy the range
       if (notEqualKeys != null) {
-        Iterator itr = notEqualKeys.iterator();
+        var itr = notEqualKeys.iterator();
         Object neKey = null;
         while (itr.hasNext()) {
           neKey = itr.next();
@@ -447,9 +445,9 @@ public class RangeJunction extends AbstractGroupOrRangeJunction {
     if (notEqualKeys != null) {
       // Eliminate all the not equal keys which will never be satisfied by
       // the given greater condn
-      Iterator itr = notEqualKeys.iterator();
+      var itr = notEqualKeys.iterator();
       while (itr.hasNext()) {
-        Object neKey = itr.next();
+        var neKey = itr.next();
         if (!(Boolean) TypeUtils.compare(neKey, condnKey, operator)) {
           itr.remove();
         }
@@ -466,7 +464,7 @@ public class RangeJunction extends AbstractGroupOrRangeJunction {
   @Override
   public Object evaluate(ExecutionContext context) throws FunctionDomainException,
       TypeMismatchException, NameResolutionException, QueryInvocationTargetException {
-    Object r = _operands[0].evaluate(context); // UNDEFINED, null, or a
+    var r = _operands[0].evaluate(context); // UNDEFINED, null, or a
     // Boolean
 
     // if it's false and the op in this case will always be AND so return
@@ -483,8 +481,8 @@ public class RangeJunction extends AbstractGroupOrRangeJunction {
           "LITERAL_and/LITERAL_or operands must be of type boolean, not type '"
               + r.getClass().getName() + "'");
     }
-    for (int i = 1; i < _operands.length; i++) {
-      Object ri = _operands[i].evaluate(context); // UNDEFINED, null, or
+    for (var i = 1; i < _operands.length; i++) {
+      var ri = _operands[i].evaluate(context); // UNDEFINED, null, or
       // Boolean
       if (ri instanceof Boolean && !(Boolean) ri) {
         return ri;
@@ -710,14 +708,14 @@ public class RangeJunction extends AbstractGroupOrRangeJunction {
         boolean isIntersection, boolean conditioningNeeded, boolean evalProj)
         throws FunctionDomainException, TypeMismatchException, NameResolutionException,
         QueryInvocationTargetException {
-      ObjectType resultType = indxInfo._index.getResultSetType();
-      int indexFieldsSize = -1;
+      var resultType = indxInfo._index.getResultSetType();
+      var indexFieldsSize = -1;
       SelectResults set = null;
-      Boolean orderByClause = (Boolean) context.cacheGet(CompiledValue.CAN_APPLY_ORDER_BY_AT_INDEX);
-      boolean useLinkedDataStructure = false;
-      boolean nullValuesAtStart = true;
+      var orderByClause = (Boolean) context.cacheGet(CompiledValue.CAN_APPLY_ORDER_BY_AT_INDEX);
+      var useLinkedDataStructure = false;
+      var nullValuesAtStart = true;
       if (orderByClause != null && orderByClause) {
-        List orderByAttrs = (List) context.cacheGet(CompiledValue.ORDERBY_ATTRIB);
+        var orderByAttrs = (List) context.cacheGet(CompiledValue.ORDERBY_ATTRIB);
         useLinkedDataStructure = orderByAttrs.size() == 1;
         nullValuesAtStart = !((CompiledSortCriterion) orderByAttrs.get(0)).getCriterion();
       }
@@ -748,7 +746,7 @@ public class RangeJunction extends AbstractGroupOrRangeJunction {
         indexFieldsSize = 1;
       }
       // actual index lookup
-      QueryObserver observer = QueryObserverHolder.getInstance();
+      var observer = QueryObserverHolder.getInstance();
       /*
        * Asif : First obtain the match level of index resultset. If the match level happens to be
        * zero , this implies that we just have to change the StructType ( again if only the Index
@@ -779,7 +777,7 @@ public class RangeJunction extends AbstractGroupOrRangeJunction {
     @Override
     public Object evaluate(ExecutionContext context) throws FunctionDomainException,
         TypeMismatchException, NameResolutionException, QueryInvocationTargetException {
-      Object evaluatedPath = indxInfo._path.evaluate(context);
+      var evaluatedPath = indxInfo._path.evaluate(context);
       return evaluate(context, evaluatedPath);
     }
 
@@ -793,8 +791,8 @@ public class RangeJunction extends AbstractGroupOrRangeJunction {
     public Object evaluate(ExecutionContext context, Object evaluatedPath)
         throws FunctionDomainException, TypeMismatchException, NameResolutionException,
         QueryInvocationTargetException {
-      for (final Object val : notEqualTypeKeys) {
-        Object result = TypeUtils.compare(evaluatedPath, val, TOK_NE);
+      for (final var val : notEqualTypeKeys) {
+        var result = TypeUtils.compare(evaluatedPath, val, TOK_NE);
         if (result instanceof Boolean) {
           if (!(Boolean) result) {
             return Boolean.FALSE;
@@ -834,9 +832,9 @@ public class RangeJunction extends AbstractGroupOrRangeJunction {
         QueryInvocationTargetException {
       // If the current filter is equality & comparedTo filter is also equality based , then
       // return the one with lower size estimate is better
-      boolean isThisBetter = true;
+      var isThisBetter = true;
 
-      int thatOperator = comparedTo.getOperator();
+      var thatOperator = comparedTo.getOperator();
 
       // Go with the lowest cost when hint is used.
       if (context instanceof QueryExecutionContext
@@ -903,14 +901,14 @@ public class RangeJunction extends AbstractGroupOrRangeJunction {
         boolean isIntersection, boolean conditioningNeeded, boolean evalProj)
         throws FunctionDomainException, TypeMismatchException, NameResolutionException,
         QueryInvocationTargetException {
-      ObjectType resultType = indxInfo._index.getResultSetType();
-      int indexFieldsSize = -1;
+      var resultType = indxInfo._index.getResultSetType();
+      var indexFieldsSize = -1;
       SelectResults set = null;
-      Boolean orderByClause = (Boolean) context.cacheGet(CompiledValue.CAN_APPLY_ORDER_BY_AT_INDEX);
-      boolean useLinkedDataStructure = false;
-      boolean nullValuesAtStart = true;
+      var orderByClause = (Boolean) context.cacheGet(CompiledValue.CAN_APPLY_ORDER_BY_AT_INDEX);
+      var useLinkedDataStructure = false;
+      var nullValuesAtStart = true;
       if (orderByClause != null && orderByClause) {
-        List orderByAttrs = (List) context.cacheGet(CompiledValue.ORDERBY_ATTRIB);
+        var orderByAttrs = (List) context.cacheGet(CompiledValue.ORDERBY_ATTRIB);
         useLinkedDataStructure = orderByAttrs.size() == 1;
         nullValuesAtStart = !((CompiledSortCriterion) orderByAttrs.get(0)).getCriterion();
       }
@@ -940,7 +938,7 @@ public class RangeJunction extends AbstractGroupOrRangeJunction {
         indexFieldsSize = 1;
       }
       // actual index lookup
-      QueryObserver observer = QueryObserverHolder.getInstance();
+      var observer = QueryObserverHolder.getInstance();
       /*
        * Asif : First obtain the match level of index resultset. If the match level happens to be
        * zero , this implies that we just have to change the StructType ( again if only the Index
@@ -964,8 +962,8 @@ public class RangeJunction extends AbstractGroupOrRangeJunction {
     @Override
     public Object evaluate(ExecutionContext context) throws TypeMismatchException,
         FunctionDomainException, NameResolutionException, QueryInvocationTargetException {
-      Object evaluatedPath = indxInfo._path.evaluate(context);
-      Boolean result = (Boolean) super.evaluate(context, evaluatedPath);
+      var evaluatedPath = indxInfo._path.evaluate(context);
+      var result = (Boolean) super.evaluate(context, evaluatedPath);
       if (result) {
         result = (Boolean) TypeUtils.compare(evaluatedPath, condnKey, condnOp);
       }
@@ -1040,14 +1038,14 @@ public class RangeJunction extends AbstractGroupOrRangeJunction {
         boolean isIntersection, boolean conditioningNeeded, boolean evalProj)
         throws FunctionDomainException, TypeMismatchException, NameResolutionException,
         QueryInvocationTargetException {
-      ObjectType resultType = indxInfo._index.getResultSetType();
-      int indexFieldsSize = -1;
+      var resultType = indxInfo._index.getResultSetType();
+      var indexFieldsSize = -1;
       SelectResults set = null;
-      Boolean orderByClause = (Boolean) context.cacheGet(CompiledValue.CAN_APPLY_ORDER_BY_AT_INDEX);
-      boolean useLinkedDataStructure = false;
-      boolean nullValuesAtStart = true;
+      var orderByClause = (Boolean) context.cacheGet(CompiledValue.CAN_APPLY_ORDER_BY_AT_INDEX);
+      var useLinkedDataStructure = false;
+      var nullValuesAtStart = true;
       if (orderByClause != null && orderByClause) {
-        List orderByAttrs = (List) context.cacheGet(CompiledValue.ORDERBY_ATTRIB);
+        var orderByAttrs = (List) context.cacheGet(CompiledValue.ORDERBY_ATTRIB);
         useLinkedDataStructure = orderByAttrs.size() == 1;
         nullValuesAtStart = !((CompiledSortCriterion) orderByAttrs.get(0)).getCriterion();
       }
@@ -1081,7 +1079,7 @@ public class RangeJunction extends AbstractGroupOrRangeJunction {
       // Shobhit: Limit can not be applied at index level for RangeJunction as
       // other conditions are applied after coming out of index query method.
       context.cachePut(CompiledValue.CAN_APPLY_LIMIT_AT_INDEX, Boolean.FALSE);
-      QueryObserver observer = QueryObserverHolder.getInstance();
+      var observer = QueryObserverHolder.getInstance();
       /*
        * Asif : First obtain the match level of index resultset. If the match level happens to be
        * zero , this implies that we just have to change the StructType ( again if only the Index
@@ -1114,8 +1112,8 @@ public class RangeJunction extends AbstractGroupOrRangeJunction {
     @Override
     public Object evaluate(ExecutionContext context) throws FunctionDomainException,
         TypeMismatchException, NameResolutionException, QueryInvocationTargetException {
-      Object evaluatedPath = indxInfo._path.evaluate(context);
-      Boolean result = (Boolean) super.evaluate(context, evaluatedPath);
+      var evaluatedPath = indxInfo._path.evaluate(context);
+      var result = (Boolean) super.evaluate(context, evaluatedPath);
       if (result) {
         result = (Boolean) TypeUtils.compare(evaluatedPath, lessCondnKey, lessCondnOp);
         result = result

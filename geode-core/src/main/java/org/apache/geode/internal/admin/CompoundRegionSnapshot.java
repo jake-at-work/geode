@@ -19,9 +19,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.apache.geode.cache.CacheListener;
-import org.apache.geode.cache.CacheLoader;
-import org.apache.geode.cache.CacheWriter;
 import org.apache.geode.cache.RegionAttributes;
 
 /**
@@ -88,19 +85,19 @@ public class CompoundRegionSnapshot implements RegionSnapshot {
     }
     // individuals.put(systemEntity, snap);
 
-    RegionAttributes ra = snap.getAttributes();
+    var ra = snap.getAttributes();
     if (ra != null) {
-      CacheListener listener = ra.getCacheListener();
+      var listener = ra.getCacheListener();
       if (listener != null) {
         allListeners.add(listener.toString());
       }
 
-      CacheWriter writer = ra.getCacheWriter();
+      var writer = ra.getCacheWriter();
       if (writer != null) {
         allCacheWriters.add(writer.toString());
       }
 
-      CacheLoader loader = ra.getCacheLoader();
+      var loader = ra.getCacheLoader();
       if (loader != null) {
         allCacheLoaders.add(loader);
       }
@@ -129,27 +126,27 @@ public class CompoundRegionSnapshot implements RegionSnapshot {
       // }
     }
 
-    long modified = snap.getLastModifiedTime();
+    var modified = snap.getLastModifiedTime();
     if (modified > 0 && modified > lastModifiedTime) {
       lastModifiedTime = modified;
     }
 
-    long access = snap.getLastAccessTime();
+    var access = snap.getLastAccessTime();
     if (access > 0 && access > lastAccessTime) {
       lastAccessTime = access;
     }
 
-    long hitCount = snap.getNumberOfHits();
+    var hitCount = snap.getNumberOfHits();
     if (hitCount > 0) {
       numHits += hitCount;
     }
 
-    long missCount = snap.getNumberOfMisses();
+    var missCount = snap.getNumberOfMisses();
     if (missCount > 0) {
       numMisses += missCount;
     }
 
-    float hitRatio = snap.getHitRatio();
+    var hitRatio = snap.getHitRatio();
     if (hitRatio >= 0.00) {
       hitResponders++;
       hitRatioSum += hitRatio;

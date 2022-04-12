@@ -49,9 +49,9 @@ public class Hex {
       return null;
     }
 
-    char[] hex = new char[2 * length];
-    for (int i = 0; i < length; i++) {
-      int b = buf[i + offset] & 0xff;
+    var hex = new char[2 * length];
+    for (var i = 0; i < length; i++) {
+      var b = buf[i + offset] & 0xff;
       hex[2 * i] = HEX[b >>> 4];
       hex[2 * i + 1] = HEX[b & 0xf];
     }
@@ -65,10 +65,10 @@ public class Hex {
    * @return the byte array
    */
   public static byte[] toByteArray(String hex) {
-    byte[] bytes = new byte[hex.length() / 2];
-    for (int i = 0; i < bytes.length; i++) {
-      int index = i * 2;
-      int v = Integer.parseInt(hex.substring(index, index + 2), 16);
+    var bytes = new byte[hex.length() / 2];
+    for (var i = 0; i < bytes.length; i++) {
+      var index = i * 2;
+      var v = Integer.parseInt(hex.substring(index, index + 2), 16);
       bytes[i] = (byte) v;
     }
     return bytes;

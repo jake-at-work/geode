@@ -24,7 +24,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.Arrays;
-import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
@@ -80,7 +79,7 @@ public abstract class AbstractSRandMemberIntegrationTest implements RedisIntegra
   @Test
   public void srandmember_withoutCount_withExistentSet_returnsOneMember() {
     jedis.sadd(SET_KEY, SET_MEMBERS);
-    String result = jedis.srandmember(SET_KEY);
+    var result = jedis.srandmember(SET_KEY);
     assertThat(result).isIn(Arrays.asList(SET_MEMBERS));
   }
 
@@ -93,9 +92,9 @@ public abstract class AbstractSRandMemberIntegrationTest implements RedisIntegra
   @Test
   public void srandmember_withNegativeCount_withExistentSet_returnsSubsetOfSet() {
     jedis.sadd(SET_KEY, SET_MEMBERS);
-    int count = -20;
+    var count = -20;
 
-    List<String> result = jedis.srandmember(SET_KEY, count);
+    var result = jedis.srandmember(SET_KEY, count);
     assertThat(result.size()).isEqualTo(-count);
     assertThat(result).isSubsetOf(SET_MEMBERS);
   }
@@ -109,9 +108,9 @@ public abstract class AbstractSRandMemberIntegrationTest implements RedisIntegra
   @Test
   public void srandmember_withSmallCount_withExistentSet_returnsCorrectNumberOfMembers() {
     jedis.sadd(SET_KEY, SET_MEMBERS);
-    int count = 2; // 2*3 < 8 Calls srandomUniqueListWithSmallCount
+    var count = 2; // 2*3 < 8 Calls srandomUniqueListWithSmallCount
 
-    List<String> result = jedis.srandmember(SET_KEY, count);
+    var result = jedis.srandmember(SET_KEY, count);
     assertThat(result.size()).isEqualTo(2);
     assertThat(result).isSubsetOf(SET_MEMBERS);
     assertThat(result).doesNotHaveDuplicates();
@@ -120,9 +119,9 @@ public abstract class AbstractSRandMemberIntegrationTest implements RedisIntegra
   @Test
   public void srandmember_withLargeCount_withExistentSet_returnsCorrectNumberOfMembers() {
     jedis.sadd(SET_KEY, SET_MEMBERS);
-    int count = 6; // 6*3 > 8 Calls srandomUniqueListWithLargeCount
+    var count = 6; // 6*3 > 8 Calls srandomUniqueListWithLargeCount
 
-    List<String> result = jedis.srandmember(SET_KEY, count);
+    var result = jedis.srandmember(SET_KEY, count);
     assertThat(result.size()).isEqualTo(count);
     assertThat(result).isSubsetOf(SET_MEMBERS);
     assertThat(result).doesNotHaveDuplicates();
@@ -131,7 +130,7 @@ public abstract class AbstractSRandMemberIntegrationTest implements RedisIntegra
   @Test
   public void srandmember_withCountAsSetSize_withExistentSet_returnsAllMembers() {
     jedis.sadd(SET_KEY, SET_MEMBERS);
-    int count = SET_MEMBERS.length;
+    var count = SET_MEMBERS.length;
 
     assertThat(jedis.srandmember(SET_KEY, count)).containsExactlyInAnyOrder(SET_MEMBERS);
   }
@@ -144,21 +143,21 @@ public abstract class AbstractSRandMemberIntegrationTest implements RedisIntegra
 
   @Test
   public void srandmember_withoutCount_withWrongKeyType_returnsWrongTypeError() {
-    String key = "ding";
+    var key = "ding";
     jedis.set(key, "dong");
     assertThatThrownBy(() -> jedis.srandmember(key)).hasMessage(ERROR_WRONG_TYPE);
   }
 
   @Test
   public void srandmember_withCount_withWrongKeyType_returnsWrongTypeError() {
-    String key = "ding";
+    var key = "ding";
     jedis.set(key, "dong");
     assertThatThrownBy(() -> jedis.srandmember(key, 5)).hasMessage(ERROR_WRONG_TYPE);
   }
 
   @Test
   public void srandmember_withCountAsZero_withWrongKeyType_returnsWrongTypeError() {
-    String key = "ding";
+    var key = "ding";
     jedis.set(key, "dong");
     assertThatThrownBy(() -> jedis.srandmember(key, 0)).hasMessage(ERROR_WRONG_TYPE);
   }

@@ -57,7 +57,7 @@ public class InlineKeyHelper {
   }
 
   private static boolean isByteEncodingOk(String skey) {
-    for (int i = 0; i < skey.length(); i++) {
+    for (var i = 0; i < skey.length(); i++) {
       if (skey.charAt(i) > 0x7f) {
         return false;
       }

@@ -26,13 +26,11 @@ import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.DataPolicy;
-import org.apache.geode.cache.PartitionAttributes;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionService;
-import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.internal.cache.functions.TestFunction;
@@ -56,14 +54,14 @@ public class LocalFunctionExecutionDUnitTest extends JUnit4DistributedTestCase {
 
   @Override
   public final void postSetUp() throws Exception {
-    Host host = Host.getHost(0);
+    var host = Host.getHost(0);
     dataStore1 = host.getVM(0);
   }
 
   @Test
   public void testLocalDataSetPR() {
     dataStore1.invoke(LocalFunctionExecutionDUnitTest::createCacheInVm);
-    Object[] args =
+    var args =
         new Object[] {"testRegion", 1, 50, 10, null};
     dataStore1.invoke(LocalFunctionExecutionDUnitTest.class, "createPR", args);
     dataStore1.invoke(LocalFunctionExecutionDUnitTest::put);
@@ -73,7 +71,7 @@ public class LocalFunctionExecutionDUnitTest extends JUnit4DistributedTestCase {
   @Test
   public void testLocalDataSetDR() {
     dataStore1.invoke(LocalFunctionExecutionDUnitTest::createCacheInVm);
-    Object[] args = new Object[] {"testRegion", DataPolicy.REPLICATE};
+    var args = new Object[] {"testRegion", DataPolicy.REPLICATE};
     dataStore1.invoke(LocalFunctionExecutionDUnitTest.class, "createDR", args);
     dataStore1.invoke(LocalFunctionExecutionDUnitTest::put);
     dataStore1.invoke(LocalFunctionExecutionDUnitTest::executeFunction);
@@ -91,7 +89,7 @@ public class LocalFunctionExecutionDUnitTest extends JUnit4DistributedTestCase {
 
   public void createCache() {
     try {
-      Properties props = new Properties();
+      var props = new Properties();
       DistributedSystem ds = getSystem(props);
       assertNotNull(ds);
       ds.disconnect();
@@ -106,11 +104,11 @@ public class LocalFunctionExecutionDUnitTest extends JUnit4DistributedTestCase {
   public static void createPR(String partitionedRegionName, Integer redundancy,
       Integer localMaxMemory, Integer totalNumBuckets, String colocatedWith) {
 
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
-    PartitionAttributes prAttr = paf.setRedundantCopies(redundancy)
+    var paf = new PartitionAttributesFactory();
+    var prAttr = paf.setRedundantCopies(redundancy)
         .setLocalMaxMemory(localMaxMemory).setTotalNumBuckets(totalNumBuckets)
         .setColocatedWith(colocatedWith).create();
-    AttributesFactory attr = new AttributesFactory();
+    var attr = new AttributesFactory();
     attr.setPartitionAttributes(prAttr);
     assertNotNull(cache);
 
@@ -122,7 +120,7 @@ public class LocalFunctionExecutionDUnitTest extends JUnit4DistributedTestCase {
 
 
   public static void createDR(String distributedRegionName, DataPolicy dataPolicy) {
-    AttributesFactory attr = new AttributesFactory();
+    var attr = new AttributesFactory();
     attr.setScope(Scope.DISTRIBUTED_ACK);
     attr.setDataPolicy(dataPolicy);
     assertNotNull(cache);
@@ -134,7 +132,7 @@ public class LocalFunctionExecutionDUnitTest extends JUnit4DistributedTestCase {
 
 
   public static void put() {
-    for (int i = 0; i < 120; i++) {
+    for (var i = 0; i < 120; i++) {
       region.put("YOYO-CUST-KEY-" + i, "YOYO-CUST-VAL-" + i);
     }
   }
@@ -143,7 +141,7 @@ public class LocalFunctionExecutionDUnitTest extends JUnit4DistributedTestCase {
     try {
       Function function1 = new TestFunction(true, TestFunction.TEST_FUNCTION_EXCEPTION);
       FunctionService.registerFunction(function1);
-      ResultCollector rc =
+      var rc =
           FunctionService.onRegion(region).setArguments(Boolean.TRUE).execute(function1.getId());
       rc.getResult();
       Assert.fail("Exception should occur", new Exception("Test Failed"));
@@ -157,7 +155,7 @@ public class LocalFunctionExecutionDUnitTest extends JUnit4DistributedTestCase {
       Function function1 = new TestFunction(true, TestFunction.TEST_FUNCTION_EXCEPTION);
       FunctionService.registerFunction(function1);
       DistributedMember localmember = getSystemStatic().getDistributedMember();
-      ResultCollector rc = FunctionService.onMember(localmember).setArguments(Boolean.TRUE)
+      var rc = FunctionService.onMember(localmember).setArguments(Boolean.TRUE)
           .execute(function1.getId());
       rc.getResult();
       Assert.fail("Exception should occur", new Exception("Test Failed"));

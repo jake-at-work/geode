@@ -83,7 +83,7 @@ public class DomainObjectsAsValuesJUnitTest {
     @Override
     public boolean equals(Object obj) {
       if (obj instanceof Customer) {
-        Customer other = (Customer) obj;
+        var other = (Customer) obj;
         return compareStrings(name, other.name) && compareStrings(address, other.address);
       }
       return false;
@@ -107,10 +107,10 @@ public class DomainObjectsAsValuesJUnitTest {
 
   @Test
   public void testGetPutDomainObject() throws Exception {
-    MemcachedClient client = new MemcachedClient(new ConnectionWithOneMinuteTimeoutFactory(),
+    var client = new MemcachedClient(new ConnectionWithOneMinuteTimeoutFactory(),
         Collections.singletonList(new InetSocketAddress(InetAddress.getLocalHost(), PORT)));
-    Customer c = new Customer("name0", "addr0");
-    Customer c1 = new Customer("name1", "addr1");
+    var c = new Customer("name0", "addr0");
+    var c1 = new Customer("name1", "addr1");
     Future<Boolean> f = client.add("keyObj", 10, c);
     assertTrue(f.get());
     Future<Boolean> f1 = client.add("key1", 10, c1);

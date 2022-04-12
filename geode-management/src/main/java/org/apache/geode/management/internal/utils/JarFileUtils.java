@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.jar.JarInputStream;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FilenameUtils;
@@ -50,7 +49,7 @@ public class JarFileUtils {
    * @return the artifact id of the string
    */
   public static String getArtifactId(String deployedJarFileName) {
-    Matcher semanticVersionMatcher = USER_VERSION_PATTERN.matcher(deployedJarFileName);
+    var semanticVersionMatcher = USER_VERSION_PATTERN.matcher(deployedJarFileName);
     if (semanticVersionMatcher.matches()) {
       return semanticVersionMatcher.group("artifact");
     } else {
@@ -69,10 +68,10 @@ public class JarFileUtils {
    * @return True if the data has JAR content, false otherwise
    */
   public static boolean hasValidJarContent(File jarFile) {
-    boolean valid = false;
+    var valid = false;
 
-    try (FileInputStream fileInputStream = new FileInputStream(jarFile);
-        JarInputStream jarInputStream = new JarInputStream(fileInputStream)) {
+    try (var fileInputStream = new FileInputStream(jarFile);
+        var jarInputStream = new JarInputStream(fileInputStream)) {
       valid = jarInputStream.getNextJarEntry() != null;
     } catch (IOException ignore) {
       // Ignore this exception and just return false
@@ -92,7 +91,7 @@ public class JarFileUtils {
    * @return The version number embedded in the filename
    */
   public static int extractVersionFromFilename(final String filename) {
-    final Matcher matcher = DEPLOYED_FILE_PATTERN.matcher(filename);
+    final var matcher = DEPLOYED_FILE_PATTERN.matcher(filename);
     if (matcher.find()) {
       return Integer.parseInt(matcher.group(2));
     } else {
@@ -101,7 +100,7 @@ public class JarFileUtils {
   }
 
   public static String getDeployedFileBaseName(String sequencedJarFileName) {
-    Matcher semanticVersionMatcher = DEPLOYED_FILE_PATTERN.matcher(sequencedJarFileName);
+    var semanticVersionMatcher = DEPLOYED_FILE_PATTERN.matcher(sequencedJarFileName);
     if (semanticVersionMatcher.matches()) {
       return semanticVersionMatcher.group("baseName");
     } else {
@@ -118,7 +117,7 @@ public class JarFileUtils {
    * @return the artifact id. if a file with no sequence number is passed in, this will return null
    */
   public static String toArtifactId(String sequencedJarFileName) {
-    String baseName = getDeployedFileBaseName(sequencedJarFileName);
+    var baseName = getDeployedFileBaseName(sequencedJarFileName);
     if (baseName == null) {
       return null;
     }

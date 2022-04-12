@@ -58,10 +58,10 @@ public class CompiledConstruction extends AbstractCompiledValue {
       TypeMismatchException, NameResolutionException, QueryInvocationTargetException {
     // we only support ResultsSet now
     Assert.assertTrue(objectType == ResultsSet.class);
-    ResultsSet newSet = new ResultsSet(args.size());
-    for (final Object arg : args) {
-      CompiledValue cv = (CompiledValue) arg;
-      Object eval = cv.evaluate(context);
+    var newSet = new ResultsSet(args.size());
+    for (final var arg : args) {
+      var cv = (CompiledValue) arg;
+      var eval = cv.evaluate(context);
       if (eval == QueryService.UNDEFINED) {
         return QueryService.UNDEFINED;
       }
@@ -73,8 +73,8 @@ public class CompiledConstruction extends AbstractCompiledValue {
   @Override
   public Set computeDependencies(ExecutionContext context)
       throws TypeMismatchException, NameResolutionException {
-    for (final Object arg : args) {
-      CompiledValue cv = (CompiledValue) arg;
+    for (final var arg : args) {
+      var cv = (CompiledValue) arg;
       context.addDependencies(this, cv.computeDependencies(context));
     }
     return context.getDependencySet(this, true);

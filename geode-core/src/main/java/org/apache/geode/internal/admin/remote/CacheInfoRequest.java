@@ -35,7 +35,7 @@ public class CacheInfoRequest extends AdminRequest {
    * Returns a <code>CacheInfoRequest</code>.
    */
   public static CacheInfoRequest create() {
-    CacheInfoRequest m = new CacheInfoRequest();
+    var m = new CacheInfoRequest();
     return m;
   }
 

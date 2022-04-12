@@ -53,7 +53,7 @@ public abstract class AbstractRPushIntegrationTest implements RedisIntegrationTe
 
   @Test
   public void rpush_withExistingKey_ofWrongType_returnsWrongTypeError_shouldNotOverWriteExistingKey() {
-    String elementValue = "list element value that should never get added";
+    var elementValue = "list element value that should never get added";
 
     jedis.set(KEY, PREEXISTING_VALUE);
 

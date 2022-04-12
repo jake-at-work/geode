@@ -36,7 +36,7 @@ public class TestAutoSerializerCqListener implements CqListener {
 
   @Override
   public void onEvent(CqEvent aCqEvent) {
-    Object obj = aCqEvent.getNewValue();
+    var obj = aCqEvent.getNewValue();
     if (obj instanceof TestAutoSerializerObject1) {
       testAutoSerializerObject1.put((String) aCqEvent.getKey(),
           (TestAutoSerializerObject1) aCqEvent.getNewValue());

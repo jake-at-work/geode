@@ -21,8 +21,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.OptionalLong;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
@@ -32,8 +30,6 @@ import org.apache.shiro.subject.Subject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.TestOnly;
 
-import org.apache.geode.internal.security.AuthorizeRequest;
-import org.apache.geode.internal.security.AuthorizeRequestPP;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 
 /**
@@ -99,14 +95,14 @@ public class ClientUserAuths {
   }
 
   private synchronized long getNextID() {
-    OptionalLong maybeId = idGenerator.generateId();
+    var maybeId = idGenerator.generateId();
     if (!maybeId.isPresent()) {
       // The generator has exhausted all IDs. Clear the auths to force re-authentication to make
       // sure every active auth ID is unique.
       uniqueIdVsUserAuth.clear();
       return getNextID();
     }
-    long id = maybeId.getAsLong();
+    var id = maybeId.getAsLong();
     if (id == 0 | id == -1) {
       // We cannot assign 0 or -1, because we treat those numbers as requests to generate an ID.
       return getNextID();
@@ -120,14 +116,14 @@ public class ClientUserAuths {
 
   @TestOnly
   protected synchronized Collection<Subject> getAllSubjects() {
-    List<Subject> all = uniqueIdVsSubjects.values().stream()
+    var all = uniqueIdVsSubjects.values().stream()
         .flatMap(List::stream)
         .collect(Collectors.toList());
     return Collections.unmodifiableCollection(all);
   }
 
   public synchronized Subject getSubject(final Long userId) {
-    List<Subject> subjects = uniqueIdVsSubjects.get(userId);
+    var subjects = uniqueIdVsSubjects.get(userId);
     if (subjects == null || subjects.isEmpty()) {
       return null;
     }
@@ -135,7 +131,7 @@ public class ClientUserAuths {
   }
 
   public synchronized void removeSubject(final Long userId) {
-    List<Subject> subjects = uniqueIdVsSubjects.remove(userId);
+    var subjects = uniqueIdVsSubjects.remove(userId);
     if (subjects == null) {
       return;
     }
@@ -148,7 +144,7 @@ public class ClientUserAuths {
   }
 
   public Subject getSubject(final String cqName) {
-    Long uniqueId = cqNameVsUniqueId.get(cqName);
+    var uniqueId = cqNameVsUniqueId.get(cqName);
     if (uniqueId == null) {
       return null;
     }
@@ -157,13 +153,13 @@ public class ClientUserAuths {
 
   public void setUserAuthAttributesForCq(final String cqName, final Long uniqueId,
       final boolean isDurable) {
-    final UserAuthAttributes uaa = uniqueIdVsUserAuth.get(uniqueId);
+    final var uaa = uniqueIdVsUserAuth.get(uniqueId);
 
     if (uaa != null) {
       if (!isDurable) {
         cqNameVsUserAuth.put(cqName, uaa);
       } else {
-        final UserAuthAttributes oldUaa = cqNameVsUserAuth.put(cqName, uaa);
+        final var oldUaa = cqNameVsUserAuth.put(cqName, uaa);
         if (oldUaa != null) {
           if (oldUaa != uaa) {
             cleanUserAuth(oldUaa);
@@ -178,7 +174,7 @@ public class ClientUserAuths {
   }
 
   public void removeUserAuthAttributesForCq(final String cqName, final boolean isDurable) {
-    final UserAuthAttributes uaa = cqNameVsUserAuth.remove(cqName);
+    final var uaa = cqNameVsUserAuth.remove(cqName);
     if (uaa != null && isDurable) {
       uaa.unsetDurable();
     }
@@ -186,7 +182,7 @@ public class ClientUserAuths {
   }
 
   public void removeUserId(final Long userId, final boolean keepAlive) {
-    UserAuthAttributes uaa = uniqueIdVsUserAuth.get(userId);
+    var uaa = uniqueIdVsUserAuth.get(userId);
     if (uaa != null && !(uaa.isDurable() && keepAlive)) {
       uaa = uniqueIdVsUserAuth.remove(userId);
       logger.debug("UserAuth of {} removed.", userId);
@@ -198,7 +194,7 @@ public class ClientUserAuths {
 
   public void cleanUserAuth(final UserAuthAttributes userAuth) {
     if (userAuth != null) {
-      final AuthorizeRequest authReq = userAuth.getAuthzRequest();
+      final var authReq = userAuth.getAuthzRequest();
       try {
         if (authReq != null) {
           authReq.close();
@@ -206,7 +202,7 @@ public class ClientUserAuths {
       } catch (Exception ignored) {
       }
       try {
-        final AuthorizeRequestPP postAuthzReq = userAuth.getPostAuthzRequest();
+        final var postAuthzReq = userAuth.getPostAuthzRequest();
         if (postAuthzReq != null) {
           postAuthzReq.close();
         }
@@ -218,7 +214,7 @@ public class ClientUserAuths {
 
   public void cleanup(boolean fromCacheClientProxy) {
     // for old security model
-    for (UserAuthAttributes userAuth : uniqueIdVsUserAuth.values()) {
+    for (var userAuth : uniqueIdVsUserAuth.values()) {
       // isDurable is checked for multiuser in CQ
       if (!fromCacheClientProxy && !userAuth.isDurable()) {
         // from serverConnection class
@@ -232,18 +228,18 @@ public class ClientUserAuths {
     // for integrated security, doesn't matter if this is called from proxy
     // or from the connection, we are closing the client connection
     synchronized (this) {
-      for (final Long subjectId : uniqueIdVsSubjects.keySet()) {
+      for (final var subjectId : uniqueIdVsSubjects.keySet()) {
         removeSubject(subjectId);
       }
     }
   }
 
   public void fillPreviousCQAuth(ClientUserAuths previousClientUserAuths) {
-    for (Map.Entry<String, UserAuthAttributes> ent : previousClientUserAuths.cqNameVsUserAuth
+    for (var ent : previousClientUserAuths.cqNameVsUserAuth
         .entrySet()) {
-      final String cqName = ent.getKey();
-      final UserAuthAttributes prevUaa = ent.getValue();
-      final UserAuthAttributes newUaa = cqNameVsUserAuth.putIfAbsent(cqName, prevUaa);
+      final var cqName = ent.getKey();
+      final var prevUaa = ent.getValue();
+      final var newUaa = cqNameVsUserAuth.putIfAbsent(cqName, prevUaa);
 
       if (newUaa != null) {
         previousClientUserAuths.cleanUserAuth(prevUaa);

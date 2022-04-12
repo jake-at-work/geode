@@ -22,7 +22,6 @@ import org.apache.geode.annotations.Immutable;
 import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.sockets.BaseCommand;
 import org.apache.geode.internal.cache.tier.sockets.Message;
-import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
 import org.apache.geode.internal.security.SecurityService;
 import org.apache.geode.security.GemFireSecurityException;
@@ -41,7 +40,7 @@ public class RemoveUserAuth extends BaseCommand {
       final @NotNull ServerConnection serverConnection,
       final @NotNull SecurityService securityService, long start)
       throws IOException, ClassNotFoundException, InterruptedException {
-    boolean isSecureMode = clientMessage.isSecureMode();
+    var isSecureMode = clientMessage.isSecureMode();
 
     if (!isSecureMode) {
       // need to throw exception
@@ -50,9 +49,9 @@ public class RemoveUserAuth extends BaseCommand {
 
     try {
       serverConnection.setAsTrue(REQUIRES_RESPONSE);
-      Part keepalivePart = clientMessage.getPart(0);
-      byte[] keepaliveByte = keepalivePart.getSerializedForm();
-      boolean keepalive = keepaliveByte != null && keepaliveByte[0] != 0;
+      var keepalivePart = clientMessage.getPart(0);
+      var keepaliveByte = keepalivePart.getSerializedForm();
+      var keepalive = keepaliveByte != null && keepaliveByte[0] != 0;
       serverConnection.getSecurityLogWriter().fine("remove user auth keep alive " + keepalive);
       serverConnection.removeUserAuth(clientMessage, keepalive);
       writeReply(clientMessage, serverConnection);

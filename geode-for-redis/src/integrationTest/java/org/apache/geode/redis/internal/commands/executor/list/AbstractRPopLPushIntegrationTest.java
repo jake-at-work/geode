@@ -57,8 +57,8 @@ public abstract class AbstractRPopLPushIntegrationTest implements RedisIntegrati
 
   @Test
   public void rPopLPush_withKeysInDifferentSlots_returnsCrossSlotError() {
-    final String key1 = "{1}key1";
-    final String key2 = "{2}key2";
+    final var key1 = "{1}key1";
+    final var key2 = "{2}key2";
 
     // Neither key exists
     assertThatThrownBy(() -> jedis.sendCommand(RPOPLPUSH, key1, key2)).hasMessage(ERROR_WRONG_SLOT);
@@ -155,11 +155,11 @@ public abstract class AbstractRPopLPushIntegrationTest implements RedisIntegrati
 
   @Test
   public void rPopLPush_withConcurrentRPush_popsCorrectValue() {
-    String[] initialElements = new String[] {"a", "b", "c"};
-    String[] valuesToAdd = new String[] {"1", "2", "3"};
+    var initialElements = new String[] {"a", "b", "c"};
+    var valuesToAdd = new String[] {"1", "2", "3"};
     jedis.rpush(SOURCE_KEY, initialElements);
 
-    final AtomicReference<String> rPopLPushReference = new AtomicReference<>();
+    final var rPopLPushReference = new AtomicReference<String>();
     new ConcurrentLoopingThreads(1000,
         i -> jedis.rpush(SOURCE_KEY, valuesToAdd),
         i -> rPopLPushReference.set(jedis.rpoplpush(SOURCE_KEY, DESTINATION_KEY)))

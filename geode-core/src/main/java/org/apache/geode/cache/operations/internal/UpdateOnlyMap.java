@@ -103,8 +103,8 @@ public class UpdateOnlyMap implements Map, Serializable {
   @Override
   public void putAll(Map m) {
     if (m != null) {
-      for (Object i : m.entrySet()) {
-        Map.Entry me = (Map.Entry) i;
+      for (var i : m.entrySet()) {
+        var me = (Map.Entry) i;
         put(me.getKey(), me.getValue());
       }
     }
@@ -162,7 +162,7 @@ public class UpdateOnlyMap implements Map, Serializable {
 
     @Override
     public Object next() {
-      Entry me = (Entry) mIterator.next();
+      var me = (Entry) mIterator.next();
       return new ExportableEntry(me);
     }
 
@@ -204,7 +204,7 @@ public class UpdateOnlyMap implements Map, Serializable {
       if (!(o instanceof Map.Entry)) {
         return false;
       }
-      Entry other = (Entry) o;
+      var other = (Entry) o;
       return eq(getKey(), other.getKey()) && eq(getValue(), other.getValue());
     }
 
@@ -269,15 +269,15 @@ public class UpdateOnlyMap implements Map, Serializable {
     if (!(o instanceof Map)) {
       return false;
     }
-    Map m = (Map) o;
+    var m = (Map) o;
     if (m.size() != size()) {
       return false;
     }
 
     try {
-      for (final Entry e : (Iterable<Entry>) entrySet()) {
-        Object key = e.getKey();
-        Object value = e.getValue();
+      for (final var e : (Iterable<Entry>) entrySet()) {
+        var key = e.getKey();
+        var value = e.getValue();
         if (value == null) {
           if (!(m.get(key) == null && m.containsKey(key))) {
             return false;
@@ -303,8 +303,8 @@ public class UpdateOnlyMap implements Map, Serializable {
    */
   @Override
   public int hashCode() {
-    int h = 0;
-    for (final Entry entry : (Iterable<Entry>) entrySet()) {
+    var h = 0;
+    for (final var entry : (Iterable<Entry>) entrySet()) {
       h += entry.hashCode();
     }
     return h;
@@ -316,12 +316,12 @@ public class UpdateOnlyMap implements Map, Serializable {
     if (!i.hasNext()) {
       return "{}";
     }
-    StringBuilder sb = new StringBuilder();
+    var sb = new StringBuilder();
     sb.append('{');
     for (;;) {
-      Entry e = i.next();
-      Object key = e.getKey();
-      Object value = e.getValue();
+      var e = i.next();
+      var key = e.getKey();
+      var value = e.getValue();
       sb.append(key == this ? "(this Map)" : key);
       sb.append('=');
       sb.append(value == this ? "(this Map)" : value);

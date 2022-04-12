@@ -18,23 +18,18 @@ package org.apache.geode.redis.internal.commands.executor.sortedset;
 
 import static org.apache.geode.redis.internal.RedisConstants.ERROR_NOT_A_VALID_FLOAT;
 
-import java.util.List;
-
-import org.apache.geode.cache.Region;
 import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
 import org.apache.geode.redis.internal.commands.executor.RedisResponse;
-import org.apache.geode.redis.internal.data.RedisData;
-import org.apache.geode.redis.internal.data.RedisKey;
 import org.apache.geode.redis.internal.netty.Coder;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
 
 public class ZIncrByExecutor implements CommandExecutor {
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
-    List<byte[]> commandElements = command.getProcessedCommand();
-    Region<RedisKey, RedisData> region = context.getRegion();
-    RedisKey key = command.getKey();
+    var commandElements = command.getProcessedCommand();
+    var region = context.getRegion();
+    var key = command.getKey();
 
     double increment;
     try {
@@ -42,9 +37,9 @@ public class ZIncrByExecutor implements CommandExecutor {
     } catch (NumberFormatException e) {
       return RedisResponse.error(ERROR_NOT_A_VALID_FLOAT);
     }
-    byte[] member = commandElements.get(3);
+    var member = commandElements.get(3);
 
-    byte[] retVal = context.sortedSetLockedExecute(key, false,
+    var retVal = context.sortedSetLockedExecute(key, false,
         zset -> zset.zincrby(region, key, increment, member));
 
     return RedisResponse.bulkString(retVal);

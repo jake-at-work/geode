@@ -21,12 +21,10 @@ import static org.apache.geode.tools.pulse.internal.data.PulseConstants.TWO_PLAC
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -93,10 +91,10 @@ public class ClusterMembersRGraphService implements PulseService {
   public ObjectNode execute(final HttpServletRequest request) throws Exception {
 
     // get cluster object
-    Cluster cluster = repository.getCluster();
+    var cluster = repository.getCluster();
 
     // json object to be sent as response
-    ObjectNode responseJSON = mapper.createObjectNode();
+    var responseJSON = mapper.createObjectNode();
 
     // cluster's Members
     responseJSON.set(CLUSTER, getPhysicalServerJson(cluster));
@@ -114,58 +112,58 @@ public class ClusterMembersRGraphService implements PulseService {
    * @return Array list of JSON objects for required fields of members in cluster
    */
   private ObjectNode getPhysicalServerJson(Cluster cluster) {
-    Map<String, List<Cluster.Member>> physicalToMember = cluster.getPhysicalToMember();
+    var physicalToMember = cluster.getPhysicalToMember();
 
-    ObjectNode clusterTopologyJSON = mapper.createObjectNode();
+    var clusterTopologyJSON = mapper.createObjectNode();
 
     clusterTopologyJSON.put(ID, cluster.getClusterId());
     clusterTopologyJSON.put(NAME, cluster.getClusterId());
-    ObjectNode data1 = mapper.createObjectNode();
+    var data1 = mapper.createObjectNode();
     clusterTopologyJSON.set(DATA, data1);
-    ArrayNode childHostArray = mapper.createArrayNode();
+    var childHostArray = mapper.createArrayNode();
 
     updateAlertLists(cluster);
 
-    for (Map.Entry<String, List<Cluster.Member>> physicalToMem : physicalToMember.entrySet()) {
-      String hostName = physicalToMem.getKey();
-      double hostCpuUsage = 0.0;
+    for (var physicalToMem : physicalToMember.entrySet()) {
+      var hostName = physicalToMem.getKey();
+      var hostCpuUsage = 0.0;
       long hostMemoryUsage = 0;
-      double hostLoadAvg = 0.0;
-      int hostNumThreads = 0;
+      var hostLoadAvg = 0.0;
+      var hostNumThreads = 0;
       long hostSockets = 0;
-      boolean hostSevere = false;
-      boolean hostError = false;
-      boolean hostWarning = false;
+      var hostSevere = false;
+      var hostError = false;
+      var hostWarning = false;
       String hostStatus;
-      ObjectNode childHostObject = mapper.createObjectNode();
+      var childHostObject = mapper.createObjectNode();
       childHostObject.put(ID, hostName);
       childHostObject.put(NAME, hostName);
 
-      ArrayNode membersArray = mapper.createArrayNode();
+      var membersArray = mapper.createArrayNode();
 
-      List<Cluster.Member> memberList = physicalToMem.getValue();
-      for (Cluster.Member member : memberList) {
-        ObjectNode memberJSONObj = mapper.createObjectNode();
+      var memberList = physicalToMem.getValue();
+      for (var member : memberList) {
+        var memberJSONObj = mapper.createObjectNode();
 
         memberJSONObj.put(ID, member.getId());
         memberJSONObj.put(NAME, member.getName());
 
-        ObjectNode memberData = mapper.createObjectNode();
+        var memberData = mapper.createObjectNode();
 
         memberData.put("gemfireVersion", member.getGemfireVersion());
 
-        long currentHeap = member.getCurrentHeapSize();
-        long usedHeapSize = cluster.getUsedHeapSize();
+        var currentHeap = member.getCurrentHeapSize();
+        var usedHeapSize = cluster.getUsedHeapSize();
 
         if (usedHeapSize > 0) {
-          double heapUsage = ((currentHeap * 1D) / usedHeapSize) * 100;
+          var heapUsage = ((currentHeap * 1D) / usedHeapSize) * 100;
 
           memberData.put(MEMORY_USAGE, TWO_PLACE_DECIMAL_FORMAT.format(heapUsage));
         } else {
           memberData.put(MEMORY_USAGE, 0);
         }
 
-        double currentCPUUsage = member.getCpuUsage();
+        var currentCPUUsage = member.getCpuUsage();
 
         memberData.put(CPU_USAGE, TWO_PLACE_DECIMAL_FORMAT.format(currentCPUUsage));
         memberData.put(REGIONS, member.getMemberRegions().size());
@@ -225,7 +223,7 @@ public class ClusterMembersRGraphService implements PulseService {
         memberJSONObj.set(CHILDREN, mapper.createArrayNode());
         membersArray.add(memberJSONObj);
       }
-      ObjectNode data = mapper.createObjectNode();
+      var data = mapper.createObjectNode();
 
       data.put(LOAD_AVG, TWO_PLACE_DECIMAL_FORMAT.format(hostLoadAvg));
       data.put(SOCKETS, hostSockets);
@@ -268,7 +266,7 @@ public class ClusterMembersRGraphService implements PulseService {
    * @param memberState i.e Severe, Error, Warning or Normal
    */
   private String getMemberNodeType(Cluster.Member member, String memberState) {
-    String memberNodeType = "";
+    var memberNodeType = "";
 
     if ((member.isLocator()) && (member.isServer()) && (member.isManager())) {
       memberNodeType = "memberLocatorManagerServer" + memberState + "Node";
@@ -301,9 +299,9 @@ public class ClusterMembersRGraphService implements PulseService {
     errorAlertsList = new ArrayList<>();
     warningAlertsList = new ArrayList<>();
 
-    Cluster.Alert[] alertsList = cluster.getAlertsList();
+    var alertsList = cluster.getAlertsList();
 
-    for (Cluster.Alert alert : alertsList) {
+    for (var alert : alertsList) {
       // if alert is severe
       if (alert.getSeverity() == Cluster.Alert.SEVERE) {
         if (!errorAlertsList.remove(alert.getMemberName())) {

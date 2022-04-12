@@ -90,7 +90,7 @@ public enum Signal {
   }
 
   public static Signal valueOfName(final String name) {
-    for (Signal signal : values()) {
+    for (var signal : values()) {
       if (signal.getName().equalsIgnoreCase(name)) {
         return signal;
       }

@@ -19,7 +19,6 @@ import java.io.IOException;
 import org.jetbrains.annotations.NotNull;
 
 import org.apache.geode.annotations.Immutable;
-import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionService;
 import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.MessageType;
@@ -43,9 +42,9 @@ public class GetFunctionAttribute extends BaseCommand {
       final @NotNull SecurityService securityService, long start) throws IOException {
     serverConnection.setAsTrue(REQUIRES_RESPONSE);
 
-    String functionId = clientMessage.getPart(0).getString();
+    var functionId = clientMessage.getPart(0).getString();
     if (functionId == null) {
-      String message =
+      var message =
           String.format("The input %s for GetFunctionAttributes request is null",
               "functionId");
       logger.warn("{}: {}", serverConnection.getName(), message);
@@ -53,7 +52,7 @@ public class GetFunctionAttribute extends BaseCommand {
       return;
     }
 
-    Function function = FunctionService.getFunction(functionId);
+    var function = FunctionService.getFunction(functionId);
     if (function == null) {
       String message = null;
       message =
@@ -64,7 +63,7 @@ public class GetFunctionAttribute extends BaseCommand {
       return;
     }
 
-    byte[] functionAttributes = new byte[3];
+    var functionAttributes = new byte[3];
     functionAttributes[0] = (byte) (function.hasResult() ? 1 : 0);
     functionAttributes[1] = (byte) (function.isHA() ? 1 : 0);
     functionAttributes[2] = (byte) (function.optimizeForWrite() ? 1 : 0);

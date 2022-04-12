@@ -26,8 +26,6 @@ import org.junit.experimental.categories.Category;
 import org.junit.rules.TestName;
 
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.configuration.CacheConfig;
-import org.apache.geode.cache.configuration.RegionConfig;
 import org.apache.geode.management.api.ClusterManagementResult;
 import org.apache.geode.management.configuration.Region;
 import org.apache.geode.management.configuration.RegionType;
@@ -60,9 +58,9 @@ public class RegionAPIDUnitTest {
 
   @Test
   public void createsPartitionedRegion() {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     locator.invoke(() -> {
-      Region config = new Region();
+      var config = new Region();
       config.setName(regionName);
       config.setType(RegionType.PARTITION);
       ClusterManagementResult result =
@@ -86,9 +84,9 @@ public class RegionAPIDUnitTest {
 
   @Test
   public void createsReplicatedRegion() {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     locator.invoke(() -> {
-      Region config = new Region();
+      var config = new Region();
       config.setName(regionName);
       config.setType(RegionType.REPLICATE);
       ClusterManagementResult result =
@@ -104,9 +102,9 @@ public class RegionAPIDUnitTest {
 
   @Test
   public void createPartitionedRegion() throws Exception {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     locator.invoke(() -> {
-      Region config = new Region();
+      var config = new Region();
       config.setName(regionName);
       config.setType(RegionType.PARTITION);
       ClusterManagementResult result =
@@ -120,10 +118,10 @@ public class RegionAPIDUnitTest {
   }
 
   private static void verifyRegionPersisted(String regionName, String type) {
-    CacheConfig cacheConfig =
+    var cacheConfig =
         ClusterStartupRule.getLocator().getConfigurationPersistenceService()
             .getCacheConfig("cluster");
-    RegionConfig regionConfig = find(cacheConfig.getRegions(), regionName);
+    var regionConfig = find(cacheConfig.getRegions(), regionName);
     assertThat(regionConfig.getType()).isEqualTo(type);
   }
 

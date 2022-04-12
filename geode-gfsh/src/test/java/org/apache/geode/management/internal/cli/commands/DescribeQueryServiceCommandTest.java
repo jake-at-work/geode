@@ -35,7 +35,6 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.junit.Before;
@@ -79,7 +78,7 @@ public class DescribeQueryServiceCommandTest {
   @Test
   public void executeConstructsResultModelOnFirstSuccessfulFunctionExecutionWhenClusterConfigDoesNotContainQueryConfigurationService() {
     doReturn(null).when(command).getQueryConfigService();
-    CliFunctionResult mockResult = mock(CliFunctionResult.class);
+    var mockResult = mock(CliFunctionResult.class);
     doReturn(mockResult).when(command).executeFunctionAndGetFunctionResult(any(
         DescribeQueryServiceFunction.class), eq(null), any(DistributedMember.class));
     when(mockResult.getResultObject()).thenReturn(queryConfigService);
@@ -98,7 +97,7 @@ public class DescribeQueryServiceCommandTest {
   @Test
   public void executeConstructsResultModelWhenClusterConfigDoesNotContainQueryConfigurationServiceAndFirstMemberDoesNotReturnSuccess() {
     doReturn(null).when(command).getQueryConfigService();
-    CliFunctionResult mockResult = mock(CliFunctionResult.class);
+    var mockResult = mock(CliFunctionResult.class);
     doReturn(mockResult).when(command).executeFunctionAndGetFunctionResult(any(
         DescribeQueryServiceFunction.class), eq(null), any(DistributedMember.class));
     when(mockResult.getResultObject()).thenReturn(queryConfigService);
@@ -117,7 +116,7 @@ public class DescribeQueryServiceCommandTest {
   @Test
   public void commandReturnsErrorWhenClusterConfigDoesNotContainQueryConfigurationServiceAndFunctionFailsOnAllMembers() {
     doReturn(null).when(command).getQueryConfigService();
-    CliFunctionResult mockResult = mock(CliFunctionResult.class);
+    var mockResult = mock(CliFunctionResult.class);
     doReturn(mockResult).when(command).executeFunctionAndGetFunctionResult(any(
         DescribeQueryServiceFunction.class), eq(null), any(DistributedMember.class));
     when(mockResult.isSuccessful()).thenReturn(false);
@@ -142,15 +141,15 @@ public class DescribeQueryServiceCommandTest {
 
   @Test
   public void addMethodAuthorizerToResultModelPopulatesResultWithCorrectValuesAndSectionsWhenAuthorizerIsFoundAndSecurityIsEnabled() {
-    final int numberOfParameters = 2;
-    String methodAuthClassName = "Class.Package.Name";
-    QueryConfigService.MethodAuthorizer methodAuthorizer =
+    final var numberOfParameters = 2;
+    var methodAuthClassName = "Class.Package.Name";
+    var methodAuthorizer =
         new QueryConfigService.MethodAuthorizer();
     methodAuthorizer.setClassName(methodAuthClassName);
 
     List<QueryConfigService.MethodAuthorizer.Parameter> params = new ArrayList<>();
-    for (int i = 0; i < numberOfParameters; i++) {
-      QueryConfigService.MethodAuthorizer.Parameter param =
+    for (var i = 0; i < numberOfParameters; i++) {
+      var param =
           new QueryConfigService.MethodAuthorizer.Parameter();
       param.setParameterValue("param" + i);
       params.add(param);
@@ -159,7 +158,7 @@ public class DescribeQueryServiceCommandTest {
     methodAuthorizer.setParameters(params);
     queryConfigService.setMethodAuthorizer(methodAuthorizer);
 
-    ResultModel result = new ResultModel();
+    var result = new ResultModel();
     command.addMethodAuthorizerToResultModel(queryConfigService, result);
 
     assertThat(result.getDataSection(QUERY_SERVICE_DATA_SECTION)).isNotNull();
@@ -173,13 +172,13 @@ public class DescribeQueryServiceCommandTest {
   public void addMethodAuthorizerToResultModelPopulatesResultWithCorrectSectionWhenSecurityIsDisabled() {
     doReturn(false).when(command).isSecurityEnabled();
 
-    QueryConfigService.MethodAuthorizer methodAuthorizer =
+    var methodAuthorizer =
         new QueryConfigService.MethodAuthorizer();
     queryConfigService.setMethodAuthorizer(methodAuthorizer);
-    ResultModel result = new ResultModel();
+    var result = new ResultModel();
     command.addMethodAuthorizerToResultModel(queryConfigService, result);
 
-    Map<String, String> dataSection =
+    var dataSection =
         result.getDataSection(QUERY_SERVICE_DATA_SECTION).getContent();
 
     assertThat(dataSection.get(AUTHORIZER_CLASS_NAME)).isEqualTo(ALL_METHODS_ALLOWED);

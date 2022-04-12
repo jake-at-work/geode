@@ -92,8 +92,8 @@ public class ConnectionManagerImplTest {
 
   @Test
   public void borrowConnectionThrowsWhenUsingExistingConnectionsAndNoFreeConnectionsExist() {
-    ServerLocation serverLocation = mock(ServerLocation.class);
-    Connection connection = mock(Connection.class);
+    var serverLocation = mock(ServerLocation.class);
+    var connection = mock(Connection.class);
 
     when(connectionFactory.createClientToServerConnection(any())).thenReturn(connection);
 
@@ -112,8 +112,8 @@ public class ConnectionManagerImplTest {
 
   @Test
   public void borrowConnectionCreatesAConnectionOnSpecifiedServerWhenNoneExist() {
-    Connection connection = mock(Connection.class);
-    ServerLocation serverLocation = mock(ServerLocation.class);
+    var connection = mock(Connection.class);
+    var serverLocation = mock(ServerLocation.class);
     when(connectionFactory.createClientToServerConnection(serverLocation, false))
         .thenReturn(connection);
 
@@ -129,7 +129,7 @@ public class ConnectionManagerImplTest {
 
   @Test
   public void borrowConnectionCreatesAConnectionWhenNoneExist() {
-    Connection connection = mock(Connection.class);
+    var connection = mock(Connection.class);
     when(connectionFactory.createClientToServerConnection(any())).thenReturn(connection);
 
     connectionManager = createDefaultConnectionManager();
@@ -143,13 +143,13 @@ public class ConnectionManagerImplTest {
 
   @Test
   public void borrowConnectionReturnsAnActiveConnection() {
-    Connection connection = mock(Connection.class);
+    var connection = mock(Connection.class);
     when(connectionFactory.createClientToServerConnection(any())).thenReturn(connection);
 
     connectionManager = createDefaultConnectionManager();
     connectionManager.start(backgroundProcessor);
 
-    PooledConnection heldConnection =
+    var heldConnection =
         (PooledConnection) connectionManager.borrowConnection(timeout);
     assertThatThrownBy(heldConnection::activate).isInstanceOf(InternalGemFireException.class)
         .hasMessageContaining("Connection already active");
@@ -159,9 +159,9 @@ public class ConnectionManagerImplTest {
 
   @Test
   public void borrowConnectionReturnsAConnectionWhenOneExists() {
-    ServerLocation serverLocation = mock(ServerLocation.class);
-    Endpoint endpoint = mock(Endpoint.class);
-    Connection connection = mock(Connection.class);
+    var serverLocation = mock(ServerLocation.class);
+    var endpoint = mock(Endpoint.class);
+    var connection = mock(Connection.class);
     when(connectionFactory.createClientToServerConnection(any())).thenReturn(connection);
     when(connection.getServer()).thenReturn(serverLocation);
     when(connection.getEndpoint()).thenReturn(endpoint);
@@ -170,7 +170,7 @@ public class ConnectionManagerImplTest {
     connectionManager = createDefaultConnectionManager();
     connectionManager.start(backgroundProcessor);
 
-    Connection heldConnection = connectionManager.borrowConnection(timeout);
+    var heldConnection = connectionManager.borrowConnection(timeout);
     connectionManager.returnConnection(heldConnection);
     heldConnection = connectionManager.borrowConnection(timeout);
     assertThat(heldConnection.getServer()).isEqualTo(connection.getServer());
@@ -211,8 +211,8 @@ public class ConnectionManagerImplTest {
 
   @Test
   public void borrowConnectionGivesUpWhenShuttingDown() {
-    int maxConnections = 1;
-    Connection connection = mock(Connection.class);
+    var maxConnections = 1;
+    var connection = mock(Connection.class);
     when(connectionFactory.createClientToServerConnection(any())).thenReturn(connection);
 
     connectionManager = new ConnectionManagerImpl(poolName, connectionFactory, endpointManager,
@@ -233,8 +233,8 @@ public class ConnectionManagerImplTest {
 
   @Test
   public void borrowConnectionTimesOutWithException() {
-    int maxConnections = 1;
-    Connection connection = mock(Connection.class);
+    var maxConnections = 1;
+    var connection = mock(Connection.class);
     when(connectionFactory.createClientToServerConnection(any())).thenReturn(connection);
 
     connectionManager = new ConnectionManagerImpl(poolName, connectionFactory, endpointManager,
@@ -254,20 +254,20 @@ public class ConnectionManagerImplTest {
 
   @Test
   public void borrowWithServerLocationBreaksMaxConnectionContract() {
-    int maxConnections = 2;
+    var maxConnections = 2;
 
-    ServerLocation serverLocation1 = mock(ServerLocation.class);
-    Connection connection1 = mock(Connection.class);
+    var serverLocation1 = mock(ServerLocation.class);
+    var connection1 = mock(Connection.class);
     when(connectionFactory.createClientToServerConnection(serverLocation1, false))
         .thenReturn(connection1);
 
-    ServerLocation serverLocation2 = mock(ServerLocation.class);
-    Connection connection2 = mock(Connection.class);
+    var serverLocation2 = mock(ServerLocation.class);
+    var connection2 = mock(Connection.class);
     when(connectionFactory.createClientToServerConnection(serverLocation2, false))
         .thenReturn(connection2);
 
-    ServerLocation serverLocation3 = mock(ServerLocation.class);
-    Connection connection3 = mock(Connection.class);
+    var serverLocation3 = mock(ServerLocation.class);
+    var connection3 = mock(Connection.class);
     when(connectionFactory.createClientToServerConnection(serverLocation3, false))
         .thenReturn(connection3);
 
@@ -287,15 +287,15 @@ public class ConnectionManagerImplTest {
 
   @Test
   public void returnConnectionReturnsToHead() {
-    ServerLocation serverLocation1 = mock(ServerLocation.class);
-    Connection connection1 = mock(Connection.class);
+    var serverLocation1 = mock(ServerLocation.class);
+    var connection1 = mock(Connection.class);
     when(connectionFactory.createClientToServerConnection(serverLocation1, false))
         .thenReturn(connection1);
     when(connection1.getServer()).thenReturn(serverLocation1);
 
-    ServerLocation serverLocation2 = mock(ServerLocation.class);
-    Connection connection2 = mock(Connection.class);
-    Endpoint endpoint2 = mock(Endpoint.class);
+    var serverLocation2 = mock(ServerLocation.class);
+    var connection2 = mock(Connection.class);
+    var endpoint2 = mock(Endpoint.class);
     when(connectionFactory.createClientToServerConnection(serverLocation2, false))
         .thenReturn(connection2);
     when(connection2.getServer()).thenReturn(serverLocation2);
@@ -304,9 +304,9 @@ public class ConnectionManagerImplTest {
 
     connectionManager = createDefaultConnectionManager();
     connectionManager.start(backgroundProcessor);
-    Connection heldConnection1 =
+    var heldConnection1 =
         connectionManager.borrowConnection(serverLocation1, timeout, false);
-    Connection heldConnection2 =
+    var heldConnection2 =
         connectionManager.borrowConnection(serverLocation2, timeout, false);
     assertThat(connectionManager.getConnectionCount()).isEqualTo(2);
 
@@ -321,13 +321,13 @@ public class ConnectionManagerImplTest {
 
   @Test
   public void shouldDestroyConnectionsDoNotGetReturnedToPool() {
-    Connection connection = mock(Connection.class);
+    var connection = mock(Connection.class);
     when(connectionFactory.createClientToServerConnection(any())).thenReturn(connection);
 
     connectionManager = createDefaultConnectionManager();
     connectionManager.start(backgroundProcessor);
 
-    Connection heldConnection = connectionManager.borrowConnection(timeout);
+    var heldConnection = connectionManager.borrowConnection(timeout);
     heldConnection.destroy();
     connectionManager.returnConnection(heldConnection, true);
 
@@ -339,20 +339,20 @@ public class ConnectionManagerImplTest {
 
   @Test
   public void connectionGetsDestroyedWhenReturningToPoolAndOverMaxConnections() {
-    int maxConnections = 2;
+    var maxConnections = 2;
 
-    ServerLocation serverLocation1 = mock(ServerLocation.class);
-    Connection connection1 = mock(Connection.class);
+    var serverLocation1 = mock(ServerLocation.class);
+    var connection1 = mock(Connection.class);
     when(connectionFactory.createClientToServerConnection(serverLocation1, false))
         .thenReturn(connection1);
 
-    ServerLocation serverLocation2 = mock(ServerLocation.class);
-    Connection connection2 = mock(Connection.class);
+    var serverLocation2 = mock(ServerLocation.class);
+    var connection2 = mock(Connection.class);
     when(connectionFactory.createClientToServerConnection(serverLocation2, false))
         .thenReturn(connection2);
 
-    ServerLocation serverLocation3 = mock(ServerLocation.class);
-    Connection connection3 = mock(Connection.class);
+    var serverLocation3 = mock(ServerLocation.class);
+    var connection3 = mock(Connection.class);
     when(connectionFactory.createClientToServerConnection(serverLocation3, false))
         .thenReturn(connection3);
 
@@ -361,11 +361,11 @@ public class ConnectionManagerImplTest {
         cancelCriterion, poolStats);
     connectionManager.start(backgroundProcessor);
 
-    Connection heldConnection1 =
+    var heldConnection1 =
         connectionManager.borrowConnection(serverLocation1, timeout, false);
-    Connection heldConnection2 =
+    var heldConnection2 =
         connectionManager.borrowConnection(serverLocation2, timeout, false);
-    Connection heldConnection3 =
+    var heldConnection3 =
         connectionManager.borrowConnection(serverLocation3, timeout, false);
 
     assertThat(connectionManager.getConnectionCount()).isGreaterThan(maxConnections);
@@ -384,14 +384,14 @@ public class ConnectionManagerImplTest {
   public void exchangeCreatesNewConnectionIfNoneAreAvailable() {
     Set<ServerLocation> excluded = Collections.emptySet();
 
-    ServerLocation serverLocation1 = mock(ServerLocation.class);
-    Connection connection1 = mock(Connection.class);
+    var serverLocation1 = mock(ServerLocation.class);
+    var connection1 = mock(Connection.class);
     when(connectionFactory.createClientToServerConnection(serverLocation1, false))
         .thenReturn(connection1);
 
-    ServerLocation serverLocation2 = mock(ServerLocation.class);
-    Endpoint endpoint2 = mock(Endpoint.class);
-    Connection connection2 = mock(Connection.class);
+    var serverLocation2 = mock(ServerLocation.class);
+    var endpoint2 = mock(Endpoint.class);
+    var connection2 = mock(Connection.class);
     when(connectionFactory.createClientToServerConnection(eq(Collections.EMPTY_SET)))
         .thenReturn(connection2);
     when(connection2.getServer()).thenReturn(serverLocation2);
@@ -401,7 +401,7 @@ public class ConnectionManagerImplTest {
     connectionManager = createDefaultConnectionManager();
     connectionManager.start(backgroundProcessor);
 
-    Connection heldConnection = connectionManager.borrowConnection(serverLocation1, timeout, false);
+    var heldConnection = connectionManager.borrowConnection(serverLocation1, timeout, false);
     heldConnection = connectionManager.exchangeConnection(heldConnection, excluded);
 
     assertThat(heldConnection.getServer()).isEqualTo(connection2.getServer());
@@ -413,27 +413,27 @@ public class ConnectionManagerImplTest {
 
   @Test
   public void exchangeBreaksMaxConnectionContractWhenNoConnectionsAreAvailable() {
-    int maxConnections = 2;
+    var maxConnections = 2;
     Set<ServerLocation> excluded = Collections.emptySet();
 
-    ServerLocation serverLocation1 = mock(ServerLocation.class);
-    Connection connection1 = mock(Connection.class);
+    var serverLocation1 = mock(ServerLocation.class);
+    var connection1 = mock(Connection.class);
     when(connectionFactory.createClientToServerConnection(serverLocation1, false))
         .thenReturn(connection1);
 
-    ServerLocation serverLocation2 = mock(ServerLocation.class);
-    Connection connection2 = mock(Connection.class);
+    var serverLocation2 = mock(ServerLocation.class);
+    var connection2 = mock(Connection.class);
     when(connectionFactory.createClientToServerConnection(serverLocation2, false))
         .thenReturn(connection2);
 
-    ServerLocation serverLocation3 = mock(ServerLocation.class);
-    Connection connection3 = mock(Connection.class);
+    var serverLocation3 = mock(ServerLocation.class);
+    var connection3 = mock(Connection.class);
     when(connectionFactory.createClientToServerConnection(serverLocation3, false))
         .thenReturn(connection3);
 
-    ServerLocation serverLocation4 = mock(ServerLocation.class);
-    Endpoint endpoint4 = mock(Endpoint.class);
-    Connection connection4 = mock(Connection.class);
+    var serverLocation4 = mock(ServerLocation.class);
+    var endpoint4 = mock(Endpoint.class);
+    var connection4 = mock(Connection.class);
     when(connectionFactory.createClientToServerConnection(eq(Collections.EMPTY_SET)))
         .thenReturn(connection4);
     when(connection4.getServer()).thenReturn(serverLocation4);
@@ -445,7 +445,7 @@ public class ConnectionManagerImplTest {
         cancelCriterion, poolStats);
     connectionManager.start(backgroundProcessor);
 
-    Connection heldConnection = connectionManager.borrowConnection(serverLocation1, timeout, false);
+    var heldConnection = connectionManager.borrowConnection(serverLocation1, timeout, false);
     connectionManager.borrowConnection(serverLocation2, timeout, false);
     connectionManager.borrowConnection(serverLocation3, timeout, false);
     assertThat(connectionManager.getConnectionCount()).isGreaterThan(maxConnections);
@@ -462,14 +462,14 @@ public class ConnectionManagerImplTest {
   public void exchangeReturnsExistingConnectionIfOneExists() {
     Set<ServerLocation> excluded = Collections.emptySet();
 
-    ServerLocation serverLocation1 = mock(ServerLocation.class);
-    Connection connection1 = mock(Connection.class);
+    var serverLocation1 = mock(ServerLocation.class);
+    var connection1 = mock(Connection.class);
     when(connectionFactory.createClientToServerConnection(serverLocation1, false))
         .thenReturn(connection1);
 
-    ServerLocation serverLocation2 = mock(ServerLocation.class);
-    Connection connection2 = mock(Connection.class);
-    Endpoint endpoint2 = mock(Endpoint.class);
+    var serverLocation2 = mock(ServerLocation.class);
+    var connection2 = mock(Connection.class);
+    var endpoint2 = mock(Endpoint.class);
     when(connectionFactory.createClientToServerConnection(serverLocation2, false))
         .thenReturn(connection2);
     when(connection2.getServer()).thenReturn(serverLocation2);
@@ -479,9 +479,9 @@ public class ConnectionManagerImplTest {
     connectionManager = createDefaultConnectionManager();
     connectionManager.start(backgroundProcessor);
 
-    Connection heldConnection1 =
+    var heldConnection1 =
         connectionManager.borrowConnection(serverLocation1, timeout, false);
-    Connection heldConnection2 =
+    var heldConnection2 =
         connectionManager.borrowConnection(serverLocation2, timeout, false);
 
     connectionManager.returnConnection(heldConnection2);
@@ -496,14 +496,14 @@ public class ConnectionManagerImplTest {
   public void exchangeNotIncrementConnectionCountWhenUnableToCreateConnection() {
     Set<ServerLocation> excluded = Collections.emptySet();
 
-    ServerLocation serverLocation1 = mock(ServerLocation.class);
-    Connection connection1 = mock(Connection.class);
+    var serverLocation1 = mock(ServerLocation.class);
+    var connection1 = mock(Connection.class);
     when(connectionFactory.createClientToServerConnection(serverLocation1, false))
         .thenReturn(connection1);
 
-    ServerLocation serverLocation2 = mock(ServerLocation.class);
-    Endpoint endpoint2 = mock(Endpoint.class);
-    Connection connection2 = mock(Connection.class);
+    var serverLocation2 = mock(ServerLocation.class);
+    var endpoint2 = mock(Endpoint.class);
+    var connection2 = mock(Connection.class);
     when(connectionFactory.createClientToServerConnection(eq(Collections.EMPTY_SET)))
         .thenReturn(null);
     when(connection2.getServer()).thenReturn(serverLocation2);
@@ -513,7 +513,7 @@ public class ConnectionManagerImplTest {
     connectionManager = createDefaultConnectionManager();
     connectionManager.start(backgroundProcessor);
 
-    Connection heldConnection = connectionManager.borrowConnection(serverLocation1, timeout, false);
+    var heldConnection = connectionManager.borrowConnection(serverLocation1, timeout, false);
     assertThatThrownBy(() -> connectionManager.exchangeConnection(heldConnection, excluded))
         .isInstanceOf(NoAvailableServersException.class);
 
@@ -525,7 +525,7 @@ public class ConnectionManagerImplTest {
 
   @Test
   public void borrowConnectionOnSpecificServerDoesNotIncrementConnectionCountWhenUnableToCreateConnection() {
-    ServerLocation serverLocation = mock(ServerLocation.class);
+    var serverLocation = mock(ServerLocation.class);
     connectionManager = createDefaultConnectionManager();
     connectionManager.start(backgroundProcessor);
     assertThat(connectionManager.getConnectionCount()).isEqualTo(0);

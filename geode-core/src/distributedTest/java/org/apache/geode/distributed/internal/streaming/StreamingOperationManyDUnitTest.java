@@ -22,7 +22,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,7 +30,6 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.junit.Test;
 
-import org.apache.geode.LogWriter;
 import org.apache.geode.distributed.internal.DistributionMessage;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.ReplyException;
@@ -39,7 +37,6 @@ import org.apache.geode.distributed.internal.ReplyProcessor21;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.cache.Token;
 import org.apache.geode.test.dunit.Host;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.internal.JUnit4DistributedTestCase;
 
 
@@ -51,14 +48,14 @@ public class StreamingOperationManyDUnitTest extends JUnit4DistributedTestCase {
 
     // ask four other VMs to connect to the distributed system
     // this will be the data provider
-    Host host = Host.getHost(0);
-    HashSet<InternalDistributedMember> otherMemberIds = new HashSet<>();
-    for (int i = 0; i < 4; i++) {
-      VM vm = host.getVM(i);
+    var host = Host.getHost(0);
+    var otherMemberIds = new HashSet<InternalDistributedMember>();
+    for (var i = 0; i < 4; i++) {
+      var vm = host.getVM(i);
       otherMemberIds.add(vm.invoke(() -> getSystem().getDistributedMember()));
     }
 
-    TestStreamingOperationManyProviderNoExceptions streamOp =
+    var streamOp =
         new TestStreamingOperationManyProviderNoExceptions(getSystem());
     streamOp.getDataFromAll(otherMemberIds);
     assertTrue(streamOp.dataValidated);
@@ -79,7 +76,7 @@ public class StreamingOperationManyDUnitTest extends JUnit4DistributedTestCase {
 
     @Override
     protected DistributionMessage createRequestMessage(Set recipients, ReplyProcessor21 processor) {
-      TestRequestStreamingMessageManyProviderNoExceptions msg =
+      var msg =
           new TestRequestStreamingMessageManyProviderNoExceptions();
       msg.setRecipients(recipients);
       msg.processorId = processor == null ? 0 : processor.getProcessorId();
@@ -89,19 +86,19 @@ public class StreamingOperationManyDUnitTest extends JUnit4DistributedTestCase {
     @Override
     protected synchronized boolean processData(List objects, InternalDistributedMember sender,
         int sequenceNum, boolean lastInSequence) {
-      LogWriter logger = sys.getLogWriter();
+      var logger = sys.getLogWriter();
 
-      ConcurrentMap chunkMap = (ConcurrentMap) senderMap.get(sender);
+      var chunkMap = (ConcurrentMap) senderMap.get(sender);
       if (chunkMap == null) {
         chunkMap = new ConcurrentHashMap();
-        ConcurrentMap chunkMap2 = (ConcurrentMap) senderMap.putIfAbsent(sender, chunkMap);
+        var chunkMap2 = (ConcurrentMap) senderMap.putIfAbsent(sender, chunkMap);
         if (chunkMap2 != null) {
           chunkMap = chunkMap2;
         }
       }
 
       // assert that we haven't gotten this sequence number yet
-      Object prevValue = chunkMap.putIfAbsent(sequenceNum, objects);
+      var prevValue = chunkMap.putIfAbsent(sequenceNum, objects);
       if (prevValue != null) {
         logger.severe("prevValue != null");
       }
@@ -129,12 +126,12 @@ public class StreamingOperationManyDUnitTest extends JUnit4DistributedTestCase {
       if (chunkMap.size() == numChunks && // done with this sender
           senderMap.size() == 4) { // we've heard from all 4 senders
         // logger.info("completely done (maybe)");
-        boolean completelyDone = true; // start with true assumption
-        for (final Object o : senderMap.entrySet()) {
-          Map.Entry entry = (Map.Entry) o;
-          InternalDistributedMember senderV = (InternalDistributedMember) entry.getKey();
-          ConcurrentMap chunkMapV = (ConcurrentMap) entry.getValue();
-          Integer numChunksV = (Integer) senderNumChunksMap.get(senderV);
+        var completelyDone = true; // start with true assumption
+        for (final var o : senderMap.entrySet()) {
+          var entry = (Map.Entry) o;
+          var senderV = (InternalDistributedMember) entry.getKey();
+          var chunkMapV = (ConcurrentMap) entry.getValue();
+          var numChunksV = (Integer) senderNumChunksMap.get(senderV);
           if (chunkMapV == null) {
             // logger.info("Not completely done senderV=" + senderV
             // + " chunkMapV==null");
@@ -162,26 +159,26 @@ public class StreamingOperationManyDUnitTest extends JUnit4DistributedTestCase {
     }
 
     private void validateData() {
-      LogWriter logger = sys.getLogWriter();
-      for (final Object value : senderMap.entrySet()) {
-        Map.Entry entry = (Map.Entry) value;
-        ConcurrentMap chunkMap = (ConcurrentMap) entry.getValue();
-        InternalDistributedMember sender = (InternalDistributedMember) entry.getKey();
+      var logger = sys.getLogWriter();
+      for (final var value : senderMap.entrySet()) {
+        var entry = (Map.Entry) value;
+        var chunkMap = (ConcurrentMap) entry.getValue();
+        var sender = (InternalDistributedMember) entry.getKey();
         List[] arrayOfLists = new ArrayList[chunkMap.size()];
         List objList;
-        int expectedInt = 0;
+        var expectedInt = 0;
 
         // sort the input streams
-        for (final Object o : chunkMap.entrySet()) {
-          Map.Entry entry2 = (Map.Entry) o;
+        for (final var o : chunkMap.entrySet()) {
+          var entry2 = (Map.Entry) o;
           int seqNum = (Integer) entry2.getKey();
           objList = (List) entry2.getValue();
           arrayOfLists[seqNum] = objList;
         }
 
-        int count = 0;
-        for (int i = 0; i < chunkMap.size(); i++) {
-          Iterator itr = arrayOfLists[i].iterator();
+        var count = 0;
+        for (var i = 0; i < chunkMap.size(); i++) {
+          var itr = arrayOfLists[i].iterator();
           Integer nextInteger;
           while (itr.hasNext()) {
             nextInteger = (Integer) itr.next();

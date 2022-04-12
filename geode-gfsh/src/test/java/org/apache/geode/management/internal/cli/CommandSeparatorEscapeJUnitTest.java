@@ -18,8 +18,6 @@ import static org.apache.geode.cache.Region.SEPARATOR;
 import static org.apache.geode.management.internal.cli.shell.MultiCommandHelper.getMultipleCommands;
 import static org.junit.Assert.assertEquals;
 
-import java.util.List;
-
 import org.junit.Test;
 
 
@@ -34,9 +32,9 @@ public class CommandSeparatorEscapeJUnitTest {
 
   @Test
   public void testEmptyCommand() {
-    String input = ";";
+    var input = ";";
     // System.out.println("I >> " + input);
-    List<String> split = getMultipleCommands(input);
+    var split = getMultipleCommands(input);
     /*
      * for(String s : split){ System.out.println("O >> " + s); }
      */
@@ -45,10 +43,10 @@ public class CommandSeparatorEscapeJUnitTest {
 
   @Test
   public void testSingleCommand() {
-    String input = "stop server";
+    var input = "stop server";
     // System.out.println("I >> " + input);
-    List<String> split = getMultipleCommands(input);
-    for (String s : split) {
+    var split = getMultipleCommands(input);
+    for (var s : split) {
       System.out.println("O >> " + s);
     }
     assertEquals(1, split.size());
@@ -57,9 +55,9 @@ public class CommandSeparatorEscapeJUnitTest {
 
   @Test
   public void testMultiCommand() {
-    String input = "stop server1 --option1=value1; stop server2;stop server3 ";
+    var input = "stop server1 --option1=value1; stop server2;stop server3 ";
     // System.out.println("I >> " + input);
-    List<String> split = getMultipleCommands(input);
+    var split = getMultipleCommands(input);
     /*
      * for(String s : split){ System.out.println("O >> " + s); }
      */
@@ -71,12 +69,12 @@ public class CommandSeparatorEscapeJUnitTest {
 
   @Test
   public void testMultiCommandWithCmdSep() {
-    String input =
+    var input =
         "put --region=" + SEPARATOR
             + "region1 --key='key1\\;part' --value='value1\\;part2';put --region=" + SEPARATOR
             + "region1 --key='key2\\;part' --value='value2\\;part2'";
     // System.out.println("I >> " + input);
-    List<String> split = getMultipleCommands(input);
+    var split = getMultipleCommands(input);
     /*
      * for(String s : split){ System.out.println("O >> " + s); }
      */
@@ -89,10 +87,10 @@ public class CommandSeparatorEscapeJUnitTest {
 
   @Test
   public void testSingleCommandWithComma() {
-    String input =
+    var input =
         "put --region=" + SEPARATOR + "region1 --key='key\\;part' --value='value\\;part2'";
     // System.out.println("I >> " + input);
-    List<String> split = getMultipleCommands(input);
+    var split = getMultipleCommands(input);
     /*
      * for(String s : split){ System.out.println("O >> " + s); }
      */
@@ -103,10 +101,10 @@ public class CommandSeparatorEscapeJUnitTest {
 
   @Test
   public void testMultiCmdCommaValueFirst() {
-    String input = "put --region=" + SEPARATOR
+    var input = "put --region=" + SEPARATOR
         + "region1 --key='key\\;part' --value='value\\;part2';stop server";
     // System.out.println("I >> " + input);
-    List<String> split = getMultipleCommands(input);
+    var split = getMultipleCommands(input);
     /*
      * for(String s : split){ System.out.println("O >> " + s); }
      */
@@ -118,10 +116,10 @@ public class CommandSeparatorEscapeJUnitTest {
 
   @Test
   public void testMultiCmdCommaValueLast() {
-    String input = "stop server;put --region=" + SEPARATOR
+    var input = "stop server;put --region=" + SEPARATOR
         + "region1 --key='key\\;part' --value='value\\;part2'";
     // System.out.println("I >> " + input);
-    List<String> split = getMultipleCommands(input);
+    var split = getMultipleCommands(input);
     /*
      * for(String s : split){ System.out.println("O >> " + s); }
      */
@@ -133,11 +131,11 @@ public class CommandSeparatorEscapeJUnitTest {
 
   @Test
   public void testMultiCmdCommaValueMiddle() {
-    String input =
+    var input =
         "stop server1;put --region=" + SEPARATOR
             + "region1 --key='key\\;part' --value='value\\;part2';stop server2;stop server3";
     // System.out.println("I >> " + input);
-    List<String> split = getMultipleCommands(input);
+    var split = getMultipleCommands(input);
     /*
      * for(String s : split){ System.out.println("O >> " + s); }
      */

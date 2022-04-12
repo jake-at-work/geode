@@ -17,7 +17,6 @@ package org.apache.geode.internal.process;
 import static org.apache.commons.lang3.Validate.isTrue;
 
 import com.sun.tools.attach.VirtualMachine;
-import com.sun.tools.attach.VirtualMachineDescriptor;
 
 import org.apache.geode.internal.process.ProcessUtils.InternalProcessUtils;
 
@@ -32,7 +31,7 @@ class AttachProcessUtils implements InternalProcessUtils {
   public boolean isProcessAlive(final int pid) {
     isTrue(pid > 0, "Invalid pid '" + pid + "' specified");
 
-    for (VirtualMachineDescriptor vm : VirtualMachine.list()) {
+    for (var vm : VirtualMachine.list()) {
       if (vm.id().equals(String.valueOf(pid))) {
         return true; // found the vm
       }

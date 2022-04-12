@@ -31,7 +31,7 @@ public class GaugeAssertTest {
 
   @Test
   public void hasValue_doesNotThrow_ifConditionAcceptsValue() {
-    double acceptableCount = 92.0;
+    var acceptableCount = 92.0;
 
     when(gauge.value()).thenReturn(acceptableCount);
     when(valueCondition.matches(acceptableCount)).thenReturn(true);
@@ -42,7 +42,7 @@ public class GaugeAssertTest {
 
   @Test
   public void hasValue_failsDescriptively_ifConditionRejectsValue() {
-    double unacceptableCount = 92.0;
+    var unacceptableCount = 92.0;
 
     when(gauge.value()).thenReturn(unacceptableCount);
     when(valueCondition.matches(unacceptableCount)).thenReturn(false);

@@ -120,7 +120,7 @@ public class ConcurrentFlushingAndRegionOperationsJUnitTest extends DiskRegionTe
     ((LocalRegion) region).getDiskRegion().pauseFlusherForTesting();
     region.put("Key", "Value1");
     ((LocalRegion) region).getDiskRegion().flushForTesting();
-    boolean entryNotFound = false;
+    var entryNotFound = false;
     Object v = null;
     try {
       v = getValueOnDisk(region);
@@ -234,7 +234,7 @@ public class ConcurrentFlushingAndRegionOperationsJUnitTest extends DiskRegionTe
     region.put("Key", "Value1");
     region.clear();
     ((LocalRegion) region).getDiskRegion().flushForTesting();
-    boolean entryNotFound = false;
+    var entryNotFound = false;
     try {
       getValueOnDisk(region);
     } catch (EntryNotFoundException e) {
@@ -260,19 +260,19 @@ public class ConcurrentFlushingAndRegionOperationsJUnitTest extends DiskRegionTe
       @Override
       public void afterWritingBytes() {
         if (!alreadyComeHere) {
-          DiskEntry de = (DiskEntry) ((LocalRegion) region).basicGetEntry("Key");
+          var de = (DiskEntry) ((LocalRegion) region).basicGetEntry("Key");
           if (de == null) {
             return; // this is caused by the first flush
           }
-          DiskId id = de.getDiskId();
-          long oldOplogId = id.getOplogId();
-          long oldOplogOffset = id.getOffsetInOplog();
+          var id = de.getDiskId();
+          var oldOplogId = id.getOplogId();
+          var oldOplogOffset = id.getOffsetInOplog();
           ((LocalRegion) region).getDiskRegion().pauseFlusherForTesting();
           // region.getCache().getLogger().info("putting value2");
           region.put("Key", "Value2");
           id = ((DiskEntry) (((LocalRegion) region).basicGetEntry("Key"))).getDiskId();
-          long newOplogId = id.getOplogId();
-          long newOplogOffset = id.getOffsetInOplog();
+          var newOplogId = id.getOplogId();
+          var newOplogOffset = id.getOffsetInOplog();
           id.setOplogId(oldOplogId);
           id.setOffsetInOplog(oldOplogOffset);
           assertEquals("Value1", ((LocalRegion) region).getDiskRegion().getNoBuffer(id));
@@ -351,7 +351,7 @@ public class ConcurrentFlushingAndRegionOperationsJUnitTest extends DiskRegionTe
     ((LocalRegion) region).getDiskRegion().pauseFlusherForTesting();
     region.put("Key", "Value1");
     ((LocalRegion) region).getDiskRegion().flushForTesting();
-    boolean entryNotFound = false;
+    var entryNotFound = false;
     Object v = null;
     try {
       v = getValueOnDisk(region);
@@ -376,7 +376,7 @@ public class ConcurrentFlushingAndRegionOperationsJUnitTest extends DiskRegionTe
     region.put("Key", "Value1");
     ((LocalRegion) region).getDiskRegion().flushForTesting();
     region.clear();
-    boolean entryNotFound = false;
+    var entryNotFound = false;
     try {
       getValueOnDisk(region);
     } catch (EntryNotFoundException e) {
@@ -402,7 +402,7 @@ public class ConcurrentFlushingAndRegionOperationsJUnitTest extends DiskRegionTe
 
   @Test
   public void testPutBeforeFlush() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setDiskDirs(dirs);
     diskRegionProperties.setBytesThreshold(100000000L);
     diskRegionProperties.setTimeInterval(100000000L);
@@ -415,7 +415,7 @@ public class ConcurrentFlushingAndRegionOperationsJUnitTest extends DiskRegionTe
 
   @Test
   public void testPutAfterFlush() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setBytesThreshold(100000000L);
     diskRegionProperties.setTimeInterval(100000000L);
     diskRegionProperties.setDiskDirs(dirs);
@@ -428,7 +428,7 @@ public class ConcurrentFlushingAndRegionOperationsJUnitTest extends DiskRegionTe
 
   @Test
   public void testGetBeforeFlush() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setBytesThreshold(100000000L);
     diskRegionProperties.setTimeInterval(100000000L);
     diskRegionProperties.setDiskDirs(dirs);
@@ -441,7 +441,7 @@ public class ConcurrentFlushingAndRegionOperationsJUnitTest extends DiskRegionTe
 
   @Test
   public void testGetAfterFlush() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setBytesThreshold(100000000L);
     diskRegionProperties.setTimeInterval(100000000L);
     diskRegionProperties.setDiskDirs(dirs);
@@ -454,7 +454,7 @@ public class ConcurrentFlushingAndRegionOperationsJUnitTest extends DiskRegionTe
 
   @Test
   public void testClearBeforeFlush() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setBytesThreshold(100000000L);
     diskRegionProperties.setTimeInterval(100000000L);
     diskRegionProperties.setDiskDirs(dirs);
@@ -467,7 +467,7 @@ public class ConcurrentFlushingAndRegionOperationsJUnitTest extends DiskRegionTe
 
   @Test
   public void testClearAfterFlush() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setBytesThreshold(100000000L);
     diskRegionProperties.setTimeInterval(100000000L);
     diskRegionProperties.setDiskDirs(dirs);
@@ -480,7 +480,7 @@ public class ConcurrentFlushingAndRegionOperationsJUnitTest extends DiskRegionTe
 
   @Test
   public void testDelBeforeFlush() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setBytesThreshold(100000000L);
     diskRegionProperties.setTimeInterval(100000000L);
     diskRegionProperties.setDiskDirs(dirs);
@@ -493,7 +493,7 @@ public class ConcurrentFlushingAndRegionOperationsJUnitTest extends DiskRegionTe
 
   @Test
   public void testDelAfterFlush() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setBytesThreshold(100000000L);
     diskRegionProperties.setTimeInterval(100000000L);
     diskRegionProperties.setDiskDirs(dirs);
@@ -506,7 +506,7 @@ public class ConcurrentFlushingAndRegionOperationsJUnitTest extends DiskRegionTe
 
   @Test
   public void testCloseBeforeFlush() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setBytesThreshold(100000000L);
     diskRegionProperties.setTimeInterval(100000000L);
     diskRegionProperties.setDiskDirs(dirs);
@@ -519,7 +519,7 @@ public class ConcurrentFlushingAndRegionOperationsJUnitTest extends DiskRegionTe
 
   @Test
   public void testCloseAfterFlush() {
-    DiskRegionProperties diskRegionProperties = new DiskRegionProperties();
+    var diskRegionProperties = new DiskRegionProperties();
     diskRegionProperties.setBytesThreshold(100000000L);
     diskRegionProperties.setTimeInterval(100000000L);
     diskRegionProperties.setDiskDirs(dirs);

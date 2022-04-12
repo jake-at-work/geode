@@ -30,7 +30,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import org.apache.geode.distributed.internal.InternalConfigurationPersistenceService;
 import org.apache.geode.internal.classloader.ClassPathLoader;
 import org.apache.geode.management.api.ClusterManagementService;
 import org.apache.geode.management.api.RealizationResult;
@@ -40,7 +39,6 @@ import org.apache.geode.management.runtime.DeploymentInfo;
 import org.apache.geode.test.compiler.JarBuilder;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
-import org.apache.geode.test.junit.assertions.ClusterManagementListResultAssert;
 import org.apache.geode.test.junit.rules.IgnoreOnWindowsRule;
 import org.apache.geode.test.junit.rules.MemberStarterRule;
 
@@ -63,7 +61,7 @@ public class DeploymentSemanticVersionJarDUnitTest {
   @BeforeClass
   public static void beforeClass() throws Exception {
     stagedDir = stagingTempDir.getRoot();
-    JarBuilder jarBuilder = new JarBuilder();
+    var jarBuilder = new JarBuilder();
     semanticJarVersion0 = new File(stagedDir, "def-1.0.jar");
     jarBuilder.buildJar(semanticJarVersion0, createClassContent("version1", "Def"));
     semanticJarVersion1 = new File(stagedDir, "def-1.1.jar");
@@ -83,7 +81,7 @@ public class DeploymentSemanticVersionJarDUnitTest {
   @Before
   public void before() throws Exception {
     locator0 = cluster.startLocatorVM(0, MemberStarterRule::withHttpService);
-    int locator0Port = locator0.getPort();
+    var locator0Port = locator0.getPort();
     locator1 =
         cluster.startLocatorVM(1, l -> l.withHttpService().withConnectionToLocator(locator0Port));
     server2 = cluster.startServerVM(2, locator0Port, locator1.getPort());
@@ -110,7 +108,7 @@ public class DeploymentSemanticVersionJarDUnitTest {
     MemberVM.invokeInEveryMember(() -> {
       assertThat(Paths.get(".").resolve("cluster_config").resolve("cluster").toFile().list())
           .containsExactly("def-1.0.jar");
-      Set<String> deployedJars = getDeployedJarsFromClusterConfig();
+      var deployedJars = getDeployedJarsFromClusterConfig();
       assertThat(deployedJars).containsExactly("def-1.0.jar");
     }, locator0, locator1);
 
@@ -122,7 +120,7 @@ public class DeploymentSemanticVersionJarDUnitTest {
     MemberVM.invokeInEveryMember(() -> {
       assertThat(Paths.get(".").resolve("cluster_config").resolve("cluster").toFile().list())
           .containsExactly("def-1.1.jar");
-      Set<String> deployedJars = getDeployedJarsFromClusterConfig();
+      var deployedJars = getDeployedJarsFromClusterConfig();
       assertThat(deployedJars).containsExactly("def-1.1.jar");
     }, locator0, locator1);
 
@@ -130,7 +128,7 @@ public class DeploymentSemanticVersionJarDUnitTest {
         .containsExactlyInAnyOrder("def-1.0.v1.jar", "def-1.1.v2.jar");
     server2.invoke(() -> verifyLoadAndHasVersion("def", "jddunit.function.Def", "version2"));
 
-    MemberVM server3 = cluster.startServerVM(3, locator0.getPort(), locator1.getPort());
+    var server3 = cluster.startServerVM(3, locator0.getPort(), locator1.getPort());
     assertThat(server3.getWorkingDir().list())
         .containsExactlyInAnyOrder("def-1.1.v1.jar");
     server3.invoke(() -> verifyLoadAndHasVersion("def", "jddunit.function.Def", "version2"));
@@ -142,7 +140,7 @@ public class DeploymentSemanticVersionJarDUnitTest {
     MemberVM.invokeInEveryMember(() -> {
       assertThat(Paths.get(".").resolve("cluster_config").resolve("cluster").toFile().list())
           .containsExactly("def-1.2.jar");
-      Set<String> deployedJars = getDeployedJarsFromClusterConfig();
+      var deployedJars = getDeployedJarsFromClusterConfig();
       assertThat(deployedJars).containsExactly("def-1.2.jar");
     }, locator0, locator1);
     assertThat(server2.getWorkingDir().list()).containsExactlyInAnyOrder(
@@ -162,7 +160,7 @@ public class DeploymentSemanticVersionJarDUnitTest {
     MemberVM.invokeInEveryMember(() -> {
       assertThat(Paths.get(".").resolve("cluster_config").resolve("cluster").toFile().list())
           .containsExactly("def-1.2.jar");
-      Set<String> deployedJars = getDeployedJarsFromClusterConfig();
+      var deployedJars = getDeployedJarsFromClusterConfig();
       assertThat(deployedJars).containsExactly("def-1.2.jar");
     }, locator0, locator1);
   }
@@ -199,14 +197,14 @@ public class DeploymentSemanticVersionJarDUnitTest {
     MemberVM.invokeInEveryMember(() -> {
       assertThat(Paths.get(".").resolve("cluster_config").resolve("cluster").toFile().list())
           .containsExactly("def.jar");
-      Set<String> deployedJars = getDeployedJarsFromClusterConfig();
+      var deployedJars = getDeployedJarsFromClusterConfig();
       assertThat(deployedJars).containsExactly("def.jar");
     }, locator0, locator1);
     assertThat(server2.getWorkingDir().list())
         .containsExactlyInAnyOrder("def-1.0.v1.jar", "def.v2.jar");
     server2.invoke(() -> verifyLoadAndHasVersion("def", "jddunit.function.Def", "version1c"));
 
-    ClusterManagementListResultAssert<Deployment, DeploymentInfo> listAssert =
+    var listAssert =
         assertManagementListResult(client.list(new Deployment()));
     listAssert.hasConfigurations().hasSize(1).extracting(Deployment::getFileName)
         .containsExactly("def.jar");
@@ -215,7 +213,7 @@ public class DeploymentSemanticVersionJarDUnitTest {
   }
 
   static Set<String> getDeployedJarsFromClusterConfig() {
-    InternalConfigurationPersistenceService cps =
+    var cps =
         ClusterStartupRule.getLocator().getConfigurationPersistenceService();
     return cps.getConfiguration("cluster").getJarNames();
   }
@@ -224,7 +222,7 @@ public class DeploymentSemanticVersionJarDUnitTest {
       throws Exception {
     assertThat(ClassPathLoader.getLatest().getJarDeploymentService()
         .getDeployed(artifactId).isSuccessful()).isTrue();
-    Class<?> klass = ClassPathLoader.getLatest().forName(className);
+    var klass = ClassPathLoader.getLatest().forName(className);
     assertThat(klass).isNotNull();
     assertThat(klass.getMethod("getVersion").invoke(klass.newInstance())).isEqualTo(version);
   }

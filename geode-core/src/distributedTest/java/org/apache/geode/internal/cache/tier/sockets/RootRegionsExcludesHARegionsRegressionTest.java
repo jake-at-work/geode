@@ -25,19 +25,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Properties;
-import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionService;
 import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.PoolManager;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.internal.cache.HARegion;
 import org.apache.geode.internal.cache.PoolFactoryImpl;
 import org.apache.geode.test.dunit.VM;
@@ -105,20 +102,20 @@ public class RootRegionsExcludesHARegionsRegressionTest implements Serializable 
     regionFactory.setEnableSubscriptionConflation(true);
     regionFactory.create(regionName);
 
-    CacheServer cacheServer = cacheRule.getCache().addCacheServer();
+    var cacheServer = cacheRule.getCache().addCacheServer();
     cacheServer.setPort(port);
     cacheServer.start();
     return cacheServer.getPort();
   }
 
   private void createCacheClient() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(DURABLE_CLIENT_ID, uniqueName);
     config.setProperty(DURABLE_CLIENT_TIMEOUT, DURABLE_CLIENT_TIMEOUT_VALUE);
 
     clientCacheRule.createClientCache(config);
 
-    PoolFactoryImpl poolFactory = (PoolFactoryImpl) PoolManager.createFactory();
+    var poolFactory = (PoolFactoryImpl) PoolManager.createFactory();
     poolFactory.addServer(hostName, port).setSubscriptionEnabled(true).setSubscriptionRedundancy(0);
 
     ClientRegionFactory<?, ?> clientRegionFactory =
@@ -131,9 +128,9 @@ public class RootRegionsExcludesHARegionsRegressionTest implements Serializable 
   }
 
   private void validateRootRegions() {
-    Set<Region<?, ?>> regions = cacheRule.getCache().rootRegions();
+    var regions = cacheRule.getCache().rootRegions();
     if (regions != null) {
-      for (Region<?, ?> region : regions) {
+      for (var region : regions) {
         assertThat(region).isNotInstanceOf(HARegion.class);
       }
     }

@@ -60,7 +60,7 @@ public class CacheXMLPartitionResolver implements PartitionResolver, Serializabl
     if (!obj.getClass().equals(getClass())) {
       return false;
     }
-    CacheXMLPartitionResolver other = (CacheXMLPartitionResolver) obj;
+    var other = (CacheXMLPartitionResolver) obj;
     return resolveProps.equals(other.getConfig());
   }
 

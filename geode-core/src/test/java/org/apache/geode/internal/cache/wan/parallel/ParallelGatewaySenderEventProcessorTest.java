@@ -44,7 +44,7 @@ public class ParallelGatewaySenderEventProcessorTest {
 
   @Test
   public void eventQueueSizeReturnsQueueLocalSize() {
-    ParallelGatewaySenderEventProcessor processor =
+    var processor =
         spy(new ParallelGatewaySenderEventProcessor(sender, mock(
             ThreadsMonitoring.class), false));
     doReturn(queue).when(processor).getQueue();
@@ -56,7 +56,7 @@ public class ParallelGatewaySenderEventProcessorTest {
 
   @Test
   public void eventQueueSizeReturnsZeroIfQueueIsNull() {
-    ParallelGatewaySenderEventProcessor processor =
+    var processor =
         spy(new ParallelGatewaySenderEventProcessor(sender, mock(
             ThreadsMonitoring.class), false));
     doReturn(null).when(processor).getQueue();

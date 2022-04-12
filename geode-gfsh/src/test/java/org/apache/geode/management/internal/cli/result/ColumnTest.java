@@ -22,88 +22,88 @@ public class ColumnTest {
 
   @Test
   public void getLengthReturnsLengthOfStringValue() {
-    String value = "bar";
-    Align align = Align.CENTER;
-    Column column = new Column(value, align);
+    var value = "bar";
+    var align = Align.CENTER;
+    var column = new Column(value, align);
 
-    int result = column.getLength();
+    var result = column.getLength();
 
     assertThat(result).isEqualTo(value.length());
   }
 
   @Test
   public void toStringContainsAlignAndStringValue() {
-    String value = "foo";
-    Align align = Align.LEFT;
-    Column column = new Column(value, align);
+    var value = "foo";
+    var align = Align.LEFT;
+    var column = new Column(value, align);
 
-    String result = column.toString();
+    var result = column.toString();
 
     assertThat(result).isEqualTo("Column{align=" + align + ", stringValue='" + value + "'}");
   }
 
   @Test
   public void buildColumn_alignRight_colWidthEqualsStringValueLength_trimIsFalse() {
-    String value = "thisisastring";
-    Align align = Align.RIGHT;
-    Column column = new Column(value, align);
+    var value = "thisisastring";
+    var align = Align.RIGHT;
+    var column = new Column(value, align);
 
-    String result = column.buildColumn(value.length(), false);
+    var result = column.buildColumn(value.length(), false);
 
     assertThat(result).isEqualTo(value);
   }
 
   @Test
   public void buildColumn_alignRight_colWidthEqualsStringValueLength_trimIsTrue() {
-    String value = "thisisastring";
-    Align align = Align.RIGHT;
-    Column column = new Column(value, align);
+    var value = "thisisastring";
+    var align = Align.RIGHT;
+    var column = new Column(value, align);
 
-    String result = column.buildColumn(value.length(), true);
+    var result = column.buildColumn(value.length(), true);
 
     assertThat(result).isEqualTo(value);
   }
 
   @Test
   public void buildColumn_alignRight_colWidthLessThanStringValueLength_trimIsFalse() {
-    String value = "thisisastring";
-    Align align = Align.RIGHT;
-    Column column = new Column(value, align);
+    var value = "thisisastring";
+    var align = Align.RIGHT;
+    var column = new Column(value, align);
 
-    String result = column.buildColumn(6, false);
+    var result = column.buildColumn(6, false);
 
     assertThat(result).isEqualTo(value.substring(0, 4) + "..");
   }
 
   @Test
   public void buildColumn_alignRight_colWidthLessThanStringValueLength_trimIsTrue() {
-    String value = "thisisastring";
-    Align align = Align.RIGHT;
-    Column column = new Column(value, align);
+    var value = "thisisastring";
+    var align = Align.RIGHT;
+    var column = new Column(value, align);
 
-    String result = column.buildColumn(6, true);
+    var result = column.buildColumn(6, true);
 
     assertThat(result).isEqualTo(value.substring(0, 4) + "..");
   }
 
   @Test
   public void buildColumn_alignRight_colWidthGreaterThanStringValueLength_trimIsFalse() {
-    String value = "thisisastring";
-    Align align = Align.RIGHT;
-    Column column = new Column(value, align);
+    var value = "thisisastring";
+    var align = Align.RIGHT;
+    var column = new Column(value, align);
 
-    String result = column.buildColumn(value.length() + 2, false);
+    var result = column.buildColumn(value.length() + 2, false);
 
     assertThat(result).isEqualTo("  " + value);
   }
 
   @Test
   public void buildColumn_alignRight_colWidthGreaterThanStringValueLength_trimIsTrue() {
-    String value = "thisisastring";
-    Align align = Align.RIGHT;
-    Column column = new Column(value, align);
+    var value = "thisisastring";
+    var align = Align.RIGHT;
+    var column = new Column(value, align);
 
-    String result = column.buildColumn(value.length() + 2, true);
+    var result = column.buildColumn(value.length() + 2, true);
 
     assertThat(result).isEqualTo(value);
   }
@@ -112,66 +112,66 @@ public class ColumnTest {
 
   @Test
   public void buildColumn_alignLeft_colWidthEqualsStringValueLength_trimIsFalse() {
-    String value = "thisisastring";
-    Align align = Align.LEFT;
-    Column column = new Column(value, align);
+    var value = "thisisastring";
+    var align = Align.LEFT;
+    var column = new Column(value, align);
 
-    String result = column.buildColumn(value.length(), false);
+    var result = column.buildColumn(value.length(), false);
 
     assertThat(result).isEqualTo(value);
   }
 
   @Test
   public void buildColumn_alignLeft_colWidthEqualsStringValueLength_trimIsTrue() {
-    String value = "thisisastring";
-    Align align = Align.LEFT;
-    Column column = new Column(value, align);
+    var value = "thisisastring";
+    var align = Align.LEFT;
+    var column = new Column(value, align);
 
-    String result = column.buildColumn(value.length(), true);
+    var result = column.buildColumn(value.length(), true);
 
     assertThat(result).isEqualTo(value);
   }
 
   @Test
   public void buildColumn_alignLeft_colWidthLessThanStringValueLength_trimIsFalse() {
-    String value = "thisisastring";
-    Align align = Align.LEFT;
-    Column column = new Column(value, align);
+    var value = "thisisastring";
+    var align = Align.LEFT;
+    var column = new Column(value, align);
 
-    String result = column.buildColumn(6, false);
+    var result = column.buildColumn(6, false);
 
     assertThat(result).isEqualTo(value.substring(0, 4) + "..");
   }
 
   @Test
   public void buildColumn_alignLeft_colWidthLessThanStringValueLength_trimIsTrue() {
-    String value = "thisisastring";
-    Align align = Align.LEFT;
-    Column column = new Column(value, align);
+    var value = "thisisastring";
+    var align = Align.LEFT;
+    var column = new Column(value, align);
 
-    String result = column.buildColumn(6, true);
+    var result = column.buildColumn(6, true);
 
     assertThat(result).isEqualTo(value.substring(0, 4) + "..");
   }
 
   @Test
   public void buildColumn_alignLeft_colWidthGreaterThanStringValueLength_trimIsFalse() {
-    String value = "thisisastring";
-    Align align = Align.LEFT;
-    Column column = new Column(value, align);
+    var value = "thisisastring";
+    var align = Align.LEFT;
+    var column = new Column(value, align);
 
-    String result = column.buildColumn(value.length() + 2, false);
+    var result = column.buildColumn(value.length() + 2, false);
 
     assertThat(result).isEqualTo(value + "  ");
   }
 
   @Test
   public void buildColumn_alignLeft_colWidthGreaterThanStringValueLength_trimIsTrue() {
-    String value = "thisisastring";
-    Align align = Align.LEFT;
-    Column column = new Column(value, align);
+    var value = "thisisastring";
+    var align = Align.LEFT;
+    var column = new Column(value, align);
 
-    String result = column.buildColumn(value.length() + 2, true);
+    var result = column.buildColumn(value.length() + 2, true);
 
     assertThat(result).isEqualTo(value);
   }
@@ -180,66 +180,66 @@ public class ColumnTest {
 
   @Test
   public void buildColumn_alignCenter_colWidthEqualsStringValueLength_trimIsFalse() {
-    String value = "thisisastring";
-    Align align = Align.CENTER;
-    Column column = new Column(value, align);
+    var value = "thisisastring";
+    var align = Align.CENTER;
+    var column = new Column(value, align);
 
-    String result = column.buildColumn(value.length(), false);
+    var result = column.buildColumn(value.length(), false);
 
     assertThat(result).isEqualTo(value);
   }
 
   @Test
   public void buildColumn_alignCenter_colWidthEqualsStringValueLength_trimIsTrue() {
-    String value = "thisisastring";
-    Align align = Align.CENTER;
-    Column column = new Column(value, align);
+    var value = "thisisastring";
+    var align = Align.CENTER;
+    var column = new Column(value, align);
 
-    String result = column.buildColumn(value.length(), true);
+    var result = column.buildColumn(value.length(), true);
 
     assertThat(result).isEqualTo(value);
   }
 
   @Test
   public void buildColumn_alignCenter_colWidthLessThanStringValueLength_trimIsFalse() {
-    String value = "thisisastring";
-    Align align = Align.CENTER;
-    Column column = new Column(value, align);
+    var value = "thisisastring";
+    var align = Align.CENTER;
+    var column = new Column(value, align);
 
-    String result = column.buildColumn(6, false);
+    var result = column.buildColumn(6, false);
 
     assertThat(result).isEqualTo(value.substring(0, 4) + "..");
   }
 
   @Test
   public void buildColumn_alignCenter_colWidthLessThanStringValueLength_trimIsTrue() {
-    String value = "thisisastring";
-    Align align = Align.CENTER;
-    Column column = new Column(value, align);
+    var value = "thisisastring";
+    var align = Align.CENTER;
+    var column = new Column(value, align);
 
-    String result = column.buildColumn(6, true);
+    var result = column.buildColumn(6, true);
 
     assertThat(result).isEqualTo(value.substring(0, 4) + "..");
   }
 
   @Test
   public void buildColumn_alignCenter_colWidthGreaterThanStringValueLength_trimIsFalse() {
-    String value = "thisisastring";
-    Align align = Align.CENTER;
-    Column column = new Column(value, align);
+    var value = "thisisastring";
+    var align = Align.CENTER;
+    var column = new Column(value, align);
 
-    String result = column.buildColumn(value.length() + 2, false);
+    var result = column.buildColumn(value.length() + 2, false);
 
     assertThat(result).isEqualTo(" " + value + " ");
   }
 
   @Test
   public void buildColumn_alignCenter_colWidthGreaterThanStringValueLength_trimIsTrue() {
-    String value = "thisisastring";
-    Align align = Align.CENTER;
-    Column column = new Column(value, align);
+    var value = "thisisastring";
+    var align = Align.CENTER;
+    var column = new Column(value, align);
 
-    String result = column.buildColumn(value.length() + 2, true);
+    var result = column.buildColumn(value.length() + 2, true);
 
     assertThat(result).isEqualTo(value);
   }

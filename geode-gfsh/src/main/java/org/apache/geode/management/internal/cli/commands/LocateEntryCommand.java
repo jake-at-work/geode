@@ -17,13 +17,10 @@ package org.apache.geode.management.internal.cli.commands;
 
 import static org.apache.geode.management.internal.cli.commands.DataCommandsUtils.callFunctionForRegion;
 
-import java.util.Set;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.ConverterHint;
 import org.apache.geode.management.cli.GfshCommand;
@@ -58,10 +55,10 @@ public class LocateEntryCommand extends GfshCommand {
 
     key = DataCommandsUtils.makeBrokenJsonCompliant(key);
 
-    DataCommandFunction locateEntry = new DataCommandFunction();
-    Set<DistributedMember> memberList = findMembersForRegion(regionPath);
+    var locateEntry = new DataCommandFunction();
+    var memberList = findMembersForRegion(regionPath);
     if (CollectionUtils.isNotEmpty(memberList)) {
-      DataCommandRequest request = new DataCommandRequest();
+      var request = new DataCommandRequest();
       request.setCommand(CliStrings.LOCATE_ENTRY);
       request.setKey(key);
       request.setKeyClass(keyClass);

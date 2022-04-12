@@ -39,7 +39,7 @@ public class OfflineCompactionDiskRegion extends DiskRegion implements DiskRecov
 
   static OfflineCompactionDiskRegion create(DiskStoreImpl dsi, DiskRegionView drv) {
     assert dsi != null;
-    OfflineCompactionDiskRegion result = new OfflineCompactionDiskRegion(dsi, drv);
+    var result = new OfflineCompactionDiskRegion(dsi, drv);
     result.register();
     return result;
   }

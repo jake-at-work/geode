@@ -65,7 +65,7 @@ public class TopEntriesFunctionCollector
       InternalCache cache) {
     id = cache == null ? String.valueOf(hashCode()) : cache.getName();
 
-    int limit = context == null ? 0 : context.getLimit();
+    var limit = context == null ? 0 : context.getLimit();
 
     if (context != null && context.getCollectorManager() != null) {
       manager = context.getCollectorManager();

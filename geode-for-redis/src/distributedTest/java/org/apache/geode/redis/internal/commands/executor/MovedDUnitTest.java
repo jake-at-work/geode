@@ -32,9 +32,6 @@ import org.junit.Test;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisMovedDataException;
 
-import org.apache.geode.cache.control.RebalanceFactory;
-import org.apache.geode.cache.control.ResourceManager;
-import org.apache.geode.redis.internal.services.cluster.RedisMemberInfo;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.dunit.rules.RedisClusterStartupRule;
@@ -60,13 +57,13 @@ public class MovedDUnitTest {
     clusterStartUp.startRedisVM(2, locator.getPort());
 
     redisServerPort1 = clusterStartUp.getRedisPort(1);
-    int redisServerPort2 = clusterStartUp.getRedisPort(2);
+    var redisServerPort2 = clusterStartUp.getRedisPort(2);
 
     jedis1 = new Jedis(BIND_ADDRESS, redisServerPort1, REDIS_CLIENT_TIMEOUT);
     jedis2 = new Jedis(BIND_ADDRESS, redisServerPort2, REDIS_CLIENT_TIMEOUT);
     clusterClient = RedisClusterClient.create("redis://localhost:" + redisServerPort1);
 
-    ClusterTopologyRefreshOptions refreshOptions =
+    var refreshOptions =
         ClusterTopologyRefreshOptions.builder()
             .enableAllAdaptiveRefreshTriggers()
             .build();
@@ -98,15 +95,15 @@ public class MovedDUnitTest {
 
   @Test
   public void testMovedResponse_fromWrongServer() {
-    int movedResponses = 0;
+    var movedResponses = 0;
     Jedis jedis;
 
-    for (int i = 0; i < ENTRIES; i++) {
-      String key = "key-" + i;
-      String value = "value-" + i;
+    for (var i = 0; i < ENTRIES; i++) {
+      var key = "key-" + i;
+      var value = "value-" + i;
 
       // Always pick the wrong connection to use
-      RedisMemberInfo memberInfo = clusterStartUp.getMemberInfo(key);
+      var memberInfo = clusterStartUp.getMemberInfo(key);
       jedis = memberInfo.getRedisPort() == redisServerPort1 ? jedis2 : jedis1;
 
       try {
@@ -123,12 +120,12 @@ public class MovedDUnitTest {
   public void testNoMovedResponse_fromCorrectServer() {
     Jedis jedis;
 
-    for (int i = 0; i < ENTRIES; i++) {
-      String key = "key-" + i;
-      String value = "value-" + i;
+    for (var i = 0; i < ENTRIES; i++) {
+      var key = "key-" + i;
+      var value = "value-" + i;
 
       // Always pick the right connection to use
-      RedisMemberInfo memberInfo = clusterStartUp.getMemberInfo(key);
+      var memberInfo = clusterStartUp.getMemberInfo(key);
       jedis = memberInfo.getRedisPort() == redisServerPort1 ? jedis1 : jedis2;
 
       assertThat(jedis.set(key, value)).isEqualTo("OK");
@@ -140,7 +137,7 @@ public class MovedDUnitTest {
     clusterStartUp.startRedisVM(3, locator.getPort());
     rebalanceAllRegions(server1);
 
-    for (int i = 0; i < ENTRIES; i++) {
+    for (var i = 0; i < ENTRIES; i++) {
       lettuce.set("key-" + i, "value-" + i);
     }
 
@@ -148,9 +145,9 @@ public class MovedDUnitTest {
     rebalanceAllRegions(server1);
     clusterStartUp.startRedisVM(3, locator.getPort());
 
-    Jedis jedis3 = new Jedis(BIND_ADDRESS, clusterStartUp.getRedisPort(3), REDIS_CLIENT_TIMEOUT);
-    for (int i = 0; i < ENTRIES; i++) {
-      String key = "key-" + i;
+    var jedis3 = new Jedis(BIND_ADDRESS, clusterStartUp.getRedisPort(3), REDIS_CLIENT_TIMEOUT);
+    for (var i = 0; i < ENTRIES; i++) {
+      var key = "key-" + i;
       assertThatThrownBy(() -> jedis3.get(key))
           .as("Key '" + key + "' did not produce MOVED response")
           .hasMessageContaining("MOVED");
@@ -159,8 +156,8 @@ public class MovedDUnitTest {
 
   private static void rebalanceAllRegions(MemberVM vm) {
     vm.invoke("Running rebalance", () -> {
-      ResourceManager manager = ClusterStartupRule.getCache().getResourceManager();
-      RebalanceFactory factory = manager.createRebalanceFactory();
+      var manager = ClusterStartupRule.getCache().getResourceManager();
+      var factory = manager.createRebalanceFactory();
       try {
         factory.start().getResults();
       } catch (InterruptedException e) {

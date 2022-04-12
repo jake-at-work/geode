@@ -17,8 +17,6 @@ package org.apache.geode.internal.cache.wan;
 import static org.apache.geode.test.awaitility.GeodeAwaitility.await;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Set;
-
 import junitparams.Parameters;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -26,12 +24,9 @@ import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.wan.GatewaySender;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
-import org.apache.geode.internal.cache.DiskRegionStats;
 import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.cache.PartitionedRegion;
-import org.apache.geode.internal.cache.RegionQueue;
 import org.apache.geode.internal.cache.wan.parallel.ParallelGatewaySenderQueue;
-import org.apache.geode.management.GatewaySenderMXBean;
 import org.apache.geode.management.ManagementService;
 import org.apache.geode.test.junit.categories.WanTest;
 import org.apache.geode.test.junit.runners.GeodeParamsRunner;
@@ -45,13 +40,13 @@ public class GatewaySenderOverflowMBeanAttributesDistributedTest extends WANTest
   public void testParallelGatewaySenderOverflowMBeanAttributes(boolean createSenderFirst)
       throws Exception {
     // Start the locators
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> createFirstRemoteLocator(2, lnPort));
 
     // Create the cache
     vm4.invoke(() -> createCache(lnPort));
 
-    String senderId = "ln";
+    var senderId = "ln";
     if (createSenderFirst) {
       // Create a gateway sender then a region (normal xml order)
 
@@ -75,7 +70,7 @@ public class GatewaySenderOverflowMBeanAttributesDistributedTest extends WANTest
     }
 
     // Do some puts to cause overflow
-    int numPuts = 10;
+    var numPuts = 10;
     vm4.invoke(() -> doHeavyPuts(getTestMethodName(), numPuts));
 
     // Compare overflow stats to mbean attributes
@@ -101,13 +96,13 @@ public class GatewaySenderOverflowMBeanAttributesDistributedTest extends WANTest
   public void testSerialGatewaySenderOverflowMBeanAttributes(boolean createSenderFirst)
       throws Exception {
     // Start the locators
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> createFirstRemoteLocator(2, lnPort));
 
     // Create the cache
     vm4.invoke(() -> createCache(lnPort));
 
-    String senderId = "ln";
+    var senderId = "ln";
     if (createSenderFirst) {
       // Create a gateway sender then a region (normal xml order)
 
@@ -133,7 +128,7 @@ public class GatewaySenderOverflowMBeanAttributesDistributedTest extends WANTest
     }
 
     // Do some puts to cause overflow
-    int numPuts = 20;
+    var numPuts = 20;
     vm4.invoke(() -> doHeavyPuts(getTestMethodName(), numPuts));
 
     // Compare overflow stats to mbean attributes
@@ -159,13 +154,13 @@ public class GatewaySenderOverflowMBeanAttributesDistributedTest extends WANTest
   public void testParallelGatewaySenderOverflowMBeanAttributesClear(boolean createSenderFirst)
       throws Exception {
     // Start the locators
-    Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> createFirstRemoteLocator(2, lnPort));
 
     // Create the cache
     vm4.invoke(() -> createCache(lnPort));
 
-    String senderId = "ln";
+    var senderId = "ln";
     if (createSenderFirst) {
       // Create a gateway sender then a region (normal xml order)
 
@@ -189,7 +184,7 @@ public class GatewaySenderOverflowMBeanAttributesDistributedTest extends WANTest
     }
 
     // Do some puts to cause overflow
-    int numPuts = 10;
+    var numPuts = 10;
     vm4.invoke(() -> doHeavyPuts(getTestMethodName(), numPuts));
 
     // Compare overflow stats to mbean attributes
@@ -209,14 +204,14 @@ public class GatewaySenderOverflowMBeanAttributesDistributedTest extends WANTest
 
   private void compareParallelOverflowStatsToMBeanAttributes(String senderId) throws Exception {
     // Get disk region stats associated with the queue region
-    PartitionedRegion region =
+    var region =
         (PartitionedRegion) cache.getRegion(senderId + ParallelGatewaySenderQueue.QSTRING);
-    DiskRegionStats drs = region.getDiskRegionStats();
+    var drs = region.getDiskRegionStats();
     assertThat(drs).isNotNull();
 
     // Get gateway sender mbean
-    ManagementService service = ManagementService.getManagementService(cache);
-    GatewaySenderMXBean bean = service.getLocalGatewaySenderMXBean(senderId);
+    var service = ManagementService.getManagementService(cache);
+    var bean = service.getLocalGatewaySenderMXBean(senderId);
     assertThat(bean).isNotNull();
 
     // Wait for the sampler to take a few samples
@@ -231,14 +226,14 @@ public class GatewaySenderOverflowMBeanAttributesDistributedTest extends WANTest
 
   private void compareSerialOverflowStatsToMBeanAttributes(String senderId) throws Exception {
     // Get the sender
-    AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender(senderId);
+    var sender = (AbstractGatewaySender) cache.getGatewaySender(senderId);
 
     // Get the sender's queue regions
-    Set<RegionQueue> queues = sender.getQueues();
+    var queues = sender.getQueues();
 
     // Get gateway sender mbean
-    ManagementService service = ManagementService.getManagementService(cache);
-    GatewaySenderMXBean bean = service.getLocalGatewaySenderMXBean(senderId);
+    var service = ManagementService.getManagementService(cache);
+    var bean = service.getLocalGatewaySenderMXBean(senderId);
     assertThat(bean).isNotNull();
 
     // Wait for the sampler to take a few samples
@@ -247,11 +242,11 @@ public class GatewaySenderOverflowMBeanAttributesDistributedTest extends WANTest
     // Verify the bean attributes match the stat values
     await().untilAsserted(() -> {
       // Calculate the total entries and bytes overflowed to disk
-      int entriesOverflowedToDisk = 0;
-      long bytesOverflowedToDisk = 0l;
-      for (RegionQueue queue : queues) {
-        LocalRegion lr = (LocalRegion) queue.getRegion();
-        DiskRegionStats drs = lr.getDiskRegion().getStats();
+      var entriesOverflowedToDisk = 0;
+      var bytesOverflowedToDisk = 0l;
+      for (var queue : queues) {
+        var lr = (LocalRegion) queue.getRegion();
+        var drs = lr.getDiskRegion().getStats();
         entriesOverflowedToDisk += drs.getNumOverflowOnDisk();
         bytesOverflowedToDisk += drs.getNumOverflowBytesOnDisk();
       }
@@ -263,9 +258,9 @@ public class GatewaySenderOverflowMBeanAttributesDistributedTest extends WANTest
   }
 
   private void waitForSamplerToSample(int numTimesToSample) throws Exception {
-    InternalDistributedSystem ids = (InternalDistributedSystem) cache.getDistributedSystem();
+    var ids = (InternalDistributedSystem) cache.getDistributedSystem();
     assertThat(ids.getStatSampler().waitForSampleCollector(60000)).isNotNull();
-    for (int i = 0; i < numTimesToSample; i++) {
+    for (var i = 0; i < numTimesToSample; i++) {
       assertThat(ids.getStatSampler().waitForSample((60000))).isTrue();
     }
   }
@@ -273,8 +268,8 @@ public class GatewaySenderOverflowMBeanAttributesDistributedTest extends WANTest
   private void checkParallelOverflowStatsAreZero(String senderId) throws Exception {
 
     // Get gateway sender mbean
-    ManagementService service = ManagementService.getManagementService(cache);
-    GatewaySenderMXBean bean = service.getLocalGatewaySenderMXBean(senderId);
+    var service = ManagementService.getManagementService(cache);
+    var bean = service.getLocalGatewaySenderMXBean(senderId);
     assertThat(bean).isNotNull();
 
     // Wait for the sampler to take a few samples

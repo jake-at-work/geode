@@ -23,13 +23,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
@@ -130,8 +128,8 @@ public class ProcessWrapper implements Consumer<String> {
   }
 
   private void waitForProcessStart() throws InterruptedException, TimeoutException {
-    final long start = System.currentTimeMillis();
-    boolean done = false;
+    final var start = System.currentTimeMillis();
+    var done = false;
     while (!done) {
       synchronized (exitValue) {
         done = (process != null || processException != null)
@@ -166,7 +164,7 @@ public class ProcessWrapper implements Consumer<String> {
 
   public int waitFor(final long timeout, final boolean throwOnTimeout) throws InterruptedException {
     checkStarting();
-    final Thread thread = getThread();
+    final var thread = getThread();
     thread.join(timeout);
     synchronized (exitValue) {
       if (throwOnTimeout) {
@@ -197,8 +195,8 @@ public class ProcessWrapper implements Consumer<String> {
     if (!ignoreStopped) {
       checkStopped();
     }
-    final StringBuilder sb = new StringBuilder();
-    for (final String allLine : allLines) {
+    final var sb = new StringBuilder();
+    for (final var allLine : allLines) {
       sb.append(allLine + System.lineSeparator());
     }
     return sb.toString();
@@ -212,7 +210,7 @@ public class ProcessWrapper implements Consumer<String> {
 
   public ProcessWrapper sendInput(final String input) {
     checkStarting();
-    final PrintStream ps = new PrintStream(process.getOutputStream());
+    final var ps = new PrintStream(process.getOutputStream());
     ps.println(input);
     ps.flush();
     return this;
@@ -223,12 +221,12 @@ public class ProcessWrapper implements Consumer<String> {
     checkStarting();
     checkOk();
 
-    final Pattern pattern = Pattern.compile(patternString);
+    final var pattern = Pattern.compile(patternString);
     logger.debug("failIfOutputMatches waiting for \"{}\"...", patternString);
-    final long start = System.currentTimeMillis();
+    final var start = System.currentTimeMillis();
 
     while (System.currentTimeMillis() <= start + timeoutMillis) {
-      final String line = lineBuffer.poll(timeoutMillis, MILLISECONDS);
+      final var line = lineBuffer.poll(timeoutMillis, MILLISECONDS);
       if (line != null && pattern.matcher(line).matches()) {
         fail("failIfOutputMatches Matched pattern \"" + patternString + "\" against output \""
             + line + "\". Output: " + allLines);
@@ -247,10 +245,10 @@ public class ProcessWrapper implements Consumer<String> {
     checkOk();
 
     logger.debug("ProcessWrapper:waitForOutputToMatch waiting for \"{}\"...", patternString);
-    final Pattern pattern = Pattern.compile(patternString);
+    final var pattern = Pattern.compile(patternString);
 
     while (true) {
-      final String line = lineBuffer.poll(timeoutMillis, MILLISECONDS);
+      final var line = lineBuffer.poll(timeoutMillis, MILLISECONDS);
       if (line == null) {
         fail("Timed out waiting for output \"" + patternString + "\" after " + timeoutMillis +
             " ms from process \"" + toString(process) + "\" in \"" + this + "\". Output: " +
@@ -326,7 +324,7 @@ public class ProcessWrapper implements Consumer<String> {
     final List<String> jvmArgumentsList = new ArrayList<>();
 
     if (properties != null) {
-      for (Map.Entry<Object, Object> entry : properties.entrySet()) {
+      for (var entry : properties.entrySet()) {
         if (!entry.getKey().equals(LOG_FILE)) {
           jvmArgumentsList.add("-D" + entry.getKey() + "=" + entry.getValue());
         }
@@ -343,15 +341,15 @@ public class ProcessWrapper implements Consumer<String> {
 
     try {
       synchronized (exitValue) {
-        final String[] command =
+        final var command =
             defineCommand(jvmArgumentsList.toArray(new String[jvmArgumentsList.size()]),
                 workingDirectory.getCanonicalPath());
         process = new ProcessBuilder(command).directory(workingDirectory).start();
 
-        final StringBuilder processCommand = new StringBuilder();
-        boolean addSpace = false;
+        final var processCommand = new StringBuilder();
+        var addSpace = false;
 
-        for (String string : command) {
+        for (var string : command) {
           if (addSpace) {
             processCommand.append(" ");
           }
@@ -359,12 +357,12 @@ public class ProcessWrapper implements Consumer<String> {
           addSpace = true;
         }
 
-        final String commandString = processCommand.toString();
+        final var commandString = processCommand.toString();
         logger.info("Starting " + commandString);
 
-        final ProcessStreamReader stdOut = new ProcessStreamReader(commandString,
+        final var stdOut = new ProcessStreamReader(commandString,
             process.getInputStream(), this);
-        final ProcessStreamReader stdErr = new ProcessStreamReader(commandString,
+        final var stdErr = new ProcessStreamReader(commandString,
             process.getErrorStream(), this);
 
         stdout = stdOut;
@@ -375,7 +373,7 @@ public class ProcessWrapper implements Consumer<String> {
 
       outputReader.start();
       outputReader.waitFor(PROCESS_TIMEOUT_MILLIS, MILLISECONDS);
-      boolean exited = process.waitFor(PROCESS_TIMEOUT_MILLIS, MILLISECONDS);
+      var exited = process.waitFor(PROCESS_TIMEOUT_MILLIS, MILLISECONDS);
 
       synchronized (exitValue) {
         exitValue.set(exited ? process.exitValue() : 0);
@@ -396,12 +394,12 @@ public class ProcessWrapper implements Consumer<String> {
 
   private String[] defineCommand(final String[] jvmArguments, String workingDir)
       throws IOException {
-    final File javaBinDir = new File(System.getProperty("java.home"), "bin");
-    final File javaExe = new File(javaBinDir, "java");
+    final var javaBinDir = new File(System.getProperty("java.home"), "bin");
+    final var javaExe = new File(javaBinDir, "java");
 
-    String classPath = System.getProperty("java.class.path");
-    List<String> parts = Arrays.asList(classPath.split(File.pathSeparator));
-    String manifestJar = createManifestJar(parts, workingDir);
+    var classPath = System.getProperty("java.class.path");
+    var parts = Arrays.asList(classPath.split(File.pathSeparator));
+    var manifestJar = createManifestJar(parts, workingDir);
 
     final List<String> argumentList = new ArrayList<>();
     argumentList.add(javaExe.getPath());
@@ -488,13 +486,13 @@ public class ProcessWrapper implements Consumer<String> {
    */
   public static String createManifestJar(List<String> entries, String location) throws IOException {
     // Must use the canonical path so that symbolic links are resolved correctly
-    Path locationPath = new File(location).getCanonicalFile().toPath();
+    var locationPath = new File(location).getCanonicalFile().toPath();
     Files.createDirectories(locationPath);
 
     List<String> manifestEntries = new ArrayList<>();
-    for (String jarEntry : entries) {
-      Path jarEntryAbsolutePath = Paths.get(jarEntry).toAbsolutePath();
-      Path jarEntryRelativizedPath = locationPath.relativize(jarEntryAbsolutePath);
+    for (var jarEntry : entries) {
+      var jarEntryAbsolutePath = Paths.get(jarEntry).toAbsolutePath();
+      var jarEntryRelativizedPath = locationPath.relativize(jarEntryAbsolutePath);
       if (jarEntryAbsolutePath.toFile().isDirectory()) {
         manifestEntries.add(jarEntryRelativizedPath + File.separator);
       } else {
@@ -502,18 +500,18 @@ public class ProcessWrapper implements Consumer<String> {
       }
     }
 
-    Manifest manifest = new Manifest();
-    Attributes attributes = manifest.getMainAttributes();
+    var manifest = new Manifest();
+    var attributes = manifest.getMainAttributes();
     attributes.put(Attributes.Name.MANIFEST_VERSION, "1.0.0");
     attributes.put(new Attributes.Name("Class-Path"), String.join(" ", manifestEntries));
 
     // Generate a 'unique' 8 char name
-    String uuid = UUID.randomUUID().toString().substring(0, 8);
-    Path manifestJarPath = Paths.get(location, "manifest-" + uuid + ".jar");
-    File manifestJarFile = manifestJarPath.toFile();
+    var uuid = UUID.randomUUID().toString().substring(0, 8);
+    var manifestJarPath = Paths.get(location, "manifest-" + uuid + ".jar");
+    var manifestJarFile = manifestJarPath.toFile();
     manifestJarFile.deleteOnExit();
 
-    try (JarOutputStream jos =
+    try (var jos =
         new JarOutputStream(new FileOutputStream(manifestJarFile), manifest)) {
       // the above try-with-resource writes the manifest to the manifestJarFile
     }

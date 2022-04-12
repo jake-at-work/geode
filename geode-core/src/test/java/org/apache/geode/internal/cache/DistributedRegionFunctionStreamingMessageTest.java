@@ -27,10 +27,10 @@ public class DistributedRegionFunctionStreamingMessageTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    DistributedRegionFunctionStreamingMessage mockDistributedRegionFunctionStreamingMessage =
+    var mockDistributedRegionFunctionStreamingMessage =
         mock(DistributedRegionFunctionStreamingMessage.class);
-    ClusterDistributionManager mockDistributionManager = mock(ClusterDistributionManager.class);
-    DistributedRegion mockDistributedRegion = mock(DistributedRegion.class);
+    var mockDistributionManager = mock(ClusterDistributionManager.class);
+    var mockDistributedRegion = mock(DistributedRegion.class);
 
     when(mockDistributedRegionFunctionStreamingMessage
         .operateOnDistributedRegion(eq(mockDistributionManager), eq(mockDistributedRegion)))

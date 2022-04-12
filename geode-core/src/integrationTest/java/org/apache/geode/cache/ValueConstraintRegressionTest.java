@@ -45,7 +45,7 @@ public class ValueConstraintRegressionTest {
 
   @Before
   public void setUp() throws java.lang.Exception {
-    Properties properties = new Properties();
+    var properties = new Properties();
     properties.setProperty(MCAST_PORT, "0");
     distributedSystem = DistributedSystem.connect(properties);
     cache = CacheFactory.create(distributedSystem);
@@ -59,10 +59,10 @@ public class ValueConstraintRegressionTest {
 
   @Test
   public void testValueConstraints() throws Exception {
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setValueConstraint(Portfolio.class);
-    RegionAttributes regionAttributes = factory.create();
-    Region portolioRegion = cache.createRegion("portfolios", regionAttributes);
+    var regionAttributes = factory.create();
+    var portolioRegion = cache.createRegion("portfolios", regionAttributes);
 
     portolioRegion.put("key1", new Portfolio(1));
     try {
@@ -80,16 +80,16 @@ public class ValueConstraintRegressionTest {
 
     // Note that Manager extends Employee
 
-    Manager manager = new Manager("aaa", 27, 270, "QA", 1800, address1, 2701);
-    Employee employee = new Employee("bbb", 28, 280, "QA", 1900, address2);
+    var manager = new Manager("aaa", 27, 270, "QA", 1800, address1, 2701);
+    var employee = new Employee("bbb", 28, 280, "QA", 1900, address2);
 
     factory.setValueConstraint(Manager.class);
     regionAttributes = factory.create();
-    Region managerRegion = cache.createRegion("managers", regionAttributes);
+    var managerRegion = cache.createRegion("managers", regionAttributes);
 
     factory.setValueConstraint(Employee.class);
     regionAttributes = factory.create();
-    Region employeeRegion = cache.createRegion("employees", regionAttributes);
+    var employeeRegion = cache.createRegion("employees", regionAttributes);
 
     // This is perfectly valid, as Manager is Derived from Employee
     employeeRegion.put("key1", manager);

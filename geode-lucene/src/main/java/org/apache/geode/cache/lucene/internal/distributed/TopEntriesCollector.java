@@ -65,7 +65,7 @@ public class TopEntriesCollector implements IndexResultCollector, DataSerializab
 
   @Override
   public int size() {
-    TopEntries entries = getEntries();
+    var entries = getEntries();
     return entries == null ? 0 : entries.size();
   }
 

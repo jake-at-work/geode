@@ -20,8 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import java.lang.Thread.UncaughtExceptionHandler;
-
 import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -39,15 +37,15 @@ public class LoggingUncaughtExceptionHandlerTest {
 
   @Test
   public void verifyGetInstanceIsNotNull() {
-    UncaughtExceptionHandler handler = LoggingUncaughtExceptionHandler.getInstance();
+    var handler = LoggingUncaughtExceptionHandler.getInstance();
 
     assertThat(handler).isNotNull();
   }
 
   @Test
   public void verifyThatSetOnThreadSetsTheThreadsHandler() {
-    Thread thread = new Thread();
-    Implementation handler = new Implementation(null);
+    var thread = new Thread();
+    var handler = new Implementation(null);
 
     handler.setOnThread(thread);
 
@@ -56,9 +54,9 @@ public class LoggingUncaughtExceptionHandlerTest {
 
   @Test
   public void verifyThatCallingUncaughtExceptionIncreasesTheCountByOne() {
-    Logger logger = mock(Logger.class);
-    Implementation handler = new Implementation(logger);
-    int count = handler.getUncaughtExceptionsCount();
+    var logger = mock(Logger.class);
+    var handler = new Implementation(logger);
+    var count = handler.getUncaughtExceptionsCount();
 
     handler.uncaughtException(null, null);
 
@@ -67,8 +65,8 @@ public class LoggingUncaughtExceptionHandlerTest {
 
   @Test
   public void verifyThatCallingClearSetsTheCountToZero() {
-    Logger logger = mock(Logger.class);
-    Implementation handler = new Implementation(logger);
+    var logger = mock(Logger.class);
+    var handler = new Implementation(logger);
     // force the count to be non-zero
     handler.uncaughtException(null, null);
 
@@ -79,10 +77,10 @@ public class LoggingUncaughtExceptionHandlerTest {
 
   @Test
   public void verifyFatalMessageLoggedWhenUncaughtExceptionIsCalled() {
-    Logger logger = mock(Logger.class);
-    Thread thread = mock(Thread.class);
-    Throwable throwable = mock(Throwable.class);
-    Implementation handler = new Implementation(logger);
+    var logger = mock(Logger.class);
+    var thread = mock(Thread.class);
+    var throwable = mock(Throwable.class);
+    var handler = new Implementation(logger);
 
     handler.uncaughtException(thread, throwable);
 
@@ -91,11 +89,11 @@ public class LoggingUncaughtExceptionHandlerTest {
 
   @Test
   public void verifyInfoMessageLoggedWhenUncaughtExceptionIsCalledWithTreatExceptionAsFatalFalse() {
-    Logger logger = mock(Logger.class);
+    var logger = mock(Logger.class);
     Thread thread = new LoggingThread("test", false, () -> {
     }, false);
     Throwable throwable = mock(NoClassDefFoundError.class);
-    Implementation handler = new Implementation(logger);
+    var handler = new Implementation(logger);
 
     handler.uncaughtException(thread, throwable);
 
@@ -106,11 +104,11 @@ public class LoggingUncaughtExceptionHandlerTest {
 
   @Test
   public void verifySetFailureCalledWhenUncaughtExceptionCalledWithVirtualMachineError() {
-    Logger logger = mock(Logger.class);
-    Thread thread = mock(Thread.class);
-    VirtualMachineError error = mock(VirtualMachineError.class);
-    FailureSetter failureSetter = mock(FailureSetter.class);
-    Implementation handler = new Implementation(logger);
+    var logger = mock(Logger.class);
+    var thread = mock(Thread.class);
+    var error = mock(VirtualMachineError.class);
+    var failureSetter = mock(FailureSetter.class);
+    var handler = new Implementation(logger);
     handler.setFailureSetter(failureSetter);
     handler.uncaughtException(thread, error);
 

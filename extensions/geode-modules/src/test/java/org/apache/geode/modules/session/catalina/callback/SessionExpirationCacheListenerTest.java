@@ -30,9 +30,9 @@ import org.apache.geode.modules.session.catalina.DeltaSession;
 public class SessionExpirationCacheListenerTest {
   @Test
   public void testAfterDestroyProcessesSessionExpired() {
-    final SessionExpirationCacheListener listener = new SessionExpirationCacheListener();
+    final var listener = new SessionExpirationCacheListener();
     final EntryEvent<String, HttpSession> event = mock(EntryEvent.class);
-    final DeltaSession session = mock(DeltaSession.class);
+    final var session = mock(DeltaSession.class);
 
     when(event.getOperation()).thenReturn(Operation.EXPIRE_DESTROY);
     when(event.getOldValue()).thenReturn(session);

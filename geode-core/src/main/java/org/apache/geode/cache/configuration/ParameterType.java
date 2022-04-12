@@ -108,7 +108,7 @@ public class ParameterType extends ObjectType {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    ParameterType that = (ParameterType) o;
+    var that = (ParameterType) o;
     return Objects.equals(name, that.name) && super.equals(o);
   }
 

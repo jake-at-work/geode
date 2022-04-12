@@ -26,7 +26,6 @@ import javax.resource.spi.ManagedConnectionFactory;
 import javax.security.auth.Subject;
 import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
-import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAResource;
 
@@ -109,11 +108,11 @@ public class JCAConnectionManagerImpl implements ConnectionManager, ConnectionEv
           transManager = JNDIInvoker.getTransactionManager();
         }
       }
-      Transaction txn = transManager.getTransaction();
+      var txn = transManager.getTransaction();
       if (txn != null) {
         // Check if Data Source provides XATransaction
         // if(configs.getTransactionType = "XATransaction")
-        XAResource xar = conn.getXAResource();
+        var xar = conn.getXAResource();
         txn.enlistResource(xar);
         // Asif :Add in the Map after successful registration of XAResource
         xaResourcesMap.put(conn, xar);
@@ -143,12 +142,12 @@ public class JCAConnectionManagerImpl implements ConnectionManager, ConnectionEv
   public void connectionErrorOccurred(ConnectionEvent event) {
     if (isActive) {
       // If its an XAConnection
-      ManagedConnection conn = (ManagedConnection) event.getSource();
-      XAResource xar = (XAResource) xaResourcesMap.get(conn);
+      var conn = (ManagedConnection) event.getSource();
+      var xar = (XAResource) xaResourcesMap.get(conn);
       xaResourcesMap.remove(conn);
-      TransactionManagerImpl transManager = TransactionManagerImpl.getTransactionManager();
+      var transManager = TransactionManagerImpl.getTransactionManager();
       try {
-        Transaction txn = transManager.getTransaction();
+        var txn = transManager.getTransaction();
         if (txn != null && xar != null) {
           txn.delistResource(xar, XAResource.TMSUCCESS);
         }
@@ -159,7 +158,7 @@ public class JCAConnectionManagerImpl implements ConnectionManager, ConnectionEv
         mannPoolCache.expirePooledConnection(conn);
         // mannPoolCache.destroyPooledConnection(conn);
       } catch (Exception ex) {
-        String exception =
+        var exception =
             "JCAConnectionManagerImpl::connectionErrorOccurred: Exception occurred due to " + ex;
         if (logger.isDebugEnabled()) {
           logger.debug(exception, ex);
@@ -176,19 +175,19 @@ public class JCAConnectionManagerImpl implements ConnectionManager, ConnectionEv
   @Override
   public void connectionClosed(ConnectionEvent event) {
     if (isActive) {
-      ManagedConnection conn = (ManagedConnection) event.getSource();
+      var conn = (ManagedConnection) event.getSource();
       XAResource xar = null;
       if (xaResourcesMap.get(conn) != null) {
         xar = (XAResource) xaResourcesMap.get(conn);
       }
       xaResourcesMap.remove(conn);
       try {
-        Transaction txn = transManager.getTransaction();
+        var txn = transManager.getTransaction();
         if (txn != null && xar != null) {
           txn.delistResource(xar, XAResource.TMSUCCESS);
         }
       } catch (Exception se) {
-        String exception =
+        var exception =
             "JCAConnectionManagerImpl::connectionClosed: Exception occurred due to " + se;
         if (logger.isDebugEnabled()) {
           logger.debug(exception, se);

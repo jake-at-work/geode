@@ -21,16 +21,12 @@ import java.util.HashSet;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.config.AppenderRef;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.filter.AbstractFilterable;
 import org.apache.logging.log4j.core.filter.Filterable;
-import org.apache.logging.log4j.core.lookup.StrLookup;
-import org.apache.logging.log4j.core.lookup.StrSubstitutor;
 
 import org.apache.geode.annotations.VisibleForTesting;
 import org.apache.geode.logging.internal.log4j.api.FastLogger;
@@ -75,7 +71,7 @@ public class Log4jLoggingProvider implements LoggingProvider {
   private static final String GEODE_DEFAULT_PROPERTY = "geode-default";
 
   public static void updateLogLevel(final Level level, final LoggerConfig... loggerConfigs) {
-    for (LoggerConfig loggerConfig : loggerConfigs) {
+    for (var loggerConfig : loggerConfigs) {
       loggerConfig.setLevel(level);
     }
     getRootLoggerContext().updateLoggers();
@@ -91,12 +87,12 @@ public class Log4jLoggingProvider implements LoggingProvider {
   }
 
   static boolean isUsingGemFireDefaultConfig() {
-    Configuration configuration = getConfiguration();
+    var configuration = getConfiguration();
 
-    StrSubstitutor strSubstitutor = configuration.getStrSubstitutor();
-    StrLookup variableResolver = strSubstitutor.getVariableResolver();
+    var strSubstitutor = configuration.getStrSubstitutor();
+    var variableResolver = strSubstitutor.getVariableResolver();
 
-    String value = variableResolver.lookup(GEODE_DEFAULT_PROPERTY);
+    var value = variableResolver.lookup(GEODE_DEFAULT_PROPERTY);
 
     return "true".equals(value);
   }
@@ -119,10 +115,10 @@ public class Log4jLoggingProvider implements LoggingProvider {
   public void configure(final LogConfig logConfig, final LogLevelUpdateOccurs logLevelUpdateOccurs,
       final LogLevelUpdateScope logLevelUpdateScope) {
     if (shouldUpdateLogLevels(logLevelUpdateOccurs)) {
-      Level loggerLevel = toLevel(LogWriterLevel.find(logConfig.getLogLevel()));
+      var loggerLevel = toLevel(LogWriterLevel.find(logConfig.getLogLevel()));
       updateLogLevel(loggerLevel, getLoggerConfig(MAIN_LOGGER_NAME));
 
-      Level securityLoggerLevel = toLevel(LogWriterLevel.find(logConfig.getSecurityLogLevel()));
+      var securityLoggerLevel = toLevel(LogWriterLevel.find(logConfig.getSecurityLogLevel()));
       updateLogLevel(securityLoggerLevel, getLoggerConfig(SECURITY_LOGGER_NAME));
 
       if (!LogConfig.hasSecurityLogFile(logConfig)) {
@@ -146,8 +142,8 @@ public class Log4jLoggingProvider implements LoggingProvider {
   @Override
   public void cleanup() {
     if (configuredSecurityAppenders) {
-      Configuration log4jConfiguration = getRootLoggerContext().getConfiguration();
-      LoggerConfig loggerConfig = log4jConfiguration.getLoggerConfig(
+      var log4jConfiguration = getRootLoggerContext().getConfiguration();
+      var loggerConfig = log4jConfiguration.getLoggerConfig(
           SECURITY_LOGGER_NAME);
 
       loggerConfig.removeAppender(GEODE_CONSOLE_APPENDER_NAME);
@@ -165,20 +161,20 @@ public class Log4jLoggingProvider implements LoggingProvider {
 
   @Override
   public void enableLoggingToStandardOutput() {
-    Configuration log4jConfiguration = getRootLoggerContext().getConfiguration();
-    Appender appender = log4jConfiguration.getAppender(GEODE_CONSOLE_APPENDER_NAME);
+    var log4jConfiguration = getRootLoggerContext().getConfiguration();
+    var appender = log4jConfiguration.getAppender(GEODE_CONSOLE_APPENDER_NAME);
     if (appender instanceof PausableAppender) {
-      PausableAppender geodeConsoleAppender = (PausableAppender) appender;
+      var geodeConsoleAppender = (PausableAppender) appender;
       geodeConsoleAppender.resume();
     }
   }
 
   @Override
   public void disableLoggingToStandardOutput() {
-    Configuration log4jConfiguration = getRootLoggerContext().getConfiguration();
-    Appender appender = log4jConfiguration.getAppender(GEODE_CONSOLE_APPENDER_NAME);
+    var log4jConfiguration = getRootLoggerContext().getConfiguration();
+    var appender = log4jConfiguration.getAppender(GEODE_CONSOLE_APPENDER_NAME);
     if (appender instanceof PausableAppender) {
-      PausableAppender geodeConsoleAppender = (PausableAppender) appender;
+      var geodeConsoleAppender = (PausableAppender) appender;
       geodeConsoleAppender.pause();
     }
   }
@@ -196,14 +192,14 @@ public class Log4jLoggingProvider implements LoggingProvider {
 
   private void updateLogLevel(final LogConfig logConfig,
       final LogLevelUpdateScope logLevelUpdateScope) {
-    Level level = toLevel(LogWriterLevel.find(logConfig.getLogLevel()));
+    var level = toLevel(LogWriterLevel.find(logConfig.getLogLevel()));
 
-    Configuration configuration =
+    var configuration =
         getRootLoggerContext().getConfiguration();
 
     Collection<LoggerConfig> loggerConfigs = new HashSet<>();
 
-    for (LoggerConfig loggerConfig : configuration.getLoggers().values()) {
+    for (var loggerConfig : configuration.getLoggers().values()) {
       switch (logLevelUpdateScope) {
         case ALL_LOGGERS:
           loggerConfigs.add(loggerConfig);
@@ -230,15 +226,15 @@ public class Log4jLoggingProvider implements LoggingProvider {
   }
 
   private boolean configureSecurityAppenders(final String name, final Level level) {
-    Configuration log4jConfiguration = getRootLoggerContext().getConfiguration();
-    LoggerConfig loggerConfig = log4jConfiguration.getLoggerConfig(name);
+    var log4jConfiguration = getRootLoggerContext().getConfiguration();
+    var loggerConfig = log4jConfiguration.getLoggerConfig(name);
 
     if (!loggerConfig.getName().equals(SECURITY_LOGGER_NAME)) {
       return false;
     }
 
-    Appender stdoutAppender = log4jConfiguration.getAppender(GEODE_CONSOLE_APPENDER_NAME);
-    Appender mainLogWriterAppender = log4jConfiguration.getAppender(LOGWRITER_APPENDER_NAME);
+    var stdoutAppender = log4jConfiguration.getAppender(GEODE_CONSOLE_APPENDER_NAME);
+    var mainLogWriterAppender = log4jConfiguration.getAppender(LOGWRITER_APPENDER_NAME);
 
     if (stdoutAppender != null) {
       loggerConfig.addAppender(stdoutAppender, level, null);
@@ -255,12 +251,12 @@ public class Log4jLoggingProvider implements LoggingProvider {
   }
 
   private LoggerConfig getLoggerConfig(final String name) {
-    Configuration log4jConfiguration = getRootLoggerContext().getConfiguration();
+    var log4jConfiguration = getRootLoggerContext().getConfiguration();
     return log4jConfiguration.getLoggerConfig(name);
   }
 
   private void configureFastLoggerDelegating() {
-    Configuration configuration = getConfiguration();
+    var configuration = getConfiguration();
     FastLogger.setDelegating(hasContextWideFilter(configuration) || hasAppenderFilter(configuration)
         || hasDebugOrLower(configuration) || hasLoggerFilter(configuration)
         || hasAppenderRefFilter(configuration));
@@ -271,7 +267,7 @@ public class Log4jLoggingProvider implements LoggingProvider {
   }
 
   private boolean hasAppenderFilter(final Configuration config) {
-    for (Appender appender : config.getAppenders().values()) {
+    for (var appender : config.getAppenders().values()) {
       if (appender instanceof AbstractFilterable) {
         if (((Filterable) appender).hasFilter()) {
           return true;
@@ -282,8 +278,8 @@ public class Log4jLoggingProvider implements LoggingProvider {
   }
 
   private boolean hasDebugOrLower(final Configuration config) {
-    for (LoggerConfig loggerConfig : config.getLoggers().values()) {
-      boolean isDebugOrLower = loggerConfig.getLevel().isLessSpecificThan(Level.DEBUG);
+    for (var loggerConfig : config.getLoggers().values()) {
+      var isDebugOrLower = loggerConfig.getLevel().isLessSpecificThan(Level.DEBUG);
       if (isDebugOrLower) {
         return true;
       }
@@ -292,11 +288,11 @@ public class Log4jLoggingProvider implements LoggingProvider {
   }
 
   private boolean hasLoggerFilter(final Configuration config) {
-    for (LoggerConfig loggerConfig : config.getLoggers().values()) {
-      boolean isRoot = loggerConfig.getName().isEmpty();
-      boolean isGemFire = loggerConfig.getName().startsWith(GEODE_LOGGER_PREFIX);
-      boolean hasFilter = loggerConfig.hasFilter();
-      boolean isGemFireVerboseFilter =
+    for (var loggerConfig : config.getLoggers().values()) {
+      var isRoot = loggerConfig.getName().isEmpty();
+      var isGemFire = loggerConfig.getName().startsWith(GEODE_LOGGER_PREFIX);
+      var hasFilter = loggerConfig.hasFilter();
+      var isGemFireVerboseFilter =
           hasFilter && (GEODE_VERBOSE_FILTER.equals(loggerConfig.getFilter().toString())
               || GEMFIRE_VERBOSE_FILTER.equals(loggerConfig.getFilter().toString()));
 
@@ -311,13 +307,13 @@ public class Log4jLoggingProvider implements LoggingProvider {
   }
 
   private boolean hasAppenderRefFilter(final Configuration config) {
-    for (LoggerConfig loggerConfig : config.getLoggers().values()) {
-      boolean isRoot = loggerConfig.getName().isEmpty();
-      boolean isGemFire = loggerConfig.getName().startsWith(GEODE_LOGGER_PREFIX);
+    for (var loggerConfig : config.getLoggers().values()) {
+      var isRoot = loggerConfig.getName().isEmpty();
+      var isGemFire = loggerConfig.getName().startsWith(GEODE_LOGGER_PREFIX);
 
       if (isRoot || isGemFire) {
         // check for AppenderRef Filter
-        for (AppenderRef appenderRef : loggerConfig.getAppenderRefs()) {
+        for (var appenderRef : loggerConfig.getAppenderRefs()) {
           if (appenderRef.getFilter() != null) {
             return true;
           }

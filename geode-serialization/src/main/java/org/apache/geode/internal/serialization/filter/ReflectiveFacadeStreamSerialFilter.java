@@ -53,7 +53,7 @@ class ReflectiveFacadeStreamSerialFilter implements StreamSerialFilter {
       throws UnableToSetSerialFilterException {
     try {
       // create the ObjectInputFilter to set as the global serial filter
-      Object objectInputFilter = api.createObjectInputFilterProxy(pattern, sanctionedClasses);
+      var objectInputFilter = api.createObjectInputFilterProxy(pattern, sanctionedClasses);
 
       // set the global serial filter
       api.setObjectInputFilter(objectInputStream, objectInputFilter);
@@ -80,7 +80,7 @@ class ReflectiveFacadeStreamSerialFilter implements StreamSerialFilter {
 
   private void handleExceptionThrownByApi(ReflectiveOperationException e)
       throws UnableToSetSerialFilterException {
-    String className = getClassName(e);
+    var className = getClassName(e);
     switch (className) {
       case "java.lang.IllegalAccessException":
         throw new UnableToSetSerialFilterException(
@@ -94,7 +94,7 @@ class ReflectiveFacadeStreamSerialFilter implements StreamSerialFilter {
               "Unable to configure an input stream serialization filter because a non-null filter has already been set.",
               e);
         }
-        String causeClassName = e.getCause() == null ? getClassName(e) : getClassName(e.getCause());
+        var causeClassName = e.getCause() == null ? getClassName(e) : getClassName(e.getCause());
         throw new UnableToSetSerialFilterException(
             "Unable to configure an input stream serialization filter because invocation target threw "
                 + causeClassName + ".",

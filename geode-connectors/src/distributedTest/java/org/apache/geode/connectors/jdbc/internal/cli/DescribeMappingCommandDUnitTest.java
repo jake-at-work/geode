@@ -27,11 +27,7 @@ import static org.apache.geode.connectors.jdbc.internal.cli.MappingConstants.SYN
 import static org.apache.geode.connectors.jdbc.internal.cli.MappingConstants.TABLE_NAME;
 
 import java.io.Serializable;
-import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
-
-import javax.sql.DataSource;
 
 import org.junit.After;
 import org.junit.Rule;
@@ -45,7 +41,6 @@ import org.apache.geode.pdx.PdxSerializable;
 import org.apache.geode.pdx.PdxWriter;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
-import org.apache.geode.test.junit.assertions.CommandResultAssert;
 import org.apache.geode.test.junit.categories.JDBCConnectorTest;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
 import org.apache.geode.test.junit.rules.serializable.SerializableTestName;
@@ -103,9 +98,9 @@ public class DescribeMappingCommandDUnitTest implements Serializable {
   private void executeSql(MemberVM targetMember, String sql) {
     targetMember.invoke(() -> {
       try {
-        DataSource ds = JNDIInvoker.getDataSource("connection");
-        Connection conn = ds.getConnection();
-        Statement sm = conn.createStatement();
+        var ds = JNDIInvoker.getDataSource("connection");
+        var conn = ds.getConnection();
+        var sm = conn.createStatement();
         sm.execute(sql);
         sm.close();
         conn.close();
@@ -186,7 +181,7 @@ public class DescribeMappingCommandDUnitTest implements Serializable {
   @SuppressWarnings("deprecation")
   @Test
   public void describesExistingSynchronousMapping() throws Exception {
-    String regionName = SEPARATOR + TEST_REGION;
+    var regionName = SEPARATOR + TEST_REGION;
     locator = startupRule.startLocatorVM(0);
     server = startupRule.startServerVM(1, locator.getPort());
 
@@ -195,7 +190,7 @@ public class DescribeMappingCommandDUnitTest implements Serializable {
     gfsh.executeAndAssertThat("create region --name=" + regionName + " --type=REPLICATE")
         .statusIsSuccess();
 
-    CommandStringBuilder csb = new CommandStringBuilder(CREATE_MAPPING);
+    var csb = new CommandStringBuilder(CREATE_MAPPING);
     csb.addOption(REGION_NAME, regionName);
     csb.addOption(DATA_SOURCE_NAME, "connection");
     csb.addOption(SCHEMA_NAME, "mySchema");
@@ -209,7 +204,7 @@ public class DescribeMappingCommandDUnitTest implements Serializable {
     csb = new CommandStringBuilder(DESCRIBE_MAPPING).addOption(REGION_NAME,
         regionName);
 
-    CommandResultAssert commandResultAssert = gfsh.executeAndAssertThat(csb.toString());
+    var commandResultAssert = gfsh.executeAndAssertThat(csb.toString());
 
     commandResultAssert.statusIsSuccess();
     commandResultAssert.doesNotContainOutput("Mapping for group");
@@ -225,8 +220,8 @@ public class DescribeMappingCommandDUnitTest implements Serializable {
   @SuppressWarnings("deprecation")
   @Test
   public void describesExistingSynchronousMappingWithGroups() throws Exception {
-    String regionName = TEST_REGION;
-    String groupName = "group1";
+    var regionName = TEST_REGION;
+    var groupName = "group1";
     locator = startupRule.startLocatorVM(0);
     server = startupRule.startServerVM(1, groupName, locator.getPort());
 
@@ -236,7 +231,7 @@ public class DescribeMappingCommandDUnitTest implements Serializable {
         "create region --name=" + regionName + " --type=REPLICATE --group=" + groupName)
         .statusIsSuccess();
 
-    CommandStringBuilder csb = new CommandStringBuilder(CREATE_MAPPING);
+    var csb = new CommandStringBuilder(CREATE_MAPPING);
     csb.addOption(REGION_NAME, regionName);
     csb.addOption(GROUP_NAME, groupName);
     csb.addOption(DATA_SOURCE_NAME, "connection");
@@ -251,7 +246,7 @@ public class DescribeMappingCommandDUnitTest implements Serializable {
     csb = new CommandStringBuilder(DESCRIBE_MAPPING).addOption(REGION_NAME,
         regionName).addOption(GROUP_NAME, groupName);
 
-    CommandResultAssert commandResultAssert = gfsh.executeAndAssertThat(csb.toString());
+    var commandResultAssert = gfsh.executeAndAssertThat(csb.toString());
 
     commandResultAssert.statusIsSuccess();
     commandResultAssert.containsKeyValuePair("Mapping for group", "group1");
@@ -267,7 +262,7 @@ public class DescribeMappingCommandDUnitTest implements Serializable {
   @SuppressWarnings("deprecation")
   @Test
   public void describesExistingAsyncMapping() throws Exception {
-    String regionName = SEPARATOR + TEST_REGION;
+    var regionName = SEPARATOR + TEST_REGION;
     locator = startupRule.startLocatorVM(0);
     server = startupRule.startServerVM(1, locator.getPort());
 
@@ -276,7 +271,7 @@ public class DescribeMappingCommandDUnitTest implements Serializable {
     gfsh.executeAndAssertThat("create region --name=" + regionName + " --type=REPLICATE")
         .statusIsSuccess();
 
-    CommandStringBuilder csb = new CommandStringBuilder(CREATE_MAPPING);
+    var csb = new CommandStringBuilder(CREATE_MAPPING);
 
     csb.addOption(REGION_NAME, regionName);
     csb.addOption(DATA_SOURCE_NAME, "connection");
@@ -291,7 +286,7 @@ public class DescribeMappingCommandDUnitTest implements Serializable {
     csb = new CommandStringBuilder(DESCRIBE_MAPPING).addOption(REGION_NAME,
         regionName);
 
-    CommandResultAssert commandResultAssert = gfsh.executeAndAssertThat(csb.toString());
+    var commandResultAssert = gfsh.executeAndAssertThat(csb.toString());
 
     commandResultAssert.statusIsSuccess();
     commandResultAssert.containsKeyValuePair(REGION_NAME,
@@ -308,8 +303,8 @@ public class DescribeMappingCommandDUnitTest implements Serializable {
   @SuppressWarnings("deprecation")
   @Test
   public void describesExistingAsyncMappingWithGroup() throws Exception {
-    String regionName = TEST_REGION;
-    String groupName = "group1";
+    var regionName = TEST_REGION;
+    var groupName = "group1";
     locator = startupRule.startLocatorVM(0);
     server = startupRule.startServerVM(1, groupName, locator.getPort());
 
@@ -319,7 +314,7 @@ public class DescribeMappingCommandDUnitTest implements Serializable {
         "create region --name=" + regionName + " --type=REPLICATE --group=" + groupName)
         .statusIsSuccess();
 
-    CommandStringBuilder csb = new CommandStringBuilder(CREATE_MAPPING);
+    var csb = new CommandStringBuilder(CREATE_MAPPING);
 
     csb.addOption(REGION_NAME, regionName);
     csb.addOption(GROUP_NAME, groupName);
@@ -335,7 +330,7 @@ public class DescribeMappingCommandDUnitTest implements Serializable {
     csb = new CommandStringBuilder(DESCRIBE_MAPPING).addOption(REGION_NAME,
         regionName).addOption(GROUP_NAME, groupName);
 
-    CommandResultAssert commandResultAssert = gfsh.executeAndAssertThat(csb.toString());
+    var commandResultAssert = gfsh.executeAndAssertThat(csb.toString());
 
     commandResultAssert.statusIsSuccess();
     commandResultAssert.containsKeyValuePair(REGION_NAME,
@@ -354,9 +349,9 @@ public class DescribeMappingCommandDUnitTest implements Serializable {
   @Test
   public void describesExistingAsyncMappingsWithSameRegionOnDifferentGroups()
       throws Exception {
-    String regionName = SEPARATOR + TEST_REGION;
-    String groupName1 = "group1";
-    String groupName2 = "group2";
+    var regionName = SEPARATOR + TEST_REGION;
+    var groupName1 = "group1";
+    var groupName2 = "group2";
     locator = startupRule.startLocatorVM(0);
     server = startupRule.startServerVM(1, groupName1, locator.getPort());
     server2 = startupRule.startServerVM(2, groupName2, locator.getPort());
@@ -369,7 +364,7 @@ public class DescribeMappingCommandDUnitTest implements Serializable {
         + groupName1 + "," + groupName2)
         .statusIsSuccess();
 
-    CommandStringBuilder csb = new CommandStringBuilder(CREATE_MAPPING);
+    var csb = new CommandStringBuilder(CREATE_MAPPING);
 
     csb.addOption(REGION_NAME, regionName);
     csb.addOption(GROUP_NAME, groupName1 + "," + groupName2);
@@ -386,7 +381,7 @@ public class DescribeMappingCommandDUnitTest implements Serializable {
       csb = new CommandStringBuilder(DESCRIBE_MAPPING).addOption(REGION_NAME,
           regionName).addOption(GROUP_NAME, groupName1 + "," + groupName2);
 
-      CommandResultAssert commandResultAssert = gfsh.executeAndAssertThat(csb.toString());
+      var commandResultAssert = gfsh.executeAndAssertThat(csb.toString());
 
       commandResultAssert.statusIsSuccess();
       commandResultAssert.containsKeyValuePair(REGION_NAME,
@@ -409,9 +404,9 @@ public class DescribeMappingCommandDUnitTest implements Serializable {
   @Test
   public void describesExistingAsyncMappingsWithSameRegionOnDifferentGroupsWithDifferentMappings()
       throws Exception {
-    String regionName = TEST_REGION;
-    String groupName1 = "group1";
-    String groupName2 = "group2";
+    var regionName = TEST_REGION;
+    var groupName1 = "group1";
+    var groupName2 = "group2";
     locator = startupRule.startLocatorVM(0);
     server = startupRule.startServerVM(1, groupName1, locator.getPort());
     server2 = startupRule.startServerVM(2, groupName2, locator.getPort());
@@ -422,7 +417,7 @@ public class DescribeMappingCommandDUnitTest implements Serializable {
         + groupName1 + "," + groupName2)
         .statusIsSuccess();
 
-    CommandStringBuilder csb = new CommandStringBuilder(CREATE_MAPPING);
+    var csb = new CommandStringBuilder(CREATE_MAPPING);
 
     csb.addOption(REGION_NAME, regionName);
     csb.addOption(GROUP_NAME, groupName1);
@@ -462,7 +457,7 @@ public class DescribeMappingCommandDUnitTest implements Serializable {
     csb = new CommandStringBuilder(DESCRIBE_MAPPING).addOption(REGION_NAME,
         regionName).addOption(GROUP_NAME, groupName1);
 
-    CommandResultAssert commandResultAssert = gfsh.executeAndAssertThat(csb.toString());
+    var commandResultAssert = gfsh.executeAndAssertThat(csb.toString());
 
     commandResultAssert.statusIsSuccess();
     commandResultAssert.containsKeyValuePair(REGION_NAME,
@@ -502,10 +497,10 @@ public class DescribeMappingCommandDUnitTest implements Serializable {
     gfsh.executeAndAssertThat("create region --name=" + TEST_REGION + " --type=REPLICATE")
         .statusIsSuccess();
 
-    CommandStringBuilder csb = new CommandStringBuilder(DESCRIBE_MAPPING)
+    var csb = new CommandStringBuilder(DESCRIBE_MAPPING)
         .addOption(REGION_NAME, "nonExisting");
 
-    CommandResultAssert commandResultAssert = gfsh.executeAndAssertThat(csb.toString());
+    var commandResultAssert = gfsh.executeAndAssertThat(csb.toString());
 
     commandResultAssert.statusIsError();
     commandResultAssert.containsOutput(
@@ -520,10 +515,10 @@ public class DescribeMappingCommandDUnitTest implements Serializable {
     gfsh.executeAndAssertThat("create region --name=" + TEST_REGION + " --type=REPLICATE")
         .statusIsSuccess();
 
-    CommandStringBuilder csb = new CommandStringBuilder(DESCRIBE_MAPPING)
+    var csb = new CommandStringBuilder(DESCRIBE_MAPPING)
         .addOption(REGION_NAME, TEST_REGION);
 
-    CommandResultAssert commandResultAssert = gfsh.executeAndAssertThat(csb.toString());
+    var commandResultAssert = gfsh.executeAndAssertThat(csb.toString());
 
     commandResultAssert.statusIsError();
     commandResultAssert.containsOutput(

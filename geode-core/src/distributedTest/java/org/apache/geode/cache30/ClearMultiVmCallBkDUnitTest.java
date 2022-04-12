@@ -33,14 +33,12 @@ import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.CacheListener;
 import org.apache.geode.cache.CacheTransactionManager;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.RegionEvent;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.LogWriterUtils;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.internal.JUnit4DistributedTestCase;
 
 
@@ -57,9 +55,9 @@ public class ClearMultiVmCallBkDUnitTest extends JUnit4DistributedTestCase { // 
 
   @Override
   public final void postSetUp() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     vm0.invoke(ClearMultiVmCallBkDUnitTest::createCache);
     vm1.invoke(ClearMultiVmCallBkDUnitTest::createCache);
     LogWriterUtils.getLogWriter().fine("Cache created in successfully");
@@ -67,9 +65,9 @@ public class ClearMultiVmCallBkDUnitTest extends JUnit4DistributedTestCase { // 
 
   @Override
   public final void preTearDown() throws Exception {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
     vm0.invoke(ClearMultiVmCallBkDUnitTest::closeCache);
     vm1.invoke(ClearMultiVmCallBkDUnitTest::closeCache);
   }
@@ -79,13 +77,13 @@ public class ClearMultiVmCallBkDUnitTest extends JUnit4DistributedTestCase { // 
     ds = (new ClearMultiVmCallBkDUnitTest()).getSystem(props);
 
     cache = CacheFactory.create(ds);
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
 
     // Set Cachelisterner : aListener
 
     factory.setCacheListener(aListener);
-    RegionAttributes attr = factory.create();
+    var attr = factory.create();
 
     region = cache.createRegion("map", attr);
   }
@@ -100,14 +98,14 @@ public class ClearMultiVmCallBkDUnitTest extends JUnit4DistributedTestCase { // 
   @Test
   public void testClearSingleVM() {
 
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
     // VM vm1 = host.getVM(1);
 
     // Object obj0;
     // Object obj1;
-    Object[] objArr = new Object[1];
-    for (int i = 1; i < 4; i++) {
+    var objArr = new Object[1];
+    for (var i = 1; i < 4; i++) {
       objArr[0] = "" + i;
       vm0.invoke(ClearMultiVmCallBkDUnitTest.class, "putMethod", objArr);
 
@@ -129,12 +127,12 @@ public class ClearMultiVmCallBkDUnitTest extends JUnit4DistributedTestCase { // 
   @Test
   public void testClearMultiVM() {
 
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
 
-    Object[] objArr = new Object[1];
-    for (int i = 1; i < 4; i++) {
+    var objArr = new Object[1];
+    for (var i = 1; i < 4; i++) {
       objArr[0] = "" + i;
       vm0.invoke(ClearMultiVmCallBkDUnitTest.class, "putMethod", objArr);
       vm1.invoke(ClearMultiVmCallBkDUnitTest.class, "getMethod", objArr);
@@ -157,7 +155,7 @@ public class ClearMultiVmCallBkDUnitTest extends JUnit4DistributedTestCase { // 
     Object obj = null;
     try {
       if (ob != null) {
-        String str = "first";
+        var str = "first";
         obj = region.put(ob, str);
       }
     } catch (Exception ex) {
@@ -178,7 +176,7 @@ public class ClearMultiVmCallBkDUnitTest extends JUnit4DistributedTestCase { // 
   }
 
   public static boolean containsValueMethod(Object ob) {
-    boolean flag = false;
+    var flag = false;
     try {
       flag = region.containsValue(ob);
     } catch (Exception ex) {
@@ -188,7 +186,7 @@ public class ClearMultiVmCallBkDUnitTest extends JUnit4DistributedTestCase { // 
   }
 
   public static int sizeMethod() {
-    int i = 0;
+    var i = 0;
     try {
       i = region.size();
     } catch (Exception ex) {
@@ -215,7 +213,7 @@ public class ClearMultiVmCallBkDUnitTest extends JUnit4DistributedTestCase { // 
     public void afterRegionClear(RegionEvent event) {
       LogWriterUtils.getLogWriter().fine("In afterClear:: CacheListener Callback");
       try {
-        int i = 7;
+        var i = 7;
         region.put("" + i, "inAfterClear");
         afterClear = true;
       } catch (Exception e) {

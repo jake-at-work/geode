@@ -37,9 +37,7 @@ import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.execute.RegionFunctionContext;
-import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.cache.partition.PartitionRegionHelper;
-import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.LonerDistributionManager;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.execute.util.TypedFunctionService;
@@ -74,20 +72,20 @@ public class FunctionExecutionOnLonerRegressionTest {
 
   @Test
   public void precondition_isLonerDistributionManager() {
-    DistributionManager distributionManager = cache.getDistributionManager();
+    var distributionManager = cache.getDistributionManager();
 
     assertThat(distributionManager).isInstanceOf(LonerDistributionManager.class);
   }
 
   @Test
   public void executeFunctionOnLonerWithPartitionedRegionShouldNotThrowClassCastException() {
-    Region<String, String> region = cache
+    var region = cache
         .<String, String>createRegionFactory(PARTITION)
         .create("region");
 
     populateRegion(region);
 
-    ResultCollector<Collection<String>, Collection<String>> resultCollector = TypedFunctionService
+    var resultCollector = TypedFunctionService
         .<Void, Collection<String>, Collection<String>>onRegion(region)
         .withFilter(keysForGet)
         .execute(new TestFunction(DataSetSupplier.PARTITIONED));
@@ -98,13 +96,13 @@ public class FunctionExecutionOnLonerRegressionTest {
 
   @Test
   public void executeFunctionOnLonerWithReplicateRegionShouldNotThrowClassCastException() {
-    Region<String, String> region = cache
+    var region = cache
         .<String, String>createRegionFactory(REPLICATE)
         .create("region");
 
     populateRegion(region);
 
-    ResultCollector<Collection<String>, Collection<String>> resultCollector = TypedFunctionService
+    var resultCollector = TypedFunctionService
         .<Void, Collection<String>, Collection<String>>onRegion(region)
         .withFilter(keysForGet)
         .execute(new TestFunction(DataSetSupplier.REPLICATE));
@@ -114,7 +112,7 @@ public class FunctionExecutionOnLonerRegressionTest {
   }
 
   private Properties getDistributedSystemProperties() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(MCAST_PORT, "0");
     config.setProperty(LOCATORS, "");
     config.setProperty(SERIALIZABLE_OBJECT_FILTER,
@@ -126,9 +124,9 @@ public class FunctionExecutionOnLonerRegressionTest {
     keysForGet = new HashSet<>();
     expectedValues = new HashSet<>();
 
-    for (int i = 0; i < 20; i++) {
-      String key = "KEY_" + i;
-      String value = "VALUE_" + i;
+    for (var i = 0; i < 20; i++) {
+      var key = "KEY_" + i;
+      var value = "VALUE_" + i;
 
       region.put(key, value);
 
@@ -165,14 +163,14 @@ public class FunctionExecutionOnLonerRegressionTest {
 
     @Override
     public void execute(FunctionContext<String> context) {
-      RegionFunctionContext regionFunctionContext = (RegionFunctionContext) context;
+      var regionFunctionContext = (RegionFunctionContext) context;
       Set<String> keys = uncheckedCast(regionFunctionContext.getFilter());
-      String lastKey = keys.iterator().next();
+      var lastKey = keys.iterator().next();
       keys.remove(lastKey);
 
-      Region<String, String> region = dataSetSupplier.dataSet(regionFunctionContext);
+      var region = dataSetSupplier.dataSet(regionFunctionContext);
 
-      for (String key : keys) {
+      for (var key : keys) {
         context.getResultSender().sendResult(region.get(key));
       }
 

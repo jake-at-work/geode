@@ -76,9 +76,9 @@ public class PersistenceAdvisorImplTest {
   public void setUp() throws Exception {
     cacheDistributionAdvisor = mock(CacheDistributionAdvisor.class);
     persistentMemberView = mock(DiskRegion.class);
-    PersistentStateQueryMessageSenderFactory queryMessageSenderFactory =
+    var queryMessageSenderFactory =
         mock(PersistentStateQueryMessageSenderFactory.class);
-    PersistentStateQueryMessage queryMessage =
+    var queryMessage =
         mock(PersistentStateQueryMessage.class);
     persistentStateQueryResults = mock(PersistentStateQueryResults.class);
 
@@ -102,7 +102,7 @@ public class PersistenceAdvisorImplTest {
    */
   @Test
   public void getMembersToWaitForRemovesAllMembersWhenDiskStoreListedTwice() {
-    DiskStoreID diskStoreID = getNewDiskStoreID();
+    var diskStoreID = getNewDiskStoreID();
     Set<PersistentMemberID> previouslyOnlineMembers = new HashSet<>();
     previouslyOnlineMembers.add(createPersistentMemberID(diskStoreID, TIME_STAMP_1));
     previouslyOnlineMembers.add(createPersistentMemberID(diskStoreID, TIME_STAMP_3));
@@ -112,7 +112,7 @@ public class PersistenceAdvisorImplTest {
 
   @Test
   public void getMembersToWaitForDoesNotWaitForMemberWhoIsNotInitialized() {
-    DiskStoreID diskStoreID = getNewDiskStoreID();
+    var diskStoreID = getNewDiskStoreID();
     Set<PersistentMemberID> previouslyOnlineMembers = new HashSet<>();
     previouslyOnlineMembers.add(createPersistentMemberID(diskStoreID, TIME_STAMP_1));
 
@@ -145,10 +145,10 @@ public class PersistenceAdvisorImplTest {
 
   @Test
   public void removeOlderMembersWhenFirstInSetIsOlder() {
-    DiskStoreID diskStoreID = getNewDiskStoreID();
+    var diskStoreID = getNewDiskStoreID();
     Set<PersistentMemberID> aSet = new TreeSet<>(new PersistentMemberIDComparator());
     aSet.add(createPersistentMemberID(diskStoreID, 1, SET_POSITION_1));
-    PersistentMemberID newest = createPersistentMemberID(diskStoreID, 2, SET_POSITION_2);
+    var newest = createPersistentMemberID(diskStoreID, 2, SET_POSITION_2);
     aSet.add(newest);
 
     persistenceAdvisorImpl.removeOlderMembers(aSet);
@@ -158,9 +158,9 @@ public class PersistenceAdvisorImplTest {
 
   @Test
   public void removeOlderMembersWhenFirstInSetIsNewer() {
-    DiskStoreID diskStoreID = getNewDiskStoreID();
+    var diskStoreID = getNewDiskStoreID();
     Set<PersistentMemberID> aSet = new TreeSet<>(new PersistentMemberIDComparator());
-    PersistentMemberID newest = createPersistentMemberID(diskStoreID, 2, SET_POSITION_1);
+    var newest = createPersistentMemberID(diskStoreID, 2, SET_POSITION_1);
     aSet.add(newest);
     aSet.add(createPersistentMemberID(diskStoreID, 1, SET_POSITION_2));
 
@@ -171,17 +171,17 @@ public class PersistenceAdvisorImplTest {
 
   @Test
   public void removeOlderMembersWithMultipleRemovals() {
-    DiskStoreID diskStoreID1 = getNewDiskStoreID();
-    DiskStoreID diskStoreID2 = getNewDiskStoreID();
-    DiskStoreID diskStoreID3 = getNewDiskStoreID();
+    var diskStoreID1 = getNewDiskStoreID();
+    var diskStoreID2 = getNewDiskStoreID();
+    var diskStoreID3 = getNewDiskStoreID();
     Set<PersistentMemberID> aSet = new TreeSet<>(new PersistentMemberIDComparator());
-    PersistentMemberID id_1 = createPersistentMemberID(diskStoreID1, 10, SET_POSITION_1);
-    PersistentMemberID id_2 = createPersistentMemberID(diskStoreID2, 10, SET_POSITION_2);
-    PersistentMemberID id_3 = createPersistentMemberID(diskStoreID3, 40, SET_POSITION_3);
-    PersistentMemberID id_4 = createPersistentMemberID(diskStoreID3, 10, SET_POSITION_4);
-    PersistentMemberID id_5 = createPersistentMemberID(diskStoreID2, 50, SET_POSITION_5);
-    PersistentMemberID id_6 = createPersistentMemberID(diskStoreID2, 70, SET_POSITION_6);
-    PersistentMemberID id_7 = createPersistentMemberID(diskStoreID2, 60, SET_POSITION_7);
+    var id_1 = createPersistentMemberID(diskStoreID1, 10, SET_POSITION_1);
+    var id_2 = createPersistentMemberID(diskStoreID2, 10, SET_POSITION_2);
+    var id_3 = createPersistentMemberID(diskStoreID3, 40, SET_POSITION_3);
+    var id_4 = createPersistentMemberID(diskStoreID3, 10, SET_POSITION_4);
+    var id_5 = createPersistentMemberID(diskStoreID2, 50, SET_POSITION_5);
+    var id_6 = createPersistentMemberID(diskStoreID2, 70, SET_POSITION_6);
+    var id_7 = createPersistentMemberID(diskStoreID2, 60, SET_POSITION_7);
     aSet.add(id_1);
     aSet.add(id_2);
     aSet.add(id_3);
@@ -197,11 +197,11 @@ public class PersistenceAdvisorImplTest {
 
   @Test
   public void prepareNewMemberRemovesOldPersistentMemberId() {
-    InternalDistributedMember sender = mock(InternalDistributedMember.class);
-    PersistentMemberID oldId = mock(PersistentMemberID.class);
-    PersistentMemberID newId = mock(PersistentMemberID.class);
+    var sender = mock(InternalDistributedMember.class);
+    var oldId = mock(PersistentMemberID.class);
+    var newId = mock(PersistentMemberID.class);
     when(cacheDistributionAdvisor.containsId(sender)).thenReturn(true);
-    PersistenceAdvisorImpl spy = spy(persistenceAdvisorImpl);
+    var spy = spy(persistenceAdvisorImpl);
     doNothing().when(spy).memberRemoved(oldId, false);
 
     spy.prepareNewMember(sender, oldId, newId);
@@ -212,21 +212,21 @@ public class PersistenceAdvisorImplTest {
 
   @Test
   public void waitingForMembersMessage_logsMessage1_whenHasOfflineMembersWaitingFor() {
-    DistributedLockService distributedLockService = mock(DistributedLockService.class);
-    String regionPath = SEPARATOR + "region";
-    DiskRegionStats diskRegionStats = mock(DiskRegionStats.class);
-    PersistentMemberManager persistentMemberManager = mock(PersistentMemberManager.class);
-    StartupStatus startupStatus = mock(StartupStatus.class);
-    PersistentStateQueryMessageSenderFactory persistentStateQueryMessageSenderFactory =
+    var distributedLockService = mock(DistributedLockService.class);
+    var regionPath = SEPARATOR + "region";
+    var diskRegionStats = mock(DiskRegionStats.class);
+    var persistentMemberManager = mock(PersistentMemberManager.class);
+    var startupStatus = mock(StartupStatus.class);
+    var persistentStateQueryMessageSenderFactory =
         mock(PersistentStateQueryMessageSenderFactory.class);
 
-    PersistentMemberID missingPersistentId = mock(PersistentMemberID.class);
-    Set<PersistentMemberID> allMembersToWaitFor = singleton(missingPersistentId);
-    Set<PersistentMemberID> offlineMembersToWaitFor = singleton(missingPersistentId);
+    var missingPersistentId = mock(PersistentMemberID.class);
+    var allMembersToWaitFor = singleton(missingPersistentId);
+    var offlineMembersToWaitFor = singleton(missingPersistentId);
 
-    String transformedMissingPersistentId = "myId";
+    var transformedMissingPersistentId = "myId";
 
-    PersistenceAdvisorImpl persistenceAdvisor = new PersistenceAdvisorImpl(cacheDistributionAdvisor,
+    var persistenceAdvisor = new PersistenceAdvisorImpl(cacheDistributionAdvisor,
         distributedLockService, persistentMemberView, regionPath, diskRegionStats,
         persistentMemberManager, startupStatus, id -> transformedMissingPersistentId,
         mock(CollectionTransformer.class), persistentStateQueryMessageSenderFactory);
@@ -235,7 +235,7 @@ public class PersistenceAdvisorImplTest {
 
     persistenceAdvisor.logWaitingForMembers();
 
-    ArgumentCaptor<String> messageCaptor = ArgumentCaptor.forClass(String.class);
+    var messageCaptor = ArgumentCaptor.forClass(String.class);
     verify(startupStatus).startup(messageCaptor.capture(), any());
 
     assertThat(messageCaptor.getValue())
@@ -251,17 +251,17 @@ public class PersistenceAdvisorImplTest {
 
   @Test
   public void waitingForMembersMessage_logsMessage2_whenNoOfflineMembersWaitingFor() {
-    DistributedLockService distributedLockService = mock(DistributedLockService.class);
-    String regionPath = SEPARATOR + "region";
-    DiskRegionStats diskRegionStats = mock(DiskRegionStats.class);
-    PersistentMemberManager persistentMemberManager = mock(PersistentMemberManager.class);
-    StartupStatus startupStatus = mock(StartupStatus.class);
-    PersistentStateQueryMessageSenderFactory persistentStateQueryMessageSenderFactory =
+    var distributedLockService = mock(DistributedLockService.class);
+    var regionPath = SEPARATOR + "region";
+    var diskRegionStats = mock(DiskRegionStats.class);
+    var persistentMemberManager = mock(PersistentMemberManager.class);
+    var startupStatus = mock(StartupStatus.class);
+    var persistentStateQueryMessageSenderFactory =
         mock(PersistentStateQueryMessageSenderFactory.class);
 
-    String transformedMissingPersistentId = "myId";
+    var transformedMissingPersistentId = "myId";
 
-    PersistenceAdvisorImpl persistenceAdvisor = new PersistenceAdvisorImpl(cacheDistributionAdvisor,
+    var persistenceAdvisor = new PersistenceAdvisorImpl(cacheDistributionAdvisor,
         distributedLockService, persistentMemberView, regionPath, diskRegionStats,
         persistentMemberManager, startupStatus, id -> transformedMissingPersistentId,
         mock(CollectionTransformer.class), persistentStateQueryMessageSenderFactory);
@@ -270,7 +270,7 @@ public class PersistenceAdvisorImplTest {
 
     persistenceAdvisor.logWaitingForMembers();
 
-    ArgumentCaptor<String> messageCaptor = ArgumentCaptor.forClass(String.class);
+    var messageCaptor = ArgumentCaptor.forClass(String.class);
     verify(startupStatus).startup(messageCaptor.capture(), any());
 
     assertThat(messageCaptor.getValue())
@@ -286,23 +286,23 @@ public class PersistenceAdvisorImplTest {
 
   @Test
   public void verifyPersistentStateListenerSetIsCleanedAfterClosing() {
-    DistributedLockService distributedLockService = mock(DistributedLockService.class);
-    String regionPath = SEPARATOR + "region";
-    DiskRegionStats diskRegionStats = mock(DiskRegionStats.class);
-    PersistentMemberManager persistentMemberManager = mock(PersistentMemberManager.class);
-    StartupStatus startupStatus = mock(StartupStatus.class);
-    PersistentStateQueryMessageSenderFactory persistentStateQueryMessageSenderFactory =
+    var distributedLockService = mock(DistributedLockService.class);
+    var regionPath = SEPARATOR + "region";
+    var diskRegionStats = mock(DiskRegionStats.class);
+    var persistentMemberManager = mock(PersistentMemberManager.class);
+    var startupStatus = mock(StartupStatus.class);
+    var persistentStateQueryMessageSenderFactory =
         mock(PersistentStateQueryMessageSenderFactory.class);
 
-    String transformedMissingPersistentId = "myId";
+    var transformedMissingPersistentId = "myId";
 
-    PersistenceAdvisorImpl persistenceAdvisor = new PersistenceAdvisorImpl(cacheDistributionAdvisor,
+    var persistenceAdvisor = new PersistenceAdvisorImpl(cacheDistributionAdvisor,
         distributedLockService, persistentMemberView, regionPath, diskRegionStats,
         persistentMemberManager, startupStatus, id -> transformedMissingPersistentId,
         mock(CollectionTransformer.class), persistentStateQueryMessageSenderFactory);
 
-    PersistentStateListener listener1 = mock(PersistentStateListener.class);
-    PersistentStateListener listener2 = mock(PersistentStateListener.class);
+    var listener1 = mock(PersistentStateListener.class);
+    var listener2 = mock(PersistentStateListener.class);
 
     persistenceAdvisor.addListener(listener1);
     persistenceAdvisor.addListener(listener2);
@@ -316,7 +316,7 @@ public class PersistenceAdvisorImplTest {
 
   private void getMembersToWaitForRemovesAllMembers(DiskStoreID diskStoreID,
       Set<PersistentMemberID> previouslyOnlineMembers) {
-    InternalDistributedMember member = mock(InternalDistributedMember.class);
+    var member = mock(InternalDistributedMember.class);
 
     when(cacheDistributionAdvisor.adviseGeneric())
         .thenReturn(createMemberSet(member));
@@ -331,7 +331,7 @@ public class PersistenceAdvisorImplTest {
     when(persistentStateQueryResults.getStateOnPeers())
         .thenReturn(singletonMap(member, PersistentMemberState.ONLINE));
 
-    Set<PersistentMemberID> membersToWaitFor =
+    var membersToWaitFor =
         persistenceAdvisorImpl.getMembersToWaitFor(previouslyOnlineMembers, new HashSet<>());
 
     assertThat(membersToWaitFor).isEmpty();
@@ -353,7 +353,7 @@ public class PersistenceAdvisorImplTest {
   }
 
   private DiskStoreID getNewDiskStoreID() {
-    UUID uuid = new UUID(diskStoreIDIndex++, diskStoreIDIndex++);
+    var uuid = new UUID(diskStoreIDIndex++, diskStoreIDIndex++);
     return new DiskStoreID(uuid);
   }
 

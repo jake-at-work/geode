@@ -20,8 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.BeforeClass;
@@ -30,8 +28,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.client.RestTemplate;
 
-import org.apache.geode.internal.cache.BucketDump;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.redis.internal.data.RedisHash;
 import org.apache.geode.redis.internal.services.RegionProvider;
@@ -50,8 +46,8 @@ public class SessionExpirationDUnitTest extends SessionDUnitTest {
 
   @Test
   public void sessionShouldTimeout_whenRequestedFromSameServer() throws Exception {
-    String sessionCookie = createNewSessionWithNote(APP1, "note1");
-    String sessionId = getSessionId(sessionCookie);
+    var sessionCookie = createNewSessionWithNote(APP1, "note1");
+    var sessionId = getSessionId(sessionCookie);
 
     waitForTheSessionToExpire(sessionId);
 
@@ -60,8 +56,8 @@ public class SessionExpirationDUnitTest extends SessionDUnitTest {
 
   @Test
   public void sessionShouldTimeout_OnSecondaryServer() throws Exception {
-    String sessionCookie = createNewSessionWithNote(APP1, "note1");
-    String sessionId = getSessionId(sessionCookie);
+    var sessionCookie = createNewSessionWithNote(APP1, "note1");
+    var sessionId = getSessionId(sessionCookie);
 
     waitForTheSessionToExpire(sessionId);
 
@@ -71,8 +67,8 @@ public class SessionExpirationDUnitTest extends SessionDUnitTest {
   @Test
   public void sessionShouldNotTimeoutOnFirstServer_whenAccessedOnSecondaryServer()
       throws Exception {
-    String sessionCookie = createNewSessionWithNote(APP1, "note1");
-    String sessionId = getSessionId(sessionCookie);
+    var sessionCookie = createNewSessionWithNote(APP1, "note1");
+    var sessionId = getSessionId(sessionCookie);
 
     refreshSession(sessionCookie, APP2);
 
@@ -84,8 +80,8 @@ public class SessionExpirationDUnitTest extends SessionDUnitTest {
 
   @Test
   public void sessionShouldTimeout_whenAppFailsOverToAnotherRedisServer() throws Exception {
-    String sessionCookie = createNewSessionWithNote(APP2, "note1");
-    String sessionId = getSessionId(sessionCookie);
+    var sessionCookie = createNewSessionWithNote(APP2, "note1");
+    var sessionId = getSessionId(sessionCookie);
 
     cluster.crashVM(SERVER2);
 
@@ -102,7 +98,7 @@ public class SessionExpirationDUnitTest extends SessionDUnitTest {
 
   @Test
   public void sessionShouldNotTimeout_whenPersisted() throws Exception {
-    String sessionCookie = createNewSessionWithNote(APP2, "note1");
+    var sessionCookie = createNewSessionWithNote(APP2, "note1");
     setMaxInactiveInterval(APP2, sessionCookie, -1);
 
     compareMaxInactiveIntervals();
@@ -120,9 +116,9 @@ public class SessionExpirationDUnitTest extends SessionDUnitTest {
   }
 
   void setMaxInactiveInterval(int sessionApp, String sessionCookie, int maxInactiveInterval) {
-    HttpHeaders requestHeaders = new HttpHeaders();
+    var requestHeaders = new HttpHeaders();
     requestHeaders.add("Cookie", sessionCookie);
-    HttpEntity<Integer> request = new HttpEntity<>(maxInactiveInterval, requestHeaders);
+    var request = new HttpEntity<Integer>(maxInactiveInterval, requestHeaders);
     new RestTemplate()
         .postForEntity(
             "http://localhost:" + ports.get(sessionApp) + "/setMaxInactiveInterval",
@@ -133,23 +129,23 @@ public class SessionExpirationDUnitTest extends SessionDUnitTest {
 
   private void compareMaxInactiveIntervals() {
     cluster.getVM(1).invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
-      PartitionedRegion region =
+      var cache = ClusterStartupRule.getCache();
+      var region =
           (PartitionedRegion) cache.getRegion(RegionProvider.DEFAULT_REDIS_REGION_NAME);
-      for (int j = 0; j < region.getTotalNumberOfBuckets(); j++) {
-        List<BucketDump> buckets = region.getAllBucketEntries(j);
+      for (var j = 0; j < region.getTotalNumberOfBuckets(); j++) {
+        var buckets = region.getAllBucketEntries(j);
         if (buckets.isEmpty()) {
           continue;
         }
         assertThat(buckets.size()).isEqualTo(2);
-        Map<Object, Object> bucket1 = buckets.get(0).getValues();
-        Map<Object, Object> bucket2 = buckets.get(1).getValues();
+        var bucket1 = buckets.get(0).getValues();
+        var bucket2 = buckets.get(1).getValues();
 
         bucket1.keySet().forEach(key -> {
           if (bucket1.get(key) instanceof RedisHash) {
 
-            RedisHash value1 = (RedisHash) bucket1.get(key);
-            RedisHash value2 = (RedisHash) bucket2.get(key);
+            var value1 = (RedisHash) bucket1.get(key);
+            var value2 = (RedisHash) bucket2.get(key);
 
             assertThat(getIntFromBytes(value1)).isEqualTo(getIntFromBytes(value2));
           }
@@ -163,8 +159,8 @@ public class SessionExpirationDUnitTest extends SessionDUnitTest {
       return 0;
     }
     ObjectInputStream inputStream;
-    byte[] bytes = redisHash.hget("maxInactiveInterval".getBytes());
-    ByteArrayInputStream byteStream = new ByteArrayInputStream(bytes);
+    var bytes = redisHash.hget("maxInactiveInterval".getBytes());
+    var byteStream = new ByteArrayInputStream(bytes);
     try {
       inputStream = new ObjectInputStream(byteStream);
       return (int) inputStream.readObject();

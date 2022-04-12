@@ -28,7 +28,6 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.Pipeline;
 
 import org.apache.geode.redis.mocks.MockSubscriber;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
@@ -55,27 +54,27 @@ public abstract class AbstractCommandPipeliningIntegrationTest implements RedisI
 
   @Test
   public void whenPipelining_commandResponsesAreNotCorrupted() {
-    List<String> expectedMessages = Arrays.asList("hello");
+    var expectedMessages = Arrays.asList("hello");
 
-    MockSubscriber mockSubscriber = new MockSubscriber();
+    var mockSubscriber = new MockSubscriber();
 
-    Runnable runnable = () -> {
+    var runnable = (Runnable) () -> {
       subscriber.subscribe(mockSubscriber, "salutations");
     };
 
-    Thread subscriberThread = new Thread(runnable);
+    var subscriberThread = new Thread(runnable);
     subscriberThread.start();
     waitFor(() -> mockSubscriber.getSubscribedChannels() == 1);
 
     publisher.sadd("foo", "bar");
 
     // Publish and smembers in a pipeline
-    Pipeline pipe = publisher.pipelined();
+    var pipe = publisher.pipelined();
 
     pipe.publish("salutations", "hello");
     pipe.smembers("foo");
 
-    List<Object> responses = pipe.syncAndReturnAll();
+    var responses = pipe.syncAndReturnAll();
 
     GeodeAwaitility.await().untilAsserted(
         () -> assertThat(mockSubscriber.getReceivedMessages()).isEqualTo(expectedMessages));
@@ -87,21 +86,21 @@ public abstract class AbstractCommandPipeliningIntegrationTest implements RedisI
 
   @Test
   public void should_returnResultsOfPipelinedCommands_inCorrectOrder() {
-    Jedis jedis = new Jedis("localhost", getPort(), REDIS_CLIENT_TIMEOUT);
-    final int NUMBER_OF_COMMANDS_IN_PIPELINE = 100;
-    int numberOfPipeLineRequests = 1000;
+    var jedis = new Jedis("localhost", getPort(), REDIS_CLIENT_TIMEOUT);
+    final var NUMBER_OF_COMMANDS_IN_PIPELINE = 100;
+    var numberOfPipeLineRequests = 1000;
 
     do {
       // use a unique key for each pipeline for incrementing
-      final String key = "P" + numberOfPipeLineRequests;
+      final var key = "P" + numberOfPipeLineRequests;
       jedis.set(key, "-1");
 
-      final Pipeline p = jedis.pipelined();
-      for (int i = 0; i < NUMBER_OF_COMMANDS_IN_PIPELINE; i++) {
+      final var p = jedis.pipelined();
+      for (var i = 0; i < NUMBER_OF_COMMANDS_IN_PIPELINE; i++) {
         p.incr(key);
       }
 
-      final List<Object> results = p.syncAndReturnAll();
+      final var results = p.syncAndReturnAll();
 
       verifyResultOrder(NUMBER_OF_COMMANDS_IN_PIPELINE, results);
       numberOfPipeLineRequests--;
@@ -112,9 +111,9 @@ public abstract class AbstractCommandPipeliningIntegrationTest implements RedisI
   }
 
   private void verifyResultOrder(final int numberOfCommandInPipeline, List<Object> results) {
-    for (int i = 0; i < numberOfCommandInPipeline; i++) {
-      final long expected = (long) i;
-      final long currentVal = (long) results.get(i);
+    for (var i = 0; i < numberOfCommandInPipeline; i++) {
+      final var expected = (long) i;
+      final var currentVal = (long) results.get(i);
 
       assertThat(currentVal).isEqualTo(expected);
     }

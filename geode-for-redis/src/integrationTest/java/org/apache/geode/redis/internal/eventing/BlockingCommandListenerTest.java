@@ -29,7 +29,6 @@ import static org.mockito.Mockito.verify;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.Test;
@@ -46,46 +45,46 @@ public class BlockingCommandListenerTest {
 
   @Test
   public void testTimeoutIsAdjusted() {
-    ExecutionHandlerContext context = mock(ExecutionHandlerContext.class);
-    List<byte[]> commandArgs = Arrays.asList("KEY".getBytes(), "0".getBytes());
-    Command command = new Command(RedisCommandType.BLPOP, commandArgs);
-    BlockingCommandListener listener =
+    var context = mock(ExecutionHandlerContext.class);
+    var commandArgs = Arrays.asList("KEY".getBytes(), "0".getBytes());
+    var command = new Command(RedisCommandType.BLPOP, commandArgs);
+    var listener =
         new BlockingCommandListener(context, command, Collections.emptyList(), 1.0D);
 
     listener.resubmitCommand();
 
-    ArgumentCaptor<Command> argumentCaptor = ArgumentCaptor.forClass(Command.class);
+    var argumentCaptor = ArgumentCaptor.forClass(Command.class);
     verify(context, times(1)).resubmitCommand(argumentCaptor.capture());
 
-    double timeout = Coder.bytesToDouble(argumentCaptor.getValue().getCommandArguments().get(0));
+    var timeout = Coder.bytesToDouble(argumentCaptor.getValue().getCommandArguments().get(0));
     assertThat(timeout).isLessThan(1.0D);
   }
 
   @Test
   public void testAdjustedTimeoutDoesNotBecomeNegative() {
-    ExecutionHandlerContext context = mock(ExecutionHandlerContext.class);
-    List<byte[]> commandArgs = Arrays.asList("KEY".getBytes(), "0".getBytes());
-    Command command = new Command(RedisCommandType.BLPOP, commandArgs);
-    BlockingCommandListener listener =
+    var context = mock(ExecutionHandlerContext.class);
+    var commandArgs = Arrays.asList("KEY".getBytes(), "0".getBytes());
+    var command = new Command(RedisCommandType.BLPOP, commandArgs);
+    var listener =
         new BlockingCommandListener(context, command, Collections.emptyList(), 1e-9);
 
     listener.resubmitCommand();
 
-    ArgumentCaptor<Command> argumentCaptor = ArgumentCaptor.forClass(Command.class);
+    var argumentCaptor = ArgumentCaptor.forClass(Command.class);
     verify(context, times(1)).resubmitCommand(argumentCaptor.capture());
 
-    double timeout = Coder.bytesToDouble(argumentCaptor.getValue().getCommandArguments().get(0));
+    var timeout = Coder.bytesToDouble(argumentCaptor.getValue().getCommandArguments().get(0));
     assertThat(timeout).isEqualTo(1e-9);
   }
 
   @Test
   public void testListenerIsRemovedAfterTimeout() {
-    ExecutionHandlerContext context = mock(ExecutionHandlerContext.class);
-    List<byte[]> commandArgs = Arrays.asList("KEY".getBytes(), "0".getBytes());
-    Command command = new Command(RedisCommandType.BLPOP, commandArgs);
-    BlockingCommandListener listener =
+    var context = mock(ExecutionHandlerContext.class);
+    var commandArgs = Arrays.asList("KEY".getBytes(), "0".getBytes());
+    var command = new Command(RedisCommandType.BLPOP, commandArgs);
+    var listener =
         new BlockingCommandListener(context, command, Collections.emptyList(), 1e-9);
-    EventDistributor eventDistributor = new EventDistributor();
+    var eventDistributor = new EventDistributor();
 
     eventDistributor.registerListener(listener);
 
@@ -95,13 +94,13 @@ public class BlockingCommandListenerTest {
 
   @Test
   public void testListenersAffectedByBucketMovementAreInactiveAndDoNotProcessTimeout() {
-    ExecutionHandlerContext context = mock(ExecutionHandlerContext.class);
-    RedisKey key = new RedisKey("KEY".getBytes());
-    List<byte[]> commandArgs = Arrays.asList(key.toBytes(), "0".getBytes());
-    Command command = new Command(RedisCommandType.BLPOP, commandArgs);
-    BlockingCommandListener listener =
+    var context = mock(ExecutionHandlerContext.class);
+    var key = new RedisKey("KEY".getBytes());
+    var commandArgs = Arrays.asList(key.toBytes(), "0".getBytes());
+    var command = new Command(RedisCommandType.BLPOP, commandArgs);
+    var listener =
         new BlockingCommandListener(context, command, Collections.singletonList(key), 1);
-    EventDistributor eventDistributor = new EventDistributor();
+    var eventDistributor = new EventDistributor();
 
     eventDistributor.registerListener(listener);
 
@@ -116,13 +115,13 @@ public class BlockingCommandListenerTest {
 
   @Test
   public void testResubmitAndTimeoutDoNotBothExecute() {
-    ExecutionHandlerContext context = mock(ExecutionHandlerContext.class);
-    List<byte[]> commandArgs = Arrays.asList("KEY".getBytes(), "0".getBytes());
-    Command command = new Command(RedisCommandType.BLPOP, commandArgs);
-    BlockingCommandListener listener =
+    var context = mock(ExecutionHandlerContext.class);
+    var commandArgs = Arrays.asList("KEY".getBytes(), "0".getBytes());
+    var command = new Command(RedisCommandType.BLPOP, commandArgs);
+    var listener =
         new BlockingCommandListener(context, command, Arrays.asList(command.getKey()), 0);
-    AtomicReference<BlockingCommandListener> listenerRef = new AtomicReference<>(listener);
-    EventDistributor eventDistributor = new EventDistributor();
+    var listenerRef = new AtomicReference<BlockingCommandListener>(listener);
+    var eventDistributor = new EventDistributor();
 
     eventDistributor.registerListener(listener);
 
@@ -148,11 +147,11 @@ public class BlockingCommandListenerTest {
 
   @Test
   public void concurrencyOfManyRegistrationsForTheSameKeys() {
-    ExecutionHandlerContext context = mock(ExecutionHandlerContext.class);
-    EventDistributor distributor = new EventDistributor();
-    RedisKey keyA = new RedisKey("keyA".getBytes());
-    RedisKey keyB = new RedisKey("keyB".getBytes());
-    RedisKey keyC = new RedisKey("keyC".getBytes());
+    var context = mock(ExecutionHandlerContext.class);
+    var distributor = new EventDistributor();
+    var keyA = new RedisKey("keyA".getBytes());
+    var keyB = new RedisKey("keyB".getBytes());
+    var keyC = new RedisKey("keyC".getBytes());
 
     // Should not produce any exceptions
     new ConcurrentLoopingThreads(10_000,
@@ -173,9 +172,9 @@ public class BlockingCommandListenerTest {
 
   private void registerListener(EventDistributor distributor, ExecutionHandlerContext context,
       RedisKey... keys) {
-    List<byte[]> commandArgs = Arrays.asList("KEY".getBytes(), "0".getBytes());
-    Command command = new Command(RedisCommandType.BLPOP, commandArgs);
-    BlockingCommandListener listener =
+    var commandArgs = Arrays.asList("KEY".getBytes(), "0".getBytes());
+    var command = new Command(RedisCommandType.BLPOP, commandArgs);
+    var listener =
         new BlockingCommandListener(context, command, Arrays.asList(keys), 1e-9);
     distributor.registerListener(listener);
   }

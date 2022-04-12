@@ -53,7 +53,7 @@ public class ReentrantSemaphoreJUnitTest {
 
   @Test
   public void testOneThread() throws Exception {
-    final ReentrantSemaphore semaphore = new ReentrantSemaphore(2);
+    final var semaphore = new ReentrantSemaphore(2);
     semaphore.acquire();
     semaphore.acquire();
     assertEquals(1, semaphore.availablePermits());
@@ -64,11 +64,11 @@ public class ReentrantSemaphoreJUnitTest {
 
   @Test
   public void testMultipleThreads() throws Exception {
-    final ReentrantSemaphore sem = new ReentrantSemaphore(2);
+    final var sem = new ReentrantSemaphore(2);
 
-    final AtomicReference<Throwable> failure = new AtomicReference<>();
+    final var failure = new AtomicReference<Throwable>();
 
-    Thread t1 = new Thread() {
+    var t1 = new Thread() {
       @Override
       public void run() {
         try {
@@ -87,7 +87,7 @@ public class ReentrantSemaphoreJUnitTest {
     };
     t1.start();
 
-    Thread t2 = new Thread() {
+    var t2 = new Thread() {
       @Override
       public void run() {
         try {
@@ -106,7 +106,7 @@ public class ReentrantSemaphoreJUnitTest {
     };
     t2.start();
 
-    Thread t3 = new Thread() {
+    var t3 = new Thread() {
       @Override
       public void run() {
         try {

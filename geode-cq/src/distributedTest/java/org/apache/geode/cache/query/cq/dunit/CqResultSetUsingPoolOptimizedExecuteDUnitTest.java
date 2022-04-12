@@ -17,7 +17,6 @@ package org.apache.geode.cache.query.cq.dunit;
 import static org.apache.geode.cache.Region.SEPARATOR;
 import static org.junit.Assert.assertEquals;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -39,7 +38,6 @@ import org.apache.geode.test.dunit.Invoke;
 import org.apache.geode.test.dunit.LogWriterUtils;
 import org.apache.geode.test.dunit.NetworkUtils;
 import org.apache.geode.test.dunit.SerializableRunnable;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.Wait;
 import org.apache.geode.test.junit.categories.ClientSubscriptionTest;
 
@@ -78,19 +76,19 @@ public class CqResultSetUsingPoolOptimizedExecuteDUnitTest extends CqResultSetUs
   @Override
   @Test
   public void testCqResultsCachingWithFailOver() throws Exception {
-    final Host host = Host.getHost(0);
-    VM server1 = host.getVM(0);
-    VM server2 = host.getVM(1);
-    VM client = host.getVM(2);
+    final var host = Host.getHost(0);
+    var server1 = host.getVM(0);
+    var server2 = host.getVM(1);
+    var client = host.getVM(2);
 
     cqDUnitTest.createServer(server1);
 
     final int port1 = server1.invoke(CqQueryUsingPoolDUnitTest::getCacheServerPort);
-    final String host0 = NetworkUtils.getServerHostName(server1.getHost());
-    final int[] ports = AvailablePortHelper.getRandomAvailableTCPPorts(1);
+    final var host0 = NetworkUtils.getServerHostName(server1.getHost());
+    final var ports = AvailablePortHelper.getRandomAvailableTCPPorts(1);
 
-    String poolName = "testCQFailOver";
-    final String cqName = "testCQFailOver_0";
+    var poolName = "testCQFailOver";
+    final var cqName = "testCQFailOver_0";
 
     cqDUnitTest.createPool(client, poolName, new String[] {host0, host0},
         new int[] {port1, ports[0]});
@@ -98,8 +96,8 @@ public class CqResultSetUsingPoolOptimizedExecuteDUnitTest extends CqResultSetUs
     // create CQ.
     cqDUnitTest.createCQ(client, poolName, cqName, cqDUnitTest.cqs[0]);
 
-    final int numObjects = 300;
-    final int totalObjects = 500;
+    final var numObjects = 300;
+    final var totalObjects = 500;
 
     // initialize Region.
     server1.invoke(new CacheSerializableRunnable("Update Region") {
@@ -107,8 +105,8 @@ public class CqResultSetUsingPoolOptimizedExecuteDUnitTest extends CqResultSetUs
       public void run2() throws CacheException {
         Region region =
             getCache().getRegion(SEPARATOR + "root" + SEPARATOR + cqDUnitTest.regions[0]);
-        for (int i = 1; i <= numObjects; i++) {
-          Portfolio p = new Portfolio(i);
+        for (var i = 1; i <= numObjects; i++) {
+          var p = new Portfolio(i);
           region.put("" + i, p);
         }
       }
@@ -121,22 +119,22 @@ public class CqResultSetUsingPoolOptimizedExecuteDUnitTest extends CqResultSetUs
         Region region =
             getCache().getRegion(SEPARATOR + "root" + SEPARATOR + cqDUnitTest.regions[0]);
         // Update (totalObjects - 1) entries.
-        for (int i = 1; i < totalObjects; i++) {
+        for (var i = 1; i < totalObjects; i++) {
           // Destroy entries.
           if (i > 25 && i < 201) {
             region.destroy("" + i);
             continue;
           }
-          Portfolio p = new Portfolio(i);
+          var p = new Portfolio(i);
           region.put("" + i, p);
         }
         // recreate destroyed entries.
-        for (int j = 26; j < 201; j++) {
-          Portfolio p = new Portfolio(j);
+        for (var j = 26; j < 201; j++) {
+          var p = new Portfolio(j);
           region.put("" + j, p);
         }
         // Add the last key.
-        Portfolio p = new Portfolio(totalObjects);
+        var p = new Portfolio(totalObjects);
         region.put("" + totalObjects, p);
       }
     });
@@ -173,16 +171,16 @@ public class CqResultSetUsingPoolOptimizedExecuteDUnitTest extends CqResultSetUs
           }
           break;
         }
-        Collection<? extends InternalCqQuery> cqs = CqServiceImpl.getAllCqs();
+        var cqs = CqServiceImpl.getAllCqs();
         for (InternalCqQuery cq : cqs) {
-          ServerCQImpl cqQuery = (ServerCQImpl) cq;
+          var cqQuery = (ServerCQImpl) cq;
           if (cqQuery.getName().equals(cqName)) {
-            int size = cqQuery.getCqResultKeysSize();
+            var size = cqQuery.getCqResultKeysSize();
             if (size != totalObjects) {
               LogWriterUtils.getLogWriter().info("The number of Cached events " + size
                   + " is not equal to the expected size " + totalObjects);
-              HashSet expectedKeys = new HashSet();
-              for (int i = 1; i < totalObjects; i++) {
+              var expectedKeys = new HashSet();
+              for (var i = 1; i < totalObjects; i++) {
                 expectedKeys.add("" + i);
               }
               Set cachedKeys = cqQuery.getCqResultKeyCache();
@@ -233,11 +231,11 @@ public class CqResultSetUsingPoolOptimizedExecuteDUnitTest extends CqResultSetUs
           }
           break;
         }
-        Collection<? extends InternalCqQuery> cqs = CqServiceImpl.getAllCqs();
+        var cqs = CqServiceImpl.getAllCqs();
         for (InternalCqQuery cq : cqs) {
-          ServerCQImpl cqQuery = (ServerCQImpl) cq;
+          var cqQuery = (ServerCQImpl) cq;
           if (cqQuery.getName().equals(cqName)) {
-            int size = cqQuery.getCqResultKeysSize();
+            var size = cqQuery.getCqResultKeysSize();
             assertEquals("The number of keys cached for cq " + cqName + " is wrong.", 0, size);
           }
         }

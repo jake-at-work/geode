@@ -49,7 +49,7 @@ public class HostNameTest {
 
   @Test
   public void execHostNameShouldNeverReturnNull() throws IOException {
-    String result = new HostName().execHostName();
+    var result = new HostName().execHostName();
     assertThat(result).isNotNull();
   }
 
@@ -57,7 +57,7 @@ public class HostNameTest {
   @Parameters({MAC_OSX_NAME, LINUX_OS_NAME, SOLARIS_OS_NAME, WINDOWS_OS_NAME})
   public void shouldExecHostNameIfEnvValueNotAvailableOnOS(String osName) throws IOException {
     setHostNamePropertiesNull(osName);
-    String result = new HostName().determineHostName();
+    var result = new HostName().determineHostName();
     assertThat(result).isNotNull();
   }
 
@@ -65,7 +65,7 @@ public class HostNameTest {
   @Parameters({MAC_OSX_NAME, LINUX_OS_NAME, SOLARIS_OS_NAME, WINDOWS_OS_NAME})
   public void shouldUseComputerNameIfAvailableOnOS(String osName) throws IOException {
     setHostNameProperties(osName);
-    String result = new HostName().determineHostName();
+    var result = new HostName().determineHostName();
     assertThat(result).isEqualTo(EXPECTED_HOSTNAME);
   }
 
@@ -73,7 +73,7 @@ public class HostNameTest {
   @Parameters({MAC_OSX_NAME, LINUX_OS_NAME, SOLARIS_OS_NAME, WINDOWS_OS_NAME})
   public void shouldBeNullIfEnvValueNotAvailableOnOS(String osName) throws IOException {
     setHostNamePropertiesNull(osName);
-    String result = new HostName().getHostNameFromEnv();
+    var result = new HostName().getHostNameFromEnv();
     assertThat(result).isEqualTo(null);
   }
 

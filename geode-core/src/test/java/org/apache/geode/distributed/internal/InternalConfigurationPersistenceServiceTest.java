@@ -41,7 +41,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
-import org.w3c.dom.Document;
 
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.configuration.CacheConfig;
@@ -49,7 +48,6 @@ import org.apache.geode.cache.configuration.GatewayReceiverConfig;
 import org.apache.geode.cache.configuration.JndiBindingsType;
 import org.apache.geode.cache.configuration.RegionConfig;
 import org.apache.geode.internal.config.JAXBService;
-import org.apache.geode.internal.config.JAXBServiceTest;
 import org.apache.geode.internal.config.JAXBServiceTest.ElementOne;
 import org.apache.geode.internal.config.JAXBServiceTest.ElementTwo;
 import org.apache.geode.management.configuration.RegionType;
@@ -89,7 +87,7 @@ public class InternalConfigurationPersistenceServiceTest {
   @Test
   public void updateRegionConfig() {
     service.updateCacheConfig("cluster", cacheConfig -> {
-      RegionConfig regionConfig = new RegionConfig();
+      var regionConfig = new RegionConfig();
       regionConfig.setName("regionA");
       regionConfig.setType(RegionType.REPLICATE);
       cacheConfig.getRegions().add(regionConfig);
@@ -104,7 +102,7 @@ public class InternalConfigurationPersistenceServiceTest {
   @Test
   public void jndiBindings() {
     service.updateCacheConfig("cluster", cacheConfig -> {
-      JndiBindingsType.JndiBinding jndiBinding = new JndiBindingsType.JndiBinding();
+      var jndiBinding = new JndiBindingsType.JndiBinding();
       jndiBinding.setJndiName("jndiOne");
       jndiBinding.setJdbcDriverClass("com.sun.ABC");
       jndiBinding.setType("SimpleDataSource");
@@ -123,7 +121,7 @@ public class InternalConfigurationPersistenceServiceTest {
 
   @Test
   public void addCustomCacheElement() {
-    ElementOne customOne = new ElementOne("testOne");
+    var customOne = new ElementOne("testOne");
     service.updateCacheConfig("cluster", config -> {
       config.getCustomCacheElements().add(customOne);
       return config;
@@ -131,7 +129,7 @@ public class InternalConfigurationPersistenceServiceTest {
     System.out.println(configuration.getCacheXmlContent());
     assertThat(configuration.getCacheXmlContent()).contains("custom-one>");
 
-    JAXBServiceTest.ElementTwo customTwo = new ElementTwo("testTwo");
+    var customTwo = new ElementTwo("testTwo");
     service.updateCacheConfig("cluster", config -> {
       config.getCustomCacheElements().add(customTwo);
       return config;
@@ -150,21 +148,21 @@ public class InternalConfigurationPersistenceServiceTest {
       return config;
     });
 
-    String prettyXml = configuration.getCacheXmlContent();
+    var prettyXml = configuration.getCacheXmlContent();
     System.out.println(prettyXml);
 
     // the xml is sent to another locator with no such plugin installed, it can be parsed
     // but the element couldn't be recognized by the locator without the plugin
     service2.updateCacheConfig("cluster", cc -> cc);
-    CacheConfig config = service2.getCacheConfig("cluster");
+    var config = service2.getCacheConfig("cluster");
     assertThat(config.findCustomCacheElement("one", ElementOne.class)).isNull();
 
-    String uglyXml = configuration.getCacheXmlContent();
+    var uglyXml = configuration.getCacheXmlContent();
     System.out.println(uglyXml);
     assertThat(uglyXml).isNotEqualTo(prettyXml);
 
     // the xml can be unmarshalled correctly by the first locator
-    CacheConfig cacheConfig = service.getCacheConfig("cluster");
+    var cacheConfig = service.getCacheConfig("cluster");
     service.updateCacheConfig("cluster", cc -> cc);
     assertThat(cacheConfig.getCustomCacheElements()).hasSize(2);
     assertThat(cacheConfig.getCustomCacheElements().get(0)).isInstanceOf(ElementOne.class);
@@ -180,9 +178,9 @@ public class InternalConfigurationPersistenceServiceTest {
 
   @Test
   public void getExistingGroupConfigShouldReturnNullIfNoXml() {
-    Configuration groupConfig = new Configuration("some-new-group");
+    var groupConfig = new Configuration("some-new-group");
     doReturn(groupConfig).when(service).getConfiguration("some-new-group");
-    CacheConfig groupCacheConfig = service.getCacheConfig("some-new-group");
+    var groupCacheConfig = service.getCacheConfig("some-new-group");
     assertThat(groupCacheConfig).isNull();
   }
 
@@ -201,7 +199,7 @@ public class InternalConfigurationPersistenceServiceTest {
   @Test
   public void updateGatewayReceiverConfig() {
     service.updateCacheConfig("cluster", cacheConfig -> {
-      GatewayReceiverConfig receiver = new GatewayReceiverConfig();
+      var receiver = new GatewayReceiverConfig();
       cacheConfig.setGatewayReceiver(receiver);
       return cacheConfig;
     });
@@ -212,7 +210,7 @@ public class InternalConfigurationPersistenceServiceTest {
 
   @Test
   public void removeDuplicateGatewayReceiversWithDefaultProperties() throws Exception {
-    Document document =
+    var document =
         XmlUtils.createDocumentFromXml(getDuplicateReceiversWithDefaultPropertiesXml());
     System.out
         .println("Initial document:" + System.lineSeparator() + "" + XmlUtils.prettyXml(document));
@@ -225,7 +223,7 @@ public class InternalConfigurationPersistenceServiceTest {
 
   @Test
   public void removeInvalidGatewayReceiversWithDifferentHostNameForSenders() throws Exception {
-    Document document =
+    var document =
         XmlUtils.createDocumentFromXml(getDuplicateReceiversWithDifferentHostNameForSendersXml());
     System.out
         .println("Initial document:" + System.lineSeparator() + "" + XmlUtils.prettyXml(document));
@@ -238,7 +236,7 @@ public class InternalConfigurationPersistenceServiceTest {
 
   @Test
   public void removeInvalidGatewayReceiversWithDifferentBindAddresses() throws Exception {
-    Document document =
+    var document =
         XmlUtils.createDocumentFromXml(getDuplicateReceiversWithDifferentBindAddressesXml());
     System.out
         .println("Initial document:" + System.lineSeparator() + "" + XmlUtils.prettyXml(document));
@@ -251,7 +249,7 @@ public class InternalConfigurationPersistenceServiceTest {
 
   @Test
   public void keepValidGatewayReceiversWithDefaultBindAddress() throws Exception {
-    Document document =
+    var document =
         XmlUtils.createDocumentFromXml(getSingleReceiverWithDefaultBindAddressXml());
     System.out
         .println("Initial document:" + System.lineSeparator() + "" + XmlUtils.prettyXml(document));
@@ -270,7 +268,7 @@ public class InternalConfigurationPersistenceServiceTest {
     configuration.setCacheXmlContent(xml);
     System.out.println(
         "Initial xml content:" + System.lineSeparator() + configuration.getCacheXmlContent());
-    Document document = XmlUtils.createDocumentFromXml(configuration.getCacheXmlContent());
+    var document = XmlUtils.createDocumentFromXml(configuration.getCacheXmlContent());
     assertThat(document.getElementsByTagName("gateway-receiver").getLength())
         .isEqualTo(expectedInitialElements);
     Set<Map.Entry<String, Configuration>> configurationEntries = new HashSet<>();
@@ -286,8 +284,8 @@ public class InternalConfigurationPersistenceServiceTest {
 
   @Test
   public void dontUnlockSharedConfigurationIfNoLockedPreviously() {
-    JAXBService jaxbService = mock(JAXBService.class);
-    InternalConfigurationPersistenceService cps =
+    var jaxbService = mock(JAXBService.class);
+    var cps =
         spy(new InternalConfigurationPersistenceService(jaxbService));
     doReturn(false).when(cps).lockSharedConfiguration();
     cps.createConfigurationResponse(null);
@@ -296,7 +294,7 @@ public class InternalConfigurationPersistenceServiceTest {
 
   @Test
   public void loadFromNonExistDir() {
-    File configDir = new File(tempFolder.getRoot(), "NonExistDir");
+    var configDir = new File(tempFolder.getRoot(), "NonExistDir");
     assertThatThrownBy(() -> service.loadSharedConfigurationFromDir(configDir))
         .isInstanceOf(IOException.class)
         .hasMessageContaining("ConfigDir does not exist:");

@@ -36,7 +36,6 @@ import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.PoolImpl;
@@ -79,7 +78,7 @@ public class FailoverDUnitTest extends JUnit4DistributedTestCase {
 
   @Override
   public final void postSetUp() throws Exception {
-    final Host host = Host.getHost(0);
+    final var host = Host.getHost(0);
     vm0 = host.getVM(0);
     vm1 = host.getVM(1);
 
@@ -93,7 +92,7 @@ public class FailoverDUnitTest extends JUnit4DistributedTestCase {
     createClientCache(NetworkUtils.getServerHostName(host), PORT1, PORT2);
     { // calculate the primary vm
       waitForPrimaryAndBackups(1);
-      PoolImpl pool = (PoolImpl) PoolManager.find("FailoverPool");
+      var pool = (PoolImpl) PoolManager.find("FailoverPool");
       if (pool.getPrimaryPort() == PORT1) {
         primary = vm0;
       } else {
@@ -128,12 +127,12 @@ public class FailoverDUnitTest extends JUnit4DistributedTestCase {
       throws Exception {
     PORT1 = port1;
     PORT2 = port2;
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     new FailoverDUnitTest().createCache(props);
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     ClientServerTestCase
         .configureConnectionPoolWithNameAndFactory(factory, hostName, new int[] {PORT1, PORT2},
@@ -154,13 +153,13 @@ public class FailoverDUnitTest extends JUnit4DistributedTestCase {
 
   public static Integer createServerCache() throws Exception {
     new FailoverDUnitTest().createCache(new Properties());
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.REPLICATE);
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     cache.createRegion(regionName, attrs);
-    int port = getRandomAvailableTCPPort();
-    CacheServer server1 = cache.addCacheServer();
+    var port = getRandomAvailableTCPPort();
+    var server1 = cache.addCacheServer();
     server1.setPort(port);
     server1.setNotifyBySubscription(true);
     server1.start();
@@ -168,8 +167,8 @@ public class FailoverDUnitTest extends JUnit4DistributedTestCase {
   }
 
   public void waitForPrimaryAndBackups(final int numBackups) {
-    final PoolImpl pool = (PoolImpl) find("FailoverPool");
-    WaitCriterion ev = new WaitCriterion() {
+    final var pool = (PoolImpl) find("FailoverPool");
+    var ev = new WaitCriterion() {
       @Override
       public boolean done() {
         if (pool.getPrimary() == null) {
@@ -223,7 +222,7 @@ public class FailoverDUnitTest extends JUnit4DistributedTestCase {
     try {
       Iterator iter = cache.getCacheServers().iterator();
       if (iter.hasNext()) {
-        CacheServer server = (CacheServer) iter.next();
+        var server = (CacheServer) iter.next();
         server.stop();
       }
     } catch (Exception e) {
@@ -248,7 +247,7 @@ public class FailoverDUnitTest extends JUnit4DistributedTestCase {
   public void verifyEntries() {
     final Region r = cache.getRegion(SEPARATOR + regionName);
     assertNotNull(r);
-    WaitCriterion ev = new WaitCriterion() {
+    var ev = new WaitCriterion() {
       @Override
       public boolean done() {
         return !r.getEntry("key-3").getValue().equals("key-3");
@@ -292,7 +291,7 @@ public class FailoverDUnitTest extends JUnit4DistributedTestCase {
   public void verifyEntriesAfterFailover() {
     final Region r = cache.getRegion(SEPARATOR + regionName);
     assertNotNull(r);
-    WaitCriterion ev = new WaitCriterion() {
+    var ev = new WaitCriterion() {
       @Override
       public boolean done() {
         return !r.getEntry("key-5").getValue().equals("key-5");

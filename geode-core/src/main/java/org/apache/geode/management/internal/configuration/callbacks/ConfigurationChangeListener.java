@@ -14,7 +14,6 @@
  */
 package org.apache.geode.management.internal.configuration.callbacks;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
@@ -68,17 +67,17 @@ public class ConfigurationChangeListener extends CacheListenerAdapter<String, Co
   // necessary jars again. This may appear a bit blunt but it also accounts for the situation
   // where a jar is only being updated - i.e. the name does not change, only the content.
   private void addOrRemoveJarFromFilesystem(EntryEvent<String, Configuration> event) {
-    String group = event.getKey();
-    Configuration newConfig = event.getNewValue();
-    Configuration oldConfig = event.getOldValue();
-    Set<String> newJars = newConfig.getJarNames();
+    var group = event.getKey();
+    var newConfig = event.getNewValue();
+    var oldConfig = event.getOldValue();
+    var newJars = newConfig.getJarNames();
     Set<String> oldJars = (oldConfig == null) ? new HashSet<>() : oldConfig.getJarNames();
 
     Set<String> jarsRemoved = new HashSet<>(oldJars);
     jarsRemoved.removeAll(newJars);
 
-    for (String jarRemoved : jarsRemoved) {
-      File jar = sharedConfig.getPathToJarOnThisLocator(group, jarRemoved).toFile();
+    for (var jarRemoved : jarsRemoved) {
+      var jar = sharedConfig.getPathToJarOnThisLocator(group, jarRemoved).toFile();
       if (jar.exists()) {
         try {
           FileUtils.forceDelete(jar);
@@ -90,13 +89,13 @@ public class ConfigurationChangeListener extends CacheListenerAdapter<String, Co
       }
     }
 
-    String triggerMemberId = (String) event.getCallbackArgument();
+    var triggerMemberId = (String) event.getCallbackArgument();
     if (triggerMemberId == null || newJars.isEmpty()) {
       return;
     }
 
-    DistributedMember locator = getDistributedMember(triggerMemberId);
-    for (String jarAdded : newJars) {
+    var locator = getDistributedMember(triggerMemberId);
+    for (var jarAdded : newJars) {
       try {
         sharedConfig.downloadJarFromLocator(group, jarAdded, locator);
       } catch (Exception e) {

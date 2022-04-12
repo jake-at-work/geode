@@ -31,7 +31,6 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.partition.PartitionRegionHelper;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
 import org.apache.geode.distributed.internal.DistributionMessage;
 import org.apache.geode.distributed.internal.DistributionMessageObserver;
@@ -64,8 +63,8 @@ public class PDXNewWanDUnitTest extends WANTestBase {
    */
   @Test
   public void testWANPDX_RR_SerialSender() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
     createCacheInVMs(nyPort, vm2);
     vm2.invoke(WANTestBase::createReceiver);
 
@@ -95,8 +94,8 @@ public class PDXNewWanDUnitTest extends WANTestBase {
    */
   @Test
   public void testWANPDX_RemoveRemoteData() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     vm2.invoke(() -> WANTestBase.createReceiver_PDX(nyPort));
 
@@ -135,8 +134,8 @@ public class PDXNewWanDUnitTest extends WANTestBase {
 
   @Test
   public void testWANPDX_CacheWriterCheck() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     vm2.invoke(() -> setSystemProperty("gemfire.disk.recoverValues", "false"));
 
@@ -203,8 +202,8 @@ public class PDXNewWanDUnitTest extends WANTestBase {
    */
   @Test
   public void testWANPDX_ConflictingData() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     vm2.invoke(() -> WANTestBase.createReceiver_PDX(nyPort));
 
@@ -227,12 +226,12 @@ public class PDXNewWanDUnitTest extends WANTestBase {
     // bounce vm3
     vm3.invoke(WANTestBase::closeCache);
 
-    IgnoredException ex1 =
+    var ex1 =
         IgnoredException.addIgnoredException("Trying to add a PDXType with the same id");
-    IgnoredException ex2 = IgnoredException.addIgnoredException("CacheWriterException");
-    IgnoredException ex3 = IgnoredException.addIgnoredException("does match the existing PDX type");
-    IgnoredException ex4 = IgnoredException.addIgnoredException("ServerOperationException");
-    IgnoredException ex5 = IgnoredException.addIgnoredException("Stopping the processor");
+    var ex2 = IgnoredException.addIgnoredException("CacheWriterException");
+    var ex3 = IgnoredException.addIgnoredException("does match the existing PDX type");
+    var ex4 = IgnoredException.addIgnoredException("ServerOperationException");
+    var ex5 = IgnoredException.addIgnoredException("Stopping the processor");
 
     try {
       // blow away vm3's PDX data
@@ -273,10 +272,10 @@ public class PDXNewWanDUnitTest extends WANTestBase {
    */
   @Test
   public void testWANPDX_RR_SerialSender3Sites() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
-    Integer tkPort = vm2.invoke(() -> WANTestBase.createFirstRemoteLocator(3, lnPort));
+    var tkPort = vm2.invoke(() -> WANTestBase.createFirstRemoteLocator(3, lnPort));
 
     createCacheInVMs(lnPort, vm3);
     createCacheInVMs(nyPort, vm4);
@@ -336,8 +335,8 @@ public class PDXNewWanDUnitTest extends WANTestBase {
 
   @Test
   public void testWANPDX_RR_SerialSender_StartedLater() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2);
     vm2.invoke(WANTestBase::createReceiver);
@@ -370,8 +369,8 @@ public class PDXNewWanDUnitTest extends WANTestBase {
 
   @Test
   public void testWANPDX_PR_SerialSender() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2);
     vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 0, 2,
@@ -395,8 +394,8 @@ public class PDXNewWanDUnitTest extends WANTestBase {
 
   @Test
   public void testWANPDX_PR_SerialSender_StartedLater() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     vm2.invoke(() -> WANTestBase.createReceiver_PDX(nyPort));
 
@@ -428,8 +427,8 @@ public class PDXNewWanDUnitTest extends WANTestBase {
 
   @Test
   public void testWANPDX_PR_MultipleVM_SerialSender() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2);
     vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 5,
@@ -454,8 +453,8 @@ public class PDXNewWanDUnitTest extends WANTestBase {
 
   @Test
   public void testWANPDX_PR_MultipleVM_SerialSender_StartedLater() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     vm2.invoke(() -> WANTestBase.createReceiver_PDX(nyPort));
 
@@ -490,8 +489,8 @@ public class PDXNewWanDUnitTest extends WANTestBase {
 
   @Test
   public void testWANPDX_PR_ParallelSender() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2);
     vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 0, 1,
@@ -515,8 +514,8 @@ public class PDXNewWanDUnitTest extends WANTestBase {
   @Test
   public void testWANPDX_PR_ParallelSender_WithDelayedTypeRegistry()
       throws InterruptedException, ExecutionException {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     // Create the receiver side of the WAN gateway. Only vm2 will be a receiver, vm3 is
     // just a peer
@@ -561,15 +560,15 @@ public class PDXNewWanDUnitTest extends WANTestBase {
 
       vm4.invoke(() -> {
         final Region r = cache.getRegion(SEPARATOR + getTestMethodName() + "_PR");
-        PdxValue result = (PdxValue) r.put(KEY_0, new PdxValue(0));
+        var result = (PdxValue) r.put(KEY_0, new PdxValue(0));
       });
 
       // Force VM4 to be the primary
       vm4.invoke(() -> {
         final Region region = cache.getRegion(SEPARATOR + getTestMethodName() + "_PR");
-        DistributedMember primary = PartitionRegionHelper.getPrimaryMemberForKey(region, KEY_0);
+        var primary = PartitionRegionHelper.getPrimaryMemberForKey(region, KEY_0);
         // If we are not the primary
-        DistributedMember localMember = cache.getDistributedSystem().getDistributedMember();
+        var localMember = cache.getDistributedSystem().getDistributedMember();
         if (!primary.equals(localMember)) {
           PartitionRegionHelper.moveBucketByKey(region, primary, localMember, KEY_0);
 
@@ -579,7 +578,7 @@ public class PDXNewWanDUnitTest extends WANTestBase {
       vm5.invoke(() -> WANTestBase.resumeSender("ln"));
 
       boolean blocking = vm2.invoke(() -> {
-        BlockingPdxTypeUpdateObserver observer =
+        var observer =
             (BlockingPdxTypeUpdateObserver) DistributionMessageObserver.getInstance();
         return observer.startedBlocking.await(1, TimeUnit.MINUTES);
       });
@@ -597,7 +596,7 @@ public class PDXNewWanDUnitTest extends WANTestBase {
       // Make sure vm3 can deserialize the value
       deserializationFuture = vm3.invokeAsync(() -> {
         final Region r = cache.getRegion(SEPARATOR + getTestMethodName() + "_PR");
-        PdxValue result = (PdxValue) r.get(KEY_0);
+        var result = (PdxValue) r.get(KEY_0);
         assertEquals(result, new PdxValue(0));
       });
 
@@ -612,7 +611,7 @@ public class PDXNewWanDUnitTest extends WANTestBase {
     } finally {
 
       vm2.invoke(() -> {
-        BlockingPdxTypeUpdateObserver observer =
+        var observer =
             (BlockingPdxTypeUpdateObserver) DistributionMessageObserver.getInstance();
         observer.latch.countDown();
       });
@@ -623,8 +622,8 @@ public class PDXNewWanDUnitTest extends WANTestBase {
 
   @Test
   public void testWANPDX_PR_ParallelSender_47826() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2);
     vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 0, 1,
@@ -647,8 +646,8 @@ public class PDXNewWanDUnitTest extends WANTestBase {
 
   @Test
   public void testWANPDX_PR_ParallelSender_StartedLater() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     vm2.invoke(() -> WANTestBase.createReceiver_PDX(nyPort));
 
@@ -674,8 +673,8 @@ public class PDXNewWanDUnitTest extends WANTestBase {
 
   @Test
   public void testWANPDX_PR_MultipleVM_ParallelSender() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2);
     vm2.invoke(WANTestBase::createReceiver);
@@ -702,8 +701,8 @@ public class PDXNewWanDUnitTest extends WANTestBase {
 
   @Test
   public void testWANPDX_PR_MultipleVM_ParallelSender_StartedLater() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     vm2.invoke(() -> WANTestBase.createReceiver_PDX(nyPort));
 
@@ -733,8 +732,8 @@ public class PDXNewWanDUnitTest extends WANTestBase {
 
   @Test
   public void testWANPDX_RR_SerialSenderWithFilter() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2);
     vm2.invoke(WANTestBase::createReceiver);
@@ -762,8 +761,8 @@ public class PDXNewWanDUnitTest extends WANTestBase {
 
   @Test
   public void testWANPDX_PR_MultipleVM_ParallelSenderWithFilter() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2);
     vm2.invoke(WANTestBase::createReceiver);
@@ -800,8 +799,8 @@ public class PDXNewWanDUnitTest extends WANTestBase {
   @Ignore
   @Test
   public void testWANPDX_PR_SerialSender_RemoteSite_Bounce() {
-    Integer lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
-    Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
+    var lnPort = vm0.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
+    var nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2);
     vm2.invoke(WANTestBase::createReceiver);
@@ -901,7 +900,7 @@ public class PDXNewWanDUnitTest extends WANTestBase {
         return false;
       }
 
-      PdxValue pdxValue = (PdxValue) o;
+      var pdxValue = (PdxValue) o;
 
       return value == pdxValue.value;
     }

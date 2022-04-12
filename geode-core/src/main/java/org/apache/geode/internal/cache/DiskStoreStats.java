@@ -20,7 +20,6 @@ import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.Statistics;
 import org.apache.geode.StatisticsFactory;
 import org.apache.geode.StatisticsType;
-import org.apache.geode.StatisticsTypeFactory;
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.annotations.VisibleForTesting;
 import org.apache.geode.distributed.internal.DistributionStats;
@@ -87,39 +86,39 @@ public class DiskStoreStats {
   private static final int backupsCompleted;
 
   static {
-    String statName = "DiskStoreStatistics";
-    String statDescription = "Statistics about a Region's use of the disk";
+    var statName = "DiskStoreStatistics";
+    var statDescription = "Statistics about a Region's use of the disk";
 
-    final String writesDesc =
+    final var writesDesc =
         "The total number of region entries that have been written to disk. A write is done every time an entry is created on disk or every time its value is modified on disk.";
-    final String writeTimeDesc = "The total amount of time spent writing to disk";
-    final String bytesWrittenDesc = "The total number of bytes that have been written to disk";
-    final String flushesDesc =
+    final var writeTimeDesc = "The total amount of time spent writing to disk";
+    final var bytesWrittenDesc = "The total number of bytes that have been written to disk";
+    final var flushesDesc =
         "The total number of times the an entry has been flushed from the async queue.";
-    final String flushTimeDesc = "The total amount of time spent doing an async queue flush.";
-    final String bytesFlushedDesc =
+    final var flushTimeDesc = "The total amount of time spent doing an async queue flush.";
+    final var bytesFlushedDesc =
         "The total number of bytes written to disk by async queue flushes.";
-    final String readsDesc = "The total number of region entries that have been read from disk";
-    final String readTimeDesc = "The total amount of time spent reading from disk";
-    final String bytesReadDesc = "The total number of bytes that have been read from disk";
-    final String recoveryTimeDesc = "The total amount of time spent doing a recovery";
-    final String recoveredBytesDesc =
+    final var readsDesc = "The total number of region entries that have been read from disk";
+    final var readTimeDesc = "The total amount of time spent reading from disk";
+    final var bytesReadDesc = "The total number of bytes that have been read from disk";
+    final var recoveryTimeDesc = "The total amount of time spent doing a recovery";
+    final var recoveredBytesDesc =
         "The total number of bytes that have been read from disk during a recovery";
-    final String oplogRecoveriesDesc = "The total number of oplogs recovered";
-    final String oplogRecoveryTimeDesc = "The total amount of time spent doing an oplog recovery";
-    final String oplogRecoveredBytesDesc =
+    final var oplogRecoveriesDesc = "The total number of oplogs recovered";
+    final var oplogRecoveryTimeDesc = "The total amount of time spent doing an oplog recovery";
+    final var oplogRecoveredBytesDesc =
         "The total number of bytes that have been read from oplogs during a recovery";
-    final String removesDesc =
+    final var removesDesc =
         "The total number of region entries that have been removed from disk";
-    final String removeTimeDesc = "The total amount of time spent removing from disk";
-    final String queueSizeDesc =
+    final var removeTimeDesc = "The total amount of time spent removing from disk";
+    final var queueSizeDesc =
         "The current number of entries in the async queue waiting to be flushed to disk";
-    final String backupsInProgressDesc =
+    final var backupsInProgressDesc =
         "The current number of backups in progress on this disk store";
-    final String backupsCompletedDesc =
+    final var backupsCompletedDesc =
         "The number of backups of this disk store that have been taking while this VM was alive";
 
-    StatisticsTypeFactory f = StatisticsTypeFactoryImpl.singleton();
+    var f = StatisticsTypeFactoryImpl.singleton();
 
     type = f.createType(statName, statDescription,
         new StatisticDescriptor[] {f.createLongCounter("writes", writesDesc, "ops"),
@@ -379,7 +378,7 @@ public class DiskStoreStats {
    */
   public long endWrite(long start) {
     stats.incInt(writesInProgressId, -1);
-    long end = getTime();
+    var end = getTime();
     stats.incLong(writesId, 1);
     stats.incLong(writeTimeId, end - start);
     return end;
@@ -387,7 +386,7 @@ public class DiskStoreStats {
 
   public void endFlush(long start) {
     stats.incInt(flushesInProgressId, -1);
-    long end = getTime();
+    var end = getTime();
     stats.incLong(flushesId, 1);
     stats.incLong(flushTimeId, end - start);
   }
@@ -414,7 +413,7 @@ public class DiskStoreStats {
    * @param bytesRead The number of bytes that were read
    */
   public long endRead(long start, long bytesRead) {
-    long end = getTime();
+    var end = getTime();
     stats.incLong(readsId, 1);
     stats.incLong(readTimeId, end - start);
     stats.incLong(bytesReadId, bytesRead);
@@ -449,20 +448,20 @@ public class DiskStoreStats {
    */
   public void endRecovery(long start, long bytesRead) {
     stats.incInt(recoveriesInProgressId, -1);
-    long end = getTime();
+    var end = getTime();
     stats.incLong(recoveryTimeId, end - start);
     stats.incLong(recoveredBytesId, bytesRead);
   }
 
   public void endCompaction(long start) {
     stats.incInt(compactsInProgressId, -1);
-    long end = getTime();
+    var end = getTime();
     stats.incInt(compactsId, 1);
     stats.incLong(compactTimeId, end - start);
   }
 
   public void endOplogRead(long start, long bytesRead) {
-    long end = getTime();
+    var end = getTime();
     stats.incInt(oplogRecoveriesId, 1);
     stats.incLong(oplogRecoveryTimeId, end - start);
     stats.incLong(oplogRecoveredBytesId, bytesRead);
@@ -505,7 +504,7 @@ public class DiskStoreStats {
    * @param start The time at which the read operation started
    */
   public long endRemove(long start) {
-    long end = getTime();
+    var end = getTime();
     stats.incLong(removesId, 1);
     stats.incLong(removeTimeId, end - start);
     return end;

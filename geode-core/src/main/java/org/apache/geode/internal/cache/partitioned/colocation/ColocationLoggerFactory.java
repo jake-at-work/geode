@@ -26,7 +26,7 @@ public interface ColocationLoggerFactory {
 
   static ColocationLoggerFactory create() {
     try {
-      String className = System.getProperty(COLOCATION_LOGGER_FACTORY_PROPERTY,
+      var className = System.getProperty(COLOCATION_LOGGER_FACTORY_PROPERTY,
           SingleThreadColocationLoggerFactory.class.getName());
       return (ColocationLoggerFactory) ClassPathLoader.getLatest().forName(className).newInstance();
     } catch (Exception e) {

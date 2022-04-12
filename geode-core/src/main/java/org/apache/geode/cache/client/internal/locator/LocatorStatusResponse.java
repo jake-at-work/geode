@@ -19,7 +19,6 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
-import java.lang.management.RuntimeMXBean;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -69,7 +68,7 @@ public class LocatorStatusResponse extends ServerLocationResponse {
 
   public LocatorStatusResponse initialize(final int locatorPort, final String locatorHost,
       final String locatorLogFile, final String locatorName) {
-    final RuntimeMXBean runtimeBean = ManagementFactory.getRuntimeMXBean();
+    final var runtimeBean = ManagementFactory.getRuntimeMXBean();
     pid = identifyPid();
     jvmArgs = ArgumentRedactor.redactEachInList(runtimeBean.getInputArguments());
     uptime = runtimeBean.getUptime();
@@ -155,7 +154,7 @@ public class LocatorStatusResponse extends ServerLocationResponse {
   }
 
   protected void readPid(final DataInput in) throws IOException {
-    final int pid = in.readInt();
+    final var pid = in.readInt();
     this.pid = (pid == 0 ? null : pid);
   }
 
@@ -168,9 +167,9 @@ public class LocatorStatusResponse extends ServerLocationResponse {
   }
 
   protected void readJvmArguments(final DataInput in) throws IOException {
-    final int length = in.readInt();
+    final var length = in.readInt();
     final List<String> jvmArgs = new ArrayList<>(length);
-    for (int index = 0; index < length; index++) {
+    for (var index = 0; index < length; index++) {
       jvmArgs.add(in.readUTF());
     }
     this.jvmArgs = jvmArgs;
@@ -197,7 +196,7 @@ public class LocatorStatusResponse extends ServerLocationResponse {
   }
 
   protected void readPort(final DataInput in) throws IOException {
-    final int port = in.readInt();
+    final var port = in.readInt();
     this.port = (port == 0 ? null : port);
   }
 
@@ -222,7 +221,7 @@ public class LocatorStatusResponse extends ServerLocationResponse {
   }
 
   protected void writePid(final DataOutput out) throws IOException {
-    Integer pid = getPid();
+    var pid = getPid();
     out.writeInt(pid != null ? pid : (Integer) 0);
   }
 
@@ -231,50 +230,50 @@ public class LocatorStatusResponse extends ServerLocationResponse {
   }
 
   protected void writeWorkingDirectory(final DataOutput out) throws IOException {
-    String workingDir = getWorkingDirectory();
+    var workingDir = getWorkingDirectory();
     out.writeUTF(workingDir != null ? workingDir : "");
   }
 
   protected void writeJvmArguments(final DataOutput out) throws IOException {
-    final List<String> jvmArgs = getJvmArgs();
+    final var jvmArgs = getJvmArgs();
     out.writeInt(jvmArgs.size());
-    for (final String jvmArg : jvmArgs) {
+    for (final var jvmArg : jvmArgs) {
       out.writeUTF(jvmArg);
     }
   }
 
   protected void writeClasspath(final DataOutput out) throws IOException {
-    String classpath = getClasspath();
+    var classpath = getClasspath();
     out.writeUTF(classpath != null ? classpath : "");
   }
 
   protected void writeGemFireVersion(final DataOutput out) throws IOException {
-    String version = getGemFireVersion();
+    var version = getGemFireVersion();
     out.writeUTF(version != null ? version : "");
   }
 
   protected void writeJavaVersion(final DataOutput out) throws IOException {
-    String version = getJavaVersion();
+    var version = getJavaVersion();
     out.writeUTF(version != null ? version : "");
   }
 
   protected void writeLogFile(final DataOutput out) throws IOException {
-    String log = getLogFile();
+    var log = getLogFile();
     out.writeUTF(log != null ? log : "");
   }
 
   protected void writeHost(final DataOutput out) throws IOException {
-    String host = getHost();
+    var host = getHost();
     out.writeUTF(host != null ? host : "");
   }
 
   protected void writePort(final DataOutput out) throws IOException {
-    Integer port = getPort();
+    var port = getPort();
     out.writeInt(port != null ? port : (Integer) 0);
   }
 
   protected void writeName(final DataOutput out) throws IOException {
-    String name = getName();
+    var name = getName();
     out.writeUTF(name != null ? name : "");
   }
 
@@ -288,7 +287,7 @@ public class LocatorStatusResponse extends ServerLocationResponse {
       return false;
     }
 
-    final LocatorStatusResponse that = (LocatorStatusResponse) obj;
+    final var that = (LocatorStatusResponse) obj;
 
     return ObjectUtils.equalsIgnoreNull(getPid(), that.getPid())
         && ObjectUtils.equals(getUptime(), that.getUptime())
@@ -301,7 +300,7 @@ public class LocatorStatusResponse extends ServerLocationResponse {
 
   @Override
   public int hashCode() {
-    int hashValue = 17;
+    var hashValue = 17;
     hashValue = 37 * hashValue + ObjectUtils.hashCode(getPid());
     hashValue = 37 * hashValue + ObjectUtils.hashCode(getUptime());
     hashValue = 37 * hashValue + ObjectUtils.hashCode(getWorkingDirectory());

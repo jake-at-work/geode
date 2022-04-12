@@ -49,8 +49,8 @@ public class Graph {
   public void addEdge(long timestamp, String edgeName, String state, String source, String dest,
       boolean isFromPattern) {
 
-    Vertex destVertex = new Vertex(this, dest, state, timestamp);
-    SortedMap<Long, Vertex> map = indexedVertices.get(dest);
+    var destVertex = new Vertex(this, dest, state, timestamp);
+    var map = indexedVertices.get(dest);
     if (map == null) {
       map = new TreeMap<>();
       indexedVertices.put(dest, map);
@@ -60,10 +60,10 @@ public class Graph {
     // add the edge if the destination changes state as a result
     // of this edge. This cuts down on noise in the graph.
     if (isFromPattern) {
-      SortedMap<Long, Vertex> headMap = map.headMap(timestamp);
+      var headMap = map.headMap(timestamp);
       if (headMap != null && !headMap.isEmpty()) {
-        Long previousKey = headMap.lastKey();
-        Vertex previousVertex = headMap.get(previousKey);
+        var previousKey = headMap.lastKey();
+        var previousVertex = headMap.get(previousKey);
         if (previousVertex.getState().equals(state)) {
           return;
         }

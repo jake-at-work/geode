@@ -33,7 +33,6 @@ import java.util.Set;
 import javax.servlet.http.HttpSession;
 
 import org.apache.catalina.Context;
-import org.apache.catalina.Session;
 import org.apache.juli.logging.Log;
 import org.junit.Test;
 
@@ -72,10 +71,10 @@ public abstract class AbstractDeltaSessionManagerTest<DeltaSessionManagerT exten
 
   @Test
   public void getRegionAttributesIdSetsIdFromSessionCacheWhenAttributesIdIsNull() {
-    final String regionAttributesId = "attributesIdFromSessionCache";
+    final var regionAttributesId = "attributesIdFromSessionCache";
 
     doReturn(regionAttributesId).when(sessionCache).getDefaultRegionAttributesId();
-    final String attrId = manager.getRegionAttributesId();
+    final var attrId = manager.getRegionAttributesId();
 
     verify(sessionCache).getDefaultRegionAttributesId();
     assertThat(attrId).isEqualTo(regionAttributesId);
@@ -83,7 +82,7 @@ public abstract class AbstractDeltaSessionManagerTest<DeltaSessionManagerT exten
 
   @Test
   public void getEnableLocalCacheSetsIdFromSessionCacheWhenEnableLocalCacheIsNull() {
-    final boolean isLocalCacheEnabled = true;
+    final var isLocalCacheEnabled = true;
 
     doReturn(isLocalCacheEnabled).when(sessionCache).getDefaultEnableLocalCache();
     final Boolean localCacheEnabledValue = manager.getEnableLocalCache();
@@ -94,23 +93,23 @@ public abstract class AbstractDeltaSessionManagerTest<DeltaSessionManagerT exten
 
   @Test
   public void findSessionsReturnsNullWhenIdIsNull() throws IOException {
-    final Session session = manager.findSession(null);
+    final var session = manager.findSession(null);
 
     assertThat(session).isNull();
   }
 
   @Test
   public void findSessionsReturnsNullAndLogsMessageWhenContextNameIsNotValid() throws IOException {
-    final String sessionId = "sessionId";
-    final String contextName = "contextName";
-    final String invalidContextName = "invalidContextName";
+    final var sessionId = "sessionId";
+    final var contextName = "contextName";
+    final var invalidContextName = "invalidContextName";
 
-    final DeltaSession expectedSession = mock(DeltaSession.class);
+    final var expectedSession = mock(DeltaSession.class);
     when(sessionCache.getSession(sessionId)).thenReturn(expectedSession);
     when(expectedSession.getContextName()).thenReturn(invalidContextName);
     when(context.getName()).thenReturn(contextName);
 
-    final Session session = manager.findSession(sessionId);
+    final var session = manager.findSession(sessionId);
 
     verify(logger).info(anyString());
     assertThat(session).isNull();
@@ -118,34 +117,34 @@ public abstract class AbstractDeltaSessionManagerTest<DeltaSessionManagerT exten
 
   @Test
   public void findSessionsReturnsNullWhenIdIsNotFound() throws IOException {
-    final String sessionId = "sessionId";
+    final var sessionId = "sessionId";
 
     when(sessionCache.getSession(sessionId)).thenReturn(null);
 
-    final Session session = manager.findSession(sessionId);
+    final var session = manager.findSession(sessionId);
 
     assertThat(session).isNull();
   }
 
   @Test
   public void findSessionsReturnsProperSessionByIdWhenIdAndContextNameIsValid() throws IOException {
-    final String sessionId = "sessionId";
-    final String contextName = "contextName";
+    final var sessionId = "sessionId";
+    final var contextName = "contextName";
 
-    final DeltaSession expectedSession = mock(DeltaSession.class);
+    final var expectedSession = mock(DeltaSession.class);
     when(sessionCache.getSession(sessionId)).thenReturn(expectedSession);
     when(expectedSession.getContextName()).thenReturn(contextName);
     when(context.getName()).thenReturn(contextName);
 
-    final Session session = manager.findSession(sessionId);
+    final var session = manager.findSession(sessionId);
 
     assertThat(session).isEqualTo(expectedSession);
   }
 
   @Test
   public void removeProperlyDestroysSessionFromSessionCacheWhenSessionIsNotExpired() {
-    final DeltaSession sessionToDestroy = mock(DeltaSession.class);
-    final String sessionId = "sessionId";
+    final var sessionToDestroy = mock(DeltaSession.class);
+    final var sessionId = "sessionId";
 
     when(sessionToDestroy.getId()).thenReturn(sessionId);
     when(sessionToDestroy.getExpired()).thenReturn(false);
@@ -157,8 +156,8 @@ public abstract class AbstractDeltaSessionManagerTest<DeltaSessionManagerT exten
 
   @Test
   public void removeDoesNotDestroySessionFromSessionCacheWhenSessionIsExpired() {
-    final DeltaSession sessionToDestroy = mock(DeltaSession.class);
-    final String sessionId = "sessionId";
+    final var sessionToDestroy = mock(DeltaSession.class);
+    final var sessionId = "sessionId";
 
     when(sessionToDestroy.getId()).thenReturn(sessionId);
     when(sessionToDestroy.getExpired()).thenReturn(true);
@@ -170,7 +169,7 @@ public abstract class AbstractDeltaSessionManagerTest<DeltaSessionManagerT exten
 
   @Test
   public void addPutsSessionIntoSessionCacheAndIncrementsStats() {
-    final DeltaSession sessionToPut = mock(DeltaSession.class);
+    final var sessionToPut = mock(DeltaSession.class);
 
     manager.add(sessionToPut);
 
@@ -187,9 +186,9 @@ public abstract class AbstractDeltaSessionManagerTest<DeltaSessionManagerT exten
 
     when(sessionCache.keySet()).thenReturn(ids);
 
-    final String listOutput = manager.listSessionIds();
+    final var listOutput = manager.listSessionIds();
 
-    for (final String id : ids) {
+    for (final var id : ids) {
       assertThat(listOutput).contains(id);
     }
   }
@@ -208,9 +207,9 @@ public abstract class AbstractDeltaSessionManagerTest<DeltaSessionManagerT exten
 
   @Test
   public void propertyChangeSetsMaxInactiveIntervalWithCorrectPropertyNameAndValue() {
-    final String propertyName = "sessionTimeout";
-    final PropertyChangeEvent event = mock(PropertyChangeEvent.class);
-    final Context eventContext = mock(Context.class);
+    final var propertyName = "sessionTimeout";
+    final var event = mock(PropertyChangeEvent.class);
+    final var eventContext = mock(Context.class);
     final Integer newValue = 1;
 
     when(event.getSource()).thenReturn(eventContext);
@@ -224,9 +223,9 @@ public abstract class AbstractDeltaSessionManagerTest<DeltaSessionManagerT exten
 
   @Test
   public void propertyChangeDoesNotSetMaxInactiveIntervalWithIncorrectPropertyName() {
-    final String propertyName = "wrong name";
-    final PropertyChangeEvent event = mock(PropertyChangeEvent.class);
-    final Context eventContext = mock(Context.class);
+    final var propertyName = "wrong name";
+    final var event = mock(PropertyChangeEvent.class);
+    final var eventContext = mock(Context.class);
 
     when(event.getSource()).thenReturn(eventContext);
     when(event.getPropertyName()).thenReturn(propertyName);
@@ -238,9 +237,9 @@ public abstract class AbstractDeltaSessionManagerTest<DeltaSessionManagerT exten
 
   @Test
   public void propertyChangeDoesNotSetNewMaxInactiveIntervalWithCorrectPropertyNameAndInvalidPropertyValue() {
-    final String propertyName = "sessionTimeout";
-    final PropertyChangeEvent event = mock(PropertyChangeEvent.class);
-    final Context eventContext = mock(Context.class);
+    final var propertyName = "sessionTimeout";
+    final var event = mock(PropertyChangeEvent.class);
+    final var eventContext = mock(Context.class);
     final Integer newValue = -2;
     final Integer oldValue = DEFAULT_MAX_INACTIVE_INTERVAL;
 

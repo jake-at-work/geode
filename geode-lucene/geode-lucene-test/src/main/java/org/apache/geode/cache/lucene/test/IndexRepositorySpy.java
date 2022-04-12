@@ -37,7 +37,7 @@ public class IndexRepositorySpy extends IndexRepositoryFactory {
   };
 
   public static IndexRepositorySpy injectSpy() {
-    IndexRepositorySpy factory = new IndexRepositorySpy();
+    var factory = new IndexRepositorySpy();
     PartitionedRepositoryManager.indexRepositoryFactory = factory;
     return factory;
   }
@@ -52,7 +52,7 @@ public class IndexRepositorySpy extends IndexRepositoryFactory {
   public IndexRepository computeIndexRepository(final Integer bucketId, LuceneSerializer serializer,
       InternalLuceneIndex index, PartitionedRegion userRegion, IndexRepository oldRepository,
       PartitionedRepositoryManager partitionedRepositoryManager) throws IOException {
-    final IndexRepository indexRepo = super.computeIndexRepository(bucketId, serializer, index,
+    final var indexRepo = super.computeIndexRepository(bucketId, serializer, index,
         userRegion, oldRepository, partitionedRepositoryManager);
     if (indexRepo == null) {
       return null;
@@ -61,9 +61,9 @@ public class IndexRepositorySpy extends IndexRepositoryFactory {
       return indexRepo;
     }
 
-    final IndexRepository spy = Mockito.spy(indexRepo);
+    final var spy = Mockito.spy(indexRepo);
 
-    Answer invokeBeforeWrite = invocation -> {
+    var invokeBeforeWrite = (Answer) invocation -> {
       beforeWrite.accept(invocation.getArgument(0));
       return invocation.callRealMethod();
     };

@@ -24,7 +24,6 @@ import org.apache.geode.admin.CacheVmConfig;
 import org.apache.geode.admin.ManagedEntityConfig;
 import org.apache.geode.admin.SystemMemberType;
 import org.apache.geode.annotations.internal.MakeNotStatic;
-import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.internal.admin.GemFireVM;
 import org.apache.geode.internal.admin.remote.RemoteApplicationVM;
 
@@ -108,7 +107,7 @@ public class CacheServerImpl extends ManagedSystemMemberImpl implements CacheVm,
 
   @Override
   public boolean isRunning() {
-    DistributionManager dm =
+    var dm =
         ((AdminDistributedSystemImpl) getDistributedSystem()).getDistributionManager();
     if (dm == null) {
       try {
@@ -146,12 +145,12 @@ public class CacheServerImpl extends ManagedSystemMemberImpl implements CacheVm,
 
   @Override
   public String getStartCommand() {
-    StringBuilder sb = new StringBuilder();
+    var sb = new StringBuilder();
     sb.append(controller.getProductExecutable(this, "cacheserver"));
     sb.append(" start -dir=");
     sb.append(getConfig().getWorkingDirectory());
 
-    String file = getConfig().getCacheXMLFile();
+    var file = getConfig().getCacheXMLFile();
     if (file != null && file.length() > 0) {
       sb.append(" ");
       sb.append(CACHE_XML_FILE);
@@ -159,7 +158,7 @@ public class CacheServerImpl extends ManagedSystemMemberImpl implements CacheVm,
       sb.append(file);
     }
 
-    String classpath = getConfig().getClassPath();
+    var classpath = getConfig().getClassPath();
     if (classpath != null && classpath.length() > 0) {
       sb.append(" -classpath=");
       sb.append(classpath);
@@ -172,7 +171,7 @@ public class CacheServerImpl extends ManagedSystemMemberImpl implements CacheVm,
 
   @Override
   public String getStopCommand() {
-    final String sb = controller.getProductExecutable(this, "cacheserver")
+    final var sb = controller.getProductExecutable(this, "cacheserver")
         + " stop -dir="
         + getConfig().getWorkingDirectory();
 
@@ -181,7 +180,7 @@ public class CacheServerImpl extends ManagedSystemMemberImpl implements CacheVm,
 
   @Override
   public String getIsRunningCommand() {
-    final String sb = controller.getProductExecutable(this, "cacheserver")
+    final var sb = controller.getProductExecutable(this, "cacheserver")
         + " status -dir="
         + getConfig().getWorkingDirectory();
 
@@ -198,8 +197,8 @@ public class CacheServerImpl extends ManagedSystemMemberImpl implements CacheVm,
    */
   @Override
   public boolean isPrimaryForDurableClient(String durableClientId) {
-    RemoteApplicationVM vm = (RemoteApplicationVM) getGemFireVM();
-    boolean isPrimary = false;
+    var vm = (RemoteApplicationVM) getGemFireVM();
+    var isPrimary = false;
     if (vm != null) {
       isPrimary = vm.isPrimaryForDurableClient(durableClientId);
     }

@@ -43,7 +43,7 @@ public class EventDistributor extends PartitionListenerAdapter {
   }
 
   public synchronized void registerListener(EventListener listener) {
-    for (RedisKey key : listener.keys()) {
+    for (var key : listener.keys()) {
       JavaWorkarounds.computeIfAbsent(listeners, key, k -> new LinkedBlockingQueue<>())
           .add(listener);
     }
@@ -52,12 +52,12 @@ public class EventDistributor extends PartitionListenerAdapter {
   }
 
   public void fireEvent(NotificationEvent notificationEvent, RedisKey key) {
-    Queue<EventListener> listenerList = listeners.get(key);
+    var listenerList = listeners.get(key);
     if (listenerList == null) {
       return;
     }
 
-    for (EventListener listener : listenerList) {
+    for (var listener : listenerList) {
       if (listener.process(notificationEvent, key) == EventResponse.REMOVE_AND_STOP) {
         removeListener(listener);
         break;
@@ -76,7 +76,7 @@ public class EventDistributor extends PartitionListenerAdapter {
   @Override
   public void afterBucketRemoved(int bucketId, Iterable<?> keys) {
     Set<EventListener> resubmittingList = new HashSet<>();
-    for (Map.Entry<RedisKey, Queue<EventListener>> entry : listeners.entrySet()) {
+    for (var entry : listeners.entrySet()) {
       if (entry.getKey().getBucketId() == bucketId) {
         resubmittingList.addAll(entry.getValue());
       }
@@ -89,8 +89,8 @@ public class EventDistributor extends PartitionListenerAdapter {
   }
 
   public synchronized void removeListener(EventListener listener) {
-    for (RedisKey key : listener.keys()) {
-      Queue<EventListener> listenerList = listeners.get(key);
+    for (var key : listener.keys()) {
+      var listenerList = listeners.get(key);
       if (listenerList == null) {
         continue;
       }

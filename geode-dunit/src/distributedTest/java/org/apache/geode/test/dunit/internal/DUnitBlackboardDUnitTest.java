@@ -23,16 +23,15 @@ import java.util.concurrent.TimeoutException;
 
 import org.junit.Test;
 
-import org.apache.geode.test.dunit.VM;
 
 @SuppressWarnings("serial")
 public class DUnitBlackboardDUnitTest extends JUnit4DistributedTestCase {
 
   @Test
   public void canPassDataBetweenVMs() {
-    final String MBOX = "myMailbox";
-    VM vm0 = getVM(0);
-    VM vm1 = getVM(1);
+    final var MBOX = "myMailbox";
+    var vm0 = getVM(0);
+    var vm1 = getVM(1);
 
     vm0.invoke("put data in mailbox", () -> getBlackboard().setMailbox(MBOX, "testing"));
 
@@ -43,14 +42,14 @@ public class DUnitBlackboardDUnitTest extends JUnit4DistributedTestCase {
 
   @Test
   public void canSignalAnotherVM() {
-    final String GATE = "myGate";
-    VM vm0 = getVM(0);
-    VM vm1 = getVM(1);
+    final var GATE = "myGate";
+    var vm0 = getVM(0);
+    var vm1 = getVM(1);
 
     vm1.invoke("wait on gate not yet signalled", () -> {
       assertThat(getBlackboard().isGateSignaled(GATE)).isFalse();
 
-      Throwable thrown = catchThrowable(() -> {
+      var thrown = catchThrowable(() -> {
         getBlackboard().waitForGate(GATE, 1, SECONDS);
       });
 
@@ -65,7 +64,7 @@ public class DUnitBlackboardDUnitTest extends JUnit4DistributedTestCase {
 
   @Test
   public void initBlackboardClearsEverything() {
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       getBlackboard().setMailbox("MBOX" + i, "value" + i);
       assertThat((Object) getBlackboard().getMailbox("MBOX" + i)).isEqualTo("value" + i);
 
@@ -75,7 +74,7 @@ public class DUnitBlackboardDUnitTest extends JUnit4DistributedTestCase {
 
     getVM(1).invoke("clear blackboard", () -> getBlackboard().initBlackboard());
 
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       assertThat((Object) getBlackboard().getMailbox("MBOX" + i)).isNull();
       assertThat(getBlackboard().isGateSignaled("GATE" + i)).isFalse();
     }

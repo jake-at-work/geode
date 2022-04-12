@@ -42,8 +42,8 @@ public class OffHeapHelperJUnitTest extends AbstractStoredObjectTestBase {
 
   @Before
   public void setUp() {
-    OutOfOffHeapMemoryListener ooohml = mock(OutOfOffHeapMemoryListener.class);
-    OffHeapMemoryStats stats = mock(OffHeapMemoryStats.class);
+    var ooohml = mock(OutOfOffHeapMemoryListener.class);
+    var stats = mock(OffHeapMemoryStats.class);
 
     ma = MemoryAllocatorImpl.create(ooohml, stats, 3, OffHeapStorage.MIN_SLAB_SIZE * 3,
         OffHeapStorage.MIN_SLAB_SIZE);
@@ -54,14 +54,14 @@ public class OffHeapHelperJUnitTest extends AbstractStoredObjectTestBase {
    * needed.
    */
   private void allocateOffHeapSerialized() {
-    Object regionEntryValue = getValue();
+    var regionEntryValue = getValue();
     storedObject = createValueAsSerializedStoredObject(regionEntryValue);
     deserializedRegionEntryValue = storedObject.getValueAsDeserializedHeapObject();
     serializedRegionEntryValue = storedObject.getSerializedValue();
   }
 
   private void allocateOffHeapDeserialized() {
-    Object regionEntryValue = getValue();
+    var regionEntryValue = getValue();
     storedObject = createValueAsUnserializedStoredObject(regionEntryValue);
     deserializedRegionEntryValue = storedObject.getValueAsDeserializedHeapObject();
     serializedRegionEntryValue = storedObject.getSerializedValue();
@@ -105,8 +105,8 @@ public class OffHeapHelperJUnitTest extends AbstractStoredObjectTestBase {
       valueInByteArray = (byte[]) value;
     }
 
-    boolean isSerialized = false;
-    boolean isCompressed = false;
+    var isSerialized = false;
+    var isCompressed = false;
 
     StoredObject createdObject = createChunk(valueInByteArray, isSerialized, isCompressed);
     return createdObject;
@@ -114,10 +114,10 @@ public class OffHeapHelperJUnitTest extends AbstractStoredObjectTestBase {
 
   @Override
   protected StoredObject createValueAsSerializedStoredObject(Object value) {
-    byte[] valueInSerializedByteArray = EntryEventImpl.serialize(value);
+    var valueInSerializedByteArray = EntryEventImpl.serialize(value);
 
-    boolean isSerialized = true;
-    boolean isCompressed = false;
+    var isSerialized = true;
+    var isCompressed = false;
 
     StoredObject createdObject =
         createChunk(valueInSerializedByteArray, isSerialized, isCompressed);
@@ -125,7 +125,7 @@ public class OffHeapHelperJUnitTest extends AbstractStoredObjectTestBase {
   }
 
   private OffHeapStoredObject createChunk(byte[] v, boolean isSerialized, boolean isCompressed) {
-    OffHeapStoredObject chunk =
+    var chunk =
         (OffHeapStoredObject) ma.allocateAndInitialize(v, isSerialized, isCompressed);
     return chunk;
   }
@@ -133,7 +133,7 @@ public class OffHeapHelperJUnitTest extends AbstractStoredObjectTestBase {
   @Test
   public void getHeapFormOfSerializedStoredObjectReturnsDeserializedObject() {
     allocateOffHeapSerialized();
-    Object heapObject = OffHeapHelper.getHeapForm(storedObject);
+    var heapObject = OffHeapHelper.getHeapForm(storedObject);
     assertThat("getHeapForm returns non-null object", heapObject, notNullValue());
     assertThat("Heap and off heap objects are different objects", heapObject,
         is(not(storedObject)));
@@ -143,8 +143,8 @@ public class OffHeapHelperJUnitTest extends AbstractStoredObjectTestBase {
 
   @Test
   public void getHeapFormOfNonOffHeapObjectReturnsOriginal() {
-    Object testObject = getValue();
-    Object heapObject = OffHeapHelper.getHeapForm(testObject);
+    var testObject = getValue();
+    var heapObject = OffHeapHelper.getHeapForm(testObject);
     assertNotNull(heapObject);
     assertSame(testObject, heapObject);
   }
@@ -152,14 +152,14 @@ public class OffHeapHelperJUnitTest extends AbstractStoredObjectTestBase {
   @Test
   public void getHeapFormWithNullReturnsNull() {
     Object testObject = null;
-    Object returnObject = OffHeapHelper.getHeapForm(testObject);
+    var returnObject = OffHeapHelper.getHeapForm(testObject);
     assertThat(returnObject, is(equalTo(null)));
   }
 
   @Test
   public void copyAndReleaseWithNullReturnsNull() {
     Object testObject = null;
-    Object returnObject = OffHeapHelper.copyAndReleaseIfNeeded(testObject, null);
+    var returnObject = OffHeapHelper.copyAndReleaseIfNeeded(testObject, null);
     assertThat(returnObject, is(equalTo(null)));
   }
 
@@ -185,7 +185,7 @@ public class OffHeapHelperJUnitTest extends AbstractStoredObjectTestBase {
   public void copyAndReleaseWithDeserializedReturnsValueOfOriginal() {
     allocateOffHeapDeserialized();
     assertTrue(storedObject.retain());
-    Object returnObject = OffHeapHelper.copyAndReleaseIfNeeded(storedObject, null);
+    var returnObject = OffHeapHelper.copyAndReleaseIfNeeded(storedObject, null);
     assertThat(returnObject, is(equalTo(deserializedRegionEntryValue)));
   }
 
@@ -201,22 +201,22 @@ public class OffHeapHelperJUnitTest extends AbstractStoredObjectTestBase {
 
   @Test
   public void copyAndReleaseNonStoredObjectReturnsOriginal() {
-    Object testObject = getValue();
-    Object returnObject = OffHeapHelper.copyAndReleaseIfNeeded(testObject, null);
+    var testObject = getValue();
+    var returnObject = OffHeapHelper.copyAndReleaseIfNeeded(testObject, null);
     assertThat(returnObject, is(testObject));
   }
 
   @Test
   public void copyIfNeededWithNullReturnsNull() {
     Object testObject = null;
-    Object returnObject = OffHeapHelper.copyAndReleaseIfNeeded(testObject, null);
+    var returnObject = OffHeapHelper.copyAndReleaseIfNeeded(testObject, null);
     assertThat(returnObject, is(equalTo(null)));
   }
 
   @Test
   public void copyIfNeededNonOffHeapReturnsOriginal() {
-    Object testObject = getValue();
-    Object returnObject = OffHeapHelper.copyIfNeeded(testObject, null);
+    var testObject = getValue();
+    var returnObject = OffHeapHelper.copyIfNeeded(testObject, null);
     assertThat(returnObject, is(testObject));
   }
 
@@ -231,14 +231,14 @@ public class OffHeapHelperJUnitTest extends AbstractStoredObjectTestBase {
   @Test
   public void copyIfNeededOffHeapDeserializedReturnsOriginal() {
     allocateOffHeapDeserialized();
-    Object returnObject = OffHeapHelper.copyIfNeeded(storedObject, null);
+    var returnObject = OffHeapHelper.copyIfNeeded(storedObject, null);
     assertThat(returnObject, is(equalTo(deserializedRegionEntryValue)));
   }
 
   @Test
   public void copyIfNeededWithOffHeapDeserializedObjDoesNotRelease() {
     allocateOffHeapDeserialized();
-    int initialRefCountOfObject = storedObject.getRefCount();
+    var initialRefCountOfObject = storedObject.getRefCount();
     OffHeapHelper.copyIfNeeded(storedObject, null);
     assertThat("Ref count after copy", storedObject.getRefCount(), is(initialRefCountOfObject));
   }
@@ -246,7 +246,7 @@ public class OffHeapHelperJUnitTest extends AbstractStoredObjectTestBase {
   @Test
   public void copyIfNeededWithOffHeapSerializedObjDoesNotRelease() {
     allocateOffHeapSerialized();
-    int initialRefCountOfObject = storedObject.getRefCount();
+    var initialRefCountOfObject = storedObject.getRefCount();
     OffHeapHelper.copyIfNeeded(storedObject, null);
     assertThat("Ref count after copy", storedObject.getRefCount(), is(initialRefCountOfObject));
   }
@@ -267,7 +267,7 @@ public class OffHeapHelperJUnitTest extends AbstractStoredObjectTestBase {
 
   @Test
   public void releaseOfNonOffHeapReturnsFalse() {
-    Object testObject = getValue();
+    var testObject = getValue();
     assertThat("Releasing OFfHeap object is true", OffHeapHelper.release(testObject), is(false));
   }
 
@@ -288,7 +288,7 @@ public class OffHeapHelperJUnitTest extends AbstractStoredObjectTestBase {
 
   @Test
   public void releaseWithoutTrackingOfNonOffHeapReturnsFalse() {
-    Object testObject = getValue();
+    var testObject = getValue();
     assertThat("Releasing OFfHeap object is true", OffHeapHelper.releaseWithNoTracking(testObject),
         is(false));
   }
@@ -310,7 +310,7 @@ public class OffHeapHelperJUnitTest extends AbstractStoredObjectTestBase {
 
   @Test
   public void releaseAndTrackOwnerOfNonOffHeapReturnsFalse() {
-    Object testObject = getValue();
+    var testObject = getValue();
     assertThat("Releasing OFfHeap object is true",
         OffHeapHelper.releaseAndTrackOwner(testObject, "owner"), is(false));
   }

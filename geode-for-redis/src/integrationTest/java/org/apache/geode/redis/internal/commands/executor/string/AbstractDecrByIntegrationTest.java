@@ -55,10 +55,10 @@ public abstract class AbstractDecrByIntegrationTest implements RedisIntegrationT
 
   @Test
   public void shouldDecrementByGivenAmount_givenValidInputsAndKey() {
-    String key1 = "key1";
+    var key1 = "key1";
     jedis.set(key1, "100");
     jedis.decrBy(key1, 10);
-    String result = jedis.get(key1);
+    var result = jedis.get(key1);
     assertThat(Integer.parseInt(result)).isEqualTo(90);
 
     jedis.set(key1, "100");
@@ -66,7 +66,7 @@ public abstract class AbstractDecrByIntegrationTest implements RedisIntegrationT
     result = jedis.get(key1);
     assertThat(Integer.parseInt(result)).isEqualTo(110);
 
-    String key2 = "key2";
+    var key2 = "key2";
     jedis.set(key2, "-100");
     jedis.decrBy(key2, 10);
     result = jedis.get(key2);
@@ -83,7 +83,7 @@ public abstract class AbstractDecrByIntegrationTest implements RedisIntegrationT
     jedis.set("key", "100");
     Long decrByresult = jedis.decrBy("key", 50);
 
-    String getResult = jedis.get("key");
+    var getResult = jedis.get("key");
 
     assertThat(decrByresult).isEqualTo(Long.valueOf(getResult)).isEqualTo(50l);
   }
@@ -106,8 +106,8 @@ public abstract class AbstractDecrByIntegrationTest implements RedisIntegrationT
   public void shouldThrowArithmeticException_givenDecrbyMoreThanMaxLong() {
     jedis.set(someKey, "1");
 
-    BigInteger maxLongValue = new BigInteger(String.valueOf(Long.MAX_VALUE));
-    BigInteger biggerThanMaxLongValue = maxLongValue.add(new BigInteger("1"));
+    var maxLongValue = new BigInteger(String.valueOf(Long.MAX_VALUE));
+    var biggerThanMaxLongValue = maxLongValue.add(new BigInteger("1"));
 
     assertThatThrownBy(
         () -> jedis.sendCommand(hashTag, Protocol.Command.DECRBY,
@@ -121,8 +121,8 @@ public abstract class AbstractDecrByIntegrationTest implements RedisIntegrationT
 
     jedis.set(someKey, "1");
 
-    BigInteger minLongValue = new BigInteger(String.valueOf(Long.MIN_VALUE));
-    BigInteger smallerThanMinLongValue = minLongValue.subtract(new BigInteger("1"));
+    var minLongValue = new BigInteger(String.valueOf(Long.MIN_VALUE));
+    var smallerThanMinLongValue = minLongValue.subtract(new BigInteger("1"));
 
     assertThatThrownBy(
         () -> jedis.sendCommand(hashTag,
@@ -133,7 +133,7 @@ public abstract class AbstractDecrByIntegrationTest implements RedisIntegrationT
   @Test
   public void shouldReturnOverflowError_givenDecrbyThatWouldResultInValueLessThanMinLong() {
 
-    BigInteger minLongValue = new BigInteger(String.valueOf(Long.MIN_VALUE));
+    var minLongValue = new BigInteger(String.valueOf(Long.MIN_VALUE));
     jedis.set(someKey, String.valueOf(minLongValue));
 
     assertThatThrownBy(

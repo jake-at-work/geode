@@ -23,8 +23,6 @@ import static org.apache.geode.internal.cache.RegionNameValidation.validate;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import java.util.regex.Matcher;
-
 import org.junit.Test;
 
 public class RegionNameValidationTest {
@@ -74,7 +72,7 @@ public class RegionNameValidationTest {
 
   @Test
   public void startingWithDoubleUnderscoreIsOkForInternalRegion() {
-    InternalRegionArguments internalRegionArguments = new InternalRegionArguments();
+    var internalRegionArguments = new InternalRegionArguments();
     internalRegionArguments.setInternalRegion(true);
 
     assertThatCode(() -> validate("__ValidInternalRegionName", internalRegionArguments))
@@ -189,8 +187,8 @@ public class RegionNameValidationTest {
   @Test
   public void startingWithMatchingCharactersAreOk() {
     for (char character = 0; character < MAX_VALUE; character++) {
-      String name = character + "ValidRegion";
-      Matcher matcher = getNamePattern().matcher(name);
+      var name = character + "ValidRegion";
+      var matcher = getNamePattern().matcher(name);
       if (matcher.matches()) {
         validate(name);
       }
@@ -200,8 +198,8 @@ public class RegionNameValidationTest {
   @Test
   public void containingMatchingCharactersAreOk() {
     for (char character = 0; character < MAX_VALUE; character++) {
-      String name = "Valid" + character + "Region";
-      Matcher matcher = getNamePattern().matcher(name);
+      var name = "Valid" + character + "Region";
+      var matcher = getNamePattern().matcher(name);
       if (matcher.matches()) {
         validate(name);
       }
@@ -211,8 +209,8 @@ public class RegionNameValidationTest {
   @Test
   public void endingMatchingCharactersAreOk() {
     for (char character = 0; character < MAX_VALUE; character++) {
-      String name = "ValidRegion" + character;
-      Matcher matcher = getNamePattern().matcher(name);
+      var name = "ValidRegion" + character;
+      var matcher = getNamePattern().matcher(name);
       if (matcher.matches()) {
         validate(name);
       }
@@ -222,8 +220,8 @@ public class RegionNameValidationTest {
   @Test
   public void startingWithNonMatchingCharactersThrow() {
     for (char character = 0; character < MAX_VALUE; character++) {
-      String name = character + "InvalidRegion";
-      Matcher matcher = getNamePattern().matcher(name);
+      var name = character + "InvalidRegion";
+      var matcher = getNamePattern().matcher(name);
       if (!matcher.matches()) {
         assertThatThrownBy(() -> validate(name)).isInstanceOf(IllegalArgumentException.class);
       }
@@ -233,8 +231,8 @@ public class RegionNameValidationTest {
   @Test
   public void containingNonMatchingCharactersThrow() {
     for (char character = 0; character < MAX_VALUE; character++) {
-      String name = "Invalid" + character + "Region";
-      Matcher matcher = getNamePattern().matcher(name);
+      var name = "Invalid" + character + "Region";
+      var matcher = getNamePattern().matcher(name);
       if (!matcher.matches()) {
         assertThatThrownBy(() -> validate(name)).isInstanceOf(IllegalArgumentException.class);
       }
@@ -244,8 +242,8 @@ public class RegionNameValidationTest {
   @Test
   public void endingWithNonMatchingCharactersThrow() {
     for (char character = 0; character < MAX_VALUE; character++) {
-      String name = "InvalidRegion" + character;
-      Matcher matcher = getNamePattern().matcher(name);
+      var name = "InvalidRegion" + character;
+      var matcher = getNamePattern().matcher(name);
       if (!matcher.matches()) {
         assertThatThrownBy(() -> validate(name)).isInstanceOf(IllegalArgumentException.class);
       }

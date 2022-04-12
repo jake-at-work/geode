@@ -30,7 +30,6 @@ import org.apache.geode.redis.internal.commands.Command;
 import org.apache.geode.redis.internal.commands.executor.CommandExecutor;
 import org.apache.geode.redis.internal.commands.executor.RedisResponse;
 import org.apache.geode.redis.internal.commands.parameters.RedisParametersMismatchException;
-import org.apache.geode.redis.internal.netty.Client;
 import org.apache.geode.redis.internal.netty.ExecutionHandlerContext;
 
 public class ClientExecutor implements CommandExecutor {
@@ -40,14 +39,14 @@ public class ClientExecutor implements CommandExecutor {
 
   @Override
   public RedisResponse executeCommand(Command command, ExecutionHandlerContext context) {
-    List<byte[]> args = command.getProcessedCommand();
-    byte[] subcommand = args.get(1);
-    byte[] upperCaseSubcommand = toUpperCaseBytes(subcommand);
+    var args = command.getProcessedCommand();
+    var subcommand = args.get(1);
+    var upperCaseSubcommand = toUpperCaseBytes(subcommand);
 
-    Client client = context.getClient();
+    var client = context.getClient();
     if (Arrays.equals(upperCaseSubcommand, SETNAME)) {
       checkNumberOfArguments(subcommand, 3, args);
-      byte[] clientName = args.get(2);
+      var clientName = args.get(2);
       validateClientName(clientName);
       client.setName(clientName);
       return RedisResponse.ok();
@@ -68,7 +67,7 @@ public class ClientExecutor implements CommandExecutor {
   }
 
   private void validateClientName(byte[] clientName) {
-    for (byte clientChar : clientName) {
+    for (var clientChar : clientName) {
       if (clientChar < '!' || clientChar > '~') {
         throw new RedisParametersMismatchException(ERROR_INVALID_CLIENT_NAME);
       }

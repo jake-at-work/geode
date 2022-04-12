@@ -109,7 +109,7 @@ public final class UnrestrictedMethodAuthorizer implements MethodInvocationAutho
     }
 
     // Return true for non Geode classes.
-    String packageName = target.getClass().getPackage().getName().toLowerCase();
+    var packageName = target.getClass().getPackage().getName().toLowerCase();
     if (!packageName.startsWith(GEODE_BASE_PACKAGE)) {
       return true;
     }

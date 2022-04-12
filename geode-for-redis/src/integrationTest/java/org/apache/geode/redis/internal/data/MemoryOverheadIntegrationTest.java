@@ -28,9 +28,7 @@ import org.springframework.shell.converters.AvailableCommandsConverter;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.distributed.ConfigurationProperties;
 import org.apache.geode.internal.JvmSizeUtils;
-import org.apache.geode.internal.cache.BucketRegion;
 import org.apache.geode.internal.cache.PartitionedRegion;
-import org.apache.geode.internal.cache.RegionEntry;
 import org.apache.geode.internal.size.ObjectGraphSizer;
 import org.apache.geode.redis.GeodeRedisServerRule;
 import org.apache.geode.redis.internal.services.RegionProvider;
@@ -52,7 +50,7 @@ public class MemoryOverheadIntegrationTest extends AbstractMemoryOverheadIntegra
 
   @Override
   EnumMap<Measurement, Integer> expectedPerEntryOverhead() {
-    EnumMap<Measurement, Integer> result = new EnumMap<>(Measurement.class);
+    var result = new EnumMap<Measurement, Integer>(Measurement.class);
     result.put(Measurement.STRING, 185);
     result.put(Measurement.SET, 270);
     result.put(Measurement.SET_ENTRY, 25);
@@ -72,12 +70,12 @@ public class MemoryOverheadIntegrationTest extends AbstractMemoryOverheadIntegra
    */
   @After
   public void printHistogramOfOneRedisKey() throws IllegalAccessException {
-    final PartitionedRegion dataRegion =
+    final var dataRegion =
         (PartitionedRegion) CacheFactory.getAnyInstance()
             .getRegion(RegionProvider.DEFAULT_REDIS_REGION_NAME);
-    final Object redisKey = dataRegion.keys().iterator().next();
-    BucketRegion bucket = dataRegion.getBucketRegion(redisKey);
-    RegionEntry entry = bucket.entries.getEntry(redisKey);
+    final var redisKey = dataRegion.keys().iterator().next();
+    var bucket = dataRegion.getBucketRegion(redisKey);
+    var entry = bucket.entries.getEntry(redisKey);
     System.out.println("----------------------------------------------------");
     System.out.println("Histogram of memory usage of first region entry");
     System.out.println("----------------------------------------------------");

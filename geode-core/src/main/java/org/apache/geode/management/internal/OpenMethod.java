@@ -50,7 +50,7 @@ public class OpenMethod {
     try {
       return new OpenMethod(m);
     } catch (OpenDataException ode) {
-      final String msg = "Method " + m.getDeclaringClass().getName() + "." + m.getName()
+      final var msg = "Method " + m.getDeclaringClass().getName() + "." + m.getName()
           + " has parameter or return type that " + "cannot be translated into an open type";
       throw new IllegalArgumentException(msg, ode);
     }
@@ -77,8 +77,8 @@ public class OpenMethod {
   }
 
   OpenType[] getOpenParameterTypes() {
-    final OpenType[] types = new OpenType[paramTypeConverters.length];
-    for (int i = 0; i < paramTypeConverters.length; i++) {
+    final var types = new OpenType[paramTypeConverters.length];
+    for (var i = 0; i < paramTypeConverters.length; i++) {
       types[i] = paramTypeConverters[i].getOpenType();
     }
     return types;
@@ -86,7 +86,7 @@ public class OpenMethod {
 
   void checkCallFromOpen() throws IllegalArgumentException {
     try {
-      for (OpenTypeConverter paramConverter : paramTypeConverters) {
+      for (var paramConverter : paramTypeConverters) {
         paramConverter.checkReconstructible();
       }
     } catch (InvalidObjectException e) {
@@ -107,8 +107,8 @@ public class OpenMethod {
       return noStrings;
     }
 
-    String[] sig = new String[paramTypeConverters.length];
-    for (int i = 0; i < paramTypeConverters.length; i++) {
+    var sig = new String[paramTypeConverters.length];
+    for (var i = 0; i < paramTypeConverters.length; i++) {
       sig[i] = paramTypeConverters[i].getOpenClass().getName();
     }
     return sig;
@@ -126,8 +126,8 @@ public class OpenMethod {
     if (paramConversionIsIdentity || params == null) {
       return params;
     }
-    final Object[] oparams = new Object[params.length];
-    for (int i = 0; i < params.length; i++) {
+    final var oparams = new Object[params.length];
+    for (var i = 0; i < params.length; i++) {
       oparams[i] = paramTypeConverters[i].toOpenValue(params[i]);
     }
     return oparams;
@@ -137,8 +137,8 @@ public class OpenMethod {
     if (paramConversionIsIdentity || params == null) {
       return params;
     }
-    final Object[] jparams = new Object[params.length];
-    for (int i = 0; i < params.length; i++) {
+    final var jparams = new Object[params.length];
+    for (var i = 0; i < params.length; i++) {
       jparams[i] = paramTypeConverters[i].fromOpenValue(params[i]);
     }
     return jparams;
@@ -158,14 +158,14 @@ public class OpenMethod {
     try {
       javaParams = fromOpenParameters(params);
     } catch (InvalidObjectException e) {
-      final String msg = methodName() + ": cannot convert parameters " + "from open values: " + e;
+      final var msg = methodName() + ": cannot convert parameters " + "from open values: " + e;
       throw new MBeanException(e, msg);
     }
-    final Object javaReturn = method.invoke(obj, javaParams);
+    final var javaReturn = method.invoke(obj, javaParams);
     try {
       return returnTypeConverter.toOpenValue(javaReturn);
     } catch (OpenDataException e) {
-      final String msg = methodName() + ": cannot convert return " + "value to open value: " + e;
+      final var msg = methodName() + ": cannot convert return " + "value to open value: " + e;
       throw new MBeanException(e, msg);
     }
   }
@@ -177,10 +177,10 @@ public class OpenMethod {
   private OpenMethod(Method m) throws OpenDataException {
     method = m;
     returnTypeConverter = OpenTypeConverter.toConverter(m.getGenericReturnType());
-    Type[] params = m.getGenericParameterTypes();
+    var params = m.getGenericParameterTypes();
     paramTypeConverters = new OpenTypeConverter[params.length];
-    boolean identity = true;
-    for (int i = 0; i < params.length; i++) {
+    var identity = true;
+    for (var i = 0; i < params.length; i++) {
       paramTypeConverters[i] = OpenTypeConverter.toConverter(params[i]);
       identity &= paramTypeConverters[i].isIdentity();
     }

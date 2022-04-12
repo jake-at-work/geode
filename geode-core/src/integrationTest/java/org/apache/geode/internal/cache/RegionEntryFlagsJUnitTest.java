@@ -18,13 +18,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Set;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.Region.Entry;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.query.CacheUtils;
@@ -47,14 +44,14 @@ public class RegionEntryFlagsJUnitTest {
 
   @Test
   public void testUpdateInProgressFlag() {
-    Region region = CacheUtils.createRegion("testRegion", null, Scope.DISTRIBUTED_ACK);
+    var region = CacheUtils.createRegion("testRegion", null, Scope.DISTRIBUTED_ACK);
     // Put one entry in the region.
     region.put(1, 1);
-    Set entries = region.entrySet();
+    var entries = region.entrySet();
     assertEquals(1, entries.size());
 
-    Region.Entry nonTxEntry = (Entry) entries.iterator().next();
-    RegionEntry entry = ((NonTXEntry) nonTxEntry).getRegionEntry();
+    var nonTxEntry = (Entry) entries.iterator().next();
+    var entry = ((NonTXEntry) nonTxEntry).getRegionEntry();
     assertFalse(entry.isUpdateInProgress());
     entry.setUpdateInProgress(true);
     assertTrue(entry.isUpdateInProgress());
@@ -64,14 +61,14 @@ public class RegionEntryFlagsJUnitTest {
 
   @Test
   public void testNetSearchFlag() {
-    Region region = CacheUtils.createRegion("testRegion", null, Scope.DISTRIBUTED_ACK);
+    var region = CacheUtils.createRegion("testRegion", null, Scope.DISTRIBUTED_ACK);
     // Put one entry in the region.
     region.put(1, 1);
-    Set entries = region.entrySet();
+    var entries = region.entrySet();
     assertEquals(1, entries.size());
 
-    Region.Entry nonTxEntry = (Entry) entries.iterator().next();
-    RegionEntry entry = ((NonTXEntry) nonTxEntry).getRegionEntry();
+    var nonTxEntry = (Entry) entries.iterator().next();
+    var entry = ((NonTXEntry) nonTxEntry).getRegionEntry();
     assertFalse(entry.getValueWasResultOfSearch());
     entry.setValueResultOfSearch(true);
     assertTrue(entry.getValueWasResultOfSearch());

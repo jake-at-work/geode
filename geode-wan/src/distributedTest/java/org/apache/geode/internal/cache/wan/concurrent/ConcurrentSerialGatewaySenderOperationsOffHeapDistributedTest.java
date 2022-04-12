@@ -29,7 +29,7 @@ public class ConcurrentSerialGatewaySenderOperationsOffHeapDistributedTest
 
   @Override
   public Properties getDistributedSystemProperties() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(OFF_HEAP_MEMORY_SIZE, "300m");
     return props;
   }

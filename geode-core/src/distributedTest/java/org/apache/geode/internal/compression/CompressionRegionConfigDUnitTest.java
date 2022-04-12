@@ -25,10 +25,8 @@ import org.junit.Test;
 
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.compression.Compressor;
 import org.apache.geode.compression.SnappyCompressor;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
@@ -244,7 +242,7 @@ public class CompressionRegionConfigDUnitTest extends JUnit4CacheTestCase {
     return (String) vm.invoke(new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        ClientCache cache = getClientCache(getClientCacheFactory(getLocatorPort()));
+        var cache = getClientCache(getClientCacheFactory(getLocatorPort()));
         Region<String, String> region = cache.getRegion(REGION_NAME);
         assertNotNull(region);
         return region.put(key, value);
@@ -282,7 +280,7 @@ public class CompressionRegionConfigDUnitTest extends JUnit4CacheTestCase {
     return (String) vm.invoke(new SerializableCallable() {
       @Override
       public Object call() throws Exception {
-        ClientCache cache = getClientCache(getClientCacheFactory(getLocatorPort()));
+        var cache = getClientCache(getClientCacheFactory(getLocatorPort()));
         Region<String, String> region = cache.getRegion(REGION_NAME);
         assertNotNull(region);
         return region.get(key);
@@ -458,7 +456,7 @@ public class CompressionRegionConfigDUnitTest extends JUnit4CacheTestCase {
    */
   private Region<String, String> createClientRegion(String name, Compressor compressor,
       ClientRegionShortcut shortcut) {
-    ClientCacheFactory factory = getClientCacheFactory(getLocatorPort());
+    var factory = getClientCacheFactory(getLocatorPort());
     return getClientCache(factory).<String, String>createClientRegionFactory(shortcut)
         .setCloningEnabled(true).setCompressor(compressor).create(name);
   }
@@ -488,9 +486,9 @@ public class CompressionRegionConfigDUnitTest extends JUnit4CacheTestCase {
    */
   private Region<String, String> createServerRegion(String name, DataPolicy dataPolicy,
       Compressor compressor) throws IOException {
-    Region<String, String> region = getCache().<String, String>createRegionFactory()
+    var region = getCache().<String, String>createRegionFactory()
         .setDataPolicy(dataPolicy).setCloningEnabled(true).setCompressor(compressor).create(name);
-    CacheServer server = getCache().addCacheServer();
+    var server = getCache().addCacheServer();
     server.setPort(0);
     server.start();
 
@@ -530,8 +528,8 @@ public class CompressionRegionConfigDUnitTest extends JUnit4CacheTestCase {
   private int getLocatorPort() {
     // Running from eclipse
     if (DUnitLauncher.isLaunched()) {
-      String locatorString = DUnitLauncher.getLocatorString();
-      int index = locatorString.indexOf("[");
+      var locatorString = DUnitLauncher.getLocatorString();
+      var index = locatorString.indexOf("[");
       return Integer.parseInt(locatorString.substring(index + 1, locatorString.length() - 1));
     }
     // Running in hydra

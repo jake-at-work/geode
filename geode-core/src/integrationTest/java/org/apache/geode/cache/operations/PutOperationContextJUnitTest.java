@@ -25,7 +25,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import org.apache.geode.DataSerializer;
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.pdx.PdxInstance;
 import org.apache.geode.pdx.PdxReader;
@@ -37,8 +36,8 @@ public class PutOperationContextJUnitTest {
   @Test
   public void testGetSerializedValue() throws IOException {
     {
-      byte[] byteArrayValue = new byte[] {1, 2, 3, 4};
-      PutOperationContext poc =
+      var byteArrayValue = new byte[] {1, 2, 3, 4};
+      var poc =
           new PutOperationContext("key", byteArrayValue, false, PutOperationContext.CREATE, false);
       Assert.assertFalse(poc.isObject());
       Assert.assertNull("value is an actual byte array which is not a serialized blob",
@@ -46,14 +45,14 @@ public class PutOperationContextJUnitTest {
     }
 
     {
-      PutOperationContext poc =
+      var poc =
           new PutOperationContext("key", null, true, PutOperationContext.CREATE, false);
       Assert.assertTrue(poc.isObject());
       Assert.assertNull("value is null which is not a serialized blob", poc.getSerializedValue());
     }
 
     {
-      PutOperationContext poc =
+      var poc =
           new PutOperationContext("key", "value", true, PutOperationContext.CREATE, false);
       Assert.assertTrue(poc.isObject());
       Assert.assertNull("value is a String which is not a serialized blob",
@@ -61,12 +60,12 @@ public class PutOperationContextJUnitTest {
     }
 
     {
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      DataOutputStream dos = new DataOutputStream(baos);
+      var baos = new ByteArrayOutputStream();
+      var dos = new DataOutputStream(baos);
       DataSerializer.writeObject("value", dos);
       dos.close();
-      byte[] blob = baos.toByteArray();
-      PutOperationContext poc =
+      var blob = baos.toByteArray();
+      var poc =
           new PutOperationContext("key", blob, true, PutOperationContext.CREATE, false);
       Assert.assertTrue(poc.isObject());
       Assert.assertArrayEquals(blob, poc.getSerializedValue());
@@ -74,15 +73,15 @@ public class PutOperationContextJUnitTest {
 
     {
       // create a loner cache so that pdx serialization will work
-      Cache c = (new CacheFactory()).set(LOCATORS, "").set(MCAST_PORT, "0")
+      var c = (new CacheFactory()).set(LOCATORS, "").set(MCAST_PORT, "0")
           .setPdxReadSerialized(true).create();
       try {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        DataOutputStream dos = new DataOutputStream(baos);
+        var baos = new ByteArrayOutputStream();
+        var dos = new DataOutputStream(baos);
         DataSerializer.writeObject(new PdxValue("value"), dos);
         dos.close();
-        byte[] blob = baos.toByteArray();
-        PutOperationContext poc =
+        var blob = baos.toByteArray();
+        var poc =
             new PutOperationContext("key", blob, true, PutOperationContext.CREATE, false);
         Assert.assertTrue(poc.isObject());
         Assert.assertArrayEquals(blob, poc.getSerializedValue());
@@ -95,34 +94,34 @@ public class PutOperationContextJUnitTest {
   @Test
   public void testGetDeserializedValue() throws IOException {
     {
-      byte[] byteArrayValue = new byte[] {1, 2, 3, 4};
-      PutOperationContext poc =
+      var byteArrayValue = new byte[] {1, 2, 3, 4};
+      var poc =
           new PutOperationContext("key", byteArrayValue, false, PutOperationContext.CREATE, false);
       Assert.assertFalse(poc.isObject());
       Assert.assertArrayEquals(byteArrayValue, (byte[]) poc.getDeserializedValue());
     }
 
     {
-      PutOperationContext poc =
+      var poc =
           new PutOperationContext("key", null, true, PutOperationContext.CREATE, false);
       Assert.assertTrue(poc.isObject());
       Assert.assertEquals(null, poc.getDeserializedValue());
     }
 
     {
-      PutOperationContext poc =
+      var poc =
           new PutOperationContext("key", "value", true, PutOperationContext.CREATE, false);
       Assert.assertTrue(poc.isObject());
       Assert.assertEquals("value", poc.getDeserializedValue());
     }
 
     {
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      DataOutputStream dos = new DataOutputStream(baos);
+      var baos = new ByteArrayOutputStream();
+      var dos = new DataOutputStream(baos);
       DataSerializer.writeObject("value", dos);
       dos.close();
-      byte[] blob = baos.toByteArray();
-      PutOperationContext poc =
+      var blob = baos.toByteArray();
+      var poc =
           new PutOperationContext("key", blob, true, PutOperationContext.CREATE, false);
       Assert.assertTrue(poc.isObject());
       Assert.assertEquals("value", poc.getDeserializedValue());
@@ -130,18 +129,18 @@ public class PutOperationContextJUnitTest {
 
     {
       // create a loner cache so that pdx serialization will work
-      Cache c = (new CacheFactory()).set(LOCATORS, "").set(MCAST_PORT, "0")
+      var c = (new CacheFactory()).set(LOCATORS, "").set(MCAST_PORT, "0")
           .setPdxReadSerialized(true).create();
       try {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        DataOutputStream dos = new DataOutputStream(baos);
+        var baos = new ByteArrayOutputStream();
+        var dos = new DataOutputStream(baos);
         DataSerializer.writeObject(new PdxValue("value"), dos);
         dos.close();
-        byte[] blob = baos.toByteArray();
-        PutOperationContext poc =
+        var blob = baos.toByteArray();
+        var poc =
             new PutOperationContext("key", blob, true, PutOperationContext.CREATE, false);
         Assert.assertTrue(poc.isObject());
-        PdxInstance pi = (PdxInstance) poc.getDeserializedValue();
+        var pi = (PdxInstance) poc.getDeserializedValue();
         Assert.assertEquals("value", pi.getField("v"));
       } finally {
         c.close();
@@ -152,34 +151,34 @@ public class PutOperationContextJUnitTest {
   @Test
   public void testGetValue() throws IOException {
     {
-      byte[] byteArrayValue = new byte[] {1, 2, 3, 4};
-      PutOperationContext poc =
+      var byteArrayValue = new byte[] {1, 2, 3, 4};
+      var poc =
           new PutOperationContext("key", byteArrayValue, false, PutOperationContext.CREATE, false);
       Assert.assertFalse(poc.isObject());
       Assert.assertArrayEquals(byteArrayValue, (byte[]) poc.getValue());
     }
 
     {
-      PutOperationContext poc =
+      var poc =
           new PutOperationContext("key", null, true, PutOperationContext.CREATE, false);
       Assert.assertTrue(poc.isObject());
       Assert.assertEquals(null, poc.getValue());
     }
 
     {
-      PutOperationContext poc =
+      var poc =
           new PutOperationContext("key", "value", true, PutOperationContext.CREATE, false);
       Assert.assertTrue(poc.isObject());
       Assert.assertEquals("value", poc.getValue());
     }
 
     {
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      DataOutputStream dos = new DataOutputStream(baos);
+      var baos = new ByteArrayOutputStream();
+      var dos = new DataOutputStream(baos);
       DataSerializer.writeObject("value", dos);
       dos.close();
-      byte[] blob = baos.toByteArray();
-      PutOperationContext poc =
+      var blob = baos.toByteArray();
+      var poc =
           new PutOperationContext("key", blob, true, PutOperationContext.CREATE, false);
       Assert.assertTrue(poc.isObject());
       Assert.assertArrayEquals(blob, (byte[]) poc.getValue());
@@ -187,15 +186,15 @@ public class PutOperationContextJUnitTest {
 
     {
       // create a loner cache so that pdx serialization will work
-      Cache c = (new CacheFactory()).set(LOCATORS, "").set(MCAST_PORT, "0")
+      var c = (new CacheFactory()).set(LOCATORS, "").set(MCAST_PORT, "0")
           .setPdxReadSerialized(true).create();
       try {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        DataOutputStream dos = new DataOutputStream(baos);
+        var baos = new ByteArrayOutputStream();
+        var dos = new DataOutputStream(baos);
         DataSerializer.writeObject(new PdxValue("value"), dos);
         dos.close();
-        byte[] blob = baos.toByteArray();
-        PutOperationContext poc =
+        var blob = baos.toByteArray();
+        var poc =
             new PutOperationContext("key", blob, true, PutOperationContext.CREATE, false);
         Assert.assertTrue(poc.isObject());
         Assert.assertArrayEquals(blob, (byte[]) poc.getValue());
@@ -208,8 +207,8 @@ public class PutOperationContextJUnitTest {
   public static class PdxValue implements PdxSerializable {
     @Override
     public int hashCode() {
-      final int prime = 31;
-      int result = 1;
+      final var prime = 31;
+      var result = 1;
       result = prime * result + ((v == null) ? 0 : v.hashCode());
       return result;
     }
@@ -225,7 +224,7 @@ public class PutOperationContextJUnitTest {
       if (getClass() != obj.getClass()) {
         return false;
       }
-      PdxValue other = (PdxValue) obj;
+      var other = (PdxValue) obj;
       if (v == null) {
         return other.v == null;
       } else

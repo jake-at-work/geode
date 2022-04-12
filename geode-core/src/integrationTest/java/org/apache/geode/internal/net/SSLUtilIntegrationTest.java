@@ -20,9 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.security.NoSuchAlgorithmException;
 import java.security.Security;
 
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.TrustManagerFactory;
-
 import org.junit.Test;
 
 public class SSLUtilIntegrationTest {
@@ -35,15 +32,15 @@ public class SSLUtilIntegrationTest {
   @Test
   public void getDefaultKeyManagerFactoryControlledBySystemProperty()
       throws NoSuchAlgorithmException {
-    String original = Security.getProperty(SSL_KEY_MANAGER_FACTORY_ALGORITHM);
+    var original = Security.getProperty(SSL_KEY_MANAGER_FACTORY_ALGORITHM);
     try {
       Security.setProperty(SSL_KEY_MANAGER_FACTORY_ALGORITHM, PKIX);
-      final KeyManagerFactory pkixKeyManagerFactory = SSLUtil.getDefaultKeyManagerFactory();
+      final var pkixKeyManagerFactory = SSLUtil.getDefaultKeyManagerFactory();
       assertThat(pkixKeyManagerFactory).isNotNull();
       assertThat(pkixKeyManagerFactory.getAlgorithm()).isEqualTo(PKIX);
 
       Security.setProperty(SSL_KEY_MANAGER_FACTORY_ALGORITHM, SUN_X_509);
-      final KeyManagerFactory x509KeyManagerFactory = SSLUtil.getDefaultKeyManagerFactory();
+      final var x509KeyManagerFactory = SSLUtil.getDefaultKeyManagerFactory();
       assertThat(x509KeyManagerFactory).isNotNull();
       assertThat(x509KeyManagerFactory.getAlgorithm()).isEqualTo(SUN_X_509);
     } finally {
@@ -54,15 +51,15 @@ public class SSLUtilIntegrationTest {
   @Test
   public void getDefaultTrustManagerFactoryControlledBySystemProperty()
       throws NoSuchAlgorithmException {
-    String original = Security.getProperty(SSL_TRUST_MANAGER_FACTORY_ALGORITHM);
+    var original = Security.getProperty(SSL_TRUST_MANAGER_FACTORY_ALGORITHM);
     try {
       Security.setProperty(SSL_TRUST_MANAGER_FACTORY_ALGORITHM, PKIX);
-      final TrustManagerFactory pkixTrustManagerFactory = SSLUtil.getDefaultTrustManagerFactory();
+      final var pkixTrustManagerFactory = SSLUtil.getDefaultTrustManagerFactory();
       assertThat(pkixTrustManagerFactory).isNotNull();
       assertThat(pkixTrustManagerFactory.getAlgorithm()).isEqualTo(PKIX);
 
       Security.setProperty(SSL_TRUST_MANAGER_FACTORY_ALGORITHM, SUN_X_509);
-      final TrustManagerFactory x509TrustManagerFactory = SSLUtil.getDefaultTrustManagerFactory();
+      final var x509TrustManagerFactory = SSLUtil.getDefaultTrustManagerFactory();
       assertThat(x509TrustManagerFactory).isNotNull();
       assertThat(x509TrustManagerFactory.getAlgorithm()).isEqualTo(SUN_X_509);
     } finally {

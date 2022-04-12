@@ -71,7 +71,7 @@ public final class PollingFileWatcher {
 
   private void poll() {
     try {
-      long timeStampMillis = Files.getLastModifiedTime(path).toMillis();
+      var timeStampMillis = Files.getLastModifiedTime(path).toMillis();
       if (timeStampMillis != lastModifiedTimeMillis) {
         logger.debug("Detected update for {}", path);
         lastModifiedTimeMillis = timeStampMillis;

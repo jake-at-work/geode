@@ -28,7 +28,7 @@ public class MyDataSerializer extends DataSerializer {
 
   @Override
   public boolean toData(Object o, DataOutput out) throws IOException {
-    MyObject obj = (MyObject) o;
+    var obj = (MyObject) o;
     out.writeLong(obj.f1);
     out.writeUTF(obj.f2);
 
@@ -37,7 +37,7 @@ public class MyDataSerializer extends DataSerializer {
 
   @Override
   public Object fromData(DataInput in) throws IOException, ClassNotFoundException {
-    MyObjectDataSerializable2 obj = new MyObjectDataSerializable2();
+    var obj = new MyObjectDataSerializable2();
     obj.f1 = in.readLong();
     obj.f2 = in.readUTF();
 

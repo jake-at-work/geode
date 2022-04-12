@@ -72,21 +72,21 @@ public class SizeableBytes2ObjectOpenCustomHashMapWithCursorTest {
 
   @Test
   public void scanEntireMap_ReturnsExpectedElements() {
-    Bytes2StringMap map = new Bytes2StringMap();
+    var map = new Bytes2StringMap();
     IntStream.range(0, 10).forEach(i -> map.put(makeKey(i), "value-" + i));
 
     Map<byte[], String> scanned = new Object2ObjectOpenCustomHashMap<>(ByteArrays.HASH_STRATEGY);
-    int result = map.scan(0, 10000, Map::put, scanned);
+    var result = map.scan(0, 10000, Map::put, scanned);
     assertThat(result).isEqualTo(0);
     assertThat(scanned).isEqualTo(map);
   }
 
   private void fillMapWithUniqueHashKeys(Bytes2StringMap map, int keysToAdd) {
-    int keyCounter = 0;
+    var keyCounter = 0;
     Set<Integer> hashesAdded = new HashSet<>();
     while (keysToAdd > 0) {
-      byte[] key = makeKey(keyCounter);
-      int keyHash = map.hash(key);
+      var key = makeKey(keyCounter);
+      var keyHash = map.hash(key);
       if (!hashesAdded.contains(keyHash)) {
         hashesAdded.add(keyHash);
         map.put(key, "value-" + keyCounter);
@@ -97,11 +97,11 @@ public class SizeableBytes2ObjectOpenCustomHashMapWithCursorTest {
   }
 
   private void fillMapWithCollidingHashKeys(Bytes2StringMap map, int keysToAdd) {
-    int keyCounter = 0;
+    var keyCounter = 0;
     Set<Integer> hashesAdded = new HashSet<>();
     while (keysToAdd > 0) {
-      byte[] key = makeKey(keyCounter);
-      int keyHash = map.hash(key);
+      var key = makeKey(keyCounter);
+      var keyHash = map.hash(key);
       if (hashesAdded.isEmpty() || hashesAdded.contains(keyHash)) {
         hashesAdded.add(keyHash);
         map.put(key, "value-" + keyCounter);
@@ -113,14 +113,14 @@ public class SizeableBytes2ObjectOpenCustomHashMapWithCursorTest {
 
   @Test
   public void twoScansWithNoModifications_ReturnsExpectedElements() {
-    final int MAP_SIZE = 10;
-    Bytes2StringMap map = new Bytes2StringMap(MAP_SIZE * 2); // *2 to prevent rehash
+    final var MAP_SIZE = 10;
+    var map = new Bytes2StringMap(MAP_SIZE * 2); // *2 to prevent rehash
     fillMapWithUniqueHashKeys(map, MAP_SIZE);
     Map<byte[], String> scanned = new Object2ObjectOpenCustomHashMap<>(ByteArrays.HASH_STRATEGY);
 
-    int scanSize = 1 + map.size() / 2;
+    var scanSize = 1 + map.size() / 2;
     // Scan part way through the map
-    int cursor = map.scan(0, scanSize, Map::put, scanned);
+    var cursor = map.scan(0, scanSize, Map::put, scanned);
     assertThat(scanned).hasSize(scanSize);
 
     // Scan past the end of the map
@@ -133,17 +133,17 @@ public class SizeableBytes2ObjectOpenCustomHashMapWithCursorTest {
 
   @Test
   public void scanWithConcurrentRemoves_ReturnsExpectedElements() {
-    final int MAP_SIZE = 10;
-    Bytes2StringMap map = new Bytes2StringMap(MAP_SIZE * 2); // *2 to prevent rehash
+    final var MAP_SIZE = 10;
+    var map = new Bytes2StringMap(MAP_SIZE * 2); // *2 to prevent rehash
     fillMapWithUniqueHashKeys(map, MAP_SIZE);
     Map<byte[], String> scanned = new Object2ObjectOpenCustomHashMap<>(ByteArrays.HASH_STRATEGY);
 
-    int cursor = map.scan(0, MAP_SIZE / 2, Map::put, scanned);
+    var cursor = map.scan(0, MAP_SIZE / 2, Map::put, scanned);
     assertThat(scanned).hasSize(MAP_SIZE / 2);
 
     // Remove some of the elements
     Iterator<Map.Entry<byte[], String>> iterator = map.entrySet().iterator();
-    int removeCount = MAP_SIZE / 2 - 1;
+    var removeCount = MAP_SIZE / 2 - 1;
     while (removeCount > 0 && iterator.hasNext()) {
       iterator.next();
       iterator.remove();
@@ -158,12 +158,12 @@ public class SizeableBytes2ObjectOpenCustomHashMapWithCursorTest {
 
   @Test
   public void scanWithHashcodeCollisions_ReturnsExpectedElements() {
-    final int MAP_SIZE = 10;
-    Bytes2StringMap map = new Bytes2StringMap(MAP_SIZE * 2); // *2 to prevent rehash
+    final var MAP_SIZE = 10;
+    var map = new Bytes2StringMap(MAP_SIZE * 2); // *2 to prevent rehash
     fillMapWithCollidingHashKeys(map, MAP_SIZE);
     Map<byte[], String> scanned = new Object2ObjectOpenCustomHashMap<>(ByteArrays.HASH_STRATEGY);
 
-    int cursor = map.scan(0, 1, Map::put, scanned);
+    var cursor = map.scan(0, 1, Map::put, scanned);
 
     // The scan had to ignore the count and return all of the elements with the same hash
     assertThat(scanned).hasSize(MAP_SIZE);
@@ -176,17 +176,17 @@ public class SizeableBytes2ObjectOpenCustomHashMapWithCursorTest {
 
   @Test
   public void scanWithHashcodeCollisionsAndConcurrentRemoves_ReturnsExpectedElements() {
-    final int MAP_SIZE = 10;
-    Bytes2StringMap map = new Bytes2StringMap(MAP_SIZE * 2); // *2 to prevent rehash
+    final var MAP_SIZE = 10;
+    var map = new Bytes2StringMap(MAP_SIZE * 2); // *2 to prevent rehash
     fillMapWithCollidingHashKeys(map, MAP_SIZE);
     Map<byte[], String> scanned = new Object2ObjectOpenCustomHashMap<>(ByteArrays.HASH_STRATEGY);
 
-    int cursor = map.scan(0, MAP_SIZE / 2, Map::put, scanned);
+    var cursor = map.scan(0, MAP_SIZE / 2, Map::put, scanned);
     assertThat(scanned).hasSize(MAP_SIZE);
 
     // Remove some of the elements
     Iterator<Map.Entry<byte[], String>> iterator = map.entrySet().iterator();
-    int removeCount = MAP_SIZE / 2 - 1;
+    var removeCount = MAP_SIZE / 2 - 1;
     while (removeCount > 0 && iterator.hasNext()) {
       iterator.next();
       iterator.remove();
@@ -201,13 +201,13 @@ public class SizeableBytes2ObjectOpenCustomHashMapWithCursorTest {
 
   @Test
   public void scanWithGrowingTable_DoesNotMissElements() {
-    final int MAP_SIZE = 10;
-    Bytes2StringMap map = new Bytes2StringMap(MAP_SIZE * 2); // *2 to prevent rehash
+    final var MAP_SIZE = 10;
+    var map = new Bytes2StringMap(MAP_SIZE * 2); // *2 to prevent rehash
     fillMapWithUniqueHashKeys(map, MAP_SIZE);
     Map<byte[], String> scanned = new Object2ObjectOpenCustomHashMap<>(ByteArrays.HASH_STRATEGY);
     List<byte[]> initialKeys = new ArrayList<>(map.keySet());
 
-    int cursor = map.scan(0, MAP_SIZE / 2, Map::put, scanned);
+    var cursor = map.scan(0, MAP_SIZE / 2, Map::put, scanned);
     assertThat(scanned).hasSize(MAP_SIZE / 2);
 
     // Add a lot of elements to trigger a resize
@@ -223,18 +223,18 @@ public class SizeableBytes2ObjectOpenCustomHashMapWithCursorTest {
 
   @Test
   public void scanWithShrinkingTable_DoesNotMissElements() {
-    final int initialMapSize = 500;
-    Bytes2StringMap map = new Bytes2StringMap(1); // 1 to ensure resizing back down
+    final var initialMapSize = 500;
+    var map = new Bytes2StringMap(1); // 1 to ensure resizing back down
     fillMapWithUniqueHashKeys(map, initialMapSize);
     Map<byte[], String> scanned = new Object2ObjectOpenCustomHashMap<>(ByteArrays.HASH_STRATEGY);
 
-    int cursor = map.scan(0, 50, Map::put, scanned);
+    var cursor = map.scan(0, 50, Map::put, scanned);
     assertThat(scanned).hasSize(50);
 
     // Remove a lot of elements to trigger a resize
     // Remove some of the elements
     Iterator<Map.Entry<byte[], String>> iterator = map.entrySet().iterator();
-    int removeCount = initialMapSize - 100;
+    var removeCount = initialMapSize - 100;
     while (removeCount > 0 && iterator.hasNext()) {
       iterator.next();
       iterator.remove();
@@ -256,7 +256,7 @@ public class SizeableBytes2ObjectOpenCustomHashMapWithCursorTest {
 
   @Test
   public void putUpdatesSizeWhenCreatingNewEntry() {
-    RedisHash.Hash hash = new RedisHash.Hash();
+    var hash = new RedisHash.Hash();
     assertThat(hash.getSizeInBytes()).isEqualTo(sizer.sizeof(hash));
     hash.put(new byte[] {(byte) 1}, new byte[] {(byte) 1});
     assertThat(hash.getSizeInBytes()).isEqualTo(sizer.sizeof(hash));
@@ -264,28 +264,28 @@ public class SizeableBytes2ObjectOpenCustomHashMapWithCursorTest {
 
   @Test
   public void putUpdatesSizeWhenUpdatingExistingEntry() {
-    RedisHash.Hash hash = new RedisHash.Hash();
+    var hash = new RedisHash.Hash();
     assertThat(hash.getSizeInBytes()).isEqualTo(sizer.sizeof(hash));
-    byte[] key = new byte[1];
-    byte[] initialValue = new byte[1];
+    var key = new byte[1];
+    var initialValue = new byte[1];
 
     hash.put(key, initialValue);
     assertThat(hash.getSizeInBytes()).isEqualTo(sizer.sizeof(hash));
 
-    byte[] largerValue = new byte[100];
+    var largerValue = new byte[100];
     hash.put(key, largerValue);
     assertThat(hash.getSizeInBytes()).isEqualTo(sizer.sizeof(hash));
 
-    byte[] smallerValue = new byte[2];
+    var smallerValue = new byte[2];
     hash.put(key, smallerValue);
     assertThat(hash.getSizeInBytes()).isEqualTo(sizer.sizeof(hash));
   }
 
   @Test
   public void removeUpdatesSize() {
-    RedisHash.Hash hash = new RedisHash.Hash();
-    byte[] key = new byte[1];
-    byte[] initialValue = new byte[100];
+    var hash = new RedisHash.Hash();
+    var key = new byte[1];
+    var initialValue = new byte[100];
 
     hash.put(key, initialValue);
     assertThat(hash.getSizeInBytes()).isEqualTo(sizer.sizeof(hash));
@@ -297,33 +297,33 @@ public class SizeableBytes2ObjectOpenCustomHashMapWithCursorTest {
   @Test
   public void getSizeInBytesIsAccurateForByteArrays() {
     Map<byte[], byte[]> initialElements = new HashMap<>();
-    int initialNumberOfElements = 20;
-    int elementsToAdd = 100;
+    var initialNumberOfElements = 20;
+    var elementsToAdd = 100;
 
     // Create a map with an initial size
-    for (int i = 0; i < initialNumberOfElements; ++i) {
-      byte[] key = {(byte) i};
-      byte[] value = {(byte) (initialNumberOfElements - i)};
+    for (var i = 0; i < initialNumberOfElements; ++i) {
+      var key = new byte[] {(byte) i};
+      var value = new byte[] {(byte) (initialNumberOfElements - i)};
       initialElements.put(key, value);
     }
-    RedisHash.Hash hash = new RedisHash.Hash(initialElements);
+    var hash = new RedisHash.Hash(initialElements);
 
     assertThat(hash.getSizeInBytes()).isEqualTo(sizer.sizeof(hash));
 
     // Add more elements to force a resizing of the backing arrays and confirm that size changes as
     // expected
-    int totalNumberOfElements = initialNumberOfElements + elementsToAdd;
-    for (int i = initialNumberOfElements; i < totalNumberOfElements; ++i) {
-      byte[] key = {(byte) i};
-      byte[] value = {(byte) (totalNumberOfElements - i)};
+    var totalNumberOfElements = initialNumberOfElements + elementsToAdd;
+    for (var i = initialNumberOfElements; i < totalNumberOfElements; ++i) {
+      var key = new byte[] {(byte) i};
+      var value = new byte[] {(byte) (totalNumberOfElements - i)};
       hash.put(key, value);
       assertThat(hash.getSizeInBytes()).isEqualTo(sizer.sizeof(hash));
     }
 
     // Update values and confirm that size changes as expected
-    for (int i = initialNumberOfElements; i < totalNumberOfElements; ++i) {
-      byte[] key = {(byte) i};
-      byte[] value = {(byte) i};
+    for (var i = initialNumberOfElements; i < totalNumberOfElements; ++i) {
+      var key = new byte[] {(byte) i};
+      var value = new byte[] {(byte) i};
       hash.put(key, value);
       assertThat(hash.getSizeInBytes()).isEqualTo(sizer.sizeof(hash));
     }
@@ -331,7 +331,7 @@ public class SizeableBytes2ObjectOpenCustomHashMapWithCursorTest {
     assertThat(hash.size()).isEqualTo(totalNumberOfElements);
 
     // Remove all elements and confirm that size changes as expected
-    for (int i = 0; i < totalNumberOfElements; ++i) {
+    for (var i = 0; i < totalNumberOfElements; ++i) {
       hash.remove(new byte[] {(byte) i});
       assertThat(hash.getSizeInBytes()).isEqualTo(sizer.sizeof(hash));
     }
@@ -342,40 +342,40 @@ public class SizeableBytes2ObjectOpenCustomHashMapWithCursorTest {
   @Test
   public void getSizeInBytesIsAccurateForOrderedSetEntryValues() {
     Map<byte[], RedisSortedSet.OrderedSetEntry> initialElements = new HashMap<>();
-    int initialNumberOfElements = 20;
-    int elementsToAdd = 100;
+    var initialNumberOfElements = 20;
+    var elementsToAdd = 100;
 
     // Create a map with an initial size
-    for (int i = 0; i < initialNumberOfElements; ++i) {
-      byte[] key = {(byte) i};
-      byte[] member = key;
-      RedisSortedSet.OrderedSetEntry value = new RedisSortedSet.OrderedSetEntry(member, i);
+    for (var i = 0; i < initialNumberOfElements; ++i) {
+      var key = new byte[] {(byte) i};
+      var member = key;
+      var value = new RedisSortedSet.OrderedSetEntry(member, i);
       initialElements.put(key, value);
     }
-    RedisSortedSet.MemberMap hash = new RedisSortedSet.MemberMap(initialElements);
+    var hash = new RedisSortedSet.MemberMap(initialElements);
 
     assertThat(hash.getSizeInBytes()).isEqualTo(sizer.sizeof(hash));
 
     // Add more elements to force a resizing of the backing arrays and confirm that size changes as
     // expected
-    int totalNumberOfElements = initialNumberOfElements + elementsToAdd;
-    for (int i = initialNumberOfElements; i < totalNumberOfElements; ++i) {
-      byte[] key = {(byte) i};
-      byte[] member = key;
+    var totalNumberOfElements = initialNumberOfElements + elementsToAdd;
+    for (var i = initialNumberOfElements; i < totalNumberOfElements; ++i) {
+      var key = new byte[] {(byte) i};
+      var member = key;
       double score = totalNumberOfElements - i;
-      RedisSortedSet.OrderedSetEntry value = new RedisSortedSet.OrderedSetEntry(member, score);
+      var value = new RedisSortedSet.OrderedSetEntry(member, score);
       hash.put(key, value);
       assertThat(hash.getSizeInBytes()).isEqualTo(sizer.sizeof(hash));
     }
 
     // Update values and confirm that size changes as expected
-    for (int i = initialNumberOfElements; i < totalNumberOfElements; ++i) {
-      byte[] key = {(byte) i};
-      RedisSortedSet.OrderedSetEntry value = hash.get(key);
+    for (var i = initialNumberOfElements; i < totalNumberOfElements; ++i) {
+      var key = new byte[] {(byte) i};
+      var value = hash.get(key);
 
-      int oldSize = hash.getSizeInBytes();
+      var oldSize = hash.getSizeInBytes();
       value.updateScore(i);
-      int sizeDelta = hash.getSizeInBytes() - oldSize;
+      var sizeDelta = hash.getSizeInBytes() - oldSize;
 
       assertThat(sizeDelta).isZero();
 
@@ -385,7 +385,7 @@ public class SizeableBytes2ObjectOpenCustomHashMapWithCursorTest {
     assertThat(hash.size()).isEqualTo(totalNumberOfElements);
 
     // Remove all elements and confirm that size changes as expected
-    for (int i = 0; i < totalNumberOfElements; ++i) {
+    for (var i = 0; i < totalNumberOfElements; ++i) {
       hash.remove(new byte[] {(byte) i});
       assertThat(hash.getSizeInBytes()).isEqualTo(sizer.sizeof(hash));
     }

@@ -41,14 +41,14 @@ public class FragmentJUnitTest {
 
   @Before
   public void setUp() throws Exception {
-    SlabImpl slab1 = new SlabImpl((int) OffHeapStorage.MIN_SLAB_SIZE);
-    SlabImpl slab2 = new SlabImpl((int) OffHeapStorage.MIN_SLAB_SIZE);
+    var slab1 = new SlabImpl((int) OffHeapStorage.MIN_SLAB_SIZE);
+    var slab2 = new SlabImpl((int) OffHeapStorage.MIN_SLAB_SIZE);
     slabs = new SlabImpl[] {slab1, slab2};
   }
 
   @After
   public void tearDown() throws Exception {
-    for (final SlabImpl slab : slabs) {
+    for (final var slab : slabs) {
       slab.free();
     }
   }
@@ -64,20 +64,20 @@ public class FragmentJUnitTest {
 
   @Test
   public void zeroSizeFragmentHasNoFreeSpace() {
-    Fragment fragment = new Fragment(slabs[0].getMemoryAddress(), 0);
+    var fragment = new Fragment(slabs[0].getMemoryAddress(), 0);
     assertThat(fragment.freeSpace(), is(0));
   }
 
   @Test
   public void unallocatedFragmentHasFreeSpaceEqualToFragmentSize() {
-    Fragment fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
+    var fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
     softly.assertThat(fragment.getSize()).isEqualTo((int) OffHeapStorage.MIN_SLAB_SIZE);
     softly.assertThat(fragment.freeSpace()).isEqualTo((int) OffHeapStorage.MIN_SLAB_SIZE);
   }
 
   @Test
   public void allocatingFromFragmentReducesFreeSpace() {
-    Fragment fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
+    var fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
     softly.assertThat(fragment.allocate(fragment.getFreeIndex(), fragment.getFreeIndex() + 256))
         .isEqualTo(true);
     softly.assertThat(fragment.freeSpace()).isEqualTo(768);
@@ -86,7 +86,7 @@ public class FragmentJUnitTest {
 
   @Test
   public void fragementAllocationIsUnsafeWithRespectToAllocationSize() {
-    Fragment fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
+    var fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
     softly.assertThat(fragment.allocate(fragment.getFreeIndex(),
         fragment.getFreeIndex() + (int) OffHeapStorage.MIN_SLAB_SIZE + 8)).isEqualTo(true);
     softly.assertThat(fragment.freeSpace()).isEqualTo(-8);
@@ -94,7 +94,7 @@ public class FragmentJUnitTest {
 
   @Test
   public void getBlockSizeReturnsFreeSpace() {
-    Fragment fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
+    var fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
     softly.assertThat(fragment.allocate(fragment.getFreeIndex(), fragment.getFreeIndex() + 256))
         .isEqualTo(true);
     softly.assertThat(fragment.getBlockSize()).isEqualTo(fragment.freeSpace());
@@ -102,7 +102,7 @@ public class FragmentJUnitTest {
 
   @Test
   public void getMemoryAdressIsAlwaysFragmentBaseAddress() {
-    Fragment fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
+    var fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
     softly.assertThat(fragment.getAddress()).isEqualTo(slabs[0].getMemoryAddress());
     fragment.allocate(fragment.getFreeIndex(), fragment.getFreeIndex() + 256);
     softly.assertThat(fragment.getAddress()).isEqualTo(slabs[0].getMemoryAddress());
@@ -110,7 +110,7 @@ public class FragmentJUnitTest {
 
   @Test
   public void getStateIsAlwaysStateUNUSED() {
-    Fragment fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
+    var fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
     softly.assertThat(fragment.getState()).isEqualTo(MemoryBlock.State.UNUSED);
     fragment.allocate(fragment.getFreeIndex(), fragment.getFreeIndex() + 256);
     softly.assertThat(fragment.getState()).isEqualTo(MemoryBlock.State.UNUSED);
@@ -118,7 +118,7 @@ public class FragmentJUnitTest {
 
   @Test
   public void getFreeListIdIsAlwaysMinus1() {
-    Fragment fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
+    var fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
     softly.assertThat(fragment.getFreeListId()).isEqualTo(-1);
     fragment.allocate(fragment.getFreeIndex(), fragment.getFreeIndex() + 256);
     softly.assertThat(fragment.getFreeListId()).isEqualTo(-1);
@@ -126,7 +126,7 @@ public class FragmentJUnitTest {
 
   @Test
   public void getRefCountIsAlwaysZero() {
-    Fragment fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
+    var fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
     softly.assertThat(fragment.getRefCount()).isEqualTo(0);
     fragment.allocate(fragment.getFreeIndex(), fragment.getFreeIndex() + 256);
     softly.assertThat(fragment.getRefCount()).isEqualTo(0);
@@ -134,7 +134,7 @@ public class FragmentJUnitTest {
 
   @Test
   public void getDataTypeIsAlwaysNA() {
-    Fragment fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
+    var fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
     softly.assertThat(fragment.getDataType()).isEqualTo("N/A");
     fragment.allocate(fragment.getFreeIndex(), fragment.getFreeIndex() + 256);
     softly.assertThat(fragment.getDataType()).isEqualTo("N/A");
@@ -142,7 +142,7 @@ public class FragmentJUnitTest {
 
   @Test
   public void isSerializedIsAlwaysFalse() {
-    Fragment fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
+    var fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
     softly.assertThat(fragment.isSerialized()).isEqualTo(false);
     fragment.allocate(fragment.getFreeIndex(), fragment.getFreeIndex() + 256);
     softly.assertThat(fragment.isSerialized()).isEqualTo(false);
@@ -150,7 +150,7 @@ public class FragmentJUnitTest {
 
   @Test
   public void isCompressedIsAlwaysFalse() {
-    Fragment fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
+    var fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
     softly.assertThat(fragment.isCompressed()).isEqualTo(false);
     fragment.allocate(fragment.getFreeIndex(), fragment.getFreeIndex() + 256);
     softly.assertThat(fragment.isCompressed()).isEqualTo(false);
@@ -158,7 +158,7 @@ public class FragmentJUnitTest {
 
   @Test
   public void getDataValueIsAlwaysNull() {
-    Fragment fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
+    var fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
     softly.assertThat(fragment.getDataValue()).isNull();
     fragment.allocate(fragment.getFreeIndex(), fragment.getFreeIndex() + 256);
     softly.assertThat(fragment.getDataValue()).isNull();
@@ -166,23 +166,23 @@ public class FragmentJUnitTest {
 
   @Test
   public void fragmentEqualsComparesMemoryBlockAddresses() {
-    Fragment fragment0 = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
-    Fragment sameFragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
-    Fragment fragment1 = new Fragment(slabs[1].getMemoryAddress(), slabs[1].getSize());
+    var fragment0 = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
+    var sameFragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
+    var fragment1 = new Fragment(slabs[1].getMemoryAddress(), slabs[1].getSize());
     softly.assertThat(fragment0.equals(sameFragment)).isEqualTo(true);
     softly.assertThat(fragment0.equals(fragment1)).isEqualTo(false);
   }
 
   @Test
   public void fragmentEqualsIsFalseForNonFragmentObjects() {
-    Fragment fragment0 = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
+    var fragment0 = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
     assertThat(fragment0.equals(slabs[0]), is(false));
   }
 
   @Test
   public void fragmentHashCodeIsHashCodeOfItsMemoryAddress() {
-    Fragment fragment0 = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
-    Fragment fragment1 = new Fragment(slabs[1].getMemoryAddress(), slabs[1].getSize());
+    var fragment0 = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
+    var fragment1 = new Fragment(slabs[1].getMemoryAddress(), slabs[1].getSize());
     Long fragmentAddress = fragment0.getAddress();
     softly.assertThat(fragment0.hashCode()).isEqualTo(fragmentAddress.hashCode())
         .isNotEqualTo(fragment1.hashCode());
@@ -190,10 +190,10 @@ public class FragmentJUnitTest {
 
   @Test
   public void fragmentFillSetsAllBytesToTheSameConstantValue() {
-    Fragment fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
+    var fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
     Long fragmentAddress = fragment.getAddress();
-    byte[] bytes = new byte[(int) OffHeapStorage.MIN_SLAB_SIZE];
-    byte[] expectedBytes = new byte[(int) OffHeapStorage.MIN_SLAB_SIZE];
+    var bytes = new byte[(int) OffHeapStorage.MIN_SLAB_SIZE];
+    var expectedBytes = new byte[(int) OffHeapStorage.MIN_SLAB_SIZE];
     Arrays.fill(expectedBytes, OffHeapStoredObject.FILL_BYTE);
     fragment.fill();
     AddressableMemoryManager.readBytes(fragmentAddress, bytes, 0,
@@ -205,7 +205,7 @@ public class FragmentJUnitTest {
   public void getNextBlockThrowsExceptionForFragment() {
     expectedException.expect(UnsupportedOperationException.class);
 
-    Fragment fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
+    var fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
     fragment.getNextBlock();
     fail("getNextBlock failed to throw UnsupportedOperationException");
   }
@@ -214,7 +214,7 @@ public class FragmentJUnitTest {
   public void getSlabIdThrowsExceptionForFragment() {
     expectedException.expect(UnsupportedOperationException.class);
 
-    Fragment fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
+    var fragment = new Fragment(slabs[0].getMemoryAddress(), slabs[0].getSize());
     fragment.getSlabId();
     fail("getSlabId failed to throw UnsupportedOperationException");
   }

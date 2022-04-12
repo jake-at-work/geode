@@ -27,7 +27,6 @@ package org.apache.geode.internal.datasource;
  * Changed invokeAllMethods wrt the change in cache.xml for vendor specific properties.
  *
  */
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
@@ -66,7 +65,7 @@ public class DataSourceFactory {
    * @return ??
    */
   public DataSource getSimpleDataSource(Map configMap) throws DataSourceCreateException {
-    ConfiguredDataSourceProperties configs = createDataSourceProperties(configMap);
+    var configs = createDataSourceProperties(configMap);
     if (configs.getURL() == null) {
       logger.error("DataSourceFactory::getSimpleDataSource:URL String to Database is null");
       throw new DataSourceCreateException(
@@ -97,7 +96,7 @@ public class DataSourceFactory {
       List<ConfigProperty> props) throws DataSourceCreateException {
     Object cf = null;
     ManagedConnectionFactory mcf = null;
-    ConfiguredDataSourceProperties configs = createDataSourceProperties(configMap);
+    var configs = createDataSourceProperties(configMap);
     if (configs.getMCFClass() == null) {
       logger.error(
           "DataSourceFactory::getManagedDataSource:Managed Connection factory class is not available");
@@ -146,19 +145,19 @@ public class DataSourceFactory {
    */
   public DataSource getPooledDataSource(Map configMap, List<ConfigProperty> props)
       throws DataSourceCreateException {
-    ConfiguredDataSourceProperties configs = createDataSourceProperties(configMap);
-    String connpoolClassName = configs.getConnectionPoolDSClass();
+    var configs = createDataSourceProperties(configMap);
+    var connpoolClassName = configs.getConnectionPoolDSClass();
     if (connpoolClassName == null) {
       connpoolClassName = DEFAULT_CONNECTION_POOL_DS_CLASS;
     }
     try {
-      Properties poolProperties = createPoolProperties(configMap, props);
-      Properties dataSourceProperties = createDataSourceProperties(props);
-      Class<?> cl = ClassPathLoader.getLatest().forName(connpoolClassName);
-      PooledDataSourceFactory factory = (PooledDataSourceFactory) cl.newInstance();
+      var poolProperties = createPoolProperties(configMap, props);
+      var dataSourceProperties = createDataSourceProperties(props);
+      var cl = ClassPathLoader.getLatest().forName(connpoolClassName);
+      var factory = (PooledDataSourceFactory) cl.newInstance();
       return factory.createDataSource(poolProperties, dataSourceProperties);
     } catch (Exception ex) {
-      String exception =
+      var exception =
           String.format(
               "DataSourceFactory::getPooledDataSource:Exception creating ConnectionPoolDataSource.Exception string=%s",
               ex);
@@ -172,17 +171,17 @@ public class DataSourceFactory {
 
   static Properties createPoolProperties(Map<String, String> configMap,
       List<ConfigProperty> props) {
-    Properties result = new Properties();
+    var result = new Properties();
     if (props != null) {
-      for (ConfigProperty prop : props) {
+      for (var prop : props) {
         if (prop.getName().toLowerCase().startsWith(POOL_PREFIX)) {
-          String poolName = prop.getName().substring(POOL_PREFIX.length());
+          var poolName = prop.getName().substring(POOL_PREFIX.length());
           result.setProperty(poolName, prop.getValue());
         }
       }
     }
     if (configMap != null) {
-      for (Map.Entry<String, String> entry : configMap.entrySet()) {
+      for (var entry : configMap.entrySet()) {
         if (entry.getValue() == null || entry.getValue().equals("")) {
           continue;
         }
@@ -214,9 +213,9 @@ public class DataSourceFactory {
   }
 
   static Properties createDataSourceProperties(List<ConfigProperty> props) {
-    Properties result = new Properties();
+    var result = new Properties();
     if (props != null) {
-      for (ConfigProperty prop : props) {
+      for (var prop : props) {
         if (prop.getName().toLowerCase().startsWith(POOL_PREFIX)) {
           continue;
         }
@@ -236,8 +235,8 @@ public class DataSourceFactory {
    */
   public DataSource getTranxDataSource(Map configMap, List<ConfigProperty> props)
       throws DataSourceCreateException {
-    ConfiguredDataSourceProperties configs = createDataSourceProperties(configMap);
-    String xaClassName = configs.getXADSClass();
+    var configs = createDataSourceProperties(configMap);
+    var xaClassName = configs.getXADSClass();
     if (xaClassName == null) {
       logger.error(
           "DataSourceFactory::getTranxDataSource:XADataSource class name for the ResourceManager is not available");
@@ -252,11 +251,11 @@ public class DataSourceFactory {
     }
     try {
       Class cl = ClassPathLoader.getLatest().forName(xaClassName);
-      Object Obj = cl.newInstance();
+      var Obj = cl.newInstance();
       invokeAllMethods(cl, Obj, props);
       return new GemFireTransactionDataSource((XADataSource) Obj, configs);
     } catch (Exception ex) {
-      String exception =
+      var exception =
           String.format(
               "DataSourceFactory::getTranxDataSource:Exception in creating GemFireTransactionDataSource. Exception string=%s",
               ex);
@@ -274,11 +273,11 @@ public class DataSourceFactory {
    * @param configMap a map containing configurations required for datasource.
    */
   private ConfiguredDataSourceProperties createDataSourceProperties(Map configMap) {
-    ConfiguredDataSourceProperties configs = new ConfiguredDataSourceProperties();
-    for (final Object o : configMap.entrySet()) {
-      Map.Entry entry = (Map.Entry) o;
-      String name = (String) entry.getKey();
-      final Object obj = entry.getValue();
+    var configs = new ConfiguredDataSourceProperties();
+    for (final var o : configMap.entrySet()) {
+      var entry = (Map.Entry) o;
+      var name = (String) entry.getKey();
+      final var obj = entry.getValue();
       if (name.equals("connection-url")) {
         configs.setURL((String) obj);
       } else if (name.equals("user-name")) {
@@ -376,8 +375,8 @@ public class DataSourceFactory {
     String type = null;
     String methodName = null;
     Method m = null;
-    for (final Object prop : props) {
-      ConfigProperty cp = (ConfigProperty) prop;
+    for (final var prop : props) {
+      var cp = (ConfigProperty) prop;
       key = cp.getName();
       value = cp.getValue();
       type = cp.getType();
@@ -396,12 +395,12 @@ public class DataSourceFactory {
           cl = ClassPathLoader.getLatest().forName(type);
           realClass = cl;
         }
-        Constructor cr = realClass.getConstructor(String.class);
-        Object ob = cr.newInstance(value);
+        var cr = realClass.getConstructor(String.class);
+        var ob = cr.newInstance(value);
         m = c.getMethod(methodName, cl);
         m.invoke(cpdsObj, ob);
       } catch (ClassNotFoundException ex) {
-        String exception =
+        var exception =
             String.format(
                 "DataSourceFactory::invokeAllMethods: Exception in creating Class with the given config-property-type classname. Exception string=%s",
                 ex);
@@ -409,7 +408,7 @@ public class DataSourceFactory {
           logger.debug(exception, ex);
         }
       } catch (NoSuchMethodException ex) {
-        String exception =
+        var exception =
             String.format(
                 "DataSourceFactory::invokeAllMethods: Exception in creating method using config-property-name property. Exception string=%s",
                 ex);
@@ -417,7 +416,7 @@ public class DataSourceFactory {
           logger.debug(exception, ex);
         }
       } catch (InstantiationException ex) {
-        String exception =
+        var exception =
             String.format(
                 "DataSourceFactory::invokeAllMethods: Exception in creating instance of the class using the constructor with a String parameter. Exception string=%s",
                 ex);

@@ -14,7 +14,6 @@
  */
 package org.apache.geode.sequence;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
@@ -28,7 +27,7 @@ public class DefaultLineMapper implements LineMapper {
 
   @Override
   public String getShortNameForLine(String name) {
-    Matcher matcher = MEMBER_ID_RE.matcher(name);
+    var matcher = MEMBER_ID_RE.matcher(name);
     if (matcher.matches()) {
       return matcher.group(1);
     } else {

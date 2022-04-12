@@ -59,7 +59,7 @@ public class ExportLogsCacheWriter extends CacheWriterAdapter<String, byte[]>
   }
 
   public Path endFile() {
-    Path completedFile = currentFile;
+    var completedFile = currentFile;
 
     try {
       if (null != currentOutputStream) {

@@ -22,7 +22,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -159,18 +158,18 @@ public class ResultModelTest {
     result.addTable("Section3");
     result.addData("Section4");
 
-    List<String> sectionNames = result.getSectionNames();
+    var sectionNames = result.getSectionNames();
     assertThat(sectionNames).containsExactly("Section1", "Section2", "Section3", "Section4");
   }
 
   @Test
   public void serializeInfoResult() throws Exception {
-    InfoResultModel info = result.addInfo();
+    var info = result.addInfo();
     info.addLine("line2");
-    ObjectMapper mapper = GeodeJsonMapper.getMapper();
-    String json = mapper.writeValueAsString(result);
+    var mapper = GeodeJsonMapper.getMapper();
+    var json = mapper.writeValueAsString(result);
     System.out.println(json);
-    ResultModel resultModel = mapper.readValue(json, ResultModel.class);
+    var resultModel = mapper.readValue(json, ResultModel.class);
     assertThat(resultModel.getSectionNames()).containsExactly("info");
   }
 }

@@ -44,13 +44,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
 import junitparams.Parameters;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -94,12 +92,12 @@ public class RedisSortedSetTest {
 
   @Test
   public void confirmSerializationIsStable() throws IOException, ClassNotFoundException {
-    RedisSortedSet sortedSet1 = createRedisSortedSet("3.14159", "v1", "2.71828", "v2");
+    var sortedSet1 = createRedisSortedSet("3.14159", "v1", "2.71828", "v2");
     sortedSet1.setExpirationTimestampNoDelta(1000);
 
-    HeapDataOutputStream out = new HeapDataOutputStream(100);
+    var out = new HeapDataOutputStream(100);
     DataSerializer.writeObject(sortedSet1, out);
-    ByteArrayDataInput in = new ByteArrayDataInput(out.toByteArray());
+    var in = new ByteArrayDataInput(out.toByteArray());
 
     RedisSortedSet sortedSet2 = DataSerializer.readObject(in);
     assertThat(sortedSet2.equals(sortedSet1)).isTrue();
@@ -107,35 +105,35 @@ public class RedisSortedSetTest {
 
   @Test
   public void equals_returnsFalse_givenDifferentExpirationTimes() {
-    RedisSortedSet sortedSet1 = createRedisSortedSet("3.14159", "v1", "2.71828", "v2");
+    var sortedSet1 = createRedisSortedSet("3.14159", "v1", "2.71828", "v2");
     sortedSet1.setExpirationTimestampNoDelta(1000);
 
-    RedisSortedSet sortedSet2 = createRedisSortedSet("3.14159", "v1", "2.71828", "v2");
+    var sortedSet2 = createRedisSortedSet("3.14159", "v1", "2.71828", "v2");
     sortedSet2.setExpirationTimestampNoDelta(999);
     assertThat(sortedSet1).isNotEqualTo(sortedSet2);
   }
 
   @Test
   public void equals_returnsFalse_givenDifferentValueBytes() {
-    RedisSortedSet sortedSet1 = createRedisSortedSet("3.14159", "v1", "2.71828", "v2");
+    var sortedSet1 = createRedisSortedSet("3.14159", "v1", "2.71828", "v2");
     sortedSet1.setExpirationTimestampNoDelta(1000);
-    RedisSortedSet sortedSet2 = createRedisSortedSet("3.14159", "v1", "2.71828", "v3");
+    var sortedSet2 = createRedisSortedSet("3.14159", "v1", "2.71828", "v3");
     sortedSet2.setExpirationTimestampNoDelta(1000);
     assertThat(sortedSet1).isNotEqualTo(sortedSet2);
   }
 
   @Test
   public void equals_returnsTrue_givenEqualValueBytesAndExpiration() {
-    RedisSortedSet sortedSet1 = createRedisSortedSet("3.14159", "v1", "2.71828", "v2");
+    var sortedSet1 = createRedisSortedSet("3.14159", "v1", "2.71828", "v2");
     sortedSet1.setExpirationTimestampNoDelta(1000);
-    RedisSortedSet sortedSet2 = createRedisSortedSet("3.14159", "v1", "2.71828", "v2");
+    var sortedSet2 = createRedisSortedSet("3.14159", "v1", "2.71828", "v2");
     sortedSet2.setExpirationTimestampNoDelta(1000);
     assertThat(sortedSet1).isEqualTo(sortedSet2);
   }
 
   @Test
   public void equals_returnsTrue_givenDifferentEmptySortedSets() {
-    RedisSortedSet sortedSet1 =
+    var sortedSet1 =
         new RedisSortedSet(Collections.emptyList(), new double[0]);
     RedisSortedSet sortedSet2 = NullRedisDataStructures.NULL_REDIS_SORTED_SET;
     assertThat(sortedSet1).isEqualTo(sortedSet2);
@@ -146,9 +144,9 @@ public class RedisSortedSetTest {
   public void zadd_stores_delta_that_is_stable() {
     Region<RedisKey, RedisData> region = uncheckedCast(mock(PartitionedRegion.class));
     when(region.put(any(), any())).thenAnswer(this::validateDeltaSerialization);
-    RedisSortedSet sortedSet1 = createRedisSortedSet("3.14159", "v1", "2.71828", "v2");
-    List<byte[]> members = singletonList(stringToBytes("v3"));
-    double[] scores = new double[] {1.61803D};
+    var sortedSet1 = createRedisSortedSet("3.14159", "v1", "2.71828", "v2");
+    var members = singletonList(stringToBytes("v3"));
+    var scores = new double[] {1.61803D};
 
     sortedSet1.zadd(region, null, members, scores,
         new ZAddOptions(ZAddOptions.Exists.NONE, false, false));
@@ -162,17 +160,17 @@ public class RedisSortedSetTest {
     RegionProvider regionProvider = uncheckedCast(mock(RegionProvider.class));
     Region<RedisKey, RedisData> dataRegion = uncheckedCast(mock(PartitionedRegion.class));
 
-    RedisSortedSet sortedSet1 = createRedisSortedSet("3.14159", "v1", "2.71828", "v2");
+    var sortedSet1 = createRedisSortedSet("3.14159", "v1", "2.71828", "v2");
     when(regionProvider.getTypedRedisDataElseRemove(REDIS_SORTED_SET, null, false))
         .thenReturn(sortedSet1);
     when(regionProvider.getDataRegion()).thenReturn(dataRegion);
     when(dataRegion.put(any(), any())).thenAnswer(this::validateDeltaSerialization);
 
     // Setting up for store operation
-    RedisSortedSet.MemberMap members = new RedisSortedSet.MemberMap(1);
-    RedisSortedSet.ScoreSet scores = new RedisSortedSet.ScoreSet();
-    byte[] member = new byte[] {4};
-    RedisSortedSet.OrderedSetEntry entry = new RedisSortedSet.OrderedSetEntry(member, 5);
+    var members = new RedisSortedSet.MemberMap(1);
+    var scores = new RedisSortedSet.ScoreSet();
+    var member = new byte[] {4};
+    var entry = new RedisSortedSet.OrderedSetEntry(member, 5);
     members.put(member, entry);
     scores.add(entry);
 
@@ -187,7 +185,7 @@ public class RedisSortedSetTest {
     RegionProvider regionProvider = uncheckedCast(mock(RegionProvider.class));
     Region<RedisKey, RedisData> dataRegion = uncheckedCast(mock(PartitionedRegion.class));
 
-    RedisSortedSet setDest = createRedisSortedSet("3.14159", "v1", "2.71828", "v2");
+    var setDest = createRedisSortedSet("3.14159", "v1", "2.71828", "v2");
     setDest.setExpirationTimestamp(dataRegion, null, 100);
 
     when(regionProvider.getTypedRedisDataElseRemove(REDIS_SORTED_SET, null, false))
@@ -196,10 +194,10 @@ public class RedisSortedSetTest {
     when(dataRegion.put(any(), any())).thenAnswer(this::validateDeltaSerialization);
 
     // Setting up for store operation
-    RedisSortedSet.MemberMap members = new RedisSortedSet.MemberMap(1);
-    RedisSortedSet.ScoreSet scores = new RedisSortedSet.ScoreSet();
-    byte[] member = new byte[] {4};
-    RedisSortedSet.OrderedSetEntry entry = new RedisSortedSet.OrderedSetEntry(member, 5);
+    var members = new RedisSortedSet.MemberMap(1);
+    var scores = new RedisSortedSet.ScoreSet();
+    var member = new byte[] {4};
+    var entry = new RedisSortedSet.OrderedSetEntry(member, 5);
     members.put(member, entry);
     scores.add(entry);
 
@@ -210,12 +208,12 @@ public class RedisSortedSetTest {
   }
 
   private Object validateDeltaSerialization(InvocationOnMock invocation) throws IOException {
-    RedisSortedSet value = invocation.getArgument(1, RedisSortedSet.class);
+    var value = invocation.getArgument(1, RedisSortedSet.class);
     assertThat(value.hasDelta()).isTrue();
-    HeapDataOutputStream out = new HeapDataOutputStream(100);
+    var out = new HeapDataOutputStream(100);
     value.toDelta(out);
-    ByteArrayDataInput in = new ByteArrayDataInput(out.toByteArray());
-    RedisSortedSet sortedSet2 = createRedisSortedSet("3.14159", "v1", "2.71828", "v2");
+    var in = new ByteArrayDataInput(out.toByteArray());
+    var sortedSet2 = createRedisSortedSet("3.14159", "v1", "2.71828", "v2");
     assertThat(sortedSet2).isNotEqualTo(value);
     sortedSet2.fromDelta(in);
     assertThat(sortedSet2).isEqualTo(value);
@@ -226,7 +224,7 @@ public class RedisSortedSetTest {
   public void setExpirationTimestamp_stores_delta_that_is_stable() {
     Region<RedisKey, RedisData> region = uncheckedCast(mock(PartitionedRegion.class));
     when(region.put(any(), any())).thenAnswer(this::validateDeltaSerialization);
-    RedisSortedSet sortedSet1 = createRedisSortedSet("3.14159", "v1", "2.71828", "v2");
+    var sortedSet1 = createRedisSortedSet("3.14159", "v1", "2.71828", "v2");
 
     sortedSet1.setExpirationTimestamp(region, null, 999);
 
@@ -236,18 +234,18 @@ public class RedisSortedSetTest {
 
   @Test
   public void zremCanRemoveMembersToBeRemoved() {
-    String member3 = "member3";
-    String score3 = "998955255.66361191";
-    RedisSortedSet sortedSet =
+    var member3 = "member3";
+    var score3 = "998955255.66361191";
+    var sortedSet =
         spy(createRedisSortedSet(score1, member1, score2, member2, score3, member3));
     Region<RedisKey, RedisData> region = uncheckedCast(mock(PartitionedRegion.class));
-    RedisKey key = new RedisKey();
-    ArrayList<byte[]> membersToRemove = new ArrayList<>();
+    var key = new RedisKey();
+    var membersToRemove = new ArrayList<byte[]>();
     membersToRemove.add(stringToBytes("nonExisting"));
     membersToRemove.add(stringToBytes(member1));
     membersToRemove.add(stringToBytes(member3));
 
-    long removed = sortedSet.zrem(region, key, membersToRemove);
+    var removed = sortedSet.zrem(region, key, membersToRemove);
 
     assertThat(removed).isEqualTo(2);
     verify(sortedSet).storeChanges(eq(region), eq(key), any(RemoveByteArrays.class));
@@ -255,10 +253,10 @@ public class RedisSortedSetTest {
 
   @Test
   public void memberRemoveCanRemoveMemberInSortedSet() {
-    RedisSortedSet sortedSet = createRedisSortedSet(score1, member1, score2, member2);
-    RedisSortedSet sortedSet2 = createRedisSortedSet(score2, member2);
+    var sortedSet = createRedisSortedSet(score1, member1, score2, member2);
+    var sortedSet2 = createRedisSortedSet(score2, member2);
 
-    boolean returnValue = sortedSet.memberRemove(stringToBytes(member1));
+    var returnValue = sortedSet.memberRemove(stringToBytes(member1));
 
     assertThat(sortedSet).isEqualTo(sortedSet2);
     assertThat(returnValue).isTrue();
@@ -267,7 +265,7 @@ public class RedisSortedSetTest {
   @Test
   @Parameters({"5,0", "13,15", "17,-2", "12,12"})
   public void zrange_ShouldReturnEmptyList_GivenInvalidRanges(int start, int end) {
-    SortedSetRankRangeOptions rangeOptions = mock(SortedSetRankRangeOptions.class);
+    var rangeOptions = mock(SortedSetRankRangeOptions.class);
     when(rangeOptions.getCount()).thenReturn(Integer.MAX_VALUE);
     when(rangeOptions.getRangeIndex(any(), eq(true))).thenReturn(start);
     when(rangeOptions.getRangeIndex(any(), eq(false))).thenReturn(end);
@@ -277,7 +275,7 @@ public class RedisSortedSetTest {
 
   @Test
   public void zrange_ShouldReturnSimpleRanges() {
-    SortedSetRankRangeOptions rangeOptions = mock(SortedSetRankRangeOptions.class);
+    var rangeOptions = mock(SortedSetRankRangeOptions.class);
     when(rangeOptions.getCount()).thenReturn(Integer.MAX_VALUE);
     when(rangeOptions.getRangeIndex(any(), eq(true))).thenReturn(0);
     when(rangeOptions.getRangeIndex(any(), eq(false))).thenReturn(6);
@@ -304,7 +302,7 @@ public class RedisSortedSetTest {
 
   @Test
   public void zrange_shouldAlsoReturnScores_whenWithScoresSpecified() {
-    SortedSetRankRangeOptions rangeOptions = mock(SortedSetRankRangeOptions.class);
+    var rangeOptions = mock(SortedSetRankRangeOptions.class);
     when(rangeOptions.getCount()).thenReturn(Integer.MAX_VALUE);
     when(rangeOptions.getRangeIndex(any(), eq(true))).thenReturn(0);
     when(rangeOptions.getRangeIndex(any(), eq(false))).thenReturn(6);
@@ -319,13 +317,13 @@ public class RedisSortedSetTest {
 
   @Test
   public void zlexcount_shouldBeInclusiveWhenSpecified() {
-    RedisSortedSet sortedSet = createRedisSortedSet(
+    var sortedSet = createRedisSortedSet(
         score1, "member1",
         score1, "member2",
         score1, "member3",
         score1, "member4",
         score1, "member5");
-    SortedSetLexRangeOptions lexOptions = new SortedSetLexRangeOptions(
+    var lexOptions = new SortedSetLexRangeOptions(
         Arrays.asList("command".getBytes(), "key".getBytes(), "[member1".getBytes(),
             "[member3".getBytes()),
         false);
@@ -334,13 +332,13 @@ public class RedisSortedSetTest {
 
   @Test
   public void zlexcount_shouldBeExclusiveWhenSpecified() {
-    RedisSortedSet sortedSet = createRedisSortedSet(
+    var sortedSet = createRedisSortedSet(
         score1, "member1",
         score1, "member2",
         score1, "member3",
         score1, "member4",
         score1, "member5");
-    SortedSetLexRangeOptions lexOptions = new SortedSetLexRangeOptions(
+    var lexOptions = new SortedSetLexRangeOptions(
         Arrays.asList("command".getBytes(), "key".getBytes(), "(member1".getBytes(),
             "(member3".getBytes()),
         false);
@@ -349,13 +347,13 @@ public class RedisSortedSetTest {
 
   @Test
   public void zlexcount_shouldBeZero_whenMinIsTooGreat() {
-    RedisSortedSet sortedSet = createRedisSortedSet(
+    var sortedSet = createRedisSortedSet(
         score1, "member1",
         score1, "member2",
         score1, "member3",
         score1, "member4",
         score1, "member5");
-    SortedSetLexRangeOptions lexOptions = new SortedSetLexRangeOptions(
+    var lexOptions = new SortedSetLexRangeOptions(
         Arrays.asList("command".getBytes(), "key".getBytes(), "[member6".getBytes(),
             "(member8".getBytes()),
         false);
@@ -364,13 +362,13 @@ public class RedisSortedSetTest {
 
   @Test
   public void zlexcount_shouldBeZero_whenMaxIsTooSmall() {
-    RedisSortedSet sortedSet = createRedisSortedSet(
+    var sortedSet = createRedisSortedSet(
         score1, "member1",
         score1, "member2",
         score1, "member3",
         score1, "member4",
         score1, "member5");
-    SortedSetLexRangeOptions lexOptions = new SortedSetLexRangeOptions(
+    var lexOptions = new SortedSetLexRangeOptions(
         Arrays.asList("command".getBytes(), "key".getBytes(), "[membeq0".getBytes(),
             "[member0".getBytes()),
         false);
@@ -379,13 +377,13 @@ public class RedisSortedSetTest {
 
   @Test
   public void zlexcount_shouldBeZero_whenMinAndMaxAreReversed() {
-    RedisSortedSet sortedSet = createRedisSortedSet(
+    var sortedSet = createRedisSortedSet(
         score1, "member1",
         score1, "member2",
         score1, "member3",
         score1, "member4",
         score1, "member5");
-    SortedSetLexRangeOptions lexOptions = new SortedSetLexRangeOptions(
+    var lexOptions = new SortedSetLexRangeOptions(
         Arrays.asList("command".getBytes(), "key".getBytes(), "[member5".getBytes(),
             "[member0".getBytes()),
         false);
@@ -394,13 +392,13 @@ public class RedisSortedSetTest {
 
   @Test
   public void zlexcount_shouldBeAbleToCountAllEntries() {
-    RedisSortedSet sortedSet = createRedisSortedSet(
+    var sortedSet = createRedisSortedSet(
         score1, "member1",
         score1, "member2",
         score1, "member3",
         score1, "member4",
         score1, "member5");
-    SortedSetLexRangeOptions lexOptions =
+    var lexOptions =
         new SortedSetLexRangeOptions(
             Arrays.asList("command".getBytes(), "key".getBytes(), "-".getBytes(), "+".getBytes()),
             false);
@@ -409,11 +407,11 @@ public class RedisSortedSetTest {
 
   @Test
   public void zscanOnlyReturnsElementsMatchingPattern() {
-    ImmutablePair<Integer, List<byte[]>> result =
+    var result =
         rangeSortedSet.zscan(new GlobPattern(stringToBytes("member1*")),
             (int) rangeSortedSet.zcard(), 0);
 
-    List<String> fieldsAndValues =
+    var fieldsAndValues =
         result.right.stream().map(Coder::bytesToString).collect(Collectors.toList());
 
     assertThat(fieldsAndValues).containsExactlyInAnyOrder("member1", "1", "member10", "1.9",
@@ -422,7 +420,7 @@ public class RedisSortedSetTest {
 
   @Test
   public void zscanThrowsWhenReturnedArrayListLengthWouldExceedVMLimit() {
-    RedisSortedSet sortedSet = spy(new RedisSortedSet(Collections.emptyList(), new double[] {}));
+    var sortedSet = spy(new RedisSortedSet(Collections.emptyList(), new double[] {}));
     doReturn(Integer.MAX_VALUE - 10L).when(sortedSet).zcard();
 
     assertThatThrownBy(() -> sortedSet.zscan(null, Integer.MAX_VALUE - 10, 0))
@@ -431,7 +429,7 @@ public class RedisSortedSetTest {
 
   @Test
   public void scoreSet_shouldNotRetainOldEntries_whenEntriesUpdated() {
-    SortedSetRankRangeOptions rangeOptions =
+    var rangeOptions =
         new SortedSetRankRangeOptions(
             Arrays.asList("command".getBytes(), "key".getBytes(), "0".getBytes(), "100".getBytes()),
             false);
@@ -445,7 +443,7 @@ public class RedisSortedSetTest {
 
   @Test
   public void orderedSetEntryCompareTo_returnsCorrectly_givenDifferentScores() {
-    byte[] memberName = stringToBytes("member");
+    var memberName = stringToBytes("member");
 
     RedisSortedSet.AbstractOrderedSetEntry negativeInf =
         new RedisSortedSet.OrderedSetEntry(memberName, Double.NEGATIVE_INFINITY);
@@ -471,7 +469,7 @@ public class RedisSortedSetTest {
 
   @Test
   public void scoreDummyOrderedSetEntryCompareTo_throws_givenBothArraysAreGreatestOrLeastMemberNameAndScoresAreEqual() {
-    double score = 1.0;
+    var score = 1.0;
 
     RedisSortedSet.AbstractOrderedSetEntry greatest1 =
         new RedisSortedSet.ScoreDummyOrderedSetEntry(score, true, true);
@@ -493,7 +491,7 @@ public class RedisSortedSetTest {
 
   @Test
   public void scoreDummyOrderedSetEntryCompareTo_handlesDummyMemberNames_givenScoresAreEqual() {
-    double score = 1.0;
+    var score = 1.0;
 
     RedisSortedSet.AbstractOrderedSetEntry greatest =
         new RedisSortedSet.ScoreDummyOrderedSetEntry(score, true, true);
@@ -514,7 +512,7 @@ public class RedisSortedSetTest {
 
   @Test
   public void scoreDummyOrderedSetEntryCompareTo_handlesDummyMemberNameEquivalents_givenScoresAreEqual() {
-    double score = 1.0;
+    var score = 1.0;
 
     RedisSortedSet.AbstractOrderedSetEntry greatest =
         new RedisSortedSet.ScoreDummyOrderedSetEntry(score, true, true);
@@ -574,8 +572,8 @@ public class RedisSortedSetTest {
 
   @Test
   public void memberDummyOrderedSetEntryCompareTo_withEqualMemberNamesAndExclusiveMinimum() {
-    byte[] memberName = stringToBytes("member");
-    double score = 1.0;
+    var memberName = stringToBytes("member");
+    var score = 1.0;
     RedisSortedSet.AbstractOrderedSetEntry realEntry =
         new RedisSortedSet.OrderedSetEntry(memberName, score);
 
@@ -588,8 +586,8 @@ public class RedisSortedSetTest {
 
   @Test
   public void memberDummyOrderedSetEntryCompareTo_withEqualMemberNamesAndInclusiveMinimum() {
-    byte[] memberName = stringToBytes("member");
-    double score = 1.0;
+    var memberName = stringToBytes("member");
+    var score = 1.0;
     RedisSortedSet.AbstractOrderedSetEntry realEntry =
         new RedisSortedSet.OrderedSetEntry(memberName, score);
 
@@ -602,8 +600,8 @@ public class RedisSortedSetTest {
 
   @Test
   public void memberDummyOrderedSetEntryCompareTo_withEqualMemberNamesAndExclusiveMaximum() {
-    byte[] memberName = stringToBytes("member");
-    double score = 1.0;
+    var memberName = stringToBytes("member");
+    var score = 1.0;
     RedisSortedSet.AbstractOrderedSetEntry realEntry =
         new RedisSortedSet.OrderedSetEntry(memberName, score);
 
@@ -616,8 +614,8 @@ public class RedisSortedSetTest {
 
   @Test
   public void memberDummyOrderedSetEntryCompareTo_withEqualMemberNamesAndInclusiveMaximum() {
-    byte[] memberName = stringToBytes("member");
-    double score = 1.0;
+    var memberName = stringToBytes("member");
+    var score = 1.0;
     RedisSortedSet.AbstractOrderedSetEntry realEntry =
         new RedisSortedSet.OrderedSetEntry(memberName, score);
 
@@ -630,16 +628,16 @@ public class RedisSortedSetTest {
 
   @Test
   public void zpopminRemovesMemberWithLowestScore() {
-    int originalSize = rangeSortedSet.getSortedSetSize();
-    RedisSortedSet sortedSet = spy(rangeSortedSet);
+    var originalSize = rangeSortedSet.getSortedSetSize();
+    var sortedSet = spy(rangeSortedSet);
     Region<RedisKey, RedisData> region = uncheckedCast(mock(PartitionedRegion.class));
-    RedisKey key = new RedisKey();
-    int count = 1;
+    var key = new RedisKey();
+    var count = 1;
 
-    List<byte[]> result = sortedSet.zpopmin(region, key, count);
+    var result = sortedSet.zpopmin(region, key, count);
     assertThat(result).containsExactly("member1".getBytes(), "1".getBytes());
 
-    ArgumentCaptor<RemoveByteArrays> argumentCaptor = ArgumentCaptor.forClass(
+    var argumentCaptor = ArgumentCaptor.forClass(
         RemoveByteArrays.class);
     verify(sortedSet).storeChanges(eq(region), eq(key), argumentCaptor.capture());
     assertThat(argumentCaptor.getValue().getRemoves()).containsExactly("member1".getBytes());
@@ -648,17 +646,17 @@ public class RedisSortedSetTest {
 
   @Test
   public void zpopminRemovesMembersWithLowestScores_whenCountIsGreaterThanOne() {
-    int originalSize = rangeSortedSet.getSortedSetSize();
-    RedisSortedSet sortedSet = spy(rangeSortedSet);
+    var originalSize = rangeSortedSet.getSortedSetSize();
+    var sortedSet = spy(rangeSortedSet);
     Region<RedisKey, RedisData> region = uncheckedCast(mock(PartitionedRegion.class));
-    RedisKey key = new RedisKey();
-    int count = 3;
+    var key = new RedisKey();
+    var count = 3;
 
-    List<byte[]> result = sortedSet.zpopmin(region, key, count);
+    var result = sortedSet.zpopmin(region, key, count);
     assertThat(result).containsExactlyInAnyOrder("member1".getBytes(), "1".getBytes(),
         "member2".getBytes(), "1.1".getBytes(), "member3".getBytes(), "1.2".getBytes());
 
-    ArgumentCaptor<RemoveByteArrays> argumentCaptor = ArgumentCaptor.forClass(
+    var argumentCaptor = ArgumentCaptor.forClass(
         RemoveByteArrays.class);
     verify(sortedSet).storeChanges(eq(region), eq(key), argumentCaptor.capture());
     assertThat(argumentCaptor.getValue().getRemoves()).containsExactlyInAnyOrder(
@@ -668,11 +666,11 @@ public class RedisSortedSetTest {
 
   @Test
   public void zpopminRemovesRegionEntryWhenSetBecomesEmpty() {
-    RedisSortedSet sortedSet = spy(createRedisSortedSet(score1, member1));
+    var sortedSet = spy(createRedisSortedSet(score1, member1));
     Region<RedisKey, RedisData> region = uncheckedCast(mock(PartitionedRegion.class));
-    RedisKey key = new RedisKey();
+    var key = new RedisKey();
 
-    List<byte[]> result = sortedSet.zpopmin(region, key, 1);
+    var result = sortedSet.zpopmin(region, key, 1);
     assertThat(result).containsExactly(member1.getBytes(), score1.getBytes());
 
     verify(sortedSet).storeChanges(eq(region), eq(key), any(RemoveByteArrays.class));
@@ -681,31 +679,31 @@ public class RedisSortedSetTest {
 
   @Test
   public void zpopminRemovesLowestLexWhenScoresAreEqual() {
-    RedisSortedSet sortedSet = spy(createRedisSortedSet(
+    var sortedSet = spy(createRedisSortedSet(
         "1.1", "member5",
         "1.1", "member4",
         "1.1", "member3",
         "1.1", "member2",
         "1.1", "member1"));
     Region<RedisKey, RedisData> region = uncheckedCast(mock(PartitionedRegion.class));
-    RedisKey key = new RedisKey();
+    var key = new RedisKey();
 
-    List<byte[]> result = sortedSet.zpopmin(region, key, 1);
+    var result = sortedSet.zpopmin(region, key, 1);
     assertThat(result).containsExactly("member1".getBytes(), "1.1".getBytes());
   }
 
   @Test
   public void zpopmaxRemovesMemberWithHighestScore() {
-    int originalSize = rangeSortedSet.getSortedSetSize();
-    RedisSortedSet sortedSet = spy(rangeSortedSet);
+    var originalSize = rangeSortedSet.getSortedSetSize();
+    var sortedSet = spy(rangeSortedSet);
     Region<RedisKey, RedisData> region = uncheckedCast(mock(PartitionedRegion.class));
-    RedisKey key = new RedisKey();
-    int count = 1;
+    var key = new RedisKey();
+    var count = 1;
 
-    List<byte[]> result = sortedSet.zpopmax(region, key, count);
+    var result = sortedSet.zpopmax(region, key, count);
     assertThat(result).containsExactly("member12".getBytes(), "2.1".getBytes());
 
-    ArgumentCaptor<RemoveByteArrays> argumentCaptor = ArgumentCaptor.forClass(
+    var argumentCaptor = ArgumentCaptor.forClass(
         RemoveByteArrays.class);
     verify(sortedSet).storeChanges(eq(region), eq(key), argumentCaptor.capture());
     assertThat(argumentCaptor.getValue().getRemoves()).containsExactly("member12".getBytes());
@@ -714,17 +712,17 @@ public class RedisSortedSetTest {
 
   @Test
   public void zpopmaxRemovesMembersWithHighestScores_whenCountIsGreaterThanOne() {
-    int originalSize = rangeSortedSet.getSortedSetSize();
-    RedisSortedSet sortedSet = spy(rangeSortedSet);
+    var originalSize = rangeSortedSet.getSortedSetSize();
+    var sortedSet = spy(rangeSortedSet);
     Region<RedisKey, RedisData> region = uncheckedCast(mock(PartitionedRegion.class));
-    RedisKey key = new RedisKey();
-    int count = 3;
+    var key = new RedisKey();
+    var count = 3;
 
-    List<byte[]> result = sortedSet.zpopmax(region, key, count);
+    var result = sortedSet.zpopmax(region, key, count);
     assertThat(result).containsExactlyInAnyOrder("member10".getBytes(), "1.9".getBytes(),
         "member11".getBytes(), "2".getBytes(), "member12".getBytes(), "2.1".getBytes());
 
-    ArgumentCaptor<RemoveByteArrays> argumentCaptor = ArgumentCaptor.forClass(
+    var argumentCaptor = ArgumentCaptor.forClass(
         RemoveByteArrays.class);
     verify(sortedSet).storeChanges(eq(region), eq(key), argumentCaptor.capture());
     assertThat(argumentCaptor.getValue().getRemoves()).containsExactlyInAnyOrder(
@@ -734,11 +732,11 @@ public class RedisSortedSetTest {
 
   @Test
   public void zpopmaxRemovesRegionEntryWhenSetBecomesEmpty() {
-    RedisSortedSet sortedSet = spy(createRedisSortedSet(score1, member1));
+    var sortedSet = spy(createRedisSortedSet(score1, member1));
     Region<RedisKey, RedisData> region = uncheckedCast(mock(PartitionedRegion.class));
-    RedisKey key = new RedisKey();
+    var key = new RedisKey();
 
-    List<byte[]> result = sortedSet.zpopmax(region, key, 1);
+    var result = sortedSet.zpopmax(region, key, 1);
     assertThat(result).containsExactly(member1.getBytes(), score1.getBytes());
 
     verify(sortedSet).storeChanges(eq(region), eq(key), any(RemoveByteArrays.class));
@@ -747,16 +745,16 @@ public class RedisSortedSetTest {
 
   @Test
   public void zpopmaxRemovesHighestLexWhenScoresAreEqual() {
-    RedisSortedSet sortedSet = spy(createRedisSortedSet(
+    var sortedSet = spy(createRedisSortedSet(
         "1.1", "member5",
         "1.1", "member4",
         "1.1", "member3",
         "1.1", "member2",
         "1.1", "member1"));
     Region<RedisKey, RedisData> region = uncheckedCast(mock(PartitionedRegion.class));
-    RedisKey key = new RedisKey();
+    var key = new RedisKey();
 
-    List<byte[]> result = sortedSet.zpopmax(region, key, 1);
+    var result = sortedSet.zpopmax(region, key, 1);
     assertThat(result).containsExactly("member5".getBytes(), "1.1".getBytes());
   }
 
@@ -768,10 +766,10 @@ public class RedisSortedSetTest {
   // that increase before changing the constant.
   @Test
   public void baseRedisSortedSetOverheadConstant_shouldMatchReflectedSize() {
-    RedisSortedSet set = new RedisSortedSet(Collections.emptyList(), new double[0]);
-    RedisSortedSet.MemberMap backingMap = new RedisSortedSet.MemberMap(0);
-    RedisSortedSet.ScoreSet backingTree = new RedisSortedSet.ScoreSet();
-    int baseRedisSetOverhead =
+    var set = new RedisSortedSet(Collections.emptyList(), new double[0]);
+    var backingMap = new RedisSortedSet.MemberMap(0);
+    var backingTree = new RedisSortedSet.ScoreSet();
+    var baseRedisSetOverhead =
         sizer.sizeof(set) - sizer.sizeof(backingMap) - sizer.sizeof(backingTree);
 
     assertThat(REDIS_SORTED_SET_OVERHEAD).isEqualTo(baseRedisSetOverhead);
@@ -779,11 +777,11 @@ public class RedisSortedSetTest {
 
   @Test
   public void baseOrderedSetEntrySize_shouldMatchReflectedSize() {
-    double score = 1.0;
-    byte[] memberBytes = stringToBytes("member");
-    RedisSortedSet.OrderedSetEntry entry =
+    var score = 1.0;
+    var memberBytes = stringToBytes("member");
+    var entry =
         new RedisSortedSet.OrderedSetEntry(memberBytes, score);
-    int expectedSize = sizer.sizeof(entry) - sizer.sizeof(memberBytes);
+    var expectedSize = sizer.sizeof(entry) - sizer.sizeof(memberBytes);
 
     assertThat(ORDERED_SET_ENTRY_OVERHEAD).isEqualTo(expectedSize);
   }
@@ -793,19 +791,19 @@ public class RedisSortedSetTest {
   @Test
   public void redisSortedSetGetSizeInBytes_isAccurateForAdds() {
     Region<RedisKey, RedisData> mockRegion = uncheckedCast(mock(PartitionedRegion.class));
-    RedisKey mockKey = mock(RedisKey.class);
-    ZAddOptions options = new ZAddOptions(ZAddOptions.Exists.NONE, false, false);
-    RedisSortedSet sortedSet = new RedisSortedSet(Collections.emptyList(), new double[0]);
+    var mockKey = mock(RedisKey.class);
+    var options = new ZAddOptions(ZAddOptions.Exists.NONE, false, false);
+    var sortedSet = new RedisSortedSet(Collections.emptyList(), new double[0]);
 
-    int expectedSize = sizer.sizeof(sortedSet);
-    int actualSize = sortedSet.getSizeInBytes();
+    var expectedSize = sizer.sizeof(sortedSet);
+    var actualSize = sortedSet.getSizeInBytes();
     assertThat(actualSize).isEqualTo(expectedSize);
 
     // Add members and scores and confirm that the actual size is accurate after each operation
-    int numberOfEntries = 100;
-    for (int i = 0; i < numberOfEntries; ++i) {
-      double[] scores = new double[] {(double) i};
-      List<byte[]> members = singletonList(new byte[i]);
+    var numberOfEntries = 100;
+    for (var i = 0; i < numberOfEntries; ++i) {
+      var scores = new double[] {(double) i};
+      var members = singletonList(new byte[i]);
       sortedSet.zadd(mockRegion, mockKey, members, scores, options);
       expectedSize = sizer.sizeof(sortedSet);
       actualSize = sortedSet.getSizeInBytes();
@@ -816,24 +814,24 @@ public class RedisSortedSetTest {
   @Test
   public void redisSortedSetGetSizeInBytes_isAccurateForUpdates() {
     Region<RedisKey, RedisData> mockRegion = uncheckedCast(mock(PartitionedRegion.class));
-    RedisKey mockKey = mock(RedisKey.class);
-    ZAddOptions options = new ZAddOptions(ZAddOptions.Exists.NONE, false, false);
-    RedisSortedSet sortedSet = new RedisSortedSet(Collections.emptyList(), new double[0]);
+    var mockKey = mock(RedisKey.class);
+    var options = new ZAddOptions(ZAddOptions.Exists.NONE, false, false);
+    var sortedSet = new RedisSortedSet(Collections.emptyList(), new double[0]);
 
-    int numberOfEntries = 100;
-    for (int i = 0; i < numberOfEntries; ++i) {
-      List<byte[]> members = singletonList(new byte[i]);
-      double[] scores = new double[] {(double) i};
+    var numberOfEntries = 100;
+    for (var i = 0; i < numberOfEntries; ++i) {
+      var members = singletonList(new byte[i]);
+      var scores = new double[] {(double) i};
       sortedSet.zadd(mockRegion, mockKey, members, scores, options);
     }
 
     // Update half the scores and confirm that the actual size is accurate after each operation
-    for (int i = 0; i < numberOfEntries / 2; ++i) {
-      List<byte[]> members = singletonList(new byte[i]);
-      double[] scores = new double[] {i * 2d};
+    for (var i = 0; i < numberOfEntries / 2; ++i) {
+      var members = singletonList(new byte[i]);
+      var scores = new double[] {i * 2d};
       sortedSet.zadd(mockRegion, mockKey, members, scores, options);
-      int expectedSize = sizer.sizeof(sortedSet);
-      int actualSize = sortedSet.getSizeInBytes();
+      var expectedSize = sizer.sizeof(sortedSet);
+      var actualSize = sortedSet.getSizeInBytes();
       assertThat(actualSize).isEqualTo(expectedSize);
     }
   }
@@ -841,23 +839,23 @@ public class RedisSortedSetTest {
   @Test
   public void redisSortedSetGetSizeInBytes_isAccurateForRemoves() {
     Region<RedisKey, RedisData> mockRegion = uncheckedCast(mock(PartitionedRegion.class));
-    RedisKey mockKey = mock(RedisKey.class);
-    ZAddOptions options = new ZAddOptions(ZAddOptions.Exists.NONE, false, false);
-    RedisSortedSet sortedSet = new RedisSortedSet(Collections.emptyList(), new double[0]);
+    var mockKey = mock(RedisKey.class);
+    var options = new ZAddOptions(ZAddOptions.Exists.NONE, false, false);
+    var sortedSet = new RedisSortedSet(Collections.emptyList(), new double[0]);
 
-    int numberOfEntries = 100;
-    for (int i = 0; i < numberOfEntries; ++i) {
-      List<byte[]> members = singletonList(new byte[i]);
-      double[] scores = new double[] {(double) i};
+    var numberOfEntries = 100;
+    for (var i = 0; i < numberOfEntries; ++i) {
+      var members = singletonList(new byte[i]);
+      var scores = new double[] {(double) i};
       sortedSet.zadd(mockRegion, mockKey, members, scores, options);
     }
 
     // Remove all members and confirm that the actual size is accurate after each operation
-    for (int i = 0; i < numberOfEntries; ++i) {
-      List<byte[]> memberToRemove = singletonList(new byte[i]);
+    for (var i = 0; i < numberOfEntries; ++i) {
+      var memberToRemove = singletonList(new byte[i]);
       sortedSet.zrem(mockRegion, mockKey, memberToRemove);
-      int expectedSize = sizer.sizeof(sortedSet);
-      int actualSize = sortedSet.getSizeInBytes();
+      var expectedSize = sizer.sizeof(sortedSet);
+      var actualSize = sortedSet.getSizeInBytes();
       assertThat(actualSize).isEqualTo(expectedSize);
     }
   }
@@ -865,22 +863,22 @@ public class RedisSortedSetTest {
   @Test
   public void redisSortedSetGetSizeInBytes_isAccurateForZpopmax() {
     Region<RedisKey, RedisData> mockRegion = uncheckedCast(mock(PartitionedRegion.class));
-    RedisKey mockKey = mock(RedisKey.class);
-    ZAddOptions options = new ZAddOptions(ZAddOptions.Exists.NONE, false, false);
-    RedisSortedSet sortedSet = new RedisSortedSet(Collections.emptyList(), new double[0]);
+    var mockKey = mock(RedisKey.class);
+    var options = new ZAddOptions(ZAddOptions.Exists.NONE, false, false);
+    var sortedSet = new RedisSortedSet(Collections.emptyList(), new double[0]);
 
-    int numberOfEntries = 100;
-    for (int i = 0; i < numberOfEntries; ++i) {
-      List<byte[]> members = singletonList(new byte[i]);
-      double[] scores = new double[] {(double) i};
+    var numberOfEntries = 100;
+    for (var i = 0; i < numberOfEntries; ++i) {
+      var members = singletonList(new byte[i]);
+      var scores = new double[] {(double) i};
       sortedSet.zadd(mockRegion, mockKey, members, scores, options);
     }
 
     // Remove all members by zpopmax and ensure size is correct
-    for (int i = 0; i < numberOfEntries; ++i) {
+    for (var i = 0; i < numberOfEntries; ++i) {
       sortedSet.zpopmax(mockRegion, mockKey, 1);
-      int expectedSize = sizer.sizeof(sortedSet);
-      int actualSize = sortedSet.getSizeInBytes();
+      var expectedSize = sizer.sizeof(sortedSet);
+      var actualSize = sortedSet.getSizeInBytes();
       assertThat(actualSize).isEqualTo(expectedSize);
     }
   }
@@ -888,33 +886,33 @@ public class RedisSortedSetTest {
   @Test
   public void redisSortedSetGetSizeInBytes_isAccurateForZpopmin() {
     Region<RedisKey, RedisData> mockRegion = uncheckedCast(mock(PartitionedRegion.class));
-    RedisKey mockKey = mock(RedisKey.class);
-    ZAddOptions options = new ZAddOptions(ZAddOptions.Exists.NONE, false, false);
-    RedisSortedSet sortedSet = new RedisSortedSet(Collections.emptyList(), new double[0]);
+    var mockKey = mock(RedisKey.class);
+    var options = new ZAddOptions(ZAddOptions.Exists.NONE, false, false);
+    var sortedSet = new RedisSortedSet(Collections.emptyList(), new double[0]);
 
-    int numberOfEntries = 100;
-    for (int i = 0; i < numberOfEntries; ++i) {
-      List<byte[]> members = singletonList(new byte[i]);
-      double[] scores = new double[] {(double) i};
+    var numberOfEntries = 100;
+    for (var i = 0; i < numberOfEntries; ++i) {
+      var members = singletonList(new byte[i]);
+      var scores = new double[] {(double) i};
       sortedSet.zadd(mockRegion, mockKey, members, scores, options);
     }
 
     // Remove all members by zpopmin and ensure size is correct
-    for (int i = 0; i < numberOfEntries; ++i) {
+    for (var i = 0; i < numberOfEntries; ++i) {
       sortedSet.zpopmin(mockRegion, mockKey, 1);
-      int expectedSize = sizer.sizeof(sortedSet);
-      int actualSize = sortedSet.getSizeInBytes();
+      var expectedSize = sizer.sizeof(sortedSet);
+      var actualSize = sortedSet.getSizeInBytes();
       assertThat(actualSize).isEqualTo(expectedSize);
     }
   }
 
   @Test
   public void orderedSetEntryGetSizeInBytes_isAccurate() {
-    Random random = new Random();
+    var random = new Random();
     byte[] member;
-    for (int i = 0; i < 100; ++i) {
+    for (var i = 0; i < 100; ++i) {
       member = new byte[random.nextInt(50_000)];
-      RedisSortedSet.OrderedSetEntry entry =
+      var entry =
           new RedisSortedSet.OrderedSetEntry(member, random.nextDouble());
       assertThat(entry.getSizeInBytes()).isEqualTo(sizer.sizeof(entry) - sizer.sizeof(member));
     }
@@ -922,10 +920,10 @@ public class RedisSortedSetTest {
 
   private RedisSortedSet createRedisSortedSet(String... membersAndScores) {
     List<byte[]> members = new ArrayList<>();
-    double[] scores = new double[100];
+    var scores = new double[100];
 
-    Iterator<String> iterator = Arrays.stream(membersAndScores).iterator();
-    int i = 0;
+    var iterator = Arrays.stream(membersAndScores).iterator();
+    var i = 0;
     while (iterator.hasNext()) {
       scores[i] = Coder.bytesToDouble(iterator.next().getBytes(StandardCharsets.UTF_8));
       members.add(iterator.next().getBytes(StandardCharsets.UTF_8));

@@ -25,7 +25,6 @@ import org.junit.rules.TemporaryFolder;
 
 import org.apache.geode.distributed.LocatorLauncher;
 import org.apache.geode.distributed.internal.InternalLocator;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.management.ManagementService;
 import org.apache.geode.management.internal.SystemManagementService;
 import org.apache.geode.test.junit.rules.CloseableReference;
@@ -60,7 +59,7 @@ abstract class LocatorLauncherWithJmxManager {
 
   @Before
   public void setUpPorts() {
-    int[] ports = getRandomAvailableTCPPorts(2);
+    var ports = getRandomAvailableTCPPorts(2);
     jmxPort = ports[0];
     locatorPort = ports[1];
   }
@@ -71,8 +70,8 @@ abstract class LocatorLauncherWithJmxManager {
   }
 
   SystemManagementService getSystemManagementService() {
-    InternalLocator locator = (InternalLocator) this.locator.get().getLocator();
-    InternalCache cache = locator.getCache();
+    var locator = (InternalLocator) this.locator.get().getLocator();
+    var cache = locator.getCache();
     return (SystemManagementService) ManagementService.getManagementService(cache);
   }
 

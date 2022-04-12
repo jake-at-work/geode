@@ -62,7 +62,7 @@ public class HealthMonitorImpl implements HealthMonitor, Runnable {
     this.dm = dm;
     eval = new GemFireHealthEvaluator(config, dm);
     currentStatus = GemFireHealth.GOOD_HEALTH;
-    String threadName = String.format("Health Monitor owned by %s", owner);
+    var threadName = String.format("Health Monitor owned by %s", owner);
     t = new LoggingThread(threadName, this);
   }
 
@@ -111,7 +111,7 @@ public class HealthMonitorImpl implements HealthMonitor, Runnable {
 
   @Override
   public void run() {
-    final int sleepTime = eval.getEvaluationInterval() * 1000;
+    final var sleepTime = eval.getEvaluationInterval() * 1000;
     if (logger.isDebugEnabled()) {
       logger.debug("Starting health monitor.  Health will be evaluated every {} seconds.",
           (sleepTime / 1000));
@@ -122,10 +122,10 @@ public class HealthMonitorImpl implements HealthMonitor, Runnable {
         dm.getCancelCriterion().checkCancelInProgress(null);
         Thread.sleep(sleepTime);
         if (!stopRequested) {
-          GemFireHealth.Health newStatus = eval.evaluate();
+          var newStatus = eval.evaluate();
           if (newStatus != currentStatus) {
             currentStatus = newStatus;
-            HealthListenerMessage msg = HealthListenerMessage.create(getId(), newStatus);
+            var msg = HealthListenerMessage.create(getId(), newStatus);
             msg.setRecipient(owner);
             dm.putOutgoing(msg);
           }

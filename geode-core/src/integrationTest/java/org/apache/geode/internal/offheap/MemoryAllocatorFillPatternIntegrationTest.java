@@ -113,7 +113,7 @@ public class MemoryAllocatorFillPatternIntegrationTest {
   @Test
   public void testFillPatternAdvancedForTinyAllocations() throws Exception {
     doFillPatternAdvancedTest(() -> {
-      int allocation = random.nextInt(MAX_WORKER_ALLOCATION_SIZE + 1);
+      var allocation = random.nextInt(MAX_WORKER_ALLOCATION_SIZE + 1);
 
       while (allocation < MIN_WORKER_ALLOCATION_SIZE) {
         allocation = random.nextInt(MAX_WORKER_ALLOCATION_SIZE + 1);
@@ -139,7 +139,7 @@ public class MemoryAllocatorFillPatternIntegrationTest {
 
   private void doFillPatternAdvancedTest(final ChunkSizer chunkSizer) throws InterruptedException {
     // Used to manage worker thread completion
-    final CountDownLatch latch = new CountDownLatch(WORKER_THREAD_COUNT);
+    final var latch = new CountDownLatch(WORKER_THREAD_COUNT);
 
     // Use to track any errors the worker threads will encounter
     final List<Throwable> threadErrorList =
@@ -149,7 +149,7 @@ public class MemoryAllocatorFillPatternIntegrationTest {
      * Start up a number of worker threads. These threads will randomly allocate, free, and write to
      * Chunks.
      */
-    for (int i = 0; i < WORKER_THREAD_COUNT; ++i) {
+    for (var i = 0; i < WORKER_THREAD_COUNT; ++i) {
       new Thread(new Runnable() {
         // Total allocation in bytes for this thread
         private int totalAllocation = 0;
@@ -164,8 +164,8 @@ public class MemoryAllocatorFillPatternIntegrationTest {
          * Allocates a chunk and adds it to the thread's Chunk list.
          */
         private void allocate() {
-          int allocation = chunkSizer.allocationSize();
-          OffHeapStoredObject chunk = (OffHeapStoredObject) allocator.allocate(allocation);
+          var allocation = chunkSizer.allocationSize();
+          var chunk = (OffHeapStoredObject) allocator.allocate(allocation);
 
           // This should always work just after allocation
           chunk.validateFill();
@@ -178,7 +178,7 @@ public class MemoryAllocatorFillPatternIntegrationTest {
          * Frees a random chunk from the Chunk list.
          */
         private void free() {
-          OffHeapStoredObject chunk = chunks.remove(random.nextInt(chunks.size()));
+          var chunk = chunks.remove(random.nextInt(chunks.size()));
           totalAllocation -= chunk.getSize();
 
           /*
@@ -192,7 +192,7 @@ public class MemoryAllocatorFillPatternIntegrationTest {
          * Writes canned data to a random Chunk from the Chunk list.
          */
         private void write() {
-          OffHeapStoredObject chunk = chunks.get(random.nextInt(chunks.size()));
+          var chunk = chunks.get(random.nextInt(chunks.size()));
           chunk.writeDataBytes(0, WRITE_BYTES);
         }
 
@@ -203,9 +203,9 @@ public class MemoryAllocatorFillPatternIntegrationTest {
         @Override
         public void run() {
           try {
-            for (long currentTime = System.currentTimeMillis(); currentTime < endTime; currentTime =
+            for (var currentTime = System.currentTimeMillis(); currentTime < endTime; currentTime =
                 System.currentTimeMillis()) {
-              Operation op = (totalAllocation == 0 ? Operation.ALLOCATE
+              var op = (totalAllocation == 0 ? Operation.ALLOCATE
                   : (totalAllocation >= MAX_WORKER_ALLOCATION_TOTAL_SIZE ? Operation.FREE
                       : Operation.randomOperation()));
               switch (op) {

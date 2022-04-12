@@ -48,7 +48,7 @@ public class RemoteLocatorJoinResponse implements DataSerializableFixedID {
   public RemoteLocatorJoinResponse(Map<Integer, Set<DistributionLocatorId>> locators) {
     super();
     this.locators = new HashMap<>();
-    for (Map.Entry<Integer, Set<DistributionLocatorId>> entry : locators.entrySet()) {
+    for (var entry : locators.entrySet()) {
       this.locators.put(entry.getKey(),
           new CopyOnWriteHashSet<>(entry.getValue()));
     }

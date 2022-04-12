@@ -108,17 +108,17 @@ public class ClusterAlertingServiceTest {
 
   @Test
   public void addAlertListenerOrdersByAscendingAlertLevel() {
-    DistributedMember member1 = mock(DistributedMember.class);
-    DistributedMember member2 = mock(DistributedMember.class);
-    DistributedMember member3 = mock(DistributedMember.class);
+    var member1 = mock(DistributedMember.class);
+    var member2 = mock(DistributedMember.class);
+    var member3 = mock(DistributedMember.class);
 
     alertingService.addAlertListener(member3, AlertLevel.WARNING);
     alertingService.addAlertListener(member1, AlertLevel.SEVERE);
     alertingService.addAlertListener(member2, AlertLevel.ERROR);
 
-    AlertListener listener1 = new AlertListener(AlertLevel.WARNING, member3);
-    AlertListener listener2 = new AlertListener(AlertLevel.ERROR, member2);
-    AlertListener listener3 = new AlertListener(AlertLevel.SEVERE, member1);
+    var listener1 = new AlertListener(AlertLevel.WARNING, member3);
+    var listener2 = new AlertListener(AlertLevel.ERROR, member2);
+    var listener3 = new AlertListener(AlertLevel.SEVERE, member1);
 
     assertThat(alertingService.getAlertListeners()).containsExactly(listener1, listener2,
         listener3);
@@ -126,16 +126,16 @@ public class ClusterAlertingServiceTest {
 
   @Test
   public void removeAlertListenerMaintainsExistingOrder() {
-    DistributedMember member1 = mock(DistributedMember.class);
-    DistributedMember member2 = mock(DistributedMember.class);
-    DistributedMember member3 = mock(DistributedMember.class);
+    var member1 = mock(DistributedMember.class);
+    var member2 = mock(DistributedMember.class);
+    var member3 = mock(DistributedMember.class);
 
     alertingService.addAlertListener(member3, AlertLevel.WARNING);
     alertingService.addAlertListener(member1, AlertLevel.SEVERE);
     alertingService.addAlertListener(member2, AlertLevel.ERROR);
 
-    AlertListener listener1 = new AlertListener(AlertLevel.WARNING, member3);
-    AlertListener listener3 = new AlertListener(AlertLevel.SEVERE, member1);
+    var listener1 = new AlertListener(AlertLevel.WARNING, member3);
+    var listener3 = new AlertListener(AlertLevel.SEVERE, member1);
 
     assertThat(alertingService.removeAlertListener(member2)).isTrue();
 
@@ -144,17 +144,17 @@ public class ClusterAlertingServiceTest {
 
   @Test
   public void addAlertListenerOrdersByDescendingAddIfAlertLevelMatches() {
-    DistributedMember member1 = mock(DistributedMember.class);
-    DistributedMember member2 = mock(DistributedMember.class);
-    DistributedMember member3 = mock(DistributedMember.class);
+    var member1 = mock(DistributedMember.class);
+    var member2 = mock(DistributedMember.class);
+    var member3 = mock(DistributedMember.class);
 
     alertingService.addAlertListener(member3, AlertLevel.WARNING);
     alertingService.addAlertListener(member1, AlertLevel.WARNING);
     alertingService.addAlertListener(member2, AlertLevel.WARNING);
 
-    AlertListener listener1 = new AlertListener(AlertLevel.WARNING, member2);
-    AlertListener listener2 = new AlertListener(AlertLevel.WARNING, member1);
-    AlertListener listener3 = new AlertListener(AlertLevel.WARNING, member3);
+    var listener1 = new AlertListener(AlertLevel.WARNING, member2);
+    var listener2 = new AlertListener(AlertLevel.WARNING, member1);
+    var listener3 = new AlertListener(AlertLevel.WARNING, member3);
 
     assertThat(alertingService.getAlertListeners()).containsExactly(listener1, listener2,
         listener3);

@@ -40,7 +40,6 @@ import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.execute.FunctionException;
 import org.apache.geode.cache.execute.FunctionService;
 import org.apache.geode.cache.execute.RegionFunctionContext;
-import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.cache.execute.ResultSender;
 import org.apache.geode.cache.partition.PartitionRegionHelper;
 import org.apache.geode.cache.snapshot.RegionSnapshotService;
@@ -189,9 +188,9 @@ public class RegionSnapshotServiceImpl<K, V> implements RegionSnapshotService<K,
   private void snapshotInParallel(ParallelArgs<K, V> args, Function fn) throws IOException {
     try {
 
-      ResultCollector rc = FunctionService.onRegion(region).setArguments(args).execute(fn);
-      List result = (List) rc.getResult();
-      for (Object obj : result) {
+      var rc = FunctionService.onRegion(region).setArguments(args).execute(fn);
+      var result = (List) rc.getResult();
+      for (var obj : result) {
         if (obj instanceof Exception) {
           throw new IOException((Exception) obj);
         }
@@ -205,13 +204,13 @@ public class RegionSnapshotServiceImpl<K, V> implements RegionSnapshotService<K,
 
   private void importOnMember(File snapshot, SnapshotFormat format, SnapshotOptions<K, V> options)
       throws IOException, ClassNotFoundException {
-    final LocalRegion local = getLocalRegion(region);
+    final var local = getLocalRegion(region);
 
     if (getLogger().infoEnabled()) {
       getLogger().info(String.format("Importing region %s", region.getName()));
     }
     if (snapshot.isDirectory()) {
-      File[] snapshots =
+      var snapshots =
           snapshot.listFiles((File f) -> f.getName().endsWith(SNAPSHOT_FILE_EXTENSION));
       if (snapshots == null) {
         throw new IOException("Unable to access " + snapshot.getCanonicalPath());
@@ -219,7 +218,7 @@ public class RegionSnapshotServiceImpl<K, V> implements RegionSnapshotService<K,
         throw new IllegalArgumentException("Failure to import snapshot: "
             + snapshot.getAbsolutePath() + " contains no valid .gfd snapshot files");
       }
-      for (File snapshotFile : snapshots) {
+      for (var snapshotFile : snapshots) {
         importSnapshotFile(snapshotFile, options, local);
       }
     } else if (snapshot.getName().endsWith(SNAPSHOT_FILE_EXTENSION)) {
@@ -234,15 +233,15 @@ public class RegionSnapshotServiceImpl<K, V> implements RegionSnapshotService<K,
       throws IOException, ClassNotFoundException {
     long count = 0;
     long bytes = 0;
-    long start = local.getCachePerfStats().getTime();
+    var start = local.getCachePerfStats().getTime();
 
     // Would be interesting to use a PriorityQueue ordered on isDone()
     // but this is probably close enough in practice.
-    LinkedList<Future<?>> puts = new LinkedList<>();
-    GFSnapshotImporter in = new GFSnapshotImporter(snapshot, local.getCache().getPdxRegistry());
+    var puts = new LinkedList<Future<?>>();
+    var in = new GFSnapshotImporter(snapshot, local.getCache().getPdxRegistry());
 
     try {
-      int bufferSize = 0;
+      var bufferSize = 0;
       Map<K, V> buffer = new HashMap<>();
 
       SnapshotRecord record;
@@ -255,9 +254,9 @@ public class RegionSnapshotServiceImpl<K, V> implements RegionSnapshotService<K,
         // invoke create/invalidate directly but that prevents us from using
         // bulk operations. The ugly type coercion below is necessary to allow
         // strong typing elsewhere.
-        V val = (V) Token.INVALID;
+        var val = (V) Token.INVALID;
         if (record.hasValue()) {
-          byte[] data = record.getValue();
+          var data = record.getValue();
           // If the underlying object is a byte[], we can't wrap it in a
           // CachedDeserializable. Somewhere along the line the header bytes
           // get lost and we start seeing serialization problems.
@@ -284,7 +283,7 @@ public class RegionSnapshotServiceImpl<K, V> implements RegionSnapshotService<K,
             }
 
             final Map<K, V> copy = new HashMap<>(buffer);
-            Future<?> f = local.getCache().getDistributionManager().getExecutors()
+            var f = local.getCache().getDistributionManager().getExecutors()
                 .getWaitingThreadPool().submit(
                     (Runnable) () -> local.basicImportPutAll(copy,
                         !options.shouldInvokeCallbacks()));
@@ -337,29 +336,29 @@ public class RegionSnapshotServiceImpl<K, V> implements RegionSnapshotService<K,
       throw new IllegalArgumentException("Failure to export snapshot: "
           + snapshot.getCanonicalPath() + " is not a valid .gfd file");
     }
-    File directory = snapshot.getAbsoluteFile().getParentFile();
+    var directory = snapshot.getAbsoluteFile().getParentFile();
     if (directory == null) {
       throw new IllegalArgumentException("Failure to export snapshot: "
           + snapshot.getCanonicalPath() + " is not a valid location");
     }
     directory.mkdirs();
-    LocalRegion local = getLocalRegion(region);
-    Exporter<K, V> exp = createExporter(local.getCache(), region, options);
+    var local = getLocalRegion(region);
+    var exp = createExporter(local.getCache(), region, options);
 
     if (getLogger().fineEnabled()) {
       getLogger().fine("Writing to snapshot " + snapshot.getAbsolutePath());
     }
 
     long count = 0;
-    long start = local.getCachePerfStats().getTime();
-    SnapshotWriter writer =
+    var start = local.getCachePerfStats().getTime();
+    var writer =
         GFSnapshot.create(snapshot, region.getFullPath(), (InternalCache) region.getCache());
     try {
       if (getLogger().infoEnabled()) {
         getLogger().info(String.format("Exporting region %s", region.getName()));
       }
 
-      SnapshotWriterSink sink = new SnapshotWriterSink(writer);
+      var sink = new SnapshotWriterSink(writer);
       count = exp.export(region, sink, options);
 
       if (getLogger().infoEnabled()) {
@@ -377,7 +376,7 @@ public class RegionSnapshotServiceImpl<K, V> implements RegionSnapshotService<K,
 
   private boolean includeEntry(SnapshotOptions<K, V> options, final K key, final V val) {
     if (options.getFilter() != null) {
-      Entry<K, V> entry = new Entry<K, V>() {
+      var entry = new Entry<K, V>() {
         @Override
         public V setValue(V value) {
           throw new UnsupportedOperationException();
@@ -404,7 +403,7 @@ public class RegionSnapshotServiceImpl<K, V> implements RegionSnapshotService<K,
 
   static <K, V> Exporter<K, V> createExporter(InternalCache cache, Region<?, ?> region,
       SnapshotOptions<K, V> options) {
-    String pool = region.getAttributes().getPoolName();
+    var pool = region.getAttributes().getPoolName();
     if (pool != null) {
       return new ClientExporter<>(PoolManager.find(pool));
 
@@ -448,7 +447,7 @@ public class RegionSnapshotServiceImpl<K, V> implements RegionSnapshotService<K,
 
     @Override
     public void write(SnapshotRecord... records) throws IOException {
-      for (SnapshotRecord rec : records) {
+      for (var rec : records) {
         writer.snapshotEntry(rec);
         bytes += rec.getSize();
       }
@@ -522,8 +521,8 @@ public class RegionSnapshotServiceImpl<K, V> implements RegionSnapshotService<K,
       try {
         Region<K, V> local =
             PartitionRegionHelper.getLocalDataForContext((RegionFunctionContext) context);
-        ParallelArgs<K, V> args = (ParallelArgs<K, V>) context.getArguments();
-        File f = args.getOptions().getMapper().mapExportPath(
+        var args = (ParallelArgs<K, V>) context.getArguments();
+        var f = args.getOptions().getMapper().mapExportPath(
             local.getCache().getDistributedSystem().getDistributedMember(), args.getFile());
 
         if (f == null || f.isDirectory()) {
@@ -565,13 +564,13 @@ public class RegionSnapshotServiceImpl<K, V> implements RegionSnapshotService<K,
       try {
         Region<K, V> local =
             PartitionRegionHelper.getLocalDataForContext((RegionFunctionContext) context);
-        ParallelArgs<K, V> args = (ParallelArgs<K, V>) context.getArguments();
+        var args = (ParallelArgs<K, V>) context.getArguments();
 
-        File[] files = args.getOptions().getMapper().mapImportPath(
+        var files = args.getOptions().getMapper().mapImportPath(
             local.getCache().getDistributedSystem().getDistributedMember(), args.getFile());
 
         if (files != null) {
-          for (File f : files) {
+          for (var f : files) {
             if (f.exists()) {
               local.getSnapshotService().load(f, args.getFormat(), args.getOptions());
             } else {

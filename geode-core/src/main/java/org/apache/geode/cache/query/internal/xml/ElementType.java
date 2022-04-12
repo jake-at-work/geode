@@ -37,16 +37,16 @@ public enum ElementType {
             "<" + PREFIX + ":" + PARENT_QUERY_ELEMENT
                 + "> elements must occur within <cache> elements");
       }
-      QueryConfigurationServiceCreation queryConfigurationServiceCreation =
+      var queryConfigurationServiceCreation =
           new QueryConfigurationServiceCreation();
       stack.push(queryConfigurationServiceCreation);
     }
 
     @Override
     void endElement(Stack<Object> stack) {
-      QueryConfigurationServiceCreation queryConfigurationServiceCreation =
+      var queryConfigurationServiceCreation =
           (QueryConfigurationServiceCreation) stack.pop();
-      CacheCreation cacheCreation = (CacheCreation) stack.peek();
+      var cacheCreation = (CacheCreation) stack.peek();
       cacheCreation.setQueryConfigurationServiceCreation(queryConfigurationServiceCreation);
     }
   },
@@ -59,8 +59,8 @@ public enum ElementType {
             "<" + PREFIX + ":" + QUERY_METHOD_AUTHORIZER + "> elements must occur within <" + PREFIX
                 + ":" + PARENT_QUERY_ELEMENT + "> elements");
       }
-      String className = attributes.getValue(CLASS_NAME);
-      QueryMethodAuthorizerCreation methodAuthorizer = new QueryMethodAuthorizerCreation();
+      var className = attributes.getValue(CLASS_NAME);
+      var methodAuthorizer = new QueryMethodAuthorizerCreation();
       if (className != null) {
         methodAuthorizer.setClassName(className);
       }
@@ -69,8 +69,8 @@ public enum ElementType {
 
     @Override
     void endElement(Stack<Object> stack) {
-      QueryMethodAuthorizerCreation methodAuthorizer = (QueryMethodAuthorizerCreation) stack.pop();
-      QueryConfigurationServiceCreation queryConfigurationServiceCreation =
+      var methodAuthorizer = (QueryMethodAuthorizerCreation) stack.pop();
+      var queryConfigurationServiceCreation =
           (QueryConfigurationServiceCreation) stack.peek();
       queryConfigurationServiceCreation.setMethodAuthorizerCreation(methodAuthorizer);
     }
@@ -84,8 +84,8 @@ public enum ElementType {
             "<" + PREFIX + ":" + AUTHORIZER_PARAMETER + "> elements must occur within <" + PREFIX
                 + ":" + QUERY_METHOD_AUTHORIZER + "> elements");
       }
-      QueryMethodAuthorizerCreation methodAuthorizer = (QueryMethodAuthorizerCreation) stack.peek();
-      String parameter = attributes.getValue(PARAMETER_VALUE);
+      var methodAuthorizer = (QueryMethodAuthorizerCreation) stack.peek();
+      var parameter = attributes.getValue(PARAMETER_VALUE);
       if (parameter != null) {
         methodAuthorizer.addSingleParameter(parameter);
       }
@@ -102,7 +102,7 @@ public enum ElementType {
   }
 
   static ElementType getTypeFromName(String typeName) {
-    for (ElementType type : ElementType.values()) {
+    for (var type : ElementType.values()) {
       if (type.typeName.equals(typeName)) {
         return type;
       }

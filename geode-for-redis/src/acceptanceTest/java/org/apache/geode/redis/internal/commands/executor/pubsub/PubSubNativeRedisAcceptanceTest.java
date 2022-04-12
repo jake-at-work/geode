@@ -37,9 +37,9 @@ public class PubSubNativeRedisAcceptanceTest extends AbstractPubSubIntegrationTe
   public static void runOnce() throws IOException {
     if (SystemUtils.IS_OS_LINUX) {
       try {
-        BufferedReader bufferedReader =
+        var bufferedReader =
             new BufferedReader(new FileReader("/proc/sys/net/ipv4/tcp_fin_timeout"));
-        String line = bufferedReader.readLine();
+        var line = bufferedReader.readLine();
         if (line != null) {
           socketTimeWaitMsec = 1000 * Long.parseLong(line.trim());
         }
@@ -47,8 +47,8 @@ public class PubSubNativeRedisAcceptanceTest extends AbstractPubSubIntegrationTe
       }
     } else if (SystemUtils.IS_OS_MAC) {
       try {
-        String line = getCommandOutput("sysctl", "net.inet.tcp.msl");
-        String[] parts = line.split(":");
+        var line = getCommandOutput("sysctl", "net.inet.tcp.msl");
+        var parts = line.split(":");
         if (parts.length == 2) {
           socketTimeWaitMsec = 2 * Long.parseLong(parts[1].trim());
         }
@@ -59,8 +59,8 @@ public class PubSubNativeRedisAcceptanceTest extends AbstractPubSubIntegrationTe
   }
 
   private static String getCommandOutput(String... commandStringElements) throws IOException {
-    Process process = new ProcessBuilder(commandStringElements).start();
-    try (BufferedReader reader = new BufferedReader(
+    var process = new ProcessBuilder(commandStringElements).start();
+    try (var reader = new BufferedReader(
         new InputStreamReader(process.getInputStream()))) {
       return reader.readLine();
     } finally {

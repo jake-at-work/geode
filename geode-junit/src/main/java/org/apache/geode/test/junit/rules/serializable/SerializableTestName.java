@@ -56,7 +56,7 @@ public class SerializableTestName extends TestName implements SerializableTestRu
     }
 
     private Object readResolve() {
-      SerializableTestName instance = new SerializableTestName();
+      var instance = new SerializableTestName();
       writeField(TestName.class, instance, FIELD_NAME, name);
       return instance;
     }

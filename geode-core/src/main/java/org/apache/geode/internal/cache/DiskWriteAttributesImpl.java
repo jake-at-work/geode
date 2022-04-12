@@ -90,7 +90,7 @@ public class DiskWriteAttributesImpl implements DiskWriteAttributes {
   @Immutable
   private static final DiskWriteAttributes DEFAULT_ASYNC_DWA;
   static {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(SYNCHRONOUS_PROPERTY, "false");
     DEFAULT_ASYNC_DWA = new DiskWriteAttributesImpl(props);
   }
@@ -98,7 +98,7 @@ public class DiskWriteAttributesImpl implements DiskWriteAttributes {
   @Immutable
   private static final DiskWriteAttributes DEFAULT_SYNC_DWA;
   static {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(SYNCHRONOUS_PROPERTY, "true");
     DEFAULT_SYNC_DWA = new DiskWriteAttributesImpl(props);
   }
@@ -147,7 +147,7 @@ public class DiskWriteAttributesImpl implements DiskWriteAttributes {
 
   public DiskWriteAttributesImpl(Properties properties) {
 
-    String isSynchronousString = properties.getProperty(SYNCHRONOUS_PROPERTY);
+    var isSynchronousString = properties.getProperty(SYNCHRONOUS_PROPERTY);
     if (isSynchronousString == null) {
       isSynchronous = DEFAULT_IS_SYNCHRONOUS;
     } else {
@@ -155,7 +155,7 @@ public class DiskWriteAttributesImpl implements DiskWriteAttributes {
       isSynchronous = Boolean.parseBoolean(isSynchronousString);
     }
 
-    String compactOplogsString = properties.getProperty(CacheXml.ROLL_OPLOG);
+    var compactOplogsString = properties.getProperty(CacheXml.ROLL_OPLOG);
     if (compactOplogsString == null) {
       compactOplogs = DEFAULT_ROLL_OPLOGS;
     } else {
@@ -163,7 +163,7 @@ public class DiskWriteAttributesImpl implements DiskWriteAttributes {
       compactOplogs = Boolean.parseBoolean(compactOplogsString);
     }
 
-    String bytesThresholdString = properties.getProperty(CacheXml.BYTES_THRESHOLD);
+    var bytesThresholdString = properties.getProperty(CacheXml.BYTES_THRESHOLD);
     if (bytesThresholdString != null) {
       if (isSynchronous) {
         // log warning, no use setting time if is synchronous
@@ -173,7 +173,7 @@ public class DiskWriteAttributesImpl implements DiskWriteAttributes {
       bytesThreshold = 0L;
     }
 
-    String timeIntervalString = properties.getProperty(CacheXml.TIME_INTERVAL);
+    var timeIntervalString = properties.getProperty(CacheXml.TIME_INTERVAL);
     if (timeIntervalString != null) {
       if (isSynchronous) {
         // log warning, no use setting time if is synchronous
@@ -187,12 +187,10 @@ public class DiskWriteAttributesImpl implements DiskWriteAttributes {
       }
     }
 
-
-
-    String maxOplogSizeString = properties.getProperty(CacheXml.MAX_OPLOG_SIZE);
+    var maxOplogSizeString = properties.getProperty(CacheXml.MAX_OPLOG_SIZE);
 
     if (maxOplogSizeString != null) {
-      long opSize = verifyLongInString(maxOplogSizeString, CacheXml.MAX_OPLOG_SIZE);
+      var opSize = verifyLongInString(maxOplogSizeString, CacheXml.MAX_OPLOG_SIZE);
       if (opSize == 0 && compactOplogs == true) {
         throw new IllegalStateException(
             "Compaction cannot be set to true if max-oplog-size is set to infinite (infinite is represented by size zero : 0)");
@@ -346,11 +344,11 @@ public class DiskWriteAttributesImpl implements DiskWriteAttributes {
       return false;
     }
 
-    DiskWriteAttributesImpl other = (DiskWriteAttributesImpl) o;
+    var other = (DiskWriteAttributesImpl) o;
     if (other.isSynchronous() != isSynchronous()) {
       return false;
     }
-    boolean result =
+    var result =
         other.isRollOplogs() == isRollOplogs() && other.getMaxOplogSize() == getMaxOplogSize();
     if (!isSynchronous()) {
       result = result && other.getTimeInterval() == getTimeInterval()
@@ -386,7 +384,7 @@ public class DiskWriteAttributesImpl implements DiskWriteAttributes {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
+    var sb = new StringBuilder();
     if (isSynchronous()) {
       sb.append("Synchronous writes to disk");
 

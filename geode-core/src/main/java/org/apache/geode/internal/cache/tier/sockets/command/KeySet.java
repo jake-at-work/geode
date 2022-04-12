@@ -17,7 +17,6 @@ package org.apache.geode.internal.cache.tier.sockets.command;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -30,12 +29,9 @@ import org.apache.geode.internal.cache.TXManagerImpl;
 import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.BaseCommand;
-import org.apache.geode.internal.cache.tier.sockets.ChunkedMessage;
 import org.apache.geode.internal.cache.tier.sockets.Message;
 import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
-import org.apache.geode.internal.security.AuthorizeRequest;
-import org.apache.geode.internal.security.AuthorizeRequestPP;
 import org.apache.geode.internal.security.SecurityService;
 import org.apache.geode.security.NotAuthorizedException;
 import org.apache.geode.security.ResourcePermission.Operation;
@@ -63,8 +59,8 @@ public class KeySet extends BaseCommand {
     // Retrieve the region name from the message parts
     regionNamePart = clientMessage.getPart(0);
     regionName = regionNamePart.getCachedString();
-    ChunkedMessage chunkedResponseMsg = serverConnection.getChunkedResponseMessage();
-    final boolean isDebugEnabled = logger.isDebugEnabled();
+    var chunkedResponseMsg = serverConnection.getChunkedResponseMessage();
+    final var isDebugEnabled = logger.isDebugEnabled();
     if (isDebugEnabled) {
       logger.debug("{}: Received key set request ({} bytes) from {} for region {}",
           serverConnection.getName(), clientMessage.getPayloadLength(),
@@ -87,9 +83,9 @@ public class KeySet extends BaseCommand {
       return;
     }
 
-    LocalRegion region = (LocalRegion) serverConnection.getCache().getRegion(regionName);
+    var region = (LocalRegion) serverConnection.getCache().getRegion(regionName);
     if (region == null) {
-      String reason = " was not found during key set request";
+      var reason = " was not found during key set request";
       writeRegionDestroyedEx(clientMessage, regionName, reason, serverConnection);
       serverConnection.setAsTrue(RESPONDED);
       return;
@@ -117,7 +113,7 @@ public class KeySet extends BaseCommand {
     }
 
     KeySetOperationContext keySetContext = null;
-    AuthorizeRequest authzRequest = serverConnection.getAuthzRequest();
+    var authzRequest = serverConnection.getAuthzRequest();
     if (authzRequest != null) {
       try {
         keySetContext = authzRequest.keySetAuthorize(regionName);
@@ -174,19 +170,19 @@ public class KeySet extends BaseCommand {
       KeySetOperationContext context, ServerConnection servConn) throws IOException {
 
     // Get the key set
-    Set keySet = region.keys();
-    KeySetOperationContext keySetContext = context;
+    var keySet = region.keys();
+    var keySetContext = context;
 
     // Post-operation filtering
-    AuthorizeRequestPP postAuthzRequest = servConn.getPostAuthzRequest();
+    var postAuthzRequest = servConn.getPostAuthzRequest();
     if (postAuthzRequest != null) {
       keySetContext = postAuthzRequest.keySetAuthorize(regionName, keySet, keySetContext);
       keySet = keySetContext.getKeySet();
     }
 
     List keyList = new ArrayList(MAXIMUM_CHUNK_SIZE);
-    final boolean isTraceEnabled = logger.isTraceEnabled();
-    for (Object entryKey : keySet) {
+    final var isTraceEnabled = logger.isTraceEnabled();
+    for (var entryKey : keySet) {
       keyList.add(entryKey);
       if (isTraceEnabled) {
         logger.trace("{}: fillAndSendKeySetResponseKey <{}>; list size was {}; region: {}",
@@ -204,7 +200,7 @@ public class KeySet extends BaseCommand {
 
   private static void sendKeySetResponseChunk(Region region, List list, boolean lastChunk,
       ServerConnection servConn) throws IOException {
-    ChunkedMessage chunkedResponseMsg = servConn.getChunkedResponseMessage();
+    var chunkedResponseMsg = servConn.getChunkedResponseMessage();
 
     chunkedResponseMsg.setNumberOfParts(1);
     chunkedResponseMsg.setLastChunk(lastChunk);

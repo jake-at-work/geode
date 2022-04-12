@@ -156,8 +156,8 @@ public class Portfolio implements Serializable, DataSerializable {
     this(i);
     position1.portfolioId = j;
     position3 = new Position[3];
-    for (int k = 0; k < position3.length; k++) {
-      Position p = new Position(secIds[k], (k + 1) * 1000L);
+    for (var k = 0; k < position3.length; k++) {
+      var p = new Position(secIds[k], (k + 1) * 1000L);
       p.portfolioId = (k + 1);
       position3[k] = p;
     }
@@ -171,7 +171,7 @@ public class Portfolio implements Serializable, DataSerializable {
     if (!(o instanceof Portfolio)) {
       return false;
     }
-    Portfolio p2 = (Portfolio) o;
+    var p2 = (Portfolio) o;
     return ID == p2.ID;
   }
 
@@ -181,12 +181,12 @@ public class Portfolio implements Serializable, DataSerializable {
 
 
   public String toString() {
-    String out =
+    var out =
         "Portfolio [ID=" + ID + " status=" + status + " type=" + type + " pkid=" + pkid
             + System.lineSeparator();
     if (positions != null) {
-      for (final Object o : positions.entrySet()) {
-        Map.Entry entry = (Map.Entry) o;
+      for (final var o : positions.entrySet()) {
+        var entry = (Map.Entry) o;
         out += entry.getKey() + ":" + entry.getValue() + ", ";
       }
       out += System.lineSeparator() + " P1:" + position1 + ", P2:" + position2;
@@ -238,7 +238,7 @@ public class Portfolio implements Serializable, DataSerializable {
   @Override
   public void fromData(DataInput in) throws IOException, ClassNotFoundException {
     ID = in.readInt();
-    boolean isNull = DataSerializer.readPrimitiveBoolean(in);
+    var isNull = DataSerializer.readPrimitiveBoolean(in);
     if (!isNull) {
       shortID = DataSerializer.readShort(in);
     }
@@ -255,10 +255,10 @@ public class Portfolio implements Serializable, DataSerializable {
     createTime = DataSerializer.readPrimitiveLong(in);
     createDate = DataSerializer.readDate(in);
     // Read Position3
-    int position3Size = in.readInt();
+    var position3Size = in.readInt();
     if (position3Size != 0) {
       position3 = new Position[position3Size];
-      for (int i = 0; i < position3Size; i++) {
+      for (var i = 0; i < position3Size; i++) {
         position3[i] = DataSerializer.readObject(in);
 
       }
@@ -292,7 +292,7 @@ public class Portfolio implements Serializable, DataSerializable {
       out.writeInt(0);
     } else {
       out.writeInt(position3.length);
-      for (final Position position : position3) {
+      for (final var position : position3) {
         DataSerializer.writeObject(position, out);
       }
     }

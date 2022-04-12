@@ -19,18 +19,13 @@ import static org.apache.geode.distributed.ConfigurationProperties.MCAST_PORT;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
-import java.util.Collection;
 import java.util.Properties;
-import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.DiskStoreFactory;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.internal.cache.DiskStoreImpl;
@@ -45,27 +40,27 @@ import org.apache.geode.test.junit.categories.SerializationTest;
 public class PdxRenameJUnitTest {
   @Test
   public void testGetPdxTypes() throws Exception {
-    String DS_NAME = "PdxRenameJUnitTestDiskStore";
-    Properties props = new Properties();
+    var DS_NAME = "PdxRenameJUnitTestDiskStore";
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
-    File f = new File(DS_NAME);
+    var f = new File(DS_NAME);
     f.mkdir();
     try {
-      final Cache cache =
+      final var cache =
           (new CacheFactory(props)).setPdxPersistent(true).setPdxDiskStore(DS_NAME).create();
       try {
-        DiskStoreFactory dsf = cache.createDiskStoreFactory();
+        var dsf = cache.createDiskStoreFactory();
         dsf.setDiskDirs(new File[] {f});
         dsf.create(DS_NAME);
         RegionFactory<String, PdxValue> rf1 =
             cache.createRegionFactory(RegionShortcut.LOCAL_PERSISTENT);
         rf1.setDiskStoreName(DS_NAME);
-        Region<String, PdxValue> region1 = rf1.create("region1");
+        var region1 = rf1.create("region1");
         region1.put("key1", new PdxValue(1));
         cache.close();
 
-        Collection<PdxType> types = DiskStoreImpl.getPdxTypes(DS_NAME, new File[] {f});
+        var types = DiskStoreImpl.getPdxTypes(DS_NAME, new File[] {f});
         assertEquals(1, types.size());
         assertEquals(PdxValue.class.getName(), types.iterator().next().getClassName());
       } finally {
@@ -80,41 +75,41 @@ public class PdxRenameJUnitTest {
 
   @Test
   public void testPdxRename() throws Exception {
-    String DS_NAME = "PdxRenameJUnitTestDiskStore";
-    Properties props = new Properties();
+    var DS_NAME = "PdxRenameJUnitTestDiskStore";
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
-    File f = new File(DS_NAME);
+    var f = new File(DS_NAME);
     f.mkdir();
     try {
-      final Cache cache =
+      final var cache =
           (new CacheFactory(props)).setPdxPersistent(true).setPdxDiskStore(DS_NAME).create();
       try {
-        DiskStoreFactory dsf = cache.createDiskStoreFactory();
+        var dsf = cache.createDiskStoreFactory();
         dsf.setDiskDirs(new File[] {f});
         dsf.create(DS_NAME);
         RegionFactory<String, PdxValue> rf1 =
             cache.createRegionFactory(RegionShortcut.LOCAL_PERSISTENT);
         rf1.setDiskStoreName(DS_NAME);
-        Region<String, PdxValue> region1 = rf1.create("region1");
+        var region1 = rf1.create("region1");
         region1.put("key1", new PdxValue(1));
         cache.close();
 
-        Collection<Object> renameResults =
+        var renameResults =
             DiskStoreImpl.pdxRename(DS_NAME, new File[] {f}, "apache", "pivotal");
         assertEquals(2, renameResults.size());
 
-        for (Object o : renameResults) {
+        for (var o : renameResults) {
           if (o instanceof PdxType) {
-            PdxType t = (PdxType) o;
+            var t = (PdxType) o;
             assertEquals("org.pivotal.geode.internal.PdxRenameJUnitTest$PdxValue",
                 t.getClassName());
           } else {
-            EnumInfo ei = (EnumInfo) o;
+            var ei = (EnumInfo) o;
             assertEquals("org.pivotal.geode.internal.PdxRenameJUnitTest$Day", ei.getClassName());
           }
         }
-        Collection<PdxType> types = DiskStoreImpl.getPdxTypes(DS_NAME, new File[] {f});
+        var types = DiskStoreImpl.getPdxTypes(DS_NAME, new File[] {f});
         assertEquals(1, types.size());
         assertEquals("org.pivotal.geode.internal.PdxRenameJUnitTest$PdxValue",
             types.iterator().next().getClassName());
@@ -131,7 +126,7 @@ public class PdxRenameJUnitTest {
 
   @Test
   public void testRegEx() {
-    Pattern pattern = DiskStoreImpl.createPdxRenamePattern("foo");
+    var pattern = DiskStoreImpl.createPdxRenamePattern("foo");
     assertEquals(null, DiskStoreImpl.replacePdxRenamePattern(pattern, "", "FOOBAR"));
     assertEquals(null, DiskStoreImpl.replacePdxRenamePattern(pattern, "afoob", "FOOBAR"));
     assertEquals(null, DiskStoreImpl.replacePdxRenamePattern(pattern, "foob", "FOOBAR"));

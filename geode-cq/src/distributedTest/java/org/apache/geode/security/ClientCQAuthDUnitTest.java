@@ -23,12 +23,8 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolManager;
-import org.apache.geode.cache.query.CqAttributes;
 import org.apache.geode.cache.query.CqAttributesFactory;
-import org.apache.geode.cache.query.CqQuery;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.examples.SimpleSecurityManager;
 import org.apache.geode.test.dunit.rules.ClientVM;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
@@ -54,8 +50,8 @@ public class ClientCQAuthDUnitTest {
 
   @Test
   public void verifyCQPermissions() throws Exception {
-    String query = "select * from " + SEPARATOR + "AuthRegion";
-    int serverPort = server.getPort();
+    var query = "select * from " + SEPARATOR + "AuthRegion";
+    var serverPort = server.getPort();
 
     client1 = cluster.startClientVM(1, c2 -> c2.withCredential("test", "test")
         .withPoolSubscription(true)
@@ -73,12 +69,12 @@ public class ClientCQAuthDUnitTest {
     // client has no permission whatsoever
     client1.invoke(() -> {
       final Region region = ClusterStartupRule.clientCacheRule.createProxyRegion(REGION_NAME);
-      Pool pool = PoolManager.find(region);
-      QueryService qs = pool.getQueryService();
-      CqAttributes cqa = new CqAttributesFactory().create();
+      var pool = PoolManager.find(region);
+      var qs = pool.getQueryService();
+      var cqa = new CqAttributesFactory().create();
 
       // Create the CqQuery (this is on the client side)
-      CqQuery cq = qs.newCq("CQ1", query, cqa);
+      var cq = qs.newCq("CQ1", query, cqa);
 
       assertNotAuthorized(cq::execute, "DATA:READ:AuthRegion");
       assertNotAuthorized(cq::executeWithInitialResults, "DATA:READ:AuthRegion");
@@ -88,12 +84,12 @@ public class ClientCQAuthDUnitTest {
     // client2 has part of the permission
     client2.invoke(() -> {
       final Region region = ClusterStartupRule.clientCacheRule.createProxyRegion(REGION_NAME);
-      Pool pool = PoolManager.find(region);
-      QueryService qs = pool.getQueryService();
-      CqAttributes cqa = new CqAttributesFactory().create();
+      var pool = PoolManager.find(region);
+      var qs = pool.getQueryService();
+      var cqa = new CqAttributesFactory().create();
 
       // Create the CqQuery (this is on the client side)
-      CqQuery cq = qs.newCq("CQ1", query, cqa);
+      var cq = qs.newCq("CQ1", query, cqa);
       assertNotAuthorized(cq::execute, "DATA:READ:AuthRegion");
       assertNotAuthorized(cq::executeWithInitialResults, "DATA:READ:AuthRegion");
       cq.close();
@@ -102,12 +98,12 @@ public class ClientCQAuthDUnitTest {
     // client3 has all the permissions
     client3.invoke(() -> {
       Region region = ClusterStartupRule.clientCacheRule.createProxyRegion(REGION_NAME);
-      Pool pool = PoolManager.find(region);
-      QueryService qs = pool.getQueryService();
-      CqAttributes cqa = new CqAttributesFactory().create();
+      var pool = PoolManager.find(region);
+      var qs = pool.getQueryService();
+      var cqa = new CqAttributesFactory().create();
 
       // Create the CqQuery
-      CqQuery cq = qs.newCq("CQ1", query, cqa);
+      var cq = qs.newCq("CQ1", query, cqa);
       cq.execute();
       cq.stop();
     });

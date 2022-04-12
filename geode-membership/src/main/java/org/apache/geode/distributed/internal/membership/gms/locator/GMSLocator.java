@@ -24,7 +24,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -144,7 +143,7 @@ public class GMSLocator<ID extends MemberIdentifier> implements Locator<ID>, Tcp
       Objects.requireNonNull(localAddress, "member address should have been established");
       logger.info("Peer locator is connecting to local membership services with ID {}",
           localAddress);
-      GMSMembershipView<ID> newView = this.services.getJoinLeave().getView();
+      var newView = this.services.getJoinLeave().getView();
       if (newView != null) {
         view = newView;
         recoveredView = null;
@@ -184,7 +183,7 @@ public class GMSLocator<ID extends MemberIdentifier> implements Locator<ID>, Tcp
   }
 
   public void init(TcpServer server) {
-    String persistentFileIdentifier = "" + server.getPort();
+    var persistentFileIdentifier = "" + server.getPort();
     if (viewFile == null) {
       viewFile =
           workingDirectory.resolve("locator" + persistentFileIdentifier + "view.dat").toFile();
@@ -263,7 +262,7 @@ public class GMSLocator<ID extends MemberIdentifier> implements Locator<ID>, Tcp
     services.getMessenger().setPublicKey(findRequest.getMyPublicKey(),
         findRequest.getMemberID());
 
-    GMSMembershipView<ID> responseView = view;
+    var responseView = view;
     if (responseView == null) {
       responseView = recoveredView;
     }
@@ -276,15 +275,15 @@ public class GMSLocator<ID extends MemberIdentifier> implements Locator<ID>, Tcp
     }
 
     ID coordinator = null;
-    boolean fromView = false;
+    var fromView = false;
     if (responseView != null) {
       // if the ID of the requester matches an entry in the membership view then remove
       // that entry - it's obviously an old member since the ID has been reused
-      ID requestingMemberID = findRequest.getMemberID();
-      for (ID id : responseView.getMembers()) {
+      var requestingMemberID = findRequest.getMemberID();
+      for (var id : responseView.getMembers()) {
         if (requestingMemberID.getMemberData().compareTo(id.getMemberData(), false) == 0) {
-          GMSMembershipView<ID> newView =
-              new GMSMembershipView<>(responseView, responseView.getViewId());
+          var newView =
+              new GMSMembershipView<ID>(responseView, responseView.getViewId());
           newView.remove(id);
           responseView = newView;
           break;
@@ -303,14 +302,14 @@ public class GMSLocator<ID extends MemberIdentifier> implements Locator<ID>, Tcp
 
     if (coordinator == null) {
       // find the "oldest" registrant
-      Collection<ID> rejections = findRequest.getRejectedCoordinators();
+      var rejections = findRequest.getRejectedCoordinators();
       if (rejections == null) {
         rejections = Collections.emptyList();
       }
 
       synchronized (registrants) {
         coordinator = services.getJoinLeave().getMemberID();
-        for (ID mbr : registrants) {
+        for (var mbr : registrants) {
           if (mbr != coordinator && (coordinator == null || Objects.compare(mbr, coordinator,
               services.getMemberFactory().getComparator()) < 0)) {
             if (!rejections.contains(mbr) && (mbr.preferredForCoordinator()
@@ -355,12 +354,12 @@ public class GMSLocator<ID extends MemberIdentifier> implements Locator<ID>, Tcp
       logger.warn("Peer locator is unable to delete persistent membership information in {}",
           viewFile.getAbsolutePath());
     }
-    try (FileOutputStream fileStream = new FileOutputStream(viewFile);
-        ObjectOutputStream oos = new ObjectOutputStream(fileStream)) {
+    try (var fileStream = new FileOutputStream(viewFile);
+        var oos = new ObjectOutputStream(fileStream)) {
       oos.writeInt(LOCATOR_FILE_STAMP);
       oos.writeInt(KnownVersion.getCurrentVersion().ordinal());
       oos.flush();
-      DataOutputStream dataOutputStream = new DataOutputStream(oos);
+      var dataOutputStream = new DataOutputStream(oos);
       objectSerializer.writeObject(view, dataOutputStream);
     } catch (Exception e) {
       logger.warn(
@@ -404,7 +403,7 @@ public class GMSLocator<ID extends MemberIdentifier> implements Locator<ID>, Tcp
   }
 
   private boolean recoverFromOtherLocators() {
-    for (HostAndPort other : locators) {
+    for (var other : locators) {
       if (recover(other)) {
         logger.info("Peer locator recovered state from {}", other);
         return true;
@@ -416,7 +415,7 @@ public class GMSLocator<ID extends MemberIdentifier> implements Locator<ID>, Tcp
   private boolean recover(HostAndPort other) {
     try {
       logger.info("Peer locator attempting to recover from {}", other);
-      Object response = locatorClient.requestToServer(other,
+      var response = locatorClient.requestToServer(other,
           new GetViewRequest(), 20000, true);
       if (response instanceof GetViewResponse) {
         view = ((GetViewResponse<ID>) response).getView();
@@ -439,14 +438,14 @@ public class GMSLocator<ID extends MemberIdentifier> implements Locator<ID>, Tcp
 
     logger.info("Peer locator recovering from {} with size {}",
         file.getAbsolutePath(), file.length());
-    try (FileInputStream fileInputStream = new FileInputStream(file);
-        ObjectInputStream ois = new ObjectInputStream(fileInputStream)) {
-      int stamp = ois.readInt();
+    try (var fileInputStream = new FileInputStream(file);
+        var ois = new ObjectInputStream(fileInputStream)) {
+      var stamp = ois.readInt();
       if (stamp != LOCATOR_FILE_STAMP) {
         return false;
       }
 
-      int version = ois.readInt();
+      var version = ois.readInt();
       int currentVersion = KnownVersion.getCurrentVersion().ordinal();
       DataInputStream input;
       if (version == currentVersion) {
@@ -454,7 +453,7 @@ public class GMSLocator<ID extends MemberIdentifier> implements Locator<ID>, Tcp
       } else if (version > currentVersion) {
         return false;
       } else {
-        KnownVersion geodeVersion =
+        var geodeVersion =
             Versioning.getKnownVersionOrDefault(
                 Versioning.getVersion((short) version),
                 KnownVersion.CURRENT);
@@ -477,7 +476,7 @@ public class GMSLocator<ID extends MemberIdentifier> implements Locator<ID>, Tcp
       List<ID> members = new ArrayList<>(recoveredView.getMembers());
       // Remove locators from the view. Since we couldn't recover from an existing
       // locator we know that all of the locators in the view are defunct
-      for (ID member : members) {
+      for (var member : members) {
         if (member.getVmKind() == MemberIdentifier.LOCATOR_DM_TYPE) {
           recoveredView.remove(member);
         }
@@ -487,7 +486,7 @@ public class GMSLocator<ID extends MemberIdentifier> implements Locator<ID>, Tcp
       return true;
 
     } catch (Throwable e) {
-      String message =
+      var message =
           String.format("Unable to recover previous membership view from %s", file);
       logger.warn(message, e);
       if (!file.delete() && file.exists()) {

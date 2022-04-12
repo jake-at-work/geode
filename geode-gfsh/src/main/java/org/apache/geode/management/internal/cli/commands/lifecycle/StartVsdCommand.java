@@ -34,7 +34,6 @@ import org.apache.geode.internal.lang.SystemUtils;
 import org.apache.geode.internal.util.IOUtils;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.internal.cli.commands.OfflineGfshCommand;
-import org.apache.geode.management.internal.cli.result.model.InfoResultModel;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
 import org.apache.geode.management.internal.i18n.CliStrings;
 
@@ -46,7 +45,7 @@ public class StartVsdCommand extends OfflineGfshCommand {
       help = CliStrings.START_VSD__FILE__HELP) final String[] statisticsArchiveFilePathnames)
       throws Exception {
 
-    String geodeHome = System.getenv("GEODE_HOME");
+    var geodeHome = System.getenv("GEODE_HOME");
 
     assertState(org.apache.commons.lang3.StringUtils.isNotBlank(geodeHome),
         CliStrings.GEODE_HOME_NOT_FOUND_ERROR_MESSAGE);
@@ -54,21 +53,21 @@ public class StartVsdCommand extends OfflineGfshCommand {
     assertState(IOUtils.isExistingPathname(getPathToVsd()),
         String.format(CliStrings.START_VSD__NOT_FOUND_ERROR_MESSAGE, geodeHome));
 
-    String[] vsdCommandLine = createdVsdCommandLine(statisticsArchiveFilePathnames);
+    var vsdCommandLine = createdVsdCommandLine(statisticsArchiveFilePathnames);
 
     if (isDebugging()) {
       getGfsh().printAsInfo(
           String.format("GemFire VSD command-line (%1$s)", Arrays.toString(vsdCommandLine)));
     }
 
-    Process vsdProcess = Runtime.getRuntime().exec(vsdCommandLine);
+    var vsdProcess = Runtime.getRuntime().exec(vsdCommandLine);
 
     getGfsh().printAsInfo(CliStrings.START_VSD__RUN);
 
-    String vsdProcessOutput = waitAndCaptureProcessStandardErrorStream(vsdProcess);
+    var vsdProcessOutput = waitAndCaptureProcessStandardErrorStream(vsdProcess);
 
-    ResultModel result = new ResultModel();
-    InfoResultModel info = result.addInfo("info");
+    var result = new ResultModel();
+    var info = result.addInfo("info");
 
     if (org.apache.commons.lang3.StringUtils.isNotBlank(vsdProcessOutput)) {
       info.addLine(vsdProcessOutput);
@@ -88,7 +87,7 @@ public class StartVsdCommand extends OfflineGfshCommand {
   }
 
   protected String getPathToVsd() {
-    String vsdPathname =
+    var vsdPathname =
         IOUtils.appendToPath(System.getenv("GEODE_HOME"), "tools", "vsd", "bin", "vsd");
 
     if (SystemUtils.isWindows()) {
@@ -103,8 +102,8 @@ public class StartVsdCommand extends OfflineGfshCommand {
     Set<String> statisticsArchiveFiles = new TreeSet<>();
 
     if (statisticsArchiveFilePathnames != null) {
-      for (String pathname : statisticsArchiveFilePathnames) {
-        File path = new File(pathname);
+      for (var pathname : statisticsArchiveFilePathnames) {
+        var path = new File(pathname);
 
         if (path.exists()) {
           if (path.isFile()) {
@@ -132,7 +131,7 @@ public class StartVsdCommand extends OfflineGfshCommand {
   protected void processStatisticsArchiveFiles(final File path,
       final Set<String> statisticsArchiveFiles) {
     if (path != null && path.isDirectory()) {
-      for (File file : path.listFiles(StatisticsArchiveFileAndDirectoryFilter.INSTANCE)) {
+      for (var file : path.listFiles(StatisticsArchiveFileAndDirectoryFilter.INSTANCE)) {
         if (file.isDirectory()) {
           processStatisticsArchiveFiles(file, statisticsArchiveFiles);
         } else if (StatisticsArchiveFileFilter.INSTANCE.accept(file)) {

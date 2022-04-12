@@ -18,7 +18,6 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.Declarable;
 import org.apache.geode.cache.EntryEvent;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionEvent;
 import org.apache.geode.cache.RegionExistsException;
 import org.apache.geode.cache.util.CacheListenerAdapter;
@@ -34,7 +33,7 @@ public class RegionConfigurationCacheListener
 
   @Override
   public void afterCreate(EntryEvent<String, RegionConfiguration> event) {
-    RegionConfiguration configuration = event.getNewValue();
+    var configuration = event.getNewValue();
     if (cache.getLogger().fineEnabled()) {
       cache.getLogger().fine(
           "RegionConfigurationCacheListener received afterCreate for region " + event.getKey());
@@ -43,7 +42,7 @@ public class RegionConfigurationCacheListener
     // this is a replicate region, and many VMs can be doing create region
     // simultaneously, so ignore the RegionExistsException
     try {
-      Region region = RegionHelper.createRegion(cache, configuration);
+      var region = RegionHelper.createRegion(cache, configuration);
       if (cache.getLogger().fineEnabled()) {
         cache.getLogger().fine("RegionConfigurationCacheListener created region: " + region);
       }
@@ -64,10 +63,10 @@ public class RegionConfigurationCacheListener
   @Override
   public void afterRegionCreate(RegionEvent<String, RegionConfiguration> event) {
     StringBuilder builder1 = new StringBuilder(), builder2 = new StringBuilder();
-    Region<String, RegionConfiguration> region = event.getRegion();
+    var region = event.getRegion();
     if (cache.getLogger().fineEnabled()) {
       builder1 = new StringBuilder();
-      int regionSize = region.size();
+      var regionSize = region.size();
       if (regionSize > 0) {
         builder1.append("RegionConfigurationCacheListener region ").append(region.getName())
             .append(" has been initialized with the following ").append(regionSize)
@@ -80,12 +79,12 @@ public class RegionConfigurationCacheListener
             .append(" has been initialized with no region configurations");
       }
     }
-    for (RegionConfiguration configuration : region.values()) {
+    for (var configuration : region.values()) {
       if (cache.getLogger().fineEnabled()) {
         builder1.append("\t").append(configuration);
       }
       try {
-        Region createRegion = RegionHelper.createRegion(cache, configuration);
+        var createRegion = RegionHelper.createRegion(cache, configuration);
         if (cache.getLogger().fineEnabled()) {
           builder2.append("\t").append(createRegion);
         }

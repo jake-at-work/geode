@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.geode.cache.execute.FunctionException;
@@ -42,7 +41,7 @@ public class ReadWriteFile {
       throw new IllegalArgumentException(
           "Requires only 6  arguments : <logInputFileName> <logOutputFileName> <LogLevel> <UptoLogLevel> <StartTime> <EndTime>");
     }
-    String result = readWriteFile(args[0], args[1], args[2], args[3], args[4], args[5]);
+    var result = readWriteFile(args[0], args[1], args[2], args[3], args[4], args[5]);
     System.out.println(result);
   }
 
@@ -52,13 +51,13 @@ public class ReadWriteFile {
       long lineCount = 0;
       BufferedReader input;
       BufferedWriter output;
-      File logFileNameFile = new File(logFileName);
+      var logFileNameFile = new File(logFileName);
       if (!logFileNameFile.canRead()) {
         return ("Cannot read logFileName=" + logFileName);
       }
       input = new BufferedReader(new FileReader(logFileName));
       String line;
-      File logToBeWrittenToFile = new File(logToBeWritten);
+      var logToBeWrittenToFile = new File(logToBeWritten);
       output = new BufferedWriter(new FileWriter(logToBeWrittenToFile));
       if (!logToBeWrittenToFile.exists()) {
         input.close();
@@ -78,20 +77,20 @@ public class ReadWriteFile {
         output.close();
         return ("can not write file " + logToBeWritten);
       }
-      List<String> logLevels = getLogLevels(logLevel, onlyLogLevel);
+      var logLevels = getLogLevels(logLevel, onlyLogLevel);
 
-      boolean timeRangeCheck = false;
-      boolean validateLogLevel = true;
+      var timeRangeCheck = false;
+      var validateLogLevel = true;
       while (input.ready() && (line = input.readLine()) != null) {
         if (!new File(logFileName).canRead()) {
           return ("Cannot read logFileName=" + logFileName);
         }
         lineCount++;
-        boolean foundLogLevelTag = line.startsWith("[");
+        var foundLogLevelTag = line.startsWith("[");
         if (line.contains("[info ") && !timeRangeCheck) {
-          StringBuilder stTime = new StringBuilder();
-          int spaceCounter = 0;
-          for (int i = line.indexOf("[info ") + 6; i < line.length(); i++) {
+          var stTime = new StringBuilder();
+          var spaceCounter = 0;
+          for (var i = line.indexOf("[info ") + 6; i < line.length(); i++) {
             if (line.charAt(i) == ' ') {
               spaceCounter++;
             }
@@ -100,15 +99,15 @@ public class ReadWriteFile {
             }
             stTime.append(line.charAt(i));
           }
-          SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-          Date d = df.parse(stTime.substring(0, stTime.length() - 4));
-          Time fileStartTime = new Time(d.getTime());
-          File inputFile = new File(logFileName);
-          Time fileEndTime = new Time(inputFile.lastModified());
-          Time longStart = new Time(Long.parseLong(startTime));
-          Time longEnd = new Time(Long.parseLong(endTime));
-          long userStartTime = longStart.getTime();
-          long userEndTime = longEnd.getTime();
+          var df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+          var d = df.parse(stTime.substring(0, stTime.length() - 4));
+          var fileStartTime = new Time(d.getTime());
+          var inputFile = new File(logFileName);
+          var fileEndTime = new Time(inputFile.lastModified());
+          var longStart = new Time(Long.parseLong(startTime));
+          var longEnd = new Time(Long.parseLong(endTime));
+          var userStartTime = longStart.getTime();
+          var userEndTime = longEnd.getTime();
           if (fileStartTime.getTime() >= userStartTime && fileStartTime.getTime() <= userEndTime
               || fileEndTime.getTime() >= userStartTime && fileEndTime.getTime() <= userEndTime) {
             // set this so that no need to check time range for each line
@@ -174,11 +173,11 @@ public class ReadWriteFile {
         return true;
       } else {
         if (logLevels.size() > 0) {
-          for (String permittedLogLevel : logLevels) {
-            int indexFrom = line.indexOf('[');
-            int indexTo = line.indexOf(' ');
+          for (var permittedLogLevel : logLevels) {
+            var indexFrom = line.indexOf('[');
+            var indexTo = line.indexOf(' ');
             if (indexFrom > -1 && indexTo > -1 && indexTo > indexFrom) {
-              boolean flag =
+              var flag =
                   line.substring(indexFrom + 1, indexTo).toLowerCase().contains(permittedLogLevel);
               if (flag) {
                 return true;

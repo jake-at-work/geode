@@ -32,12 +32,12 @@ public class ControllableProcessTest {
 
   @Test
   public void fetchStatusWithValidationThrowsIfJsonIsNull() {
-    ControlNotificationHandler handler = mock(ControlNotificationHandler.class);
-    ServiceState state = mock(ServiceState.class);
+    var handler = mock(ControlNotificationHandler.class);
+    var state = mock(ServiceState.class);
     when(handler.handleStatus()).thenReturn(state);
     when(state.toJson()).thenReturn(null);
 
-    Throwable thrown = catchThrowable(() -> fetchStatusWithValidation(handler));
+    var thrown = catchThrowable(() -> fetchStatusWithValidation(handler));
 
     assertThat(thrown)
         .isInstanceOf(IllegalStateException.class)
@@ -46,12 +46,12 @@ public class ControllableProcessTest {
 
   @Test
   public void fetchStatusWithValidationThrowsIfJsonIsEmpty() {
-    ControlNotificationHandler handler = mock(ControlNotificationHandler.class);
-    ServiceState state = mock(ServiceState.class);
+    var handler = mock(ControlNotificationHandler.class);
+    var state = mock(ServiceState.class);
     when(handler.handleStatus()).thenReturn(state);
     when(state.toJson()).thenReturn("");
 
-    Throwable thrown = catchThrowable(() -> fetchStatusWithValidation(handler));
+    var thrown = catchThrowable(() -> fetchStatusWithValidation(handler));
 
     assertThat(thrown)
         .isInstanceOf(IllegalStateException.class)
@@ -60,12 +60,12 @@ public class ControllableProcessTest {
 
   @Test
   public void fetchStatusWithValidationThrowsIfJsonOnlyContainsSpaces() {
-    ControlNotificationHandler handler = mock(ControlNotificationHandler.class);
-    ServiceState state = mock(ServiceState.class);
+    var handler = mock(ControlNotificationHandler.class);
+    var state = mock(ServiceState.class);
     when(handler.handleStatus()).thenReturn(state);
     when(state.toJson()).thenReturn("  ");
 
-    Throwable thrown = catchThrowable(() -> fetchStatusWithValidation(handler));
+    var thrown = catchThrowable(() -> fetchStatusWithValidation(handler));
 
     assertThat(thrown)
         .isInstanceOf(IllegalStateException.class)
@@ -74,12 +74,12 @@ public class ControllableProcessTest {
 
   @Test
   public void fetchStatusWithValidationThrowsIfJsonOnlyContainsTabs() {
-    ControlNotificationHandler handler = mock(ControlNotificationHandler.class);
-    ServiceState state = mock(ServiceState.class);
+    var handler = mock(ControlNotificationHandler.class);
+    var state = mock(ServiceState.class);
     when(handler.handleStatus()).thenReturn(state);
     when(state.toJson()).thenReturn("\t\t");
 
-    Throwable thrown = catchThrowable(() -> fetchStatusWithValidation(handler));
+    var thrown = catchThrowable(() -> fetchStatusWithValidation(handler));
 
     assertThat(thrown)
         .isInstanceOf(IllegalStateException.class)
@@ -88,12 +88,12 @@ public class ControllableProcessTest {
 
   @Test
   public void fetchStatusWithValidationThrowsIfJsonOnlyContainsLineFeeds() {
-    ControlNotificationHandler handler = mock(ControlNotificationHandler.class);
-    ServiceState state = mock(ServiceState.class);
+    var handler = mock(ControlNotificationHandler.class);
+    var state = mock(ServiceState.class);
     when(handler.handleStatus()).thenReturn(state);
     when(state.toJson()).thenReturn(lineSeparator() + lineSeparator());
 
-    Throwable thrown = catchThrowable(() -> fetchStatusWithValidation(handler));
+    var thrown = catchThrowable(() -> fetchStatusWithValidation(handler));
 
     assertThat(thrown)
         .isInstanceOf(IllegalStateException.class)
@@ -102,13 +102,13 @@ public class ControllableProcessTest {
 
   @Test
   public void fetchStatusWithValidationReturnsJsonIfItHasContent() {
-    ControlNotificationHandler handler = mock(ControlNotificationHandler.class);
-    ServiceState state = mock(ServiceState.class);
+    var handler = mock(ControlNotificationHandler.class);
+    var state = mock(ServiceState.class);
     when(handler.handleStatus()).thenReturn(state);
-    String jsonContent = "json content";
+    var jsonContent = "json content";
     when(state.toJson()).thenReturn(jsonContent);
 
-    String result = fetchStatusWithValidation(handler);
+    var result = fetchStatusWithValidation(handler);
 
     assertThat(result).isEqualTo(jsonContent);
   }

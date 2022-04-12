@@ -36,9 +36,7 @@ import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.client.internal.PoolImpl;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.DistributedSystem;
-import org.apache.geode.internal.cache.FilterProfile;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
 import org.apache.geode.test.dunit.Assert;
@@ -68,7 +66,7 @@ public class UnregisterInterestDUnitTest extends JUnit4DistributedTestCase {
 
   @Override
   public final void postSetUp() throws Exception {
-    Host host = Host.getHost(0);
+    var host = Host.getHost(0);
     server0 = host.getVM(0);
     client1 = host.getVM(1);
     client2 = host.getVM(2);
@@ -234,19 +232,19 @@ public class UnregisterInterestDUnitTest extends JUnit4DistributedTestCase {
   }
 
   public static void checkAllKeys(Integer value, Integer valueInv) {
-    FilterProfile fp = ((GemFireCacheImpl) cache).getFilterProfile(regionname);
+    var fp = ((GemFireCacheImpl) cache).getFilterProfile(regionname);
     assertEquals(value.intValue(), fp.getAllKeyClientsSize());
     assertEquals(valueInv.intValue(), fp.getAllKeyClientsInvSize());
   }
 
   public static void checkKeyList(Integer value, Integer valueInv) {
-    FilterProfile fp = ((GemFireCacheImpl) cache).getFilterProfile(regionname);
+    var fp = ((GemFireCacheImpl) cache).getFilterProfile(regionname);
     assertEquals(value.intValue(), fp.getKeysOfInterestSize());
     assertEquals(valueInv.intValue(), fp.getKeysOfInterestInvSize());
   }
 
   public static void checkPatterns(Integer value, Integer valueInv) {
-    FilterProfile fp = ((GemFireCacheImpl) cache).getFilterProfile(regionname);
+    var fp = ((GemFireCacheImpl) cache).getFilterProfile(regionname);
     assertEquals(value.intValue(), fp.getPatternsOfInterestSize());
     assertEquals(valueInv.intValue(), fp.getPatternsOfInterestInvSize());
   }
@@ -261,7 +259,7 @@ public class UnregisterInterestDUnitTest extends JUnit4DistributedTestCase {
         region.registerInterest("ALL_KEYS", false, receiveValues);
         break;
       case list:
-        ArrayList<String> keys = new ArrayList<>();
+        var keys = new ArrayList<String>();
         for (Object key : values) {
           keys.add((String) key);
         }
@@ -281,7 +279,7 @@ public class UnregisterInterestDUnitTest extends JUnit4DistributedTestCase {
   public static void unregisterInterest(String[] keys) {
     Region region = cache.getRegion(regionname);
 
-    for (String key : keys) {
+    for (var key : keys) {
       region.unregisterInterest(key);
     }
   }
@@ -289,7 +287,7 @@ public class UnregisterInterestDUnitTest extends JUnit4DistributedTestCase {
   public static void unregisterInterestRegex(String[] patterns) {
     Region region = cache.getRegion(regionname);
 
-    for (String pattern : patterns) {
+    for (var pattern : patterns) {
       region.unregisterInterestRegex(pattern);
     }
   }
@@ -297,16 +295,16 @@ public class UnregisterInterestDUnitTest extends JUnit4DistributedTestCase {
   public static void updateKeys(String[] keys) {
     Region region = cache.getRegion(regionname);
 
-    for (String key : keys) {
+    for (var key : keys) {
       region.put(key, key + "_VALUE");
     }
   }
 
   public static void timedWaitForInvalidates(Integer invalidates) {
     final int inv = invalidates;
-    final PoolImpl pool = (PoolImpl) find(cache.getRegion(regionname));
+    final var pool = (PoolImpl) find(cache.getRegion(regionname));
 
-    WaitCriterion wc = new WaitCriterion() {
+    var wc = new WaitCriterion() {
       @Override
       public boolean done() {
         // Client region listeners are not invoked for invalidates that create entries.
@@ -325,13 +323,13 @@ public class UnregisterInterestDUnitTest extends JUnit4DistributedTestCase {
   public static Integer createCacheAndStartServer() throws Exception {
     DistributedSystem ds = new UnregisterInterestDUnitTest().getSystem();
     ds.disconnect();
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(LOCATORS, "localhost[" + DistributedTestUtils.getDUnitLocatorPort() + "]");
-    CacheFactory cf = new CacheFactory(props);
+    var cf = new CacheFactory(props);
     cache = cf.create();
     RegionFactory rf = ((GemFireCacheImpl) cache).createRegionFactory(RegionShortcut.REPLICATE);
     rf.create(regionname);
-    CacheServer server = ((GemFireCacheImpl) cache).addCacheServer();
+    var server = ((GemFireCacheImpl) cache).addCacheServer();
     server.setPort(getRandomAvailableTCPPort());
     server.start();
     return server.getPort();
@@ -341,10 +339,10 @@ public class UnregisterInterestDUnitTest extends JUnit4DistributedTestCase {
     DistributedSystem ds = new UnregisterInterestDUnitTest().getSystem();
     ds.disconnect();
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(LOCATORS, "");
     props.setProperty(MCAST_PORT, "0");
-    ClientCacheFactory ccf = new ClientCacheFactory(props);
+    var ccf = new ClientCacheFactory(props);
     ccf.setPoolSubscriptionEnabled(true);
     ccf.addPoolServer(host.getHostName(), port);
     cache = ccf.create();

@@ -79,13 +79,13 @@ public class SerialAsyncEventQueueImplTest {
 
     statisticsClock = mock(StatisticsClock.class);
 
-    DistributedLockService distributedLockService = mock(DistributedLockService.class);
+    var distributedLockService = mock(DistributedLockService.class);
     when(distributedLockService.lock(any(), anyLong(), anyLong())).thenReturn(true);
     when(cache.getGatewaySenderLockService()).thenReturn(distributedLockService);
   }
 
   private SerialAsyncEventQueueImpl createSerialAsyncEventQueueImplSpy() {
-    GatewaySenderAdvisor gatewaySenderAdvisor = mock(GatewaySenderAdvisor.class);
+    var gatewaySenderAdvisor = mock(GatewaySenderAdvisor.class);
     when(gatewaySenderAdvisor.isPrimary()).thenReturn(true);
 
     eventProcessor1 = mock(AbstractGatewaySenderEventProcessor.class);
@@ -97,11 +97,10 @@ public class SerialAsyncEventQueueImplTest {
     when(eventProcessor2.isStopped()).thenReturn(false);
     when(eventProcessor2.getRunningStateLock()).thenReturn(mock(Object.class));
 
-
-    SerialAsyncEventQueueImpl serialAsyncEventQueue =
+    var serialAsyncEventQueue =
         new SerialAsyncEventQueueImpl(cache, statisticsFactory, statisticsClock,
             gatewaySenderAttributes);
-    SerialAsyncEventQueueImpl spySerialAsyncEventQueue = spy(serialAsyncEventQueue);
+    var spySerialAsyncEventQueue = spy(serialAsyncEventQueue);
     doReturn(gatewaySenderAdvisor).when(spySerialAsyncEventQueue).getSenderAdvisor();
     doReturn(eventProcessor1).when(spySerialAsyncEventQueue).createEventProcessor(false);
     doReturn(eventProcessor2).when(spySerialAsyncEventQueue).createEventProcessor(true);

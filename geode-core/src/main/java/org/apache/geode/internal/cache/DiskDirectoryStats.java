@@ -18,7 +18,6 @@ import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.Statistics;
 import org.apache.geode.StatisticsFactory;
 import org.apache.geode.StatisticsType;
-import org.apache.geode.StatisticsTypeFactory;
 import org.apache.geode.annotations.Immutable;
 import org.apache.geode.internal.statistics.StatisticsTypeFactoryImpl;
 
@@ -43,14 +42,14 @@ public class DiskDirectoryStats {
   private static final int volumeFreeSpaceTimeId;
 
   static {
-    String statName = "DiskDirStatistics";
-    String statDescription = "Statistics about a single disk directory for a region";
+    var statName = "DiskDirStatistics";
+    var statDescription = "Statistics about a single disk directory for a region";
 
-    final String diskSpaceDesc =
+    final var diskSpaceDesc =
         "The total number of bytes currently being used on disk in this directory for oplog files.";
-    final String maxSpaceDesc =
+    final var maxSpaceDesc =
         "The configured maximum number of bytes allowed in this directory for oplog files. Note that some product configurations allow this maximum to be exceeded.";
-    StatisticsTypeFactory f = StatisticsTypeFactoryImpl.singleton();
+    var f = StatisticsTypeFactoryImpl.singleton();
 
     type = f.createType(statName, statDescription,
         new StatisticDescriptor[] {f.createLongGauge("diskSpace", diskSpaceDesc, "bytes"),

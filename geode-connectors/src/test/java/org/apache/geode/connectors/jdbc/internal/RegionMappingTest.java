@@ -78,7 +78,7 @@ public class RegionMappingTest {
 
   @Test
   public void hasCorrectIds() {
-    String ids = "ids";
+    var ids = "ids";
     mapping = new RegionMapping(null, null, null, null, ids, null, null);
 
     assertThat(mapping.getIds()).isEqualTo(ids);
@@ -86,7 +86,7 @@ public class RegionMappingTest {
 
   @Test
   public void hasCorrectCatalog() {
-    String catalog = "catalog";
+    var catalog = "catalog";
     mapping = new RegionMapping(null, null, null, null, null, catalog, null);
 
     assertThat(mapping.getCatalog()).isEqualTo(catalog);
@@ -94,7 +94,7 @@ public class RegionMappingTest {
 
   @Test
   public void hasCorrectSchema() {
-    String schema = "schema";
+    var schema = "schema";
     mapping = new RegionMapping(null, null, null, null, null, null, schema);
 
     assertThat(mapping.getSchema()).isEqualTo(schema);
@@ -102,19 +102,19 @@ public class RegionMappingTest {
 
   @Test
   public void verifyTwoDefaultInstancesAreEqual() {
-    RegionMapping rm1 =
+    var rm1 =
         new RegionMapping("regionName", "pdxClassName", null, "dataSourceName", null, null, null);
-    RegionMapping rm2 =
+    var rm2 =
         new RegionMapping("regionName", "pdxClassName", null, "dataSourceName", null, null, null);
     assertThat(rm1).isEqualTo(rm2);
   }
 
   @Test
   public void verifyTwoInstancesThatAreEqualHaveSameHashCode() {
-    RegionMapping rm1 = new RegionMapping("regionName",
+    var rm1 = new RegionMapping("regionName",
         "pdxClassName", "tableName", "dataSourceName", "ids", "catalog", "schema");
 
-    RegionMapping rm2 = new RegionMapping("regionName",
+    var rm2 = new RegionMapping("regionName",
         "pdxClassName", "tableName", "dataSourceName", "ids", "catalog", "schema");
 
     assertThat(rm1.hashCode()).isEqualTo(rm2.hashCode());
@@ -122,11 +122,11 @@ public class RegionMappingTest {
 
   @Test
   public void verifyToStringGivenAllAttributes() {
-    RegionMapping rm = new RegionMapping("regionName", "pdxClassName", "tableName",
+    var rm = new RegionMapping("regionName", "pdxClassName", "tableName",
         "dataSourceName", "ids", "catalog", "schema");
     rm.addFieldMapping(new FieldMapping("pdxName", "pdxType", "jdbcName", "jdbcType", true));
 
-    String result = rm.toString();
+    var result = rm.toString();
 
     assertThat(result).isEqualTo(
         "RegionMapping{regionName='regionName', pdxName='pdxClassName', tableName='tableName', dataSourceName='dataSourceName', ids='ids', specifiedIds='true', catalog='catalog', schema='schema', fieldMapping='[FieldMapping [pdxName=pdxName, pdxType=pdxType, jdbcName=jdbcName, jdbcType=jdbcType, jdbcNullable=true]]'}");
@@ -134,10 +134,10 @@ public class RegionMappingTest {
 
   @Test
   public void verifyToStringGivenRequiredAttributes() {
-    RegionMapping rm =
+    var rm =
         new RegionMapping("regionName", "pdxClassName", null, "dataSourceName", null, null, null);
 
-    String result = rm.toString();
+    var result = rm.toString();
 
     assertThat(result).isEqualTo(
         "RegionMapping{regionName='regionName', pdxName='pdxClassName', tableName='null', dataSourceName='dataSourceName', ids='null', specifiedIds='false', catalog='null', schema='null', fieldMapping='[]'}");
@@ -146,7 +146,7 @@ public class RegionMappingTest {
   @Test
   public void verifyThatMappingIsEqualToItself() {
     mapping = new RegionMapping(null, "pdxClassName", null, null, null, null, null);
-    boolean result = mapping.equals(mapping);
+    var result = mapping.equals(mapping);
     assertThat(mapping.hashCode()).isEqualTo(mapping.hashCode());
     assertThat(result).isTrue();
   }
@@ -154,98 +154,98 @@ public class RegionMappingTest {
   @Test
   public void verifyThatNullIsNotEqual() {
     mapping = new RegionMapping(null, null, null, null, null, null, null);
-    boolean result = mapping.equals(null);
+    var result = mapping.equals(null);
     assertThat(result).isFalse();
   }
 
   @Test
   public void verifyOtherClassIsNotEqual() {
     mapping = new RegionMapping(null, null, null, null, null, null, null);
-    boolean result = mapping.equals("not equal");
+    var result = mapping.equals("not equal");
     assertThat(result).isFalse();
   }
 
   @Test
   public void verifyMappingWithDifferentRegionNamesAreNotEqual() {
-    RegionMapping rm1 =
+    var rm1 =
         new RegionMapping(null, null, null, null, null, null, null);
-    RegionMapping rm2 =
+    var rm2 =
         new RegionMapping("name", null, null, null, null, null, null);
-    boolean result = rm1.equals(rm2);
+    var result = rm1.equals(rm2);
     assertThat(result).isFalse();
   }
 
   @Test
   public void verifyMappingWithDifferentPdxClassNameAreNotEqual() {
-    RegionMapping rm1 =
+    var rm1 =
         new RegionMapping(null, "pdxClassName", null, null, null, null, null);
-    RegionMapping rm2 =
+    var rm2 =
         new RegionMapping(null, "pdxClass", null, null, null, null, null);
-    boolean result = rm1.equals(rm2);
+    var result = rm1.equals(rm2);
     assertThat(result).isFalse();
   }
 
   @Test
   public void verifyMappingWithDifferentTablesAreNotEqual() {
-    RegionMapping rm1 =
+    var rm1 =
         new RegionMapping(null, "pdxClassName", "table1", null, null, null, null);
-    RegionMapping rm2 =
+    var rm2 =
         new RegionMapping(null, "pdxClassName", "table2", null, null, null, null);
-    boolean result = rm1.equals(rm2);
+    var result = rm1.equals(rm2);
     assertThat(result).isFalse();
   }
 
   @Test
   public void verifyMappingWithDifferentDataSourcesAreNotEqual() {
-    RegionMapping rm1 =
+    var rm1 =
         new RegionMapping(null, "pdxClassName", null, "datasource1", null, null, null);
-    RegionMapping rm2 =
+    var rm2 =
         new RegionMapping(null, "pdxClassName", null, "datasource2", null, null, null);
-    boolean result = rm1.equals(rm2);
+    var result = rm1.equals(rm2);
     assertThat(result).isFalse();
   }
 
   @Test
   public void verifyMappingWithDifferentIdsAreNotEqual() {
-    RegionMapping rm1 =
+    var rm1 =
         new RegionMapping(null, "pdxClassName", null, null, "ids1", null, null);
-    RegionMapping rm2 =
+    var rm2 =
         new RegionMapping(null, "pdxClassName", null, null, "ids2", null, null);
-    boolean result = rm1.equals(rm2);
+    var result = rm1.equals(rm2);
     assertThat(result).isFalse();
   }
 
   @Test
   public void verifyMappingWithDifferentCatalogsAreNotEqual() {
-    RegionMapping rm1 =
+    var rm1 =
         new RegionMapping(null, "pdxClassName", null, null, null, "catalog1", null);
-    RegionMapping rm2 =
+    var rm2 =
         new RegionMapping(null, "pdxClassName", null, null, null, "catalog2", null);
-    boolean result = rm1.equals(rm2);
+    var result = rm1.equals(rm2);
     assertThat(result).isFalse();
   }
 
   @Test
   public void verifyMappingWithDifferentSchemasAreNotEqual() {
-    RegionMapping rm1 =
+    var rm1 =
         new RegionMapping(null, "pdxClassName", null, null, null, null, "schema1");
-    RegionMapping rm2 =
+    var rm2 =
         new RegionMapping(null, "pdxClassName", null, null, null, null, "schema2");
-    boolean result = rm1.equals(rm2);
+    var result = rm1.equals(rm2);
     assertThat(result).isFalse();
   }
 
   @Test
   public void verifyMappingWithDifferentFieldMappingsAreNotEqual() {
-    RegionMapping rm1 =
+    var rm1 =
         new RegionMapping(null, "pdxClassName", null, null, null, null, null);
     rm1.addFieldMapping(
         new FieldMapping("myPdxName", "myPdxType", "myJdbcName", "myJdbcType", false));
-    RegionMapping rm2 =
+    var rm2 =
         new RegionMapping(null, "pdxClassName", null, null, null, null, null);
     rm2.addFieldMapping(
         new FieldMapping("myPdxName", "myPdxType", "myJdbcName", "myOtherJdbcType", false));
-    boolean result = rm1.equals(rm2);
+    var result = rm1.equals(rm2);
     assertThat(result).isFalse();
   }
 

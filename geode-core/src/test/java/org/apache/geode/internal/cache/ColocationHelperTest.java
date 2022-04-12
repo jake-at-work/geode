@@ -48,8 +48,8 @@ public class ColocationHelperTest {
 
   @Before
   public void setUp() throws Exception {
-    InternalCache cache = mock(InternalCache.class);
-    PartitionAttributes partitionAttributes = mock(PartitionAttributes.class);
+    var cache = mock(InternalCache.class);
+    var partitionAttributes = mock(PartitionAttributes.class);
 
     cancelCriterion = mock(CancelCriterion.class);
     partitionRegionConfig = mock(PartitionRegionConfig.class);
@@ -68,7 +68,7 @@ public class ColocationHelperTest {
   public void getColocatedRegion_throwsIllegalStateException_ifNotColocated() {
     when(partitionedRegion.getFullPath()).thenReturn(SEPARATOR + "region1");
 
-    Throwable thrown = catchThrowable(() -> ColocationHelper.getColocatedRegion(partitionedRegion));
+    var thrown = catchThrowable(() -> ColocationHelper.getColocatedRegion(partitionedRegion));
 
     assertThat(thrown)
         .as("Expected IllegalStateException for missing colocated parent region")
@@ -81,7 +81,7 @@ public class ColocationHelperTest {
     when(partitionedRegion.getFullPath()).thenReturn(SEPARATOR + "region1");
     when(prRoot.get(eq("#region2"))).thenReturn(partitionRegionConfig);
 
-    Throwable thrown = catchThrowable(() -> ColocationHelper.getColocatedRegion(partitionedRegion));
+    var thrown = catchThrowable(() -> ColocationHelper.getColocatedRegion(partitionedRegion));
 
     assertThat(thrown)
         .as("Expected IllegalStateException for missing colocated parent region")
@@ -94,7 +94,7 @@ public class ColocationHelperTest {
     doThrow(new CacheClosedException("test")).when(cancelCriterion).checkCancelInProgress(any());
     when(prRoot.get(any())).thenReturn(partitionRegionConfig);
 
-    Throwable thrown = catchThrowable(() -> ColocationHelper.getColocatedRegion(partitionedRegion));
+    var thrown = catchThrowable(() -> ColocationHelper.getColocatedRegion(partitionedRegion));
 
     assertThat(thrown)
         .isInstanceOf(CacheClosedException.class);

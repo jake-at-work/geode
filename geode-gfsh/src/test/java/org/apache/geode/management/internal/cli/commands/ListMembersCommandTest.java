@@ -22,8 +22,6 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.junit.Before;
@@ -74,7 +72,7 @@ public class ListMembersCommandTest {
   public void basicListMembers() {
     members.add(member1);
 
-    Map<String, List<String>> table = gfsh.executeAndAssertThat(command, "list members")
+    var table = gfsh.executeAndAssertThat(command, "list members")
         .hasTableSection().getActual().getContent();
 
     assertThat(table.get("Name")).contains("name");
@@ -86,7 +84,7 @@ public class ListMembersCommandTest {
     members.add(member1);
     doReturn(null).when(command).getCoordinatorId();
 
-    Map<String, List<String>> table = gfsh.executeAndAssertThat(command, "list members")
+    var table = gfsh.executeAndAssertThat(command, "list members")
         .hasTableSection().getActual().getContent();
 
     assertThat(table.get("Name")).contains("name");
@@ -98,7 +96,7 @@ public class ListMembersCommandTest {
     members.add(member1);
     members.add(member2);
 
-    Map<String, List<String>> table = gfsh.executeAndAssertThat(command, "list members")
+    var table = gfsh.executeAndAssertThat(command, "list members")
         .hasTableSection().getActual().getContent();
 
     assertThat(table.get("Name")).contains("name", "name2");

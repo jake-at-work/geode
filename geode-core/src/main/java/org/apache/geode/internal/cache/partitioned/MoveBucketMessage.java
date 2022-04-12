@@ -17,7 +17,6 @@ package org.apache.geode.internal.cache.partitioned;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 
@@ -36,7 +35,6 @@ import org.apache.geode.internal.InternalDataSerializer;
 import org.apache.geode.internal.NanoTimer;
 import org.apache.geode.internal.cache.ForceReattemptException;
 import org.apache.geode.internal.cache.PartitionedRegion;
-import org.apache.geode.internal.cache.PartitionedRegionDataStore;
 import org.apache.geode.internal.logging.log4j.LogMarker;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
@@ -84,12 +82,12 @@ public class MoveBucketMessage extends PartitionMessage {
 
     Assert.assertTrue(recipient != null, "MoveBucketMessage NULL recipient");
 
-    MoveBucketResponse response = new MoveBucketResponse(region.getSystem(), recipient, region);
-    MoveBucketMessage msg =
+    var response = new MoveBucketResponse(region.getSystem(), recipient, region);
+    var msg =
         new MoveBucketMessage(recipient, region.getPRId(), response, bucketId, source);
     msg.setTransactionDistributed(region.getCache().getTxManager().isDistributed());
 
-    Set<InternalDistributedMember> failures = region.getDistributionManager().putOutgoing(msg);
+    var failures = region.getDistributionManager().putOutgoing(msg);
     if (failures != null && failures.size() > 0) {
       // throw new ForceReattemptException("Failed sending <" + msg + ">");
       return null;
@@ -112,8 +110,8 @@ public class MoveBucketMessage extends PartitionMessage {
   protected boolean operateOnPartitionedRegion(ClusterDistributionManager dm,
       PartitionedRegion region, long startTime) throws ForceReattemptException {
 
-    PartitionedRegionDataStore dataStore = region.getDataStore();
-    boolean moved = dataStore.moveBucket(bucketId, source, true);
+    var dataStore = region.getDataStore();
+    var moved = dataStore.moveBucket(bucketId, source, true);
 
     region.getPrStats().endPartitionMessagesProcessing(startTime);
     MoveBucketReplyMessage.send(getSender(), getProcessorId(), dm, null, moved);
@@ -172,7 +170,7 @@ public class MoveBucketMessage extends PartitionMessage {
     public static void send(InternalDistributedMember recipient, int processorId,
         DistributionManager dm, ReplyException re, boolean moved) {
       Assert.assertTrue(recipient != null, "MoveBucketReplyMessage NULL recipient");
-      MoveBucketReplyMessage m = new MoveBucketReplyMessage(processorId, re, moved);
+      var m = new MoveBucketReplyMessage(processorId, re, moved);
       m.setRecipient(recipient);
       dm.putOutgoing(m);
     }
@@ -183,7 +181,7 @@ public class MoveBucketMessage extends PartitionMessage {
 
     @Override
     public void process(final DistributionManager dm, final ReplyProcessor21 processor) {
-      final long startTime = getTimestamp();
+      final var startTime = getTimestamp();
       if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
         logger.trace(LogMarker.DM_VERBOSE,
             "MoveBucketReplyMessage process invoking reply processor with processorId: {}",
@@ -247,7 +245,7 @@ public class MoveBucketMessage extends PartitionMessage {
     public void process(DistributionMessage msg) {
       try {
         if (msg instanceof MoveBucketReplyMessage) {
-          MoveBucketReplyMessage reply = (MoveBucketReplyMessage) msg;
+          var reply = (MoveBucketReplyMessage) msg;
           moved = reply.moved();
           if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
             logger.trace(LogMarker.DM_VERBOSE, "MoveBucketResponse is {}", moved);
@@ -271,19 +269,19 @@ public class MoveBucketMessage extends PartitionMessage {
       try {
         waitForRepliesUninterruptibly();
       } catch (ReplyException e) {
-        Throwable t = e.getCause();
+        var t = e.getCause();
         if (t instanceof CancelException) {
-          String msg = "MoveBucketMessage got remote cancellation,";
+          var msg = "MoveBucketMessage got remote cancellation,";
           logger.debug(msg, t);
           return false;
         }
         if (t instanceof PRLocallyDestroyedException) {
-          String msg = "MoveBucketMessage got local destroy on the PartitionRegion ";
+          var msg = "MoveBucketMessage got local destroy on the PartitionRegion ";
           logger.debug(msg, t);
           return false;
         }
         if (t instanceof ForceReattemptException) {
-          String msg =
+          var msg =
               "MoveBucketMessage got ForceReattemptException due to local destroy on the PartitionRegion";
           logger.debug(msg, t);
           return false;

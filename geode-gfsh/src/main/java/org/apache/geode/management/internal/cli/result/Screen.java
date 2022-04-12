@@ -34,14 +34,14 @@ class Screen {
 
   int trimWidthForScreen(int maxColLength) {
     if (shouldTrimColumns()) {
-      int screenWidth = getScreenWidth();
+      var screenWidth = getScreenWidth();
       return Math.min(maxColLength, screenWidth);
     }
     return maxColLength;
   }
 
   int getScreenWidth() {
-    Gfsh gfsh = gfshCurrentInstanceSupplier.get();
+    var gfsh = gfshCurrentInstanceSupplier.get();
     if (gfsh == null) {
       return Gfsh.DEFAULT_WIDTH;
     }
@@ -49,7 +49,7 @@ class Screen {
   }
 
   boolean shouldTrimColumns() {
-    Gfsh gfsh = gfshCurrentInstanceSupplier.get();
+    var gfsh = gfshCurrentInstanceSupplier.get();
     if (gfsh == null) {
       return Boolean.getBoolean(GFSH_TRIMSCRWIDTH_PROPERTY);
     }

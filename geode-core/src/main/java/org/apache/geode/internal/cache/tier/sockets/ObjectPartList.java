@@ -57,8 +57,8 @@ public class ObjectPartList implements DataSerializableFixedID, Releasable {
   protected List<Object> objects;
 
   public void addPart(Object key, Object value, byte objectType, VersionTag versionTag) {
-    int size = objects.size();
-    int maxSize = objectTypeArray.length;
+    var size = objects.size();
+    var maxSize = objectTypeArray.length;
     if (size >= maxSize) {
       throw new IndexOutOfBoundsException("Cannot add object part beyond " + maxSize + " elements");
     }
@@ -186,11 +186,11 @@ public class ObjectPartList implements DataSerializableFixedID, Releasable {
       SerializationContext context) throws IOException {
     out.writeBoolean(hasKeys);
     if (objectTypeArray != null) {
-      int numObjects = objects.size();
+      var numObjects = objects.size();
       out.writeInt(numObjects);
-      for (int index = 0; index < numObjects; ++index) {
-        Object value = objects.get(index);
-        byte objectType = objectTypeArray[index];
+      for (var index = 0; index < numObjects; ++index) {
+        var value = objects.get(index);
+        var objectType = objectTypeArray[index];
         if (hasKeys) {
           context.getSerializer().writeObject(keys.get(index), out);
         }
@@ -218,17 +218,17 @@ public class ObjectPartList implements DataSerializableFixedID, Releasable {
     if (hasKeys) {
       keys = new ArrayList<>();
     }
-    int numObjects = in.readInt();
+    var numObjects = in.readInt();
     if (numObjects > 0) {
-      for (int index = 0; index < numObjects; ++index) {
+      for (var index = 0; index < numObjects; ++index) {
         if (hasKeys) {
-          Object key = context.getDeserializer().readObject(in);
+          var key = context.getDeserializer().readObject(in);
           keys.add(key);
         }
-        boolean isException = in.readBoolean();
+        var isException = in.readBoolean();
         Object value;
         if (isException) {
-          byte[] exBytes = DataSerializer.readByteArray(in);
+          var exBytes = DataSerializer.readByteArray(in);
           value = CacheServerHelper.deserialize(exBytes);
           // ignore the exception string meant for native clients
           DataSerializer.readString(in);
@@ -252,7 +252,7 @@ public class ObjectPartList implements DataSerializableFixedID, Releasable {
 
   @Override
   public void release() {
-    for (Object v : objects) {
+    for (var v : objects) {
       OffHeapHelper.release(v);
     }
   }

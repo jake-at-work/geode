@@ -29,7 +29,7 @@ public class LocatorLauncherStatusTest {
 
   @Test
   public void status() {
-    LocatorLauncher.LocatorState locatorState = LocatorLauncher.getLocatorState();
+    var locatorState = LocatorLauncher.getLocatorState();
     assertThat(locatorState.getStatus().getDescription()).isEqualTo("online");
   }
 

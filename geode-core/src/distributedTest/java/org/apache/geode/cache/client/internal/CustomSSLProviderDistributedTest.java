@@ -42,7 +42,6 @@ import org.junit.experimental.categories.Category;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
@@ -89,13 +88,13 @@ public class CustomSSLProviderDistributedTest {
   private static void createServerRegion() {
     RegionFactory<String, String> factory =
         ClusterStartupRule.getCache().createRegionFactory(RegionShortcut.REPLICATE);
-    Region<String, String> r = factory.create("region");
+    var r = factory.create("region");
     r.put("serverkey", "servervalue");
   }
 
   @Test
   public void hostNameIsValidatedWhenUsingDefaultContext() throws Exception {
-    CertificateMaterial locatorCertificate = new CertificateBuilder()
+    var locatorCertificate = new CertificateBuilder()
         .commonName("locator")
         .issuedBy(ca)
         // ClusterStartupRule uses 'localhost' as locator host
@@ -106,7 +105,7 @@ public class CustomSSLProviderDistributedTest {
         .sanIpAddress(InetAddress.getByName("0.0.0.0")) // to pass on windows
         .generate();
 
-    CertificateMaterial serverCertificate = new CertificateBuilder()
+    var serverCertificate = new CertificateBuilder()
         .commonName("server")
         .issuedBy(ca)
         .sanDnsName(InetAddress.getLocalHost().getHostName())
@@ -114,7 +113,7 @@ public class CustomSSLProviderDistributedTest {
         .sanIpAddress(InetAddress.getLocalHost())
         .generate();
 
-    CertificateMaterial clientCertificate = new CertificateBuilder()
+    var clientCertificate = new CertificateBuilder()
         .commonName("client")
         .issuedBy(ca)
         .generate();
@@ -125,17 +124,17 @@ public class CustomSSLProviderDistributedTest {
 
   @Test
   public void clientCanChooseNotToValidateHostName() throws Exception {
-    CertificateMaterial locatorCertificate = new CertificateBuilder()
+    var locatorCertificate = new CertificateBuilder()
         .commonName("locator")
         .issuedBy(ca)
         .generate();
 
-    CertificateMaterial serverCertificate = new CertificateBuilder()
+    var serverCertificate = new CertificateBuilder()
         .commonName("server")
         .issuedBy(ca)
         .generate();
 
-    CertificateMaterial clientCertificate = new CertificateBuilder()
+    var clientCertificate = new CertificateBuilder()
         .commonName("client")
         .issuedBy(ca)
         .generate();
@@ -148,17 +147,17 @@ public class CustomSSLProviderDistributedTest {
   public void clientConnectionFailsIfNoHostNameInLocatorKey() throws Exception {
     IgnoredException.addIgnoredException(IllegalStateException.class);
 
-    CertificateMaterial locatorCertificate = new CertificateBuilder()
+    var locatorCertificate = new CertificateBuilder()
         .commonName("locator")
         .issuedBy(ca)
         .generate();
 
-    CertificateMaterial serverCertificate = new CertificateBuilder()
+    var serverCertificate = new CertificateBuilder()
         .commonName("server")
         .issuedBy(ca)
         .generate();
 
-    CertificateMaterial clientCertificate = new CertificateBuilder()
+    var clientCertificate = new CertificateBuilder()
         .commonName("client")
         .issuedBy(ca)
         .generate();
@@ -171,19 +170,19 @@ public class CustomSSLProviderDistributedTest {
   public void clientConnectionFailsWhenWrongHostNameInLocatorKey() throws Exception {
     IgnoredException.addIgnoredException(IllegalStateException.class);
 
-    CertificateMaterial locatorCertificate = new CertificateBuilder()
+    var locatorCertificate = new CertificateBuilder()
         .commonName("locator")
         .sanDnsName("example.com")
         .issuedBy(ca)
         .generate();
 
-    CertificateMaterial serverCertificate = new CertificateBuilder()
+    var serverCertificate = new CertificateBuilder()
         .commonName("server")
         .sanDnsName("example.com")
         .issuedBy(ca)
         .generate();
 
-    CertificateMaterial clientCertificate = new CertificateBuilder()
+    var clientCertificate = new CertificateBuilder()
         .commonName("client")
         .issuedBy(ca)
         .generate();
@@ -196,7 +195,7 @@ public class CustomSSLProviderDistributedTest {
 
   @Test
   public void expectConnectionFailureWhenNoHostNameInServerKey() throws Exception {
-    CertificateMaterial locatorCertificateWithSan = new CertificateBuilder()
+    var locatorCertificateWithSan = new CertificateBuilder()
         .commonName("locator")
         .issuedBy(ca)
         .sanDnsName(InetAddress.getLoopbackAddress().getHostName())
@@ -205,12 +204,12 @@ public class CustomSSLProviderDistributedTest {
         .sanIpAddress(InetAddress.getLocalHost())
         .generate();
 
-    CertificateMaterial serverCertificateWithNoSan = new CertificateBuilder()
+    var serverCertificateWithNoSan = new CertificateBuilder()
         .commonName("server")
         .issuedBy(ca)
         .generate();
 
-    CertificateMaterial clientCertificate = new CertificateBuilder()
+    var clientCertificate = new CertificateBuilder()
         .commonName("client")
         .issuedBy(ca)
         .generate();
@@ -227,46 +226,46 @@ public class CustomSSLProviderDistributedTest {
       Class<? extends Throwable> expectedExceptionOnClient)
       throws GeneralSecurityException, IOException {
 
-    CertStores locatorStore = CertStores.locatorStore();
+    var locatorStore = CertStores.locatorStore();
     locatorStore.withCertificate("locator", locatorCertificate);
     locatorStore.trust("ca", ca);
 
-    CertStores serverStore = CertStores.serverStore();
+    var serverStore = CertStores.serverStore();
     serverStore.withCertificate("server", serverCertificate);
     serverStore.trust("ca", ca);
 
-    CertStores clientStore = CertStores.clientStore();
+    var clientStore = CertStores.clientStore();
     clientStore.withCertificate("client", clientCertificate);
     clientStore.trust("ca", ca);
 
-    Properties locatorSSLProps = locatorStore
+    var locatorSSLProps = locatorStore
         .propertiesWith(ALL, false, enableHostNameVerficationForLocator);
 
-    Properties serverSSLProps = serverStore
+    var serverSSLProps = serverStore
         .propertiesWith(ALL, true, enableHostNameVerificationForServer);
 
     // this props is only to create temp keystore and truststore and get paths
-    Properties clientSSLProps = clientStore
+    var clientSSLProps = clientStore
         .propertiesWith(ALL, true, true);
 
     setupCluster(locatorSSLProps, serverSSLProps);
 
     // setup client
-    CustomKeyManagerFactory.PKIXFactory keyManagerFactory =
+    var keyManagerFactory =
         new CustomKeyManagerFactory.PKIXFactory(clientSSLProps.getProperty(SSL_KEYSTORE));
     keyManagerFactory.engineInit(null, null);
 
-    CustomTrustManagerFactory.PKIXFactory trustManagerFactory =
+    var trustManagerFactory =
         new CustomTrustManagerFactory.PKIXFactory(clientSSLProps.getProperty(SSL_TRUSTSTORE));
     trustManagerFactory.engineInit((KeyStore) null);
 
-    SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
+    var sslContext = SSLContext.getInstance("TLSv1.2");
     sslContext.init(keyManagerFactory.engineGetKeyManagers(),
         trustManagerFactory.engineGetTrustManagers(), null);
     // set default context
     SSLContext.setDefault(sslContext);
 
-    Properties clientSSLProperties = new Properties();
+    var clientSSLProperties = new Properties();
     clientSSLProperties.setProperty(SSL_ENABLED_COMPONENTS, ALL);
     clientSSLProperties.setProperty(SSL_REQUIRE_AUTHENTICATION, "true");
     clientSSLProperties.setProperty(SSL_USE_DEFAULT_CONTEXT, "true");
@@ -276,9 +275,9 @@ public class CustomSSLProviderDistributedTest {
       clientSSLProperties.setProperty(SSL_ENDPOINT_IDENTIFICATION_ENABLED, "false");
     }
 
-    ClientCacheFactory clientCacheFactory = new ClientCacheFactory(clientSSLProperties);
+    var clientCacheFactory = new ClientCacheFactory(clientSSLProperties);
     clientCacheFactory.addPoolLocator(locator.getVM().getHost().getHostName(), locator.getPort());
-    ClientCache clientCache = clientCacheFactory.create();
+    var clientCache = clientCacheFactory.create();
 
     ClientRegionFactory<String, String> regionFactory =
         clientCache.createClientRegionFactory(ClientRegionShortcut.PROXY);
@@ -287,12 +286,12 @@ public class CustomSSLProviderDistributedTest {
       IgnoredException.addIgnoredException("javax.net.ssl.SSLHandshakeException");
       IgnoredException.addIgnoredException("java.net.SocketException");
 
-      Region<String, String> clientRegion = regionFactory.create("region");
+      var clientRegion = regionFactory.create("region");
       assertThatExceptionOfType(expectedExceptionOnClient)
           .isThrownBy(() -> clientRegion.put("clientkey", "clientvalue"));
     } else {
       // test client can read and write to server
-      Region<String, String> clientRegion = regionFactory.create("region");
+      var clientRegion = regionFactory.create("region");
       assertThat("servervalue").isEqualTo(clientRegion.get("serverkey"));
       clientRegion.put("clientkey", "clientvalue");
 

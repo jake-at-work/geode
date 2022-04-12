@@ -44,8 +44,8 @@ public class QueryServiceJUnitTest {
   @Before
   public void setUp() throws java.lang.Exception {
     CacheUtils.startCache();
-    Region region = CacheUtils.createRegion("Portfolios", Portfolio.class);
-    for (int i = 0; i < 5; i++) {
+    var region = CacheUtils.createRegion("Portfolios", Portfolio.class);
+    for (var i = 0; i < 5; i++) {
       region.put(i + "", new Portfolio(i));
     }
   }
@@ -60,7 +60,7 @@ public class QueryServiceJUnitTest {
   @Test
   public void testNewQuery() {
     CacheUtils.log("testNewQuery");
-    QueryService qs = CacheUtils.getQueryService();
+    var qs = CacheUtils.getQueryService();
     qs.newQuery("SELECT DISTINCT * FROM " + SEPARATOR + "root");
 
     try {
@@ -73,9 +73,9 @@ public class QueryServiceJUnitTest {
 
   @Test
   public void toDateWithPresetDateShouldExecuteWithoutExceptions() throws Exception {
-    String testDate = "01/01/2000";
-    QueryService queryService = CacheUtils.getQueryService();
-    Query query = queryService.newQuery(
+    var testDate = "01/01/2000";
+    var queryService = CacheUtils.getQueryService();
+    var query = queryService.newQuery(
         "SELECT * FROM " + SEPARATOR + "Portfolios WHERE createDate >= to_date('" + testDate
             + "', 'MM/dd/yyyy')");
     query.execute();
@@ -83,9 +83,9 @@ public class QueryServiceJUnitTest {
 
   @Test
   public void toDateWithValidBindParameterDateShouldExecuteWithoutExceptions() throws Exception {
-    String testDate = "01/01/2000";
-    QueryService queryService = CacheUtils.getQueryService();
-    Query query = queryService
+    var testDate = "01/01/2000";
+    var queryService = CacheUtils.getQueryService();
+    var query = queryService
         .newQuery("SELECT * FROM " + SEPARATOR
             + "Portfolios WHERE createDate >= to_date($1, 'MM/dd/yyyy')");
     query.execute(testDate);
@@ -94,9 +94,9 @@ public class QueryServiceJUnitTest {
   @Test
   public void toDateWithInValidStringBindParameterDateShouldThrowQueryInvalidException()
       throws Exception {
-    String invalid = "someInvalidString";
-    QueryService queryService = CacheUtils.getQueryService();
-    Query query = queryService
+    var invalid = "someInvalidString";
+    var queryService = CacheUtils.getQueryService();
+    var query = queryService
         .newQuery("SELECT * FROM " + SEPARATOR
             + "Portfolios WHERE createDate >= to_date($1, 'MM/dd/yyyy')");
     try {
@@ -111,8 +111,8 @@ public class QueryServiceJUnitTest {
   public void toDateWithRegionAsBindParameterDateShouldThrowQueryInvalidException()
       throws Exception {
     Object invalid = CacheUtils.getRegion("Portfolios");
-    QueryService queryService = CacheUtils.getQueryService();
-    Query query = queryService
+    var queryService = CacheUtils.getQueryService();
+    var query = queryService
         .newQuery("SELECT * FROM " + SEPARATOR
             + "Portfolios WHERE createDate >= to_date($1, 'MM/dd/yyyy')");
     try {
@@ -126,8 +126,8 @@ public class QueryServiceJUnitTest {
   @Test
   public void testCreateIndex() throws Exception {
     CacheUtils.log("testCreateIndex");
-    QueryService qs = CacheUtils.getQueryService();
-    Index index =
+    var qs = CacheUtils.getQueryService();
+    var index =
         qs.createIndex("statusIndex", IndexType.FUNCTIONAL, "status", SEPARATOR + "Portfolios");
 
     try {
@@ -151,7 +151,7 @@ public class QueryServiceJUnitTest {
 
   @Test
   public void testIndexDefinitions() {
-    Object[][] testDataFromClauses = {{"status", SEPARATOR + "Portfolios", Boolean.TRUE},
+    var testDataFromClauses = new Object[][] {{"status", SEPARATOR + "Portfolios", Boolean.TRUE},
         {"status", SEPARATOR + "Portfolios.entries", Boolean.FALSE},
         {"status", SEPARATOR + "Portfolios.values", Boolean.TRUE},
         {"status", SEPARATOR + "Portfolios.keys", Boolean.TRUE},
@@ -162,7 +162,7 @@ public class QueryServiceJUnitTest {
 
     runCreateIndexTests(testDataFromClauses);
 
-    Object[][] testDataIndexExpr = {{"positions", SEPARATOR + "Portfolios", Boolean.FALSE},
+    var testDataIndexExpr = new Object[][] {{"positions", SEPARATOR + "Portfolios", Boolean.FALSE},
         {"status.length", SEPARATOR + "Portfolios", Boolean.TRUE},
         {"p.status", SEPARATOR + "Portfolios p", Boolean.TRUE},
         {"p.getStatus()", SEPARATOR + "Portfolios p", Boolean.TRUE},
@@ -179,13 +179,13 @@ public class QueryServiceJUnitTest {
   }
 
   private void runCreateIndexTests(Object[][] testData) {
-    QueryService qs = CacheUtils.getQueryService();
+    var qs = CacheUtils.getQueryService();
     qs.removeIndexes();
-    for (int i = 0; i < testData.length; i++) {
+    for (var i = 0; i < testData.length; i++) {
       Index index = null;
       try {
-        String indexedExpr = (String) testData[i][0];
-        String fromClause = (String) testData[i][1];
+        var indexedExpr = (String) testData[i][0];
+        var fromClause = (String) testData[i][1];
         index = qs.createIndex("index" + i, IndexType.FUNCTIONAL, indexedExpr, fromClause);
         if (testData[i][2] == Boolean.TRUE && index == null) {
           fail("QueryService.createIndex unable to  create index for indexExpr=" + testData[i][0]
@@ -213,10 +213,10 @@ public class QueryServiceJUnitTest {
   @Test
   public void testGetIndex() throws Exception {
     CacheUtils.log("testGetIndex");
-    QueryService qs = CacheUtils.getQueryService();
+    var qs = CacheUtils.getQueryService();
 
-    Region r = CacheUtils.getRegion(SEPARATOR + "Portfolios");
-    Index index =
+    var r = CacheUtils.getRegion(SEPARATOR + "Portfolios");
+    var index =
         qs.createIndex("statusIndex", IndexType.FUNCTIONAL, "status", SEPARATOR + "Portfolios");
     assertNotNull(qs.getIndex(r, "statusIndex"));
     qs.removeIndex(index);
@@ -237,8 +237,8 @@ public class QueryServiceJUnitTest {
   @Test
   public void testRemoveIndex() throws Exception {
     CacheUtils.log("testRemoveIndex");
-    QueryService qs = CacheUtils.getQueryService();
-    Index index =
+    var qs = CacheUtils.getQueryService();
+    var index =
         qs.createIndex("statusIndex", IndexType.FUNCTIONAL, "p.status", SEPARATOR + "Portfolios p");
     qs.removeIndex(index);
     index = qs.getIndex(CacheUtils.getRegion(SEPARATOR + "Portfolios"), "statusIndex");
@@ -252,7 +252,7 @@ public class QueryServiceJUnitTest {
     CacheUtils.log("testRemoveIndexes");
     CacheUtils.createRegion("Ptfs", Portfolio.class);
     CacheUtils.createRegion("Ptfs1", Portfolio.class);
-    QueryService qs = CacheUtils.getQueryService();
+    var qs = CacheUtils.getQueryService();
     qs.createIndex("statusIndex", IndexType.FUNCTIONAL, "status", SEPARATOR + "Portfolios");
     qs.createIndex("statusIndex", IndexType.FUNCTIONAL, "status", SEPARATOR + "Ptfs");
     qs.removeIndexes();
@@ -267,7 +267,7 @@ public class QueryServiceJUnitTest {
     CacheUtils.log("testGetIndexes");
     CacheUtils.createRegion("Ptfs", Portfolio.class);
     CacheUtils.createRegion("Ptfs1", Portfolio.class);
-    QueryService qs = CacheUtils.getQueryService();
+    var qs = CacheUtils.getQueryService();
     qs.createIndex("statusIndex", IndexType.FUNCTIONAL, "status", SEPARATOR + "Portfolios");
     qs.createIndex("statusIndex", IndexType.FUNCTIONAL, "status", SEPARATOR + "Ptfs");
     Collection allIndexes = qs.getIndexes();
@@ -279,7 +279,7 @@ public class QueryServiceJUnitTest {
   @Test
   public void getIndexesShouldReturnEmptyCollectionWhenNoIndexesAreDefined() {
     CacheUtils.log("getIndexesShouldReturnEmptyCollectionWhenNoIndexesAreDefined");
-    QueryService queryService = CacheUtils.getQueryService();
+    var queryService = CacheUtils.getQueryService();
     Region replicatedRegion = CacheUtils.getCache().createRegionFactory(RegionShortcut.REPLICATE)
         .create("ReplicatedRegion");
     Region partitionedRegion = CacheUtils.getCache().createRegionFactory(RegionShortcut.PARTITION)
@@ -302,8 +302,8 @@ public class QueryServiceJUnitTest {
   public void getIndexesShouldReturnEmptyCollectionWhenNoIndexesOfTheSpecifiedTypeAreDefined() {
     CacheUtils
         .log("getIndexesShouldReturnEmptyCollectionWhenNoIndexesOfTheSpecifiedTypeAreDefined");
-    IndexType[] indexTypes = IndexType.values();
-    QueryService queryService = CacheUtils.getQueryService();
+    var indexTypes = IndexType.values();
+    var queryService = CacheUtils.getQueryService();
     Region replicatedRegion = CacheUtils.getCache().createRegionFactory(RegionShortcut.REPLICATE)
         .create("ReplicatedRegion");
     Region partitionedRegion = CacheUtils.getCache().createRegionFactory(RegionShortcut.PARTITION)

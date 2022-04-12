@@ -19,7 +19,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.UnpooledByteBufAllocator;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -31,7 +30,7 @@ public class ClientTest {
   private final Client client = new Client(mockChannel(), mock(PubSub.class));
 
   private Channel mockChannel() {
-    Channel channel = mock(Channel.class);
+    var channel = mock(Channel.class);
     when(channel.closeFuture()).thenReturn(mock(ChannelFuture.class));
     return channel;
   }
@@ -50,9 +49,9 @@ public class ClientTest {
 
   @Test
   public void verifyAddingChannelSubscription() {
-    final byte[] channel = stringToBytes("channel");
+    final var channel = stringToBytes("channel");
 
-    boolean added = client.addChannelSubscription(channel);
+    var added = client.addChannelSubscription(channel);
 
     assertThat(added).isTrue();
     assertThat(client.getSubscriptionCount()).isOne();
@@ -62,9 +61,9 @@ public class ClientTest {
 
   @Test
   public void verifyAddingPatternSubscription() {
-    final byte[] pattern = stringToBytes("pattern");
+    final var pattern = stringToBytes("pattern");
 
-    boolean added = client.addPatternSubscription(pattern);
+    var added = client.addPatternSubscription(pattern);
 
     assertThat(added).isTrue();
     assertThat(client.getSubscriptionCount()).isOne();
@@ -74,10 +73,10 @@ public class ClientTest {
 
   @Test
   public void verifyAddingDuplicateChannelSubscription() {
-    final byte[] channel = stringToBytes("channel");
+    final var channel = stringToBytes("channel");
     client.addChannelSubscription(channel);
 
-    boolean added = client.addChannelSubscription(channel);
+    var added = client.addChannelSubscription(channel);
 
     assertThat(added).isFalse();
     assertThat(client.getSubscriptionCount()).isOne();
@@ -87,10 +86,10 @@ public class ClientTest {
 
   @Test
   public void verifyAddingDuplicatePatternSubscription() {
-    final byte[] pattern = stringToBytes("pattern");
+    final var pattern = stringToBytes("pattern");
     client.addPatternSubscription(pattern);
 
-    boolean added = client.addPatternSubscription(pattern);
+    var added = client.addPatternSubscription(pattern);
 
     assertThat(added).isFalse();
     assertThat(client.getSubscriptionCount()).isOne();
@@ -100,28 +99,28 @@ public class ClientTest {
 
   @Test
   public void verifyRemovingNonExistentChannelSubscription() {
-    final byte[] channel = stringToBytes("channel");
+    final var channel = stringToBytes("channel");
 
-    boolean removed = client.removeChannelSubscription(channel);
+    var removed = client.removeChannelSubscription(channel);
 
     assertThat(removed).isFalse();
   }
 
   @Test
   public void verifyRemovingNonExistentPatternSubscription() {
-    final byte[] pattern = stringToBytes("pattern");
+    final var pattern = stringToBytes("pattern");
 
-    boolean removed = client.removePatternSubscription(pattern);
+    var removed = client.removePatternSubscription(pattern);
 
     assertThat(removed).isFalse();
   }
 
   @Test
   public void verifyRemovingExistentChannelSubscription() {
-    final byte[] channel = stringToBytes("channel");
+    final var channel = stringToBytes("channel");
     client.addChannelSubscription(channel);
 
-    boolean removed = client.removeChannelSubscription(channel);
+    var removed = client.removeChannelSubscription(channel);
 
     assertThat(removed).isTrue();
     verifyClientIsEmpty();
@@ -129,10 +128,10 @@ public class ClientTest {
 
   @Test
   public void verifyRemovingExistentPatternSubscription() {
-    final byte[] pattern = stringToBytes("pattern");
+    final var pattern = stringToBytes("pattern");
     client.addPatternSubscription(pattern);
 
-    boolean removed = client.removePatternSubscription(pattern);
+    var removed = client.removePatternSubscription(pattern);
 
     assertThat(removed).isTrue();
     verifyClientIsEmpty();
@@ -140,11 +139,11 @@ public class ClientTest {
 
   @Test
   public void verifyAddingTwoChannelSubscriptions() {
-    final byte[] channel1 = stringToBytes("channel1");
-    final byte[] channel2 = stringToBytes("channel2");
+    final var channel1 = stringToBytes("channel1");
+    final var channel2 = stringToBytes("channel2");
 
-    boolean added1 = client.addChannelSubscription(channel1);
-    boolean added2 = client.addChannelSubscription(channel2);
+    var added1 = client.addChannelSubscription(channel1);
+    var added2 = client.addChannelSubscription(channel2);
 
     assertThat(added1).isTrue();
     assertThat(added2).isTrue();
@@ -155,11 +154,11 @@ public class ClientTest {
 
   @Test
   public void verifyAddingTwoPatternSubscriptions() {
-    final byte[] pattern1 = stringToBytes("pattern1");
-    final byte[] pattern2 = stringToBytes("pattern2");
+    final var pattern1 = stringToBytes("pattern1");
+    final var pattern2 = stringToBytes("pattern2");
 
-    boolean added1 = client.addPatternSubscription(pattern1);
-    boolean added2 = client.addPatternSubscription(pattern2);
+    var added1 = client.addPatternSubscription(pattern1);
+    var added2 = client.addPatternSubscription(pattern2);
 
     assertThat(added1).isTrue();
     assertThat(added2).isTrue();
@@ -170,10 +169,10 @@ public class ClientTest {
 
   @Test
   public void verifyClearSubscriptionsProducesEmptyClient() {
-    final byte[] pattern1 = stringToBytes("pattern1");
-    final byte[] pattern2 = stringToBytes("pattern2");
-    final byte[] channel1 = stringToBytes("channel1");
-    final byte[] channel2 = stringToBytes("channel2");
+    final var pattern1 = stringToBytes("pattern1");
+    final var pattern2 = stringToBytes("pattern2");
+    final var channel1 = stringToBytes("channel1");
+    final var channel2 = stringToBytes("channel2");
     client.addChannelSubscription(channel1);
     client.addChannelSubscription(channel2);
     client.addPatternSubscription(pattern1);
@@ -186,13 +185,13 @@ public class ClientTest {
 
   @Test
   public void getBufferBytesReturnsAllTheBytesWritten() {
-    UnpooledByteBufAllocator allocator = new UnpooledByteBufAllocator(false);
-    ByteBuf buf = allocator.buffer();
+    var allocator = new UnpooledByteBufAllocator(false);
+    var buf = allocator.buffer();
     buf.writeByte(1);
     buf.writeByte(2);
     buf.writeByte(3);
 
-    byte[] bytes = client.getBufferBytes(buf);
+    var bytes = client.getBufferBytes(buf);
 
     assertThat(bytes).containsExactly(1, 2, 3);
   }

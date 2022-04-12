@@ -19,7 +19,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.io.File;
 import java.io.IOException;
 
 import org.junit.Rule;
@@ -28,7 +27,6 @@ import org.junit.rules.TemporaryFolder;
 
 import org.apache.geode.management.cli.Result;
 import org.apache.geode.management.internal.cli.GfshParseResult;
-import org.apache.geode.management.internal.cli.result.model.ResultModel;
 
 public class CreateMappingCommandInterceptorTest {
 
@@ -43,7 +41,7 @@ public class CreateMappingCommandInterceptorTest {
   @Test
   public void preExecutionGivenNullPdxClassFileReturnsOK() {
     when(gfshParseResult.getParamValue(MappingConstants.PDX_CLASS_FILE)).thenReturn(null);
-    ResultModel result = interceptor.preExecution(gfshParseResult);
+    var result = interceptor.preExecution(gfshParseResult);
     assertThat(result.getStatus()).isEqualTo(Result.Status.OK);
   }
 
@@ -51,7 +49,7 @@ public class CreateMappingCommandInterceptorTest {
   public void preExecutionGivenNonExistingPdxClassFileReturnsError() {
     when(gfshParseResult.getParamValue(MappingConstants.PDX_CLASS_FILE))
         .thenReturn("NonExistingFile");
-    ResultModel result = interceptor.preExecution(gfshParseResult);
+    var result = interceptor.preExecution(gfshParseResult);
     assertThat(result.getStatus()).isEqualTo(Result.Status.ERROR);
     assertResultModel(result).hasInfoResultModel("info").hasOutput()
         .contains("NonExistingFile not found.");
@@ -59,10 +57,10 @@ public class CreateMappingCommandInterceptorTest {
 
   @Test
   public void preExecutionGivenDirectoryAsPdxClassFileReturnsError() throws IOException {
-    File tempFolder = testFolder.newFolder("tempFolder");
+    var tempFolder = testFolder.newFolder("tempFolder");
     when(gfshParseResult.getParamValue(MappingConstants.PDX_CLASS_FILE))
         .thenReturn(tempFolder.getAbsolutePath());
-    ResultModel result = interceptor.preExecution(gfshParseResult);
+    var result = interceptor.preExecution(gfshParseResult);
     assertThat(result.getStatus()).isEqualTo(Result.Status.ERROR);
     assertResultModel(result).hasInfoResultModel("info").hasOutput()
         .contains(tempFolder.getAbsolutePath() + " is not a file.");
@@ -70,10 +68,10 @@ public class CreateMappingCommandInterceptorTest {
 
   @Test
   public void preExecutionGivenFileWithoutExtensionAsPdxClassFileReturnsError() throws IOException {
-    File tempFile = testFolder.newFile("tempFile");
+    var tempFile = testFolder.newFile("tempFile");
     when(gfshParseResult.getParamValue(MappingConstants.PDX_CLASS_FILE))
         .thenReturn(tempFile.getAbsolutePath());
-    ResultModel result = interceptor.preExecution(gfshParseResult);
+    var result = interceptor.preExecution(gfshParseResult);
     assertThat(result.getStatus()).isEqualTo(Result.Status.ERROR);
     assertResultModel(result).hasInfoResultModel("info").hasOutput()
         .contains(tempFile.getAbsolutePath() + " must end with \".jar\" or \".class\".");
@@ -81,20 +79,20 @@ public class CreateMappingCommandInterceptorTest {
 
   @Test
   public void preExecutionGivenClassFileAsPdxClassFileReturnsOK() throws IOException {
-    File tempFile = testFolder.newFile("tempFile.class");
+    var tempFile = testFolder.newFile("tempFile.class");
     when(gfshParseResult.getParamValue(MappingConstants.PDX_CLASS_FILE))
         .thenReturn(tempFile.getAbsolutePath());
-    ResultModel result = interceptor.preExecution(gfshParseResult);
+    var result = interceptor.preExecution(gfshParseResult);
     assertThat(result.getStatus()).isEqualTo(Result.Status.OK);
     assertThat(result.getFileList()).containsExactly(tempFile);
   }
 
   @Test
   public void preExecutionGivenJarFileAsPdxClassFileReturnsOK() throws IOException {
-    File tempFile = testFolder.newFile("tempFile.jar");
+    var tempFile = testFolder.newFile("tempFile.jar");
     when(gfshParseResult.getParamValue(MappingConstants.PDX_CLASS_FILE))
         .thenReturn(tempFile.getAbsolutePath());
-    ResultModel result = interceptor.preExecution(gfshParseResult);
+    var result = interceptor.preExecution(gfshParseResult);
     assertThat(result.getStatus()).isEqualTo(Result.Status.OK);
     assertThat(result.getFileList()).containsExactly(tempFile);
   }

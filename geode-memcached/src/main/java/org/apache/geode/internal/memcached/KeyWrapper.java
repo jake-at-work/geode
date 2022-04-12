@@ -70,7 +70,7 @@ public class KeyWrapper implements DataSerializable {
   @Override
   public boolean equals(Object obj) {
     if (obj instanceof KeyWrapper) {
-      KeyWrapper other = (KeyWrapper) obj;
+      var other = (KeyWrapper) obj;
       return Arrays.equals(key, other.key);
     }
     return false;

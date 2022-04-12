@@ -140,7 +140,7 @@ public class PRFunctionStreamingResultCollector extends FunctionStreamingResultC
         if (!execution.getWaitOnExceptionFlag()) {
           if (!fn.isHA()) {
             // endResults();
-            FunctionInvocationTargetException fite =
+            var fite =
                 new FunctionInvocationTargetException(e.getMessage());
             throw new FunctionException(fite);
           } else if (execution.isClientServerMode()) {
@@ -166,7 +166,7 @@ public class PRFunctionStreamingResultCollector extends FunctionStreamingResultC
         if (!execution.getWaitOnExceptionFlag()) {
           if (!fn.isHA()) {
             // endResults();
-            FunctionInvocationTargetException fite =
+            var fite =
                 new FunctionInvocationTargetException(e.getMessage());
             throw new FunctionException(fite);
           } else if (execution.isClientServerMode()) {
@@ -227,18 +227,18 @@ public class PRFunctionStreamingResultCollector extends FunctionStreamingResultC
   @Override
   public Object getResultInternal(long timeout, TimeUnit unit)
       throws FunctionException, InterruptedException {
-    long timeoutInMillis = unit.toMillis(timeout);
+    var timeoutInMillis = unit.toMillis(timeout);
     if (resultCollected) {
       throw new FunctionException("Result already collected");
     }
     resultCollected = true;
     if (hasResult) {
       try {
-        long timeBefore = System.currentTimeMillis();
+        var timeBefore = System.currentTimeMillis();
         if (!waitForCacheOrFunctionException(timeoutInMillis)) {
           throw new FunctionException("All results not received in time provided.");
         }
-        long timeAfter = System.currentTimeMillis();
+        var timeAfter = System.currentTimeMillis();
         timeoutInMillis = timeoutInMillis - (timeAfter - timeBefore);
         if (timeoutInMillis < 0) {
           timeoutInMillis = 0;
@@ -282,13 +282,13 @@ public class PRFunctionStreamingResultCollector extends FunctionStreamingResultC
       } catch (BucketMovedException e) {
         if (!fn.isHA()) {
           // endResults();
-          FunctionInvocationTargetException fite =
+          var fite =
               new FunctionInvocationTargetException(e.getMessage());
           throw new FunctionException(fite);
         } else if (execution.isClientServerMode()) {
           // endResults();
           clearResults();
-          FunctionInvocationTargetException fite =
+          var fite =
               new FunctionInvocationTargetException(e.getMessage());
           throw new FunctionException(fite);
         } else {
@@ -306,7 +306,7 @@ public class PRFunctionStreamingResultCollector extends FunctionStreamingResultC
       } catch (CacheClosedException e) {
         if (!fn.isHA()) {
           // endResults();
-          FunctionInvocationTargetException fite =
+          var fite =
               new FunctionInvocationTargetException(e.getMessage());
           throw new FunctionException(fite);
         } else if (execution.isClientServerMode()) {
@@ -381,7 +381,7 @@ public class PRFunctionStreamingResultCollector extends FunctionStreamingResultC
         checkIfDone();
       }
     } else {
-      Exception e = new Exception(
+      var e = new Exception(
           "memberDeparted got null memberId");
       logger.info(String.format("memberDeparted got null memberId crashed=%s",
           crashed),

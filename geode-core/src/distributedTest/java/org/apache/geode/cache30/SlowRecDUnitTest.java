@@ -31,7 +31,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.Serializable;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Properties;
 import java.util.Set;
@@ -46,12 +45,9 @@ import org.apache.geode.cache.CacheListener;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.Region.Entry;
 import org.apache.geode.cache.RegionEvent;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.util.CacheListenerAdapter;
-import org.apache.geode.distributed.internal.DMStats;
-import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.LogWriterUtils;
@@ -90,18 +86,18 @@ public class SlowRecDUnitTest extends JUnit4CacheTestCase {
   }
 
   private VM getOtherVm() {
-    Host host = Host.getHost(0);
+    var host = Host.getHost(0);
     return host.getVM(0);
   }
 
   private void doCreateOtherVm(final Properties p, final boolean addListener) {
-    VM vm = getOtherVm();
+    var vm = getOtherVm();
     vm.invoke(new CacheSerializableRunnable("create root") {
       @Override
       public void run2() throws CacheException {
         getSystem(p);
         createAckRegion(true, false);
-        AttributesFactory af = new AttributesFactory();
+        var af = new AttributesFactory();
         af.setScope(Scope.DISTRIBUTED_NO_ACK);
         af.setDataPolicy(DataPolicy.REPLICATE);
         if (addListener) {
@@ -165,7 +161,7 @@ public class SlowRecDUnitTest extends JUnit4CacheTestCase {
           };
           af.setCacheListener(cl);
         }
-        Region r1 = createRootRegion("slowrec", af.create());
+        var r1 = createRootRegion("slowrec", af.create());
         // place holder so we receive updates
         r1.create("key", "value");
       }
@@ -175,13 +171,13 @@ public class SlowRecDUnitTest extends JUnit4CacheTestCase {
   protected static final String CHECK_INVALID = "CHECK_INVALID";
 
   private void checkLastValueInOtherVm(final String lastValue, final Object lcb) {
-    VM vm = getOtherVm();
+    var vm = getOtherVm();
     vm.invoke(new CacheSerializableRunnable("check last value") {
       @Override
       public void run2() throws CacheException {
         Region r1 = getRootRegion("slowrec");
         if (lcb != null) {
-          WaitCriterion ev = new WaitCriterion() {
+          var ev = new WaitCriterion() {
             @Override
             public boolean done() {
               return lcb.equals(lastCallback);
@@ -196,8 +192,8 @@ public class SlowRecDUnitTest extends JUnit4CacheTestCase {
           assertEquals(lcb, lastCallback);
         }
         if (lastValue == null) {
-          final Region r = r1;
-          WaitCriterion ev = new WaitCriterion() {
+          final var r = r1;
+          var ev = new WaitCriterion() {
             @Override
             public boolean done() {
               return r.getEntry("key") == null;
@@ -213,11 +209,11 @@ public class SlowRecDUnitTest extends JUnit4CacheTestCase {
         } else if (CHECK_INVALID.equals(lastValue)) {
           // should be invalid
           {
-            final Region r = r1;
-            WaitCriterion ev = new WaitCriterion() {
+            final var r = r1;
+            var ev = new WaitCriterion() {
               @Override
               public boolean done() {
-                Entry e = r.getEntry("key");
+                var e = r.getEntry("key");
                 if (e == null) {
                   return false;
                 }
@@ -233,7 +229,7 @@ public class SlowRecDUnitTest extends JUnit4CacheTestCase {
           }
         } else {
           {
-            int retryCount = 1000;
+            var retryCount = 1000;
             Region.Entry re = null;
             Object value = null;
             while (retryCount-- > 0) {
@@ -261,8 +257,8 @@ public class SlowRecDUnitTest extends JUnit4CacheTestCase {
 
   private void forceQueueFlush() {
     FORCE_ASYNC_QUEUE = false;
-    final DMStats stats = getSystem().getDistributionManager().getStats();
-    WaitCriterion ev = new WaitCriterion() {
+    final var stats = getSystem().getDistributionManager().getStats();
+    var ev = new WaitCriterion() {
       @Override
       public boolean done() {
         return stats.getAsyncThreads() == 0;
@@ -278,11 +274,11 @@ public class SlowRecDUnitTest extends JUnit4CacheTestCase {
 
   private void forceQueuing(final Region r) throws CacheException {
     FORCE_ASYNC_QUEUE = true;
-    final DMStats stats = getSystem().getDistributionManager().getStats();
+    final var stats = getSystem().getDistributionManager().getStats();
     r.put("forcekey", "forcevalue");
 
     // wait for the flusher to get its first flush in progress
-    WaitCriterion ev = new WaitCriterion() {
+    var ev = new WaitCriterion() {
       @Override
       public boolean done() {
         return stats.getAsyncQueueFlushesInProgress() != 0;
@@ -301,32 +297,32 @@ public class SlowRecDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testNoAck() throws Exception {
-    final AttributesFactory factory = new AttributesFactory();
+    final var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_NO_ACK);
-    final Region r = createRootRegion("slowrec", factory.create());
-    final DMStats stats = getSystem().getDistributionManager().getStats();
+    final var r = createRootRegion("slowrec", factory.create());
+    final var stats = getSystem().getDistributionManager().getStats();
 
     // create receiver in vm0 with queuing enabled
-    Properties p = new Properties();
+    var p = new Properties();
     p.setProperty(ASYNC_DISTRIBUTION_TIMEOUT, "1");
     doCreateOtherVm(p, false);
 
-    int repeatCount = 2;
-    int count = 0;
+    var repeatCount = 2;
+    var count = 0;
     while (repeatCount-- > 0) {
       forceQueuing(r);
       final Object key = "key";
-      long queuedMsgs = stats.getAsyncQueuedMsgs();
-      long dequeuedMsgs = stats.getAsyncDequeuedMsgs();
-      long queueSize = stats.getAsyncQueueSize();
-      String lastValue = "";
-      final long intialQueuedMsgs = queuedMsgs;
-      long curQueuedMsgs = queuedMsgs - dequeuedMsgs;
+      var queuedMsgs = stats.getAsyncQueuedMsgs();
+      var dequeuedMsgs = stats.getAsyncDequeuedMsgs();
+      var queueSize = stats.getAsyncQueueSize();
+      var lastValue = "";
+      final var intialQueuedMsgs = queuedMsgs;
+      var curQueuedMsgs = queuedMsgs - dequeuedMsgs;
       try {
         // loop while we still have queued the initially queued msgs
         // OR the cur # of queued msgs < 6
         while (dequeuedMsgs < intialQueuedMsgs || curQueuedMsgs <= 6) {
-          String value = "count=" + count;
+          var value = "count=" + count;
           lastValue = value;
           r.put(key, value);
           count++;
@@ -341,7 +337,7 @@ public class SlowRecDUnitTest extends JUnit4CacheTestCase {
       } finally {
         forceQueueFlush();
       }
-      WaitCriterion ev = new WaitCriterion() {
+      var ev = new WaitCriterion() {
         @Override
         public boolean done() {
           return stats.getAsyncQueueSize() == 0;
@@ -352,9 +348,9 @@ public class SlowRecDUnitTest extends JUnit4CacheTestCase {
           return "Waiting for queues to empty";
         }
       };
-      final long start = currentTimeMillis();
+      final var start = currentTimeMillis();
       GeodeAwaitility.await().untilAsserted(ev);
-      final long finish = currentTimeMillis();
+      final var finish = currentTimeMillis();
       getLogWriter()
           .info("After " + (finish - start) + " ms async msgs where flushed. A total of "
               + stats.getAsyncDequeuedMsgs() + " were flushed. lastValue=" + lastValue);
@@ -367,7 +363,7 @@ public class SlowRecDUnitTest extends JUnit4CacheTestCase {
    * Create a region named AckRegion with ACK scope
    */
   protected Region createAckRegion(boolean mirror, boolean conflate) throws CacheException {
-    final AttributesFactory factory = new AttributesFactory();
+    final var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     if (mirror) {
       factory.setDataPolicy(DataPolicy.REPLICATE);
@@ -375,7 +371,7 @@ public class SlowRecDUnitTest extends JUnit4CacheTestCase {
     if (conflate) {
       factory.setEnableAsyncConflation(true);
     }
-    final Region r = createRootRegion("AckRegion", factory.create());
+    final var r = createRootRegion("AckRegion", factory.create());
     return r;
   }
 
@@ -384,27 +380,27 @@ public class SlowRecDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testNoAckConflation() throws Exception {
-    final AttributesFactory factory = new AttributesFactory();
+    final var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_NO_ACK);
     factory.setEnableAsyncConflation(true);
-    final Region r = createRootRegion("slowrec", factory.create());
-    final DMStats stats = getSystem().getDistributionManager().getStats();
+    final var r = createRootRegion("slowrec", factory.create());
+    final var stats = getSystem().getDistributionManager().getStats();
 
     // create receiver in vm0 with queuing enabled
-    Properties p = new Properties();
+    var p = new Properties();
     p.setProperty(ASYNC_DISTRIBUTION_TIMEOUT, "1");
     doCreateOtherVm(p, false);
 
     forceQueuing(r);
     final Object key = "key";
-    int count = 0;
-    final long initialConflatedMsgs = stats.getAsyncConflatedMsgs();
-    String lastValue = "";
-    final long intialDeQueuedMsgs = stats.getAsyncDequeuedMsgs();
+    var count = 0;
+    final var initialConflatedMsgs = stats.getAsyncConflatedMsgs();
+    var lastValue = "";
+    final var intialDeQueuedMsgs = stats.getAsyncDequeuedMsgs();
     long start = 0;
     try {
       while ((stats.getAsyncConflatedMsgs() - initialConflatedMsgs) < 1000) {
-        String value = "count=" + count;
+        var value = "count=" + count;
         lastValue = value;
         r.put(key, value);
         count++;
@@ -413,7 +409,7 @@ public class SlowRecDUnitTest extends JUnit4CacheTestCase {
     } finally {
       forceQueueFlush();
     }
-    final long finish = System.currentTimeMillis();
+    final var finish = System.currentTimeMillis();
     LogWriterUtils.getLogWriter()
         .info("After " + (finish - start) + " ms async msgs where flushed. A total of "
             + (stats.getAsyncDequeuedMsgs() - intialDeQueuedMsgs)
@@ -428,17 +424,17 @@ public class SlowRecDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testAckConflation() throws Exception {
-    final AttributesFactory factory = new AttributesFactory();
+    final var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_NO_ACK);
     factory.setEnableAsyncConflation(true);
-    final Region r = createRootRegion("slowrec", factory.create());
-    final Region ar = createAckRegion(false, true);
+    final var r = createRootRegion("slowrec", factory.create());
+    final var ar = createAckRegion(false, true);
     ar.create("ackKey", "ackValue");
 
-    final DMStats stats = getSystem().getDistributionManager().getStats();
+    final var stats = getSystem().getDistributionManager().getStats();
 
     // create receiver in vm0 with queuing enabled
-    Properties p = new Properties();
+    var p = new Properties();
     p.setProperty(ASYNC_DISTRIBUTION_TIMEOUT, "2");
     doCreateOtherVm(p, false);
 
@@ -446,11 +442,11 @@ public class SlowRecDUnitTest extends JUnit4CacheTestCase {
     {
       // make sure ack does not hang
       // make sure two ack updates do not conflate but are both queued
-      long startQueuedMsgs = stats.getAsyncQueuedMsgs();
-      long startConflatedMsgs = stats.getAsyncConflatedMsgs();
-      Thread t = new Thread(() -> ar.put("ackKey", "ackValue"));
+      var startQueuedMsgs = stats.getAsyncQueuedMsgs();
+      var startConflatedMsgs = stats.getAsyncConflatedMsgs();
+      var t = new Thread(() -> ar.put("ackKey", "ackValue"));
       t.start();
-      Thread t2 = new Thread(() -> ar.put("ackKey", "ackValue"));
+      var t2 = new Thread(() -> ar.put("ackKey", "ackValue"));
       t2.start();
       // give threads a chance to get queued
       try {
@@ -461,8 +457,8 @@ public class SlowRecDUnitTest extends JUnit4CacheTestCase {
       forceQueueFlush();
       ThreadUtils.join(t, 2 * 1000);
       ThreadUtils.join(t2, 2 * 1000);
-      long endQueuedMsgs = stats.getAsyncQueuedMsgs();
-      long endConflatedMsgs = stats.getAsyncConflatedMsgs();
+      var endQueuedMsgs = stats.getAsyncQueuedMsgs();
+      var endConflatedMsgs = stats.getAsyncConflatedMsgs();
       assertEquals(startConflatedMsgs, endConflatedMsgs);
       // queue should be flushed by the time we get an ack
       assertEquals(endQueuedMsgs, stats.getAsyncDequeuedMsgs());
@@ -478,24 +474,24 @@ public class SlowRecDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testConflationSequence() throws Exception {
-    final AttributesFactory factory = new AttributesFactory();
+    final var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_NO_ACK);
     factory.setEnableAsyncConflation(true);
-    final Region r = createRootRegion("slowrec", factory.create());
+    final var r = createRootRegion("slowrec", factory.create());
     factory.setEnableAsyncConflation(false);
-    final Region noConflate = createRootRegion("noConflate", factory.create());
-    final DMStats stats = getSystem().getDistributionManager().getStats();
+    final var noConflate = createRootRegion("noConflate", factory.create());
+    final var stats = getSystem().getDistributionManager().getStats();
 
     // create receiver in vm0 with queuing enabled
-    Properties p = new Properties();
+    var p = new Properties();
     p.setProperty(ASYNC_DISTRIBUTION_TIMEOUT, "1");
     doCreateOtherVm(p, false);
     {
-      VM vm = getOtherVm();
+      var vm = getOtherVm();
       vm.invoke(new CacheSerializableRunnable("create noConflate") {
         @Override
         public void run2() throws CacheException {
-          AttributesFactory af = new AttributesFactory();
+          var af = new AttributesFactory();
           af.setScope(Scope.DISTRIBUTED_NO_ACK);
           af.setDataPolicy(DataPolicy.REPLICATE);
           createRootRegion("noConflate", af.create());
@@ -508,15 +504,15 @@ public class SlowRecDUnitTest extends JUnit4CacheTestCase {
     LogWriterUtils.getLogWriter().info("[testConflationSequence] about to force queuing");
     forceQueuing(r);
 
-    int count = 0;
-    String value = "";
-    String lastValue = value;
+    var count = 0;
+    var value = "";
+    var lastValue = value;
     Object mylcb = null;
-    long initialConflatedMsgs = stats.getAsyncConflatedMsgs();
-    int endCount = count + 60;
+    var initialConflatedMsgs = stats.getAsyncConflatedMsgs();
+    var endCount = count + 60;
 
     LogWriterUtils.getLogWriter().info("[testConflationSequence] about to build up queue");
-    long begin = System.currentTimeMillis();
+    var begin = System.currentTimeMillis();
     while (count < endCount) {
       value = "count=" + count;
       lastValue = value;
@@ -594,12 +590,12 @@ public class SlowRecDUnitTest extends JUnit4CacheTestCase {
     // updates to a non-conflating are not.
     LogWriterUtils.getLogWriter().info("[testConflationSequence] conflate & no-conflate regions");
     forceQueuing(r);
-    final long initialAsyncSocketWrites = stats.getAsyncSocketWrites();
+    final var initialAsyncSocketWrites = stats.getAsyncSocketWrites();
 
     value = "count=" + count;
     lastValue = value;
-    long conflatedMsgs = stats.getAsyncConflatedMsgs();
-    long queuedMsgs = stats.getAsyncQueuedMsgs();
+    var conflatedMsgs = stats.getAsyncConflatedMsgs();
+    var queuedMsgs = stats.getAsyncQueuedMsgs();
     r.create(key, value);
     queuedMsgs++;
     assertEquals(queuedMsgs, stats.getAsyncQueuedMsgs());
@@ -658,35 +654,35 @@ public class SlowRecDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testSizeDisconnect() throws Exception {
-    final String expected =
+    final var expected =
         "org.apache.geode.internal.tcp.ConnectionException: Forced disconnect sent to"
             + "||java.io.IOException: Broken pipe";
-    final String addExpected = "<ExpectedException action=add>" + expected + "</ExpectedException>";
-    final String removeExpected =
+    final var addExpected = "<ExpectedException action=add>" + expected + "</ExpectedException>";
+    final var removeExpected =
         "<ExpectedException action=remove>" + expected + "</ExpectedException>";
 
-    final AttributesFactory factory = new AttributesFactory();
+    final var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_NO_ACK);
-    final Region r = createRootRegion("slowrec", factory.create());
-    final DistributionManager dm = getSystem().getDistributionManager();
-    final DMStats stats = dm.getStats();
+    final var r = createRootRegion("slowrec", factory.create());
+    final var dm = getSystem().getDistributionManager();
+    final var stats = dm.getStats();
     // set others before vm0 connects
     final Set others = dm.getOtherDistributionManagerIds();
 
     // create receiver in vm0 with queuing enabled
-    Properties p = new Properties();
+    var p = new Properties();
     p.setProperty(ASYNC_DISTRIBUTION_TIMEOUT, "5");
     p.setProperty(ASYNC_MAX_QUEUE_SIZE, "1"); // 1 meg
     doCreateOtherVm(p, false);
 
     final Object key = "key";
-    final int VALUE_SIZE = 1024 * 100; // .1M async-max-queue-size should give us 10 of these 100K
+    final var VALUE_SIZE = 1024 * 100; // .1M async-max-queue-size should give us 10 of these 100K
                                        // msgs before queue full
-    final byte[] value = new byte[VALUE_SIZE];
-    int count = 0;
+    final var value = new byte[VALUE_SIZE];
+    var count = 0;
     forceQueuing(r);
-    long queuedMsgs = stats.getAsyncQueuedMsgs();
-    long queueSize = stats.getAsyncQueueSize();
+    var queuedMsgs = stats.getAsyncQueuedMsgs();
+    var queueSize = stats.getAsyncQueueSize();
 
     getCache().getLogger().info(addExpected);
     try {
@@ -706,7 +702,7 @@ public class SlowRecDUnitTest extends JUnit4CacheTestCase {
               + " byte puts slowrec mode kicked in but the queue filled when its size reached "
               + queueSize + " with " + queuedMsgs + " msgs");
       // make sure we lost a connection to vm0
-      WaitCriterion ev = new WaitCriterion() {
+      var ev = new WaitCriterion() {
         @Override
         public boolean done() {
           return dm.getOtherDistributionManagerIds().size() <= others.size()
@@ -736,35 +732,35 @@ public class SlowRecDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testTimeoutDisconnect() throws Exception {
-    final String expected =
+    final var expected =
         "org.apache.geode.internal.tcp.ConnectionException: Forced disconnect sent to"
             + "||java.io.IOException: Broken pipe";
-    final String addExpected = "<ExpectedException action=add>" + expected + "</ExpectedException>";
-    final String removeExpected =
+    final var addExpected = "<ExpectedException action=add>" + expected + "</ExpectedException>";
+    final var removeExpected =
         "<ExpectedException action=remove>" + expected + "</ExpectedException>";
 
-    final AttributesFactory factory = new AttributesFactory();
+    final var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_NO_ACK);
-    final Region r = createRootRegion("slowrec", factory.create());
-    final DistributionManager dm = getSystem().getDistributionManager();
-    final DMStats stats = dm.getStats();
+    final var r = createRootRegion("slowrec", factory.create());
+    final var dm = getSystem().getDistributionManager();
+    final var stats = dm.getStats();
     // set others before vm0 connects
     final Set others = dm.getOtherDistributionManagerIds();
 
     // create receiver in vm0 with queuing enabled
-    Properties p = new Properties();
+    var p = new Properties();
     p.setProperty(ASYNC_DISTRIBUTION_TIMEOUT, "5");
     p.setProperty(ASYNC_QUEUE_TIMEOUT, "500"); // 500 ms
     doCreateOtherVm(p, true);
 
 
     final Object key = "key";
-    final int VALUE_SIZE = 1024; // 1k
-    final byte[] value = new byte[VALUE_SIZE];
-    int count = 0;
-    long queuedMsgs = stats.getAsyncQueuedMsgs();
-    long queueSize = stats.getAsyncQueueSize();
-    final long timeoutLimit = System.currentTimeMillis() + 5000;
+    final var VALUE_SIZE = 1024; // 1k
+    final var value = new byte[VALUE_SIZE];
+    var count = 0;
+    var queuedMsgs = stats.getAsyncQueuedMsgs();
+    var queueSize = stats.getAsyncQueueSize();
+    final var timeoutLimit = System.currentTimeMillis() + 5000;
 
     getCache().getLogger().info(addExpected);
     try {
@@ -784,7 +780,7 @@ public class SlowRecDUnitTest extends JUnit4CacheTestCase {
               + " byte puts slowrec mode kicked in but the queue filled when its size reached "
               + queueSize + " with " + queuedMsgs + " msgs");
       // make sure we lost a connection to vm0
-      WaitCriterion ev = new WaitCriterion() {
+      var ev = new WaitCriterion() {
         @Override
         public boolean done() {
           if (dm.getOtherDistributionManagerIds().size() > others.size()) {
@@ -973,11 +969,11 @@ public class SlowRecDUnitTest extends JUnit4CacheTestCase {
   protected static ControlListener doTestMultipleRegionConflation_R2_Listener;
 
   private void doTestMultipleRegionConflation() throws Exception {
-    final AttributesFactory factory = new AttributesFactory();
+    final var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_NO_ACK);
     factory.setEnableAsyncConflation(true);
-    final Region r1 = createRootRegion("slowrec1", factory.create());
-    final Region r2 = createRootRegion("slowrec2", factory.create());
+    final var r1 = createRootRegion("slowrec1", factory.create());
+    final var r2 = createRootRegion("slowrec2", factory.create());
 
     assertTrue(getSystem().isConnected());
     assertNotNull(r1);
@@ -989,16 +985,16 @@ public class SlowRecDUnitTest extends JUnit4CacheTestCase {
     assertNotNull(getCache());
     assertNotNull(getCache().getRegion("slowrec2"));
 
-    final DistributionManager dm = getSystem().getDistributionManager();
+    final var dm = getSystem().getDistributionManager();
     final Serializable controllerVM = dm.getDistributionManagerId();
-    final DMStats stats = dm.getStats();
-    final int millisToWait = 1000 * 60 * 5; // 5 minutes
+    final var stats = dm.getStats();
+    final var millisToWait = 1000 * 60 * 5; // 5 minutes
 
     // set others before vm0 connects
-    long initialQueuedMsgs = stats.getAsyncQueuedMsgs();
+    var initialQueuedMsgs = stats.getAsyncQueuedMsgs();
 
     // create receiver in vm0 with queuing enabled
-    final Properties p = new Properties();
+    final var p = new Properties();
     p.setProperty(ASYNC_DISTRIBUTION_TIMEOUT, "5");
     p.setProperty(ASYNC_QUEUE_TIMEOUT, "86400000"); // max value
     p.setProperty(ASYNC_MAX_QUEUE_SIZE, "1024"); // max value
@@ -1008,10 +1004,10 @@ public class SlowRecDUnitTest extends JUnit4CacheTestCase {
       public void run2() throws CacheException {
         getSystem(p);
 
-        DistributionManager dm = getSystem().getDistributionManager();
+        var dm = getSystem().getDistributionManager();
         assertTrue(dm.getDistributionManagerIds().contains(controllerVM));
 
-        AttributesFactory af = new AttributesFactory();
+        var af = new AttributesFactory();
         af.setScope(Scope.DISTRIBUTED_NO_ACK);
         af.setDataPolicy(DataPolicy.REPLICATE);
 
@@ -1034,12 +1030,12 @@ public class SlowRecDUnitTest extends JUnit4CacheTestCase {
     LogWriterUtils.getLogWriter()
         .info("[doTestMultipleRegionConflation] building up queue size...");
     final Object key = "key";
-    final int socketBufferSize = getSystem().getConfig().getSocketBufferSize();
-    final int VALUE_SIZE = socketBufferSize * 3;
+    final var socketBufferSize = getSystem().getConfig().getSocketBufferSize();
+    final var VALUE_SIZE = socketBufferSize * 3;
     // final int VALUE_SIZE = 1024 * 1024 ; // 1 MB
-    final byte[] value = new byte[VALUE_SIZE];
+    final var value = new byte[VALUE_SIZE];
 
-    int count = 0;
+    var count = 0;
     while (stats.getAsyncQueuedMsgs() == initialQueuedMsgs) {
       count++;
       r1.put(key, value);
@@ -1052,9 +1048,9 @@ public class SlowRecDUnitTest extends JUnit4CacheTestCase {
     // put values that will be asserted
     final Object key1 = "key1";
     final Object key2 = "key2";
-    Object putKey = key1;
-    boolean flag = true;
-    for (int i = 0; i < 30; i++) {
+    var putKey = key1;
+    var flag = true;
+    for (var i = 0; i < 30; i++) {
       if (i == 10) {
         putKey = key2;
       }
@@ -1094,13 +1090,13 @@ public class SlowRecDUnitTest extends JUnit4CacheTestCase {
     // r2: key2, 17, create
     // r2: key2, 29, update
 
-    final int[] r1ExpectedArgs = new int[] {0, 4, 6, 8, 10, 24, 28};
-    final int[] r1ExpectedTypes = new int[] /* 0, 1, 2, 1, 0, 4, 1 */
+    final var r1ExpectedArgs = new int[] {0, 4, 6, 8, 10, 24, 28};
+    final var r1ExpectedTypes = new int[] /* 0, 1, 2, 1, 0, 4, 1 */
     {CALLBACK_CREATE, CALLBACK_UPDATE, CALLBACK_INVALIDATE, CALLBACK_UPDATE, CALLBACK_CREATE,
         CALLBACK_REGION_INVALIDATE, CALLBACK_UPDATE};
 
-    final int[] r2ExpectedArgs = new int[] {1, 9, 11, 13, 15, 17, 29};
-    final int[] r2ExpectedTypes = new int[] {CALLBACK_CREATE, CALLBACK_UPDATE, CALLBACK_CREATE,
+    final var r2ExpectedArgs = new int[] {1, 9, 11, 13, 15, 17, 29};
+    final var r2ExpectedTypes = new int[] {CALLBACK_CREATE, CALLBACK_UPDATE, CALLBACK_CREATE,
         CALLBACK_UPDATE, CALLBACK_DESTROY, CALLBACK_CREATE, CALLBACK_UPDATE};
 
     // send notify to vm0
@@ -1153,9 +1149,9 @@ public class SlowRecDUnitTest extends JUnit4CacheTestCase {
                   + doTestMultipleRegionConflation_R1_Listener.callbackTypes);
           assertEquals(doTestMultipleRegionConflation_R1_Listener.callbackArguments.size(),
               doTestMultipleRegionConflation_R1_Listener.callbackTypes.size());
-          int i = 0;
-          for (final Object o : doTestMultipleRegionConflation_R1_Listener.callbackArguments) {
-            CallbackWrapper wrapper = (CallbackWrapper) o;
+          var i = 0;
+          for (final var o : doTestMultipleRegionConflation_R1_Listener.callbackArguments) {
+            var wrapper = (CallbackWrapper) o;
             assertEquals(r1ExpectedArgs[i], wrapper.callbackArgument);
             assertEquals(r1ExpectedTypes[i],
                 doTestMultipleRegionConflation_R1_Listener.callbackTypes.get(i));
@@ -1171,9 +1167,9 @@ public class SlowRecDUnitTest extends JUnit4CacheTestCase {
                   + doTestMultipleRegionConflation_R2_Listener.callbackTypes);
           assertEquals(doTestMultipleRegionConflation_R2_Listener.callbackArguments.size(),
               doTestMultipleRegionConflation_R2_Listener.callbackTypes.size());
-          int i = 0;
-          for (final Object o : doTestMultipleRegionConflation_R2_Listener.callbackArguments) {
-            CallbackWrapper wrapper = (CallbackWrapper) o;
+          var i = 0;
+          for (final var o : doTestMultipleRegionConflation_R2_Listener.callbackArguments) {
+            var wrapper = (CallbackWrapper) o;
             assertEquals(r2ExpectedArgs[i], wrapper.callbackArgument);
             assertEquals(r2ExpectedTypes[i],
                 doTestMultipleRegionConflation_R2_Listener.callbackTypes.get(i));
@@ -1207,18 +1203,18 @@ public class SlowRecDUnitTest extends JUnit4CacheTestCase {
   protected static ControlListener doTestDisconnectCleanup_Listener;
 
   private void doTestDisconnectCleanup() throws Exception {
-    final AttributesFactory factory = new AttributesFactory();
+    final var factory = new AttributesFactory();
     factory.setScope(DISTRIBUTED_NO_ACK);
-    final Region r = createRootRegion("slowrec", factory.create());
-    final DistributionManager dm = getSystem().getDistributionManager();
-    final DMStats stats = dm.getStats();
+    final var r = createRootRegion("slowrec", factory.create());
+    final var dm = getSystem().getDistributionManager();
+    final var stats = dm.getStats();
     // set others before vm0 connects
     final Set others = dm.getOtherDistributionManagerIds();
-    long initialQueuedMsgs = stats.getAsyncQueuedMsgs();
-    final long initialQueues = stats.getAsyncQueues();
+    var initialQueuedMsgs = stats.getAsyncQueuedMsgs();
+    final var initialQueues = stats.getAsyncQueues();
 
     // create receiver in vm0 with queuing enabled
-    final Properties p = new Properties();
+    final var p = new Properties();
     p.setProperty(ASYNC_DISTRIBUTION_TIMEOUT, "5");
     p.setProperty(ASYNC_QUEUE_TIMEOUT, "86400000"); // max value
     p.setProperty(ASYNC_MAX_QUEUE_SIZE, "1024"); // max value
@@ -1227,7 +1223,7 @@ public class SlowRecDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() throws CacheException {
         getSystem(p);
-        AttributesFactory af = new AttributesFactory();
+        var af = new AttributesFactory();
         af.setScope(DISTRIBUTED_NO_ACK);
         af.setDataPolicy(REPLICATE);
 
@@ -1239,20 +1235,20 @@ public class SlowRecDUnitTest extends JUnit4CacheTestCase {
 
     // put vm0 cache listener into wait
     getLogWriter().info("[testDisconnectCleanup] about to put vm0 into wait");
-    int millisToWait = 1000 * 60 * 5; // 5 minutes
+    var millisToWait = 1000 * 60 * 5; // 5 minutes
     r.put(KEY_WAIT, millisToWait);
     r.put(KEY_DISCONNECT, KEY_DISCONNECT);
 
     // build up queue size
     getLogWriter().info("[testDisconnectCleanup] building up queue size...");
     final Object key = "key";
-    final int socketBufferSize = getSystem().getConfig().getSocketBufferSize();
-    final int VALUE_SIZE = socketBufferSize * 3;
+    final var socketBufferSize = getSystem().getConfig().getSocketBufferSize();
+    final var VALUE_SIZE = socketBufferSize * 3;
     // final int VALUE_SIZE = 1024 * 1024 ; // 1 MB
-    final byte[] value = new byte[VALUE_SIZE];
+    final var value = new byte[VALUE_SIZE];
 
-    int count = 0;
-    final long abortMillis = currentTimeMillis() + millisToWait;
+    var count = 0;
+    final var abortMillis = currentTimeMillis() + millisToWait;
     while (stats.getAsyncQueuedMsgs() == initialQueuedMsgs) {
       count++;
       r.put(key, value);
@@ -1298,7 +1294,7 @@ public class SlowRecDUnitTest extends JUnit4CacheTestCase {
 
     // make sure we lost a connection to vm0
     getLogWriter().info("[testDisconnectCleanup] wait for vm0 to disconnect");
-    WaitCriterion ev = new WaitCriterion() {
+    var ev = new WaitCriterion() {
       @Override
       public boolean done() {
         return dm.getOtherDistributionManagerIds().size() <= others.size();
@@ -1360,18 +1356,18 @@ public class SlowRecDUnitTest extends JUnit4CacheTestCase {
   protected static ControlListener doTestPartialMessage_Listener;
 
   private void doTestPartialMessage() throws Exception {
-    final AttributesFactory factory = new AttributesFactory();
+    final var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_NO_ACK);
     factory.setEnableAsyncConflation(true);
-    final Region r = createRootRegion("slowrec", factory.create());
-    final DistributionManager dm = getSystem().getDistributionManager();
-    final DMStats stats = dm.getStats();
+    final var r = createRootRegion("slowrec", factory.create());
+    final var dm = getSystem().getDistributionManager();
+    final var stats = dm.getStats();
 
     // set others before vm0 connects
-    long initialQueuedMsgs = stats.getAsyncQueuedMsgs();
+    var initialQueuedMsgs = stats.getAsyncQueuedMsgs();
 
     // create receiver in vm0 with queuing enabled
-    final Properties p = new Properties();
+    final var p = new Properties();
     p.setProperty(ASYNC_DISTRIBUTION_TIMEOUT, String.valueOf(1000 * 4)); // 4 sec
     p.setProperty(ASYNC_QUEUE_TIMEOUT, "86400000"); // max value
     p.setProperty(ASYNC_MAX_QUEUE_SIZE, "1024"); // max value
@@ -1380,7 +1376,7 @@ public class SlowRecDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() throws CacheException {
         getSystem(p);
-        AttributesFactory af = new AttributesFactory();
+        var af = new AttributesFactory();
         af.setScope(Scope.DISTRIBUTED_NO_ACK);
         af.setDataPolicy(DataPolicy.REPLICATE);
 
@@ -1392,24 +1388,24 @@ public class SlowRecDUnitTest extends JUnit4CacheTestCase {
 
     // put vm0 cache listener into wait
     LogWriterUtils.getLogWriter().info("[testPartialMessage] about to put vm0 into wait");
-    final int millisToWait = 1000 * 60 * 5; // 5 minutes
+    final var millisToWait = 1000 * 60 * 5; // 5 minutes
     r.put(KEY_WAIT, millisToWait);
 
     // build up queue size
     LogWriterUtils.getLogWriter().info("[testPartialMessage] building up queue size...");
     final Object key = "key";
-    final int socketBufferSize = getSystem().getConfig().getSocketBufferSize();
-    final int VALUE_SIZE = socketBufferSize * 3;
+    final var socketBufferSize = getSystem().getConfig().getSocketBufferSize();
+    final var VALUE_SIZE = socketBufferSize * 3;
     // 1024 * 20; // 20 KB
-    final byte[] value = new byte[VALUE_SIZE];
+    final var value = new byte[VALUE_SIZE];
 
-    int count = 0;
+    var count = 0;
     while (stats.getAsyncQueuedMsgs() == initialQueuedMsgs) {
       count++;
       r.put(key, value, count);
     }
 
-    final int partialId = count;
+    final var partialId = count;
     assertEquals(0, stats.getAsyncConflatedMsgs());
 
     LogWriterUtils.getLogWriter().info("[testPartialMessage] After " + count + " puts of size "
@@ -1430,9 +1426,9 @@ public class SlowRecDUnitTest extends JUnit4CacheTestCase {
       }
     }
 
-    final int conflateId = count;
+    final var conflateId = count;
 
-    final int[] expectedArgs = {partialId, conflateId};
+    final var expectedArgs = new int[] {partialId, conflateId};
 
     // send notify to vm0
     LogWriterUtils.getLogWriter().info("[testPartialMessage] wake up vm0");
@@ -1452,12 +1448,12 @@ public class SlowRecDUnitTest extends JUnit4CacheTestCase {
       public void run() {
         try {
           synchronized (doTestPartialMessage_Listener.CONTROL_LOCK) {
-            boolean done = false;
+            var done = false;
             while (!done) {
               if (doTestPartialMessage_Listener.callbackArguments.size() > 0) {
-                CallbackWrapper last =
+                var last =
                     (CallbackWrapper) doTestPartialMessage_Listener.callbackArguments.getLast();
-                Integer lastId = (Integer) last.callbackArgument;
+                var lastId = (Integer) last.callbackArgument;
                 if (lastId == conflateId) {
                   done = true;
                 } else {
@@ -1487,13 +1483,13 @@ public class SlowRecDUnitTest extends JUnit4CacheTestCase {
           assertEquals(doTestPartialMessage_Listener.callbackArguments.size(),
               doTestPartialMessage_Listener.callbackTypes.size());
 
-          int i = 0;
-          Iterator argIter = doTestPartialMessage_Listener.callbackArguments.iterator();
-          Iterator typeIter = doTestPartialMessage_Listener.callbackTypes.iterator();
+          var i = 0;
+          var argIter = doTestPartialMessage_Listener.callbackArguments.iterator();
+          var typeIter = doTestPartialMessage_Listener.callbackTypes.iterator();
 
           while (argIter.hasNext()) {
-            CallbackWrapper wrapper = (CallbackWrapper) argIter.next();
-            Integer arg = (Integer) wrapper.callbackArgument;
+            var wrapper = (CallbackWrapper) argIter.next();
+            var arg = (Integer) wrapper.callbackArgument;
             typeIter.next(); // Integer type
             if (arg < partialId) {
               continue;

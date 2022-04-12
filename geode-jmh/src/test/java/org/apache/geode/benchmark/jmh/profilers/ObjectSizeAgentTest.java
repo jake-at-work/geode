@@ -25,94 +25,94 @@ public class ObjectSizeAgentTest {
 
   @Test
   public void object() {
-    final Object object = new Object();
+    final var object = new Object();
     assertThat(sizeOfDeep(object)).isEqualTo(sizeOf(object));
   }
 
   @Test
   public void objectWithNoFields() {
-    final ObjectWithNoFields object = new ObjectWithNoFields();
+    final var object = new ObjectWithNoFields();
     assertThat(sizeOfDeep(object)).isEqualTo(sizeOf(object));
   }
 
   @Test
   public void objectWithIntField() {
-    final ObjectWithIntField object = new ObjectWithIntField();
+    final var object = new ObjectWithIntField();
     assertThat(sizeOfDeep(object)).isEqualTo(sizeOf(object));
   }
 
   @Test
   public void objectWith2IntFields() {
-    final ObjectWith2IntFields object = new ObjectWith2IntFields();
+    final var object = new ObjectWith2IntFields();
     assertThat(sizeOfDeep(object)).isEqualTo(sizeOf(object));
   }
 
   @Test
   public void objectWith3IntFields() {
-    final ObjectWith3IntFields object = new ObjectWith3IntFields();
+    final var object = new ObjectWith3IntFields();
     assertThat(sizeOfDeep(object)).isEqualTo(sizeOf(object));
   }
 
   @Test
   public void objectWith4IntFields() {
-    final ObjectWith4IntFields object = new ObjectWith4IntFields();
+    final var object = new ObjectWith4IntFields();
     assertThat(sizeOfDeep(object)).isEqualTo(sizeOf(object));
   }
 
   @Test
   public void objectWithLongField() {
-    final ObjectWithLongField object = new ObjectWithLongField();
+    final var object = new ObjectWithLongField();
     assertThat(sizeOfDeep(object)).isEqualTo(sizeOf(object));
   }
 
   @Test
   public void objectWithObjectField() {
-    final ObjectWithObjectField object = new ObjectWithObjectField();
+    final var object = new ObjectWithObjectField();
     assertThat(sizeOfDeep(object)).isEqualTo(sizeOf(object) + sizeOf(object.o1));
   }
 
   @Test
   public void objectWithArrayOfInt0Fields() {
-    final ObjectWithArrayOfInt0Field object = new ObjectWithArrayOfInt0Field();
+    final var object = new ObjectWithArrayOfInt0Field();
     assertThat(sizeOfDeep(object)).isEqualTo(sizeOf(object) + sizeOf(object.a1));
   }
 
   @Test
   public void objectWithArrayOfInt100Fields() {
-    final ObjectWithArrayOfInt100Field object = new ObjectWithArrayOfInt100Field();
+    final var object = new ObjectWithArrayOfInt100Field();
     assertThat(sizeOfDeep(object)).isEqualTo(sizeOf(object) + sizeOf(object.a1));
   }
 
   @Test
   public void arrayOfInt100() {
-    final int[] array = new int[100];
+    final var array = new int[100];
     assertThat(sizeOfDeep(array)).isEqualTo(sizeOf(array));
   }
 
   @Test
   public void objectWithIntFieldExtendsObjectWithIntField() {
-    final ObjectWithIntFieldExtendsObjectWithIntField object =
+    final var object =
         new ObjectWithIntFieldExtendsObjectWithIntField();
     assertThat(sizeOfDeep(object)).isEqualTo(sizeOf(object));
   }
 
   @Test
   public void objectWithArrayOfObject100Field() {
-    final ObjectWithArrayOfObject100Field object = new ObjectWithArrayOfObject100Field();
+    final var object = new ObjectWithArrayOfObject100Field();
     assertThat(sizeOfDeep(object))
         .isEqualTo(sizeOf(object) + sizeOf(object.a1) + sizeOf(new Object()) * 100);
   }
 
   @Test
   public void objectWithLoop() {
-    final ObjectWithLoop object = new ObjectWithLoop();
+    final var object = new ObjectWithLoop();
     assertThat(sizeOfDeep(object)).isEqualTo(sizeOf(object));
   }
 
   @SuppressWarnings("InstantiationOfUtilityClass")
   @Test
   public void objectWithStaticField() {
-    final ObjectWithStaticField object = new ObjectWithStaticField();
+    final var object = new ObjectWithStaticField();
     assertThat(sizeOfDeep(object)).isEqualTo(sizeOf(object));
   }
 
@@ -175,7 +175,7 @@ public class ObjectSizeAgentTest {
     final Object[] a1 = new Object[100];
 
     public ObjectWithArrayOfObject100Field() {
-      for (int i = 0; i < a1.length; i++) {
+      for (var i = 0; i < a1.length; i++) {
         a1[i] = new Object();
       }
     }

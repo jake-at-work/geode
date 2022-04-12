@@ -20,7 +20,6 @@ import static org.apache.geode.lang.Identifiable.find;
 import static org.apache.geode.test.awaitility.GeodeAwaitility.await;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.List;
 import java.util.stream.Collectors;
 
 import org.junit.Before;
@@ -28,16 +27,12 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import org.apache.geode.management.api.ClusterManagementGetResult;
-import org.apache.geode.management.api.ClusterManagementListResult;
 import org.apache.geode.management.api.ClusterManagementResult;
 import org.apache.geode.management.api.ClusterManagementService;
-import org.apache.geode.management.api.EntityInfo;
 import org.apache.geode.management.cluster.client.ClusterManagementServiceBuilder;
 import org.apache.geode.management.configuration.AbstractConfiguration;
 import org.apache.geode.management.configuration.Region;
 import org.apache.geode.management.configuration.RegionType;
-import org.apache.geode.management.runtime.RuntimeRegionInfo;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
@@ -72,7 +67,7 @@ public class ListRegionManagementDunitTest {
     gfsh.connect(locator);
 
     // create regions
-    Region regionConfig = new Region();
+    var regionConfig = new Region();
     regionConfig.setName(REGION_IN_SINGLE_GROUP);
     regionConfig.setGroup("group1");
     regionConfig.setType(RegionType.PARTITION);
@@ -120,9 +115,9 @@ public class ListRegionManagementDunitTest {
   @Test
   public void listAll() {
     // list all
-    List<Region> regions = client.list(filter).getConfigResult();
+    var regions = client.list(filter).getConfigResult();
     assertThat(regions).hasSize(6);
-    Region element = find(regions, REGION_IN_CLUSTER);
+    var element = find(regions, REGION_IN_CLUSTER);
     assertThat(element.getGroup()).isNull();
 
     element = find(regions, REGION_IN_SINGLE_GROUP);
@@ -144,13 +139,13 @@ public class ListRegionManagementDunitTest {
 
   @Test
   public void getRegionInMultipleGroups() throws Exception {
-    Region region = new Region();
+    var region = new Region();
     // customers2 belongs to multiple groups
     region.setName(REGION_WITH_MULTIPLE_TYPES);
-    ClusterManagementGetResult<Region, RuntimeRegionInfo> result =
+    var result =
         client.get(region);
     assertThat(result.getStatusCode()).isEqualTo(ClusterManagementResult.StatusCode.OK);
-    EntityInfo<Region, RuntimeRegionInfo> configInfo = result.getResult();
+    var configInfo = result.getResult();
     assertThat(configInfo.getId()).isEqualTo(REGION_WITH_MULTIPLE_TYPES);
     assertThat(configInfo.getConfigurations()).extracting(Region::getName)
         .containsExactlyInAnyOrder(
@@ -165,7 +160,7 @@ public class ListRegionManagementDunitTest {
   public void listClusterLevel() {
     // list cluster level only
     filter.setGroup("cluster");
-    List<Region> regions = client.list(filter).getConfigResult();
+    var regions = client.list(filter).getConfigResult();
     assertThat(regions).hasSize(1);
     assertThat(regions.get(0).getId()).isEqualTo(REGION_IN_CLUSTER);
     assertThat(regions.get(0).getGroup()).isNull();
@@ -189,13 +184,13 @@ public class ListRegionManagementDunitTest {
     });
 
     filter.setName(REGION_IN_CLUSTER);
-    ClusterManagementListResult<Region, RuntimeRegionInfo> result = client.list(filter);
-    List<Region> regions = result.getConfigResult();
+    var result = client.list(filter);
+    var regions = result.getConfigResult();
     assertThat(regions).hasSize(1);
-    Region regionConfig = regions.get(0);
+    var regionConfig = regions.get(0);
     assertThat(regionConfig.getName()).isEqualTo(REGION_IN_CLUSTER);
 
-    List<RuntimeRegionInfo> runtimeRegionInfos = result.getRuntimeResult();
+    var runtimeRegionInfos = result.getRuntimeResult();
     assertThat(runtimeRegionInfos).hasSize(1);
     assertThat(runtimeRegionInfos.get(0).getEntryCount()).isEqualTo(2);
   }
@@ -204,10 +199,10 @@ public class ListRegionManagementDunitTest {
   public void listGroup1() {
     // list group1
     filter.setGroup("group1");
-    List<Region> regions = client.list(filter).getConfigResult();
+    var regions = client.list(filter).getConfigResult();
     assertThat(regions).hasSize(3);
     // when filtering by group, the returned list should not have group info
-    Region region = find(regions, REGION_IN_SINGLE_GROUP);
+    var region = find(regions, REGION_IN_SINGLE_GROUP);
     assertThat(region.getGroup()).isEqualTo("group1");
 
     region = find(regions, REGION_WITH_MULTIPLE_TYPES);
@@ -221,10 +216,10 @@ public class ListRegionManagementDunitTest {
   public void listGroup2() {
     // list group1
     filter.setGroup("group2");
-    List<Region> regions = client.list(filter).getConfigResult();
+    var regions = client.list(filter).getConfigResult();
     assertThat(regions).hasSize(2);
 
-    Region region = find(regions, REGION_WITH_MULTIPLE_TYPES);
+    var region = find(regions, REGION_WITH_MULTIPLE_TYPES);
     assertThat(region.getGroup()).isEqualTo("group2");
 
     region = find(regions, REGION_IN_MULTIPLE_GROUPS);
@@ -235,14 +230,14 @@ public class ListRegionManagementDunitTest {
   public void listNonExistentGroup() {
     // list non-existent group
     filter.setGroup("group3");
-    List<Region> regions = client.list(filter).getConfigResult();
+    var regions = client.list(filter).getConfigResult();
     assertThat(regions).hasSize(0);
   }
 
   @Test
   public void listRegionByName() {
     filter.setName(REGION_IN_CLUSTER);
-    List<Region> regions = client.list(filter).getConfigResult();
+    var regions = client.list(filter).getConfigResult();
     assertThat(regions).hasSize(1);
     assertThat(regions.get(0).getId()).isEqualTo(REGION_IN_CLUSTER);
     assertThat(regions.get(0).getGroup()).isNull();
@@ -251,7 +246,7 @@ public class ListRegionManagementDunitTest {
   @Test
   public void listRegionByName1() {
     filter.setName(REGION_IN_SINGLE_GROUP);
-    List<Region> regions = client.list(filter).getConfigResult();
+    var regions = client.list(filter).getConfigResult();
     assertThat(regions).hasSize(1);
     assertThat(regions.get(0).getId()).isEqualTo(REGION_IN_SINGLE_GROUP);
     assertThat(regions.get(0).getGroup()).isEqualTo("group1");
@@ -260,7 +255,7 @@ public class ListRegionManagementDunitTest {
   @Test
   public void listRegionByName2() {
     filter.setName(REGION_WITH_MULTIPLE_TYPES);
-    List<Region> regions = client.list(filter).getConfigResult();
+    var regions = client.list(filter).getConfigResult();
     assertThat(regions).hasSize(2);
     assertThat(
         regions.stream().map(AbstractConfiguration::getGroup).collect(Collectors.toList()))
@@ -274,7 +269,7 @@ public class ListRegionManagementDunitTest {
   @Test
   public void listRegionByName3() {
     filter.setName(REGION_IN_MULTIPLE_GROUPS);
-    List<Region> regions = client.list(filter).getConfigResult();
+    var regions = client.list(filter).getConfigResult();
     assertThat(regions).hasSize(2);
     assertThat(regions).extracting(Region::getGroup).containsExactlyInAnyOrder("group1", "group2");
   }
@@ -283,7 +278,7 @@ public class ListRegionManagementDunitTest {
   public void listNonExistentRegion() {
     // list non-existent region
     filter.setName("non-existent-region");
-    List<Region> regions = client.list(filter).getConfigResult();
+    var regions = client.list(filter).getConfigResult();
     assertThat(regions).hasSize(0);
   }
 }

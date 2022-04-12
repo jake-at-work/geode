@@ -31,7 +31,6 @@ import org.junit.experimental.categories.Category;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.test.junit.categories.ClientSubscriptionTest;
@@ -66,9 +65,9 @@ public class RedundancyLevelJUnitTest {
     }
     if (system != null) {
 
-      final String removeExpectedPEM =
+      final var removeExpectedPEM =
           "<ExpectedException action=remove>" + expectedPrimaryErrorMsg + "</ExpectedException>";
-      final String removeExpectedREM =
+      final var removeExpectedREM =
           "<ExpectedException action=remove>" + expectedRedundantErrorMsg + "</ExpectedException>";
 
       system.getLogWriter().info(removeExpectedPEM);
@@ -88,22 +87,22 @@ public class RedundancyLevelJUnitTest {
    */
   @Test
   public void testRedundancyLevelSetThroughXML() {
-    String path =
+    var path =
         createTempFileFromResource(getClass(), "RedundancyLevelJUnitTest.xml")
             .getAbsolutePath();
 
-    Properties p = new Properties();
+    var p = new Properties();
     p.setProperty(MCAST_PORT, "0");
     p.setProperty(LOCATORS, "");
     p.setProperty(CACHE_XML_FILE, path);
-    final String addExpected = "<ExpectedException action=add>" + expected + "</ExpectedException>";
+    final var addExpected = "<ExpectedException action=add>" + expected + "</ExpectedException>";
 
     system = DistributedSystem.connect(p);
     system.getLogWriter().info(addExpected);
 
-    final String addExpectedPEM =
+    final var addExpectedPEM =
         "<ExpectedException action=add>" + expectedPrimaryErrorMsg + "</ExpectedException>";
-    final String addExpectedREM =
+    final var addExpectedREM =
         "<ExpectedException action=add>" + expectedRedundantErrorMsg + "</ExpectedException>";
     system.getLogWriter().info(addExpectedPEM);
     system.getLogWriter().info(addExpectedREM);
@@ -114,11 +113,11 @@ public class RedundancyLevelJUnitTest {
       assertNotNull("cache was null", cache);
       Region region = cache.getRegion(SEPARATOR + "root" + SEPARATOR + "exampleRegion");
       assertNotNull(region);
-      Pool pool = PoolManager.find("clientPool");
+      var pool = PoolManager.find("clientPool");
       assertEquals("Redundancy level not matching the one specified in cache-xml", 6,
           pool.getSubscriptionRedundancy());
     } finally {
-      final String removeExpected =
+      final var removeExpected =
           "<ExpectedException action=remove>" + expected + "</ExpectedException>";
       system.getLogWriter().info(removeExpected);
     }

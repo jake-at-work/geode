@@ -20,10 +20,8 @@ import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -70,20 +68,20 @@ public class WindowedExporter<K, V> implements Exporter<K, V> {
   public long export(Region<K, V> region, ExportSink sink, SnapshotOptions<K, V> options)
       throws IOException {
     long count = 0;
-    boolean error = true;
-    LocalRegion local = RegionSnapshotServiceImpl.getLocalRegion(region);
+    var error = true;
+    var local = RegionSnapshotServiceImpl.getLocalRegion(region);
 
-    SnapshotPacket last = new SnapshotPacket();
-    DistributedMember me = region.getCache().getDistributedSystem().getDistributedMember();
+    var last = new SnapshotPacket();
+    var me = region.getCache().getDistributedSystem().getDistributedMember();
 
-    WindowedArgs<K, V> args = new WindowedArgs<>(me, options);
-    WindowedExportCollector results = new WindowedExportCollector(local, last);
+    var args = new WindowedArgs<K, V>(me, options);
+    var results = new WindowedExportCollector(local, last);
     try {
       // Since the ExportCollector already is a LocalResultsCollector it's ok not
       // to keep the reference to the ResultsCollector returned from execute().
       // Normally discarding the reference can cause issues if GC causes the
       // weak ref in ProcessorKeeper21 to be collected!!
-      InternalExecution exec = (InternalExecution) FunctionService.onRegion(region)
+      var exec = (InternalExecution) FunctionService.onRegion(region)
           .setArguments(args).withCollector(results);
 
       // Ensure that our collector gets all exceptions so we can shut down the
@@ -91,7 +89,7 @@ public class WindowedExporter<K, V> implements Exporter<K, V> {
       exec.setForwardExceptions(true);
       exec.execute(new WindowedExportFunction<>());
 
-      BlockingQueue<SnapshotPacket> queue = results.getResult();
+      var queue = results.getResult();
 
       SnapshotPacket packet;
       while ((packet = queue.take()) != last) {
@@ -101,7 +99,7 @@ public class WindowedExporter<K, V> implements Exporter<K, V> {
       }
 
       error = false;
-      FunctionException ex = results.getException();
+      var ex = results.getException();
       if (ex != null) {
         throw new IOException(ex);
       }
@@ -171,9 +169,9 @@ public class WindowedExporter<K, V> implements Exporter<K, V> {
 
     @Override
     public void execute(FunctionContext context) {
-      RegionFunctionContext ctx = (RegionFunctionContext) context;
+      var ctx = (RegionFunctionContext) context;
 
-      final WindowedArgs<K, V> args = (WindowedArgs<K, V>) ctx.getArguments();
+      final var args = (WindowedArgs<K, V>) ctx.getArguments();
       ResultSender<SnapshotPacket> rs = ctx.getResultSender();
 
       Region<K, V> region = ctx.getDataSet();
@@ -181,20 +179,20 @@ public class WindowedExporter<K, V> implements Exporter<K, V> {
         region = PartitionRegionHelper.getLocalDataForContext(ctx);
       }
 
-      LocalRegion local = RegionSnapshotServiceImpl.getLocalRegion(region);
+      var local = RegionSnapshotServiceImpl.getLocalRegion(region);
       window = FlowController.getInstance().create(region, args.getExporter(), WINDOW_SIZE);
 
       try {
-        int bufferSize = 0;
+        var bufferSize = 0;
         List<SnapshotRecord> buffer = new ArrayList<>();
-        DistributedMember me = region.getCache().getDistributedSystem().getDistributedMember();
-        for (Iterator<Entry<K, V>> iter = region.entrySet().iterator(); iter.hasNext()
+        var me = region.getCache().getDistributedSystem().getDistributedMember();
+        for (var iter = region.entrySet().iterator(); iter.hasNext()
             && !window.isAborted();) {
-          Entry<K, V> entry = iter.next();
+          var entry = iter.next();
           try {
-            SnapshotOptions<K, V> options = args.getOptions();
+            var options = args.getOptions();
             if (options.getFilter() == null || options.getFilter().accept(entry)) {
-              SnapshotRecord rec = new SnapshotRecord(local, entry);
+              var rec = new SnapshotRecord(local, entry);
               buffer.add(rec);
               bufferSize += rec.getSize();
             }
@@ -315,7 +313,7 @@ public class WindowedExporter<K, V> implements Exporter<K, V> {
           entries.clear();
           entries.put(end);
 
-          for (Entry<DistributedMember, Integer> entry : members.entrySet()) {
+          for (var entry : members.entrySet()) {
             sendAbort(entry.getKey(), entry.getValue());
           }
         }
@@ -333,7 +331,7 @@ public class WindowedExporter<K, V> implements Exporter<K, V> {
     public void addResult(DistributedMember memberID, Object result) {
       // need to track participants so we can send acks and aborts
       if (!(result instanceof Throwable)) {
-        int flowId = ((SnapshotPacket) result).getWindowId();
+        var flowId = ((SnapshotPacket) result).getWindowId();
         if (done.get()) {
           sendAbort(memberID, flowId);
 
@@ -349,7 +347,7 @@ public class WindowedExporter<K, V> implements Exporter<K, V> {
             endResults();
 
           } else {
-            SnapshotPacket sp = (SnapshotPacket) result;
+            var sp = (SnapshotPacket) result;
             entries.put(sp);
           }
         } catch (InterruptedException e) {

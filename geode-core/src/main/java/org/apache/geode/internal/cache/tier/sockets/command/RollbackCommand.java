@@ -22,7 +22,6 @@ import org.apache.geode.annotations.Immutable;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.cache.TXId;
 import org.apache.geode.internal.cache.TXManagerImpl;
-import org.apache.geode.internal.cache.TXStateProxy;
 import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.sockets.BaseCommand;
 import org.apache.geode.internal.cache.tier.sockets.Message;
@@ -49,11 +48,11 @@ public class RollbackCommand extends BaseCommand {
       final @NotNull SecurityService securityService, long start)
       throws IOException, ClassNotFoundException, InterruptedException {
     serverConnection.setAsTrue(REQUIRES_RESPONSE);
-    TXManagerImpl txMgr = (TXManagerImpl) serverConnection.getCache().getCacheTransactionManager();
-    InternalDistributedMember client =
+    var txMgr = (TXManagerImpl) serverConnection.getCache().getCacheTransactionManager();
+    var client =
         (InternalDistributedMember) serverConnection.getProxyID().getDistributedMember();
-    int uniqId = clientMessage.getTransactionId();
-    TXId txId = new TXId(client, uniqId);
+    var uniqId = clientMessage.getTransactionId();
+    var txId = new TXId(client, uniqId);
     if (txMgr.isHostedTxRecentlyCompleted(txId)) {
       if (logger.isDebugEnabled()) {
         logger.debug("TX: found a recently rolled back tx: {}", txId);
@@ -62,7 +61,7 @@ public class RollbackCommand extends BaseCommand {
         return;
       }
     }
-    final TXStateProxy txState = txMgr.getTXState();
+    final var txState = txMgr.getTXState();
     try {
       if (txState != null) {
         txId = txState.getTxId();
@@ -82,7 +81,7 @@ public class RollbackCommand extends BaseCommand {
         logger.debug("TX: removing tx state for {}", txId);
       }
       if (txId != null) {
-        TXStateProxy proxy = txMgr.removeHostedTXState(txId);
+        var proxy = txMgr.removeHostedTXState(txId);
         if (logger.isDebugEnabled()) {
           logger.debug("TX: removed tx state proxy {}", proxy);
         }

@@ -62,7 +62,7 @@ public class ClusterManagementListResult<T extends AbstractConfiguration<R>, R e
 
   public void setResult(List<EntityInfo<T, R>> entities) {
     this.entities.clear();
-    for (EntityInfo<T, R> entity : entities) {
+    for (var entity : entities) {
       this.entities.put(entity.getId(), entity);
     }
   }
@@ -74,9 +74,9 @@ public class ClusterManagementListResult<T extends AbstractConfiguration<R>, R e
   @JsonIgnore
   public void setEntityGroupInfo(List<EntityGroupInfo<T, R>> entityGroupInfos) {
     entities.clear();
-    for (EntityGroupInfo<T, R> entityGroupInfo : entityGroupInfos) {
-      String id = entityGroupInfo.getConfiguration().getId();
-      EntityInfo<T, R> entity = entities.get(id);
+    for (var entityGroupInfo : entityGroupInfos) {
+      var id = entityGroupInfo.getConfiguration().getId();
+      var entity = entities.get(id);
       if (entity == null) {
         entity = new EntityInfo<>();
         entity.setId(id);

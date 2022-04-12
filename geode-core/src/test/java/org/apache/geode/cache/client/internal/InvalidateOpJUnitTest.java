@@ -78,7 +78,7 @@ public class InvalidateOpJUnitTest {
 
   @Test
   public void testInvalidateOpSingleHop() {
-    ServerLocation server = mock(ServerLocation.class);
+    var server = mock(ServerLocation.class);
 
     when(region.getCache()).thenReturn(cache);
     when(cache.getClientMetadataService()).thenReturn(cms);
@@ -93,7 +93,7 @@ public class InvalidateOpJUnitTest {
 
   @Test
   public void testInvalidateOpSingleHopUseExistConnect() {
-    ServerLocation server = mock(ServerLocation.class);
+    var server = mock(ServerLocation.class);
 
     when(region.getCache()).thenReturn(cache);
     when(cache.getClientMetadataService()).thenReturn(cms);

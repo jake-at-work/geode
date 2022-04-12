@@ -21,7 +21,6 @@ import static org.apache.geode.distributed.ConfigurationProperties.START_LOCATOR
 import static org.apache.geode.test.dunit.Assert.fail;
 
 import java.io.IOException;
-import java.util.Properties;
 
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -32,11 +31,8 @@ import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.Connection;
 import org.apache.geode.cache.client.internal.PoolImpl;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache.wan.GatewayReceiver;
-import org.apache.geode.cache.wan.GatewayReceiverFactory;
 import org.apache.geode.cache.wan.GatewaySender;
-import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.internal.cache.PoolFactoryImpl;
 import org.apache.geode.internal.cache.wan.WANTestBase;
@@ -52,17 +48,17 @@ public class WANLocatorServerDUnitTest extends WANTestBase {
 
   @Override
   protected final void postSetUpWANTestBase() throws Exception {
-    final Host host = Host.getHost(0);
+    final var host = Host.getHost(0);
   }
 
   @Test
   public void test_3Locators_2Servers() {
 
-    int port1 = AvailablePortHelper.getRandomAvailableTCPPort();
+    var port1 = AvailablePortHelper.getRandomAvailableTCPPort();
 
-    int port2 = AvailablePortHelper.getRandomAvailableTCPPort();
+    var port2 = AvailablePortHelper.getRandomAvailableTCPPort();
 
-    int port3 = AvailablePortHelper.getRandomAvailableTCPPort();
+    var port3 = AvailablePortHelper.getRandomAvailableTCPPort();
 
     vm0.invoke(() -> WANLocatorServerDUnitTest.createLocator(port1, port2, port3, port1));
 
@@ -88,8 +84,8 @@ public class WANLocatorServerDUnitTest extends WANTestBase {
 
   public static void createLocator(Integer port1, Integer port2, Integer port3,
       Integer startingPort) {
-    WANTestBase test = new WANTestBase();
-    Properties props = test.getDistributedSystemProperties();
+    var test = new WANTestBase();
+    var props = test.getDistributedSystemProperties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(DISTRIBUTED_SYSTEM_ID, "" + 1);
     props.setProperty(LOCATORS,
@@ -100,20 +96,20 @@ public class WANLocatorServerDUnitTest extends WANTestBase {
   }
 
   public static void createReceiver(Integer port1, Integer port2, Integer port3) {
-    WANTestBase test = new WANTestBase();
-    Properties props = test.getDistributedSystemProperties();
+    var test = new WANTestBase();
+    var props = test.getDistributedSystemProperties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS,
         "localhost[" + port1 + "],localhost[" + port2 + "],localhost[" + port3 + "]");
 
-    InternalDistributedSystem ds = test.getSystem(props);
+    var ds = test.getSystem(props);
     cache = CacheFactory.create(ds);
-    GatewayReceiverFactory fact = cache.createGatewayReceiverFactory();
-    int port = AvailablePortHelper.getRandomAvailableTCPPort();
+    var fact = cache.createGatewayReceiverFactory();
+    var port = AvailablePortHelper.getRandomAvailableTCPPort();
     fact.setStartPort(port);
     fact.setEndPort(port);
     fact.setManualStart(true);
-    GatewayReceiver receiver = fact.create();
+    var receiver = fact.create();
     try {
       receiver.start();
     } catch (IOException e) {
@@ -122,16 +118,16 @@ public class WANLocatorServerDUnitTest extends WANTestBase {
   }
 
   public static void createServer(Integer port1, Integer port2, Integer port3) {
-    WANTestBase test = new WANTestBase();
-    Properties props = test.getDistributedSystemProperties();
+    var test = new WANTestBase();
+    var props = test.getDistributedSystemProperties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS,
         "localhost[" + port1 + "],localhost[" + port2 + "],localhost[" + port3 + "]");
 
-    InternalDistributedSystem ds = test.getSystem(props);
+    var ds = test.getSystem(props);
     cache = CacheFactory.create(ds);
-    CacheServer server = cache.addCacheServer();
-    int port = AvailablePortHelper.getRandomAvailableTCPPort();
+    var server = cache.addCacheServer();
+    var port = AvailablePortHelper.getRandomAvailableTCPPort();
     server.setPort(port);
     try {
       server.start();
@@ -143,14 +139,14 @@ public class WANLocatorServerDUnitTest extends WANTestBase {
   }
 
   public static void disconnect() {
-    WANTestBase test = new WANTestBase();
+    var test = new WANTestBase();
     test.getSystem().disconnect();
   }
 
   public static void createClient(Integer port1, Integer port2, Integer port3) {
-    ClientCacheFactory cf = new ClientCacheFactory();
+    var cf = new ClientCacheFactory();
     cache = (Cache) cf.create();
-    PoolFactoryImpl pf = (PoolFactoryImpl) PoolManager.createFactory();
+    var pf = (PoolFactoryImpl) PoolManager.createFactory();
     pf.setReadTimeout(0);
     pf.setIdleTimeout(-1);
     pf.setMinConnections(4);
@@ -160,7 +156,7 @@ public class WANLocatorServerDUnitTest extends WANTestBase {
     pf.addLocator("localhost", port3);
     pf.init((GatewaySender) null);
     proxy = ((PoolImpl) pf.create("KISHOR_POOL"));
-    Connection con1 = proxy.acquireConnection();
+    var con1 = proxy.acquireConnection();
     try {
       con1.close(true);
     } catch (Exception e) {

@@ -47,7 +47,7 @@ public class CreateRegionSecurityDUnitTest {
   public static void beforeClass() {
     locator =
         cluster.startLocatorVM(0, x -> x.withSecurityManager(SimpleSecurityManager.class));
-    int locatorPort = locator.getPort();
+    var locatorPort = locator.getPort();
     cluster.startServerVM(1,
         x -> x.withProperty(AuthInitialize.SECURITY_USERNAME, "cluster")
             .withProperty(AuthInitialize.SECURITY_PASSWORD, "cluster")
@@ -63,7 +63,7 @@ public class CreateRegionSecurityDUnitTest {
   @Test
   @ConnectionConfiguration(user = "cluster", password = "cluster")
   public void clusterNotAuthorized() {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     gfsh.executeAndAssertThat("create region --type=REPLICATE --name=" + regionName).statusIsError()
         .containsOutput("cluster not authorized for DATA:MANAGE");
   }
@@ -73,7 +73,7 @@ public class CreateRegionSecurityDUnitTest {
   @Test
   @ConnectionConfiguration(user = "dataManage", password = "dataManage")
   public void dataManageAuthorized() {
-    String regionName = testName.getMethodName();
+    var regionName = testName.getMethodName();
     gfsh.executeAndAssertThat("create region --type=REPLICATE --name=" + regionName)
         .statusIsSuccess();
 

@@ -39,7 +39,7 @@ public class Functions {
   public static Object nvl(CompiledValue arg1, CompiledValue arg2, ExecutionContext context)
       throws FunctionDomainException, TypeMismatchException, NameResolutionException,
       QueryInvocationTargetException {
-    Object value = arg1.evaluate(context);
+    var value = arg1.evaluate(context);
     if (value == null) {
       return arg2.evaluate(context);
     }
@@ -49,14 +49,14 @@ public class Functions {
   public static Date to_date(CompiledValue cv1, CompiledValue cv2, ExecutionContext context)
       throws FunctionDomainException, TypeMismatchException, NameResolutionException,
       QueryInvocationTargetException {
-    Object value1 = cv1.evaluate(context);
-    Object value2 = cv2.evaluate(context);
+    var value1 = cv1.evaluate(context);
+    var value2 = cv2.evaluate(context);
     if (!(value1 instanceof String) || !(value2 instanceof String)) {
       throw new QueryInvalidException(
           "Parameters to the to_date function should be strictly simple strings");
     }
-    String dateStr = (String) value1;
-    String format = (String) value2;
+    var dateStr = (String) value1;
+    var format = (String) value2;
     Date dt = null;
     try {
       // Removed the following line so that to data format conforms to
@@ -71,7 +71,7 @@ public class Functions {
        * != -1) { throw new QueryInvalidException("Malformed date format string"); }
        */
 
-      SimpleDateFormat sdf1 = new SimpleDateFormat(format);
+      var sdf1 = new SimpleDateFormat(format);
       dt = sdf1.parse(dateStr);
 
     } catch (Exception ex) {
@@ -91,7 +91,7 @@ public class Functions {
     }
 
     if (arg instanceof Collection) {
-      Collection c = (Collection) arg;
+      var c = (Collection) arg;
       checkSingleton(c.size());
       return c.iterator().next();
     }
@@ -106,9 +106,9 @@ public class Functions {
 
     // handle arrays
     if (arg instanceof Object[]) {
-      Object[] a = (Object[]) arg;
+      var a = (Object[]) arg;
       if (((DefaultQuery) context.getQuery()).isRemoteQuery() && context.isDistinct()) {
-        for (int i = 0; i < a.length; i++) {
+        for (var i = 0; i < a.length; i++) {
           if (a[i] instanceof PdxString) {
             a[i] = a[i].toString();
           }
@@ -119,51 +119,51 @@ public class Functions {
     }
 
     if (arg instanceof int[]) {
-      int[] a = (int[]) arg;
+      var a = (int[]) arg;
       checkSingleton(a.length);
       return a[0];
     }
 
     if (arg instanceof long[]) {
-      long[] a = (long[]) arg;
+      var a = (long[]) arg;
       checkSingleton(a.length);
       return a[0];
     }
 
 
     if (arg instanceof boolean[]) {
-      boolean[] a = (boolean[]) arg;
+      var a = (boolean[]) arg;
       checkSingleton(a.length);
       return a[0];
     }
 
     if (arg instanceof byte[]) {
-      byte[] a = (byte[]) arg;
+      var a = (byte[]) arg;
       checkSingleton(a.length);
       return a[0];
     }
 
     if (arg instanceof char[]) {
-      char[] a = (char[]) arg;
+      var a = (char[]) arg;
       checkSingleton(a.length);
       return a[0];
     }
 
     if (arg instanceof double[]) {
-      double[] a = (double[]) arg;
+      var a = (double[]) arg;
       checkSingleton(a.length);
       return a[0];
     }
 
     if (arg instanceof float[]) {
-      float[] a = (float[]) arg;
+      var a = (float[]) arg;
       checkSingleton(a.length);
       return a[0];
     }
 
 
     if (arg instanceof short[]) {
-      short[] a = (short[]) arg;
+      var a = (short[]) arg;
       checkSingleton(a.length);
       return a[0];
     }

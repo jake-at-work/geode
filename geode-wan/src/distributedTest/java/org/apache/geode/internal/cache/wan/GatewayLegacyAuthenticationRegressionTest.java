@@ -41,12 +41,9 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.LogWriter;
-import org.apache.geode.cache.DiskStore;
-import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.wan.GatewayReceiver;
 import org.apache.geode.cache.wan.GatewayReceiverFactory;
 import org.apache.geode.cache.wan.GatewaySender;
 import org.apache.geode.cache.wan.GatewaySenderFactory;
@@ -116,7 +113,7 @@ public class GatewayLegacyAuthenticationRegressionTest implements Serializable {
     londonId = 1;
     newYorkId = 2;
 
-    int[] ports = getRandomAvailableTCPPorts(4);
+    var ports = getRandomAvailableTCPPorts(4);
     londonLocatorPort = ports[0];
     newYorkLocatorPort = ports[1];
     londonReceiverPort = ports[2];
@@ -130,12 +127,12 @@ public class GatewayLegacyAuthenticationRegressionTest implements Serializable {
   @Test
   public void gatewayHandShakeShouldAuthenticate() {
     londonLocatorVM.invoke("start London locator", () -> {
-      Properties config = createLocatorConfig(londonId, londonLocatorPort, newYorkLocatorPort);
+      var config = createLocatorConfig(londonId, londonLocatorPort, newYorkLocatorPort);
       cacheRule.createCache(config);
     });
 
     newYorkLocatorVM.invoke("start New York locator", () -> {
-      Properties config = createLocatorConfig(newYorkId, newYorkLocatorPort, londonLocatorPort);
+      var config = createLocatorConfig(newYorkId, newYorkLocatorPort, londonLocatorPort);
       cacheRule.createCache(config);
     });
 
@@ -150,12 +147,12 @@ public class GatewayLegacyAuthenticationRegressionTest implements Serializable {
     });
 
     londonServerVM.invoke(() -> {
-      GatewaySender sender = cacheRule.getCache().getGatewaySender(newYorkName);
+      var sender = cacheRule.getCache().getGatewaySender(newYorkName);
       await().untilAsserted(() -> assertThat(isRunning(sender)).isTrue());
     });
 
     newYorkServerVM.invoke(() -> {
-      GatewaySender sender = cacheRule.getCache().getGatewaySender(londonName);
+      var sender = cacheRule.getCache().getGatewaySender(londonName);
       await().untilAsserted(() -> assertThat(isRunning(sender)).isTrue());
     });
 
@@ -196,7 +193,7 @@ public class GatewayLegacyAuthenticationRegressionTest implements Serializable {
   }
 
   private Properties createLocatorConfig(int systemId, int locatorPort, int remoteLocatorPort) {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(MCAST_PORT, "0");
     config.setProperty(DISTRIBUTED_SYSTEM_ID, String.valueOf(systemId));
     config.setProperty(LOCATORS, "localhost[" + locatorPort + ']');
@@ -212,7 +209,7 @@ public class GatewayLegacyAuthenticationRegressionTest implements Serializable {
   }
 
   private Properties createServerConfig(int locatorPort) {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(MCAST_PORT, "0");
     config.setProperty(LOCATORS, "localhost[" + locatorPort + ']');
     config.setProperty(SECURITY_PEER_AUTH_INIT, TestPeerAuthInitialize.class.getName() + ".create");
@@ -229,15 +226,15 @@ public class GatewayLegacyAuthenticationRegressionTest implements Serializable {
       int receiverPort) throws IOException {
     cacheRule.createCache(createServerConfig(locatorPort));
 
-    String uniqueName = "server-" + systemId;
-    File[] dirs = new File[] {temporaryFolder.newFolder(uniqueName)};
+    var uniqueName = "server-" + systemId;
+    var dirs = new File[] {temporaryFolder.newFolder(uniqueName)};
 
-    GatewaySenderFactory senderFactory = createGatewaySenderFactory(dirs, uniqueName);
-    GatewaySender sender = senderFactory.create(remoteName, remoteSystemId);
+    var senderFactory = createGatewaySenderFactory(dirs, uniqueName);
+    var sender = senderFactory.create(remoteName, remoteSystemId);
     sender.start();
 
-    GatewayReceiverFactory receiverFactory = createGatewayReceiverFactory(receiverPort);
-    GatewayReceiver receiver = receiverFactory.create();
+    var receiverFactory = createGatewayReceiverFactory(receiverPort);
+    var receiver = receiverFactory.create();
     receiver.start();
 
     RegionFactory<Integer, Integer> regionFactory =
@@ -248,7 +245,7 @@ public class GatewayLegacyAuthenticationRegressionTest implements Serializable {
   }
 
   private GatewayReceiverFactory createGatewayReceiverFactory(int receiverPort) {
-    GatewayReceiverFactory receiverFactory = cacheRule.getCache().createGatewayReceiverFactory();
+    var receiverFactory = cacheRule.getCache().createGatewayReceiverFactory();
 
     receiverFactory.setStartPort(receiverPort);
     receiverFactory.setEndPort(receiverPort);
@@ -257,7 +254,7 @@ public class GatewayLegacyAuthenticationRegressionTest implements Serializable {
   }
 
   private GatewaySenderFactory createGatewaySenderFactory(File[] dirs, String diskStoreName) {
-    InternalGatewaySenderFactory senderFactory =
+    var senderFactory =
         (InternalGatewaySenderFactory) cacheRule.getCache().createGatewaySenderFactory();
 
     senderFactory.setMaximumQueueMemory(100);
@@ -267,8 +264,8 @@ public class GatewayLegacyAuthenticationRegressionTest implements Serializable {
     senderFactory.setDispatcherThreads(1);
     senderFactory.setOrderPolicy(GatewaySender.DEFAULT_ORDER_POLICY);
 
-    DiskStoreFactory dsf = cacheRule.getCache().createDiskStoreFactory();
-    DiskStore store = dsf.setDiskDirs(dirs).create(diskStoreName);
+    var dsf = cacheRule.getCache().createDiskStoreFactory();
+    var store = dsf.setDiskDirs(dirs).create(diskStoreName);
     senderFactory.setDiskStoreName(store.getName());
 
     return senderFactory;
@@ -315,12 +312,12 @@ public class GatewayLegacyAuthenticationRegressionTest implements Serializable {
               + member + " at " + System.currentTimeMillis());
 
       // Get the user name and password
-      String userName = props.getProperty(USER_NAME);
-      String password = props.getProperty(PASSWORD);
+      var userName = props.getProperty(USER_NAME);
+      var password = props.getProperty(PASSWORD);
 
       // If they are not equal, throw an exception
       if (!userName.equals(password)) {
-        String msg = "Invalid user name and password combination supplied for user " + userName;
+        var msg = "Invalid user name and password combination supplied for user " + userName;
         throw new AuthenticationFailedException(msg);
       }
       return new TestPrincipal(userName);
@@ -342,16 +339,16 @@ public class GatewayLegacyAuthenticationRegressionTest implements Serializable {
     @Override
     public Properties getCredentials(Properties securityProps, DistributedMember server,
         boolean isPeer) throws AuthenticationFailedException {
-      String userName = securityProps.getProperty(USER_NAME);
+      var userName = securityProps.getProperty(USER_NAME);
       if (userName == null) {
         throw new AuthenticationFailedException(
             "TestPeerAuthInitialize: The user name property [" + USER_NAME + "] not set");
       }
 
-      Properties newProps = new Properties();
+      var newProps = new Properties();
       newProps.setProperty(USER_NAME, userName);
 
-      String passwd = securityProps.getProperty(PASSWORD);
+      var passwd = securityProps.getProperty(PASSWORD);
       if (passwd == null) {
         throw new AuthenticationFailedException(
             "TestPeerAuthInitialize: The password property [" + PASSWORD + "] not set");
@@ -388,12 +385,12 @@ public class GatewayLegacyAuthenticationRegressionTest implements Serializable {
               + member + " at " + System.currentTimeMillis());
 
       // Get the user name and password
-      String userName = props.getProperty(USER_NAME);
-      String password = props.getProperty(PASSWORD);
+      var userName = props.getProperty(USER_NAME);
+      var password = props.getProperty(PASSWORD);
 
       // If they are not equal, throw an exception
       if (!userName.equals(password)) {
-        String msg = "Invalid user name and password combination supplied for user " + userName;
+        var msg = "Invalid user name and password combination supplied for user " + userName;
         throw new AuthenticationFailedException(msg);
       }
       return new TestPrincipal(userName);

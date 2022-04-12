@@ -34,13 +34,13 @@ public class DriverJarUtils {
   public void registerDriver(String driverClassName)
       throws ClassNotFoundException, IllegalAccessException,
       InstantiationException, SQLException {
-    Driver driver = getDriverInstanceByClassName(driverClassName);
+    var driver = getDriverInstanceByClassName(driverClassName);
     Driver d = new DriverWrapper(driver);
     registerDriverWithDriverManager(d);
   }
 
   public void deregisterDriver(String driverClassName) throws SQLException {
-    Enumeration<Driver> driverEnumeration = getDrivers();
+    var driverEnumeration = getDrivers();
     Driver driver;
     while (driverEnumeration.hasMoreElements()) {
       driver = driverEnumeration.nextElement();
@@ -51,13 +51,13 @@ public class DriverJarUtils {
   }
 
   public List<Driver> getRegisteredDrivers() {
-    Enumeration<Driver> drivers = DriverManager.getDrivers();
+    var drivers = DriverManager.getDrivers();
     return Collections.list(drivers);
   }
 
   public List<String> getRegisteredDriverNames() {
     List<String> listOfDriverNames = new ArrayList<>();
-    for (Driver driver : getRegisteredDrivers()) {
+    for (var driver : getRegisteredDrivers()) {
       if (driver instanceof DriverWrapper) {
         listOfDriverNames.add(((DriverWrapper) driver).getWrappedDriverName());
       } else {

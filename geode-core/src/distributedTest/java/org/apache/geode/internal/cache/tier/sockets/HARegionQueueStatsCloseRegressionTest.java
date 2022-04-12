@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.SocketException;
 import java.util.Iterator;
-import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -36,9 +35,7 @@ import org.junit.experimental.categories.Category;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.client.ClientRegionFactory;
-import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolManager;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.internal.cache.InternalCacheServer;
 import org.apache.geode.internal.cache.ha.HARegionQueue;
 import org.apache.geode.test.dunit.VM;
@@ -120,7 +117,7 @@ public class HARegionQueueStatsCloseRegressionTest implements Serializable {
     RegionFactory<?, ?> regionFactory = cacheRule.getCache().createRegionFactory(REPLICATE);
     regionFactory.create(regionName);
 
-    CacheServer cacheServer = cacheRule.getCache().addCacheServer();
+    var cacheServer = cacheRule.getCache().addCacheServer();
     cacheServer.setMaximumTimeBetweenPings(1000000);
     cacheServer.setNotifyBySubscription(false);
     cacheServer.setPort(0);
@@ -132,7 +129,7 @@ public class HARegionQueueStatsCloseRegressionTest implements Serializable {
   private void createClientCache() {
     clientCacheRule.createClientCache();
 
-    Pool pool = PoolManager.createFactory().addServer(hostName, port).setSubscriptionEnabled(true)
+    var pool = PoolManager.createFactory().addServer(hostName, port).setSubscriptionEnabled(true)
         .setReadTimeout(10000).setSocketBufferSize(32768)
         .setMinConnections(3).setSubscriptionRedundancy(-1).create(uniqueName);
 
@@ -140,7 +137,7 @@ public class HARegionQueueStatsCloseRegressionTest implements Serializable {
         clientCacheRule.getClientCache().createClientRegionFactory(LOCAL);
     clientRegionFactory.setPoolName(pool.getName());
 
-    Region<Object, ?> region = clientRegionFactory.create(regionName);
+    var region = clientRegionFactory.create(regionName);
     region.registerInterest("ALL_KEYS");
   }
 
@@ -151,7 +148,7 @@ public class HARegionQueueStatsCloseRegressionTest implements Serializable {
   private void closeProxyAndVerifyHARegionQueueStatsAreClosed() {
     assertThat(cacheRule.getCache().getCacheServers()).hasSize(1);
 
-    InternalCacheServer cacheServer =
+    var cacheServer =
         (InternalCacheServer) cacheRule.getCache().getCacheServers().iterator().next();
 
     assertThat(cacheServer).isNotNull();
@@ -163,9 +160,9 @@ public class HARegionQueueStatsCloseRegressionTest implements Serializable {
 
     assertThat(proxies.hasNext()).isTrue();
 
-    CacheClientProxy proxy = (CacheClientProxy) proxies.next();
-    Map dispatchedMsgMap = HARegionQueue.getDispatchedMessagesMapForTesting();
-    HARegionQueue haRegionQueue = proxy.getHARegionQueue();
+    var proxy = (CacheClientProxy) proxies.next();
+    var dispatchedMsgMap = HARegionQueue.getDispatchedMessagesMapForTesting();
+    var haRegionQueue = proxy.getHARegionQueue();
 
     assertThat(dispatchedMsgMap.get(haRegionQueue.getRegion().getName())).isNotNull();
     assertThat(haRegionQueue.getStatistics().isClosed()).isFalse();
@@ -183,7 +180,7 @@ public class HARegionQueueStatsCloseRegressionTest implements Serializable {
 
   private void doEntryOperations() {
     Region<String, String> region = cacheRule.getCache().getRegion(regionName);
-    for (int i = 0; i < 10; i++) {
+    for (var i = 0; i < 10; i++) {
       region.put("server-" + i, "server-" + "val-" + i);
     }
   }

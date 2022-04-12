@@ -31,7 +31,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.Serializable;
-import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -79,21 +78,21 @@ public class TypeUtilsJUnitTest {
 
   @Test
   public void getTemporalComparatorShouldAlwaysReturnAnInstanceOfTemporalComparator() {
-    Comparator comparator = TypeUtils.getTemporalComparator();
+    var comparator = TypeUtils.getTemporalComparator();
     assertThat(comparator).isNotNull();
     assertThat(comparator).isExactlyInstanceOf(TemporalComparator.class);
   }
 
   @Test
   public void getNumericComparatorShouldAlwaysReturnAnInstanceOfNumericComparator() {
-    Comparator comparator = TypeUtils.getNumericComparator();
+    var comparator = TypeUtils.getNumericComparator();
     assertThat(comparator).isNotNull();
     assertThat(comparator).isExactlyInstanceOf(NumericComparator.class);
   }
 
   @Test
   public void getExtendedNumericComparatorShouldAlwaysReturnAnInstanceOfExtendedNumericComparator() {
-    Comparator comparator = TypeUtils.getExtendedNumericComparator();
+    var comparator = TypeUtils.getExtendedNumericComparator();
     assertThat(comparator).isNotNull();
     assertThat(comparator).isExactlyInstanceOf(ExtendedNumericComparator.class);
   }
@@ -136,7 +135,7 @@ public class TypeUtilsJUnitTest {
 
   @Test
   public void indexKeyForShouldReturnNullWhenTheKeyIsNull() throws TypeMismatchException {
-    Object key = TypeUtils.indexKeyFor(null);
+    var key = TypeUtils.indexKeyFor(null);
     assertThat(key).isNull();
   }
 
@@ -151,7 +150,7 @@ public class TypeUtilsJUnitTest {
   public void indexKeyForShouldReturnIntegerWhenObjectIsInstanceOfByte()
       throws TypeMismatchException {
     Object keyByte = new Byte("5");
-    Object keyByteResult = TypeUtils.indexKeyFor(keyByte);
+    var keyByteResult = TypeUtils.indexKeyFor(keyByte);
     assertThat(keyByteResult).isNotNull();
     assertThat(keyByteResult).isInstanceOf(Integer.class);
     assertThat(keyByteResult).isEqualTo(new Integer("5"));
@@ -161,7 +160,7 @@ public class TypeUtilsJUnitTest {
   public void indexKeyForShouldReturnIntegerWhenObjectIsInstanceOfShort()
       throws TypeMismatchException {
     Object keyShort = new Short("10");
-    Object keyShortResult = TypeUtils.indexKeyFor(keyShort);
+    var keyShortResult = TypeUtils.indexKeyFor(keyShort);
     assertThat(keyShortResult).isNotNull();
     assertThat(keyShortResult).isInstanceOf(Integer.class);
     assertThat(keyShortResult).isEqualTo(new Integer("10"));
@@ -171,7 +170,7 @@ public class TypeUtilsJUnitTest {
   public void indexKeyForShouldReturnPdxInstanceEnumWhenObjectIsInstanceOfEnum()
       throws TypeMismatchException {
     Object keyEnum = TimeUnit.SECONDS;
-    Object keyEnumResult = TypeUtils.indexKeyFor(keyEnum);
+    var keyEnumResult = TypeUtils.indexKeyFor(keyEnum);
     assertThat(keyEnumResult).isNotNull();
     assertThat(keyEnumResult).isInstanceOf(PdxInstanceEnum.class);
     assertThat(((PdxInstanceEnum) keyEnumResult).getName()).isEqualTo(TimeUnit.SECONDS.name());
@@ -185,13 +184,13 @@ public class TypeUtilsJUnitTest {
   public void indexKeyForShouldReturnIdentityWhenObjectIsInstanceOfComparable()
       throws TypeMismatchException {
     Object keyComparable = "myKey";
-    Object keyComparableResult = TypeUtils.indexKeyFor(keyComparable);
+    var keyComparableResult = TypeUtils.indexKeyFor(keyComparable);
     assertThat(keyComparableResult).isNotNull();
     assertThat(keyComparableResult).isSameAs(keyComparable);
 
     Object customComparableKey = (Comparable) o -> 0;
 
-    Object customComparableKeyResult = TypeUtils.indexKeyFor(customComparableKey);
+    var customComparableKeyResult = TypeUtils.indexKeyFor(customComparableKey);
     assertThat(customComparableKeyResult).isNotNull();
     assertThat(customComparableKeyResult).isSameAs(customComparableKey);
   }
@@ -269,8 +268,8 @@ public class TypeUtilsJUnitTest {
 
   @Test
   public void isTypeConvertibleShouldReturnTrueForNumericPrimitivesAndWrappers() {
-    for (int i = 0; i < TypeUtils._numericPrimitiveClasses.size(); i++) {
-      Class sourceType = TypeUtils._numericPrimitiveClasses.get(i);
+    for (var i = 0; i < TypeUtils._numericPrimitiveClasses.size(); i++) {
+      var sourceType = TypeUtils._numericPrimitiveClasses.get(i);
 
       TypeUtils._numericPrimitiveClasses.stream().skip(i).forEachOrdered(
           destType -> assertThat(TypeUtils.isTypeConvertible(sourceType, destType)).isTrue());
@@ -278,8 +277,8 @@ public class TypeUtilsJUnitTest {
           destType -> assertThat(TypeUtils.isTypeConvertible(sourceType, destType)).isTrue());
     }
 
-    for (int i = 0; i < TypeUtils._numericWrapperClasses.size(); i++) {
-      Class sourceType = TypeUtils._numericWrapperClasses.get(i);
+    for (var i = 0; i < TypeUtils._numericWrapperClasses.size(); i++) {
+      var sourceType = TypeUtils._numericWrapperClasses.get(i);
 
       TypeUtils._numericPrimitiveClasses.stream().skip(i).forEachOrdered(
           destType -> assertThat(TypeUtils.isTypeConvertible(sourceType, destType)).isTrue());
@@ -299,8 +298,8 @@ public class TypeUtilsJUnitTest {
 
   @Test
   public void areTypesConvertibleShouldThrowExceptionWhenTheCollectionSizesAreDifferent() {
-    Class[] srcTypes = new Class[] {Byte.class};
-    Class[] destTypes = new Class[] {Integer.class, Long.class};
+    var srcTypes = new Class[] {Byte.class};
+    var destTypes = new Class[] {Integer.class, Long.class};
     assertThatThrownBy(() -> TypeUtils.areTypesConvertible(srcTypes, destTypes))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessage("Arguments 'srcTypes' and 'destTypes' must be of same length");
@@ -308,9 +307,9 @@ public class TypeUtilsJUnitTest {
 
   @Test
   public void areTypesConvertibleShouldReturnTrueIfAllTypesWithinTheCollectionsAreConvertible() {
-    Class[] srcTypes =
+    var srcTypes =
         new Class[] {null, Byte.TYPE, Character.TYPE, Boolean.TYPE, NumericComparator.class};
-    Class[] destTypes =
+    var destTypes =
         new Class[] {Object.class, Integer.TYPE, Character.class, Boolean.class, Comparator.class};
 
     assertThat(TypeUtils.areTypesConvertible(srcTypes, destTypes)).isTrue();
@@ -318,9 +317,9 @@ public class TypeUtilsJUnitTest {
 
   @Test
   public void areTypesConvertibleShouldReturnFalseIfAtLeastOneTypeWithinTheCollectionsIsNotConvertible() {
-    Class[] srcTypes =
+    var srcTypes =
         new Class[] {null, Byte.TYPE, Character.TYPE, Boolean.TYPE, NumericComparator.class};
-    Class[] destTypes =
+    var destTypes =
         new Class[] {Object.class, Integer.TYPE, Character.class, Object.class, Comparator.class};
 
     assertThat(TypeUtils.areTypesConvertible(srcTypes, destTypes)).isFalse();
@@ -345,11 +344,11 @@ public class TypeUtilsJUnitTest {
         .resolves(LinkedBlockingQueue.class).isCollectionOf(ObjectTypeImpl.class);
 
     // Typed Collections
-    Integer[] integers = new Integer[] {};
+    var integers = new Integer[] {};
     ObjectTypeAssert.assertThat(TypeUtils.getObjectType(integers.getClass()))
         .resolves(Integer[].class).isCollectionOf(ObjectTypeImpl.class);
 
-    Vector[] vectors = new Vector[] {};
+    var vectors = new Vector[] {};
     ObjectTypeAssert.assertThat(TypeUtils.getObjectType(vectors.getClass()))
         .resolves(Vector[].class).isCollectionOf(CollectionTypeImpl.class);
 
@@ -410,12 +409,12 @@ public class TypeUtilsJUnitTest {
 
   @Test
   public void booleanCompareShouldThrowExceptionForNonEqualityComparisonOperators() {
-    OQLLexerTokenTypes tempInstance = new OQLLexerTokenTypes() {};
-    Field[] fields = OQLLexerTokenTypes.class.getDeclaredFields();
+    var tempInstance = new OQLLexerTokenTypes() {};
+    var fields = OQLLexerTokenTypes.class.getDeclaredFields();
 
     Arrays.stream(fields).forEach(field -> {
       try {
-        int token = field.getInt(tempInstance);
+        var token = field.getInt(tempInstance);
         if (!equalityOperators.contains(token)) {
           assertThatThrownBy(() -> TypeUtils.booleanCompare(true, false, token))
               .isInstanceOf(TypeMismatchException.class)
@@ -457,12 +456,12 @@ public class TypeUtilsJUnitTest {
     assertThat(TypeUtils.compare(new Object(), null, OQLLexerTokenTypes.TOK_NE)).isNotNull()
         .isEqualTo(Boolean.TRUE);
 
-    OQLLexerTokenTypes tempInstance = new OQLLexerTokenTypes() {};
-    Field[] fields = OQLLexerTokenTypes.class.getDeclaredFields();
+    var tempInstance = new OQLLexerTokenTypes() {};
+    var fields = OQLLexerTokenTypes.class.getDeclaredFields();
 
     Arrays.stream(fields).forEach(field -> {
       try {
-        int token = field.getInt(tempInstance);
+        var token = field.getInt(tempInstance);
         if (!equalityOperators.contains(token)) {
           assertThat(TypeUtils.compare(new Object(), null, token))
               .isEqualTo(QueryService.UNDEFINED);
@@ -493,8 +492,8 @@ public class TypeUtilsJUnitTest {
 
   @Test
   public void comparingEquivalentPdxStringToStringShouldMatchCorrectly() throws Exception {
-    String theString = "MyString";
-    PdxString pdxString = new PdxString(theString);
+    var theString = "MyString";
+    var pdxString = new PdxString(theString);
 
     assertThat(TypeUtils.compare(pdxString, theString, OQLLexerTokenTypes.TOK_EQ))
         .isInstanceOf(Boolean.class);
@@ -509,8 +508,8 @@ public class TypeUtilsJUnitTest {
 
   @Test
   public void comparingUnequalPdxStringToStringShouldNotMatch() throws Exception {
-    String theString = "MyString";
-    PdxString pdxString = new PdxString("AnotherString");
+    var theString = "MyString";
+    var pdxString = new PdxString("AnotherString");
 
     assertThat(TypeUtils.compare(pdxString, theString, OQLLexerTokenTypes.TOK_EQ))
         .isInstanceOf(Boolean.class);
@@ -526,24 +525,24 @@ public class TypeUtilsJUnitTest {
   @Test
   public void comparingTemporalValuesIsEnabled() {
     // Spies to make sure that other comparison methods are not executed.
-    Date beginningOfTimeAsDate = spy(new Date(0L));
-    Date currentCalendarTimeAsDate = spy(Calendar.getInstance().getTime());
-    java.sql.Date beginningOfTimeAsSqlDate =
+    var beginningOfTimeAsDate = spy(new Date(0L));
+    var currentCalendarTimeAsDate = spy(Calendar.getInstance().getTime());
+    var beginningOfTimeAsSqlDate =
         spy(new java.sql.Date(beginningOfTimeAsDate.getTime()));
-    java.sql.Date currentCalendarTimeAsSqlDate =
+    var currentCalendarTimeAsSqlDate =
         spy(new java.sql.Date(currentCalendarTimeAsDate.getTime()));
-    java.sql.Time beginningOfTimeAsSqlTime =
+    var beginningOfTimeAsSqlTime =
         spy(new java.sql.Time(beginningOfTimeAsDate.getTime()));
-    java.sql.Time currentCalendarTimeAsSqlTime =
+    var currentCalendarTimeAsSqlTime =
         spy(new java.sql.Time(currentCalendarTimeAsDate.getTime()));
-    java.sql.Timestamp beginningOfTimeAsSqlTimestamp =
+    var beginningOfTimeAsSqlTimestamp =
         spy(new java.sql.Timestamp(beginningOfTimeAsDate.getTime()));
-    java.sql.Timestamp currentCalendarTimeAsSqlTimestamp =
+    var currentCalendarTimeAsSqlTimestamp =
         spy(new java.sql.Timestamp(currentCalendarTimeAsDate.getTime()));
 
-    List<Object> originDates = Arrays.asList(new Object[] {beginningOfTimeAsDate,
+    var originDates = Arrays.asList(new Object[] {beginningOfTimeAsDate,
         beginningOfTimeAsSqlDate, beginningOfTimeAsSqlTime, beginningOfTimeAsSqlTimestamp});
-    List<Object> currentDates =
+    var currentDates =
         Arrays.asList(new Object[] {currentCalendarTimeAsDate, currentCalendarTimeAsSqlDate,
             currentCalendarTimeAsSqlTime, currentCalendarTimeAsSqlTimestamp});
 
@@ -607,12 +606,12 @@ public class TypeUtilsJUnitTest {
 
   @Test
   public void comparingTemporalValuesShouldThrowExceptionWhenTheComparisonOperatorIsNotSupported() {
-    OQLLexerTokenTypes tempInstance = new OQLLexerTokenTypes() {};
-    Field[] fields = OQLLexerTokenTypes.class.getDeclaredFields();
+    var tempInstance = new OQLLexerTokenTypes() {};
+    var fields = OQLLexerTokenTypes.class.getDeclaredFields();
 
     Arrays.stream(fields).forEach(field -> {
       try {
-        int token = field.getInt(tempInstance);
+        var token = field.getInt(tempInstance);
         if (!comparisonOperators.contains(token)) {
           assertThatThrownBy(() -> TypeUtils.compare(new Date(), new Date(), token))
               .isInstanceOf(IllegalArgumentException.class)
@@ -632,12 +631,12 @@ public class TypeUtilsJUnitTest {
     assertThat(TypeUtils.compare(new Date(12345), 12345, OQLLexerTokenTypes.TOK_EQ))
         .isEqualTo(Boolean.FALSE);
 
-    OQLLexerTokenTypes tempInstance = new OQLLexerTokenTypes() {};
-    Field[] fields = OQLLexerTokenTypes.class.getDeclaredFields();
+    var tempInstance = new OQLLexerTokenTypes() {};
+    var fields = OQLLexerTokenTypes.class.getDeclaredFields();
 
     Arrays.stream(fields).forEach(field -> {
       try {
-        int token = field.getInt(tempInstance);
+        var token = field.getInt(tempInstance);
         if (!equalityOperators.contains(token)) {
           assertThatThrownBy(() -> TypeUtils.compare(new Date(), 0, token))
               .isInstanceOf(TypeMismatchException.class).hasMessageMatching(
@@ -658,8 +657,8 @@ public class TypeUtilsJUnitTest {
     int hInteger = Short.MAX_VALUE;
     float lFloat = Short.MIN_VALUE;
     float hFloat = Short.MAX_VALUE;
-    short lShort = Short.MIN_VALUE;
-    short hShort = Short.MAX_VALUE;
+    var lShort = Short.MIN_VALUE;
+    var hShort = Short.MAX_VALUE;
     double lDouble = Short.MIN_VALUE;
     double hDouble = Short.MAX_VALUE;
     Long lowestLong = (long) Short.MIN_VALUE;
@@ -672,19 +671,19 @@ public class TypeUtilsJUnitTest {
     Double highestDouble = (double) Short.MAX_VALUE;
     Integer lowestInteger = (int) Short.MIN_VALUE;
     Integer highestInteger = (int) Short.MAX_VALUE;
-    AtomicLong lowestAtomicLong = new AtomicLong(Short.MIN_VALUE);
-    AtomicLong highestAtomicLong = new AtomicLong(Short.MAX_VALUE);
-    BigDecimal lowestBigDecimal = BigDecimal.valueOf(Short.MIN_VALUE);
-    BigDecimal highestBigDecimal = BigDecimal.valueOf(Short.MAX_VALUE);
-    BigInteger lowestBigInteger = BigInteger.valueOf(Short.MIN_VALUE);
-    BigInteger highestBigInteger = BigInteger.valueOf(Short.MAX_VALUE);
-    AtomicInteger lowestAtomicInteger = new AtomicInteger(Short.MIN_VALUE);
-    AtomicInteger highestAtomicInteger = new AtomicInteger(Short.MAX_VALUE);
+    var lowestAtomicLong = new AtomicLong(Short.MIN_VALUE);
+    var highestAtomicLong = new AtomicLong(Short.MAX_VALUE);
+    var lowestBigDecimal = BigDecimal.valueOf(Short.MIN_VALUE);
+    var highestBigDecimal = BigDecimal.valueOf(Short.MAX_VALUE);
+    var lowestBigInteger = BigInteger.valueOf(Short.MIN_VALUE);
+    var highestBigInteger = BigInteger.valueOf(Short.MAX_VALUE);
+    var lowestAtomicInteger = new AtomicInteger(Short.MIN_VALUE);
+    var highestAtomicInteger = new AtomicInteger(Short.MAX_VALUE);
 
-    List<Number> lowestNumbers = Arrays.asList(lInteger, lLong, lFloat, lShort, lDouble, lowestLong,
+    var lowestNumbers = Arrays.asList(lInteger, lLong, lFloat, lShort, lDouble, lowestLong,
         lowestFloat, lowestShort, lowestDouble, lowestInteger, lowestAtomicLong, lowestBigDecimal,
         lowestBigInteger, lowestAtomicInteger);
-    List<Number> highestNumbers = Arrays.asList(hInteger, hLong, hFloat, hShort, hDouble,
+    var highestNumbers = Arrays.asList(hInteger, hLong, hFloat, hShort, hDouble,
         highestLong, highestFloat, highestShort, highestDouble, highestInteger, highestAtomicLong,
         highestBigDecimal, highestBigInteger, highestAtomicInteger);
 
@@ -751,12 +750,12 @@ public class TypeUtilsJUnitTest {
 
   @Test
   public void comparingNumericValuesShouldThrowExceptionWhenTheComparisonOperatorIsNotSupported() {
-    OQLLexerTokenTypes tempInstance = new OQLLexerTokenTypes() {};
-    Field[] fields = OQLLexerTokenTypes.class.getDeclaredFields();
+    var tempInstance = new OQLLexerTokenTypes() {};
+    var fields = OQLLexerTokenTypes.class.getDeclaredFields();
 
     Arrays.stream(fields).forEach(field -> {
       try {
-        int token = field.getInt(tempInstance);
+        var token = field.getInt(tempInstance);
         if (!comparisonOperators.contains(token)) {
           assertThatThrownBy(() -> TypeUtils.compare(new Integer("20"), new Double("20.12"), token))
               .isInstanceOf(IllegalArgumentException.class)
@@ -778,12 +777,12 @@ public class TypeUtilsJUnitTest {
         TypeUtils.compare(new Integer("20"), new BigDecimal("100"), OQLLexerTokenTypes.TOK_EQ))
             .isEqualTo(Boolean.FALSE);
 
-    OQLLexerTokenTypes tempInstance = new OQLLexerTokenTypes() {};
-    Field[] fields = OQLLexerTokenTypes.class.getDeclaredFields();
+    var tempInstance = new OQLLexerTokenTypes() {};
+    var fields = OQLLexerTokenTypes.class.getDeclaredFields();
 
     Arrays.stream(fields).forEach(field -> {
       try {
-        int token = field.getInt(tempInstance);
+        var token = field.getInt(tempInstance);
         if (!equalityOperators.contains(token)) {
           assertThatThrownBy(
               () -> TypeUtils.compare(new Integer("20"), "100", token))
@@ -821,8 +820,8 @@ public class TypeUtilsJUnitTest {
       throws TypeMismatchException {
     Comparable startValue = spy(new ComparableObject(0));
     Comparable finishValue = spy(new ComparableObject(10));
-    NumericComparator numericComparator = spy(NumericComparator.class);
-    TemporalComparator temporalComparator = spy(TemporalComparator.class);
+    var numericComparator = spy(NumericComparator.class);
+    var temporalComparator = spy(TemporalComparator.class);
 
     assertThat(TypeUtils.compare(startValue, startValue, OQLLexerTokenTypes.TOK_EQ))
         .isEqualTo(Boolean.TRUE);
@@ -891,12 +890,12 @@ public class TypeUtilsJUnitTest {
 
   @Test
   public void comparingComparableValuesShouldThrowExceptionWhenTheComparisonOperatorIsNotSupported() {
-    OQLLexerTokenTypes tempInstance = new OQLLexerTokenTypes() {};
-    Field[] fields = OQLLexerTokenTypes.class.getDeclaredFields();
+    var tempInstance = new OQLLexerTokenTypes() {};
+    var fields = OQLLexerTokenTypes.class.getDeclaredFields();
 
     Arrays.stream(fields).forEach(field -> {
       try {
-        int token = field.getInt(tempInstance);
+        var token = field.getInt(tempInstance);
         if (!comparisonOperators.contains(token)) {
           assertThatThrownBy(
               () -> TypeUtils.compare(mock(Comparable.class), mock(Comparable.class), token))
@@ -912,7 +911,7 @@ public class TypeUtilsJUnitTest {
   @Test
   public void comparingComparableValuesForWhichTheCompareMethodThrowsClassCastExceptionShouldReturnBooleanWhenTheComparisonOperatorIsSupported()
       throws TypeMismatchException {
-    ComparableObject comparableValue = mock(ComparableObject.class);
+    var comparableValue = mock(ComparableObject.class);
     when(comparableValue.compareTo(any())).thenThrow(new ClassCastException(""));
 
     assertThat(
@@ -922,12 +921,12 @@ public class TypeUtilsJUnitTest {
         TypeUtils.compare(comparableValue, mock(Comparable.class), OQLLexerTokenTypes.TOK_EQ))
             .isEqualTo(Boolean.FALSE);
 
-    OQLLexerTokenTypes tempInstance = new OQLLexerTokenTypes() {};
-    Field[] fields = OQLLexerTokenTypes.class.getDeclaredFields();
+    var tempInstance = new OQLLexerTokenTypes() {};
+    var fields = OQLLexerTokenTypes.class.getDeclaredFields();
 
     Arrays.stream(fields).forEach(field -> {
       try {
-        int token = field.getInt(tempInstance);
+        var token = field.getInt(tempInstance);
         if (!equalityOperators.contains(token)) {
           assertThatThrownBy(
               () -> TypeUtils.compare(comparableValue, mock(Comparable.class), token))
@@ -943,10 +942,10 @@ public class TypeUtilsJUnitTest {
   @Test
   public void comparingArbitraryObjectsShouldDelegateToDefaultEqualsMethod()
       throws TypeMismatchException {
-    ArbitraryObject aValue = new ArbitraryObject("0");
-    ArbitraryObject anotherValue = new ArbitraryObject("1");
-    NumericComparator numericComparator = spy(NumericComparator.class);
-    TemporalComparator temporalComparator = spy(TemporalComparator.class);
+    var aValue = new ArbitraryObject("0");
+    var anotherValue = new ArbitraryObject("1");
+    var numericComparator = spy(NumericComparator.class);
+    var temporalComparator = spy(TemporalComparator.class);
 
     assertThat(TypeUtils.compare(aValue, aValue, OQLLexerTokenTypes.TOK_EQ))
         .isEqualTo(Boolean.TRUE);
@@ -975,12 +974,12 @@ public class TypeUtilsJUnitTest {
 
   @Test
   public void comparingArbitraryObjectsUsingAnUnsupportedComparisonOperatorShouldThrowException() {
-    OQLLexerTokenTypes tempInstance = new OQLLexerTokenTypes() {};
-    Field[] fields = OQLLexerTokenTypes.class.getDeclaredFields();
+    var tempInstance = new OQLLexerTokenTypes() {};
+    var fields = OQLLexerTokenTypes.class.getDeclaredFields();
 
     Arrays.stream(fields).forEach(field -> {
       try {
-        int token = field.getInt(tempInstance);
+        var token = field.getInt(tempInstance);
         if (!comparisonOperators.contains(token)) {
           assertThatThrownBy(() -> TypeUtils.compare(new ArbitraryObject("0"),
               new ArbitraryObject("0"),
@@ -1041,7 +1040,7 @@ public class TypeUtilsJUnitTest {
         return false;
       }
 
-      ArbitraryObject that = (ArbitraryObject) o;
+      var that = (ArbitraryObject) o;
 
       return Objects.equals(id, that.id);
     }

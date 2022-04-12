@@ -63,12 +63,12 @@ public class JarDirPathConverter implements Converter<String> {
   }
 
   static boolean isDirWithDirsOrDirWithJars(String dir) {
-    File d = new File(dir);
+    var d = new File(dir);
     if (!d.isDirectory()) {
       return false;
     }
 
-    File[] listing = d.listFiles();
+    var listing = d.listFiles();
     if (listing == null) {
       return false;
     }

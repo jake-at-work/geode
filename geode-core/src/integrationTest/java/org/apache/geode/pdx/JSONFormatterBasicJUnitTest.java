@@ -113,11 +113,11 @@ public class JSONFormatterBasicJUnitTest {
   @Parameters({"true", "false"})
   public void simpleObjectAsStringParses(String usePdxInstanceSortedHelper) {
     System.setProperty(JSONFormatter.SORT_JSON_FIELD_NAMES_PROPERTY, usePdxInstanceSortedHelper);
-    String testField = "a";
-    String jsonObjectString = "{\"a\":2}";
+    var testField = "a";
+    var jsonObjectString = "{\"a\":2}";
 
-    PdxInstance pdxInstance = JSONFormatter.fromJSON(jsonObjectString);
-    String deserializedJsonObjectString = JSONFormatter.toJSON(pdxInstance);
+    var pdxInstance = JSONFormatter.fromJSON(jsonObjectString);
+    var deserializedJsonObjectString = JSONFormatter.toJSON(pdxInstance);
 
     assertThat(pdxInstance.hasField(testField)).isTrue();
     assertThat(deserializedJsonObjectString).isEqualTo(jsonObjectString);
@@ -127,11 +127,11 @@ public class JSONFormatterBasicJUnitTest {
   @Parameters({"true", "false"})
   public void simpleObjectAsBytesParses(String usePdxInstanceSortedHelper) {
     System.setProperty(JSONFormatter.SORT_JSON_FIELD_NAMES_PROPERTY, usePdxInstanceSortedHelper);
-    String testField = "a";
-    String jsonObjectString = "{\"a\":2}";
+    var testField = "a";
+    var jsonObjectString = "{\"a\":2}";
 
-    PdxInstance pdxInstance = JSONFormatter.fromJSON(jsonObjectString);
-    byte[] deserializedJsonObjectString = JSONFormatter.toJSONByteArray(pdxInstance);
+    var pdxInstance = JSONFormatter.fromJSON(jsonObjectString);
+    var deserializedJsonObjectString = JSONFormatter.toJSONByteArray(pdxInstance);
 
     assertThat(pdxInstance.hasField(testField)).isTrue();
     assertThat(deserializedJsonObjectString).isEqualTo(jsonObjectString.getBytes());
@@ -141,13 +141,13 @@ public class JSONFormatterBasicJUnitTest {
   @Parameters({"true", "false"})
   public void simpleObjectAsStringParsesWithIdentityField(String usePdxInstanceSortedHelper) {
     System.setProperty(JSONFormatter.SORT_JSON_FIELD_NAMES_PROPERTY, usePdxInstanceSortedHelper);
-    String identityField = "a";
-    String nonIdentityField = "b";
-    String nonExistentField = "c";
-    String jsonObjectString = "{\"a\":2,\"b\":3}";
+    var identityField = "a";
+    var nonIdentityField = "b";
+    var nonExistentField = "c";
+    var jsonObjectString = "{\"a\":2,\"b\":3}";
 
-    PdxInstance pdxInstance = JSONFormatter.fromJSON(jsonObjectString, identityField);
-    String deserializedJsonObjectString = JSONFormatter.toJSON(pdxInstance);
+    var pdxInstance = JSONFormatter.fromJSON(jsonObjectString, identityField);
+    var deserializedJsonObjectString = JSONFormatter.toJSON(pdxInstance);
 
     assertThat(pdxInstance.isIdentityField(identityField)).isTrue();
     assertThat(pdxInstance.isIdentityField(nonIdentityField)).isFalse();
@@ -162,13 +162,13 @@ public class JSONFormatterBasicJUnitTest {
   @Parameters({"true", "false"})
   public void simpleObjectAsBytesParsesWithIdentityField(String usePdxInstanceSortedHelper) {
     System.setProperty(JSONFormatter.SORT_JSON_FIELD_NAMES_PROPERTY, usePdxInstanceSortedHelper);
-    String identityField = "a";
-    String nonIdentityField = "b";
-    String nonExistentField = "c";
-    String jsonObjectString = "{\"a\":2,\"b\":3}";
+    var identityField = "a";
+    var nonIdentityField = "b";
+    var nonExistentField = "c";
+    var jsonObjectString = "{\"a\":2,\"b\":3}";
 
-    PdxInstance pdxInstance = JSONFormatter.fromJSON(jsonObjectString.getBytes(), identityField);
-    byte[] deserializedJsonObjectString = JSONFormatter.toJSONByteArray(pdxInstance);
+    var pdxInstance = JSONFormatter.fromJSON(jsonObjectString.getBytes(), identityField);
+    var deserializedJsonObjectString = JSONFormatter.toJSONByteArray(pdxInstance);
 
     assertThat(pdxInstance.isIdentityField(identityField)).isTrue();
     assertThat(pdxInstance.isIdentityField(nonIdentityField)).isFalse();

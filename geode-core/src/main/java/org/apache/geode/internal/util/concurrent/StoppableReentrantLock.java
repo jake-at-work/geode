@@ -66,7 +66,7 @@ public class StoppableReentrantLock {
 
   public void lock() {
     for (;;) {
-      boolean interrupted = Thread.interrupted();
+      var interrupted = Thread.interrupted();
       try {
         lockInterruptibly();
         break;

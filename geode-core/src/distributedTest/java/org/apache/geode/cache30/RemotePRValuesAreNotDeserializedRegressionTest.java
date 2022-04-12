@@ -70,11 +70,11 @@ public class RemotePRValuesAreNotDeserializedRegressionTest extends CacheTestCas
    */
   @Test
   public void remotePRValuesShouldNotBeDeserialized() throws Exception {
-    PartitionAttributesFactory partitionAttributesFactory = new PartitionAttributesFactory();
+    var partitionAttributesFactory = new PartitionAttributesFactory();
     partitionAttributesFactory.setRedundantCopies(0);
     partitionAttributesFactory.setLocalMaxMemory(0); // make it an accessor
 
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setPartitionAttributes(partitionAttributesFactory.create());
 
     Region<String, HomeBoy> region = createRootRegion(REGION_NAME, factory.create());
@@ -123,11 +123,11 @@ public class RemotePRValuesAreNotDeserializedRegressionTest extends CacheTestCas
           }
         };
 
-        AttributesFactory factory = new AttributesFactory();
+        var factory = new AttributesFactory();
         factory.setCacheListener(listener);
 
         // create a pr with a data store
-        PartitionAttributesFactory partitionAttributesFactory = new PartitionAttributesFactory();
+        var partitionAttributesFactory = new PartitionAttributesFactory();
         partitionAttributesFactory.setRedundantCopies(0);
 
         // use defaults so this is a data store
@@ -152,12 +152,12 @@ public class RemotePRValuesAreNotDeserializedRegressionTest extends CacheTestCas
     @Override
     public void fromData(final DataInput in) throws IOException, ClassNotFoundException {
       DistributedSystem ds = InternalDistributedSystem.getAnyInstance();
-      DistributedMember me = ds.getDistributedMember();
+      var me = ds.getDistributedMember();
       DistributedMember hb = DataSerializer.readObject(in);
       if (me.equals(hb)) {
         ds.getLogWriter().info("HomeBoy was deserialized on his home");
       } else {
-        String msg = "HomeBoy was deserialized on " + me + " instead of his home " + hb;
+        var msg = "HomeBoy was deserialized on " + me + " instead of his home " + hb;
         ds.getLogWriter().error(msg);
         throw new IllegalStateException(msg);
       }

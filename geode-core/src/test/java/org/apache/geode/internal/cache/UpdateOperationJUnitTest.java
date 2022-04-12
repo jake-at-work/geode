@@ -38,9 +38,9 @@ public class UpdateOperationJUnitTest {
   public void setup() {
     event = mock(EntryEventImpl.class);
     region = mock(DistributedRegion.class);
-    RegionAttributes attr = mock(RegionAttributes.class);
-    CachePerfStats stats = mock(CachePerfStats.class);
-    InternalCache cache = mock(InternalCache.class);
+    var attr = mock(RegionAttributes.class);
+    var stats = mock(CachePerfStats.class);
+    var cache = mock(InternalCache.class);
 
     when(event.isOriginRemote()).thenReturn(false);
     when(stats.endPut(anyLong(), eq(false))).thenReturn(0L);

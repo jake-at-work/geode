@@ -34,7 +34,6 @@ import org.junit.Test;
 
 import org.apache.geode.distributed.internal.InternalConfigurationPersistenceService;
 import org.apache.geode.internal.cache.InternalCache;
-import org.apache.geode.management.internal.cli.GfshParseResult;
 import org.apache.geode.management.internal.functions.CliFunctionResult;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.test.junit.rules.GfshParserRule;
@@ -54,7 +53,7 @@ public class CreateGatewayReceiverCommandTest {
   public void before() {
     command = spy(CreateGatewayReceiverCommand.class);
     ccService = mock(InternalConfigurationPersistenceService.class);
-    InternalCache cache = mock(InternalCache.class);
+    var cache = mock(InternalCache.class);
     doReturn(cache).when(command).getCache();
     doReturn(ccService).when(command).getConfigurationPersistenceService();
     functionResults = new ArrayList<>();
@@ -63,7 +62,7 @@ public class CreateGatewayReceiverCommandTest {
 
   @Test
   public void testUnspecifiedDefaultValues() {
-    GfshParseResult parseResult = gfsh.parse("create gateway-receiver");
+    var parseResult = gfsh.parse("create gateway-receiver");
 
     assertThat(parseResult.getParamValue(CliStrings.MEMBER)).isNull();
     assertThat(parseResult.getParamValue(CliStrings.GROUP)).isNull();
@@ -85,7 +84,7 @@ public class CreateGatewayReceiverCommandTest {
 
   @Test
   public void testSpecifiedDefaultValues() {
-    GfshParseResult parseResult =
+    var parseResult =
         gfsh.parse("create gateway-receiver --manual-start --if-not-exists");
 
     assertThat(parseResult.getParamValue(CliStrings.MEMBER)).isNull();
@@ -163,7 +162,7 @@ public class CreateGatewayReceiverCommandTest {
     doReturn(ccService).when(command).getConfigurationPersistenceService();
     result1 = new CliFunctionResult("member", CliFunctionResult.StatusState.ERROR, "result1");
     functionResults.add(result1);
-    CliFunctionResult result2 =
+    var result2 =
         new CliFunctionResult("member", CliFunctionResult.StatusState.OK, "result2");
     functionResults.add(result2);
 

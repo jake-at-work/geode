@@ -28,7 +28,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.categories.GfshTest;
 import org.apache.geode.test.junit.categories.LoggingTest;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
@@ -45,38 +44,38 @@ public class ExportLogsOnServerManagerDistributedTest {
 
   @Test
   public void testExportWithOneServer() throws Exception {
-    MemberVM server0 = lsRule.startServerVM(0, MemberStarterRule::withJMXManager);
+    var server0 = lsRule.startServerVM(0, MemberStarterRule::withJMXManager);
     gfshConnector.connect(server0.getJmxPort(), GfshCommandRule.PortType.jmxManager);
     gfshConnector.executeAndAssertThat("export logs").statusIsSuccess();
 
-    String message = gfshConnector.getGfshOutput();
+    var message = gfshConnector.getGfshOutput();
     assertThat(message).contains(server0.getWorkingDir().getAbsolutePath());
 
-    String zipPath = getZipPathFromCommandResult(message);
+    var zipPath = getZipPathFromCommandResult(message);
 
     Set<String> expectedZipEntries =
         Sets.newHashSet(Paths.get("server-0", "server-0.log").toString());
-    Set<String> actualZipEnries =
+    var actualZipEnries =
         new ZipFile(zipPath).stream().map(ZipEntry::getName).collect(Collectors.toSet());
     assertThat(actualZipEnries).containsAll(expectedZipEntries);
   }
 
   @Test
   public void testExportWithPeerLocator() throws Exception {
-    MemberVM server0 = lsRule.startServerVM(0, x -> x.withEmbeddedLocator().withJMXManager());
+    var server0 = lsRule.startServerVM(0, x -> x.withEmbeddedLocator().withJMXManager());
     lsRule.startServerVM(1, server0.getEmbeddedLocatorPort());
     gfshConnector.connect(server0.getEmbeddedLocatorPort(), GfshCommandRule.PortType.locator);
     gfshConnector.executeAndAssertThat("export logs").statusIsSuccess();
 
-    String message = gfshConnector.getGfshOutput();
+    var message = gfshConnector.getGfshOutput();
     assertThat(message).contains(server0.getWorkingDir().getAbsolutePath());
 
-    String zipPath = getZipPathFromCommandResult(message);
+    var zipPath = getZipPathFromCommandResult(message);
 
     Set<String> expectedZipEntries =
         Sets.newHashSet(Paths.get("server-0", "server-0.log").toString(),
             Paths.get("server-1", "server-1.log").toString());
-    Set<String> actualZipEnries =
+    var actualZipEnries =
         new ZipFile(zipPath).stream().map(ZipEntry::getName).collect(Collectors.toSet());
     assertThat(actualZipEnries).containsAll(expectedZipEntries);
   }

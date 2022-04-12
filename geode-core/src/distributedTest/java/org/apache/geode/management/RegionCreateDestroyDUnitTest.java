@@ -31,10 +31,8 @@ import org.junit.experimental.categories.Category;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.Invoke;
 import org.apache.geode.test.dunit.RMIException;
@@ -56,12 +54,12 @@ public class RegionCreateDestroyDUnitTest extends JUnit4CacheTestCase {
 
   @Before
   public void before() throws Exception {
-    final Host host = Host.getHost(0);
+    final var host = Host.getHost(0);
     client1 = host.getVM(1);
     client2 = host.getVM(2);
     client3 = host.getVM(3);
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
 
@@ -70,7 +68,7 @@ public class RegionCreateDestroyDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void startServer(final Cache cache) throws IOException {
-    CacheServer server1 = cache.addCacheServer();
+    var server1 = cache.addCacheServer();
     server1.setPort(0);
     server1.start();
 
@@ -84,7 +82,7 @@ public class RegionCreateDestroyDUnitTest extends JUnit4CacheTestCase {
   }
 
   protected Properties createClientProperties() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     props.setProperty(SECURITY_LOG_LEVEL, "finest");
@@ -102,7 +100,7 @@ public class RegionCreateDestroyDUnitTest extends JUnit4CacheTestCase {
       fail(e.getMessage());
     }
     client1.invoke(() -> {
-      ClientCache cache = new ClientCacheFactory(createClientProperties())
+      var cache = new ClientCacheFactory(createClientProperties())
           .setPoolSubscriptionEnabled(true).addPoolServer("localhost", serverPort).create();
       Region region =
           cache.createClientRegionFactory(ClientRegionShortcut.PROXY).create(GOOD_REGION_NAME);
@@ -128,7 +126,7 @@ public class RegionCreateDestroyDUnitTest extends JUnit4CacheTestCase {
       fail(e.getMessage());
     }
     client1.invoke(() -> {
-      ClientCache cache = new ClientCacheFactory(createClientProperties())
+      var cache = new ClientCacheFactory(createClientProperties())
           .setPoolSubscriptionEnabled(true).addPoolServer("localhost", serverPort).create();
       try {
         cache.createClientRegionFactory(ClientRegionShortcut.PROXY).create(BAD_REGION_NAME);
@@ -159,7 +157,7 @@ public class RegionCreateDestroyDUnitTest extends JUnit4CacheTestCase {
 
     try {
       client1.invoke(() -> {
-        ClientCache cache = new ClientCacheFactory(createClientProperties())
+        var cache = new ClientCacheFactory(createClientProperties())
             .setPoolSubscriptionEnabled(true).addPoolServer("localhost", serverPort).create();
         try {
           cache.createClientRegionFactory(ClientRegionShortcut.PROXY).create(RESERVED_REGION_NAME);

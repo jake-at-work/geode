@@ -48,7 +48,6 @@ import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
@@ -63,7 +62,6 @@ import org.junit.runners.Parameterized.Parameters;
 
 import org.apache.geode.cache.ssl.CertStores;
 import org.apache.geode.cache.ssl.CertificateBuilder;
-import org.apache.geode.cache.ssl.CertificateMaterial;
 import org.apache.geode.internal.UniquePortSupplier;
 import org.apache.geode.internal.shared.NativeCalls;
 import org.apache.geode.test.junit.rules.gfsh.GfshRule;
@@ -118,7 +116,7 @@ public class SocketCreatorUpgradeTest {
 
   @Parameters(name = "{0}")
   public static Collection<String> data() {
-    final List<String> result = VersionManager.getInstance().getVersionsWithoutCurrent();
+    final var result = VersionManager.getInstance().getVersionsWithoutCurrent();
     result.removeIf(v -> TestVersion.valueOf(v).lessThan(TestVersion.valueOf("1.8.0")));
     Collections.reverse(result);
     return result;
@@ -129,19 +127,19 @@ public class SocketCreatorUpgradeTest {
 
     this.version = TestVersion.valueOf(version);
 
-    final Path oldJavaHome = Paths.get(getenv("JAVA_HOME_8u265"));
-    final Path newJavaHome = Paths.get(getenv("JAVA_HOME_8u272"));
+    final var oldJavaHome = Paths.get(getenv("JAVA_HOME_8u265"));
+    final var newJavaHome = Paths.get(getenv("JAVA_HOME_8u272"));
 
     gfshOldGeodeOldJava = new GfshRule(version, oldJavaHome);
     gfshOldGeodeNewJava = new GfshRule(version, newJavaHome);
     gfshNewGeodeOldJava = new GfshRule(oldJavaHome);
     gfshNewGeodeNewJava = new GfshRule(newJavaHome);
 
-    final UniquePortSupplier portSupplier = new UniquePortSupplier();
-    final int locator1Port = portSupplier.getAvailablePort();
-    final int locator1JmxPort = portSupplier.getAvailablePort();
-    final int locator2Port = portSupplier.getAvailablePort();
-    final int locator2JmxPort = portSupplier.getAvailablePort();
+    final var portSupplier = new UniquePortSupplier();
+    final var locator1Port = portSupplier.getAvailablePort();
+    final var locator1JmxPort = portSupplier.getAvailablePort();
+    final var locator2Port = portSupplier.getAvailablePort();
+    final var locator2JmxPort = portSupplier.getAvailablePort();
 
     tempFolder.create();
     root = tempFolder.getRoot();
@@ -150,7 +148,7 @@ public class SocketCreatorUpgradeTest {
     securityPropertiesFile = tempFolder.newFile();
     newSecurityPropertiesFile = tempFolder.newFile();
 
-    final String hostName = InetAddress.getLocalHost().getCanonicalHostName();
+    final var hostName = InetAddress.getLocalHost().getCanonicalHostName();
     generateKeyAndTrustStore(hostName, keyStoreFile, trustStoreFile);
 
     startLocator1 = startLocator(LOCATOR_1, hostName, locator1Port, locator1JmxPort,
@@ -565,7 +563,7 @@ public class SocketCreatorUpgradeTest {
   private static String startLocator(final String name, final String bindAddress,
       final int port, final int jmxPort, final File securityPropertiesFile,
       final int otherLocatorPort, final TestVersion version) {
-    String startLocator = format(
+    var startLocator = format(
         "start locator --connect=false --http-service-port=0 --name=%s --bind-address=%s --port=%d --J=-Dgemfire.jmx-manager-port=%d --security-properties-file=%s --locators=%s[%d]",
         name, bindAddress, port, jmxPort, securityPropertiesFile.getAbsolutePath(), bindAddress,
         otherLocatorPort);
@@ -586,18 +584,18 @@ public class SocketCreatorUpgradeTest {
 
   public static void generateKeyAndTrustStore(final String hostName, final File keyStoreFile,
       final File trustStoreFile) throws IOException, GeneralSecurityException {
-    final CertificateMaterial ca = new CertificateBuilder(EXPIRATION, ALGORITHM)
+    final var ca = new CertificateBuilder(EXPIRATION, ALGORITHM)
         .commonName("Test CA")
         .isCA()
         .generate();
 
-    final CertificateMaterial certificate = new CertificateBuilder(EXPIRATION, ALGORITHM)
+    final var certificate = new CertificateBuilder(EXPIRATION, ALGORITHM)
         .commonName(hostName)
         .issuedBy(ca)
         .sanDnsName(hostName)
         .generate();
 
-    final CertStores store = new CertStores(hostName);
+    final var store = new CertStores(hostName);
     store.withCertificate("geode", certificate);
     store.trust("ca", ca);
 
@@ -623,7 +621,7 @@ public class SocketCreatorUpgradeTest {
   private static void generateSecurityProperties(final String protocols,
       final String clientProtocols, final String serverProtocols, final File securityPropertiesFile,
       final File keyStoreFile, final File trustStoreFile) throws IOException {
-    final Properties properties = new Properties();
+    final var properties = new Properties();
 
     properties.setProperty(SSL_REQUIRE_AUTHENTICATION, "true");
     properties.setProperty(SSL_ENABLED_COMPONENTS, "all");
@@ -651,7 +649,7 @@ public class SocketCreatorUpgradeTest {
 
   private static void killByPidFile(final Path pidFile) {
     try {
-      final int pid = parseInt(readFileToString(pidFile.toFile(), defaultCharset()));
+      final var pid = parseInt(readFileToString(pidFile.toFile(), defaultCharset()));
       NativeCalls.getInstance().killProcess(pid);
       Files.delete(pidFile);
     } catch (FileNotFoundException ignore) {

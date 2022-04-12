@@ -20,7 +20,6 @@ import static org.apache.geode.redis.internal.RedisConstants.ERROR_NOT_INTEGER;
 import static org.apache.geode.redis.internal.netty.Coder.equalsIgnoreCaseBytes;
 import static org.apache.geode.redis.internal.netty.StringBytesGlossary.VERSION;
 
-import java.util.List;
 import java.util.Random;
 
 import org.apache.geode.internal.serialization.KnownVersion;
@@ -46,12 +45,12 @@ public class LolWutExecutor implements CommandExecutor {
 
     width = DEFAULT_WIDTH;
     height = DEFAULT_HEIGHT;
-    int inputWidth = -1;
-    int inputHeight = -1;
+    var inputWidth = -1;
+    var inputHeight = -1;
 
-    List<byte[]> commands = command.getProcessedCommand();
+    var commands = command.getProcessedCommand();
     if (commands.size() > 1) {
-      for (int i = 1; i < commands.size(); i++) {
+      for (var i = 1; i < commands.size(); i++) {
         if (equalsIgnoreCaseBytes(commands.get(i), VERSION)) {
           i += 1; // skip next arg, we only have one version for now
         } else {
@@ -87,11 +86,11 @@ public class LolWutExecutor implements CommandExecutor {
 
   // Adapted from code here: https://tromp.github.io/maze.html
   private String makeArbitrarySizeMaze() {
-    StringBuilder mazeString = new StringBuilder();
-    int[] leftLinks = new int[width];
-    int[] rightLinks = new int[width];
+    var mazeString = new StringBuilder();
+    var leftLinks = new int[width];
+    var rightLinks = new int[width];
 
-    Random rand = new Random();
+    var rand = new Random();
     leftLinks[0] = 1;
 
     mazeTopAndEntrance(mazeString, leftLinks, rightLinks);

@@ -20,14 +20,12 @@ package org.apache.geode.tools.pulse.internal.service;
 import javax.servlet.http.HttpServletRequest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-import org.apache.geode.tools.pulse.internal.data.Cluster;
 import org.apache.geode.tools.pulse.internal.data.PulseConstants;
 import org.apache.geode.tools.pulse.internal.data.Repository;
 
@@ -55,16 +53,16 @@ public class QueryStatisticsService implements PulseService {
   public ObjectNode execute(final HttpServletRequest request) throws Exception {
 
     // get cluster object
-    Cluster cluster = repository.getCluster();
+    var cluster = repository.getCluster();
 
     // json object to be sent as response
-    ObjectNode responseJSON = mapper.createObjectNode();
+    var responseJSON = mapper.createObjectNode();
 
-    Cluster.Statement[] stmts = cluster.getStatements();
+    var stmts = cluster.getStatements();
 
-    ArrayNode queryListJson = mapper.createArrayNode();
-    for (Cluster.Statement stmt : stmts) {
-      ObjectNode queryJSON = mapper.createObjectNode();
+    var queryListJson = mapper.createArrayNode();
+    for (var stmt : stmts) {
+      var queryJSON = mapper.createObjectNode();
       queryJSON.put(PulseConstants.MBEAN_ATTRIBUTE_QUERYDEFINITION, stmt.getQueryDefinition());
       queryJSON.set(PulseConstants.MBEAN_ATTRIBUTE_NUMTIMESCOMPILED, mapper.valueToTree(
           stmt.getNumTimesCompiled() < 0 ? VALUE_NA : stmt.getNumTimesCompiled()));

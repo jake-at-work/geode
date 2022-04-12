@@ -76,7 +76,7 @@ public class CacheFactoryIntegrationTest {
 
   @Test
   public void addMeterSubregistryThrowsNullPointerExceptionIfTheGivenRegistryIsNull() {
-    CacheFactory cacheFactory = new CacheFactory();
+    var cacheFactory = new CacheFactory();
 
     assertThatThrownBy(() -> cacheFactory.addMeterSubregistry(null))
         .isInstanceOf(NullPointerException.class);

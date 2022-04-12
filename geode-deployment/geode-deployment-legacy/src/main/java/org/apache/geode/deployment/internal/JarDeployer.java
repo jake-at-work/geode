@@ -19,7 +19,6 @@ import static java.util.stream.Collectors.toSet;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -28,7 +27,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -77,14 +75,14 @@ public class JarDeployer implements Serializable {
       throws IOException {
     lock.lock();
     try {
-      boolean shouldDeployNewVersion = shouldDeployNewVersion(artifactId, stagedJar);
+      var shouldDeployNewVersion = shouldDeployNewVersion(artifactId, stagedJar);
       if (!shouldDeployNewVersion) {
         logger.debug("No need to deploy a new version of {}", stagedJar.getName());
         return null;
       }
 
       verifyWritableDeployDirectory();
-      Path deployedFile = getNextVersionedJarFile(stagedJar.getName()).toPath();
+      var deployedFile = getNextVersionedJarFile(stagedJar.getName()).toPath();
       FileUtils.copyFile(stagedJar, deployedFile.toFile());
 
       return new DeployedJar(deployedFile.toFile());
@@ -94,9 +92,9 @@ public class JarDeployer implements Serializable {
   }
 
   protected File getNextVersionedJarFile(String unversionedJarName) {
-    int maxVersion = getMaxVersion(JarFileUtils.getArtifactId(unversionedJarName));
+    var maxVersion = getMaxVersion(JarFileUtils.getArtifactId(unversionedJarName));
 
-    String nextVersionJarName =
+    var nextVersionJarName =
         FilenameUtils.getBaseName(unversionedJarName) + ".v" + (maxVersion + 1) + ".jar";
 
     logger.debug("Next versioned jar name for {} is {}", unversionedJarName, nextVersionJarName);
@@ -135,13 +133,13 @@ public class JarDeployer implements Serializable {
    * if this is the first time starting up with the new naming format.
    */
   protected void renameJarsWithOldNamingConvention() throws IOException {
-    Set<File> jarsWithOldNamingConvention = findJarsWithOldNamingConvention();
+    var jarsWithOldNamingConvention = findJarsWithOldNamingConvention();
 
     if (jarsWithOldNamingConvention.isEmpty()) {
       return;
     }
 
-    for (File jar : jarsWithOldNamingConvention) {
+    for (var jar : jarsWithOldNamingConvention) {
       renameJarWithOldNamingConvention(jar);
     }
   }
@@ -156,17 +154,17 @@ public class JarDeployer implements Serializable {
   }
 
   private void renameJarWithOldNamingConvention(File oldJar) throws IOException {
-    Matcher matcher = POUND_VERSION_SCHEME.matcher(oldJar.getName());
+    var matcher = POUND_VERSION_SCHEME.matcher(oldJar.getName());
     if (!matcher.matches()) {
       throw new IllegalArgumentException("The given jar " + oldJar.getCanonicalPath()
           + " does not match the old naming convention");
     }
 
-    String unversionedJarNameWithoutExtension = matcher.group(1);
-    String jarVersion = matcher.group(2);
-    String newJarName = unversionedJarNameWithoutExtension + ".v" + jarVersion + ".jar";
+    var unversionedJarNameWithoutExtension = matcher.group(1);
+    var jarVersion = matcher.group(2);
+    var newJarName = unversionedJarNameWithoutExtension + ".v" + jarVersion + ".jar";
 
-    File newJar = new File(deployDirectory, newJarName);
+    var newJar = new File(deployDirectory, newJarName);
     logger.debug("Renaming deployed jar from {} to {}", oldJar.getCanonicalPath(),
         newJar.getCanonicalPath());
 
@@ -184,20 +182,20 @@ public class JarDeployer implements Serializable {
       verifyWritableDeployDirectory();
       renameJarsWithOldNamingConvention();
       // find all the artifacts and its max versions
-      Map<String, Integer> artifactToMaxVersion = findArtifactsAndMaxVersion();
+      var artifactToMaxVersion = findArtifactsAndMaxVersion();
       Map<String, DeployedJar> latestVersionOfEachJar = new HashMap<>();
 
       // clean up the old versions and find the latest version of each jar
-      for (File file : deployDirectory.listFiles()) {
-        String artifactId = JarFileUtils.toArtifactId(file.getName());
+      for (var file : deployDirectory.listFiles()) {
+        var artifactId = JarFileUtils.toArtifactId(file.getName());
         if (artifactId == null) {
           continue;
         }
-        int version = JarFileUtils.extractVersionFromFilename(file.getName());
+        var version = JarFileUtils.extractVersionFromFilename(file.getName());
         if (version < artifactToMaxVersion.get(artifactId)) {
           FileUtils.deleteQuietly(file);
         } else {
-          DeployedJar deployedJar = new DeployedJar(file);
+          var deployedJar = new DeployedJar(file);
           latestVersionOfEachJar.put(deployedJar.getArtifactId(), deployedJar);
         }
       }
@@ -211,13 +209,13 @@ public class JarDeployer implements Serializable {
 
   Map<String, Integer> findArtifactsAndMaxVersion() {
     Map<String, Integer> artifactToMaxVersion = new HashMap<>();
-    for (String fileName : deployDirectory.list()) {
-      String artifactId = JarFileUtils.toArtifactId(fileName);
+    for (var fileName : deployDirectory.list()) {
+      var artifactId = JarFileUtils.toArtifactId(fileName);
       if (artifactId == null) {
         continue;
       }
-      int version = JarFileUtils.extractVersionFromFilename(fileName);
-      Integer maxVersion = artifactToMaxVersion.get(artifactId);
+      var version = JarFileUtils.extractVersionFromFilename(fileName);
+      var maxVersion = artifactToMaxVersion.get(artifactId);
       if (maxVersion == null || maxVersion < version) {
         artifactToMaxVersion.put(artifactId, version);
       }
@@ -232,7 +230,7 @@ public class JarDeployer implements Serializable {
     try {
       if (deployedJar != null) {
         logger.info("Registering new version of jar: {}", deployedJar);
-        DeployedJar oldJar = deployedJars.put(artifactId, deployedJar);
+        var oldJar = deployedJars.put(artifactId, deployedJar);
         ClassPathLoader.getLatest().chainClassloader(deployedJar.getFile());
       }
     } finally {
@@ -263,8 +261,8 @@ public class JarDeployer implements Serializable {
 
     lock.lock();
     try {
-      String artifactId = JarFileUtils.getArtifactId(stagedJarFile.getName());
-      DeployedJar deployedJar = deployWithoutRegistering(artifactId, stagedJarFile);
+      var artifactId = JarFileUtils.getArtifactId(stagedJarFile.getName());
+      var deployedJar = deployWithoutRegistering(artifactId, stagedJarFile);
       registerNewVersions(artifactId, deployedJar);
 
       return deployedJar;
@@ -274,7 +272,7 @@ public class JarDeployer implements Serializable {
   }
 
   private boolean shouldDeployNewVersion(String artifactId, File stagedJar) throws IOException {
-    DeployedJar oldDeployedJar = deployedJars.get(artifactId);
+    var oldDeployedJar = deployedJars.get(artifactId);
 
     if (oldDeployedJar == null) {
       return true;
@@ -310,7 +308,7 @@ public class JarDeployer implements Serializable {
           Arrays.toString(deployedJars.keySet().toArray()));
 
       // remove the deployedJar
-      DeployedJar deployedJar = deployedJars.remove(artifactId);
+      var deployedJar = deployedJars.remove(artifactId);
       if (deployedJar == null) {
         throw new IllegalArgumentException(artifactId + " not deployed");
       }
@@ -330,13 +328,13 @@ public class JarDeployer implements Serializable {
   public void deleteAllVersionsOfJar(String jarName) {
     lock.lock();
     logger.info("Deleting all versions of jar: {}", jarName);
-    String artifactId = JarFileUtils.toArtifactId(jarName);
+    var artifactId = JarFileUtils.toArtifactId(jarName);
     if (artifactId == null) {
       artifactId = JarFileUtils.getArtifactId(jarName);
     }
     logger.debug("ArtifactId to delete: {}", artifactId);
     try {
-      for (File file : deployDirectory.listFiles()) {
+      for (var file : deployDirectory.listFiles()) {
         logger.debug("File in deploy directory: {} with artifactId: {}", file.getName(),
             JarFileUtils.toArtifactId(file.getName()));
         if (artifactId.equals(JarFileUtils.toArtifactId(file.getName()))) {

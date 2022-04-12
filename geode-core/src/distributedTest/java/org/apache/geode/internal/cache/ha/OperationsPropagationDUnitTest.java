@@ -32,7 +32,6 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache30.ClientServerTestCase;
 import org.apache.geode.distributed.DistributedSystem;
@@ -71,7 +70,7 @@ public class OperationsPropagationDUnitTest extends JUnit4DistributedTestCase {
    */
   @Override
   public final void postSetUp() throws Exception {
-    final Host host = Host.getHost(0);
+    final var host = Host.getHost(0);
     // Server1 VM
     server1 = host.getVM(0);
 
@@ -129,15 +128,15 @@ public class OperationsPropagationDUnitTest extends JUnit4DistributedTestCase {
    */
   public static Integer createServerCache() throws Exception {
     new OperationsPropagationDUnitTest().createCache(new Properties());
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setDataPolicy(DataPolicy.REPLICATE);
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     region = cache.createRegion(REGION_NAME, attrs);
 
-    CacheServerImpl server = (CacheServerImpl) cache.addCacheServer();
+    var server = (CacheServerImpl) cache.addCacheServer();
     assertNotNull(server);
-    int port = getRandomAvailableTCPPort();
+    var port = getRandomAvailableTCPPort();
     server.setPort(port);
     server.setNotifyBySubscription(true);
     server.start();
@@ -149,7 +148,7 @@ public class OperationsPropagationDUnitTest extends JUnit4DistributedTestCase {
    */
   public static void createClientCache(String host, Integer port2) throws Exception {
     int PORT2 = port2;
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     new OperationsPropagationDUnitTest().createCache(props);
@@ -162,11 +161,11 @@ public class OperationsPropagationDUnitTest extends JUnit4DistributedTestCase {
     props.setProperty("socketBufferSize", "1000");
     props.setProperty("retryInterval", "250");
     props.setProperty("connectionsPerServer", "2");
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setScope(Scope.DISTRIBUTED_ACK);
 
     ClientServerTestCase.configureConnectionPool(factory, host, PORT2, -1, true, -1, 2, null);
-    RegionAttributes attrs = factory.create();
+    var attrs = factory.create();
     region = cache.createRegion(REGION_NAME, attrs);
     assertNotNull(region);
     region.registerInterest("ALL_KEYS");
@@ -250,12 +249,12 @@ public class OperationsPropagationDUnitTest extends JUnit4DistributedTestCase {
    */
   public static void assertKeyValuePresent() {
     try {
-      WaitCriterion wc = new WaitCriterion() {
+      var wc = new WaitCriterion() {
         String excuse;
 
         @Override
         public boolean done() {
-          Object val = region.get(UPDATE_KEY);
+          var val = region.get(UPDATE_KEY);
           return UPDATE_VALUE1.equals(val);
         }
 
@@ -271,7 +270,7 @@ public class OperationsPropagationDUnitTest extends JUnit4DistributedTestCase {
 
         @Override
         public boolean done() {
-          Object val = region.get(INVALIDATE_KEY);
+          var val = region.get(INVALIDATE_KEY);
           return INVALIDATE_VALUE.equals(val);
         }
 
@@ -287,7 +286,7 @@ public class OperationsPropagationDUnitTest extends JUnit4DistributedTestCase {
 
         @Override
         public boolean done() {
-          Object val = region.get(DESTROY_KEY);
+          var val = region.get(DESTROY_KEY);
           return DESTROY_VALUE.equals(val);
         }
 
@@ -308,12 +307,12 @@ public class OperationsPropagationDUnitTest extends JUnit4DistributedTestCase {
   public static void assertOperationsSucceeded() {
     try {
       // Thread.sleep(5000);
-      WaitCriterion wc = new WaitCriterion() {
+      var wc = new WaitCriterion() {
         String excuse;
 
         @Override
         public boolean done() {
-          Object val = region.get(CREATE_KEY);
+          var val = region.get(CREATE_KEY);
           return CREATE_VALUE.equals(val);
         }
 
@@ -329,7 +328,7 @@ public class OperationsPropagationDUnitTest extends JUnit4DistributedTestCase {
 
         @Override
         public boolean done() {
-          Object val = region.get(UPDATE_KEY);
+          var val = region.get(UPDATE_KEY);
           return UPDATE_VALUE2.equals(val);
         }
 
@@ -361,7 +360,7 @@ public class OperationsPropagationDUnitTest extends JUnit4DistributedTestCase {
 
         @Override
         public boolean done() {
-          Object val = region.get(INVALIDATE_KEY);
+          var val = region.get(INVALIDATE_KEY);
           return val == null;
         }
 
@@ -377,7 +376,7 @@ public class OperationsPropagationDUnitTest extends JUnit4DistributedTestCase {
 
         @Override
         public boolean done() {
-          Object val = region.get(PUTALL_KEY);
+          var val = region.get(PUTALL_KEY);
           return PUTALL_VALUE.equals(val);
         }
 
@@ -393,7 +392,7 @@ public class OperationsPropagationDUnitTest extends JUnit4DistributedTestCase {
 
         @Override
         public boolean done() {
-          Object val = region.get(PUTALL_KEY2);
+          var val = region.get(PUTALL_KEY2);
           return PUTALL_VALUE2.equals(val);
         }
 
@@ -413,12 +412,12 @@ public class OperationsPropagationDUnitTest extends JUnit4DistributedTestCase {
   }
 
   public static void assertRemoveAllSucceeded() {
-    WaitCriterion wc = new WaitCriterion() {
+    var wc = new WaitCriterion() {
       String excuse;
 
       @Override
       public boolean done() {
-        Object val = region.get(PUTALL_KEY);
+        var val = region.get(PUTALL_KEY);
         return !region.containsKey(PUTALL_KEY) && !region.containsKey(PUTALL_KEY2);
       }
 

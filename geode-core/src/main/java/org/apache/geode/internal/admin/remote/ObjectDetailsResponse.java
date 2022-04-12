@@ -19,7 +19,6 @@ package org.apache.geode.internal.admin.remote;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.Set;
 
 import org.apache.geode.DataSerializer;
 import org.apache.geode.GemFireCacheException;
@@ -49,7 +48,7 @@ public class ObjectDetailsResponse extends AdminResponse implements Cancellable 
    */
   public static ObjectDetailsResponse create(DistributionManager dm,
       InternalDistributedMember recipient) {
-    ObjectDetailsResponse m = new ObjectDetailsResponse();
+    var m = new ObjectDetailsResponse();
     m.setRecipient(recipient);
     return m;
   }
@@ -65,8 +64,8 @@ public class ObjectDetailsResponse extends AdminResponse implements Cancellable 
           return;
         }
         // @todo darrel: race condition; could be unloaded between isPresent and get call.
-        Region.Entry e = r.getEntry(objName);
-        Object v = e.getValue();
+        var e = r.getEntry(objName);
+        var v = e.getValue();
         if (cancelled) {
           return;
         }
@@ -147,9 +146,9 @@ public class ObjectDetailsResponse extends AdminResponse implements Cancellable 
         }
       }
       Object obj = null;
-      Set keys = r.keySet();
+      var keys = r.keySet();
       synchronized (r) {
-        for (final Object o : keys) {
+        for (final var o : keys) {
           if (objName.equals(o)) {
             synchronized (ObjectDetailsResponse.class) {
               lastObjectNameFound = o;

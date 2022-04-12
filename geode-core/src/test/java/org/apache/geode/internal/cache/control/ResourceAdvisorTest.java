@@ -27,8 +27,8 @@ public class ResourceAdvisorTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    ResourceAdvisor mockResourceAdvisor = mock(ResourceAdvisor.class);
-    InternalDistributedMember mockInternalDistributedMember = mock(InternalDistributedMember.class);
+    var mockResourceAdvisor = mock(ResourceAdvisor.class);
+    var mockInternalDistributedMember = mock(InternalDistributedMember.class);
     when(mockResourceAdvisor.isHeapCritical(eq((mockInternalDistributedMember)))).thenReturn(true);
     assertThat(mockResourceAdvisor.isHeapCritical(mockInternalDistributedMember)).isTrue();
   }

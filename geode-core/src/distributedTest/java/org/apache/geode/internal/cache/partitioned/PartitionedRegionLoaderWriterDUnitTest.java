@@ -33,7 +33,6 @@ import org.apache.geode.cache.CacheWriter;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.LoaderHelper;
 import org.apache.geode.cache.PartitionAttributesFactory;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.util.CacheWriterAdapter;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.test.dunit.Assert;
@@ -149,14 +148,14 @@ public class PartitionedRegionLoaderWriterDUnitTest extends JUnit4CacheTestCase 
       Integer localMaxMemory) {
     try {
       new PartitionedRegionLoaderWriterDUnitTest().createCache(new Properties());
-      AttributesFactory factory = new AttributesFactory();
+      var factory = new AttributesFactory();
       factory.setCacheLoader(cacheLoader);
       factory.setCacheWriter(cacheWriter);
-      PartitionAttributesFactory paf = new PartitionAttributesFactory();
+      var paf = new PartitionAttributesFactory();
       paf.setLocalMaxMemory(localMaxMemory);
       factory.setDataPolicy(DataPolicy.PARTITION);
       factory.setPartitionAttributes(paf.create());
-      RegionAttributes attrs = factory.create();
+      var attrs = factory.create();
       cache.createRegion(PartitionedRegionName, attrs);
     } catch (Exception e) {
       Assert.fail("Not Expected : ", e);
@@ -165,21 +164,21 @@ public class PartitionedRegionLoaderWriterDUnitTest extends JUnit4CacheTestCase 
 
   public static void createRegionWithPossibleFail(CacheLoader cacheLoader, CacheWriter cacheWriter,
       Integer localMaxMemory) {
-    final PartitionedRegionLoaderWriterDUnitTest test =
+    final var test =
         new PartitionedRegionLoaderWriterDUnitTest();
     test.createCache(new Properties());
     // add expected exception
     cache.getLogger().info("<ExpectedException action=add>"
         + IllegalStateException.class.getName() + "</ExpectedException>");
     try {
-      AttributesFactory factory = new AttributesFactory();
+      var factory = new AttributesFactory();
       factory.setCacheLoader(cacheLoader);
       factory.setCacheWriter(cacheWriter);
-      PartitionAttributesFactory paf = new PartitionAttributesFactory();
+      var paf = new PartitionAttributesFactory();
       paf.setLocalMaxMemory(localMaxMemory);
       factory.setDataPolicy(DataPolicy.PARTITION);
       factory.setPartitionAttributes(paf.create());
-      RegionAttributes attrs = factory.create();
+      var attrs = factory.create();
       cache.createRegion(PartitionedRegionName, attrs);
       fail("Expected Exception ");
     } catch (IllegalStateException e) {

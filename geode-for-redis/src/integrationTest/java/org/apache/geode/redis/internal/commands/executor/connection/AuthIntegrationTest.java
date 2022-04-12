@@ -113,7 +113,7 @@ public class AuthIntegrationTest extends AbstractAuthIntegrationTest {
      * setting this value.
      */
     System.setProperty("io.netty.eventLoopThreads", "1");
-    CacheFactory cf = new CacheFactory();
+    var cf = new CacheFactory();
     cf.set(LOG_LEVEL, "error");
     cf.set(MCAST_PORT, "0");
     cf.set(LOCATORS, "");
@@ -139,7 +139,7 @@ public class AuthIntegrationTest extends AbstractAuthIntegrationTest {
   @Test
   public void testAuthConfig() throws Exception {
     setupCacheWithSecurity(false);
-    InternalDistributedSystem iD = (InternalDistributedSystem) cache.getDistributedSystem();
+    var iD = (InternalDistributedSystem) cache.getDistributedSystem();
     assertThat(iD.getConfig().getRedisUsername()).isEqualTo(getUsername());
   }
 
@@ -202,7 +202,7 @@ public class AuthIntegrationTest extends AbstractAuthIntegrationTest {
     jedis.auth("dataWrite", "dataWrite");
     assertThat(jedis.set("foo", "bar")).isEqualTo("OK");
 
-    try (Jedis jedis2 = new Jedis("localhost", getPort(), REDIS_CLIENT_TIMEOUT)) {
+    try (var jedis2 = new Jedis("localhost", getPort(), REDIS_CLIENT_TIMEOUT)) {
       assertThatThrownBy(() -> jedis2.set("foo", "bar")).hasMessage(ERROR_NOT_AUTHENTICATED);
     }
   }
@@ -244,7 +244,7 @@ public class AuthIntegrationTest extends AbstractAuthIntegrationTest {
 
   @Test
   public void givenSecurity_authCommandPasswordIsNotLoggedAtDebugLevel() throws IOException {
-    File logFile = temporaryFolder.newFile();
+    var logFile = temporaryFolder.newFile();
 
     createRadishServerWithLogFileAndSecurityManager(logFile, "fine", NoOpSecurityManager.class);
 
@@ -255,7 +255,7 @@ public class AuthIntegrationTest extends AbstractAuthIntegrationTest {
 
   @Test
   public void givenSecurity_authCommandPasswordIsNotLoggedOnException() throws IOException {
-    File logFile = temporaryFolder.newFile();
+    var logFile = temporaryFolder.newFile();
 
     createRadishServerWithLogFileAndSecurityManager(logFile, "info",
         ThrowsOnAuthorizeSecurityManager.class);
@@ -283,10 +283,10 @@ public class AuthIntegrationTest extends AbstractAuthIntegrationTest {
   }
 
   private void checkLogFileForPassword(File logFile, String password) throws FileNotFoundException {
-    Scanner scanner = new Scanner(logFile);
-    boolean loggedAUTH = false;
+    var scanner = new Scanner(logFile);
+    var loggedAUTH = false;
     while (scanner.hasNextLine()) {
-      String line = scanner.nextLine();
+      var line = scanner.nextLine();
       assertThat(line)
           .as("Log file should not contain password")
           .doesNotContain(password);

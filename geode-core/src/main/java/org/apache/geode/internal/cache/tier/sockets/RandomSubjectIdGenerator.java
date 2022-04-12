@@ -66,7 +66,7 @@ public class RandomSubjectIdGenerator implements SubjectIdGenerator {
     if (mustStartNewSequence) {
       initializer.accept(random);
     }
-    long id = random.nextLong();
+    var id = random.nextLong();
     if (id == firstIdInCurrentSequence) { // The current sequence is exhausted.
       mustStartNewSequence = true; // Remember to start a new sequence on the next call.
       return OptionalLong.empty(); // Alert the caller that this sequence is exhausted.

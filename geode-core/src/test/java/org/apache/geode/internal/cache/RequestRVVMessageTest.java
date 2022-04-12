@@ -26,7 +26,7 @@ public class RequestRVVMessageTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    RequestRVVMessage mockRequestRVVMessage = mock(RequestRVVMessage.class);
+    var mockRequestRVVMessage = mock(RequestRVVMessage.class);
     when(mockRequestRVVMessage.getProcessorType()).thenReturn(1);
     assertThat(mockRequestRVVMessage.getProcessorType()).isEqualTo(1);
   }

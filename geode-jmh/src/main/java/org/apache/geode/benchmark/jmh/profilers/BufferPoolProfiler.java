@@ -59,8 +59,8 @@ public class BufferPoolProfiler implements InternalProfiler {
   @Override
   public void beforeIteration(final BenchmarkParams benchmarkParams,
       final IterationParams iterationParams) {
-    int i = 0;
-    for (final BufferPoolMXBean pool : pools) {
+    var i = 0;
+    for (final var pool : pools) {
       previousCount[i] = pool.getCount();
       previousMemoryUsed[i] = pool.getMemoryUsed();
       previousTotalCapacity[i] = pool.getTotalCapacity();
@@ -72,13 +72,13 @@ public class BufferPoolProfiler implements InternalProfiler {
   public Collection<? extends Result> afterIteration(final BenchmarkParams benchmarkParams,
       final IterationParams iterationParams,
       final IterationResult result) {
-    final ArrayList<ScalarResult> results = new ArrayList<>(pools.size());
+    final var results = new ArrayList<ScalarResult>(pools.size());
 
-    int i = 0;
-    for (final BufferPoolMXBean pool : pools) {
-      final long count = pool.getCount();
+    var i = 0;
+    for (final var pool : pools) {
+      final var count = pool.getCount();
       if (count != 0) {
-        final String name = pool.getName();
+        final var name = pool.getName();
         results.add(new ScalarResult(name + ".count", count - previousCount[i], "B", AVG));
         results.add(
             new ScalarResult(name + ".memoryUsed", pool.getMemoryUsed() - previousMemoryUsed[i],

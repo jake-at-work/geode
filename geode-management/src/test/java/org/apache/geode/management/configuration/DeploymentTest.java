@@ -27,60 +27,60 @@ public class DeploymentTest {
 
   @Test
   public void remembersDeployedTime() {
-    Deployment deployment = new Deployment("name.jar", "test", "deployedTime");
+    var deployment = new Deployment("name.jar", "test", "deployedTime");
     assertThat(deployment.getDeployedTime()).isEqualTo("deployedTime");
   }
 
   @Test
   public void remembersDeployedBy() {
-    Deployment deployment = new Deployment("name.jar", "deployedBy", "deployedTime");
+    var deployment = new Deployment("name.jar", "deployedBy", "deployedTime");
     assertThat(deployment.getDeployedBy()).isEqualTo("deployedBy");
   }
 
   @Test
   public void remembersJarFileName() {
-    Deployment deployment = new Deployment("jarFileName", "test", "deployedTime");
+    var deployment = new Deployment("jarFileName", "test", "deployedTime");
     deployment.setFileName("jarFileName");
     assertThat(deployment.getFileName()).isEqualTo("jarFileName");
   }
 
   @Test
   public void idSetByJarFileName() {
-    Deployment deployment = new Deployment("jarFileName", "test", "deployedTime");
+    var deployment = new Deployment("jarFileName", "test", "deployedTime");
     assertThat(deployment.getId()).isEqualTo("jarFileName");
   }
 
   @Test
   public void jsonSerializationRoundTrip() throws Exception {
-    Deployment deployment = new Deployment("jarFileName", "deployedBy", "deployedTime");
+    var deployment = new Deployment("jarFileName", "deployedBy", "deployedTime");
     deployment.setGroup("group1");
-    String json = mapper.writeValueAsString(deployment);
-    Deployment newValue = mapper.readValue(json, Deployment.class);
+    var json = mapper.writeValueAsString(deployment);
+    var newValue = mapper.readValue(json, Deployment.class);
     assertThat(newValue).usingRecursiveComparison().isEqualTo(deployment);
   }
 
   @Test
   public void notShowId() throws Exception {
-    Deployment deployment = new Deployment("abc.jar", "test", "deployedTime");
-    String json = mapper.writeValueAsString(deployment);
+    var deployment = new Deployment("abc.jar", "test", "deployedTime");
+    var json = mapper.writeValueAsString(deployment);
     assertThat(json).doesNotContain("id");
   }
 
   @Test
   public void selfLinkUsesJarFileName() {
-    Deployment deployment = new Deployment("jarFileName", "test", "deployedTime");
+    var deployment = new Deployment("jarFileName", "test", "deployedTime");
     assertThat(deployment.getLinks().getSelf()).isEqualTo("/deployments/jarFileName");
   }
 
   @Test
   public void listLinkUsesJarFileName() {
-    Deployment deployment = new Deployment("jarFileName", "test", "deployedTime");
+    var deployment = new Deployment("jarFileName", "test", "deployedTime");
     assertThat(deployment.getLinks().getList()).isEqualTo("/deployments");
   }
 
   @Test
   public void linksHasOnlySelfAndList() {
-    Deployment deployment = new Deployment("jarFileName", "test", "deployedTime");
+    var deployment = new Deployment("jarFileName", "test", "deployedTime");
     assertThat(deployment.getLinks().getLinks()).containsOnlyKeys("self", "list");
   }
 }

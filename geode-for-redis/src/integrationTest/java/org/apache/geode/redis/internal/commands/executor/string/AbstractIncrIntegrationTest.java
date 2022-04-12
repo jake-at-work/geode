@@ -55,12 +55,12 @@ public abstract class AbstractIncrIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void testIncr() {
-    String oneHundredKey = randString();
-    String negativeOneHundredKey = randString();
-    String unsetKey = randString();
+    var oneHundredKey = randString();
+    var negativeOneHundredKey = randString();
+    var unsetKey = randString();
 
-    final int oneHundredValue = 100;
-    final int negativeOneHundredValue = -100;
+    final var oneHundredValue = 100;
+    final var negativeOneHundredValue = -100;
 
     jedis.set(oneHundredKey, Integer.toString(oneHundredValue));
     jedis.set(negativeOneHundredKey, Integer.toString(negativeOneHundredValue));
@@ -77,8 +77,8 @@ public abstract class AbstractIncrIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void testIncr_whenOverflow_shouldReturnError() {
-    String key = "key";
-    String max64BitIntegerValue = "9223372036854775807";
+    var key = "key";
+    var max64BitIntegerValue = "9223372036854775807";
     jedis.set(key, max64BitIntegerValue);
 
     assertThatThrownBy(() -> jedis.incr(key)).hasMessage(ERROR_OVERFLOW);
@@ -87,8 +87,8 @@ public abstract class AbstractIncrIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void testIncr_whenWrongType_shouldReturnError() {
-    String key = "key";
-    String nonIntegerValue = "I am not a number! I am a free man!";
+    var key = "key";
+    var nonIntegerValue = "I am not a number! I am a free man!";
 
     assertThat(jedis.set(key, nonIntegerValue)).isEqualTo("OK");
     assertThatThrownBy(() -> jedis.incr(key)).hasMessage(ERROR_NOT_INTEGER);
@@ -99,7 +99,7 @@ public abstract class AbstractIncrIntegrationTest implements RedisIntegrationTes
   public void testIncr_shouldBeAtomic() {
     jedis.set("contestedKey", "0");
 
-    int ITERATION_COUNT = 4000;
+    var ITERATION_COUNT = 4000;
     new ConcurrentLoopingThreads(ITERATION_COUNT,
         (i) -> jedis.incr("contestedKey"),
         (i) -> jedis.incr("contestedKey"))

@@ -35,9 +35,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import org.apache.geode.management.internal.cli.GfshParseResult;
 import org.apache.geode.management.internal.cli.domain.RegionDescriptionPerMember;
-import org.apache.geode.test.junit.assertions.CommandResultAssert;
 import org.apache.geode.test.junit.rules.GfshParserRule;
 
 public class DescribeRegionJUnitTest {
@@ -60,7 +58,7 @@ public class DescribeRegionJUnitTest {
   private RegionDescriptionPerMember createRegionDescriptionPerMember(String memberName,
       Map<String, String> evictionMap, Map<String, String> partitionMap,
       Map<String, String> regionMap) {
-    RegionDescriptionPerMember descriptionPerMember = mock(RegionDescriptionPerMember.class);
+    var descriptionPerMember = mock(RegionDescriptionPerMember.class);
     when(descriptionPerMember.getNonDefaultEvictionAttributes()).thenReturn(evictionMap);
     when(descriptionPerMember.getNonDefaultPartitionAttributes()).thenReturn(partitionMap);
     when(descriptionPerMember.getNonDefaultRegionAttributes()).thenReturn(regionMap);
@@ -79,7 +77,7 @@ public class DescribeRegionJUnitTest {
 
   @Test
   public void regionPathConverted() throws Exception {
-    GfshParseResult parseResult = gfsh.parse(COMMAND + " --name=test");
+    var parseResult = gfsh.parse(COMMAND + " --name=test");
     assertThat(parseResult.getParamValueAsString("name")).isEqualTo(SEPARATOR + "test");
   }
 
@@ -93,11 +91,11 @@ public class DescribeRegionJUnitTest {
     partitionAttr.put("partKey", "partVal");
     regionAttr.put("regKey", "regVal");
 
-    RegionDescriptionPerMember descriptionPerMember =
+    var descriptionPerMember =
         createRegionDescriptionPerMember("mockA", evictionAttr, partitionAttr, regionAttr);
     functionResults.add(descriptionPerMember);
 
-    CommandResultAssert commandAssert =
+    var commandAssert =
         gfsh.executeAndAssertThat(command, COMMAND + " --name=" + regionName).statusIsSuccess()
             .doesNotContainOutput("Non-Default Attributes Specific To");
 
@@ -122,14 +120,14 @@ public class DescribeRegionJUnitTest {
     partitionAttr.put("partKey", "partVal");
     regionAttr.put("regKey", "regVal");
 
-    RegionDescriptionPerMember descriptionPerMemberA =
+    var descriptionPerMemberA =
         createRegionDescriptionPerMember("mockA", evictionAttr, partitionAttr, regionAttr);
-    RegionDescriptionPerMember descriptionPerMemberB =
+    var descriptionPerMemberB =
         createRegionDescriptionPerMember("mockB", evictionAttr, partitionAttr, regionAttr);
     functionResults.add(descriptionPerMemberA);
     functionResults.add(descriptionPerMemberB);
 
-    CommandResultAssert commandAssert =
+    var commandAssert =
         gfsh.executeAndAssertThat(command, COMMAND + " --name=" + regionName).statusIsSuccess()
             .doesNotContainOutput("Non-Default Attributes Specific To");
 
@@ -164,14 +162,14 @@ public class DescribeRegionJUnitTest {
     partitionAttrB.put("sharedPartitionKey", "uniquePartitionValue_B");
     regionAttrB.put("uniqueRegionKey_B", "uniqueRegionValue_B");
 
-    RegionDescriptionPerMember descriptionPerMemberA =
+    var descriptionPerMemberA =
         createRegionDescriptionPerMember("mockA", evictionAttrA, partitionAttrA, regionAttrA);
-    RegionDescriptionPerMember descriptionPerMemberB =
+    var descriptionPerMemberB =
         createRegionDescriptionPerMember("mockB", evictionAttrB, partitionAttrB, regionAttrB);
     functionResults.add(descriptionPerMemberA);
     functionResults.add(descriptionPerMemberB);
 
-    CommandResultAssert commandAssert =
+    var commandAssert =
         gfsh.executeAndAssertThat(command, COMMAND + " --name=" + regionName).statusIsSuccess();
 
     commandAssert.hasDataSection("region-1").hasContent().containsEntry("Name", "testRegion")
@@ -193,7 +191,7 @@ public class DescribeRegionJUnitTest {
   }
 
   static List<String> extractHostingMembers(Map<String, String> map) {
-    String key = "Hosting Members";
+    var key = "Hosting Members";
     assertThat(map).containsKeys(key);
     return Arrays.asList(map.get(key).split("\n"));
   }

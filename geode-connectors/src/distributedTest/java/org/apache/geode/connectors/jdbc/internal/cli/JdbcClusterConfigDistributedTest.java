@@ -16,12 +16,7 @@ package org.apache.geode.connectors.jdbc.internal.cli;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.List;
-
-import javax.sql.DataSource;
 
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -74,9 +69,9 @@ public class JdbcClusterConfigDistributedTest {
   private void executeSql(String sql) {
     server.invoke(() -> {
       try {
-        DataSource ds = JNDIInvoker.getDataSource("myDataSource");
-        Connection conn = ds.getConnection();
-        Statement sm = conn.createStatement();
+        var ds = JNDIInvoker.getDataSource("myDataSource");
+        var conn = ds.getConnection();
+        var sm = conn.createStatement();
         sm.execute(sql);
         sm.close();
         conn.close();
@@ -134,7 +129,7 @@ public class JdbcClusterConfigDistributedTest {
           .statusIsSuccess();
 
       server.invoke(() -> {
-        JdbcConnectorService service =
+        var service =
             ClusterStartupRule.getCache().getService(JdbcConnectorService.class);
         validateRegionMapping(service.getMappingForRegion("regionName"));
       });
@@ -143,7 +138,7 @@ public class JdbcClusterConfigDistributedTest {
 
       server = cluster.startServerVM(1, locator.getPort());
       server.invoke(() -> {
-        JdbcConnectorService service =
+        var service =
             ClusterStartupRule.getCache().getService(JdbcConnectorService.class);
         validateRegionMapping(service.getMappingForRegion("regionName"));
       });
@@ -158,7 +153,7 @@ public class JdbcClusterConfigDistributedTest {
     assertThat(regionMapping.getDataSourceName()).isEqualTo("myDataSource");
     assertThat(regionMapping.getTableName()).isEqualTo("testTable");
     assertThat(regionMapping.getPdxName()).isEqualTo(IdAndName.class.getName());
-    List<FieldMapping> fieldMappings = regionMapping.getFieldMappings();
+    var fieldMappings = regionMapping.getFieldMappings();
     assertThat(fieldMappings).hasSize(2);
     assertThat(fieldMappings.get(0))
         .isEqualTo(new FieldMapping("myId", "STRING", "MYID", "VARCHAR", false));

@@ -131,7 +131,7 @@ public class FixedPartitionAttributesImpl extends FixedPartitionAttributes
     if (!(obj instanceof FixedPartitionAttributesImpl)) {
       return false;
     }
-    FixedPartitionAttributesImpl spr = (FixedPartitionAttributesImpl) obj;
+    var spr = (FixedPartitionAttributesImpl) obj;
     return spr.getPartitionName().equals(getPartitionName());
   }
 
@@ -140,7 +140,7 @@ public class FixedPartitionAttributesImpl extends FixedPartitionAttributes
   }
 
   public String toString() {
-    StringBuilder s = new StringBuilder();
+    var s = new StringBuilder();
     s.append("FixedPartitionAttributes@").append("[partitionName=").append(partitionName)
         .append(";isPrimary=").append(isPrimary).append(";numBuckets=")
         .append(numBuckets);

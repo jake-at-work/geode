@@ -26,8 +26,6 @@ import org.apache.geode.annotations.VisibleForTesting;
 import org.apache.geode.cache.CacheEvent;
 import org.apache.geode.internal.cache.Conflatable;
 import org.apache.geode.internal.cache.EntryEventImpl;
-import org.apache.geode.internal.cache.FilterProfile;
-import org.apache.geode.internal.cache.FilterRoutingInfo;
 import org.apache.geode.internal.cache.InternalCacheEvent;
 import org.apache.geode.internal.cache.InternalRegion;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -55,14 +53,14 @@ public class ClientRegistrationEventQueueManager {
     if (originalFilterClientIDs.isEmpty()
         && event.getOperation().isEntry()
         && !(clientMessage instanceof ClientTombstoneMessage)) {
-      EntryEventImpl entryEvent = (EntryEventImpl) event;
+      var entryEvent = (EntryEventImpl) event;
       entryEvent.exportNewValue(clientMessage);
     }
 
-    ClientRegistrationEvent clientRegistrationEvent =
+    var clientRegistrationEvent =
         new ClientRegistrationEvent(event, conflatable);
 
-    for (final ClientRegistrationEventQueue registrationEventQueue : registeringProxyEventQueues) {
+    for (final var registrationEventQueue : registeringProxyEventQueues) {
       registrationEventQueue.lockForPutting();
       try {
         // If this is an HAEventWrapper we need to increment the PutInProgress counter so
@@ -73,7 +71,7 @@ public class ClientRegistrationEventQueueManager {
           ((HAEventWrapper) conflatable).incrementPutInProgressCounter("client registration");
         }
 
-        ClientProxyMembershipID clientProxyMembershipID =
+        var clientProxyMembershipID =
             registrationEventQueue.getClientProxyMembershipID();
 
         // After taking out the lock, we need to determine if the client is still actually
@@ -97,7 +95,7 @@ public class ClientRegistrationEventQueueManager {
           // this event and potentially deliver the conflatable to handle the edge case where
           // the original client filter IDs generated in the "normal" put processing path did
           // not include the registering client because the filter info was not yet available.
-          CacheClientProxy cacheClientProxy =
+          var cacheClientProxy =
               cacheClientNotifier.getClientProxy(clientProxyMembershipID);
 
           processEventAndDeliverConflatable(cacheClientProxy, cacheClientNotifier, event,
@@ -112,7 +110,7 @@ public class ClientRegistrationEventQueueManager {
   void drain(final ClientRegistrationEventQueue clientRegistrationEventQueue,
       final CacheClientNotifier cacheClientNotifier) {
     try {
-      ClientProxyMembershipID clientProxyMembershipID =
+      var clientProxyMembershipID =
           clientRegistrationEventQueue.getClientProxyMembershipID();
 
       if (logger.isDebugEnabled()) {
@@ -121,7 +119,7 @@ public class ClientRegistrationEventQueueManager {
             + " without synchronization");
       }
 
-      CacheClientProxy cacheClientProxy =
+      var cacheClientProxy =
           cacheClientNotifier.getClientProxy(clientProxyMembershipID);
 
       drainEventsReceivedWhileRegisteringClient(cacheClientProxy, clientRegistrationEventQueue,
@@ -153,7 +151,7 @@ public class ClientRegistrationEventQueueManager {
       final ClientProxyMembershipID clientProxyMembershipID,
       final Queue<ClientRegistrationEvent> eventQueue,
       final ReentrantReadWriteLock eventAddDrainLock) {
-    final ClientRegistrationEventQueue clientRegistrationEventQueue =
+    final var clientRegistrationEventQueue =
         new ClientRegistrationEventQueue(clientProxyMembershipID, eventQueue,
             eventAddDrainLock);
     registeringProxyEventQueues.add(clientRegistrationEventQueue);
@@ -176,30 +174,30 @@ public class ClientRegistrationEventQueueManager {
         // in the key for this event. We need to get the filter profile, filter routing info,
         // and local filter info in order to do so. If any of these are null, then there is
         // no need to proceed as the client is not interested.
-        FilterProfile filterProfile =
+        var filterProfile =
             ((InternalRegion) internalCacheEvent.getRegion()).getFilterProfile();
 
         if (filterProfile != null) {
-          FilterRoutingInfo filterRoutingInfo =
+          var filterRoutingInfo =
               filterProfile.getFilterRoutingInfoPart2(null, internalCacheEvent);
 
           if (filterRoutingInfo != null) {
-            FilterRoutingInfo.FilterInfo filterInfo = filterRoutingInfo.getLocalFilterInfo();
+            var filterInfo = filterRoutingInfo.getLocalFilterInfo();
 
             if (filterInfo != null) {
-              ClientUpdateMessageImpl clientUpdateMessage = conflatable instanceof HAEventWrapper
+              var clientUpdateMessage = conflatable instanceof HAEventWrapper
                   ? (ClientUpdateMessageImpl) ((HAEventWrapper) conflatable)
                       .getClientUpdateMessage()
                   : (ClientUpdateMessageImpl) conflatable;
 
               internalCacheEvent.setLocalFilterInfo(filterInfo);
 
-              Set<ClientProxyMembershipID> newFilterClientIDs =
+              var newFilterClientIDs =
                   cacheClientNotifier.getFilterClientIDs(internalCacheEvent, filterProfile,
                       filterInfo,
                       clientUpdateMessage);
 
-              ClientProxyMembershipID proxyID = cacheClientProxy.getProxyID();
+              var proxyID = cacheClientProxy.getProxyID();
               if (eventNotInOriginalFilterClientIDs(proxyID, newFilterClientIDs,
                   originalFilterClientIDs) && newFilterClientIDs.contains(proxyID)) {
                 cacheClientProxy.deliverMessage(conflatable);
@@ -241,7 +239,7 @@ public class ClientRegistrationEventQueueManager {
    */
   private void copyOffHeapToHeapForRegistrationQueue(final CacheEvent event) {
     if (event.getOperation().isEntry()) {
-      EntryEventImpl entryEvent = ((EntryEventImpl) event);
+      var entryEvent = ((EntryEventImpl) event);
       entryEvent.copyOffHeapToHeap();
     }
   }
@@ -252,8 +250,8 @@ public class ClientRegistrationEventQueueManager {
       final CacheClientNotifier cacheClientNotifier) {
     ClientRegistrationEvent queuedEvent;
     while ((queuedEvent = registrationEventQueue.poll()) != null) {
-      InternalCacheEvent internalCacheEvent = queuedEvent.internalCacheEvent;
-      Conflatable conflatable = queuedEvent.conflatable;
+      var internalCacheEvent = queuedEvent.internalCacheEvent;
+      var conflatable = queuedEvent.conflatable;
       processEventAndDeliverConflatable(cacheClientProxy, cacheClientNotifier, internalCacheEvent,
           conflatable, null);
     }

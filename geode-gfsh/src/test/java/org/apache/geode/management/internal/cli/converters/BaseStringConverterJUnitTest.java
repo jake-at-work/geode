@@ -27,7 +27,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import org.apache.geode.test.junit.rules.GfshParserRule;
-import org.apache.geode.test.junit.rules.GfshParserRule.CommandCandidate;
 import org.apache.geode.test.junit.runners.CategoryWithParameterizedRunnerFactory;
 
 @RunWith(Parameterized.class)
@@ -72,7 +71,7 @@ public class BaseStringConverterJUnitTest {
 
   @Test
   public void complete() throws Exception {
-    CommandCandidate candidate = parser.complete(gfshCommand);
+    var candidate = parser.complete(gfshCommand);
     assertThat(candidate.size()).isEqualTo(allMemberNames.length);
     assertThat(candidate.getFirstCandidate()).isEqualTo(gfshCommand + allMemberNames[0]);
   }

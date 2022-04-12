@@ -18,7 +18,6 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -29,20 +28,16 @@ import org.apache.logging.log4j.Logger;
 import org.apache.geode.CancelException;
 import org.apache.geode.DataSerializer;
 import org.apache.geode.annotations.Immutable;
-import org.apache.geode.cache.asyncqueue.AsyncEventListener;
 import org.apache.geode.cache.util.Gateway;
 import org.apache.geode.cache.wan.GatewaySender.OrderPolicy;
-import org.apache.geode.cache.wan.GatewayTransportFilter;
 import org.apache.geode.distributed.DistributedLockService;
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
 import org.apache.geode.distributed.internal.DistributionAdvisee;
 import org.apache.geode.distributed.internal.DistributionAdvisor;
-import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.ServerLocation;
 import org.apache.geode.distributed.internal.locks.DLockService;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.InternalDataSerializer;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.UpdateAttributesProcessor;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.KnownVersion;
@@ -73,7 +68,7 @@ public class GatewaySenderAdvisor extends DistributionAdvisor {
   }
 
   public static GatewaySenderAdvisor createGatewaySenderAdvisor(DistributionAdvisee sender) {
-    GatewaySenderAdvisor advisor = new GatewaySenderAdvisor(sender);
+    var advisor = new GatewaySenderAdvisor(sender);
     advisor.initialize();
     return advisor;
   }
@@ -100,7 +95,7 @@ public class GatewaySenderAdvisor extends DistributionAdvisor {
   @Override
   public void profileCreated(Profile profile) {
     if (profile instanceof GatewaySenderProfile) {
-      GatewaySenderProfile sp = (GatewaySenderProfile) profile;
+      var sp = (GatewaySenderProfile) profile;
       checkCompatibility(sp);
     }
   }
@@ -163,7 +158,7 @@ public class GatewaySenderAdvisor extends DistributionAdvisor {
     }
 
     List<String> senderEventFilterClassNames = new ArrayList<>();
-    for (org.apache.geode.cache.wan.GatewayEventFilter filter : sender.getGatewayEventFilters()) {
+    for (var filter : sender.getGatewayEventFilters()) {
       senderEventFilterClassNames.add(filter.getClass().getName());
     }
     if (sp.eventFiltersClassNames.size() != senderEventFilterClassNames.size()) {
@@ -172,7 +167,7 @@ public class GatewaySenderAdvisor extends DistributionAdvisor {
               "Cannot create Gateway Sender %s with GatewayEventFilters %s because another cache has the same Gateway Sender defined with GatewayEventFilters %s",
               sp.Id, sp.eventFiltersClassNames, senderEventFilterClassNames));
     } else {
-      for (String filterName : senderEventFilterClassNames) {
+      for (var filterName : senderEventFilterClassNames) {
         if (!sp.eventFiltersClassNames.contains(filterName)) {
           throw new IllegalStateException(
               String.format(
@@ -183,7 +178,7 @@ public class GatewaySenderAdvisor extends DistributionAdvisor {
     }
 
     Set<String> senderTransportFilterClassNames = new LinkedHashSet<>();
-    for (GatewayTransportFilter filter : sender.getGatewayTransportFilters()) {
+    for (var filter : sender.getGatewayTransportFilters()) {
       senderTransportFilterClassNames.add(filter.getClass().getName());
     }
     if (sp.transFiltersClassNames.size() != senderTransportFilterClassNames.size()) {
@@ -192,8 +187,8 @@ public class GatewaySenderAdvisor extends DistributionAdvisor {
               "Cannot create Gateway Sender %s with GatewayTransportFilters %s because another cache has the same Gateway Sender defined with GatewayTransportFilters %s",
               sp.Id, sp.transFiltersClassNames, senderTransportFilterClassNames));
     } else {
-      Iterator<String> i1 = sp.transFiltersClassNames.iterator();
-      Iterator<String> i2 = senderTransportFilterClassNames.iterator();
+      var i1 = sp.transFiltersClassNames.iterator();
+      var i2 = senderTransportFilterClassNames.iterator();
       while (i1.hasNext() && i2.hasNext()) {
         if (!i1.next().equals(i2.next())) {
           throw new IllegalStateException(
@@ -205,7 +200,7 @@ public class GatewaySenderAdvisor extends DistributionAdvisor {
       }
     }
     List<String> senderEventListenerClassNames = new ArrayList<>();
-    for (AsyncEventListener listener : sender.getAsyncEventListeners()) {
+    for (var listener : sender.getAsyncEventListeners()) {
       senderEventListenerClassNames.add(listener.getClass().getName());
     }
     if (sp.senderEventListenerClassNames.size() != senderEventListenerClassNames.size()) {
@@ -215,7 +210,7 @@ public class GatewaySenderAdvisor extends DistributionAdvisor {
               sp.Id, sp.senderEventListenerClassNames,
               senderEventListenerClassNames));
     } else {
-      for (String listenerName : senderEventListenerClassNames) {
+      for (var listenerName : senderEventListenerClassNames) {
         if (!sp.senderEventListenerClassNames.contains(listenerName)) {
           throw new IllegalStateException(
               String.format(
@@ -251,7 +246,7 @@ public class GatewaySenderAdvisor extends DistributionAdvisor {
   @Override
   public void profileUpdated(Profile profile) {
     if (profile instanceof GatewaySenderProfile) {
-      GatewaySenderProfile sp = (GatewaySenderProfile) profile;
+      var sp = (GatewaySenderProfile) profile;
       if (!sp.isParallel) { // SerialGatewaySender
         if (!sp.isRunning) {
           if (advisePrimaryGatewaySender() != null) {
@@ -286,7 +281,7 @@ public class GatewaySenderAdvisor extends DistributionAdvisor {
   @Override
   protected void profileRemoved(Profile profile) {
     if (profile instanceof GatewaySenderProfile) {
-      GatewaySenderProfile sp = (GatewaySenderProfile) profile;
+      var sp = (GatewaySenderProfile) profile;
       if (!sp.isParallel) {// SerialGatewaySender
         // if there is a primary sender, then don't volunteer for primary
         if (advisePrimaryGatewaySender() != null) {
@@ -312,8 +307,8 @@ public class GatewaySenderAdvisor extends DistributionAdvisor {
   }
 
   public void initDLockService() {
-    InternalDistributedSystem ds = sender.getCache().getInternalDistributedSystem();
-    String dlsName = getDLockServiceName();
+    var ds = sender.getCache().getInternalDistributedSystem();
+    var dlsName = getDLockServiceName();
     lockService = DistributedLockService.getServiceNamed(dlsName);
     if (lockService == null) {
       lockService = DLockService.create(dlsName, ds, true, true);
@@ -355,13 +350,13 @@ public class GatewaySenderAdvisor extends DistributionAdvisor {
    * @return boolean true if this eldest sender; false otherwise
    */
   private boolean adviseEldestGatewaySender() {
-    Profile[] snapshot = profiles;
+    var snapshot = profiles;
 
     // sender with minimum startTime is eldest. Find out the minimum start time
     // of remote senders.
-    TreeSet<Long> senderStartTimes = new TreeSet<>();
-    for (Profile profile : snapshot) {
-      GatewaySenderProfile sp = (GatewaySenderProfile) profile;
+    var senderStartTimes = new TreeSet<Long>();
+    for (var profile : snapshot) {
+      var sp = (GatewaySenderProfile) profile;
       if (!sp.isParallel && sp.isRunning) {
         senderStartTimes.add(sp.startTime);
       }
@@ -378,7 +373,7 @@ public class GatewaySenderAdvisor extends DistributionAdvisor {
 
   public void makePrimary() {
     logger.info("{} : Starting as primary", sender);
-    AbstractGatewaySenderEventProcessor eventProcessor = sender.getEventProcessor();
+    var eventProcessor = sender.getEventProcessor();
     if (eventProcessor != null) {
       eventProcessor.removeCacheListener();
     }
@@ -416,7 +411,7 @@ public class GatewaySenderAdvisor extends DistributionAdvisor {
   }
 
   public void launchLockObtainingVolunteerThread() {
-    String threadName = "Gateway Sender Primary Lock Acquisition Thread Volunteer";
+    var threadName = "Gateway Sender Primary Lock Acquisition Thread Volunteer";
     lockObtainingThread = new LoggingThread(threadName, () -> {
       sender.getLifeCycleLock().readLock().lock();
       try {
@@ -562,7 +557,7 @@ public class GatewaySenderAdvisor extends DistributionAdvisor {
       } else {
         orderPolicy = DataSerializer.readObject(in);
       }
-      boolean serverLocationFound = DataSerializer.readPrimitiveBoolean(in);
+      var serverLocationFound = DataSerializer.readPrimitiveBoolean(in);
       if (serverLocationFound) {
         serverLocation = new ServerLocation();
         InternalDataSerializer.invokeFromData(serverLocation, in);
@@ -596,7 +591,7 @@ public class GatewaySenderAdvisor extends DistributionAdvisor {
       out.writeInt(dispatcherThreads);
       if (StaticSerialization.getVersionForDataStream(out).isOlderThan(KnownVersion.GFE_90)
           && orderPolicy != null) {
-        String orderPolicyName = orderPolicy.name();
+        var orderPolicyName = orderPolicy.name();
         if (orderPolicyName.equals(Gateway.OrderPolicy.KEY.name())) {
           DataSerializer.writeObject(Gateway.OrderPolicy.KEY, out);
         } else if (orderPolicyName.equals(Gateway.OrderPolicy.THREAD.name())) {
@@ -607,7 +602,7 @@ public class GatewaySenderAdvisor extends DistributionAdvisor {
       } else {
         DataSerializer.writeObject(orderPolicy, out);
       }
-      boolean serverLocationFound = (serverLocation != null);
+      var serverLocationFound = (serverLocation != null);
       DataSerializer.writePrimitiveBoolean(serverLocationFound, out);
       if (serverLocationFound) {
         InternalDataSerializer.invokeToData(serverLocation, out);
@@ -631,9 +626,9 @@ public class GatewaySenderAdvisor extends DistributionAdvisor {
     @Override
     public void processIncoming(ClusterDistributionManager dm, String adviseePath,
         boolean removeProfile, boolean exchangeProfiles, final List<Profile> replyProfiles) {
-      InternalCache cache = dm.getCache();
+      var cache = dm.getCache();
       if (cache != null) {
-        AbstractGatewaySender sender = (AbstractGatewaySender) cache.getGatewaySender(adviseePath);
+        var sender = (AbstractGatewaySender) cache.getGatewaySender(adviseePath);
         handleDistributionAdvisee(sender, removeProfile, exchangeProfiles, replyProfiles);
       }
     }
@@ -649,9 +644,9 @@ public class GatewaySenderAdvisor extends DistributionAdvisor {
   }
 
   public InternalDistributedMember advisePrimaryGatewaySender() {
-    Profile[] snapshot = profiles;
-    for (Profile profile : snapshot) {
-      GatewaySenderProfile sp = (GatewaySenderProfile) profile;
+    var snapshot = profiles;
+    for (var profile : snapshot) {
+      var sp = (GatewaySenderProfile) profile;
       if (!sp.isParallel && sp.isPrimary) {
         return sp.getDistributedMember();
       }

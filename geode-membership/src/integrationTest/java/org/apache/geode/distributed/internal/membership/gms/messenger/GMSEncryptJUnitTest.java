@@ -55,7 +55,7 @@ public class GMSEncryptJUnitTest {
   }
 
   private void initMocks(String algo) throws Exception {
-    MembershipConfig membershipConfig = new MembershipConfig() {
+    var membershipConfig = new MembershipConfig() {
       @Override
       public String getSecurityUDPDHAlgo() {
         return algo;
@@ -66,10 +66,10 @@ public class GMSEncryptJUnitTest {
     when(services.getConfig()).thenReturn(membershipConfig);
 
     mockMembers = new MemberIdentifier[4];
-    for (int i = 0; i < mockMembers.length; i++) {
+    for (var i = 0; i < mockMembers.length; i++) {
       mockMembers[i] = createMemberID(8888 + i);
     }
-    int viewId = 1;
+    var viewId = 1;
     List<MemberIdentifier> mbrs = new LinkedList<>();
     mbrs.add(mockMembers[0]);
     mbrs.add(mockMembers[1]);
@@ -84,11 +84,11 @@ public class GMSEncryptJUnitTest {
 
   @Test
   public void testOneMemberCanDecryptAnothersMessage() throws Exception {
-    for (String algo : algos) {
+    for (var algo : algos) {
       initMocks(algo);
 
-      GMSEncrypt sender = new GMSEncrypt(services, algo);
-      GMSEncrypt receiver = new GMSEncrypt(services, algo);
+      var sender = new GMSEncrypt(services, algo);
+      var receiver = new GMSEncrypt(services, algo);
 
       // establish the public keys for the sender and receiver
       netView.setPublicKey(mockMembers[1], sender.getPublicKeyBytes());
@@ -98,20 +98,20 @@ public class GMSEncryptJUnitTest {
       receiver.overrideInstallViewForTest(netView);
 
       // sender encrypts a message, so use receiver's public key
-      String ch = "Hello world";
-      byte[] challenge = ch.getBytes();
-      byte[] encryptedChallenge = sender.encryptData(challenge, mockMembers[2]);
+      var ch = "Hello world";
+      var challenge = ch.getBytes();
+      var encryptedChallenge = sender.encryptData(challenge, mockMembers[2]);
 
       // receiver decrypts the message using the sender's public key
-      byte[] decryptBytes = receiver.decryptData(encryptedChallenge, mockMembers[1]);
+      var decryptBytes = receiver.decryptData(encryptedChallenge, mockMembers[1]);
 
       // now send a response
-      String response = "Hello yourself!";
-      byte[] responseBytes = response.getBytes();
-      byte[] encryptedResponse = receiver.encryptData(responseBytes, mockMembers[1]);
+      var response = "Hello yourself!";
+      var responseBytes = response.getBytes();
+      var encryptedResponse = receiver.encryptData(responseBytes, mockMembers[1]);
 
       // receiver decodes the response
-      byte[] decryptedResponse = sender.decryptData(encryptedResponse, mockMembers[2]);
+      var decryptedResponse = sender.decryptData(encryptedResponse, mockMembers[2]);
 
       Assert.assertFalse(Arrays.equals(challenge, encryptedChallenge));
 
@@ -127,9 +127,9 @@ public class GMSEncryptJUnitTest {
   @Test
   public void testOneMemberCanDecryptAnothersMessageMultithreaded() throws Exception {
     initMocks();
-    final int runs = 100000;
-    final GMSEncrypt sender = new GMSEncrypt(services, DEFAULT_ALGO);
-    final GMSEncrypt receiver = new GMSEncrypt(services, DEFAULT_ALGO);
+    final var runs = 100000;
+    final var sender = new GMSEncrypt(services, DEFAULT_ALGO);
+    final var receiver = new GMSEncrypt(services, DEFAULT_ALGO);
 
     // establish the public keys for the sender and receiver
     netView.setPublicKey(mockMembers[1], sender.getPublicKeyBytes());
@@ -138,22 +138,22 @@ public class GMSEncryptJUnitTest {
     sender.overrideInstallViewForTest(netView);
     receiver.overrideInstallViewForTest(netView);
 
-    for (int j = 0; j < THREAD_COUNT; j++) {
-      Callable<Object> callable = () -> {
-        String ch = "Hello world";
-        byte[] challenge = ch.getBytes();
-        byte[] encryptedChallenge = sender.encryptData(challenge, mockMembers[2]);
+    for (var j = 0; j < THREAD_COUNT; j++) {
+      var callable = (Callable<Object>) () -> {
+        var ch = "Hello world";
+        var challenge = ch.getBytes();
+        var encryptedChallenge = sender.encryptData(challenge, mockMembers[2]);
 
         // receiver decrypts the message using the sender's public key
-        byte[] decryptBytes = receiver.decryptData(encryptedChallenge, mockMembers[1]);
+        var decryptBytes = receiver.decryptData(encryptedChallenge, mockMembers[1]);
 
         // now send a response
-        String response = "Hello yourself!";
-        byte[] responseBytes = response.getBytes();
-        byte[] encryptedResponse = receiver.encryptData(responseBytes, mockMembers[1]);
+        var response = "Hello yourself!";
+        var responseBytes = response.getBytes();
+        var encryptedResponse = receiver.encryptData(responseBytes, mockMembers[1]);
 
         // receiver decodes the response
-        byte[] decryptedResponse = sender.decryptData(encryptedResponse, mockMembers[2]);
+        var decryptedResponse = sender.decryptData(encryptedResponse, mockMembers[2]);
 
         Assert.assertFalse(Arrays.equals(challenge, encryptedChallenge));
 
@@ -176,8 +176,8 @@ public class GMSEncryptJUnitTest {
   public void testPublicKeyPrivateKeyFromSameMember() throws Exception {
     initMocks();
 
-    GMSEncrypt sender = new GMSEncrypt(services, DEFAULT_ALGO);
-    GMSEncrypt receiver = new GMSEncrypt(services, DEFAULT_ALGO);
+    var sender = new GMSEncrypt(services, DEFAULT_ALGO);
+    var receiver = new GMSEncrypt(services, DEFAULT_ALGO);
 
     // establish the public keys for the sender and receiver
     netView.setPublicKey(mockMembers[1], sender.getPublicKeyBytes());
@@ -187,20 +187,20 @@ public class GMSEncryptJUnitTest {
     receiver.overrideInstallViewForTest(netView);
 
     // sender encrypts a message, so use receiver's public key
-    String ch = "Hello world";
-    byte[] challenge = ch.getBytes();
-    byte[] encryptedChallenge = sender.encryptData(challenge, mockMembers[2]);
+    var ch = "Hello world";
+    var challenge = ch.getBytes();
+    var encryptedChallenge = sender.encryptData(challenge, mockMembers[2]);
 
     // receiver decrypts the message using the sender's public key
-    byte[] decryptBytes = receiver.decryptData(encryptedChallenge, mockMembers[1]);
+    var decryptBytes = receiver.decryptData(encryptedChallenge, mockMembers[1]);
 
     // now send a response
-    String response = "Hello yourself!";
-    byte[] responseBytes = response.getBytes();
-    byte[] encryptedResponse = receiver.encryptData(responseBytes, mockMembers[1]);
+    var response = "Hello yourself!";
+    var responseBytes = response.getBytes();
+    var encryptedResponse = receiver.encryptData(responseBytes, mockMembers[1]);
 
     // receiver decodes the response
-    byte[] decryptedResponse = sender.decryptData(encryptedResponse, mockMembers[2]);
+    var decryptedResponse = sender.decryptData(encryptedResponse, mockMembers[2]);
 
     Assert.assertFalse(Arrays.equals(challenge, encryptedChallenge));
 
@@ -216,7 +216,7 @@ public class GMSEncryptJUnitTest {
   public void testForClusterSecretKey() throws Exception {
     initMocks();
 
-    GMSEncrypt sender = new GMSEncrypt(services, DEFAULT_ALGO);
+    var sender = new GMSEncrypt(services, DEFAULT_ALGO);
     sender.initClusterSecretKey();
     // establish the public keys for the sender and receiver
     netView.setPublicKey(mockMembers[1], sender.getPublicKeyBytes());
@@ -224,12 +224,12 @@ public class GMSEncryptJUnitTest {
     sender.overrideInstallViewForTest(netView);
 
     // sender encrypts a message, so use receiver's public key
-    String ch = "Hello world";
-    byte[] challenge = ch.getBytes();
-    byte[] encryptedChallenge = sender.encryptData(challenge);
+    var ch = "Hello world";
+    var challenge = ch.getBytes();
+    var encryptedChallenge = sender.encryptData(challenge);
 
     // receiver decrypts the message using the sender's public key
-    byte[] decryptBytes = sender.decryptData(encryptedChallenge);
+    var decryptBytes = sender.decryptData(encryptedChallenge);
 
     Assert.assertFalse(Arrays.equals(challenge, encryptedChallenge));
 
@@ -238,12 +238,12 @@ public class GMSEncryptJUnitTest {
 
   @Test
   public void testForClusterSecretKeyFromOtherMember() throws Exception {
-    for (String algo : algos) {
+    for (var algo : algos) {
       initMocks(algo);
 
-      final GMSEncrypt sender = new GMSEncrypt(services, algo);
+      final var sender = new GMSEncrypt(services, algo);
       sender.initClusterSecretKey();
-      final GMSEncrypt receiver = new GMSEncrypt(services, algo);
+      final var receiver = new GMSEncrypt(services, algo);
 
       // establish the public keys for the sender and receiver
       netView.setPublicKey(mockMembers[1], sender.getPublicKeyBytes());
@@ -251,26 +251,26 @@ public class GMSEncryptJUnitTest {
 
       sender.overrideInstallViewForTest(netView);
 
-      byte[] secretBytes = sender.getClusterSecretKey();
+      var secretBytes = sender.getClusterSecretKey();
       receiver.setClusterKey(secretBytes);
 
       receiver.overrideInstallViewForTest(netView);
 
       // sender encrypts a message, so use receiver's public key
-      String ch = "Hello world";
-      byte[] challenge = ch.getBytes();
-      byte[] encryptedChallenge = sender.encryptData(challenge);
+      var ch = "Hello world";
+      var challenge = ch.getBytes();
+      var encryptedChallenge = sender.encryptData(challenge);
 
       // receiver decrypts the message using the sender's public key
-      byte[] decryptBytes = receiver.decryptData(encryptedChallenge);
+      var decryptBytes = receiver.decryptData(encryptedChallenge);
 
       // now send a response
-      String response = "Hello yourself!";
-      byte[] responseBytes = response.getBytes();
-      byte[] encryptedResponse = receiver.encryptData(responseBytes);
+      var response = "Hello yourself!";
+      var responseBytes = response.getBytes();
+      var encryptedResponse = receiver.encryptData(responseBytes);
 
       // receiver decodes the response
-      byte[] decryptedResponse = sender.decryptData(encryptedResponse);
+      var decryptedResponse = sender.decryptData(encryptedResponse);
 
       Assert.assertFalse(Arrays.equals(challenge, encryptedChallenge));
 
@@ -286,10 +286,10 @@ public class GMSEncryptJUnitTest {
   public void testForClusterSecretKeyFromOtherMemberMultipleThreads() throws Exception {
     initMocks();
 
-    final GMSEncrypt sender = new GMSEncrypt(services, DEFAULT_ALGO);
+    final var sender = new GMSEncrypt(services, DEFAULT_ALGO);
     Thread.sleep(100);
     sender.initClusterSecretKey();
-    final GMSEncrypt receiver = new GMSEncrypt(services, DEFAULT_ALGO);
+    final var receiver = new GMSEncrypt(services, DEFAULT_ALGO);
 
     // establish the public keys for the sender and receiver
     netView.setPublicKey(mockMembers[1], sender.getPublicKeyBytes());
@@ -297,31 +297,31 @@ public class GMSEncryptJUnitTest {
 
     sender.overrideInstallViewForTest(netView);
 
-    byte[] secretBytes = sender.getClusterSecretKey();
+    var secretBytes = sender.getClusterSecretKey();
     receiver.setClusterKey(secretBytes);
 
     receiver.overrideInstallViewForTest(netView);
 
-    final int runs = 100000;
+    final var runs = 100000;
 
-    for (int j = 0; j < THREAD_COUNT; j++) {
-      Callable<Void> callable = () -> {
+    for (var j = 0; j < THREAD_COUNT; j++) {
+      var callable = (Callable<Void>) () -> {
         // sender encrypts a message, so use receiver's public key
 
-        String ch = "Hello world";
-        byte[] challenge = ch.getBytes();
-        byte[] encryptedChallenge = sender.encryptData(challenge);
+        var ch = "Hello world";
+        var challenge = ch.getBytes();
+        var encryptedChallenge = sender.encryptData(challenge);
 
         // receiver decrypts the message using the sender's public key
-        byte[] decryptBytes = receiver.decryptData(encryptedChallenge);
+        var decryptBytes = receiver.decryptData(encryptedChallenge);
 
         // now send a response
-        String response = "Hello yourself!";
-        byte[] responseBytes = response.getBytes();
-        byte[] encryptedResponse = receiver.encryptData(responseBytes);
+        var response = "Hello yourself!";
+        var responseBytes = response.getBytes();
+        var encryptedResponse = receiver.encryptData(responseBytes);
 
         // receiver decodes the response
-        byte[] decryptedResponse = sender.decryptData(encryptedResponse);
+        var decryptedResponse = sender.decryptData(encryptedResponse);
 
         Assert.assertFalse(Arrays.equals(challenge, encryptedChallenge));
 

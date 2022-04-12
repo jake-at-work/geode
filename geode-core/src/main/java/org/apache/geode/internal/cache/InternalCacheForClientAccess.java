@@ -126,7 +126,7 @@ public class InternalCacheForClientAccess implements InternalCache {
     if (r == null) {
       return;
     }
-    InternalRegion ir = (InternalRegion) r;
+    var ir = (InternalRegion) r;
     if (ir.isInternalRegion()
         && !r.getName().equals(DynamicRegionFactory.DYNAMIC_REGION_LIST_NAME)
         && !r.getName().equals(ClientHealthMonitoringRegion.ADMIN_REGION_NAME)) {
@@ -137,7 +137,7 @@ public class InternalCacheForClientAccess implements InternalCache {
 
   @SuppressWarnings("unchecked")
   private void checkSetOfRegions(Set regions) {
-    for (Region r : (Set<Region>) regions) {
+    for (var r : (Set<Region>) regions) {
       checkForInternalRegion(r);
     }
   }
@@ -167,63 +167,63 @@ public class InternalCacheForClientAccess implements InternalCache {
 
   @Override
   public InternalRegion getReinitializingRegion(String fullPath) {
-    InternalRegion result = delegate.getReinitializingRegion(fullPath);
+    var result = delegate.getReinitializingRegion(fullPath);
     checkForInternalRegion(result);
     return result;
   }
 
   @Override
   public <K, V> Region<K, V> getRegionByPath(String path) {
-    InternalRegion result = delegate.getInternalRegionByPath(path);
+    var result = delegate.getInternalRegionByPath(path);
     checkForInternalRegion(result);
     return uncheckedCast(result);
   }
 
   @Override
   public InternalRegion getInternalRegionByPath(String path) {
-    InternalRegion result = delegate.getInternalRegionByPath(path);
+    var result = delegate.getInternalRegionByPath(path);
     checkForInternalRegion(result);
     return result;
   }
 
   @Override
   public InternalRegion getRegionByPathForProcessing(String path) {
-    InternalRegion result = delegate.getRegionByPathForProcessing(path);
+    var result = delegate.getRegionByPathForProcessing(path);
     checkForInternalRegion(result);
     return result;
   }
 
   @Override
   public DistributedRegion getRegionInDestroy(String path) {
-    DistributedRegion result = delegate.getRegionInDestroy(path);
+    var result = delegate.getRegionInDestroy(path);
     checkForInternalRegion(result);
     return result;
   }
 
   @Override
   public Set<PartitionedRegion> getPartitionedRegions() {
-    Set<PartitionedRegion> result = delegate.getPartitionedRegions();
+    var result = delegate.getPartitionedRegions();
     checkSetOfRegions(result);
     return result;
   }
 
   @Override
   public Set<Region<?, ?>> rootRegions() {
-    Set<Region<?, ?>> result = delegate.rootRegions();
+    var result = delegate.rootRegions();
     checkSetOfRegions(result);
     return result;
   }
 
   @Override
   public Set<Region<?, ?>> rootRegions(boolean includePRAdminRegions) {
-    Set<Region<?, ?>> result = delegate.rootRegions(includePRAdminRegions);
+    var result = delegate.rootRegions(includePRAdminRegions);
     checkSetOfRegions(result);
     return result;
   }
 
   @Override
   public Set<InternalRegion> getAllRegions() {
-    Set<InternalRegion> result = delegate.getAllRegions();
+    var result = delegate.getAllRegions();
     checkSetOfRegions(result);
     return result;
   }
@@ -257,7 +257,7 @@ public class InternalCacheForClientAccess implements InternalCache {
 
   @Override
   public Cache getReconnectedCache() {
-    Cache reconnectedCache = delegate.getReconnectedCache();
+    var reconnectedCache = delegate.getReconnectedCache();
     if (reconnectedCache != null) {
       return new InternalCacheForClientAccess((InternalCache) reconnectedCache);
     }
@@ -266,7 +266,7 @@ public class InternalCacheForClientAccess implements InternalCache {
 
   @Override
   public FilterProfile getFilterProfile(String regionName) {
-    InternalRegion r = (InternalRegion) getRegion(regionName, true);
+    var r = (InternalRegion) getRegion(regionName, true);
     if (r != null) {
       return r.getFilterProfile();
     }

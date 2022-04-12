@@ -47,14 +47,14 @@ public class RequestFilterInfoMessageTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    RequestFilterInfoMessage mockRequestFilterInfoMessage = mock(RequestFilterInfoMessage.class);
+    var mockRequestFilterInfoMessage = mock(RequestFilterInfoMessage.class);
     when(mockRequestFilterInfoMessage.getProcessorType()).thenReturn(1);
     assertThat(mockRequestFilterInfoMessage.getProcessorType()).isEqualTo(1);
   }
 
   @Test
   public void getsRegionFromCacheFromDM() {
-    RequestFilterInfoMessage message = new RequestFilterInfoMessage();
+    var message = new RequestFilterInfoMessage();
     message.regionPath = path;
     message.process(dm);
     verify(dm, times(1)).getCache();

@@ -82,9 +82,9 @@ public class RemoteContainsKeyValueMessage extends RemoteOperationMessageWithDir
       LocalRegion r, Object key, boolean valueCheck) throws RemoteOperationException {
     Assert.assertTrue(recipient != null, "recipient can not be NULL");
 
-    RemoteContainsKeyValueResponse p =
+    var p =
         new RemoteContainsKeyValueResponse(r.getSystem(), recipient, key);
-    RemoteContainsKeyValueMessage m =
+    var m =
         new RemoteContainsKeyValueMessage(recipient, r.getFullPath(), p, key, valueCheck);
 
     Set<?> failures = r.getDistributionManager().putOutgoing(m);
@@ -155,7 +155,7 @@ public class RemoteContainsKeyValueMessage extends RemoteOperationMessageWithDir
 
   @Override
   protected short computeCompressedShort() {
-    short flags = super.computeCompressedShort();
+    var flags = super.computeCompressedShort();
     if (valueCheck) {
       flags |= VALUE_CHECK;
     }
@@ -181,7 +181,7 @@ public class RemoteContainsKeyValueMessage extends RemoteOperationMessageWithDir
     public static void send(InternalDistributedMember recipient, int processorId,
         ReplySender replySender, boolean containsKeyValue) {
       Assert.assertTrue(recipient != null, "ContainsKeyValueReplyMessage NULL reply message");
-      RemoteContainsKeyValueReplyMessage m =
+      var m =
           new RemoteContainsKeyValueReplyMessage(processorId, containsKeyValue);
       m.setRecipient(recipient);
       replySender.putOutgoing(m);
@@ -194,7 +194,7 @@ public class RemoteContainsKeyValueMessage extends RemoteOperationMessageWithDir
      */
     @Override
     public void process(final DistributionManager dm, ReplyProcessor21 processor) {
-      final long startTime = getTimestamp();
+      final var startTime = getTimestamp();
 
       if (processor == null) {
         if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
@@ -259,7 +259,7 @@ public class RemoteContainsKeyValueMessage extends RemoteOperationMessageWithDir
     public void process(DistributionMessage msg) {
       try {
         if (msg instanceof RemoteContainsKeyValueReplyMessage) {
-          RemoteContainsKeyValueReplyMessage reply = (RemoteContainsKeyValueReplyMessage) msg;
+          var reply = (RemoteContainsKeyValueReplyMessage) msg;
           returnValue = reply.doesItContainKeyValue();
           returnValueReceived = true;
           if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {

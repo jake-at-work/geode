@@ -59,9 +59,9 @@ public class RegionPathConverter implements Converter<String> {
   @Override
   public boolean getAllPossibleValues(List<Completion> completions, Class<?> targetType,
       String existingData, String optionContext, MethodTarget target) {
-    Set<String> regionPathSet = getAllRegionPaths();
+    var regionPathSet = getAllRegionPaths();
 
-    for (String regionPath : regionPathSet) {
+    for (var regionPath : regionPathSet) {
       if (existingData != null) {
         if (regionPath.startsWith(existingData)) {
           completions.add(new Completion(regionPath));
@@ -76,9 +76,9 @@ public class RegionPathConverter implements Converter<String> {
 
   public Set<String> getAllRegionPaths() {
     Set<String> regionPathSet = Collections.emptySet();
-    Gfsh gfsh = Gfsh.getCurrentInstance();
+    var gfsh = Gfsh.getCurrentInstance();
     if (gfsh != null && gfsh.isConnectedAndReady()) {
-      String[] regionPaths =
+      var regionPaths =
           gfsh.getOperationInvoker().getDistributedSystemMXBean().listAllRegionPaths();
       regionPathSet = Arrays.stream(regionPaths).collect(Collectors.toSet());
     }

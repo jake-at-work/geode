@@ -22,7 +22,6 @@ import org.apache.geode.internal.offheap.NullOffHeapMemoryStats;
 import org.apache.geode.internal.offheap.NullOutOfOffHeapMemoryListener;
 import org.apache.geode.internal.offheap.OffHeapStoredObject;
 import org.apache.geode.internal.offheap.SlabImpl;
-import org.apache.geode.internal.offheap.StoredObject;
 import org.apache.geode.internal.tcp.ByteBufferInputStream.ByteSource;
 import org.apache.geode.internal.tcp.ByteBufferInputStream.ByteSourceFactory;
 import org.apache.geode.internal.tcp.ByteBufferInputStream.OffHeapByteSource;
@@ -47,7 +46,7 @@ public class OffHeapByteSourceJUnitTest extends ByteSourceJUnitTest {
 
   @Override
   protected ByteSource createByteSource(byte[] bytes) {
-    StoredObject so = MemoryAllocatorImpl.getAllocator().allocateAndInitialize(bytes, false, false);
+    var so = MemoryAllocatorImpl.getAllocator().allocateAndInitialize(bytes, false, false);
     if (so instanceof OffHeapStoredObject) {
       // bypass the factory to make sure that OffHeapByteSource is tested
       return new OffHeapByteSource(so);

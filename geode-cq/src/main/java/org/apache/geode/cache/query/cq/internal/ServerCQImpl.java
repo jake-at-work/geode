@@ -24,7 +24,6 @@ import org.apache.logging.log4j.Logger;
 import org.apache.geode.DataSerializable;
 import org.apache.geode.DataSerializer;
 import org.apache.geode.annotations.VisibleForTesting;
-import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.EvictionAction;
 import org.apache.geode.cache.query.CqAttributes;
 import org.apache.geode.cache.query.CqAttributesMutator;
@@ -37,12 +36,10 @@ import org.apache.geode.cache.query.RegionNotFoundException;
 import org.apache.geode.cache.query.internal.CompiledBindArgument;
 import org.apache.geode.cache.query.internal.CompiledIteratorDef;
 import org.apache.geode.cache.query.internal.CompiledRegion;
-import org.apache.geode.cache.query.internal.CompiledSelect;
 import org.apache.geode.cache.query.internal.CqStateImpl;
 import org.apache.geode.cache.query.internal.DefaultQuery;
 import org.apache.geode.cache.query.internal.cq.CqServiceProvider;
 import org.apache.geode.cache.query.internal.cq.ServerCQ;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.cache.tier.sockets.CacheClientNotifier;
 import org.apache.geode.internal.cache.tier.sockets.CacheClientProxy;
@@ -117,8 +114,8 @@ public class ServerCQImpl extends CqQueryImpl implements DataSerializable, Serve
 
     validateCq();
 
-    final boolean isDebugEnabled = logger.isDebugEnabled();
-    String msg = "%s";
+    final var isDebugEnabled = logger.isDebugEnabled();
+    var msg = "%s";
     Throwable t = null;
     try {
       query = constructServerSideQuery();
@@ -136,7 +133,7 @@ public class ServerCQImpl extends CqQueryImpl implements DataSerializable, Serve
       }
     } finally {
       if (t != null) {
-        String s = String.format(msg, t);
+        var s = String.format(msg, t);
         if (isDebugEnabled) {
           logger.debug(s, t);
         }
@@ -157,7 +154,7 @@ public class ServerCQImpl extends CqQueryImpl implements DataSerializable, Serve
 
     // Make sure that the region is partitioned or
     // replicated with distributed ack or global.
-    DataPolicy dp = cqBaseRegion.getDataPolicy();
+    var dp = cqBaseRegion.getDataPolicy();
     isPR = dp.withPartitioning();
     if (!(isPR || dp.withReplication())) {
       String errMsg;
@@ -180,7 +177,7 @@ public class ServerCQImpl extends CqQueryImpl implements DataSerializable, Serve
     }
     if ((dp.withReplication() && (!(cqBaseRegion.getAttributes().getScope().isDistributedAck()
         || cqBaseRegion.getAttributes().getScope().isGlobal())))) {
-      String errMsg = "The replicated region " + regionName
+      var errMsg = "The replicated region " + regionName
           + " specified in CQ creation does not have scope supported by CQ."
           + " The CQ supported scopes are DISTRIBUTED_ACK and GLOBAL.";
       if (isDebugEnabled) {
@@ -263,10 +260,10 @@ public class ServerCQImpl extends CqQueryImpl implements DataSerializable, Serve
    * @return String modified query.
    */
   Query constructServerSideQuery() {
-    InternalCache cache = cqService.getInternalCache();
-    DefaultQuery locQuery = (DefaultQuery) cache.getLocalQueryService().newQuery(queryString);
-    CompiledSelect select = locQuery.getSimpleSelect();
-    CompiledIteratorDef from = (CompiledIteratorDef) select.getIterators().get(0);
+    var cache = cqService.getInternalCache();
+    var locQuery = (DefaultQuery) cache.getLocalQueryService().newQuery(queryString);
+    var select = locQuery.getSimpleSelect();
+    var from = (CompiledIteratorDef) select.getIterators().get(0);
     // WARNING: ASSUMES QUERY WAS ALREADY VALIDATED FOR PROPER "FORM" ON CLIENT;
     // THIS VALIDATION WILL NEED TO BE DONE ON THE SERVER FOR NATIVE CLIENTS,
     // BUT IS NOT DONE HERE FOR JAVA CLIENTS.
@@ -353,7 +350,7 @@ public class ServerCQImpl extends CqQueryImpl implements DataSerializable, Serve
 
   @Override
   public void close(boolean sendRequestToServer) throws CqClosedException, CqException {
-    final boolean isDebugEnabled = logger.isDebugEnabled();
+    final var isDebugEnabled = logger.isDebugEnabled();
     if (isDebugEnabled) {
       logger.debug("Started closing CQ CqName: {} SendRequestToServer: {}", cqName,
           sendRequestToServer);
@@ -369,7 +366,7 @@ public class ServerCQImpl extends CqQueryImpl implements DataSerializable, Serve
         return;
       }
 
-      int stateBeforeClosing = cqState.getState();
+      var stateBeforeClosing = cqState.getState();
       cqState.setState(CqStateImpl.CLOSING);
 
       // Cleanup the resource used by cq.
@@ -421,7 +418,7 @@ public class ServerCQImpl extends CqQueryImpl implements DataSerializable, Serve
     try {
       if (cqBaseRegion != null && !cqBaseRegion.isDestroyed()) {
         cqBaseRegion.getFilterProfile().closeCq(this);
-        CacheClientProxy clientProxy = cacheClientNotifier.getClientProxy(clientProxyId);
+        var clientProxy = cacheClientNotifier.getClientProxy(clientProxyId);
         clientProxy.decCqCount();
         if (clientProxy.hasNoCq()) {
           cqService.stats().decClientsWithCqs();

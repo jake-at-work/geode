@@ -61,7 +61,7 @@ public class PersistPRKRFIntegrationTest {
     cache = (InternalCache) new CacheFactory().create();
     cache.createDiskStoreFactory().setDiskDirs(new File[] {tempFolder.newFolder("diskDir")})
         .create(DISK_STORE_NAME);
-    PartitionAttributesImpl partitionAttributes = new PartitionAttributesImpl();
+    var partitionAttributes = new PartitionAttributesImpl();
     partitionAttributes.setTotalNumBuckets(BUCKETS);
     testRegion = cache.<String, String>createRegionFactory(RegionShortcut.PARTITION_PERSISTENT)
         .setPartitionAttributes(partitionAttributes).setDiskStoreName(DISK_STORE_NAME)

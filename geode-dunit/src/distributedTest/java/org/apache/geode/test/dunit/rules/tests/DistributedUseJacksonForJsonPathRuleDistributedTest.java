@@ -28,9 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.spi.json.JacksonJsonProvider;
-import com.jayway.jsonpath.spi.json.JsonProvider;
 import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
-import com.jayway.jsonpath.spi.mapper.MappingProvider;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -58,7 +56,7 @@ public class DistributedUseJacksonForJsonPathRuleDistributedTest implements Seri
 
   @Before
   public void setUp() {
-    Configuration config = Configuration.defaultConfiguration();
+    var config = Configuration.defaultConfiguration();
     defaultJsonProvider = config.jsonProvider().getClass().getName();
     defaultMappingProvider = config.mappingProvider().getClass().getName();
     initialVmCount = getVMCount();
@@ -74,7 +72,7 @@ public class DistributedUseJacksonForJsonPathRuleDistributedTest implements Seri
   public void setsJsonProviderToJacksonJsonProviderBeforeTest() {
     runTestWithValidation(CaptureJsonProvider.class);
 
-    for (VM vm : toArray(getAllVMs(), getController())) {
+    for (var vm : toArray(getAllVMs(), getController())) {
       assertThat(jsonProviderMap.get(vm)).isEqualTo(JacksonJsonProvider.class.getName());
     }
   }
@@ -83,7 +81,7 @@ public class DistributedUseJacksonForJsonPathRuleDistributedTest implements Seri
   public void setsMappingProviderToJacksonMappingProviderBeforeTest() {
     runTestWithValidation(CaptureMappingProvider.class);
 
-    for (VM vm : toArray(getAllVMs(), getController())) {
+    for (var vm : toArray(getAllVMs(), getController())) {
       assertThat(mappingProviderMap.get(vm)).isEqualTo(JacksonMappingProvider.class.getName());
     }
   }
@@ -92,9 +90,9 @@ public class DistributedUseJacksonForJsonPathRuleDistributedTest implements Seri
   public void restoresJsonProviderToDefaultAfterTest() {
     runTestWithValidation(HasUseJacksonForJsonPathRule.class);
 
-    for (VM vm : toArray(getAllVMs(), getController())) {
+    for (var vm : toArray(getAllVMs(), getController())) {
       vm.invoke(() -> {
-        Configuration config = Configuration.defaultConfiguration();
+        var config = Configuration.defaultConfiguration();
         assertThat(config.jsonProvider().getClass().getName()).isEqualTo(defaultJsonProvider);
       });
     }
@@ -104,9 +102,9 @@ public class DistributedUseJacksonForJsonPathRuleDistributedTest implements Seri
   public void restoresMappingProviderToDefaultAfterTest() {
     runTestWithValidation(HasUseJacksonForJsonPathRule.class);
 
-    for (VM vm : toArray(getAllVMs(), getController())) {
+    for (var vm : toArray(getAllVMs(), getController())) {
       vm.invoke(() -> {
-        Configuration config = Configuration.defaultConfiguration();
+        var config = Configuration.defaultConfiguration();
         assertThat(config.mappingProvider().getClass().getName()).isEqualTo(defaultMappingProvider);
       });
     }
@@ -116,7 +114,7 @@ public class DistributedUseJacksonForJsonPathRuleDistributedTest implements Seri
   public void setsJsonProviderToJacksonJsonProviderBeforeTest_inNewVm() {
     runTestWithValidation(CaptureJsonProviderInNewVm.class);
 
-    VM newVM = getVM(initialVmCount);
+    var newVM = getVM(initialVmCount);
     assertThat(jsonProviderMap.get(newVM)).isEqualTo(JacksonJsonProvider.class.getName());
   }
 
@@ -124,7 +122,7 @@ public class DistributedUseJacksonForJsonPathRuleDistributedTest implements Seri
   public void setsMappingProviderToJacksonMappingProviderBeforeTest_inNewVm() {
     runTestWithValidation(CaptureMappingProviderInNewVm.class);
 
-    VM newVM = getVM(initialVmCount);
+    var newVM = getVM(initialVmCount);
     assertThat(mappingProviderMap.get(newVM)).isEqualTo(JacksonMappingProvider.class.getName());
   }
 
@@ -132,9 +130,9 @@ public class DistributedUseJacksonForJsonPathRuleDistributedTest implements Seri
   public void restoresJsonProviderToDefaultAfterTest_inNewVm() {
     runTestWithValidation(UseJacksonForJsonPathRuleWithNewVm.class);
 
-    VM newVM = getVM(initialVmCount);
+    var newVM = getVM(initialVmCount);
     newVM.invoke(() -> {
-      Configuration config = Configuration.defaultConfiguration();
+      var config = Configuration.defaultConfiguration();
       assertThat(config.jsonProvider().getClass().getName()).isEqualTo(defaultJsonProvider);
     });
   }
@@ -143,9 +141,9 @@ public class DistributedUseJacksonForJsonPathRuleDistributedTest implements Seri
   public void restoresMappingProviderToDefaultAfterTest_inNewVm() {
     runTestWithValidation(UseJacksonForJsonPathRuleWithNewVm.class);
 
-    VM newVM = getVM(initialVmCount);
+    var newVM = getVM(initialVmCount);
     newVM.invoke(() -> {
-      Configuration config = Configuration.defaultConfiguration();
+      var config = Configuration.defaultConfiguration();
       assertThat(config.mappingProvider().getClass().getName()).isEqualTo(defaultMappingProvider);
     });
   }
@@ -154,7 +152,7 @@ public class DistributedUseJacksonForJsonPathRuleDistributedTest implements Seri
   public void setsJsonProviderToJacksonJsonProviderBeforeTest_inBouncedVm() {
     runTestWithValidation(CaptureJsonProviderInBouncedVm.class);
 
-    VM bouncedVM = getVM(0);
+    var bouncedVM = getVM(0);
     assertThat(jsonProviderMap.get(bouncedVM)).isEqualTo(JacksonJsonProvider.class.getName());
   }
 
@@ -162,7 +160,7 @@ public class DistributedUseJacksonForJsonPathRuleDistributedTest implements Seri
   public void setsMappingProviderToJacksonMappingProviderBeforeTest_inBouncedVm() {
     runTestWithValidation(CaptureMappingProviderInBouncedVm.class);
 
-    VM bouncedVM = getVM(0);
+    var bouncedVM = getVM(0);
     assertThat(mappingProviderMap.get(bouncedVM)).isEqualTo(JacksonMappingProvider.class.getName());
   }
 
@@ -170,9 +168,9 @@ public class DistributedUseJacksonForJsonPathRuleDistributedTest implements Seri
   public void restoresJsonProviderToDefaultAfterTest_inBouncedVm() {
     runTestWithValidation(UseJacksonForJsonPathRuleWithBouncedVm.class);
 
-    VM bouncedVM = getVM(0);
+    var bouncedVM = getVM(0);
     bouncedVM.invoke(() -> {
-      Configuration config = Configuration.defaultConfiguration();
+      var config = Configuration.defaultConfiguration();
       assertThat(config.jsonProvider().getClass().getName()).isEqualTo(defaultJsonProvider);
     });
   }
@@ -181,9 +179,9 @@ public class DistributedUseJacksonForJsonPathRuleDistributedTest implements Seri
   public void restoresMappingProviderToDefaultAfterTest_inBouncedVm() {
     runTestWithValidation(UseJacksonForJsonPathRuleWithBouncedVm.class);
 
-    VM bouncedVM = getVM(0);
+    var bouncedVM = getVM(0);
     bouncedVM.invoke(() -> {
-      Configuration config = Configuration.defaultConfiguration();
+      var config = Configuration.defaultConfiguration();
       assertThat(config.mappingProvider().getClass().getName()).isEqualTo(defaultMappingProvider);
     });
   }
@@ -208,9 +206,9 @@ public class DistributedUseJacksonForJsonPathRuleDistributedTest implements Seri
 
     @Test
     public void captureJsonProvider() {
-      for (VM vm : toArray(getAllVMs(), getController())) {
-        Class<? extends JsonProvider> jsonProviderClass = vm.invoke(() -> {
-          Configuration config = Configuration.defaultConfiguration();
+      for (var vm : toArray(getAllVMs(), getController())) {
+        var jsonProviderClass = vm.invoke(() -> {
+          var config = Configuration.defaultConfiguration();
           return config.jsonProvider().getClass();
         });
         assertThat(jsonProviderClass).isNotNull();
@@ -227,9 +225,9 @@ public class DistributedUseJacksonForJsonPathRuleDistributedTest implements Seri
 
     @Test
     public void captureMappingProvider() {
-      for (VM vm : toArray(getAllVMs(), getController())) {
-        Class<? extends MappingProvider> mappingProviderClass = vm.invoke(() -> {
-          Configuration config = Configuration.defaultConfiguration();
+      for (var vm : toArray(getAllVMs(), getController())) {
+        var mappingProviderClass = vm.invoke(() -> {
+          var config = Configuration.defaultConfiguration();
           return config.mappingProvider().getClass();
         });
         assertThat(mappingProviderClass).isNotNull();
@@ -246,9 +244,9 @@ public class DistributedUseJacksonForJsonPathRuleDistributedTest implements Seri
 
     @Test
     public void captureJsonProviderInNewVm() {
-      VM newVM = getVM(getVMCount());
-      Class<? extends JsonProvider> jsonProviderClass = newVM.invoke(() -> {
-        Configuration config = Configuration.defaultConfiguration();
+      var newVM = getVM(getVMCount());
+      var jsonProviderClass = newVM.invoke(() -> {
+        var config = Configuration.defaultConfiguration();
         return config.jsonProvider().getClass();
       });
       assertThat(jsonProviderClass).isNotNull();
@@ -264,9 +262,9 @@ public class DistributedUseJacksonForJsonPathRuleDistributedTest implements Seri
 
     @Test
     public void captureMappingProviderInNewVm() {
-      VM newVM = getVM(getVMCount());
-      Class<? extends MappingProvider> mappingProviderClass = newVM.invoke(() -> {
-        Configuration config = Configuration.defaultConfiguration();
+      var newVM = getVM(getVMCount());
+      var mappingProviderClass = newVM.invoke(() -> {
+        var config = Configuration.defaultConfiguration();
         return config.mappingProvider().getClass();
       });
       assertThat(mappingProviderClass).isNotNull();
@@ -294,10 +292,10 @@ public class DistributedUseJacksonForJsonPathRuleDistributedTest implements Seri
 
     @Test
     public void captureJsonProviderInBouncedVm() {
-      VM vm = getVM(0);
+      var vm = getVM(0);
       vm.bounce();
-      Class<? extends JsonProvider> jsonProviderClass = vm.invoke(() -> {
-        Configuration config = Configuration.defaultConfiguration();
+      var jsonProviderClass = vm.invoke(() -> {
+        var config = Configuration.defaultConfiguration();
         return config.jsonProvider().getClass();
       });
       assertThat(jsonProviderClass).isNotNull();
@@ -313,10 +311,10 @@ public class DistributedUseJacksonForJsonPathRuleDistributedTest implements Seri
 
     @Test
     public void captureMappingProviderInBouncedVm() {
-      VM vm = getVM(0);
+      var vm = getVM(0);
       vm.bounce();
-      Class<? extends MappingProvider> mappingProviderClass = vm.invoke(() -> {
-        Configuration config = Configuration.defaultConfiguration();
+      var mappingProviderClass = vm.invoke(() -> {
+        var config = Configuration.defaultConfiguration();
         return config.mappingProvider().getClass();
       });
       assertThat(mappingProviderClass).isNotNull();
@@ -332,7 +330,7 @@ public class DistributedUseJacksonForJsonPathRuleDistributedTest implements Seri
 
     @Test
     public void getNewVm() {
-      VM vm = getVM(0);
+      var vm = getVM(0);
       vm.bounce();
     }
   }

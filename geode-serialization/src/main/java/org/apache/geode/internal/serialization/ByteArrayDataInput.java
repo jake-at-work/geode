@@ -71,7 +71,7 @@ public class ByteArrayDataInput extends InputStream implements DataInput, Versio
   }
 
   private int skipOver(long n) {
-    final int capacity = (nBytes - pos);
+    final var capacity = (nBytes - pos);
     if (n <= capacity) {
       pos += (int) n;
       return (int) n;
@@ -104,7 +104,7 @@ public class ByteArrayDataInput extends InputStream implements DataInput, Versio
       throw new IndexOutOfBoundsException();
     }
 
-    final int capacity = (nBytes - pos);
+    final var capacity = (nBytes - pos);
     if (len > capacity) {
       len = capacity;
     }
@@ -218,7 +218,7 @@ public class ByteArrayDataInput extends InputStream implements DataInput, Versio
   @Override
   public short readShort() throws IOException {
     if ((pos + 1) < nBytes) {
-      int result = (bytes[pos++] & 0xff);
+      var result = (bytes[pos++] & 0xff);
       return (short) ((result << 8) | (bytes[pos++] & 0xff));
     } else {
       throw new EOFException();
@@ -231,7 +231,7 @@ public class ByteArrayDataInput extends InputStream implements DataInput, Versio
   @Override
   public int readUnsignedShort() throws IOException {
     if ((pos + 1) < nBytes) {
-      int result = (bytes[pos++] & 0xff);
+      var result = (bytes[pos++] & 0xff);
       return ((result << 8) | (bytes[pos++] & 0xff));
     } else {
       throw new EOFException();
@@ -244,7 +244,7 @@ public class ByteArrayDataInput extends InputStream implements DataInput, Versio
   @Override
   public char readChar() throws IOException {
     if ((pos + 1) < nBytes) {
-      int result = bytes[pos++] << 8;
+      var result = bytes[pos++] << 8;
       return (char) (result | (bytes[pos++] & 0xff));
     } else {
       throw new EOFException();
@@ -257,7 +257,7 @@ public class ByteArrayDataInput extends InputStream implements DataInput, Versio
   @Override
   public int readInt() throws IOException {
     if ((pos + 3) < nBytes) {
-      int result = (bytes[pos++] & 0xff);
+      var result = (bytes[pos++] & 0xff);
       result = (result << 8) | (bytes[pos++] & 0xff);
       result = (result << 8) | (bytes[pos++] & 0xff);
       return ((result << 8) | (bytes[pos++] & 0xff));
@@ -306,26 +306,26 @@ public class ByteArrayDataInput extends InputStream implements DataInput, Versio
    */
   @Override
   public String readUTF() throws IOException {
-    final int utfLen = readUnsignedShort();
+    final var utfLen = readUnsignedShort();
     if (utfLen == 0) {
       return "";
     }
 
     if ((pos + utfLen) <= nBytes) {
-      String asciiString = readASCII(utfLen);
+      var asciiString = readASCII(utfLen);
       if (asciiString != null) {
         return asciiString;
       }
       if (charBuf == null || charBuf.length < utfLen) {
-        int charBufLength = (((utfLen / 2) + 1) * 3);
+        var charBufLength = (((utfLen / 2) + 1) * 3);
         charBuf = new char[charBufLength];
       }
-      final byte[] bytes = this.bytes;
-      final char[] chars = charBuf;
+      final var bytes = this.bytes;
+      final var chars = charBuf;
 
-      int index = pos;
-      final int limit = index + utfLen;
-      int nChars = 0;
+      var index = pos;
+      final var limit = index + utfLen;
+      var nChars = 0;
       int char1, char2, char3;
 
       for (; index < limit; index++, nChars++) {
@@ -395,9 +395,9 @@ public class ByteArrayDataInput extends InputStream implements DataInput, Versio
    * a String containing that data. Otherwise return null.
    */
   private String readASCII(int utfLen) {
-    final int startIdx = pos;
-    int index = pos;
-    final int limit = index + utfLen;
+    final var startIdx = pos;
+    var index = pos;
+    final var limit = index + utfLen;
     for (; index < limit; index++) {
       if ((bytes[index] & 0xff) >= 128) {
         return null;
@@ -405,7 +405,7 @@ public class ByteArrayDataInput extends InputStream implements DataInput, Versio
     }
     pos = limit;
     @SuppressWarnings("deprecation")
-    final String string = new String(bytes, 0, startIdx, utfLen);
+    final var string = new String(bytes, 0, startIdx, utfLen);
     return string;
   }
 
@@ -431,11 +431,11 @@ public class ByteArrayDataInput extends InputStream implements DataInput, Versio
       return null;
     }
     // index of the first byte in the line
-    int startIdx = pos;
+    var startIdx = pos;
     // index of the last byte in the line
-    int lastIdx = -1;
+    var lastIdx = -1;
     while (lastIdx == -1) {
-      int c = readByteAsInt();
+      var c = readByteAsInt();
       switch (c) {
         case -1:
           lastIdx = pos;
@@ -445,7 +445,7 @@ public class ByteArrayDataInput extends InputStream implements DataInput, Versio
           break;
         case '\r':
           lastIdx = pos - 1;
-          int c2 = readByteAsInt();
+          var c2 = readByteAsInt();
           if (c2 != '\n' && c2 != -1) {
             pos--;
           }
@@ -453,7 +453,7 @@ public class ByteArrayDataInput extends InputStream implements DataInput, Versio
       }
     }
     @SuppressWarnings("deprecation")
-    final String string = new String(bytes, 0, startIdx, lastIdx - startIdx);
+    final var string = new String(bytes, 0, startIdx, lastIdx - startIdx);
     return string;
   }
 

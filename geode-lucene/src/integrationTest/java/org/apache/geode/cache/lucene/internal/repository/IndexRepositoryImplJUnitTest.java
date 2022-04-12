@@ -79,23 +79,23 @@ public class IndexRepositoryImplJUnitTest {
 
   @Before
   public void setUp() throws IOException {
-    ConcurrentHashMap fileAndChunkRegion = new ConcurrentHashMap();
+    var fileAndChunkRegion = new ConcurrentHashMap();
     fileSystemStats = mock(FileSystemStats.class);
-    RegionDirectory dir = new RegionDirectory(fileAndChunkRegion, fileSystemStats);
-    IndexWriterConfig config = new IndexWriterConfig(analyzer);
+    var dir = new RegionDirectory(fileAndChunkRegion, fileSystemStats);
+    var config = new IndexWriterConfig(analyzer);
     writer = new IndexWriter(dir, config);
-    String[] indexedFields = new String[] {"s", "i", "l", "d", "f", "s2", "missing"};
+    var indexedFields = new String[] {"s", "i", "l", "d", "f", "s2", "missing"};
     mapper = new HeterogeneousLuceneSerializer();
     region = Mockito.mock(Region.class);
     userRegion = Mockito.mock(BucketRegion.class);
-    BucketAdvisor bucketAdvisor = Mockito.mock(BucketAdvisor.class);
+    var bucketAdvisor = Mockito.mock(BucketAdvisor.class);
     Mockito.when(bucketAdvisor.isPrimary()).thenReturn(true);
     Mockito.when(((BucketRegion) userRegion).getBucketAdvisor()).thenReturn(bucketAdvisor);
 
     Mockito.when(((BucketRegion) userRegion).getBucketAdvisor().isPrimary()).thenReturn(true);
     stats = Mockito.mock(LuceneIndexStats.class);
     Mockito.when(userRegion.isDestroyed()).thenReturn(false);
-    LuceneIndex index = Mockito.mock(LuceneIndex.class);
+    var index = Mockito.mock(LuceneIndex.class);
     Mockito.when(index.getFieldNames()).thenReturn(new String[] {"s"});
     repo = new IndexRepositoryImpl(region, writer, mapper, stats, userRegion,
         mock(DistributedLockService.class), "lockName", index);
@@ -129,10 +129,10 @@ public class IndexRepositoryImplJUnitTest {
   @Test
   public void testUpdateAndRemoveBinaryKeys() throws IOException, ParseException {
 
-    ByteWrapper key1 = randomKey();
-    ByteWrapper key2 = randomKey();
-    ByteWrapper key3 = randomKey();
-    ByteWrapper key4 = randomKey();
+    var key1 = randomKey();
+    var key2 = randomKey();
+    var key3 = randomKey();
+    var key4 = randomKey();
 
     updateAndRemove(key1, key2, key3, key4);
   }
@@ -153,9 +153,9 @@ public class IndexRepositoryImplJUnitTest {
 
   @Test
   public void updateShouldHandleException() throws IOException {
-    LuceneIndex index = Mockito.mock(LuceneIndex.class);
-    LuceneSerializer serializer = Mockito.mock(LuceneSerializer.class);
-    IndexWriter writerSpy = spy(writer);
+    var index = Mockito.mock(LuceneIndex.class);
+    var serializer = Mockito.mock(LuceneSerializer.class);
+    var writerSpy = spy(writer);
     repo = new DummyIndexRepositoryImpl(region, writerSpy, serializer, stats, userRegion,
         mock(DistributedLockService.class), "lockName", index);
     Mockito.when(serializer.toDocuments(any(), any()))
@@ -166,9 +166,9 @@ public class IndexRepositoryImplJUnitTest {
 
   @Test
   public void emptyDocsShouldUpdateDocuments() throws IOException {
-    LuceneIndex index = Mockito.mock(LuceneIndex.class);
-    LuceneSerializer serializer = Mockito.mock(LuceneSerializer.class);
-    IndexWriter writerSpy = spy(writer);
+    var index = Mockito.mock(LuceneIndex.class);
+    var serializer = Mockito.mock(LuceneSerializer.class);
+    var writerSpy = spy(writer);
     repo = new DummyIndexRepositoryImpl(region, writerSpy, serializer, stats, userRegion,
         mock(DistributedLockService.class), "lockName", index);
     Mockito.when(serializer.toDocuments(any(), any())).thenReturn(Collections.emptyList());
@@ -207,9 +207,9 @@ public class IndexRepositoryImplJUnitTest {
   public void addingDocumentsShouldUpdateDocumentsStat() throws IOException {
     repo.create("key1", new Type2("bar", 1, 2L, 3.0, 4.0f, "Grape Ape doughnut"));
     repo.commit();
-    ArgumentCaptor<IntSupplier> captor = ArgumentCaptor.forClass(IntSupplier.class);
+    var captor = ArgumentCaptor.forClass(IntSupplier.class);
     verify(stats).addDocumentsSupplier(captor.capture());
-    IntSupplier supplier = captor.getValue();
+    var supplier = captor.getValue();
     assertEquals(1, supplier.getAsInt());
   }
 
@@ -246,9 +246,9 @@ public class IndexRepositoryImplJUnitTest {
   }
 
   private ByteWrapper randomKey() {
-    Random rand = new Random();
-    int size = rand.nextInt(2048) + 50;
-    byte[] key = new byte[size];
+    var rand = new Random();
+    var size = rand.nextInt(2048) + 50;
+    var key = new byte[size];
     rand.nextBytes(key);
     return new ByteWrapper(key);
   }
@@ -258,9 +258,9 @@ public class IndexRepositoryImplJUnitTest {
     Set<Object> expectedSet = new HashSet<>();
     expectedSet.addAll(Arrays.asList(expectedKeys));
 
-    QueryParser parser = new QueryParser(queryField, analyzer);
+    var parser = new QueryParser(queryField, analyzer);
 
-    KeyCollector collector = new KeyCollector();
+    var collector = new KeyCollector();
     repo.query(parser.parse(queryTerm), 100, collector);
 
     assertEquals(expectedSet, collector.results);
@@ -300,8 +300,8 @@ public class IndexRepositoryImplJUnitTest {
 
     @Override
     public int hashCode() {
-      final int prime = 31;
-      int result = 1;
+      final var prime = 31;
+      var result = 1;
       result = prime * result + Arrays.hashCode(bytes);
       return result;
     }
@@ -317,7 +317,7 @@ public class IndexRepositoryImplJUnitTest {
       if (getClass() != obj.getClass()) {
         return false;
       }
-      ByteWrapper other = (ByteWrapper) obj;
+      var other = (ByteWrapper) obj;
       return Arrays.equals(bytes, other.bytes);
     }
   }

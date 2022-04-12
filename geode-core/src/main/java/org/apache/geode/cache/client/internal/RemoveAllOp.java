@@ -38,7 +38,6 @@ import org.apache.geode.internal.cache.PutAllPartialResultException.PutAllPartia
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.ChunkedMessage;
 import org.apache.geode.internal.cache.tier.sockets.Message;
-import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.cache.tier.sockets.VersionedObjectList;
 import org.apache.geode.internal.serialization.KnownVersion;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -67,7 +66,7 @@ public class RemoveAllOp {
    */
   public static VersionedObjectList execute(ExecutablePool pool, Region region,
       Collection<Object> keys, EventID eventId, boolean isRetry, Object callbackArg) {
-    RemoveAllOpImpl op = new RemoveAllOpImpl(region, keys, eventId,
+    var op = new RemoveAllOpImpl(region, keys, eventId,
         ((PoolImpl) pool).getPRSingleHopEnabled(), callbackArg);
     op.initMessagePart();
     if (isRetry) {
@@ -87,10 +86,10 @@ public class RemoveAllOp {
    */
   public static VersionedObjectList execute(ExecutablePool pool, Region region,
       Collection<Object> keys, EventID eventId, int retryAttempts, Object callbackArg) {
-    final boolean isDebugEnabled = logger.isDebugEnabled();
-    ClientMetadataService cms = ((InternalRegion) region).getCache().getClientMetadataService();
+    final var isDebugEnabled = logger.isDebugEnabled();
+    var cms = ((InternalRegion) region).getCache().getClientMetadataService();
 
-    Map<ServerLocation, Set> serverToFilterMap = cms.getServerToFilterMap(keys, region, true);
+    var serverToFilterMap = cms.getServerToFilterMap(keys, region, true);
 
     if (serverToFilterMap == null || serverToFilterMap.isEmpty()) {
       AbstractOp op = new RemoveAllOpImpl(region, keys, eventId,
@@ -99,23 +98,23 @@ public class RemoveAllOp {
       return (VersionedObjectList) pool.execute(op);
     }
 
-    List callableTasks = constructAndGetRemoveAllTasks(region, eventId, serverToFilterMap,
+    var callableTasks = constructAndGetRemoveAllTasks(region, eventId, serverToFilterMap,
         (PoolImpl) pool, callbackArg);
 
     if (isDebugEnabled) {
       logger.debug("RemoveAllOp#execute : Number of removeAll tasks is :{}", callableTasks.size());
     }
-    HashMap<ServerLocation, RuntimeException> failedServers =
-        new HashMap<>();
-    PutAllPartialResult result = new PutAllPartialResult(keys.size());
+    var failedServers =
+        new HashMap<ServerLocation, RuntimeException>();
+    var result = new PutAllPartialResult(keys.size());
     try {
-      Map<ServerLocation, Object> results = SingleHopClientExecutor
+      var results = SingleHopClientExecutor
           .submitBulkOp(callableTasks, cms,
               (LocalRegion) region, failedServers);
-      for (Map.Entry<ServerLocation, Object> entry : results.entrySet()) {
-        Object value = entry.getValue();
+      for (var entry : results.entrySet()) {
+        var value = entry.getValue();
         if (value instanceof PutAllPartialResultException) {
-          PutAllPartialResultException pap = (PutAllPartialResultException) value;
+          var pap = (PutAllPartialResultException) value;
           if (isDebugEnabled) {
             logger.debug(
                 "RemoveAll SingleHop encountered BulkOpPartialResultException exception: {}, failedServers are {}",
@@ -124,7 +123,7 @@ public class RemoveAllOp {
           result.consolidate(pap.getResult());
         } else {
           if (value != null) {
-            VersionedObjectList list = (VersionedObjectList) value;
+            var list = (VersionedObjectList) value;
             result.addKeysAndVersions(list);
           }
         }
@@ -149,8 +148,8 @@ public class RemoveAllOp {
         // succeedKeySet is used to send back to client in PartialResult case
         // so it's not a must to use LinkedHashSet
         Set succeedKeySet = new LinkedHashSet();
-        Set<ServerLocation> serverSet = serverToFilterMap.keySet();
-        for (ServerLocation server : serverSet) {
+        var serverSet = serverToFilterMap.keySet();
+        for (var server : serverSet) {
           if (!failedServers.containsKey(server)) {
             succeedKeySet.addAll(serverToFilterMap.get(server));
           }
@@ -164,10 +163,10 @@ public class RemoveAllOp {
       // them into one big map. The reason is, we have to keep the same event
       // ids for each sub map. There is a unit test in PutAllCSDUnitTest for
       // the otherwise case.
-      boolean oneSubMapRetryFailed = false;
-      Set<ServerLocation> failedServerSet = failedServers.keySet();
-      for (ServerLocation failedServer : failedServerSet) {
-        RuntimeException savedRTE = failedServers.get(failedServer);
+      var oneSubMapRetryFailed = false;
+      var failedServerSet = failedServers.keySet();
+      for (var failedServer : failedServerSet) {
+        var savedRTE = failedServers.get(failedServer);
         if (savedRTE instanceof PutAllPartialResultException) {
           // will not retry for BulkOpPartialResultException
           // but it means at least one sub map ever failed
@@ -176,7 +175,7 @@ public class RemoveAllOp {
         }
         Collection<Object> newKeys = serverToFilterMap.get(failedServer);
         try {
-          VersionedObjectList v =
+          var v =
               RemoveAllOp.execute(pool, region, newKeys, eventId, true, callbackArg);
           if (v == null) {
             result.addKeys(newKeys);
@@ -190,14 +189,14 @@ public class RemoveAllOp {
           result.consolidate(pre.getResult());
         } catch (Exception rte) {
           oneSubMapRetryFailed = true;
-          Object firstKey = newKeys.iterator().next();
+          var firstKey = newKeys.iterator().next();
           result.saveFailedKey(firstKey, rte);
         }
       } // for failedServer
 
       // If all retries succeeded, the PRE in first tries can be ignored
       if (oneSubMapRetryFailed && result.hasFailure()) {
-        PutAllPartialResultException pre = new PutAllPartialResultException(result);
+        var pre = new PutAllPartialResultException(result);
         throw pre;
       }
     } // failedServers!=null
@@ -214,16 +213,16 @@ public class RemoveAllOp {
       final Map<ServerLocation, Set> serverToFilterMap, final PoolImpl pool,
       Object callbackArg) {
     final List<SingleHopOperationCallable> tasks = new ArrayList<>();
-    ArrayList<ServerLocation> servers = new ArrayList<>(serverToFilterMap.keySet());
+    var servers = new ArrayList<ServerLocation>(serverToFilterMap.keySet());
 
     if (logger.isDebugEnabled()) {
       logger.debug("Constructing tasks for the servers{}", servers);
     }
-    for (ServerLocation server : servers) {
+    for (var server : servers) {
       AbstractOp RemoveAllOp =
           new RemoveAllOpImpl(region, serverToFilterMap.get(server), eventId, true, callbackArg);
 
-      SingleHopOperationCallable task =
+      var task =
           new SingleHopOperationCallable(new ServerLocation(server.getHostName(), server.getPort()),
               pool, RemoveAllOp, UserAttributes.userAttributes.get());
       tasks.add(task);
@@ -256,8 +255,8 @@ public class RemoveAllOp {
 
     @Override
     protected void initMessagePart() {
-      int size = keys.size();
-      int flags = 0;
+      var size = keys.size();
+      var flags = 0;
       if (region.getDataPolicy() == DataPolicy.EMPTY) {
         flags |= FLAG_EMPTY;
       }
@@ -268,7 +267,7 @@ public class RemoveAllOp {
       getMessage().addObjPart(callbackArg);
       getMessage().addIntPart(size);
 
-      for (Object key : keys) {
+      for (var key : keys) {
         getMessage().addStringOrObjPart(key);
       }
     }
@@ -286,20 +285,20 @@ public class RemoveAllOp {
     @Override
     protected Object processResponse(final @NotNull Message msg, final @NotNull Connection con)
         throws Exception {
-      final VersionedObjectList result = new VersionedObjectList();
-      final Exception[] exceptionRef = new Exception[1];
-      final boolean isDebugEnabled = logger.isDebugEnabled();
+      final var result = new VersionedObjectList();
+      final var exceptionRef = new Exception[1];
+      final var isDebugEnabled = logger.isDebugEnabled();
       try {
         processChunkedResponse((ChunkedMessage) msg, "removeAll", cm -> {
-          int numParts = msg.getNumberOfParts();
+          var numParts = msg.getNumberOfParts();
           if (isDebugEnabled) {
             logger.debug("RemoveAllOp.processChunkedResponse processing message with {} parts",
                 numParts);
           }
-          for (int partNo = 0; partNo < numParts; partNo++) {
-            Part part = cm.getPart(partNo);
+          for (var partNo = 0; partNo < numParts; partNo++) {
+            var part = cm.getPart(partNo);
             try {
-              Object o = part.getObject();
+              var o = part.getObject();
               if (isDebugEnabled) {
                 logger.debug("part({}) contained {}", partNo, o);
               }
@@ -307,11 +306,11 @@ public class RemoveAllOp {
                 // no response is an okay response
               } else if (o instanceof byte[]) {
                 if (prSingleHopEnabled) {
-                  byte[] bytesReceived = part.getSerializedForm();
+                  var bytesReceived = part.getSerializedForm();
                   if (bytesReceived[0] != ClientMetadataService.INITIAL_VERSION) {
                     if (region != null) {
                       try {
-                        ClientMetadataService cms = region.getCache().getClientMetadataService();
+                        var cms = region.getCache().getClientMetadataService();
                         cms.scheduleGetPRMetaData(region, false, bytesReceived[1]);
                       } catch (CacheClosedException ignored) {
                       }
@@ -319,10 +318,10 @@ public class RemoveAllOp {
                   }
                 }
               } else if (o instanceof Throwable) {
-                String s = "While performing a remote removeAll";
+                var s = "While performing a remote removeAll";
                 exceptionRef[0] = new ServerOperationException(s, (Throwable) o);
               } else {
-                VersionedObjectList chunk = (VersionedObjectList) o;
+                var chunk = (VersionedObjectList) o;
                 chunk.replaceNullIDs(con.getEndpoint().getMemberId());
                 result.addAll(chunk);
               }
@@ -333,7 +332,7 @@ public class RemoveAllOp {
         });
       } catch (ServerOperationException e) {
         if (e.getCause() instanceof PutAllPartialResultException) {
-          PutAllPartialResultException cause = (PutAllPartialResultException) e.getCause();
+          var cause = (PutAllPartialResultException) e.getCause();
           cause.getSucceededKeysAndVersions().replaceNullIDs(con.getEndpoint().getMemberId());
           throw cause;
         } else {

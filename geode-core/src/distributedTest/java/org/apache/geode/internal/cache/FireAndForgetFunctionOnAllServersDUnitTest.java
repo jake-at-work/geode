@@ -20,21 +20,17 @@ import static org.apache.geode.test.awaitility.GeodeAwaitility.await;
 import org.junit.Test;
 
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.LocatorTestBase;
 import org.apache.geode.cache.client.internal.PoolImpl;
-import org.apache.geode.cache.execute.Execution;
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionService;
 import org.apache.geode.internal.cache.functions.FireAndForgetFunctionOnAllServers;
 import org.apache.geode.test.dunit.Assert;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.NetworkUtils;
-import org.apache.geode.test.dunit.VM;
 
 
 public class FireAndForgetFunctionOnAllServersDUnitTest extends LocatorTestBase {
@@ -60,18 +56,18 @@ public class FireAndForgetFunctionOnAllServersDUnitTest extends LocatorTestBase 
     // executing on the ones the
     // client is currently connected to.
 
-    Host host = Host.getHost(0);
-    VM locator = host.getVM(0);
-    VM server1 = host.getVM(1);
-    VM server2 = host.getVM(2);
-    VM client = host.getVM(3);
+    var host = Host.getHost(0);
+    var locator = host.getVM(0);
+    var server1 = host.getVM(1);
+    var server2 = host.getVM(2);
+    var client = host.getVM(3);
 
-    final String locatorHost = NetworkUtils.getServerHostName();
+    final var locatorHost = NetworkUtils.getServerHostName();
 
     // Step 1. Start a locator and one cache server.
     final int locatorPort = locator.invoke("Start Locator", () -> startLocator(locatorHost, ""));
 
-    String locString = getLocatorString(locatorHost, locatorPort);
+    var locString = getLocatorString(locatorHost, locatorPort);
 
     // Step 2. Start a server and create a replicated region "R1".
     server1.invoke("Start BridgeServer",
@@ -79,10 +75,10 @@ public class FireAndForgetFunctionOnAllServersDUnitTest extends LocatorTestBase 
 
     // Step 3. Create a client cache with pool mentioning locator.
     client.invoke("create client cache and pool mentioning locator", () -> {
-      ClientCacheFactory ccf = new ClientCacheFactory();
+      var ccf = new ClientCacheFactory();
       ccf.addPoolLocator(locatorHost, locatorPort);
-      ClientCache cache = ccf.create();
-      Pool pool1 = PoolManager.createFactory().addLocator(locatorHost, locatorPort)
+      var cache = ccf.create();
+      var pool1 = PoolManager.createFactory().addLocator(locatorHost, locatorPort)
           .setServerGroup("R1").create("R1");
 
       Region region1 = cache.createClientRegionFactory(ClientRegionShortcut.PROXY).setPoolName("R1")
@@ -93,13 +89,13 @@ public class FireAndForgetFunctionOnAllServersDUnitTest extends LocatorTestBase 
       Function function = new FireAndForgetFunctionOnAllServers();
       FunctionService.registerFunction(function);
 
-      PoolImpl pool = (PoolImpl) pool1;
+      var pool = (PoolImpl) pool1;
 
       await()
           .untilAsserted(() -> Assert.assertEquals(1, pool.getCurrentServers().size()));
 
-      String regionName = "R1";
-      Execution dataSet = FunctionService.onServers(pool1);
+      var regionName = "R1";
+      var dataSet = FunctionService.onServers(pool1);
       dataSet.setArguments(regionName).execute(function);
 
       // Using Awatility, if the condition is not met during the timeout, a

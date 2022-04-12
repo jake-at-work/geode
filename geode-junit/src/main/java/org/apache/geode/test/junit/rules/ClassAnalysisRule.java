@@ -20,7 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -93,24 +92,24 @@ public class ClassAnalysisRule implements TestRule {
   }
 
   private void loadClasses() {
-    String classpath = System.getProperty("java.class.path");
+    var classpath = System.getProperty("java.class.path");
     // System.out.println("java classpath is " + classpath);
 
-    List<File> entries =
+    var entries =
         stream(classpath.split(File.pathSeparator))
             .map(File::new)
             .collect(Collectors.toList());
 
     // check for <module>/build/classes/java/**
-    String gradleBuildDirName =
+    var gradleBuildDirName =
         Paths.get(getModuleName(), "build", "classes", "java", sourceSet).toString();
 
     // check for <module>/build/classes/test/**
-    String alternateBuildDirName =
+    var alternateBuildDirName =
         Paths.get(getModuleName(), "build", "classes", sourceSet).toString();
 
     String buildDir = null;
-    for (File entry : entries) {
+    for (var entry : entries) {
       if (entry.toString().endsWith(gradleBuildDirName)
           || entry.toString().endsWith(alternateBuildDirName)) {
         buildDir = entry.toString();
@@ -120,9 +119,9 @@ public class ClassAnalysisRule implements TestRule {
     assertThat(buildDir).isNotNull();
     System.out.println("ClassAnalysisRule is loading class files from " + buildDir);
 
-    long start = System.currentTimeMillis();
+    var start = System.currentTimeMillis();
     loadClassesFromBuild(new File(buildDir));
-    long finish = System.currentTimeMillis();
+    var finish = System.currentTimeMillis();
 
     System.out.println("done loading " + classes.size() + " classes.  elapsed time = "
         + (finish - start) / 1000 + " seconds");
@@ -133,7 +132,7 @@ public class ClassAnalysisRule implements TestRule {
   }
 
   private void loadClassesFromBuild(File buildDir) {
-    Map<String, CompiledClass> newClasses = CompiledClassUtils.parseClassFilesInDir(buildDir);
+    var newClasses = CompiledClassUtils.parseClassFilesInDir(buildDir);
     classes.putAll(newClasses);
   }
 }

@@ -52,15 +52,15 @@ public class OrderByComparatorMapped extends OrderByComparator {
 
   @Override
   public int evaluateSortCriteria(Object obj1, Object obj2) {
-    int result = -1;
-    Object[] list1 = evaluateSortCriteria(obj1);
-    Object[] list2 = evaluateSortCriteria(obj2);
+    var result = -1;
+    var list1 = evaluateSortCriteria(obj1);
+    var list2 = evaluateSortCriteria(obj2);
     if (list1.length != list2.length) {
       Support.assertionFailed("Error Occurred due to improper sort criteria evaluation ");
     } else {
-      for (int i = 0; i < list1.length; i++) {
-        Object[] arr1 = (Object[]) list1[i];
-        Object[] arr2 = (Object[]) list2[i];
+      for (var i = 0; i < list1.length; i++) {
+        var arr1 = (Object[]) list1[i];
+        var arr2 = (Object[]) list2[i];
 
         if (arr1[0] == null) {
           result = (arr2[0] == null ? 0 : -1);
@@ -72,8 +72,8 @@ public class OrderByComparatorMapped extends OrderByComparator {
           result = 1;
         } else {
           if (arr1[0] instanceof Number && arr2[0] instanceof Number) {
-            Number num1 = (Number) arr1[0];
-            Number num2 = (Number) arr2[0];
+            var num1 = (Number) arr1[0];
+            var num2 = (Number) arr2[0];
             result = Double.compare(num1.doubleValue(), num2.doubleValue());
           } else {
             if (arr1[0] instanceof PdxString && arr2[0] instanceof String) {
@@ -107,10 +107,10 @@ public class OrderByComparatorMapped extends OrderByComparator {
       throws FunctionDomainException, TypeMismatchException, NameResolutionException,
       QueryInvocationTargetException {
     if (orderByAttrs != null) {
-      Object[] evaluatedResult = new Object[orderByAttrs.size()];
-      int index = 0;
-      for (CompiledSortCriterion csc : orderByAttrs) {
-        Object[] arr = new Object[2];
+      var evaluatedResult = new Object[orderByAttrs.size()];
+      var index = 0;
+      for (var csc : orderByAttrs) {
+        var arr = new Object[2];
         if (csc.getColumnIndex() == -1) {
           arr[0] = csc.evaluate(context);
         } else {

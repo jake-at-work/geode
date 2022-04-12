@@ -59,7 +59,7 @@ public class DummyAuthorization implements AccessControl {
       final Cache cache) throws NotAuthorizedException {
     if (principal != null) {
 
-      final String name = principal.getName().toLowerCase();
+      final var name = principal.getName().toLowerCase();
 
       if (name != null) {
 
@@ -85,7 +85,7 @@ public class DummyAuthorization implements AccessControl {
 
   @Override
   public boolean authorizeOperation(String regionName, OperationContext context) {
-    final OperationCode opCode = context.getOperationCode();
+    final var opCode = context.getOperationCode();
     securityLogWriter.fine("Invoked authorize operation for [" + opCode + "] in region ["
         + regionName + "] for client: " + remoteMember);
     return allowedOps.contains(opCode);
@@ -97,13 +97,13 @@ public class DummyAuthorization implements AccessControl {
   }
 
   private void addReaderOps() {
-    for (final OperationCode readerOp : READER_OPS) {
+    for (final var readerOp : READER_OPS) {
       allowedOps.add(readerOp);
     }
   }
 
   private void addWriterOps() {
-    for (final OperationCode writerOp : WRITER_OPS) {
+    for (final var writerOp : WRITER_OPS) {
       allowedOps.add(writerOp);
     }
   }

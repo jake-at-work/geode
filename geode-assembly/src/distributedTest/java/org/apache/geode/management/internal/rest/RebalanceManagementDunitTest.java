@@ -22,26 +22,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import org.apache.geode.management.api.ClusterManagementListOperationsResult;
 import org.apache.geode.management.api.ClusterManagementOperationResult;
 import org.apache.geode.management.api.ClusterManagementService;
 import org.apache.geode.management.cluster.client.ClusterManagementServiceBuilder;
 import org.apache.geode.management.configuration.Region;
 import org.apache.geode.management.configuration.RegionType;
 import org.apache.geode.management.operation.RebalanceOperation;
-import org.apache.geode.management.runtime.RebalanceRegionResult;
 import org.apache.geode.management.runtime.RebalanceResult;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
 import org.apache.geode.test.dunit.IgnoredException;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.rules.MemberStarterRule;
 
 public class RebalanceManagementDunitTest {
@@ -53,9 +49,9 @@ public class RebalanceManagementDunitTest {
 
   @BeforeClass
   public static void beforeClass() {
-    MemberVM locator1 = cluster.startLocatorVM(0, MemberStarterRule::withHttpService);
-    int locator1Port = locator1.getPort();
-    MemberVM locator2 =
+    var locator1 = cluster.startLocatorVM(0, MemberStarterRule::withHttpService);
+    var locator1Port = locator1.getPort();
+    var locator2 =
         cluster.startLocatorVM(1, l -> l.withHttpService().withConnectionToLocator(locator1Port));
     cluster.startServerVM(2, "group1", locator1Port);
     cluster.startServerVM(3, "group2", locator1Port);
@@ -70,7 +66,7 @@ public class RebalanceManagementDunitTest {
         .build();
 
     // create regions
-    Region regionConfig = new Region();
+    var regionConfig = new Region();
     regionConfig.setName("customers1");
     regionConfig.setType(RegionType.PARTITION);
     client1.create(regionConfig);
@@ -85,21 +81,21 @@ public class RebalanceManagementDunitTest {
 
   @Test
   public void rebalance() throws Exception {
-    ClusterManagementOperationResult<RebalanceOperation, RebalanceResult> startResult =
+    var startResult =
         client1.start(new RebalanceOperation());
     assertThat(startResult.isSuccessful()).isTrue();
-    long now = System.currentTimeMillis();
+    var now = System.currentTimeMillis();
     assertThat(startResult.getOperationStart().getTime()).isBetween(now - 60000, now);
 
-    ClusterManagementOperationResult<RebalanceOperation, RebalanceResult> endResult =
+    var endResult =
         client1.getFuture(new RebalanceOperation(), startResult.getOperationId()).get();
-    long end = endResult.getOperationEnd().getTime();
+    var end = endResult.getOperationEnd().getTime();
     now = System.currentTimeMillis();
     assertThat(end).isBetween(now - 60000, now)
         .isGreaterThanOrEqualTo(endResult.getOperationStart().getTime());
-    RebalanceResult result = endResult.getOperationResult();
+    var result = endResult.getOperationResult();
     assertThat(result.getRebalanceRegionResults().size()).isEqualTo(2);
-    RebalanceRegionResult firstRegionSummary = result.getRebalanceRegionResults().get(0);
+    var firstRegionSummary = result.getRebalanceRegionResults().get(0);
     assertThat(firstRegionSummary.getRegionName()).isIn(SEPARATOR + "customers1",
         SEPARATOR + "customers2");
   }
@@ -108,16 +104,16 @@ public class RebalanceManagementDunitTest {
   public void rebalanceExistRegion() throws Exception {
     List<String> includeRegions = new ArrayList<>();
     includeRegions.add("customers2");
-    RebalanceOperation op = new RebalanceOperation();
+    var op = new RebalanceOperation();
     op.setIncludeRegions(includeRegions);
-    int initialSize = client1.list(op).getResult().size();
-    ClusterManagementOperationResult<RebalanceOperation, RebalanceResult> cmr = client1.start(op);
+    var initialSize = client1.list(op).getResult().size();
+    var cmr = client1.start(op);
     assertThat(cmr.isSuccessful()).isTrue();
 
-    RebalanceResult result = client1.getFuture(new RebalanceOperation(), cmr.getOperationId()).get()
+    var result = client1.getFuture(new RebalanceOperation(), cmr.getOperationId()).get()
         .getOperationResult();
     assertThat(result.getRebalanceRegionResults().size()).isEqualTo(1);
-    RebalanceRegionResult firstRegionSummary = result.getRebalanceRegionResults().get(0);
+    var firstRegionSummary = result.getRebalanceRegionResults().get(0);
     assertThat(firstRegionSummary.getRegionName()).isEqualTo(SEPARATOR + "customers2");
     assertThat(firstRegionSummary.getBucketCreateBytes()).isEqualTo(0);
     assertThat(firstRegionSummary.getTimeInMilliseconds()).isGreaterThanOrEqualTo(0);
@@ -128,16 +124,16 @@ public class RebalanceManagementDunitTest {
 
   @Test
   public void rebalanceExcludedRegion() throws Exception {
-    RebalanceOperation op = new RebalanceOperation();
+    var op = new RebalanceOperation();
     op.setExcludeRegions(Collections.singletonList("customers1"));
-    ClusterManagementOperationResult<RebalanceOperation, RebalanceResult> cmr = client1.start(op);
+    var cmr = client1.start(op);
     assertThat(cmr.isSuccessful()).isTrue();
 
-    RebalanceResult result =
+    var result =
         client1.getFuture(new RebalanceOperation(), cmr.getOperationId()).get()
             .getOperationResult();
     assertThat(result.getRebalanceRegionResults().size()).isEqualTo(1);
-    RebalanceRegionResult firstRegionSummary = result.getRebalanceRegionResults().get(0);
+    var firstRegionSummary = result.getRebalanceRegionResults().get(0);
     assertThat(firstRegionSummary.getRegionName()).isEqualTo(SEPARATOR + "customers2");
     assertThat(firstRegionSummary.getBucketCreateBytes()).isEqualTo(0);
     assertThat(firstRegionSummary.getTimeInMilliseconds()).isGreaterThanOrEqualTo(0);
@@ -147,16 +143,16 @@ public class RebalanceManagementDunitTest {
   public void rebalanceNonExistRegion() {
     IgnoredException.addIgnoredException(ExecutionException.class);
     IgnoredException.addIgnoredException(RuntimeException.class);
-    RebalanceOperation op = new RebalanceOperation();
+    var op = new RebalanceOperation();
     op.setIncludeRegions(Collections.singletonList("nonexisting_region"));
-    ClusterManagementOperationResult<RebalanceOperation, RebalanceResult> cmr = client1.start(op);
+    var cmr = client1.start(op);
     assertThat(cmr.isSuccessful()).isTrue();
-    String id = cmr.getOperationId();
+    var id = cmr.getOperationId();
 
     List<ClusterManagementOperationResult<RebalanceOperation, RebalanceResult>> resultArrayList =
         new ArrayList<>();
     GeodeAwaitility.await().untilAsserted(() -> {
-      ClusterManagementOperationResult<RebalanceOperation, RebalanceResult> rebalanceResult =
+      var rebalanceResult =
           getRebalanceResult(op, id);
       if (rebalanceResult != null) {
         resultArrayList.add(rebalanceResult);
@@ -172,9 +168,9 @@ public class RebalanceManagementDunitTest {
 
   private ClusterManagementOperationResult<RebalanceOperation, RebalanceResult> getRebalanceResult(
       RebalanceOperation op, String id) {
-    ClusterManagementListOperationsResult<RebalanceOperation, RebalanceResult> listOperationsResult =
+    var listOperationsResult =
         client1.list(op);
-    Optional<ClusterManagementOperationResult<RebalanceOperation, RebalanceResult>> rebalanceResult =
+    var rebalanceResult =
         listOperationsResult.getResult()
             .stream()
             .filter(rbalresult -> rbalresult.getOperationId().equals(id)
@@ -187,15 +183,15 @@ public class RebalanceManagementDunitTest {
   public void rebalanceOneExistingOneNonExistingRegion() throws Exception {
     IgnoredException.addIgnoredException(ExecutionException.class);
     IgnoredException.addIgnoredException(RuntimeException.class);
-    RebalanceOperation op = new RebalanceOperation();
+    var op = new RebalanceOperation();
     op.setIncludeRegions(Arrays.asList("nonexisting_region", "customers1"));
-    ClusterManagementOperationResult<RebalanceOperation, RebalanceResult> cmr = client1.start(op);
+    var cmr = client1.start(op);
     assertThat(cmr.isSuccessful()).isTrue();
 
-    RebalanceResult result = client1.getFuture(new RebalanceOperation(), cmr.getOperationId()).get()
+    var result = client1.getFuture(new RebalanceOperation(), cmr.getOperationId()).get()
         .getOperationResult();
     assertThat(result.getRebalanceRegionResults().size()).isEqualTo(1);
-    RebalanceRegionResult firstRegionSummary = result.getRebalanceRegionResults().get(0);
+    var firstRegionSummary = result.getRebalanceRegionResults().get(0);
     assertThat(firstRegionSummary.getRegionName()).isEqualTo(SEPARATOR + "customers1");
     assertThat(firstRegionSummary.getBucketCreateBytes()).isEqualTo(0);
     assertThat(firstRegionSummary.getTimeInMilliseconds()).isGreaterThanOrEqualTo(0);

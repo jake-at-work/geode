@@ -21,7 +21,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,7 +32,6 @@ import org.junit.runners.Parameterized;
 import org.apache.geode.internal.UniquePortSupplier;
 import org.apache.geode.test.compiler.ClassBuilder;
 import org.apache.geode.test.junit.categories.BackwardCompatibilityTest;
-import org.apache.geode.test.junit.rules.gfsh.GfshExecution;
 import org.apache.geode.test.junit.rules.gfsh.GfshRule;
 import org.apache.geode.test.junit.rules.gfsh.GfshScript;
 import org.apache.geode.test.junit.runners.CategoryWithParameterizedRunnerFactory;
@@ -53,7 +51,7 @@ public class RollingUpgradeWithGfshDUnitTest {
 
   @Parameterized.Parameters(name = "{0}")
   public static Collection<String> data() {
-    List<String> result = VersionManager.getInstance().getVersionsWithoutCurrent();
+    var result = VersionManager.getInstance().getVersionsWithoutCurrent();
     result.removeIf(s -> TestVersion.compare(s, "1.10.0") < 0);
     return result;
   }
@@ -74,15 +72,15 @@ public class RollingUpgradeWithGfshDUnitTest {
 
   @Test
   public void testRollingUpgradeWithDeployment() throws Exception {
-    int locatorPort = portSupplier.getAvailablePort();
-    int locatorJmxPort = portSupplier.getAvailablePort();
-    int locator2Port = portSupplier.getAvailablePort();
-    int locator2JmxPort = portSupplier.getAvailablePort();
-    int server1Port = portSupplier.getAvailablePort();
-    int server2Port = portSupplier.getAvailablePort();
-    final String hostname = "localhost";
+    var locatorPort = portSupplier.getAvailablePort();
+    var locatorJmxPort = portSupplier.getAvailablePort();
+    var locator2Port = portSupplier.getAvailablePort();
+    var locator2JmxPort = portSupplier.getAvailablePort();
+    var server1Port = portSupplier.getAvailablePort();
+    var server2Port = portSupplier.getAvailablePort();
+    final var hostname = "localhost";
 
-    GfshExecution startupExecution =
+    var startupExecution =
         GfshScript.of(startLocatorCommand("loc1", hostname, locatorPort, locatorJmxPort, 0,
             -1))
             .and(startLocatorCommand("loc2", hostname, locator2Port, locator2JmxPort, 0,
@@ -118,7 +116,7 @@ public class RollingUpgradeWithGfshDUnitTest {
   }
 
   private void verifyListDeployed(int locatorPort) {
-    GfshExecution list_deployed = GfshScript.of("connect --locator=localhost[" + locatorPort + "]")
+    var list_deployed = GfshScript.of("connect --locator=localhost[" + locatorPort + "]")
         .and("list deployed").execute(currentGfsh);
     assertThat(list_deployed.getOutputText()).contains("DeployCommandsDUnit1.jar")
         .contains("server1").contains("server2");
@@ -126,11 +124,11 @@ public class RollingUpgradeWithGfshDUnitTest {
   }
 
   private String deployDirCommand() throws IOException {
-    ClassBuilder classBuilder = new ClassBuilder();
-    File jarsDir = tempFolder.newFolder();
-    String jarName1 = "DeployCommandsDUnit1.jar";
-    File jar1 = new File(jarsDir, jarName1);
-    String class1 = "DeployCommandsDUnitA";
+    var classBuilder = new ClassBuilder();
+    var jarsDir = tempFolder.newFolder();
+    var jarName1 = "DeployCommandsDUnit1.jar";
+    var jar1 = new File(jarsDir, jarName1);
+    var class1 = "DeployCommandsDUnitA";
     classBuilder.writeJarFromName(class1, jar1);
     return "deploy --dir=" + jarsDir.getAbsolutePath();
   }

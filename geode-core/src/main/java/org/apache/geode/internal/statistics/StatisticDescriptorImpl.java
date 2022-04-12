@@ -261,7 +261,7 @@ public class StatisticDescriptorImpl implements StatisticDescriptor {
   public int checkLong() {
     if (typeCode != LONG) {
 
-      final String sb = "The statistic " + getName() + " with id "
+      final var sb = "The statistic " + getName() + " with id "
           + getId()
           + " is of type "
           + StatisticDescriptorImpl.getTypeCodeName(getTypeCode())
@@ -296,7 +296,7 @@ public class StatisticDescriptorImpl implements StatisticDescriptor {
     if (!(o instanceof StatisticDescriptorImpl)) {
       return false;
     }
-    StatisticDescriptorImpl other = (StatisticDescriptorImpl) o;
+    var other = (StatisticDescriptorImpl) o;
     if (getId() != other.getId()) {
       return false;
     }

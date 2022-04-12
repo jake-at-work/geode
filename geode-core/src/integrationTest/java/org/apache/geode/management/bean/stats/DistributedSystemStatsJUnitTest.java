@@ -37,9 +37,7 @@ import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.NanoTimer;
-import org.apache.geode.internal.cache.CachePerfStats;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
-import org.apache.geode.management.DistributedSystemMXBean;
 import org.apache.geode.management.ManagementService;
 import org.apache.geode.management.internal.SystemManagementService;
 import org.apache.geode.test.junit.categories.JMXTest;
@@ -62,7 +60,7 @@ public class DistributedSystemStatsJUnitTest {
   @Before
   public void setUp() throws Exception {
 
-    final Properties props = new Properties();
+    final var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(ENABLE_TIME_STATISTICS, "true");
     props.setProperty(STATISTIC_SAMPLING_ENABLED, "false");
@@ -84,18 +82,18 @@ public class DistributedSystemStatsJUnitTest {
 
   @Test
   public void testIssue51048() throws InterruptedException {
-    SystemManagementService service =
+    var service =
         (SystemManagementService) ManagementService.getExistingManagementService(cache);
-    DistributedSystemMXBean dsmbean = service.getDistributedSystemMXBean();
+    var dsmbean = service.getDistributedSystemMXBean();
 
-    CachePerfStats cachePerfStats = ((GemFireCacheImpl) cache).getCachePerfStats();
+    var cachePerfStats = ((GemFireCacheImpl) cache).getCachePerfStats();
 
-    for (int i = 1; i <= 10; i++) {
+    for (var i = 1; i <= 10; i++) {
       cachePerfStats.incCreates();
     }
 
-    long startGetsTime1 = cachePerfStats.startGet();
-    long startGetsTime2 = cachePerfStats.startGet();
+    var startGetsTime1 = cachePerfStats.startGet();
+    var startGetsTime2 = cachePerfStats.startGet();
 
     cachePerfStats.endGet(startGetsTime1, true);
     cachePerfStats.endGet(startGetsTime2, false);

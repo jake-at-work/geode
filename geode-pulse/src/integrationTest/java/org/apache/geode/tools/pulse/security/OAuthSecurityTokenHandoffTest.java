@@ -86,15 +86,15 @@ public class OAuthSecurityTokenHandoffTest {
 
   @Test
   public void usesCurrentSessionAccessTokenValueAsCredentialToConnectToGemFire() throws Exception {
-    String subject = "some-subject";
+    var subject = "some-subject";
 
-    Cluster clusterForUser = mock(Cluster.class);
+    var clusterForUser = mock(Cluster.class);
     when(clusterFactory.create(any(), any(), eq(subject), any(), any())).thenReturn(clusterForUser);
 
-    String tokenValue = "the-token-value";
-    MockHttpSession session = sessionWithAuthenticatedUser("some-user-name", subject, tokenValue);
+    var tokenValue = "the-token-value";
+    var session = sessionWithAuthenticatedUser("some-user-name", subject, tokenValue);
 
-    String urlThatTriggersPulseToConnectToGemFire = "/dataBrowserRegions";
+    var urlThatTriggersPulseToConnectToGemFire = "/dataBrowserRegions";
     mvc.perform(get(urlThatTriggersPulseToConnectToGemFire).session(session));
 
     verify(clusterForUser).connectToGemFire(tokenValue);
@@ -102,23 +102,23 @@ public class OAuthSecurityTokenHandoffTest {
 
   private MockHttpSession sessionWithAuthenticatedUser(String userName, String subject,
       String tokenValue) {
-    OAuth2AccessToken accessToken = accessToken(tokenValue);
-    OidcIdToken idToken = idToken(userName, subject, accessToken);
-    OAuth2AuthenticationToken authenticationToken = authenticationToken(idToken);
+    var accessToken = accessToken(tokenValue);
+    var idToken = idToken(userName, subject, accessToken);
+    var authenticationToken = authenticationToken(idToken);
     authorizeClient(authenticationToken, accessToken);
     return sessionWithAuthenticationToken(authenticationToken);
   }
 
   private static OAuth2AuthenticationToken authenticationToken(OidcIdToken idToken) {
-    List<GrantedAuthority> userAuthorities = allGeodeAuthorities(idToken.getClaims());
+    var userAuthorities = allGeodeAuthorities(idToken.getClaims());
     OidcUser user = new DefaultOidcUser(userAuthorities, idToken);
     return new OAuth2AuthenticationToken(user, userAuthorities, AUTHENTICATION_PROVIDER_ID);
   }
 
   private void authorizeClient(OAuth2AuthenticationToken authenticationToken,
       OAuth2AccessToken accessToken) {
-    String userName = authenticationToken.getPrincipal().getName();
-    OAuth2AuthorizedClient authorizedClient =
+    var userName = authenticationToken.getPrincipal().getName();
+    var authorizedClient =
         new OAuth2AuthorizedClient(clientRegistration(), userName, accessToken);
     authorizedClientService.saveAuthorizedClient(authorizedClient, authenticationToken);
   }
@@ -134,8 +134,8 @@ public class OAuthSecurityTokenHandoffTest {
   }
 
   private static OAuth2AccessToken accessToken(String tokenValue) {
-    Instant issuedAt = Instant.now();
-    Instant expiresAt = issuedAt.plus(Duration.ofDays(12));
+    var issuedAt = Instant.now();
+    var expiresAt = issuedAt.plus(Duration.ofDays(12));
     return new OAuth2AccessToken(BEARER, tokenValue, issuedAt, expiresAt);
   }
 
@@ -161,7 +161,7 @@ public class OAuthSecurityTokenHandoffTest {
 
   private static MockHttpSession sessionWithAuthenticationToken(
       OAuth2AuthenticationToken authenticationToken) {
-    MockHttpSession session = new MockHttpSession();
+    var session = new MockHttpSession();
     session.setAttribute(SPRING_SECURITY_CONTEXT_KEY, new SecurityContextImpl(authenticationToken));
     return session;
   }

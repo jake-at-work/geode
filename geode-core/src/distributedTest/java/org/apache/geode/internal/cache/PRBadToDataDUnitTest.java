@@ -32,7 +32,6 @@ import org.apache.geode.cache30.CacheSerializableRunnable;
 import org.apache.geode.test.dunit.Assert;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.SerializableRunnable;
-import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.cache.internal.JUnit4CacheTestCase;
 
 /**
@@ -46,31 +45,31 @@ public class PRBadToDataDUnitTest extends JUnit4CacheTestCase {
 
   @Test
   public void testBadToData() {
-    final Host host = Host.getHost(0);
-    final VM vm1 = host.getVM(0);
-    final VM vm2 = host.getVM(1);
-    final String name = "PR_TEMP";
+    final var host = Host.getHost(0);
+    final var vm1 = host.getVM(0);
+    final var vm2 = host.getVM(1);
+    final var name = "PR_TEMP";
 
     final SerializableRunnable create = new CacheSerializableRunnable("Create PR accessor ") {
       @Override
       public void run2() {
-        final AttributesFactory factory = new AttributesFactory();
+        final var factory = new AttributesFactory();
         factory.setPartitionAttributes(
             new PartitionAttributesFactory().setRedundantCopies(0).setLocalMaxMemory(0).create());
-        final PartitionedRegion pr = (PartitionedRegion) createRootRegion(name, factory.create());
+        final var pr = (PartitionedRegion) createRootRegion(name, factory.create());
         assertNotNull(pr);
       }
     };
     vm1.invoke(create);
 
-    final SerializableRunnable create2 = new SerializableRunnable("Create PR dataStore ") {
+    final var create2 = new SerializableRunnable("Create PR dataStore ") {
       @Override
       public void run() {
         try {
-          final AttributesFactory factory = new AttributesFactory();
+          final var factory = new AttributesFactory();
           factory.setPartitionAttributes(new PartitionAttributesFactory().setRedundantCopies(0)
               .setLocalMaxMemory(100).create());
-          final PartitionedRegion pr = (PartitionedRegion) createRootRegion(name, factory.create());
+          final var pr = (PartitionedRegion) createRootRegion(name, factory.create());
           assertNotNull(pr);
         } catch (final CacheException ex) {
           Assert.fail("While creating Partitioned region", ex);
@@ -79,10 +78,10 @@ public class PRBadToDataDUnitTest extends JUnit4CacheTestCase {
     };
     vm2.invoke(create2);
 
-    final SerializableRunnable putData = new SerializableRunnable("Puts Data") {
+    final var putData = new SerializableRunnable("Puts Data") {
       @Override
       public void run() {
-        final PartitionedRegion pr = (PartitionedRegion) getRootRegion(name);
+        final var pr = (PartitionedRegion) getRootRegion(name);
         assertNotNull(pr);
         try {
           pr.put("key", new DataSerializable() {

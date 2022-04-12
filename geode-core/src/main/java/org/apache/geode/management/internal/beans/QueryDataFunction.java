@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.logging.log4j.Logger;
@@ -31,17 +30,13 @@ import org.apache.geode.cache.execute.FunctionException;
 import org.apache.geode.cache.execute.FunctionService;
 import org.apache.geode.cache.execute.RegionFunctionContext;
 import org.apache.geode.cache.execute.ResultCollector;
-import org.apache.geode.cache.query.Query;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.internal.DefaultQuery;
 import org.apache.geode.cache.query.internal.ExecutionContext;
 import org.apache.geode.cache.query.internal.QueryExecutionContext;
 import org.apache.geode.internal.InternalEntity;
-import org.apache.geode.internal.cache.BucketRegion;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.LocalDataSet;
-import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.PartitionedRegionHelper;
 import org.apache.geode.internal.cache.execute.InternalFunction;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -88,10 +83,10 @@ public class QueryDataFunction implements Function, InternalEntity {
 
   @Override
   public void execute(final FunctionContext context) {
-    Object[] functionArgs = (Object[]) context.getArguments();
+    var functionArgs = (Object[]) context.getArguments();
     boolean showMember = (Boolean) functionArgs[DISPLAY_MEMBERWISE];
-    String queryString = (String) functionArgs[QUERY];
-    String regionName = (String) functionArgs[REGION];
+    var queryString = (String) functionArgs[QUERY];
+    var regionName = (String) functionArgs[REGION];
     int limit = (Integer) functionArgs[LIMIT];
 
     int queryResultSetLimit = (Integer) functionArgs[QUERY_RESULTSET_LIMIT];
@@ -115,13 +110,13 @@ public class QueryDataFunction implements Function, InternalEntity {
   private byte[] selectWithType(final FunctionContext context, String queryString,
       final boolean showMember, final String regionName, final int limit,
       final int queryResultSetLimit, final int queryCollectionsDepth) throws Exception {
-    InternalCache cache = (InternalCache) context.getCache();
+    var cache = (InternalCache) context.getCache();
     Function localQueryFunc = new LocalQueryFunction("LocalQueryFunction", regionName, showMember)
         .setOptimizeForWrite(true);
     queryString = applyLimitClause(queryString, limit, queryResultSetLimit);
 
     try {
-      QueryResultFormatter result = new QueryResultFormatter(queryCollectionsDepth);
+      var result = new QueryResultFormatter(queryCollectionsDepth);
 
       Region region = cache.getRegion(regionName);
 
@@ -132,31 +127,31 @@ public class QueryDataFunction implements Function, InternalEntity {
 
       Object results = null;
 
-      boolean noDataFound = true;
+      var noDataFound = true;
 
       if (region.getAttributes().getDataPolicy() == DataPolicy.NORMAL) {
-        QueryService queryService = cache.getQueryService();
+        var queryService = cache.getQueryService();
 
-        Query query = queryService.newQuery(queryString);
+        var query = queryService.newQuery(queryString);
         results = query.execute();
 
       } else {
         ResultCollector rcollector;
 
-        PartitionedRegion parRegion =
+        var parRegion =
             PartitionedRegionHelper.getPartitionedRegion(regionName, cache);
         if (parRegion != null && showMember) {
           if (parRegion.isDataStore()) {
 
-            Set<BucketRegion> localPrimaryBucketRegions =
+            var localPrimaryBucketRegions =
                 parRegion.getDataStore().getAllLocalPrimaryBucketRegions();
             Set<Integer> localPrimaryBucketSet = new HashSet<>();
-            for (BucketRegion bRegion : localPrimaryBucketRegions) {
+            for (var bRegion : localPrimaryBucketRegions) {
               localPrimaryBucketSet.add(bRegion.getId());
             }
-            LocalDataSet lds =
+            var lds =
                 new LocalDataSet(parRegion, localPrimaryBucketSet);
-            DefaultQuery query = (DefaultQuery) cache.getQueryService().newQuery(queryString);
+            var query = (DefaultQuery) cache.getQueryService().newQuery(queryString);
             final ExecutionContext executionContext = new QueryExecutionContext(null, cache, query);
             results = lds.executeQuery(query, executionContext, null, localPrimaryBucketSet);
           }
@@ -169,15 +164,15 @@ public class QueryDataFunction implements Function, InternalEntity {
 
       if (results != null && results instanceof SelectResults) {
 
-        SelectResults selectResults = (SelectResults) results;
-        for (Object object : selectResults) {
+        var selectResults = (SelectResults) results;
+        for (var object : selectResults) {
           result.add(RESULT_KEY, object);
           noDataFound = false;
         }
       } else if (results != null && results instanceof ArrayList) {
-        ArrayList listResults = (ArrayList) results;
-        ArrayList actualResult = (ArrayList) listResults.get(0);
-        for (Object object : actualResult) {
+        var listResults = (ArrayList) results;
+        var actualResult = (ArrayList) listResults.get(0);
+        for (var object : actualResult) {
           result.add(RESULT_KEY, object);
           noDataFound = false;
         }
@@ -210,9 +205,9 @@ public class QueryDataFunction implements Function, InternalEntity {
    */
   protected static String applyLimitClause(final String query, int limit,
       final int queryResultSetLimit) {
-    String[] lines = query.split(System.lineSeparator());
+    var lines = query.split(System.lineSeparator());
     List<String> queryStrings = new ArrayList();
-    for (String line : lines) {
+    for (var line : lines) {
       // remove the comments
       if (!line.startsWith("--") && line.length() > 0) {
         queryStrings.add(line);
@@ -222,13 +217,13 @@ public class QueryDataFunction implements Function, InternalEntity {
       throw new IllegalArgumentException("invalid query: " + query);
     }
 
-    String queryString = String.join(" ", queryStrings);
+    var queryString = String.join(" ", queryStrings);
 
-    Matcher matcher = SELECT_EXPR_PATTERN.matcher(queryString);
+    var matcher = SELECT_EXPR_PATTERN.matcher(queryString);
 
     if (matcher.matches()) {
-      Matcher limit_matcher = SELECT_WITH_LIMIT_EXPR_PATTERN.matcher(queryString);
-      boolean queryAlreadyHasLimitClause = limit_matcher.matches();
+      var limit_matcher = SELECT_WITH_LIMIT_EXPR_PATTERN.matcher(queryString);
+      var queryAlreadyHasLimitClause = limit_matcher.matches();
 
       if (!queryAlreadyHasLimitClause) {
         if (limit == 0) {
@@ -283,12 +278,12 @@ public class QueryDataFunction implements Function, InternalEntity {
 
     @Override
     public void execute(final FunctionContext context) {
-      InternalCache cache = (InternalCache) context.getCache();
-      QueryService queryService = cache.getQueryService();
-      String qstr = (String) context.getArguments();
+      var cache = (InternalCache) context.getCache();
+      var queryService = cache.getQueryService();
+      var qstr = (String) context.getArguments();
       Region r = cache.getRegion(regionName);
       try {
-        Query query = queryService.newQuery(qstr);
+        var query = queryService.newQuery(qstr);
         SelectResults sr;
         if (r.getAttributes().getPartitionAttributes() != null && showMembers) {
           sr = (SelectResults) query.execute((RegionFunctionContext) context);

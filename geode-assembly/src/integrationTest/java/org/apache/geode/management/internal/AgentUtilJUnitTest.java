@@ -19,7 +19,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
-import java.net.URI;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -44,20 +43,20 @@ public class AgentUtilJUnitTest {
 
   @Test
   public void testRESTApiExists() {
-    URI gemFireWarLocation = agentUtil.findWarLocation("geode-web-api");
+    var gemFireWarLocation = agentUtil.findWarLocation("geode-web-api");
     assertNotNull("GemFire REST API WAR File was not found", gemFireWarLocation);
   }
 
   @Test
   public void testPulseWarExists() {
-    URI gemFireWarLocation = agentUtil.findWarLocation("geode-pulse");
+    var gemFireWarLocation = agentUtil.findWarLocation("geode-pulse");
     assertNotNull("Pulse WAR File was not found", gemFireWarLocation);
   }
 
   @Test
   public void testLookupOfWarFileOnClassPath() {
-    String classpath = System.getProperty("java.class.path");
-    URI gemFireWarLocation = agentUtil.findWarLocation("testWarFile");
+    var classpath = System.getProperty("java.class.path");
+    var gemFireWarLocation = agentUtil.findWarLocation("testWarFile");
     assertNull(gemFireWarLocation);
 
     classpath =

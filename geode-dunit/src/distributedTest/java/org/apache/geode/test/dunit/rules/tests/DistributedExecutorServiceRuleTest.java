@@ -50,13 +50,13 @@ public class DistributedExecutorServiceRuleTest implements Serializable {
 
   @Test
   public void eachVmHasAnExecutorService() {
-    for (int i = 0; i < getVMCount(); i++) {
+    for (var i = 0; i < getVMCount(); i++) {
       getVM(i).invoke(() -> {
         executorService.set(executorServiceRule.getExecutorService());
       });
     }
 
-    for (int i = 0; i < getVMCount(); i++) {
+    for (var i = 0; i < getVMCount(); i++) {
       getVM(i).invoke(() -> {
         assertThat(executorService.get()).isNotNull();
       });
@@ -65,31 +65,31 @@ public class DistributedExecutorServiceRuleTest implements Serializable {
 
   @Test
   public void eachVmAwaitsItsOwnVoidFuture() {
-    for (int i = 0; i < getVMCount(); i++) {
+    for (var i = 0; i < getVMCount(); i++) {
       getVM(i).invoke(() -> {
         latch.set(new CountDownLatch(1));
       });
     }
 
-    for (int i = 0; i < getVMCount(); i++) {
+    for (var i = 0; i < getVMCount(); i++) {
       getVM(i).invoke(() -> voidFuture.set(executorServiceRule.submit(() -> {
         latch.get().await(TIMEOUT_MILLIS, MILLISECONDS);
       })));
     }
 
-    for (int i = 0; i < getVMCount(); i++) {
+    for (var i = 0; i < getVMCount(); i++) {
       getVM(i).invoke(() -> {
         assertThat(voidFuture.get().isDone()).isFalse();
       });
     }
 
-    for (int i = 0; i < getVMCount(); i++) {
+    for (var i = 0; i < getVMCount(); i++) {
       getVM(i).invoke(() -> voidFuture.set(executorServiceRule.submit(() -> {
         latch.get().countDown();
       })));
     }
 
-    for (int i = 0; i < getVMCount(); i++) {
+    for (var i = 0; i < getVMCount(); i++) {
       getVM(i).invoke(() -> voidFuture.set(executorServiceRule.submit(() -> {
         assertThat(voidFuture.get().isDone()).isTrue();
       })));
@@ -98,31 +98,31 @@ public class DistributedExecutorServiceRuleTest implements Serializable {
 
   @Test
   public void eachVmAwaitsItsOwnBooleanFuture() {
-    for (int i = 0; i < getVMCount(); i++) {
+    for (var i = 0; i < getVMCount(); i++) {
       getVM(i).invoke(() -> {
         latch.set(new CountDownLatch(1));
       });
     }
 
-    for (int i = 0; i < getVMCount(); i++) {
+    for (var i = 0; i < getVMCount(); i++) {
       getVM(i).invoke(() -> booleanFuture.set(executorServiceRule.submit(() -> {
         return latch.get().await(TIMEOUT_MILLIS, MILLISECONDS);
       })));
     }
 
-    for (int i = 0; i < getVMCount(); i++) {
+    for (var i = 0; i < getVMCount(); i++) {
       getVM(i).invoke(() -> {
         assertThat(booleanFuture.get().isDone()).isFalse();
       });
     }
 
-    for (int i = 0; i < getVMCount(); i++) {
+    for (var i = 0; i < getVMCount(); i++) {
       getVM(i).invoke(() -> voidFuture.set(executorServiceRule.submit(() -> {
         latch.get().countDown();
       })));
     }
 
-    for (int i = 0; i < getVMCount(); i++) {
+    for (var i = 0; i < getVMCount(); i++) {
       getVM(i).invoke(() -> voidFuture.set(executorServiceRule.submit(() -> {
         assertThat(latch.get().getCount()).isZero();
       })));
@@ -131,32 +131,32 @@ public class DistributedExecutorServiceRuleTest implements Serializable {
 
   @Test
   public void eachVmCompletesIndependently() {
-    for (int i = 0; i < getVMCount(); i++) {
+    for (var i = 0; i < getVMCount(); i++) {
       getVM(i).invoke(() -> {
         latch.set(new CountDownLatch(1));
       });
     }
 
-    for (int i = 0; i < getVMCount(); i++) {
+    for (var i = 0; i < getVMCount(); i++) {
       getVM(i).invoke(() -> voidFuture.set(executorServiceRule.submit(() -> {
         latch.get().await(TIMEOUT_MILLIS, MILLISECONDS);
       })));
     }
 
-    for (int i = 0; i < getVMCount(); i++) {
+    for (var i = 0; i < getVMCount(); i++) {
       getVM(i).invoke(() -> {
         assertThat(voidFuture.get().isDone()).isFalse();
       });
     }
 
-    for (int i = 0; i < getVMCount(); i++) {
+    for (var i = 0; i < getVMCount(); i++) {
       getVM(i).invoke(() -> voidFuture.set(executorServiceRule.submit(() -> {
         latch.get().countDown();
 
         assertThat(voidFuture.get().isDone()).isTrue();
       })));
 
-      for (int j = 0; j < getVMCount(); j++) {
+      for (var j = 0; j < getVMCount(); j++) {
         if (j == i) {
           continue;
         }

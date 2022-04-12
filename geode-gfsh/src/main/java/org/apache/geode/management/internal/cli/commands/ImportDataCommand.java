@@ -23,8 +23,6 @@ import org.springframework.shell.core.annotation.CliOption;
 
 import org.apache.geode.cache.CacheClosedException;
 import org.apache.geode.cache.execute.FunctionInvocationTargetException;
-import org.apache.geode.cache.execute.ResultCollector;
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.ConverterHint;
 import org.apache.geode.management.cli.GfshCommand;
@@ -58,21 +56,21 @@ public class ImportDataCommand extends GfshCommand {
 
     authorize(Resource.DATA, Operation.WRITE, regionName);
 
-    final DistributedMember targetMember = getMember(memberNameOrId);
+    final var targetMember = getMember(memberNameOrId);
 
-    Optional<ResultModel> validationResult = validatePath(filePath, dirPath, parallel);
+    var validationResult = validatePath(filePath, dirPath, parallel);
     if (validationResult.isPresent()) {
       return validationResult.get();
     }
 
     ResultModel result;
     try {
-      String path = dirPath != null ? dirPath : filePath;
+      var path = dirPath != null ? dirPath : filePath;
       final Object[] args = {regionName, path, invokeCallbacks, parallel};
 
-      ResultCollector<?, ?> rc = executeFunction(importDataFunction, args, targetMember);
+      var rc = executeFunction(importDataFunction, args, targetMember);
       @SuppressWarnings("unchecked")
-      final List<CliFunctionResult> results = (List<CliFunctionResult>) rc.getResult();
+      final var results = (List<CliFunctionResult>) rc.getResult();
       result = ResultModel.createMemberStatusResult(results);
     } catch (CacheClosedException e) {
       result = ResultModel.createError(e.getMessage());

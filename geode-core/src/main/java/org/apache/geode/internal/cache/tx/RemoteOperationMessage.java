@@ -19,7 +19,6 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
 
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -49,7 +48,6 @@ import org.apache.geode.internal.cache.InternalRegion;
 import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.cache.RemoteOperationException;
 import org.apache.geode.internal.cache.TXManagerImpl;
-import org.apache.geode.internal.cache.TXStateProxy;
 import org.apache.geode.internal.cache.TransactionMessage;
 import org.apache.geode.internal.logging.log4j.LogMarker;
 import org.apache.geode.internal.serialization.DataSerializableFixedID;
@@ -105,7 +103,7 @@ public abstract class RemoteOperationMessage extends DistributionMessage
       processor.enableSevereAlertProcessing();
     }
     txUniqId = TXManagerImpl.getCurrentTXUniqueId();
-    TXStateProxy txState = TXManagerImpl.getCurrentTXState();
+    var txState = TXManagerImpl.getCurrentTXState();
     if (txState != null && txState.isMemberIdForwardingRequired()) {
       txMemberId = txState.getOriginatingMember();
     }
@@ -158,7 +156,7 @@ public abstract class RemoteOperationMessage extends DistributionMessage
    * @return true if the distributed system is closing
    */
   public boolean checkDSClosing(ClusterDistributionManager dm) {
-    InternalDistributedSystem ds = dm.getSystem();
+    var ds = dm.getSystem();
     return (ds == null || ds.isDisconnecting());
   }
 
@@ -171,10 +169,10 @@ public abstract class RemoteOperationMessage extends DistributionMessage
    */
   @Override
   public void process(final ClusterDistributionManager dm) {
-    InternalCache cache = getCache(dm);
+    var cache = getCache(dm);
     if (cache == null) {
-      String message = getCacheClosedMessage(dm);
-      ReplyException replyException = new ReplyException(new CacheClosedException(message));
+      var message = getCacheClosedMessage(dm);
+      var replyException = new ReplyException(new CacheClosedException(message));
       sendReply(getSender(), processorId, dm, replyException, null, 0);
       return;
     }
@@ -199,7 +197,7 @@ public abstract class RemoteOperationMessage extends DistributionMessage
 
   void doRemoteOperation(ClusterDistributionManager dm, InternalCache cache) {
     Throwable thr = null;
-    boolean sendReply = true;
+    var sendReply = true;
     LocalRegion r = null;
     long startTime = 0;
     try {
@@ -217,8 +215,8 @@ public abstract class RemoteOperationMessage extends DistributionMessage
       }
 
       // [bruce] r might be null here, so we have to go to the cache instance to get the txmgr
-      TXManagerImpl txMgr = getTXManager(cache);
-      TXStateProxy tx = txMgr.masqueradeAs(this);
+      var txMgr = getTXManager(cache);
+      var tx = txMgr.masqueradeAs(this);
       if (tx == null) {
         sendReply = operateOnRegion(dm, r, startTime);
       } else {
@@ -369,7 +367,7 @@ public abstract class RemoteOperationMessage extends DistributionMessage
   public void toData(DataOutput out,
       SerializationContext context) throws IOException {
     super.toData(out, context);
-    short flags = computeCompressedShort();
+    var flags = computeCompressedShort();
     out.writeShort(flags);
     if (processorId != 0) {
       out.writeInt(processorId);
@@ -429,8 +427,8 @@ public abstract class RemoteOperationMessage extends DistributionMessage
 
   @Override
   public String toString() {
-    StringBuilder buff = new StringBuilder();
-    String className = getClass().getName();
+    var buff = new StringBuilder();
+    var className = getClass().getName();
     // className.substring(className.lastIndexOf('.', className.lastIndexOf('.') - 1) + 1); //
     // partition.<foo> more generic version
     buff.append(className.substring(className.indexOf(PN_TOKEN) + PN_TOKEN.length())); // partition.<foo>
@@ -450,8 +448,8 @@ public abstract class RemoteOperationMessage extends DistributionMessage
    */
   protected void appendFields(StringBuilder buff) {
     buff.append("; sender=").append(getSender()).append("; recipients=[");
-    List<InternalDistributedMember> recipients = getRecipients();
-    for (int i = 0; i < recipients.size() - 1; i++) {
+    var recipients = getRecipients();
+    for (var i = 0; i < recipients.size() - 1; i++) {
       buff.append(recipients.get(i)).append(',');
     }
     if (recipients.size() > 0) {
@@ -563,7 +561,7 @@ public abstract class RemoteOperationMessage extends DistributionMessage
         }
         checkIfDone();
       } else {
-        Exception e = new Exception("memberDeparted got null memberId");
+        var e = new Exception("memberDeparted got null memberId");
         logger.info("memberDeparted got null memberId crashed=" + crashed, e);
       }
     }
@@ -584,7 +582,7 @@ public abstract class RemoteOperationMessage extends DistributionMessage
     public void waitForRemoteResponse() throws RemoteOperationException {
       try {
         waitForRepliesUninterruptibly();
-        RemoteOperationException ex = getMemberDepartedException();
+        var ex = getMemberDepartedException();
         if (ex != null) {
           throw ex;
         }
@@ -592,7 +590,7 @@ public abstract class RemoteOperationMessage extends DistributionMessage
           throw new RemoteOperationException("response required but not received");
         }
       } catch (ReplyException e) {
-        Throwable t = e.getCause();
+        var t = e.getCause();
         if (t instanceof RemoteOperationException) {
           // no need to create a local RemoteOperationException to wrap the one from the reply
           throw (RemoteOperationException) t;
@@ -626,9 +624,9 @@ public abstract class RemoteOperationMessage extends DistributionMessage
    */
   private void setIfTransactionDistributed(ReplyProcessor21 processor) {
     if (processor != null) {
-      DistributionManager distributionManager = processor.getDistributionManager();
+      var distributionManager = processor.getDistributionManager();
       if (distributionManager != null) {
-        InternalCache cache = distributionManager.getCache();
+        var cache = distributionManager.getCache();
         if (cache != null && cache.getTxManager() != null) {
           isTransactionDistributed = cache.getTxManager().isDistributed();
         }

@@ -31,10 +31,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.CacheUtils;
-import org.apache.geode.cache.query.Query;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.test.junit.categories.OQLQueryTest;
 
@@ -50,7 +47,7 @@ public class ComparisonOperatorsJUnitTest {
   @Before
   public void setUp() throws java.lang.Exception {
     CacheUtils.startCache();
-    Region region = CacheUtils.createRegion("Portfolios", Portfolio.class);
+    var region = CacheUtils.createRegion("Portfolios", Portfolio.class);
     region.put("0", new Portfolio(0));
     region.put("1", new Portfolio(1));
     region.put("2", new Portfolio(2));
@@ -66,18 +63,18 @@ public class ComparisonOperatorsJUnitTest {
 
   @Test
   public void testCompareWithInt() throws Exception {
-    String var = "ID";
-    int value = 2;
-    QueryService qs = CacheUtils.getQueryService();
-    for (int i = 0; i < operators.length; i++) {
-      Query query =
+    var var = "ID";
+    var value = 2;
+    var qs = CacheUtils.getQueryService();
+    for (var i = 0; i < operators.length; i++) {
+      var query =
           qs.newQuery("SELECT DISTINCT * FROM " + SEPARATOR + "Portfolios where " + var
               + operators[i] + value);
-      Object result = query.execute();
+      var result = query.execute();
       if (result instanceof Collection) {
-        for (final Object o : (Collection) result) {
-          boolean isPassed = false;
-          Portfolio p = (Portfolio) o;
+        for (final var o : (Collection) result) {
+          var isPassed = false;
+          var p = (Portfolio) o;
           switch (i) {
             case 0:
               isPassed = (p.getID() == value);
@@ -113,18 +110,18 @@ public class ComparisonOperatorsJUnitTest {
 
   @Test
   public void testCompareWithString() throws Exception {
-    String var = "P1.secId";
-    String value = "DELL";
-    QueryService qs = CacheUtils.getQueryService();
-    for (int i = 0; i < operators.length; i++) {
-      Query query = qs.newQuery(
+    var var = "P1.secId";
+    var value = "DELL";
+    var qs = CacheUtils.getQueryService();
+    for (var i = 0; i < operators.length; i++) {
+      var query = qs.newQuery(
           "SELECT DISTINCT * FROM " + SEPARATOR + "Portfolios where " + var + operators[i] + "'"
               + value + "'");
-      Object result = query.execute();
+      var result = query.execute();
       if (result instanceof Collection) {
-        for (final Object o : (Collection) result) {
-          boolean isPassed = false;
-          Portfolio p = (Portfolio) o;
+        for (final var o : (Collection) result) {
+          var isPassed = false;
+          var p = (Portfolio) o;
           switch (i) {
             case 0:
               isPassed = (p.getP1().getSecId().compareTo(value) == 0);
@@ -160,18 +157,18 @@ public class ComparisonOperatorsJUnitTest {
 
   @Test
   public void testCompareWithNULL() throws Exception {
-    String var = "P2";
+    var var = "P2";
     Object value = null;
-    QueryService qs = CacheUtils.getQueryService();
-    for (int i = 0; i < operators.length; i++) {
-      Query query =
+    var qs = CacheUtils.getQueryService();
+    for (var i = 0; i < operators.length; i++) {
+      var query =
           qs.newQuery("SELECT DISTINCT * FROM " + SEPARATOR + "Portfolios where " + var
               + operators[i] + value);
-      Object result = query.execute();
+      var result = query.execute();
       if (result instanceof Collection) {
-        for (final Object o : (Collection) result) {
-          boolean isPassed = false;
-          Portfolio p = (Portfolio) o;
+        for (final var o : (Collection) result) {
+          var isPassed = false;
+          var p = (Portfolio) o;
           switch (i) {
             case 0:
               isPassed = (p.getP2() == value);
@@ -192,18 +189,18 @@ public class ComparisonOperatorsJUnitTest {
 
   @Test
   public void testCompareWithUNDEFINED() throws Exception {
-    String var = "P2.secId";
-    QueryService qs = CacheUtils.getQueryService();
-    for (final String operator : operators) {
+    var var = "P2.secId";
+    var qs = CacheUtils.getQueryService();
+    for (final var operator : operators) {
       // According to docs:
       // To perform equality or inequality comparisons with UNDEFINED, use the
       // IS_DEFINED and IS_UNDEFINED preset query functions instead of these
       // comparison operators.
       if (!operator.equals("=") && !operator.equals("!=") && !operator.equals("<>")) {
-        Query query = qs.newQuery(
+        var query = qs.newQuery(
             "SELECT DISTINCT * FROM " + SEPARATOR + "Portfolios where " + var + operator
                 + " UNDEFINED");
-        Object result = query.execute();
+        var result = query.execute();
         if (result instanceof Collection) {
           if (((Collection) result).size() != 0) {
             fail(getName() + " failed for operator " + operator);

@@ -34,7 +34,7 @@ public class DiskRegCbkChkJUnitTest extends DiskRegionTestingBase {
   private static volatile boolean intoDestroyAfterCbk = false;
 
   private DiskRegionProperties getDiskRegionProperties() {
-    DiskRegionProperties diskProperties = new DiskRegionProperties();
+    var diskProperties = new DiskRegionProperties();
     diskProperties.setRegionName("DiskRegCbkChkJUnitTest_region");
     diskProperties.setMaxOplogSize(20480);
     diskProperties.setDiskDirs(dirs);

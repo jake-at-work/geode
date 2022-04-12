@@ -65,7 +65,7 @@ public class QueueConnectionImpl implements Connection {
 
   @Override
   public void emergencyClose() {
-    Connection conn = clientToServerConn.getAndSet(null);
+    var conn = clientToServerConn.getAndSet(null);
     if (conn != null) {
       conn.emergencyClose();
     }
@@ -83,14 +83,14 @@ public class QueueConnectionImpl implements Connection {
 
   @Override
   public void destroy() {
-    Connection conn = clientToServerConn.get();
+    var conn = clientToServerConn.get();
     if (conn != null) {
       manager.connectionCrashed(conn);
     } // else someone else destroyed it
   }
 
   public void internalDestroy() {
-    Connection currentConn = clientToServerConn.get();
+    var currentConn = clientToServerConn.get();
     if (currentConn != null) {
       if (!clientToServerConn.compareAndSet(currentConn, null)) {
         // someone else did (or is doing) the internalDestroy so return
@@ -106,7 +106,7 @@ public class QueueConnectionImpl implements Connection {
       }
     }
 
-    ClientUpdater currentUpdater = updater;
+    var currentUpdater = updater;
     if (currentUpdater != null) {
       try {
         currentUpdater.close();
@@ -192,7 +192,7 @@ public class QueueConnectionImpl implements Connection {
   }
 
   public Connection getConnection() {
-    Connection result = clientToServerConn.get();
+    var result = clientToServerConn.get();
     if (result == null) {
       throw new ConnectionDestroyedException();
     }
@@ -219,7 +219,7 @@ public class QueueConnectionImpl implements Connection {
 
   @Override
   public String toString() {
-    Connection result = clientToServerConn.get();
+    var result = clientToServerConn.get();
     if (result != null) {
       return result.toString();
     } else {

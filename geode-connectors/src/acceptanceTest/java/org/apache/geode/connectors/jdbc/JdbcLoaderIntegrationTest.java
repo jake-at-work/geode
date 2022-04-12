@@ -20,7 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.JDBCType;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
@@ -97,7 +96,7 @@ public abstract class JdbcLoaderIntegrationTest {
   }
 
   protected List<FieldMapping> getEmployeeTableFieldMappings() {
-    List<FieldMapping> fieldMappings = Arrays.asList(
+    var fieldMappings = Arrays.asList(
         new FieldMapping("id", FieldType.STRING.name(), "id", JDBCType.VARCHAR.name(), false),
         new FieldMapping("name", FieldType.STRING.name(), "name", JDBCType.VARCHAR.name(), true),
         new FieldMapping("age", FieldType.INT.name(), "age", JDBCType.INTEGER.name(), true));
@@ -135,7 +134,7 @@ public abstract class JdbcLoaderIntegrationTest {
             getEmployeeTableFieldMappings());
     createPdxType();
 
-    Employee value = region.get("1");
+    var value = region.get("1");
 
     assertThat(value.getName()).isEqualTo("Emp1");
     assertThat(value.getAge()).isEqualTo(21);
@@ -146,16 +145,16 @@ public abstract class JdbcLoaderIntegrationTest {
     createEmployeeTable();
     statement
         .execute("Insert into " + REGION_TABLE_NAME + "(id, name, age) values('1', 'Emp1', 21)");
-    String ids = "id,name";
+    var ids = "id,name";
     Region<String, Employee> region =
         createRegionWithJDBCLoader(REGION_TABLE_NAME, Employee.class.getName(), ids, null, null,
             getEmployeeTableFieldMappings());
     createPdxType();
 
-    PdxInstance key =
+    var key =
         cache.createPdxInstanceFactory("MyPdxKeyType").neverDeserialize().writeString("id", "1")
             .writeString("name", "Emp1").create();
-    Employee value = region.get(key);
+    var value = region.get(key);
 
     assertThat(value.getId()).isEqualTo("1");
     assertThat(value.getName()).isEqualTo("Emp1");
@@ -168,7 +167,7 @@ public abstract class JdbcLoaderIntegrationTest {
     statement
         .execute("Insert into " + SCHEMA_NAME + '.' + REGION_TABLE_NAME
             + "(id, name, age) values('1', 'Emp1', 21)");
-    String ids = "id,name";
+    var ids = "id,name";
     String catalog;
     String schema;
     if (vendorSupportsSchemas()) {
@@ -183,10 +182,10 @@ public abstract class JdbcLoaderIntegrationTest {
             schema, getEmployeeTableFieldMappings());
     createPdxType();
 
-    PdxInstance key =
+    var key =
         cache.createPdxInstanceFactory("MyPdxKeyType").neverDeserialize().writeString("id", "1")
             .writeString("name", "Emp1").create();
-    Employee value = region.get(key);
+    var value = region.get(key);
 
     assertThat(value.getId()).isEqualTo("1");
     assertThat(value.getName()).isEqualTo("Emp1");
@@ -198,7 +197,7 @@ public abstract class JdbcLoaderIntegrationTest {
   @Test
   public void verifyGetWithSupportedFieldsWithPdxClassName() throws Exception {
     createClassWithSupportedPdxFieldsTable(statement, REGION_TABLE_NAME);
-    ClassWithSupportedPdxFields classWithSupportedPdxFields =
+    var classWithSupportedPdxFields =
         createClassWithSupportedPdxFieldsForInsert("1");
     insertIntoClassWithSupportedPdxFieldsTable("1", classWithSupportedPdxFields);
     Region<String, ClassWithSupportedPdxFields> region = createRegionWithJDBCLoader(
@@ -207,7 +206,7 @@ public abstract class JdbcLoaderIntegrationTest {
 
     createPdxType(classWithSupportedPdxFields);
 
-    ClassWithSupportedPdxFields value = region.get("1");
+    var value = region.get("1");
     assertThat(value).isEqualTo(classWithSupportedPdxFields);
   }
 
@@ -226,7 +225,7 @@ public abstract class JdbcLoaderIntegrationTest {
     Region<String, PdxInstance> region =
         createRegionWithJDBCLoader(REGION_TABLE_NAME, Employee.class.getName(),
             getEmployeeTableFieldMappings());
-    PdxInstance pdx = region.get("1");
+    var pdx = region.get("1");
     assertThat(pdx).isNull();
   }
 
@@ -243,13 +242,13 @@ public abstract class JdbcLoaderIntegrationTest {
   protected <K, V> Region<K, V> createRegionWithJDBCLoader(String regionName, String pdxClassName,
       String ids, String catalog, String schema, List<FieldMapping> fieldMappings)
       throws RegionMappingExistsException {
-    JdbcLoader<K, V> jdbcLoader =
-        new JdbcLoader<>(
+    var jdbcLoader =
+        new JdbcLoader<K, V>(
             createSqlHandler(regionName, pdxClassName, ids, catalog, schema, fieldMappings),
             cache);
     RegionFactory<K, V> regionFactory = cache.createRegionFactory(REPLICATE);
     regionFactory.setCacheLoader(jdbcLoader);
-    Region<K, V> region = regionFactory.create(regionName);
+    var region = regionFactory.create(regionName);
     return region;
   }
 
@@ -260,7 +259,7 @@ public abstract class JdbcLoaderIntegrationTest {
   }
 
   protected ClassWithSupportedPdxFields createClassWithSupportedPdxFieldsForInsert(String key) {
-    ClassWithSupportedPdxFields classWithSupportedPdxFields =
+    var classWithSupportedPdxFields =
         new ClassWithSupportedPdxFields(key, true, (byte) 1, (short) 2, 3, 4, 5.5f, 6.0, "BigEmp",
             new Date(0), "BigEmpObject", new byte[] {1, 2}, 'c');
 
@@ -269,10 +268,10 @@ public abstract class JdbcLoaderIntegrationTest {
 
   protected void insertIntoClassWithSupportedPdxFieldsTable(String id,
       ClassWithSupportedPdxFields classWithSupportedPdxFields) throws Exception {
-    String insertString =
+    var insertString =
         "Insert into " + REGION_TABLE_NAME + " values (?,?,?,?,?,?,?,?,?,?,?,?,?)";
-    PreparedStatement ps = connection.prepareStatement(insertString);
-    int i = 1;
+    var ps = connection.prepareStatement(insertString);
+    var i = 1;
     ps.setObject(i++, id);
     ps.setObject(i++, classWithSupportedPdxFields.isAboolean());
     ps.setObject(i++, classWithSupportedPdxFields.getAbyte());

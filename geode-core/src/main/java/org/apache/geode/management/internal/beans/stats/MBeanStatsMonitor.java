@@ -19,10 +19,7 @@ import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
 
-import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.Statistics;
-import org.apache.geode.StatisticsType;
-import org.apache.geode.internal.statistics.StatisticId;
 import org.apache.geode.internal.statistics.StatisticNotFoundException;
 import org.apache.geode.internal.statistics.StatisticsListener;
 import org.apache.geode.internal.statistics.StatisticsNotification;
@@ -58,9 +55,9 @@ public class MBeanStatsMonitor implements StatisticsListener {
   public void addStatisticsToMonitor(final Statistics stats) {
     monitor.addListener(this);// if already listener is added this will be a no-op
     // Initialize the stats with the current values.
-    StatisticsType type = stats.getType();
-    StatisticDescriptor[] descriptors = type.getStatistics();
-    for (StatisticDescriptor d : descriptors) {
+    var type = stats.getType();
+    var descriptors = type.getStatistics();
+    for (var d : descriptors) {
       statsMap.put(d.getName(), stats.get(d));
     }
 
@@ -76,15 +73,15 @@ public class MBeanStatsMonitor implements StatisticsListener {
   }
 
   public Number getStatistic(final String statName) {
-    Number value = statsMap.getOrDefault(statName, 0);
+    var value = statsMap.getOrDefault(statName, 0);
     return value != null ? value : 0;
   }
 
   @Override
   public void handleNotification(final StatisticsNotification notification) {
-    for (StatisticId statId : notification) {
-      StatisticDescriptor descriptor = statId.getStatisticDescriptor();
-      String name = descriptor.getName();
+    for (var statId : notification) {
+      var descriptor = statId.getStatisticDescriptor();
+      var name = descriptor.getName();
       Number value;
       try {
         value = notification.getValue(statId);

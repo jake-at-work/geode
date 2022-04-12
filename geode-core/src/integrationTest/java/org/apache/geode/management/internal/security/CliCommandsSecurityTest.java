@@ -59,8 +59,8 @@ public class CliCommandsSecurityTest {
   @Test
   @ConnectionConfiguration(user = "stranger", password = "1234567")
   public void testNoAccess() {
-    SoftAssertions softly = new SoftAssertions();
-    for (TestCommand command : commands) {
+    var softly = new SoftAssertions();
+    for (var command : commands) {
       // skip query commands since query commands are only available in client shell
       if (command.getCommand().startsWith("query")) {
         continue;
@@ -81,7 +81,7 @@ public class CliCommandsSecurityTest {
   @Test
   @ConnectionConfiguration(user = "super-user", password = "1234567")
   public void testAdminUser() throws Exception {
-    for (TestCommand command : commands) {
+    for (var command : commands) {
       LogService.getLogger().info("processing: " + command.getCommand());
       bean.processCommand(command.getCommand());
     }

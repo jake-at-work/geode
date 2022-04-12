@@ -33,17 +33,11 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
-import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolManager;
-import org.apache.geode.cache.query.CqAttributes;
 import org.apache.geode.cache.query.CqAttributesFactory;
 import org.apache.geode.cache.query.CqEvent;
-import org.apache.geode.cache.query.CqQuery;
 import org.apache.geode.cache.query.CqResults;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.cq.internal.CqListenerImpl;
 import org.apache.geode.pdx.SimpleClass;
 import org.apache.geode.test.dunit.Host;
@@ -68,7 +62,7 @@ public class CQPDXPostProcessorDUnitTest extends JUnit4DistributedTestCase {
 
   @Parameterized.Parameters
   public static Collection<Object[]> parameters() {
-    Object[][] params = {{true}, {false}};
+    var params = new Object[][] {{true}, {false}};
     return Arrays.asList(params);
   }
 
@@ -87,21 +81,21 @@ public class CQPDXPostProcessorDUnitTest extends JUnit4DistributedTestCase {
 
   @Test
   public void testCQ() {
-    String query = "select * from " + SEPARATOR + REGION_NAME;
+    var query = "select * from " + SEPARATOR + REGION_NAME;
     client1.invoke(() -> {
-      ClientCache cache = createClientCache("super-user", "1234567", server.getPort());
-      Region region = createProxyRegion(cache, REGION_NAME);
+      var cache = createClientCache("super-user", "1234567", server.getPort());
+      var region = createProxyRegion(cache, REGION_NAME);
 
-      Pool pool = PoolManager.find(region);
-      QueryService qs = pool.getQueryService();
+      var pool = PoolManager.find(region);
+      var qs = pool.getQueryService();
 
-      CqAttributesFactory factory = new CqAttributesFactory();
+      var factory = new CqAttributesFactory();
 
       factory.addCqListener(new CqListenerImpl() {
         @Override
         public void onEvent(final CqEvent aCqEvent) {
-          Object key = aCqEvent.getKey();
-          Object value = aCqEvent.getNewValue();
+          var key = aCqEvent.getKey();
+          var value = aCqEvent.getNewValue();
           if (key.equals("key1")) {
             assertTrue(value instanceof SimpleClass);
           } else if (key.equals("key2")) {
@@ -110,23 +104,23 @@ public class CQPDXPostProcessorDUnitTest extends JUnit4DistributedTestCase {
         }
       });
 
-      CqAttributes cqa = factory.create();
+      var cqa = factory.create();
 
       // Create the CqQuery
-      CqQuery cq = qs.newCq("CQ1", query, cqa);
+      var cq = qs.newCq("CQ1", query, cqa);
       CqResults results = cq.executeWithInitialResults();
     });
 
     client2.invoke(() -> {
-      ClientCache cache = createClientCache("authRegionUser", "1234567", server.getPort());
-      Region region = createProxyRegion(cache, REGION_NAME);
+      var cache = createClientCache("authRegionUser", "1234567", server.getPort());
+      var region = createProxyRegion(cache, REGION_NAME);
       region.put("key1", new SimpleClass(1, (byte) 1));
       region.put("key2", BYTES);
     });
 
     // wait for events to fire
     await();
-    PDXPostProcessor pp =
+    var pp =
         (PDXPostProcessor) server.getCache().getSecurityService().getPostProcessor();
     assertEquals(pp.getCount(), 2);
   }

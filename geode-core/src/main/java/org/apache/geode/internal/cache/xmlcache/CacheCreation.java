@@ -71,7 +71,6 @@ import org.apache.geode.cache.RegionExistsException;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.TimeoutException;
-import org.apache.geode.cache.TransactionListener;
 import org.apache.geode.cache.asyncqueue.AsyncEventQueue;
 import org.apache.geode.cache.asyncqueue.AsyncEventQueueFactory;
 import org.apache.geode.cache.asyncqueue.internal.AsyncEventQueueFactoryImpl;
@@ -97,7 +96,6 @@ import org.apache.geode.cache.query.internal.QueryConfigurationServiceImpl;
 import org.apache.geode.cache.query.internal.QueryMonitor;
 import org.apache.geode.cache.query.internal.cq.CqService;
 import org.apache.geode.cache.query.internal.xml.QueryConfigurationServiceCreation;
-import org.apache.geode.cache.query.internal.xml.QueryMethodAuthorizerCreation;
 import org.apache.geode.cache.query.security.MethodInvocationAuthorizer;
 import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache.snapshot.CacheSnapshotService;
@@ -106,7 +104,6 @@ import org.apache.geode.cache.wan.GatewayReceiver;
 import org.apache.geode.cache.wan.GatewayReceiverFactory;
 import org.apache.geode.cache.wan.GatewaySender;
 import org.apache.geode.cache.wan.GatewaySenderFactory;
-import org.apache.geode.cache.wan.GatewayTransportFilter;
 import org.apache.geode.distributed.DistributedLockService;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.DistributedSystem;
@@ -375,8 +372,8 @@ public class CacheCreation implements InternalCache {
    *         {@code root}.
    */
   void addRootRegion(RegionCreation root) throws RegionExistsException {
-    String name = root.getName();
-    RegionCreation existing = (RegionCreation) roots.get(name);
+    var name = root.getName();
+    var existing = (RegionCreation) roots.get(name);
 
     if (existing != null) {
       throw new RegionExistsException(existing);
@@ -512,10 +509,10 @@ public class CacheCreation implements InternalCache {
     }
 
     // create connection pools
-    Map<String, Pool> pools = getPools();
+    var pools = getPools();
     if (!pools.isEmpty()) {
-      for (Pool pool : pools.values()) {
-        PoolFactoryImpl poolFactory = (PoolFactoryImpl) PoolManager.createFactory();
+      for (var pool : pools.values()) {
+        var poolFactory = (PoolFactoryImpl) PoolManager.createFactory();
         poolFactory.init(pool);
         poolFactory.create(pool.getName());
       }
@@ -525,7 +522,7 @@ public class CacheCreation implements InternalCache {
       getResourceManager().configure(cache.getResourceManager());
     }
 
-    DiskStoreAttributesCreation pdxRegDSC = initializePdxDiskStore(cache);
+    var pdxRegDSC = initializePdxDiskStore(cache);
 
     cache.initializePdxRegistry();
 
@@ -552,10 +549,10 @@ public class CacheCreation implements InternalCache {
       cache.getCacheTransactionManager().setWriter(cacheTransactionManagerCreation.getWriter());
     }
 
-    for (GatewaySender senderCreation : getGatewaySenders()) {
-      GatewaySenderFactory factory = cache.createGatewaySenderFactory();
+    for (var senderCreation : getGatewaySenders()) {
+      var factory = cache.createGatewaySenderFactory();
       ((InternalGatewaySenderFactory) factory).configureGatewaySender(senderCreation);
-      GatewaySender gatewaySender =
+      var gatewaySender =
           factory.create(senderCreation.getId(), senderCreation.getRemoteDSId());
       // Start the sender if it is not set to manually start
       if (gatewaySender.isManualStart()) {
@@ -564,15 +561,15 @@ public class CacheCreation implements InternalCache {
       }
     }
 
-    for (AsyncEventQueue asyncEventQueueCreation : getAsyncEventQueues()) {
-      AsyncEventQueueFactoryImpl asyncQueueFactory =
+    for (var asyncEventQueueCreation : getAsyncEventQueues()) {
+      var asyncQueueFactory =
           (AsyncEventQueueFactoryImpl) cache.createAsyncEventQueueFactory();
       asyncQueueFactory.configureAsyncEventQueue(asyncEventQueueCreation);
       if (asyncEventQueueCreation.isDispatchingPaused()) {
         asyncQueueFactory.pauseEventDispatching();
       }
 
-      AsyncEventQueue asyncEventQueue = cache.getAsyncEventQueue(asyncEventQueueCreation.getId());
+      var asyncEventQueue = cache.getAsyncEventQueue(asyncEventQueueCreation.getId());
       if (asyncEventQueue == null) {
         asyncQueueFactory.create(asyncEventQueueCreation.getId(),
             asyncEventQueueCreation.getAsyncEventListener());
@@ -581,13 +578,13 @@ public class CacheCreation implements InternalCache {
 
     cache.initializePdxRegistry();
 
-    for (String id : regionAttributesNames) {
-      RegionAttributesCreation creation = (RegionAttributesCreation) getRegionAttributes(id);
+    for (var id : regionAttributesNames) {
+      var creation = (RegionAttributesCreation) getRegionAttributes(id);
       creation.inheritAttributes(cache, false);
 
       // Don't let the RegionAttributesCreation escape to the user
       AttributesFactory<?, ?> factory = new AttributesFactory<>(creation);
-      RegionAttributes<?, ?> attrs = factory.create();
+      var attrs = factory.create();
 
       cache.setRegionAttributes(id, attrs);
     }
@@ -599,29 +596,29 @@ public class CacheCreation implements InternalCache {
     // Create and start the CacheServers after the gateways have been initialized
     startCacheServers(getCacheServers(), cache, ServerLauncherParameters.INSTANCE);
 
-    for (GatewayReceiver receiverCreation : getGatewayReceivers()) {
-      GatewayReceiverFactory factory = cache.createGatewayReceiverFactory();
+    for (var receiverCreation : getGatewayReceivers()) {
+      var factory = cache.createGatewayReceiverFactory();
       factory.setBindAddress(receiverCreation.getBindAddress());
       factory.setMaximumTimeBetweenPings(receiverCreation.getMaximumTimeBetweenPings());
       factory.setStartPort(receiverCreation.getStartPort());
       factory.setEndPort(receiverCreation.getEndPort());
       factory.setSocketBufferSize(receiverCreation.getSocketBufferSize());
       factory.setManualStart(receiverCreation.isManualStart());
-      for (GatewayTransportFilter filter : receiverCreation.getGatewayTransportFilters()) {
+      for (var filter : receiverCreation.getGatewayTransportFilters()) {
         factory.addGatewayTransportFilter(filter);
       }
       factory.setHostnameForSenders(receiverCreation.getHostnameForSenders());
-      GatewayReceiver receiver = factory.create();
+      var receiver = factory.create();
       if (receiver.isManualStart()) {
         logger.info("{} is not being started since it is configured for manual start", receiver);
       }
     }
 
     if (queryConfigurationServiceCreation != null) {
-      QueryConfigurationServiceImpl queryConfigService =
+      var queryConfigService =
           (QueryConfigurationServiceImpl) cache.getService(QueryConfigurationService.class);
       if (queryConfigService != null) {
-        QueryMethodAuthorizerCreation authorizerCreation =
+        var authorizerCreation =
             queryConfigurationServiceCreation.getMethodAuthorizerCreation();
         if (authorizerCreation != null) {
           queryConfigService.updateMethodAuthorizer(cache, true, authorizerCreation);
@@ -646,7 +643,7 @@ public class CacheCreation implements InternalCache {
       diskStoreStream = diskStores.values().stream();
     }
     diskStoreStream.forEach(diskStore -> {
-      DiskStoreAttributesCreation creation = (DiskStoreAttributesCreation) diskStore;
+      var creation = (DiskStoreAttributesCreation) diskStore;
       if (creation != pdxRegDSC) {
         createDiskStore(creation, cache);
       }
@@ -654,9 +651,9 @@ public class CacheCreation implements InternalCache {
   }
 
   public void initializeDeclarablesMap(InternalCache cache) {
-    for (DeclarableAndProperties struct : declarablePropertiesList) {
-      Declarable declarable = struct.getDeclarable();
-      Properties properties = struct.getProperties();
+    for (var struct : declarablePropertiesList) {
+      var declarable = struct.getDeclarable();
+      var properties = struct.getProperties();
       try {
         declarable.initialize(cache, properties);
         // for backwards compatibility
@@ -672,7 +669,7 @@ public class CacheCreation implements InternalCache {
 
   void initializeRegions(Map<String, Region<?, ?>> declarativeRegions, Cache cache) {
     for (Region region : declarativeRegions.values()) {
-      RegionCreation regionCreation = (RegionCreation) region;
+      var regionCreation = (RegionCreation) region;
       regionCreation.createRoot(cache);
     }
   }
@@ -744,16 +741,16 @@ public class CacheCreation implements InternalCache {
     }
 
     CacheServerCreation defaultServer = null;
-    boolean hasServerPortOrBindAddress = serverPort != null || serverBindAdd != null;
-    boolean isDefaultServerDisabled = disableDefaultServer == null || !disableDefaultServer;
+    var hasServerPortOrBindAddress = serverPort != null || serverBindAdd != null;
+    var isDefaultServerDisabled = disableDefaultServer == null || !disableDefaultServer;
 
     if (declarativeCacheServers.isEmpty() && hasServerPortOrBindAddress
         && isDefaultServerDisabled) {
-      boolean existingCacheServer = false;
+      var existingCacheServer = false;
 
-      List<CacheServer> cacheServers = cache.getCacheServers();
+      var cacheServers = cache.getCacheServers();
       if (cacheServers != null) {
-        for (CacheServer cacheServer : cacheServers) {
+        for (var cacheServer : cacheServers) {
           if (serverPort == cacheServer.getPort()) {
             existingCacheServer = true;
           }
@@ -766,13 +763,13 @@ public class CacheCreation implements InternalCache {
       }
     }
 
-    for (CacheServer declarativeCacheServer : declarativeCacheServers) {
-      CacheServerCreation declaredCacheServer = (CacheServerCreation) declarativeCacheServer;
+    for (var declarativeCacheServer : declarativeCacheServers) {
+      var declaredCacheServer = (CacheServerCreation) declarativeCacheServer;
 
-      boolean startServer = true;
-      List<CacheServer> cacheServers = cache.getCacheServers();
+      var startServer = true;
+      var cacheServers = cache.getCacheServers();
       if (cacheServers != null) {
-        for (CacheServer cacheServer : cacheServers) {
+        for (var cacheServer : cacheServers) {
           if (declaredCacheServer.getPort() == cacheServer.getPort()) {
             startServer = false;
           }
@@ -783,7 +780,7 @@ public class CacheCreation implements InternalCache {
         continue;
       }
 
-      CacheServerImpl impl = (CacheServerImpl) cache.addCacheServer();
+      var impl = (CacheServerImpl) cache.addCacheServer();
       impl.configureFrom(declaredCacheServer);
 
       if (declaredCacheServer == defaultServer) {
@@ -812,7 +809,7 @@ public class CacheCreation implements InternalCache {
     // If the cache has a pool then no need to create disk store.
     DiskStoreAttributesCreation pdxRegDSC = null;
     if (TypeRegistry.mayNeedDiskStore(cache)) {
-      String pdxRegDsName = cache.getPdxDiskStore();
+      var pdxRegDsName = cache.getPdxDiskStore();
       if (pdxRegDsName == null) {
         pdxRegDsName = DiskStoreFactory.DEFAULT_DISK_STORE_NAME;
       }
@@ -831,7 +828,7 @@ public class CacheCreation implements InternalCache {
 
   protected void createDiskStore(DiskStoreAttributesCreation creation, InternalCache cache) {
     // Don't let the DiskStoreAttributesCreation escape to the user
-    DiskStoreFactory factory = cache.createDiskStoreFactory(creation);
+    var factory = cache.createDiskStoreFactory(creation);
     factory.create(creation.getName());
   }
 
@@ -839,7 +836,7 @@ public class CacheCreation implements InternalCache {
    * Returns whether or not this {@code CacheCreation} is equivalent to another {@code Cache}.
    */
   public boolean sameAs(Cache other) {
-    boolean sameConfig = other.getLockLease() == getLockLease()
+    var sameConfig = other.getLockLease() == getLockLease()
         && other.getLockTimeout() == getLockTimeout()
         && other.getSearchTimeout() == getSearchTimeout()
         && other.getMessageSyncInterval() == getMessageSyncInterval()
@@ -849,7 +846,7 @@ public class CacheCreation implements InternalCache {
       throw new RuntimeException("!sameConfig");
     }
 
-    DynamicRegionFactory.Config drc1 = getDynamicRegionFactoryConfig();
+    var drc1 = getDynamicRegionFactoryConfig();
     if (drc1 != null) {
       // we have a dynamic region factory
       DynamicRegionFactory.Config drc2;
@@ -885,10 +882,10 @@ public class CacheCreation implements InternalCache {
       throw new RuntimeException("cacheServers size");
     }
 
-    for (CacheServer myBridge1 : myBridges) {
-      CacheServerCreation myBridge = (CacheServerCreation) myBridge1;
-      boolean found = false;
-      for (CacheServer otherBridge : otherBridges) {
+    for (var myBridge1 : myBridges) {
+      var myBridge = (CacheServerCreation) myBridge1;
+      var found = false;
+      for (var otherBridge : otherBridges) {
         if (myBridge.sameAs(otherBridge)) {
           found = true;
           break;
@@ -901,23 +898,23 @@ public class CacheCreation implements InternalCache {
     }
 
     // compare connection pools
-    Map<String, Pool> connectionPools1 = getPools();
-    Map<String, Pool> connectionPools2 =
+    var connectionPools1 = getPools();
+    var connectionPools2 =
         other instanceof CacheCreation ? ((CacheCreation) other).getPools()
             : PoolManager.getAll();
-    int connectionPools1Size = connectionPools1.size();
+    var connectionPools1Size = connectionPools1.size();
 
     // ignore any gateway instances
-    for (Pool connectionPool : connectionPools1.values()) {
+    for (var connectionPool : connectionPools1.values()) {
       if (((PoolImpl) connectionPool).isUsedByGateway()) {
         connectionPools1Size--;
       }
     }
 
-    int connectionPools2Size = connectionPools2.size();
+    var connectionPools2Size = connectionPools2.size();
 
     // ignore any gateway instances
-    for (Pool connectionPool : connectionPools2.values()) {
+    for (var connectionPool : connectionPools2.values()) {
       if (((PoolImpl) connectionPool).isUsedByGateway()) {
         connectionPools2Size--;
       }
@@ -925,7 +922,7 @@ public class CacheCreation implements InternalCache {
 
     if (connectionPools2Size == 1) {
       // if it is just the DEFAULT pool then ignore it
-      Pool connectionPool = connectionPools2.values().iterator().next();
+      var connectionPool = connectionPools2.values().iterator().next();
       if (connectionPool.getName().equals("DEFAULT")) {
         connectionPools2Size = 0;
       }
@@ -939,8 +936,8 @@ public class CacheCreation implements InternalCache {
     }
 
     if (connectionPools1Size > 0) {
-      for (Pool pool : connectionPools1.values()) {
-        PoolImpl poolImpl = (PoolImpl) pool;
+      for (var pool : connectionPools1.values()) {
+        var poolImpl = (PoolImpl) pool;
         // ignore any gateway instances
         if (!poolImpl.isUsedByGateway()) {
           poolImpl.sameAs(connectionPools2.get(poolImpl.getName()));
@@ -949,10 +946,10 @@ public class CacheCreation implements InternalCache {
     }
 
     // compare disk stores
-    for (DiskStore diskStore : diskStores.values()) {
-      DiskStoreAttributesCreation dsac = (DiskStoreAttributesCreation) diskStore;
-      String name = dsac.getName();
-      DiskStore otherDiskStore = other.findDiskStore(name);
+    for (var diskStore : diskStores.values()) {
+      var dsac = (DiskStoreAttributesCreation) diskStore;
+      var name = dsac.getName();
+      var otherDiskStore = other.findDiskStore(name);
       if (otherDiskStore == null) {
         logger.debug("Disk store {} not found.", name);
         throw new RuntimeException(format("Disk store %s not found", name));
@@ -963,20 +960,20 @@ public class CacheCreation implements InternalCache {
       }
     }
 
-    Map<String, RegionAttributes<?, ?>> myNamedAttributes = listRegionAttributes();
-    Map<String, RegionAttributes<Object, Object>> otherNamedAttributes =
+    var myNamedAttributes = listRegionAttributes();
+    var otherNamedAttributes =
         other.listRegionAttributes();
     if (myNamedAttributes.size() != otherNamedAttributes.size()) {
       throw new RuntimeException("namedAttributes size");
     }
 
     for (Object object : myNamedAttributes.entrySet()) {
-      Entry myEntry = (Entry) object;
-      String myId = (String) myEntry.getKey();
+      var myEntry = (Entry) object;
+      var myId = (String) myEntry.getKey();
       Assert.assertTrue(myEntry.getValue() instanceof RegionAttributesCreation,
           "Entry value is a " + myEntry.getValue().getClass().getName());
-      RegionAttributesCreation myAttrs = (RegionAttributesCreation) myEntry.getValue();
-      RegionAttributes<Object, Object> otherAttrs = other.getRegionAttributes(myId);
+      var myAttrs = (RegionAttributesCreation) myEntry.getValue();
+      var otherAttrs = other.getRegionAttributes(myId);
       if (otherAttrs == null) {
         logger.debug("No attributes for {}", myId);
         throw new RuntimeException(format("No attributes for %s", myId));
@@ -987,15 +984,15 @@ public class CacheCreation implements InternalCache {
       }
     }
 
-    Collection<Region<?, ?>> myRoots = roots.values();
+    var myRoots = roots.values();
     Collection<Region<?, ?>> otherRoots = other.rootRegions();
     if (myRoots.size() != otherRoots.size()) {
       throw new RuntimeException("roots size");
     }
 
-    for (final Region<?, ?> myRoot : myRoots) {
-      RegionCreation rootRegion = (RegionCreation) myRoot;
-      Region<Object, Object> otherRegion = other.getRegion(rootRegion.getName());
+    for (final var myRoot : myRoots) {
+      var rootRegion = (RegionCreation) myRoot;
+      var otherRegion = other.getRegion(rootRegion.getName());
       if (otherRegion == null) {
         throw new RuntimeException(format("no root %s", rootRegion.getName()));
       }
@@ -1009,9 +1006,9 @@ public class CacheCreation implements InternalCache {
       // Currently the GemFireCache always has a CacheTransactionManager,
       // whereas that is not true for CacheTransactionManagerCreation.
 
-      List<TransactionListener> otherTxListeners =
+      var otherTxListeners =
           Arrays.asList(other.getCacheTransactionManager().getListeners());
-      List<TransactionListener> thisTxListeners =
+      var thisTxListeners =
           Arrays.asList(getCacheTransactionManager().getListeners());
 
       if (!thisTxListeners.equals(otherTxListeners)) {
@@ -1174,7 +1171,7 @@ public class CacheCreation implements InternalCache {
       ((RegionAttributesCreation) aRegionAttributes).prepareForValidation();
     }
     AttributesFactory.validateAttributes(aRegionAttributes);
-    RegionCreation region = new RegionCreation(this, name, null);
+    var region = new RegionCreation(this, name, null);
     region.setAttributes(aRegionAttributes);
     addRootRegion(region);
     return region;
@@ -1182,7 +1179,7 @@ public class CacheCreation implements InternalCache {
 
   public Region createRegion(String name, String refid)
       throws RegionExistsException, TimeoutException {
-    RegionCreation region = new RegionCreation(this, name, refid);
+    var region = new RegionCreation(this, name, refid);
     addRootRegion(region);
     return region;
   }
@@ -1424,7 +1421,7 @@ public class CacheCreation implements InternalCache {
   @Override
   public Set<GatewaySender> getGatewaySenders() {
     Set<GatewaySender> tempSet = new HashSet<>();
-    for (GatewaySender sender : gatewaySenders) {
+    for (var sender : gatewaySenders) {
       if (!((AbstractGatewaySender) sender).isForInternalUse()) {
         tempSet.add(sender);
       }
@@ -1434,7 +1431,7 @@ public class CacheCreation implements InternalCache {
 
   @Override
   public GatewaySender getGatewaySender(String id) {
-    for (GatewaySender sender : gatewaySenders) {
+    for (var sender : gatewaySenders) {
       if (sender.getId().equals(id)) {
         return sender;
       }
@@ -1466,7 +1463,7 @@ public class CacheCreation implements InternalCache {
 
   @Override
   public AsyncEventQueue getAsyncEventQueue(String id) {
-    for (AsyncEventQueue asyncEventQueue : asyncEventQueues) {
+    for (var asyncEventQueue : asyncEventQueues) {
       if (asyncEventQueue.getId().equals(id)) {
         return asyncEventQueue;
       }
@@ -1585,7 +1582,7 @@ public class CacheCreation implements InternalCache {
 
   @Override
   public void setRegionAttributes(String id, RegionAttributes attrs) {
-    RegionAttributes regionAttributes = attrs;
+    var regionAttributes = attrs;
     if (!(regionAttributes instanceof RegionAttributesCreation)) {
       regionAttributes = new RegionAttributesCreation(this, regionAttributes, false);
     }
@@ -1891,7 +1888,7 @@ public class CacheCreation implements InternalCache {
   }
 
   void runInitializer(InternalCache cache) {
-    Declarable initializer = getInitializer();
+    var initializer = getInitializer();
     if (initializer != null) {
       initializer.initialize(cache, getInitializerProps());
       // for backwards compatibility
@@ -1984,10 +1981,10 @@ public class CacheCreation implements InternalCache {
       public Index createIndex(String indexName, IndexType indexType, String indexedExpression,
           String fromClause, String imports)
           throws IndexInvalidException, UnsupportedOperationException {
-        IndexCreationData indexData = new IndexCreationData(indexName);
+        var indexData = new IndexCreationData(indexName);
         indexData.setFunctionalIndexData(fromClause, indexedExpression, imports);
         indexData.setIndexType(indexType.toString());
-        List<Index> indexesForRegion = indexes.get(fromClause);
+        var indexesForRegion = indexes.get(fromClause);
         if (indexesForRegion == null) {
           indexesForRegion = new ArrayList<>();
           indexes.put(fromClause, indexesForRegion);

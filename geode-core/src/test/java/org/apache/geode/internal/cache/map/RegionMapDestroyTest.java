@@ -36,7 +36,6 @@ import java.util.Map;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InOrder;
 
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.EntryNotFoundException;
@@ -1405,10 +1404,10 @@ public class RegionMapDestroyTest {
   @Test
   public void destroyDoesNotLockGIIClearLockWhenRegionIsInitialized()
       throws Exception {
-    DistributedRegion region = mock(DistributedRegion.class, RETURNS_DEEP_STUBS);
+    var region = mock(DistributedRegion.class, RETURNS_DEEP_STUBS);
     when(region.isInitialized()).thenReturn(true);
     when(region.lockWhenRegionIsInitializing()).thenCallRealMethod();
-    RegionMapDestroy mapDestroy =
+    var mapDestroy =
         new RegionMapDestroy(region, regionMap, mock(CacheModificationLock.class));
 
     mapDestroy.destroy(event, inTokenMode, duringRI, cacheWrite, isEviction,
@@ -1422,10 +1421,10 @@ public class RegionMapDestroyTest {
   @Test
   public void destroyLockGIIClearLockWhenRegionIsInitializing()
       throws Exception {
-    DistributedRegion region = mock(DistributedRegion.class, RETURNS_DEEP_STUBS);
+    var region = mock(DistributedRegion.class, RETURNS_DEEP_STUBS);
     when(region.isInitialized()).thenReturn(false);
     when(region.lockWhenRegionIsInitializing()).thenCallRealMethod();
-    RegionMapDestroy mapDestroy =
+    var mapDestroy =
         new RegionMapDestroy(region, regionMap, mock(CacheModificationLock.class));
 
     mapDestroy.destroy(event, inTokenMode, duringRI, cacheWrite, isEviction,
@@ -1549,7 +1548,7 @@ public class RegionMapDestroyTest {
   private void givenEventWithVersionTag() {
     when(owner.getVersionVector()).thenReturn(mock(RegionVersionVector.class));
     @SuppressWarnings("rawtypes")
-    VersionTag versionTag = mock(VersionTag.class);
+    var versionTag = mock(VersionTag.class);
     when(versionTag.hasValidVersion()).thenReturn(true);
     when(event.getVersionTag()).thenReturn(versionTag);
   }
@@ -1766,7 +1765,7 @@ public class RegionMapDestroyTest {
   }
 
   private void verifyIndexManagerOrder() {
-    InOrder inOrder = inOrder(indexManager, owner);
+    var inOrder = inOrder(indexManager, owner);
     inOrder.verify(indexManager, times(1)).waitForIndexInit();
     inOrder.verify(owner, times(1)).basicDestroyPart2(any(), any(), anyBoolean(),
         anyBoolean(),
@@ -1775,7 +1774,7 @@ public class RegionMapDestroyTest {
   }
 
   private void verifyEntryRemoved(RegionEntry entry) {
-    int times = 2; // TODO: fix product to only call this once
+    var times = 2; // TODO: fix product to only call this once
     verify(regionMap, times(times)).removeEntry(eq(KEY), same(entry), eq(false));
   }
 

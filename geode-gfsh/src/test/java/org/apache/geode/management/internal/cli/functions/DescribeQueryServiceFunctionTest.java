@@ -33,7 +33,6 @@ import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.query.internal.QueryConfigurationServiceImpl;
 import org.apache.geode.cache.query.management.configuration.QueryConfigService;
 import org.apache.geode.management.internal.cli.util.TestMethodAuthorizer;
-import org.apache.geode.management.internal.functions.CliFunctionResult;
 
 public class DescribeQueryServiceFunctionTest {
   private DescribeQueryServiceFunction function;
@@ -60,7 +59,7 @@ public class DescribeQueryServiceFunctionTest {
   public void executeFunctionReturnsErrorWhenQueryServiceIsNull() {
     doReturn(null).when(function).getQueryConfigurationService();
 
-    CliFunctionResult result = function.executeFunction(mockContext);
+    var result = function.executeFunction(mockContext);
 
     assertThat(result.isSuccessful()).isFalse();
     assertThat(result.getStatusMessage()).isEqualTo(QUERY_SERVICE_NOT_FOUND_MESSAGE);
@@ -69,11 +68,11 @@ public class DescribeQueryServiceFunctionTest {
   @Test
   public void executeFunctionReturnsSuccessWhenQueryServiceIsNotNull() {
     doReturn(mockQueryServiceObject).when(function).getQueryConfigurationService();
-    QueryConfigService mockQueryConfigService = mock(QueryConfigService.class);
+    var mockQueryConfigService = mock(QueryConfigService.class);
     doReturn(mockQueryConfigService).when(function)
         .translateQueryServiceObjectIntoQueryConfigService(mockQueryServiceObject);
 
-    CliFunctionResult result = function.executeFunction(mockContext);
+    var result = function.executeFunction(mockContext);
 
     assertThat(result.isSuccessful()).isTrue();
     assertThat(result.getResultObject()).isSameAs(mockQueryConfigService);
@@ -81,7 +80,7 @@ public class DescribeQueryServiceFunctionTest {
 
   @Test
   public void translateQueryServiceObjectIntoQueryConfigServiceReturnsCorrectlyPopulatedObject() {
-    QueryConfigService queryConfigService =
+    var queryConfigService =
         function.translateQueryServiceObjectIntoQueryConfigService(mockQueryServiceObject);
 
     assertThat(queryConfigService.getMethodAuthorizer().getClassName())

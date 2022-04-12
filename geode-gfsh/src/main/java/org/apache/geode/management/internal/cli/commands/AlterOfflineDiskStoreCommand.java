@@ -60,7 +60,7 @@ public class AlterOfflineDiskStoreCommand extends GfshCommand {
           help = CliStrings.ALTER_DISK_STORE__REMOVE__HELP, specifiedDefaultValue = "true",
           unspecifiedDefaultValue = "false") boolean remove) {
 
-    String validatedDirectories = DiskStoreCommandsUtils.validatedDirectories(diskDirs);
+    var validatedDirectories = DiskStoreCommandsUtils.validatedDirectories(diskDirs);
     if (validatedDirectories != null) {
       throw new IllegalArgumentException(
           "Could not find " + CliStrings.ALTER_DISK_STORE__DISKDIRS + ": \""
@@ -72,7 +72,7 @@ public class AlterOfflineDiskStoreCommand extends GfshCommand {
 
       if (diskDirs != null) {
         dirs = new File[diskDirs.length];
-        for (int i = 0; i < diskDirs.length; i++) {
+        for (var i = 0; i < diskDirs.length; i++) {
           dirs[i] = new File((diskDirs[i]));
         }
       }
@@ -85,22 +85,22 @@ public class AlterOfflineDiskStoreCommand extends GfshCommand {
           || (concurrencyLevel != null) || (initialCapacity != null) || (loadFactor != null)
           || (compressorClassName != null) || (offHeap != null) || (statisticsEnabled != null)) {
         if (!remove) {
-          String lruEvictionLimitString =
+          var lruEvictionLimitString =
               lruEvictionLimit == null ? null : lruEvictionLimit.toString();
-          String concurrencyLevelString =
+          var concurrencyLevelString =
               concurrencyLevel == null ? null : concurrencyLevel.toString();
-          String initialCapacityString =
+          var initialCapacityString =
               initialCapacity == null ? null : initialCapacity.toString();
-          String loadFactorString = loadFactor == null ? null : loadFactor.toString();
-          String statisticsEnabledString =
+          var loadFactorString = loadFactor == null ? null : loadFactor.toString();
+          var statisticsEnabledString =
               statisticsEnabled == null ? null : statisticsEnabled.toString();
-          String offHeapString = offHeap == null ? null : offHeap.toString();
+          var offHeapString = offHeap == null ? null : offHeap.toString();
 
           if ("none".equals(compressorClassName)) {
             compressorClassName = "";
           }
 
-          String resultMessage =
+          var resultMessage =
               DiskStoreImpl.modifyRegion(diskStoreName, dirs, SEPARATOR + regionName,
                   lruEvictionAlgo, lruEvictionAction, lruEvictionLimitString,
                   concurrencyLevelString,

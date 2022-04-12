@@ -29,7 +29,6 @@ import java.util.concurrent.Future;
 import net.spy.memcached.MemcachedClient;
 import org.junit.Test;
 
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.internal.inet.LocalHostUtil;
@@ -38,14 +37,14 @@ public class IntegrationJUnitTest {
 
   @Test
   public void testGemFireProperty() throws Exception {
-    Properties props = new Properties();
-    final int port = AvailablePortHelper.getRandomAvailableTCPPort();
+    var props = new Properties();
+    final var port = AvailablePortHelper.getRandomAvailableTCPPort();
     props.setProperty(MEMCACHED_PORT, port + "");
     props.setProperty(MCAST_PORT, "0");
-    CacheFactory cf = new CacheFactory(props);
-    Cache cache = cf.create();
+    var cf = new CacheFactory(props);
+    var cache = cf.create();
 
-    MemcachedClient client = new MemcachedClient(new ConnectionWithOneMinuteTimeoutFactory(),
+    var client = new MemcachedClient(new ConnectionWithOneMinuteTimeoutFactory(),
         Collections.singletonList(new InetSocketAddress(LocalHostUtil.getLocalHost(), port)));
     Future<Boolean> f = client.add("key", 10, "myStringValue");
     assertTrue(f.get());
@@ -60,15 +59,15 @@ public class IntegrationJUnitTest {
 
   @Test
   public void testMemcachedBindAddress() throws Exception {
-    Properties props = new Properties();
-    final int port = AvailablePortHelper.getRandomAvailableTCPPort();
+    var props = new Properties();
+    final var port = AvailablePortHelper.getRandomAvailableTCPPort();
     props.setProperty(MEMCACHED_PORT, port + "");
     props.setProperty(MEMCACHED_BIND_ADDRESS, "127.0.0.1");
     props.put(MCAST_PORT, "0");
-    CacheFactory cf = new CacheFactory(props);
-    Cache cache = cf.create();
+    var cf = new CacheFactory(props);
+    var cache = cf.create();
 
-    MemcachedClient client = new MemcachedClient(new ConnectionWithOneMinuteTimeoutFactory(),
+    var client = new MemcachedClient(new ConnectionWithOneMinuteTimeoutFactory(),
         Collections.singletonList(new InetSocketAddress("127.0.0.1", port)));
     Future<Boolean> f = client.add("key", 10, "myStringValue");
     assertTrue(f.get());

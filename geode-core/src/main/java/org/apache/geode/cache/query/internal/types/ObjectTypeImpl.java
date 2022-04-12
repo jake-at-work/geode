@@ -57,8 +57,8 @@ public class ObjectTypeImpl implements ObjectType, DataSerializableFixedID {
 
   @Override
   public String getSimpleClassName() {
-    String cn = clazz.getName();
-    int i = cn.lastIndexOf('.');
+    var cn = clazz.getName();
+    var i = cn.lastIndexOf('.');
     return i < 0 ? cn : cn.substring(i + 1);
   }
 

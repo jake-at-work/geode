@@ -32,13 +32,11 @@ import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.Index;
 import org.apache.geode.cache.query.IndexType;
-import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.cache.query.internal.IndexTrackingQueryObserver;
 import org.apache.geode.cache.query.internal.IndexTrackingQueryObserver.IndexInfo;
-import org.apache.geode.cache.query.internal.QueryObserver;
 import org.apache.geode.cache.query.internal.QueryObserverHolder;
 import org.apache.geode.test.junit.categories.OQLIndexTest;
 import org.apache.geode.util.internal.GeodeGlossary;
@@ -58,7 +56,7 @@ public class IndexTrackingQueryObserverJUnitTest {
   public void setUp() throws Exception {
     System.setProperty(GeodeGlossary.GEMFIRE_PREFIX + "Query.VERBOSE", "true");
     CacheUtils.startCache();
-    QueryObserver observer = QueryObserverHolder.setInstance(new IndexTrackingQueryObserver());
+    var observer = QueryObserverHolder.setInstance(new IndexTrackingQueryObserver());
   }
 
   @After
@@ -73,14 +71,14 @@ public class IndexTrackingQueryObserverJUnitTest {
     assertEquals("true", System.getProperty(GeodeGlossary.GEMFIRE_PREFIX + "Query.VERBOSE"));
 
     // Create Partition Region
-    PartitionAttributesFactory paf = new PartitionAttributesFactory();
+    var paf = new PartitionAttributesFactory();
     paf.setTotalNumBuckets(NUM_BKTS);
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setPartitionAttributes(paf.create());
 
     region = CacheUtils.createRegion("portfolio", af.create(), false);
     if (region.size() == 0) {
-      for (int i = 1; i <= 100; i++) {
+      for (var i = 1; i <= 100; i++) {
         region.put(Integer.toString(i), new Portfolio(i, i));
       }
     }
@@ -93,16 +91,16 @@ public class IndexTrackingQueryObserverJUnitTest {
 
     assertTrue(keyIndex1 instanceof PartitionedIndex);
 
-    Query query = qs.newQuery(queryStr);
+    var query = qs.newQuery(queryStr);
 
     // Inject TestHook in QueryObserver before running query.
-    IndexTrackingTestHook th = new IndexTrackingTestHook(region, NUM_BKTS);
-    QueryObserver observer = QueryObserverHolder.getInstance();
+    var th = new IndexTrackingTestHook(region, NUM_BKTS);
+    var observer = QueryObserverHolder.getInstance();
     assertTrue(QueryObserverHolder.hasObserver());
 
     ((IndexTrackingQueryObserver) observer).setTestHook(th);
 
-    SelectResults results = (SelectResults) query.execute();
+    var results = (SelectResults) query.execute();
 
     // The query should return all elements in region.
     assertEquals(region.size(), results.size());
@@ -110,8 +108,8 @@ public class IndexTrackingQueryObserverJUnitTest {
     // Check results size of Map.
     regionMap = th.getRegionMap();
     Collection<Integer> rslts = regionMap.getResults().values();
-    int totalResults = 0;
-    for (Integer i : rslts) {
+    var totalResults = 0;
+    for (var i : rslts) {
       totalResults += i;
     }
     assertEquals(results.size(), totalResults);
@@ -124,12 +122,12 @@ public class IndexTrackingQueryObserverJUnitTest {
     assertEquals("true", System.getProperty(GeodeGlossary.GEMFIRE_PREFIX + "Query.VERBOSE"));
 
     // Create Partition Region
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setScope(Scope.LOCAL);
 
     region = CacheUtils.createRegion("portfolio", af.create(), false);
     if (region.size() == 0) {
-      for (int i = 1; i <= 100; i++) {
+      for (var i = 1; i <= 100; i++) {
         region.put(Integer.toString(i), new Portfolio(i, i));
       }
     }
@@ -142,22 +140,22 @@ public class IndexTrackingQueryObserverJUnitTest {
 
     assertTrue(keyIndex1 instanceof CompactRangeIndex);
 
-    Query query = qs.newQuery(queryStr);
+    var query = qs.newQuery(queryStr);
 
     // Inject TestHook in QueryObserver before running query.
-    IndexTrackingTestHook th = new IndexTrackingTestHook(region, 0);
-    QueryObserver observer = QueryObserverHolder.getInstance();
+    var th = new IndexTrackingTestHook(region, 0);
+    var observer = QueryObserverHolder.getInstance();
     assertTrue(QueryObserverHolder.hasObserver());
 
     ((IndexTrackingQueryObserver) observer).setTestHook(th);
 
-    SelectResults results = (SelectResults) query.execute();
+    var results = (SelectResults) query.execute();
 
     // The query should return all elements in region.
     assertEquals(region.size(), results.size());
 
     regionMap = th.getRegionMap();
-    Object rslts = regionMap.getResults().get(region.getFullPath());
+    var rslts = regionMap.getResults().get(region.getFullPath());
     assertTrue(rslts instanceof Integer);
 
     assertEquals(results.size(), ((Integer) rslts).intValue());

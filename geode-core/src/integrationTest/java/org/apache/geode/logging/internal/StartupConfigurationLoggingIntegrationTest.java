@@ -24,7 +24,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
@@ -68,10 +67,10 @@ public class StartupConfigurationLoggingIntegrationTest {
 
   @Before
   public void setUp() {
-    String name = testName.getMethodName();
+    var name = testName.getMethodName();
     mainLogFile = new File(temporaryFolder.getRoot(), name + "-main.log");
 
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, "");
     config.setProperty(LOG_FILE, mainLogFile.getAbsolutePath());
     config.setProperty(NAME, getClass().getSimpleName() + "_" + testName.getMethodName());
@@ -80,7 +79,7 @@ public class StartupConfigurationLoggingIntegrationTest {
 
     banner = new Banner().getString();
 
-    DistributionConfig distributionConfig = system.getConfig();
+    var distributionConfig = system.getConfig();
     startupConfiguration = StringUtils
         .split(STARTUP_CONFIGURATION + lineSeparator() + distributionConfig.toLoggerString(),
             lineSeparator());
@@ -108,14 +107,14 @@ public class StartupConfigurationLoggingIntegrationTest {
 
   @Test
   public void startupConfigurationIsLoggedToFileAfterBanner() throws Exception {
-    List<String> bannerLines = Arrays.asList(StringUtils.split(banner, lineSeparator()));
-    List<String> startupConfigLines = Arrays.asList(startupConfiguration);
-    List<String> logLines = FileUtils.readLines(mainLogFile, Charset.defaultCharset());
+    var bannerLines = Arrays.asList(StringUtils.split(banner, lineSeparator()));
+    var startupConfigLines = Arrays.asList(startupConfiguration);
+    var logLines = FileUtils.readLines(mainLogFile, Charset.defaultCharset());
 
-    boolean foundBanner = false;
-    boolean foundStartupConfig = false;
+    var foundBanner = false;
+    var foundStartupConfig = false;
 
-    for (String line : logLines) {
+    for (var line : logLines) {
       if (bannerLines.contains(line)) {
         assertThat(foundStartupConfig)
             .as("Banner should be logged before startup configuration: " + logLines).isFalse();
@@ -136,13 +135,13 @@ public class StartupConfigurationLoggingIntegrationTest {
   public void startupConfigurationIsLoggedToFileBeforeLogMessage() throws Exception {
     geodeLogger.info(logMessage);
 
-    List<String> startupConfigLines = Arrays.asList(startupConfiguration);
-    List<String> logLines = FileUtils.readLines(mainLogFile, Charset.defaultCharset());
+    var startupConfigLines = Arrays.asList(startupConfiguration);
+    var logLines = FileUtils.readLines(mainLogFile, Charset.defaultCharset());
 
-    boolean foundStartupConfig = false;
-    boolean foundLogMessage = false;
+    var foundStartupConfig = false;
+    var foundLogMessage = false;
 
-    for (String line : logLines) {
+    for (var line : logLines) {
       if (startupConfigLines.contains(line)) {
         assertThat(foundLogMessage)
             .as("Startup configuration should be before log message: " + logLines).isFalse();

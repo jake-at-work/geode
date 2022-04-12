@@ -42,7 +42,7 @@ public class SenderIdMonitor implements ProfileListener, InitializationListener 
 
   public static SenderIdMonitor createSenderIdMonitor(InternalRegion region,
       CacheDistributionAdvisor advisor) {
-    SenderIdMonitor senderIdMonitor = new SenderIdMonitor(region, advisor);
+    var senderIdMonitor = new SenderIdMonitor(region, advisor);
     advisor.addProfileChangeListener(senderIdMonitor);
     advisor.setInitializationListener(senderIdMonitor);
     return senderIdMonitor;
@@ -76,11 +76,11 @@ public class SenderIdMonitor implements ProfileListener, InitializationListener 
       return;
     }
     final Set<String> gatewaySenderIds = region.getGatewaySenderIds();
-    final Set<String> visibleAsyncEventQueueIds = region.getVisibleAsyncEventQueueIds();
-    final AtomicBoolean foundIllegalState = new AtomicBoolean();
+    final var visibleAsyncEventQueueIds = region.getVisibleAsyncEventQueueIds();
+    final var foundIllegalState = new AtomicBoolean();
     advisor.accept((advisor, profile, idx, count, aggregate) -> {
       if (profile instanceof CacheProfile) {
-        final CacheProfile cp = (CacheProfile) profile;
+        final var cp = (CacheProfile) profile;
         if (!gatewaySenderIds.equals(cp.gatewaySenderIds)) {
           foundIllegalState.set(true);
           illegalGatewaySenderIds = cp.gatewaySenderIds;

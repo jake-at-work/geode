@@ -107,7 +107,7 @@ public class LossAction implements Serializable {
       throw new IllegalArgumentException(
           String.format("Invalid LossAction name: %s", name));
     }
-    for (final LossAction privateValue : PRIVATE_VALUES) {
+    for (final var privateValue : PRIVATE_VALUES) {
       if (name.equals(privateValue.name)) {
         return privateValue;
       }

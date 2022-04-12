@@ -17,7 +17,6 @@ package org.apache.geode.modules.session.catalina;
 
 import java.lang.reflect.Field;
 
-import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.coyote.OutputBuffer;
 
@@ -37,10 +36,10 @@ public class Tomcat7CommitSessionValve
 
   @Override
   Response wrapResponse(final Response response) {
-    final org.apache.coyote.Response coyoteResponse = response.getCoyoteResponse();
-    final OutputBuffer delegateOutputBuffer = getOutputBuffer(coyoteResponse);
+    final var coyoteResponse = response.getCoyoteResponse();
+    final var delegateOutputBuffer = getOutputBuffer(coyoteResponse);
     if (!(delegateOutputBuffer instanceof Tomcat7CommitSessionOutputBuffer)) {
-      final Request request = response.getRequest();
+      final var request = response.getRequest();
       final OutputBuffer sessionCommitOutputBuffer =
           new Tomcat7CommitSessionOutputBuffer(() -> commitSession(request), delegateOutputBuffer);
       coyoteResponse.setOutputBuffer(sessionCommitOutputBuffer);

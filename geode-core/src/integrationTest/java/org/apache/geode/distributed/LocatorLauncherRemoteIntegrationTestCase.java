@@ -149,7 +149,7 @@ public abstract class LocatorLauncherRemoteIntegrationTestCase
   protected LocatorLauncher startLocator(final LocatorCommand command,
       final InputListener outListener, final InputListener errListener) {
     executeCommandWithReaders(command.create(), outListener, errListener);
-    LocatorLauncher launcher = awaitStart(getWorkingDirectory());
+    var launcher = awaitStart(getWorkingDirectory());
     assertThat(process.isAlive()).isTrue();
     return launcher;
   }
@@ -188,7 +188,7 @@ public abstract class LocatorLauncherRemoteIntegrationTestCase
 
   private LocatorLauncher awaitStart(final LocatorCommand command) {
     executeCommandWithReaders(command);
-    LocatorLauncher launcher = awaitStart(getWorkingDirectory());
+    var launcher = awaitStart(getWorkingDirectory());
     assertThat(process.isAlive()).isTrue();
     return launcher;
   }

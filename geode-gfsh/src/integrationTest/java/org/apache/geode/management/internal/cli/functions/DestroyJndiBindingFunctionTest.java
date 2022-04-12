@@ -54,7 +54,7 @@ public class DestroyJndiBindingFunctionTest {
     destroyJndiBindingFunction = spy(new DestroyJndiBindingFunction());
     context = mock(FunctionContext.class);
 
-    DistributedSystem distributedSystem = mock(DistributedSystem.class);
+    var distributedSystem = mock(DistributedSystem.class);
     resultSender = mock(ResultSender.class);
     resultCaptor = ArgumentCaptor.forClass(CliFunctionResult.class);
 
@@ -62,7 +62,7 @@ public class DestroyJndiBindingFunctionTest {
 
     JNDIInvoker.mapTransactions(distributedSystem);
 
-    JndiBindingsType.JndiBinding config = new JndiBindingsType.JndiBinding();
+    var config = new JndiBindingsType.JndiBinding();
     config.setJndiName("jndi1");
     config.setType(CreateJndiBindingCommand.DATASOURCE_TYPE.SIMPLE.getType());
     config.setJdbcDriverClass("org.apache.derby.jdbc.EmbeddedDriver");
@@ -81,7 +81,7 @@ public class DestroyJndiBindingFunctionTest {
     destroyJndiBindingFunction.execute(context);
 
     verify(resultSender).lastResult(resultCaptor.capture());
-    CliFunctionResult result = resultCaptor.getValue();
+    var result = resultCaptor.getValue();
 
     assertThat(result.isSuccessful()).isTrue();
     assertThat(result.getMessage()).contains("Jndi binding \"jndi1\" destroyed on \"server-1\"");
@@ -96,7 +96,7 @@ public class DestroyJndiBindingFunctionTest {
     destroyJndiBindingFunction.execute(context);
 
     verify(resultSender).lastResult(resultCaptor.capture());
-    CliFunctionResult result = resultCaptor.getValue();
+    var result = resultCaptor.getValue();
 
     assertThat(result.isSuccessful()).isTrue();
     assertThat(result.getMessage()).contains("not found").contains("Jndi binding");
@@ -112,7 +112,7 @@ public class DestroyJndiBindingFunctionTest {
     destroyJndiBindingFunction.execute(context);
 
     verify(resultSender).lastResult(resultCaptor.capture());
-    CliFunctionResult result = resultCaptor.getValue();
+    var result = resultCaptor.getValue();
 
     assertThat(result.isSuccessful()).isTrue();
     assertThat(result.getMessage()).contains("Data source \"jndi1\" destroyed on \"server-1\"");
@@ -127,7 +127,7 @@ public class DestroyJndiBindingFunctionTest {
     destroyJndiBindingFunction.execute(context);
 
     verify(resultSender).lastResult(resultCaptor.capture());
-    CliFunctionResult result = resultCaptor.getValue();
+    var result = resultCaptor.getValue();
 
     assertThat(result.isSuccessful()).isTrue();
     assertThat(result.getMessage()).contains("not found").contains("Data source");
@@ -139,14 +139,13 @@ public class DestroyJndiBindingFunctionTest {
 
     when(context.getArguments()).thenReturn(new Object[] {"jndi1", true});
     when(context.getResultSender()).thenReturn(resultSender);
-    DestroyJndiBindingFunction destroyFunctionSpy = spy(destroyJndiBindingFunction);
+    var destroyFunctionSpy = spy(destroyJndiBindingFunction);
     doReturn(false).when(destroyFunctionSpy).isValidDataSource(any());
 
     destroyFunctionSpy.execute(context);
     verify(resultSender).lastResult(resultCaptor.capture());
 
-
-    CliFunctionResult result = resultCaptor.getValue();
+    var result = resultCaptor.getValue();
 
     assertThat(result.isSuccessful()).isEqualTo(false);
     assertThat(result.getMessage()).contains(

@@ -96,7 +96,7 @@ public class MemberMXBeanShowLogIntegrationTest {
   public void showLogZeroUsesDefault() {
     createCacheWithLogFile();
 
-    String log = memberMXBean.showLog(0);
+    var log = memberMXBean.showLog(0);
 
     // splitting on lineSeparator() results in a length near 30
     assertThat(log.split(lineSeparator()).length).as("Log: " + log).isGreaterThan(25)
@@ -107,7 +107,7 @@ public class MemberMXBeanShowLogIntegrationTest {
   public void showLogNegativeUsesDefault() {
     createCacheWithLogFile();
 
-    String log = memberMXBean.showLog(-20);
+    var log = memberMXBean.showLog(-20);
 
     // splitting on lineSeparator() results in a length near 30
     assertThat(log.split(lineSeparator()).length).as("Log: " + log).isGreaterThan(25)
@@ -118,7 +118,7 @@ public class MemberMXBeanShowLogIntegrationTest {
   public void showLogDefault() {
     createCacheWithLogFile();
 
-    String log = memberMXBean.showLog(DEFAULT_SHOW_LOG_LINES);
+    var log = memberMXBean.showLog(DEFAULT_SHOW_LOG_LINES);
 
     // splitting on lineSeparator() results in a length near 30
     assertThat(log.split(lineSeparator()).length).as("Log: " + log).isGreaterThan(25)
@@ -129,7 +129,7 @@ public class MemberMXBeanShowLogIntegrationTest {
   public void showLogMaxLinesCount() {
     createCacheWithLogFile();
 
-    String log = memberMXBean.showLog(MAX_SHOW_LOG_LINES);
+    var log = memberMXBean.showLog(MAX_SHOW_LOG_LINES);
 
     // splitting on lineSeparator() results in a length near 100
     assertThat(log.split(lineSeparator()).length).as("Log: " + log).isGreaterThan(90)
@@ -140,7 +140,7 @@ public class MemberMXBeanShowLogIntegrationTest {
   public void showLogGreaterThanMaxUsesMax() {
     createCacheWithLogFile();
 
-    String log = memberMXBean.showLog(MAX_SHOW_LOG_LINES * 10);
+    var log = memberMXBean.showLog(MAX_SHOW_LOG_LINES * 10);
 
     // splitting on lineSeparator() results in a length near 100
     assertThat(log.split(lineSeparator()).length).as("Log: " + log).isGreaterThan(90)
@@ -152,13 +152,13 @@ public class MemberMXBeanShowLogIntegrationTest {
     createCacheWithLogFile();
     logger.info(logMessage);
 
-    String log = memberMXBean.showLog(0);
+    var log = memberMXBean.showLog(0);
 
     assertThat(log).contains(logMessage);
   }
 
   private void createCacheWithLogFile() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, "");
     config.setProperty(LOG_FILE, logFile.getAbsolutePath());
 
@@ -172,7 +172,7 @@ public class MemberMXBeanShowLogIntegrationTest {
   }
 
   private void createCacheWithoutLogFile() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(LOCATORS, "");
 
     cache = (InternalCache) new CacheFactory(config).create();

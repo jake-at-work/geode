@@ -40,7 +40,7 @@ public class AbstractMeterAssert<A extends AbstractMeterAssert<A, M>, M extends 
 
   public void hasId(Meter.Id expectedId) {
     isNotNull();
-    Meter.Id actualId = actualId();
+    var actualId = actualId();
     if (!Objects.equals(actualId, expectedId)) {
       failWithMessage("Expected meter to have id <%s> but id was <%s>", expectedId, actualId);
     }
@@ -56,11 +56,11 @@ public class AbstractMeterAssert<A extends AbstractMeterAssert<A, M>, M extends 
    */
   public A hasName(String expectedName) {
     isNotNull();
-    Meter.Id actualId = actualId();
+    var actualId = actualId();
     if (actualId == null) {
       failWithMessage("Expected meter to have name <%s> but id was null", expectedName);
     }
-    String meterName = actualId.getName();
+    var meterName = actualId.getName();
     if (!Objects.equals(meterName, expectedName)) {
       failWithMessage("Expected meter to have name <%s> but name was <%s>", expectedName,
           meterName);
@@ -78,7 +78,7 @@ public class AbstractMeterAssert<A extends AbstractMeterAssert<A, M>, M extends 
    */
   public A hasTag(String key) {
     isNotNull();
-    Meter.Id actualId = actualId();
+    var actualId = actualId();
     if (actualId.getTag(key) == null) {
       failWithMessage("Expected meter to have tag with key <%s>"
           + " but meter had no tag with that key in <%s>",
@@ -99,7 +99,7 @@ public class AbstractMeterAssert<A extends AbstractMeterAssert<A, M>, M extends 
    */
   public A hasTag(String key, String expectedValue) {
     hasTag(key);
-    String tagValue = actualId().getTag(key);
+    var tagValue = actualId().getTag(key);
     if (!Objects.equals(tagValue, expectedValue)) {
       failWithMessage("Expected meter's <%s> tag to have value <%s> but value was <%s>",
           key, expectedValue, tagValue);
@@ -109,7 +109,7 @@ public class AbstractMeterAssert<A extends AbstractMeterAssert<A, M>, M extends 
 
   public void hasNoTag(String key) {
     isNotNull();
-    Meter.Id actualId = actualId();
+    var actualId = actualId();
     if (actualId.getTag(key) != null) {
       failWithMessage(
           "Expected meter to have no tag with key <%s> but meter had that tag with value <%s>",
@@ -127,7 +127,7 @@ public class AbstractMeterAssert<A extends AbstractMeterAssert<A, M>, M extends 
    */
   public A hasBaseUnit(String expectedBaseUnit) {
     isNotNull();
-    String meterBaseUnit = actualId().getBaseUnit();
+    var meterBaseUnit = actualId().getBaseUnit();
     if (!Objects.equals(meterBaseUnit, expectedBaseUnit)) {
       failWithMessage("Expected meter to have base unit <%s> but base unit was <%s>",
           expectedBaseUnit, meterBaseUnit);

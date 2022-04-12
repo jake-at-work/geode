@@ -16,23 +16,19 @@ package org.apache.geode.management.internal.cli.commands;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.LineIterator;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestName;
 
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.internal.cache.xmlcache.CacheCreation;
 import org.apache.geode.internal.cache.xmlcache.CacheXmlGenerator;
-import org.apache.geode.test.junit.rules.gfsh.GfshExecution;
 import org.apache.geode.test.junit.rules.gfsh.GfshRule;
 import org.apache.geode.test.junit.rules.gfsh.GfshScript;
 import org.apache.geode.test.junit.rules.serializable.SerializableTestName;
@@ -55,11 +51,11 @@ public class StartServerCommandAcceptanceTest {
   @Test
   public void startStandaloneServerWithParametersShouldOverrideCacheXmlConfiguration()
       throws IOException {
-    File logFile = temporaryFolder.newFile(testName.getMethodName() + ".log");
-    File cacheXmlFile = temporaryFolder.newFile(testName.getMethodName() + "Cache.xml");
+    var logFile = temporaryFolder.newFile(testName.getMethodName() + ".log");
+    var cacheXmlFile = temporaryFolder.newFile(testName.getMethodName() + "Cache.xml");
 
-    CacheCreation creation = new CacheCreation();
-    CacheServer server = creation.addCacheServer();
+    var creation = new CacheCreation();
+    var server = creation.addCacheServer();
     server.setPort(40404);
     server.setBindAddress(null);
     server.setHostnameForClients(null);
@@ -68,26 +64,26 @@ public class StartServerCommandAcceptanceTest {
     server.setMaximumMessageCount(230000);
     server.setMessageTimeToLive(180);
     server.setSocketBufferSize(32768);
-    PrintWriter pw = new PrintWriter(new FileWriter(cacheXmlFile), true);
+    var pw = new PrintWriter(new FileWriter(cacheXmlFile), true);
     CacheXmlGenerator.generate(creation, pw);
     pw.close();
 
     Integer serverPort = AvailablePortHelper.getRandomAvailableTCPPort();
-    String startServerCommand =
+    var startServerCommand =
         "start server --max-threads=100 --max-connections=1200 --max-message-count=5000 --message-time-to-live=360 --socket-buffer-size=16384 --server-port="
             + serverPort + " --name=" + testName.getMethodName() + " --cache-xml-file="
             + cacheXmlFile.getAbsolutePath() + " --J=-Dgemfire.log-file=" + logFile
                 .getAbsolutePath();
 
-    GfshExecution execution = GfshScript.of(startServerCommand).execute(gfshRule);
+    var execution = GfshScript.of(startServerCommand).execute(gfshRule);
     assertThat(execution.getOutputText())
         .containsPattern("Server .* " + testName.getMethodName() + " is currently online.");
 
     // Assert Server Properties.
-    Boolean configurationLineFound = Boolean.FALSE;
-    LineIterator lineIterator = FileUtils.lineIterator(logFile);
+    var configurationLineFound = Boolean.FALSE;
+    var lineIterator = FileUtils.lineIterator(logFile);
     while (lineIterator.hasNext()) {
-      String line = lineIterator.nextLine();
+      var line = lineIterator.nextLine();
       if (line.contains("CacheServer Configuration:")) {
         configurationLineFound = Boolean.TRUE;
         assertThat(line.contains("max-threads=100")).isTrue();
@@ -107,16 +103,16 @@ public class StartServerCommandAcceptanceTest {
   public void startServerWithParametersWhenClusterConfigurationServiceIsEnabledShouldOverrideDefaults()
       throws IOException {
     Integer serverPort = AvailablePortHelper.getRandomAvailableTCPPort();
-    File logFile = temporaryFolder.newFile(testName.getMethodName() + ".log");
+    var logFile = temporaryFolder.newFile(testName.getMethodName() + ".log");
 
-    String startServerCommand =
+    var startServerCommand =
         "start server --max-threads=50 --max-connections=200 --max-message-count=500 --message-time-to-live=120 --socket-buffer-size=8192 --server-port="
             + serverPort + " --use-cluster-configuration=true --name=" + testName.getMethodName()
             + " --J=-Dgemfire.log-file=" + logFile.getAbsolutePath();
 
     // Start Locator, configure PDX (just to have a non-empty cluster-configuration) and start
     // server.
-    GfshExecution startClusterExecution = GfshScript
+    var startClusterExecution = GfshScript
         .of("start locator --name=locator1 --connect=true --enable-cluster-configuration=true",
             "configure pdx --read-serialized=true", startServerCommand)
         .execute(gfshRule);
@@ -127,10 +123,10 @@ public class StartServerCommandAcceptanceTest {
         .containsPattern("Server .* " + testName.getMethodName() + " is currently online.");
 
     // Assert Server Properties.
-    Boolean configurationLineFound = Boolean.FALSE;
-    LineIterator lineIterator = FileUtils.lineIterator(logFile);
+    var configurationLineFound = Boolean.FALSE;
+    var lineIterator = FileUtils.lineIterator(logFile);
     while (lineIterator.hasNext()) {
-      String line = lineIterator.nextLine();
+      var line = lineIterator.nextLine();
       if (line.contains("CacheServer Configuration:")) {
         configurationLineFound = Boolean.TRUE;
         assertThat(line.contains("max-threads=50")).isTrue();

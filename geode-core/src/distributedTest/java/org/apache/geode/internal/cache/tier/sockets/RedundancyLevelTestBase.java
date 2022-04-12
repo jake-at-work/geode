@@ -25,10 +25,8 @@ import static org.hamcrest.Matchers.greaterThan;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 
 import org.junit.BeforeClass;
 import org.junit.experimental.categories.Category;
@@ -40,12 +38,10 @@ import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.InterestResultPolicy;
 import org.apache.geode.cache.NoSubscriptionServersAvailableException;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.PoolImpl;
 import org.apache.geode.cache.client.internal.RegisterInterestTracker;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.distributed.internal.ServerLocation;
 import org.apache.geode.internal.cache.CacheServerImpl;
@@ -115,7 +111,7 @@ public class RedundancyLevelTestBase extends JUnit4DistributedTestCase {
     PORT3 = server2.invoke(RedundancyLevelTestBase::createServerCache);
     PORT4 = server3.invoke(RedundancyLevelTestBase::createServerCache);
 
-    String hostName = NetworkUtils.getServerHostName();
+    var hostName = NetworkUtils.getServerHostName();
     SERVER1 = hostName + PORT1;
     SERVER2 = hostName + PORT2;
     SERVER3 = hostName + PORT3;
@@ -145,21 +141,21 @@ public class RedundancyLevelTestBase extends JUnit4DistributedTestCase {
     await()
         .until(() -> cache.getCacheServers().size(), equalTo(1));
 
-    CacheServerImpl bs = (CacheServerImpl) cache.getCacheServers().iterator().next();
+    var bs = (CacheServerImpl) cache.getCacheServers().iterator().next();
     assertThat(bs).isNotNull();
     assertThat(bs.getAcceptor()).isNotNull();
     assertThat(bs.getAcceptor().getCacheClientNotifier()).isNotNull();
 
-    final CacheClientNotifier ccn = bs.getAcceptor().getCacheClientNotifier();
+    final var ccn = bs.getAcceptor().getCacheClientNotifier();
 
     await().until(() -> ccn.getClientProxies().size(),
         greaterThan(0));
 
-    Iterator<CacheClientProxy> cacheClientProxyIterator = ccn.getClientProxies().iterator();
+    var cacheClientProxyIterator = ccn.getClientProxies().iterator();
 
     if (ccn.getClientProxies().iterator().hasNext()) {
 
-      final CacheClientProxy proxy = cacheClientProxyIterator.next();
+      final var proxy = cacheClientProxyIterator.next();
       await()
           .until(() -> proxy._messageDispatcher != null && proxy._messageDispatcher.isAlive());
     }
@@ -170,19 +166,19 @@ public class RedundancyLevelTestBase extends JUnit4DistributedTestCase {
     await()
         .until(() -> cache.getCacheServers().size(), equalTo(1));
 
-    CacheServerImpl bs = (CacheServerImpl) cache.getCacheServers().iterator().next();
+    var bs = (CacheServerImpl) cache.getCacheServers().iterator().next();
     assertThat(bs).isNotNull();
     assertThat(bs.getAcceptor()).isNotNull();
     assertThat(bs.getAcceptor().getCacheClientNotifier()).isNotNull();
 
-    final CacheClientNotifier ccn = bs.getAcceptor().getCacheClientNotifier();
+    final var ccn = bs.getAcceptor().getCacheClientNotifier();
 
     await().until(() -> ccn.getClientProxies().size(),
         greaterThan(0));
 
-    Iterator<CacheClientProxy> cacheClientProxyIterator = ccn.getClientProxies().iterator();
+    var cacheClientProxyIterator = ccn.getClientProxies().iterator();
     if (cacheClientProxyIterator.hasNext()) {
-      CacheClientProxy proxy = cacheClientProxyIterator.next();
+      var proxy = cacheClientProxyIterator.next();
       assertThat(proxy._messageDispatcher.isAlive())
           .describedAs("Dispatcher on secondary should not be alive").isFalse();
     }
@@ -249,7 +245,7 @@ public class RedundancyLevelTestBase extends JUnit4DistributedTestCase {
   static void verifyNoCCP() {
     assertThat(cache.getCacheServers().size()).describedAs("More than one BridgeServer")
         .isEqualTo(1);
-    CacheServerImpl bs = (CacheServerImpl) cache.getCacheServers().iterator().next();
+    var bs = (CacheServerImpl) cache.getCacheServers().iterator().next();
 
     assertThat(bs).isNotNull();
     assertThat(bs.getAcceptor()).isNotNull();
@@ -262,14 +258,14 @@ public class RedundancyLevelTestBase extends JUnit4DistributedTestCase {
   static void verifyCCP() {
     await()
         .until(() -> cache.getCacheServers().size(), equalTo(1));
-    CacheServerImpl bs = (CacheServerImpl) cache.getCacheServers().iterator().next();
+    var bs = (CacheServerImpl) cache.getCacheServers().iterator().next();
 
     assertThat(bs).isNotNull();
     assertThat(bs.getAcceptor()).isNotNull();
     assertThat(bs.getAcceptor().getCacheClientNotifier()).isNotNull();
 
     // one client is connected to this server
-    final CacheClientNotifier ccn = bs.getAcceptor().getCacheClientNotifier();
+    final var ccn = bs.getAcceptor().getCacheClientNotifier();
     await().until(() -> ccn.getClientProxies().size(),
         equalTo(1));
   }
@@ -278,23 +274,23 @@ public class RedundancyLevelTestBase extends JUnit4DistributedTestCase {
     await("Number of cache servers (" + cache.getCacheServers().size() + ") never became 1")
         .until(() -> cache.getCacheServers().size(), equalTo(1));
 
-    CacheServerImpl bs = (CacheServerImpl) cache.getCacheServers().iterator().next();
+    var bs = (CacheServerImpl) cache.getCacheServers().iterator().next();
     assertThat(bs).isNotNull();
     assertThat(bs.getAcceptor()).isNotNull();
     assertThat(bs.getAcceptor().getCacheClientNotifier()).isNotNull();
 
-    final CacheClientNotifier ccn = bs.getAcceptor().getCacheClientNotifier();
+    final var ccn = bs.getAcceptor().getCacheClientNotifier();
     await("Notifier's proxies is empty")
         .until(() -> ccn.getClientProxies().size(), greaterThan(0));
 
-    Iterator<CacheClientProxy> cacheClientProxyIterator = ccn.getClientProxies().iterator();
+    var cacheClientProxyIterator = ccn.getClientProxies().iterator();
 
     assertThat(cacheClientProxyIterator.hasNext()).describedAs("A CCP was expected . Wasn't it?")
         .isTrue();
-    final CacheClientProxy ccp = cacheClientProxyIterator.next();
+    final var ccp = cacheClientProxyIterator.next();
 
     await().until(() -> {
-      Set keysMap = ccp.cils[RegisterInterestTracker.interestListIndex]
+      var keysMap = ccp.cils[RegisterInterestTracker.interestListIndex]
           .getProfile(SEPARATOR + REGION_NAME).getKeysOfInterestFor(ccp.getProxyID());
       if (keysMap == null) {
         return false;
@@ -302,23 +298,23 @@ public class RedundancyLevelTestBase extends JUnit4DistributedTestCase {
       return keysMap.size() == 2;
     });
 
-    Set keysMap = ccp.cils[RegisterInterestTracker.interestListIndex]
+    var keysMap = ccp.cils[RegisterInterestTracker.interestListIndex]
         .getProfile(SEPARATOR + REGION_NAME).getKeysOfInterestFor(ccp.getProxyID());
     assertThat(keysMap.contains(k1)).isTrue();
     assertThat(keysMap.contains(k2)).isTrue();
   }
 
   public static void stopServer() {
-    Iterator<CacheServer> iterator = cache.getCacheServers().iterator();
+    var iterator = cache.getCacheServers().iterator();
     if (iterator.hasNext()) {
-      CacheServer server = iterator.next();
+      var server = iterator.next();
       server.stop();
     }
   }
 
   public static void startServer() throws IOException {
-    Cache c = CacheFactory.getAnyInstance();
-    CacheServerImpl bs = (CacheServerImpl) c.getCacheServers().iterator().next();
+    var c = CacheFactory.getAnyInstance();
+    var bs = (CacheServerImpl) c.getCacheServers().iterator().next();
     assertThat(bs).isNotNull();
     bs.start();
   }
@@ -358,21 +354,21 @@ public class RedundancyLevelTestBase extends JUnit4DistributedTestCase {
       });
     }
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     new RedundancyLevelTestBase().createCache(props);
 
-    PoolImpl p = (PoolImpl) PoolManager.createFactory().addServer(host, PORT1)
+    var p = (PoolImpl) PoolManager.createFactory().addServer(host, PORT1)
         .addServer(host, PORT2).addServer(host, PORT3).addServer(host, PORT4)
         .setSubscriptionEnabled(true).setReadTimeout(socketReadTimeout).setSocketBufferSize(32768)
         .setMinConnections(8).setSubscriptionRedundancy(redundancy).setRetryAttempts(5)
         .setPingInterval(retryInterval).create("DurableClientReconnectDUnitTestPool");
 
-    AttributesFactory<String, String> factory = new AttributesFactory<>();
+    var factory = new AttributesFactory<String, String>();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setPoolName(p.getName());
-    RegionAttributes<String, String> attrs = factory.createRegionAttributes();
+    var attrs = factory.createRegionAttributes();
     cache.createRegion(REGION_NAME, attrs);
     pool = p;
     createEntriesK1andK2();
@@ -381,16 +377,16 @@ public class RedundancyLevelTestBase extends JUnit4DistributedTestCase {
 
   private static Integer createServerCache() throws Exception {
     new RedundancyLevelTestBase().createCache(new Properties());
-    AttributesFactory<String, String> factory = new AttributesFactory<>();
+    var factory = new AttributesFactory<String, String>();
     factory.setScope(Scope.DISTRIBUTED_ACK);
     factory.setEnableSubscriptionConflation(true);
     factory.setDataPolicy(DataPolicy.REPLICATE);
-    RegionAttributes<String, String> attrs = factory.createRegionAttributes();
+    var attrs = factory.createRegionAttributes();
     cache.createVMRegion(REGION_NAME, attrs);
 
-    CacheServer server1 = cache.addCacheServer();
+    var server1 = cache.addCacheServer();
 
-    int port = getRandomAvailableTCPPort();
+    var port = getRandomAvailableTCPPort();
     server1.setMaximumTimeBetweenPings(180000);
     server1.setPort(port);
     server1.start();

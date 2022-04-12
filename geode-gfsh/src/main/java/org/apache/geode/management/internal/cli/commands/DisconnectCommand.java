@@ -19,10 +19,8 @@ import org.springframework.shell.core.annotation.CliCommand;
 
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.internal.cli.LogWrapper;
-import org.apache.geode.management.internal.cli.result.model.InfoResultModel;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
 import org.apache.geode.management.internal.cli.shell.Gfsh;
-import org.apache.geode.management.internal.cli.shell.OperationInvoker;
 import org.apache.geode.management.internal.i18n.CliStrings;
 
 public class DisconnectCommand extends OfflineGfshCommand {
@@ -36,12 +34,12 @@ public class DisconnectCommand extends OfflineGfshCommand {
       return ResultModel.createInfo("Not connected.");
     }
 
-    ResultModel result = new ResultModel();
-    InfoResultModel infoResultData = result.addInfo();
+    var result = new ResultModel();
+    var infoResultData = result.addInfo();
 
-    Gfsh gfshInstance = getGfsh();
+    var gfshInstance = getGfsh();
     if (gfshInstance.isConnectedAndReady()) {
-      OperationInvoker operationInvoker = gfshInstance.getOperationInvoker();
+      var operationInvoker = gfshInstance.getOperationInvoker();
       Gfsh.println("Disconnecting from: " + operationInvoker);
       operationInvoker.stop();
       infoResultData.addLine(CliStrings.format(CliStrings.DISCONNECT__MSG__DISCONNECTED,

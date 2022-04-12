@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.CacheException;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.QueryTestUtils;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.cache.query.internal.index.IndexManager;
@@ -56,7 +55,7 @@ public class CompactRangeIndexDUnitTest extends JUnit4DistributedTestCase {
         getSystem();
       }
     });
-    Host host = Host.getHost(0);
+    var host = Host.getHost(0);
     vm0 = host.getVM(0);
     utils = new QueryTestUtils();
     utils.initializeQueryMap();
@@ -71,7 +70,7 @@ public class CompactRangeIndexDUnitTest extends JUnit4DistributedTestCase {
    */
   @Test
   public void testIndexInvalidDueToExpressionOnPartitionedRegion() throws Exception {
-    Host host = Host.getHost(0);
+    var host = Host.getHost(0);
     utils.createPartitionRegion("examplePartitionedRegion", Portfolio.class, vm0);
 
     vm0.invoke(new CacheSerializableRunnable("Putting values") {
@@ -148,11 +147,11 @@ public class CompactRangeIndexDUnitTest extends JUnit4DistributedTestCase {
   }
 
   public void doQuery() throws InterruptedException {
-    final String[] qarr = {"1", "519", "181"};
+    final var qarr = new String[] {"1", "519", "181"};
     AsyncInvocation as0 = vm0.invokeAsync(new CacheSerializableRunnable("Executing query") {
       @Override
       public void run2() throws CacheException {
-        for (int i = 0; i < 50; i++) {
+        for (var i = 0; i < 50; i++) {
           try {
             utils.executeQueries(qarr);
           } catch (Exception e) {
@@ -175,8 +174,8 @@ public class CompactRangeIndexDUnitTest extends JUnit4DistributedTestCase {
         try {
           Thread.sleep(500);
           // destroy entries
-          Region region = utils.getRegion("exampleRegion");
-          for (int i = 1; i <= entries; i++) {
+          var region = utils.getRegion("exampleRegion");
+          for (var i = 1; i <= entries; i++) {
             try {
               region.destroy("KEY-" + i);
             } catch (Exception e) {
@@ -217,15 +216,15 @@ public class CompactRangeIndexDUnitTest extends JUnit4DistributedTestCase {
   }
 
   private void putPortfolios(String regionName, int size) {
-    Region region = utils.getRegion(regionName);
-    for (int i = 1; i <= size; i++) {
+    var region = utils.getRegion(regionName);
+    for (var i = 1; i <= size; i++) {
       region.put("KEY-" + i, new Portfolio(i));
     }
   }
 
   private void putOffsetPortfolios(String regionName, int size) {
-    Region region = utils.getRegion(regionName);
-    for (int i = 1; i <= size; i++) {
+    var region = utils.getRegion(regionName);
+    for (var i = 1; i <= size; i++) {
       region.put("KEY-" + i, new Portfolio(i + 1));
     }
   }

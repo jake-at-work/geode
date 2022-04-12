@@ -24,18 +24,8 @@ import static java.util.Collections.emptyList;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.concurrent.TimeUnit;
-
-import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.DistributionSummary;
-import io.micrometer.core.instrument.FunctionCounter;
-import io.micrometer.core.instrument.FunctionTimer;
-import io.micrometer.core.instrument.Gauge;
-import io.micrometer.core.instrument.LongTaskTimer;
-import io.micrometer.core.instrument.Meter;
 import io.micrometer.core.instrument.Meter.Id;
 import io.micrometer.core.instrument.Tags;
-import io.micrometer.core.instrument.Timer;
 import io.micrometer.core.instrument.distribution.DistributionStatisticConfig;
 import io.micrometer.core.instrument.distribution.pause.NoPauseDetector;
 import io.micrometer.core.instrument.noop.NoopCounter;
@@ -66,9 +56,9 @@ public class NoopMeterRegistryTest {
 
   @Test
   public void newGauge_createsNoopGauge() {
-    Id expectedId = new Id("name", Tags.of("key", "value"), null, null, GAUGE);
+    var expectedId = new Id("name", Tags.of("key", "value"), null, null, GAUGE);
 
-    Gauge result = noopMeterRegistry.newGauge(expectedId, null, x -> 0.0);
+    var result = noopMeterRegistry.newGauge(expectedId, null, x -> 0.0);
 
     assertThat(result)
         .isInstanceOf(NoopGauge.class);
@@ -79,9 +69,9 @@ public class NoopMeterRegistryTest {
 
   @Test
   public void newCounter_createsNoopCounter() {
-    Id expectedId = new Id("name", Tags.of("key", "value"), null, null, COUNTER);
+    var expectedId = new Id("name", Tags.of("key", "value"), null, null, COUNTER);
 
-    Counter result = noopMeterRegistry.newCounter(expectedId);
+    var result = noopMeterRegistry.newCounter(expectedId);
 
     assertThat(result)
         .isInstanceOf(NoopCounter.class);
@@ -92,9 +82,9 @@ public class NoopMeterRegistryTest {
 
   @Test
   public void newLongTaskTimer_createsNoopLongTaskTimer() {
-    Id expectedId = new Id("name", Tags.of("key", "value"), null, null, LONG_TASK_TIMER);
+    var expectedId = new Id("name", Tags.of("key", "value"), null, null, LONG_TASK_TIMER);
 
-    LongTaskTimer result = noopMeterRegistry.newLongTaskTimer(expectedId);
+    var result = noopMeterRegistry.newLongTaskTimer(expectedId);
 
     assertThat(result)
         .isInstanceOf(NoopLongTaskTimer.class);
@@ -105,9 +95,9 @@ public class NoopMeterRegistryTest {
 
   @Test
   public void newTimer_createsNoopTimer() {
-    Id expectedId = new Id("name", Tags.of("key", "value"), null, null, TIMER);
+    var expectedId = new Id("name", Tags.of("key", "value"), null, null, TIMER);
 
-    Timer result = noopMeterRegistry.newTimer(expectedId, DistributionStatisticConfig.NONE,
+    var result = noopMeterRegistry.newTimer(expectedId, DistributionStatisticConfig.NONE,
         new NoPauseDetector());
 
     assertThat(result)
@@ -119,9 +109,9 @@ public class NoopMeterRegistryTest {
 
   @Test
   public void newDistributionSummary_createsNoopDistributionSummary() {
-    Id expectedId = new Id("name", Tags.of("key", "value"), null, null, DISTRIBUTION_SUMMARY);
+    var expectedId = new Id("name", Tags.of("key", "value"), null, null, DISTRIBUTION_SUMMARY);
 
-    DistributionSummary result = noopMeterRegistry.newDistributionSummary(expectedId,
+    var result = noopMeterRegistry.newDistributionSummary(expectedId,
         DistributionStatisticConfig.NONE, 0.0);
 
     assertThat(result)
@@ -133,9 +123,9 @@ public class NoopMeterRegistryTest {
 
   @Test
   public void newMeter_createsNoopMeter() {
-    Id expectedId = new Id("name", Tags.of("key", "value"), null, null, OTHER);
+    var expectedId = new Id("name", Tags.of("key", "value"), null, null, OTHER);
 
-    Meter result = noopMeterRegistry.newMeter(expectedId, OTHER, emptyList());
+    var result = noopMeterRegistry.newMeter(expectedId, OTHER, emptyList());
 
     assertThat(result)
         .isInstanceOf(NoopMeter.class);
@@ -146,9 +136,9 @@ public class NoopMeterRegistryTest {
 
   @Test
   public void newFunctionTimer_createsNoopFunctionTimer() {
-    Id expectedId = new Id("name", Tags.of("key", "value"), null, null, TIMER);
+    var expectedId = new Id("name", Tags.of("key", "value"), null, null, TIMER);
 
-    FunctionTimer result =
+    var result =
         noopMeterRegistry.newFunctionTimer(expectedId, new Object(), x -> 0L, x -> 0.0, SECONDS);
 
     assertThat(result)
@@ -160,9 +150,9 @@ public class NoopMeterRegistryTest {
 
   @Test
   public void newFunctionCounter_createsNoopFunctionCounter() {
-    Id expectedId = new Id("name", Tags.of("key", "value"), null, null, COUNTER);
+    var expectedId = new Id("name", Tags.of("key", "value"), null, null, COUNTER);
 
-    FunctionCounter result =
+    var result =
         noopMeterRegistry.newFunctionCounter(expectedId, new Object(), x -> 0.0);
 
     assertThat(result)
@@ -174,7 +164,7 @@ public class NoopMeterRegistryTest {
 
   @Test
   public void getBaseTimeUnit_returnsSeconds() {
-    TimeUnit result = noopMeterRegistry.getBaseTimeUnit();
+    var result = noopMeterRegistry.getBaseTimeUnit();
 
     assertThat(result)
         .isEqualTo(SECONDS);
@@ -182,7 +172,7 @@ public class NoopMeterRegistryTest {
 
   @Test
   public void defaultHistogramConfig_returnsNone() {
-    DistributionStatisticConfig result = noopMeterRegistry.defaultHistogramConfig();
+    var result = noopMeterRegistry.defaultHistogramConfig();
 
     assertThat(result)
         .isEqualTo(DistributionStatisticConfig.NONE);

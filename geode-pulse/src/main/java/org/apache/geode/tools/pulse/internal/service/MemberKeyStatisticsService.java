@@ -21,7 +21,6 @@ import static org.apache.geode.tools.pulse.internal.util.NameUtil.makeCompliantN
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,15 +55,15 @@ public class MemberKeyStatisticsService implements PulseService {
   public ObjectNode execute(final HttpServletRequest request) throws Exception {
 
     // get cluster object
-    Cluster cluster = repository.getCluster();
+    var cluster = repository.getCluster();
 
     // json object to be sent as response
-    ObjectNode responseJSON = mapper.createObjectNode();
+    var responseJSON = mapper.createObjectNode();
 
-    JsonNode requestDataJSON = mapper.readTree(request.getParameter("pulseData"));
-    String memberName = requestDataJSON.get("MemberKeyStatistics").get("memberName").textValue();
+    var requestDataJSON = mapper.readTree(request.getParameter("pulseData"));
+    var memberName = requestDataJSON.get("MemberKeyStatistics").get("memberName").textValue();
 
-    Cluster.Member clusterMember = cluster.getMember(makeCompliantName(memberName));
+    var clusterMember = cluster.getMember(makeCompliantName(memberName));
 
     if (clusterMember != null) {
       // response

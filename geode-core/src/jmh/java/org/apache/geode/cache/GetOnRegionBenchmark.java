@@ -65,14 +65,14 @@ public class GetOnRegionBenchmark {
   @BenchmarkMode(Mode.Throughput)
   @OutputTimeUnit(TimeUnit.MILLISECONDS)
   public String createEntry(MyState state) {
-    String key = Integer.toString(state.random.nextInt(ENTRIES));
+    var key = Integer.toString(state.random.nextInt(ENTRIES));
     return region.get(key);
   }
 
   private Region<String, String> createRegion(Cache cache) {
-    Region<String, String> region =
+    var region =
         cache.<String, String>createRegionFactory(RegionShortcut.LOCAL).create("testRegion");
-    for (int i = 0; i < ENTRIES; i++) {
+    for (var i = 0; i < ENTRIES; i++) {
       region.put(Integer.toString(i), "value");
     }
     return region;

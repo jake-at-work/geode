@@ -31,27 +31,27 @@ public class SizeableByteArrayListTest {
 
   @Test
   public void getSizeInBytesIsAccurate_ForEmptySizeableByteArrayList() {
-    SizeableByteArrayList list = new SizeableByteArrayList();
+    var list = new SizeableByteArrayList();
     assertThat(list.getSizeInBytes()).isEqualTo(sizer.sizeof(list));
   }
 
   @Test
   public void getSizeInBytesIsAccurate_ForSizeableByteArrayListElements() {
-    int elementsToAdd = 100;
+    var elementsToAdd = 100;
 
     // Create a list with an initial size and confirm that it correctly reports its size
-    SizeableByteArrayList list = createList();
+    var list = createList();
     assertThat(list.getSizeInBytes()).isEqualTo(sizer.sizeof(list));
 
     // Add elements and assert that the size is correct after each add
-    for (int i = INITIAL_NUMBER_OF_ELEMENTS; i < INITIAL_NUMBER_OF_ELEMENTS + elementsToAdd; ++i) {
+    for (var i = INITIAL_NUMBER_OF_ELEMENTS; i < INITIAL_NUMBER_OF_ELEMENTS + elementsToAdd; ++i) {
       list.addFirst(makeByteArrayOfSpecifiedLength(i));
       assertThat(list.getSizeInBytes()).isEqualTo(sizer.sizeof(list));
     }
     assertThat(list.size()).isEqualTo(INITIAL_NUMBER_OF_ELEMENTS + elementsToAdd);
 
     // Remove all the elements and assert that the size is correct after each remove
-    for (int i = 0; i < INITIAL_NUMBER_OF_ELEMENTS + elementsToAdd; ++i) {
+    for (var i = 0; i < INITIAL_NUMBER_OF_ELEMENTS + elementsToAdd; ++i) {
       list.remove(0);
       assertThat(list.getSizeInBytes()).isEqualTo(sizer.sizeof(list));
     }
@@ -61,12 +61,12 @@ public class SizeableByteArrayListTest {
   @Test
   public void removeObjects_getSizeInBytesIsAccurate() {
     // Create a list with an initial size and confirm that it correctly reports its size
-    SizeableByteArrayList list = createList();
+    var list = createList();
     assertThat(list.getSizeInBytes()).isEqualTo(sizer.sizeof(list));
 
     // Remove all the elements and assert that the size is correct after each remove
-    Random rand = new Random();
-    for (int i = 0; i < INITIAL_NUMBER_OF_ELEMENTS; ++i) {
+    var rand = new Random();
+    for (var i = 0; i < INITIAL_NUMBER_OF_ELEMENTS; ++i) {
       list.remove(makeByteArrayOfSpecifiedLength(i + 1), rand.nextInt(3) - 1);
       assertThat(list.getSizeInBytes()).isEqualTo(sizer.sizeof(list));
     }
@@ -76,11 +76,11 @@ public class SizeableByteArrayListTest {
   @Test
   public void removeIndexes_getSizeInBytesIsAccurate() {
     // Create a list with an initial size and confirm that it correctly reports its size
-    SizeableByteArrayList list = createList();
+    var list = createList();
     assertThat(list.getSizeInBytes()).isEqualTo(sizer.sizeof(list));
 
     // Remove all the elements and assert that the size is correct after each remove
-    for (int i = INITIAL_NUMBER_OF_ELEMENTS - 1; 0 <= i; --i) {
+    for (var i = INITIAL_NUMBER_OF_ELEMENTS - 1; 0 <= i; --i) {
       List<Integer> indexToRemove = new ArrayList<>(1);
       indexToRemove.add(i);
       list.removeIndexes(indexToRemove);
@@ -90,16 +90,16 @@ public class SizeableByteArrayListTest {
   }
 
   private SizeableByteArrayList createList() {
-    SizeableByteArrayList list = new SizeableByteArrayList();
-    for (int i = 0; i < INITIAL_NUMBER_OF_ELEMENTS; ++i) {
+    var list = new SizeableByteArrayList();
+    for (var i = 0; i < INITIAL_NUMBER_OF_ELEMENTS; ++i) {
       list.addFirst(makeByteArrayOfSpecifiedLength(i + 1));
     }
     return list;
   }
 
   private byte[] makeByteArrayOfSpecifiedLength(int length) {
-    byte[] newByteArray = new byte[length];
-    for (int i = 0; i < length; i++) {
+    var newByteArray = new byte[length];
+    for (var i = 0; i < length; i++) {
       newByteArray[i] = (byte) i;
     }
     return newByteArray;

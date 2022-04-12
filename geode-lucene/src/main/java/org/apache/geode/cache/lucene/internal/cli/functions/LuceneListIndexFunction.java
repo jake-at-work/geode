@@ -21,9 +21,7 @@ import java.util.Set;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionContext;
-import org.apache.geode.cache.lucene.LuceneIndex;
 import org.apache.geode.cache.lucene.LuceneServiceProvider;
-import org.apache.geode.cache.lucene.internal.LuceneIndexCreationProfile;
 import org.apache.geode.cache.lucene.internal.LuceneIndexImpl;
 import org.apache.geode.cache.lucene.internal.LuceneServiceImpl;
 import org.apache.geode.cache.lucene.internal.cli.LuceneIndexDetails;
@@ -56,14 +54,14 @@ public class LuceneListIndexFunction implements InternalFunction {
   @Override
   public void execute(final FunctionContext context) {
     final Set<LuceneIndexDetails> indexDetailsSet = new HashSet<>();
-    final Cache cache = context.getCache();
-    final String serverName = cache.getDistributedSystem().getDistributedMember().getName();
-    LuceneServiceImpl service = (LuceneServiceImpl) LuceneServiceProvider.get(cache);
-    for (LuceneIndexCreationProfile profile : service.getAllDefinedIndexes()) {
+    final var cache = context.getCache();
+    final var serverName = cache.getDistributedSystem().getDistributedMember().getName();
+    var service = (LuceneServiceImpl) LuceneServiceProvider.get(cache);
+    for (var profile : service.getAllDefinedIndexes()) {
       indexDetailsSet
           .add(new LuceneIndexDetails(profile, serverName, LuceneIndexStatus.NOT_INITIALIZED));
     }
-    for (LuceneIndex index : service.getAllIndexes()) {
+    for (var index : service.getAllIndexes()) {
       LuceneIndexStatus initialized;
       if (index.isIndexingInProgress()) {
         initialized = LuceneIndexStatus.INDEXING_IN_PROGRESS;

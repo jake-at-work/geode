@@ -20,19 +20,15 @@ import java.nio.ByteBuffer;
 import org.jetbrains.annotations.NotNull;
 
 import org.apache.geode.annotations.Immutable;
-import org.apache.geode.cache.operations.RegionClearOperationContext;
 import org.apache.geode.distributed.internal.DistributionStats;
 import org.apache.geode.internal.cache.EventID;
 import org.apache.geode.internal.cache.LocalRegion;
-import org.apache.geode.internal.cache.tier.CachedRegionHelper;
 import org.apache.geode.internal.cache.tier.Command;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.tier.sockets.BaseCommand;
-import org.apache.geode.internal.cache.tier.sockets.CacheServerStats;
 import org.apache.geode.internal.cache.tier.sockets.Message;
 import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
-import org.apache.geode.internal.security.AuthorizeRequest;
 import org.apache.geode.internal.security.SecurityService;
 import org.apache.geode.security.ResourcePermission.Operation;
 import org.apache.geode.security.ResourcePermission.Resource;
@@ -57,12 +53,12 @@ public class ClearRegion extends BaseCommand {
     String regionName = null;
     Object callbackArg = null;
     Part eventPart = null;
-    CachedRegionHelper crHelper = serverConnection.getCachedRegionHelper();
-    CacheServerStats stats = serverConnection.getCacheServerStats();
+    var crHelper = serverConnection.getCachedRegionHelper();
+    var stats = serverConnection.getCacheServerStats();
     serverConnection.setAsTrue(REQUIRES_RESPONSE);
 
     {
-      long oldStart = start;
+      var oldStart = start;
       start = DistributionStats.getStatTime();
       stats.incReadClearRegionRequestTime(start - oldStart);
     }
@@ -91,7 +87,7 @@ public class ClearRegion extends BaseCommand {
     if (regionName == null) {
       logger.warn("{}: The input region name for the clear region request is null",
           serverConnection.getName());
-      String errMessage =
+      var errMessage =
           "The input region name for the clear region request is null";
 
       writeErrorResponse(clientMessage, MessageType.CLEAR_REGION_DATA_ERROR, errMessage,
@@ -100,27 +96,27 @@ public class ClearRegion extends BaseCommand {
       return;
     }
 
-    LocalRegion region = (LocalRegion) crHelper.getRegion(regionName);
+    var region = (LocalRegion) crHelper.getRegion(regionName);
     if (region == null) {
-      String reason = "was not found during clear region request";
+      var reason = "was not found during clear region request";
       writeRegionDestroyedEx(clientMessage, regionName, reason, serverConnection);
       serverConnection.setAsTrue(RESPONDED);
       return;
     }
 
-    ByteBuffer eventIdPartsBuffer = ByteBuffer.wrap(eventPart.getSerializedForm());
-    long threadId = EventID.readEventIdPartsFromOptimizedByteArray(eventIdPartsBuffer);
-    long sequenceId = EventID.readEventIdPartsFromOptimizedByteArray(eventIdPartsBuffer);
-    EventID eventId =
+    var eventIdPartsBuffer = ByteBuffer.wrap(eventPart.getSerializedForm());
+    var threadId = EventID.readEventIdPartsFromOptimizedByteArray(eventIdPartsBuffer);
+    var sequenceId = EventID.readEventIdPartsFromOptimizedByteArray(eventIdPartsBuffer);
+    var eventId =
         new EventID(serverConnection.getEventMemberIDByteArray(), threadId, sequenceId);
 
     try {
       // Clear the region
       securityService.authorize(Resource.DATA, Operation.WRITE, regionName);
 
-      AuthorizeRequest authzRequest = serverConnection.getAuthzRequest();
+      var authzRequest = serverConnection.getAuthzRequest();
       if (authzRequest != null) {
-        RegionClearOperationContext clearContext =
+        var clearContext =
             authzRequest.clearAuthorize(regionName, callbackArg);
         callbackArg = clearContext.getCallbackArg();
       }
@@ -138,7 +134,7 @@ public class ClearRegion extends BaseCommand {
 
     // Update the statistics and write the reply
     {
-      long oldStart = start;
+      var oldStart = start;
       start = DistributionStats.getStatTime();
       stats.incProcessClearRegionTime(start - oldStart);
     }

@@ -14,15 +14,10 @@
  */
 package org.apache.geode.management.internal.cli.functions;
 
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.execute.FunctionContext;
-import org.apache.geode.cache.query.CqQuery;
-import org.apache.geode.cache.query.internal.CqQueryVsdStats;
-import org.apache.geode.cache.query.internal.cq.CqService;
 import org.apache.geode.cache.query.internal.cq.InternalCqQuery;
 import org.apache.geode.internal.cache.execute.InternalFunction;
 import org.apache.geode.internal.cache.tier.sockets.CacheClientNotifier;
-import org.apache.geode.internal.cache.tier.sockets.CacheClientProxy;
 import org.apache.geode.management.internal.cli.CliUtils;
 import org.apache.geode.management.internal.functions.CliFunctionResult;
 import org.apache.geode.management.internal.i18n.CliStrings;
@@ -44,12 +39,12 @@ public class GetSubscriptionQueueSizeFunction implements InternalFunction<String
 
   @Override
   public void execute(FunctionContext<String[]> context) {
-    final Cache cache = context.getCache();
-    final String memberNameOrId =
+    final var cache = context.getCache();
+    final var memberNameOrId =
         CliUtils.getMemberNameOrId(cache.getDistributedSystem().getDistributedMember());
-    String[] args = context.getArguments();
-    String durableClientId = args[0];
-    String cqName = args[1];
+    var args = context.getArguments();
+    var durableClientId = args[0];
+    var cqName = args[1];
 
     context.getResultSender()
         .lastResult(createFunctionResult(memberNameOrId, durableClientId, cqName));
@@ -59,14 +54,14 @@ public class GetSubscriptionQueueSizeFunction implements InternalFunction<String
   private CliFunctionResult createFunctionResult(String memberNameOrId, String durableClientId,
       String cqName) {
     try {
-      CacheClientNotifier cacheClientNotifier = CacheClientNotifier.getInstance();
+      var cacheClientNotifier = CacheClientNotifier.getInstance();
 
       if (cacheClientNotifier == null) {
         return new CliFunctionResult(memberNameOrId, CliFunctionResult.StatusState.ERROR,
             CliStrings.NO_CLIENT_FOUND);
       }
 
-      CacheClientProxy cacheClientProxy = cacheClientNotifier.getClientProxy(durableClientId);
+      var cacheClientProxy = cacheClientNotifier.getClientProxy(durableClientId);
       // Check if the client is present or not
       if (cacheClientProxy == null) {
         return new CliFunctionResult(memberNameOrId, CliFunctionResult.StatusState.ERROR,
@@ -78,20 +73,20 @@ public class GetSubscriptionQueueSizeFunction implements InternalFunction<String
             Integer.toString(cacheClientNotifier.getDurableClientHAQueueSize(durableClientId)));
       }
 
-      CqService cqService = cacheClientProxy.getCache().getCqService();
+      var cqService = cacheClientProxy.getCache().getCqService();
       if (cqService == null) {
         return new CliFunctionResult(memberNameOrId, CliFunctionResult.StatusState.ERROR,
             CliStrings.COUNT_DURABLE_CQ_EVENTS__NO__CQS__REGISTERED);
       }
 
-      CqQuery cqQuery = cqService.getClientCqFromServer(cacheClientProxy.getProxyID(), cqName);
+      var cqQuery = cqService.getClientCqFromServer(cacheClientProxy.getProxyID(), cqName);
       if (cqQuery == null) {
         return new CliFunctionResult(memberNameOrId, CliFunctionResult.StatusState.ERROR,
             CliStrings.format(CliStrings.COUNT_DURABLE_CQ_EVENTS__DURABLE_CQ_NOT_FOUND,
                 durableClientId, cqName));
       }
 
-      CqQueryVsdStats cqVsdStats = ((InternalCqQuery) cqQuery).getVsdStats();
+      var cqVsdStats = ((InternalCqQuery) cqQuery).getVsdStats();
 
       if (cqVsdStats == null) {
         return new CliFunctionResult(memberNameOrId, CliFunctionResult.StatusState.ERROR,
@@ -100,7 +95,7 @@ public class GetSubscriptionQueueSizeFunction implements InternalFunction<String
                 durableClientId, cqName));
       }
 
-      long queueSize = cqVsdStats.getNumHAQueuedEvents();
+      var queueSize = cqVsdStats.getNumHAQueuedEvents();
       return new CliFunctionResult(memberNameOrId, CliFunctionResult.StatusState.OK,
           Long.toString(queueSize));
     } catch (Exception e) {

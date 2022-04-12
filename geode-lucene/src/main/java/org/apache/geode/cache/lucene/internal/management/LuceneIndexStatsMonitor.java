@@ -50,23 +50,23 @@ public class LuceneIndexStatsMonitor extends MBeanStatsMonitor {
   }
 
   protected LuceneIndexMetrics getIndexMetrics(LuceneIndex index) {
-    int queryExecutions = getStatistic(StatsKey.QUERIES).intValue();
-    long queryExecutionTime = getStatistic(StatsKey.QUERY_TIME).longValue();
-    long queryRateAverageLatencyValue = queryRateAverageLatency.getAverageLatency();
-    int queryExecutionsInProgress = getStatistic(StatsKey.QUERIES_IN_PROGRESS).intValue();
-    long queryExecutionTotalHits = getStatistic(StatsKey.QUERIES_TOTAL_HITS).longValue();
+    var queryExecutions = getStatistic(StatsKey.QUERIES).intValue();
+    var queryExecutionTime = getStatistic(StatsKey.QUERY_TIME).longValue();
+    var queryRateAverageLatencyValue = queryRateAverageLatency.getAverageLatency();
+    var queryExecutionsInProgress = getStatistic(StatsKey.QUERIES_IN_PROGRESS).intValue();
+    var queryExecutionTotalHits = getStatistic(StatsKey.QUERIES_TOTAL_HITS).longValue();
 
-    int updates = getStatistic(StatsKey.UPDATES).intValue();
-    long updateTime = getStatistic(StatsKey.UPDATE_TIME).longValue();
-    long updateRateAverageLatencyValue = updateRateAverageLatency.getAverageLatency();
-    int updatesInProgress = getStatistic(StatsKey.UPDATES_IN_PROGRESS).intValue();
+    var updates = getStatistic(StatsKey.UPDATES).intValue();
+    var updateTime = getStatistic(StatsKey.UPDATE_TIME).longValue();
+    var updateRateAverageLatencyValue = updateRateAverageLatency.getAverageLatency();
+    var updatesInProgress = getStatistic(StatsKey.UPDATES_IN_PROGRESS).intValue();
 
-    int commits = getStatistic(StatsKey.COMMITS).intValue();
-    long commitTime = getStatistic(StatsKey.COMMIT_TIME).longValue();
-    long commitRateAverageLatencyValue = commitRateAverageLatency.getAverageLatency();
-    int commitsInProgress = getStatistic(StatsKey.COMMITS_IN_PROGRESS).intValue();
+    var commits = getStatistic(StatsKey.COMMITS).intValue();
+    var commitTime = getStatistic(StatsKey.COMMIT_TIME).longValue();
+    var commitRateAverageLatencyValue = commitRateAverageLatency.getAverageLatency();
+    var commitsInProgress = getStatistic(StatsKey.COMMITS_IN_PROGRESS).intValue();
 
-    int documents = getStatistic(StatsKey.DOCUMENTS).intValue();
+    var documents = getStatistic(StatsKey.DOCUMENTS).intValue();
 
     return new LuceneIndexMetrics(index.getRegionPath(), index.getName(), queryExecutions,
         queryExecutionTime, queryRateAverageLatencyValue, queryExecutionsInProgress,

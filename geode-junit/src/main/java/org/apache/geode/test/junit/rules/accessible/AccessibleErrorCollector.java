@@ -16,7 +16,6 @@ package org.apache.geode.test.junit.rules.accessible;
 
 import static java.util.Objects.requireNonNull;
 
-import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.List;
 
@@ -54,7 +53,7 @@ public class AccessibleErrorCollector extends ErrorCollector {
 
   private List<Throwable> getErrorsReference() {
     try {
-      Field superErrors = ErrorCollector.class.getDeclaredField("errors");
+      var superErrors = ErrorCollector.class.getDeclaredField("errors");
       superErrors.setAccessible(true);
       return (List<Throwable>) superErrors.get(this);
     } catch (IllegalAccessException | NoSuchFieldException e) {

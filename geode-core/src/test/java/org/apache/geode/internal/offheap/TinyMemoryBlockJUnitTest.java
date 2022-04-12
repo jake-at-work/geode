@@ -62,16 +62,16 @@ public class TinyMemoryBlockJUnitTest {
   }
 
   private StoredObject createChunk(byte[] v, boolean isSerialized, boolean isCompressed) {
-    StoredObject chunk = ma.allocateAndInitialize(v, isSerialized, isCompressed);
+    var chunk = ma.allocateAndInitialize(v, isSerialized, isCompressed);
     return chunk;
   }
 
   private StoredObject createValueAsSerializedStoredObject(Object value, boolean isCompressed) {
-    byte[] valueInSerializedByteArray = EntryEventImpl.serialize(value);
+    var valueInSerializedByteArray = EntryEventImpl.serialize(value);
 
-    boolean isSerialized = true;
+    var isSerialized = true;
 
-    StoredObject createdObject =
+    var createdObject =
         createChunk(valueInSerializedByteArray, isSerialized, isCompressed);
     return createdObject;
   }
@@ -88,9 +88,9 @@ public class TinyMemoryBlockJUnitTest {
       valueInByteArray = (byte[]) value;
     }
 
-    boolean isSerialized = false;
+    var isSerialized = false;
 
-    StoredObject createdObject = createChunk(valueInByteArray, isSerialized, isCompressed);
+    var createdObject = createChunk(valueInByteArray, isSerialized, isCompressed);
     return createdObject;
   }
 
@@ -161,10 +161,10 @@ public class TinyMemoryBlockJUnitTest {
 
   @Test
   public void getDataTypeReturnsNA() {
-    Object obj = getValue();
-    boolean compressed = false;
+    var obj = getValue();
+    var compressed = false;
 
-    StoredObject storedObject0 = createValueAsSerializedStoredObject(obj, compressed);
+    var storedObject0 = createValueAsSerializedStoredObject(obj, compressed);
     MemoryBlock mb =
         new TestableFreeListManager.TinyMemoryBlock(((MemoryBlock) storedObject0).getAddress(), 0);
     softly.assertThat(mb.getDataType()).isEqualTo("N/A");
@@ -172,10 +172,10 @@ public class TinyMemoryBlockJUnitTest {
 
   @Test
   public void getDataValueReturnsNull() {
-    Object obj = getValue();
-    boolean compressed = false;
+    var obj = getValue();
+    var compressed = false;
 
-    StoredObject storedObject0 = createValueAsSerializedStoredObject(obj, compressed);
+    var storedObject0 = createValueAsSerializedStoredObject(obj, compressed);
     MemoryBlock mb =
         new TestableFreeListManager.TinyMemoryBlock(((MemoryBlock) storedObject0).getAddress(), 0);
     softly.assertThat(mb.getDataValue()).isNull();
@@ -183,11 +183,11 @@ public class TinyMemoryBlockJUnitTest {
 
   @Test
   public void isSerializedReturnsFalse() {
-    Object obj = getValue();
-    boolean compressed = false;
+    var obj = getValue();
+    var compressed = false;
 
-    StoredObject storedObject0 = createValueAsSerializedStoredObject(obj, compressed);
-    StoredObject storedObject1 = createValueAsUnserializedStoredObject(obj, compressed);
+    var storedObject0 = createValueAsSerializedStoredObject(obj, compressed);
+    var storedObject1 = createValueAsUnserializedStoredObject(obj, compressed);
     MemoryBlock mb0 =
         new TestableFreeListManager.TinyMemoryBlock(((MemoryBlock) storedObject0).getAddress(), 0);
     MemoryBlock mb1 =
@@ -198,10 +198,10 @@ public class TinyMemoryBlockJUnitTest {
 
   @Test
   public void isCompressedReturnsFalse() {
-    Object obj = getValue();
-    boolean compressed = false;
-    StoredObject storedObject0 = createValueAsUnserializedStoredObject(obj, compressed);
-    StoredObject storedObject1 = createValueAsUnserializedStoredObject(obj, compressed = true);
+    var obj = getValue();
+    var compressed = false;
+    var storedObject0 = createValueAsUnserializedStoredObject(obj, compressed);
+    var storedObject1 = createValueAsUnserializedStoredObject(obj, compressed = true);
     MemoryBlock mb0 =
         new TestableFreeListManager.TinyMemoryBlock(((MemoryBlock) storedObject0).getAddress(), 0);
     MemoryBlock mb1 =

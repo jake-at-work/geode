@@ -31,7 +31,6 @@ import org.apache.geode.distributed.ConfigurationProperties;
 import org.apache.geode.examples.SimpleSecurityManager;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.security.LegacySecurityService;
-import org.apache.geode.internal.security.SecurityService;
 import org.apache.geode.security.templates.DummyAuthenticator;
 import org.apache.geode.test.junit.categories.SecurityTest;
 
@@ -53,7 +52,7 @@ public class CacheFactoryWithSecurityObjectTest {
   public void testCreateCacheWithSecurityManagerOnly() throws Exception {
     cache = (InternalCache) new CacheFactory(properties)
         .setSecurityManager(simpleSecurityManager).setPostProcessor(null).create();
-    SecurityService securityService = cache.getSecurityService();
+    var securityService = cache.getSecurityService();
     assertTrue(securityService.isIntegratedSecurity());
     assertTrue(securityService.isClientSecurityRequired());
     assertTrue(securityService.isPeerSecurityRequired());
@@ -66,7 +65,7 @@ public class CacheFactoryWithSecurityObjectTest {
   public void testCreateCacheWithPostProcessorOnly() throws Exception {
     cache = (InternalCache) new CacheFactory(properties)
         .setPostProcessor(new TestPostProcessor()).setSecurityManager(null).create();
-    SecurityService securityService = cache.getSecurityService();
+    var securityService = cache.getSecurityService();
     assertTrue(securityService instanceof LegacySecurityService);
     assertFalse(securityService.isIntegratedSecurity());
     assertFalse(securityService.isClientSecurityRequired());
@@ -81,7 +80,7 @@ public class CacheFactoryWithSecurityObjectTest {
     cache = (InternalCache) new CacheFactory(properties)
         .setSecurityManager(simpleSecurityManager).setPostProcessor(new TestPostProcessor())
         .create();
-    SecurityService securityService = cache.getSecurityService();
+    var securityService = cache.getSecurityService();
     assertTrue(securityService.isIntegratedSecurity());
     assertTrue(securityService.isClientSecurityRequired());
     assertTrue(securityService.isPeerSecurityRequired());
@@ -103,7 +102,7 @@ public class CacheFactoryWithSecurityObjectTest {
         .setSecurityManager(simpleSecurityManager).setPostProcessor(new TestPostProcessor())
         .create();
 
-    SecurityService securityService = cache.getSecurityService();
+    var securityService = cache.getSecurityService();
 
     assertTrue(securityService.isIntegratedSecurity());
     assertTrue(securityService.isClientSecurityRequired());
@@ -121,7 +120,7 @@ public class CacheFactoryWithSecurityObjectTest {
     cache = (InternalCache) new CacheFactory(properties).setSecurityManager(null)
         .setPostProcessor(null).create();
 
-    SecurityService securityService = cache.getSecurityService();
+    var securityService = cache.getSecurityService();
 
     assertTrue(securityService.isIntegratedSecurity());
     assertTrue(securityService.isClientSecurityRequired());
@@ -139,7 +138,7 @@ public class CacheFactoryWithSecurityObjectTest {
         .setSecurityManager(simpleSecurityManager).setPostProcessor(new TestPostProcessor())
         .create();
 
-    SecurityService securityService = cache.getSecurityService();
+    var securityService = cache.getSecurityService();
 
     assertTrue(securityService.isIntegratedSecurity());
     assertTrue(securityService.isClientSecurityRequired());
@@ -157,7 +156,7 @@ public class CacheFactoryWithSecurityObjectTest {
     cache = (InternalCache) new CacheFactory(properties)
         .setSecurityManager(simpleSecurityManager).setPostProcessor(null).create();
 
-    SecurityService securityService = cache.getSecurityService();
+    var securityService = cache.getSecurityService();
 
     assertTrue(securityService.isIntegratedSecurity());
     assertTrue(securityService.isClientSecurityRequired());

@@ -32,7 +32,6 @@ import org.junit.rules.ErrorCollector;
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionEvent;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 
@@ -64,10 +63,10 @@ public class AfterRegionCreateNotBeforeRegionInitRegressionTest {
 
   @Test
   public void testAfterRegionCreate() throws Exception {
-    AttributesFactory factory = new AttributesFactory();
+    var factory = new AttributesFactory();
     factory.setCacheListener(cacheListener);
 
-    Region region = cache.createRegion("testRegion", factory.create());
+    var region = cache.createRegion("testRegion", factory.create());
     region.createSubregion("testSubRegion", factory.create());
 
     await()
@@ -80,8 +79,8 @@ public class AfterRegionCreateNotBeforeRegionInitRegressionTest {
 
     @Override
     public void afterRegionCreate(RegionEvent event) {
-      InternalRegion region = (InternalRegion) event.getRegion();
-      String regionPath = event.getRegion().getFullPath();
+      var region = (InternalRegion) event.getRegion();
+      var regionPath = event.getRegion().getFullPath();
       if (regionPath.contains(SEPARATOR + "testRegion" + SEPARATOR + "testSubRegion")
           || regionPath.contains(SEPARATOR + "testRegion")) {
         afterRegionCreateCount.incrementAndGet();

@@ -30,7 +30,6 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import org.apache.geode.internal.cache.PartitionedRegion;
-import org.apache.geode.test.dunit.IgnoredException;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.CacheRule;
 import org.apache.geode.test.dunit.rules.DistributedRule;
@@ -64,7 +63,7 @@ public class PRCreationTotalNumBucketsDistributedTest implements Serializable {
       RegionFactory<String, String> regionFactory = cache.createRegionFactory(PARTITION);
       regionFactory.create("PR1");
 
-      PartitionAttributesFactory<String, String> paf = new PartitionAttributesFactory<>();
+      var paf = new PartitionAttributesFactory<String, String>();
       paf.setTotalNumBuckets(totalNumBuckets);
       regionFactory.setPartitionAttributes(paf.create());
       regionFactory.create("PR2");
@@ -73,15 +72,15 @@ public class PRCreationTotalNumBucketsDistributedTest implements Serializable {
     vm1.invoke(() -> {
       Cache cache = cacheRule.getOrCreateCache();
 
-      PartitionAttributesFactory<String, String> paf = new PartitionAttributesFactory<>();
+      var paf = new PartitionAttributesFactory<String, String>();
       paf.setLocalMaxMemory(0);
       RegionFactory<String, String> regionFactory = cache.createRegionFactory(PARTITION);
       regionFactory.setPartitionAttributes(paf.create());
-      PartitionedRegion accessor = (PartitionedRegion) regionFactory.create("PR1");
+      var accessor = (PartitionedRegion) regionFactory.create("PR1");
 
       assertThat(accessor.getTotalNumberOfBuckets()).isEqualTo(GLOBAL_MAX_BUCKETS_DEFAULT);
 
-      try (IgnoredException ie = addIgnoredException(IllegalStateException.class)) {
+      try (var ie = addIgnoredException(IllegalStateException.class)) {
         assertThatThrownBy(() -> regionFactory.create("PR2"))
             .isInstanceOf(IllegalStateException.class);
       }
@@ -103,7 +102,7 @@ public class PRCreationTotalNumBucketsDistributedTest implements Serializable {
       Cache cache = cacheRule.getOrCreateCache();
 
       RegionFactory<String, String> regionFactory = cache.createRegionFactory(PARTITION);
-      PartitionAttributesFactory<String, String> paf = new PartitionAttributesFactory<>();
+      var paf = new PartitionAttributesFactory<String, String>();
       paf.setTotalNumBuckets(totalNumBuckets);
       regionFactory.setPartitionAttributes(paf.create());
       regionFactory.create("PR1");
@@ -113,19 +112,19 @@ public class PRCreationTotalNumBucketsDistributedTest implements Serializable {
       Cache cache = cacheRule.getOrCreateCache();
 
       RegionFactory<String, String> regionFactory = cache.createRegionFactory(PARTITION);
-      PartitionAttributesFactory<String, String> paf = new PartitionAttributesFactory<>();
+      var paf = new PartitionAttributesFactory<String, String>();
       regionFactory.setPartitionAttributes(paf.create());
 
-      try (IgnoredException ie = addIgnoredException(IllegalStateException.class)) {
+      try (var ie = addIgnoredException(IllegalStateException.class)) {
         assertThatThrownBy(() -> regionFactory.create("PR1"))
             .isInstanceOf(IllegalStateException.class);
       }
 
-      Properties globalProperties = new Properties();
+      var globalProperties = new Properties();
       globalProperties.setProperty(GLOBAL_MAX_BUCKETS_PROPERTY, "" + totalNumBuckets);
       paf.setGlobalProperties(globalProperties);
       regionFactory.setPartitionAttributes(paf.create());
-      PartitionedRegion accessor = (PartitionedRegion) regionFactory.create("PR1");
+      var accessor = (PartitionedRegion) regionFactory.create("PR1");
 
       assertThat(accessor.getTotalNumberOfBuckets()).isEqualTo(totalNumBuckets);
     });

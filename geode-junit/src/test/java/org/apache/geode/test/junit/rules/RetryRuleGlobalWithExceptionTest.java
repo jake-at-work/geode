@@ -16,13 +16,9 @@ package org.apache.geode.test.junit.rules;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.List;
-
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.Result;
-import org.junit.runner.notification.Failure;
 
 import org.apache.geode.test.junit.Retry;
 import org.apache.geode.test.junit.runners.TestRunner;
@@ -37,14 +33,14 @@ public class RetryRuleGlobalWithExceptionTest {
 
   @Test
   public void zeroIsIllegal() {
-    Result result = TestRunner.runTest(ZeroIsIllegal.class);
+    var result = TestRunner.runTest(ZeroIsIllegal.class);
 
     assertThat(result.wasSuccessful()).isFalse();
 
-    List<Failure> failures = result.getFailures();
+    var failures = result.getFailures();
     assertThat(failures.size()).as("Failures: " + failures).isEqualTo(1);
 
-    Failure failure = failures.get(0);
+    var failure = failures.get(0);
     assertThat(failure.getException()).isExactlyInstanceOf(IllegalArgumentException.class)
         .hasMessage(ZeroIsIllegal.message);
     assertThat(ZeroIsIllegal.count).isEqualTo(0);
@@ -52,14 +48,14 @@ public class RetryRuleGlobalWithExceptionTest {
 
   @Test
   public void failsWithOne() {
-    Result result = TestRunner.runTest(FailsWithOne.class);
+    var result = TestRunner.runTest(FailsWithOne.class);
 
     assertThat(result.wasSuccessful()).isFalse();
 
-    List<Failure> failures = result.getFailures();
+    var failures = result.getFailures();
     assertThat(failures.size()).as("Failures: " + failures).isEqualTo(1);
 
-    Failure failure = failures.get(0);
+    var failure = failures.get(0);
     assertThat(failure.getException()).isExactlyInstanceOf(CustomException.class)
         .hasMessage(FailsWithOne.message);
     assertThat(FailsWithOne.count).isEqualTo(1);
@@ -67,28 +63,28 @@ public class RetryRuleGlobalWithExceptionTest {
 
   @Test
   public void passesWithOne() {
-    Result result = TestRunner.runTest(PassesWithOne.class);
+    var result = TestRunner.runTest(PassesWithOne.class);
 
     assertThat(result.wasSuccessful()).isTrue();
   }
 
   @Test
   public void passesWithUnused() {
-    Result result = TestRunner.runTest(PassesWhenUnused.class);
+    var result = TestRunner.runTest(PassesWhenUnused.class);
 
     assertThat(result.wasSuccessful()).isTrue();
   }
 
   @Test
   public void failsOnSecondAttempt() {
-    Result result = TestRunner.runTest(FailsOnSecondAttempt.class);
+    var result = TestRunner.runTest(FailsOnSecondAttempt.class);
 
     assertThat(result.wasSuccessful()).isFalse();
 
-    List<Failure> failures = result.getFailures();
+    var failures = result.getFailures();
     assertThat(failures.size()).as("Failures: " + failures).isEqualTo(1);
 
-    Failure failure = failures.get(0);
+    var failure = failures.get(0);
     assertThat(failure.getException()).isExactlyInstanceOf(CustomException.class)
         .hasMessage(FailsOnSecondAttempt.message);
     assertThat(FailsOnSecondAttempt.count).isEqualTo(2);
@@ -96,7 +92,7 @@ public class RetryRuleGlobalWithExceptionTest {
 
   @Test
   public void passesOnSecondAttempt() {
-    Result result = TestRunner.runTest(PassesOnSecondAttempt.class);
+    var result = TestRunner.runTest(PassesOnSecondAttempt.class);
 
     assertThat(result.wasSuccessful()).isTrue();
     assertThat(PassesOnSecondAttempt.count).isEqualTo(2);
@@ -104,14 +100,14 @@ public class RetryRuleGlobalWithExceptionTest {
 
   @Test
   public void failsOnThirdAttempt() {
-    Result result = TestRunner.runTest(FailsOnThirdAttempt.class);
+    var result = TestRunner.runTest(FailsOnThirdAttempt.class);
 
     assertThat(result.wasSuccessful()).isFalse();
 
-    List<Failure> failures = result.getFailures();
+    var failures = result.getFailures();
     assertThat(failures.size()).as("Failures: " + failures).isEqualTo(1);
 
-    Failure failure = failures.get(0);
+    var failure = failures.get(0);
     assertThat(failure.getException()).isExactlyInstanceOf(CustomException.class)
         .hasMessage(FailsOnThirdAttempt.message);
     assertThat(FailsOnThirdAttempt.count).isEqualTo(3);
@@ -119,7 +115,7 @@ public class RetryRuleGlobalWithExceptionTest {
 
   @Test
   public void passesOnThirdAttempt() {
-    Result result = TestRunner.runTest(PassesOnThirdAttempt.class);
+    var result = TestRunner.runTest(PassesOnThirdAttempt.class);
 
     assertThat(result.wasSuccessful()).isTrue();
     assertThat(PassesOnThirdAttempt.count).isEqualTo(3);

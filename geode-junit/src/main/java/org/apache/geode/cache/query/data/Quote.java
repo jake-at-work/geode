@@ -49,16 +49,18 @@ public class Quote implements Serializable {
     quoteId = i;
     quoteIdStr = Integer.toString(quoteId);
     dealerCode = cusip;
-    String[] arr1 = {"moving", "binding", "non binding", "not to exceed", "storage",
+    var arr1 = new String[] {"moving", "binding", "non binding", "not to exceed", "storage",
         "auto transport", "mortgage"};
     quoteType = arr1[i % 7];
     uniqueQuoteType = "quoteType" + i;
-    String[] arr2 = {"dealer1", "dealer2", "dealer3", "dealer4", "dealer5", "dealer6", "dealer7"};
+    var arr2 =
+        new String[] {"dealer1", "dealer2", "dealer3", "dealer4", "dealer5", "dealer6", "dealer7"};
     dealerPortfolio = arr2[i % 7];
-    String[] arr3 =
-        {"channel1", "channel2", "channel3", "channel4", "channel5", "channel6", "channel7",};
+    var arr3 =
+        new String[] {"channel1", "channel2", "channel3", "channel4", "channel5", "channel6",
+            "channel7",};
     channelName = arr3[i % 7];
-    String[] arr4 = {"priceType1", "priceType2", "priceType3", "priceType4", "priceType5",
+    var arr4 = new String[] {"priceType1", "priceType2", "priceType3", "priceType4", "priceType5",
         "priceType6", "priceType7"};
     priceType = arr4[i % 7];
     price = (i / 10.0) * 8.0;

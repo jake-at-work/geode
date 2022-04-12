@@ -35,17 +35,14 @@ import org.apache.geode.cache.EvictionAction;
 import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.Index;
 import org.apache.geode.cache.query.IndexInvalidException;
-import org.apache.geode.cache.query.IndexStatistics;
 import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.data.Portfolio;
 import org.apache.geode.cache.query.internal.QueryObserverAdapter;
 import org.apache.geode.cache.query.internal.QueryObserverHolder;
-import org.apache.geode.pdx.PdxInstance;
 import org.apache.geode.test.junit.categories.OQLIndexTest;
 
 @Category({OQLIndexTest.class})
@@ -68,8 +65,8 @@ public class HashIndexQueryIntegrationTest {
   private void createJoinTable(int numEntries) throws Exception {
     joinRegion = CacheUtils.createRegion("portfolios2", Portfolio.class);
 
-    for (int i = 0; i < numEntries; i++) {
-      Portfolio p = new Portfolio(i);
+    for (var i = 0; i < numEntries; i++) {
+      var p = new Portfolio(i);
       joinRegion.put("" + i, p);
     }
   }
@@ -94,11 +91,11 @@ public class HashIndexQueryIntegrationTest {
 
   private void helpTestHashIndexForQuery(String query, String indexedExpression, String regionPath)
       throws Exception {
-    SelectResults nonIndexedResults = (SelectResults) qs.newQuery(query).execute();
+    var nonIndexedResults = (SelectResults) qs.newQuery(query).execute();
     assertFalse(observer.indexUsed);
 
     index = qs.createHashIndex("idHash", indexedExpression, regionPath);
-    SelectResults indexedResults = (SelectResults) qs.newQuery(query).execute();
+    var indexedResults = (SelectResults) qs.newQuery(query).execute();
     assertEquals(nonIndexedResults.size(), indexedResults.size());
     assertTrue(observer.indexUsed);
     assertTrue(indexedResults.size() > 0);
@@ -106,11 +103,11 @@ public class HashIndexQueryIntegrationTest {
 
   private void helpTestHashIndexForQuery(String query, Object[] params, String indexedExpression,
       String regionPath) throws Exception {
-    SelectResults nonIndexedResults = (SelectResults) qs.newQuery(query).execute(params);
+    var nonIndexedResults = (SelectResults) qs.newQuery(query).execute(params);
     assertFalse(observer.indexUsed);
 
     index = qs.createHashIndex("idHash", indexedExpression, regionPath);
-    SelectResults indexedResults = (SelectResults) qs.newQuery(query).execute(params);
+    var indexedResults = (SelectResults) qs.newQuery(query).execute(params);
     assertEquals(nonIndexedResults.size(), indexedResults.size());
     assertTrue(observer.indexUsed);
   }
@@ -120,11 +117,11 @@ public class HashIndexQueryIntegrationTest {
    */
   private void helpTestCRIndexForQuery(String query, String indexedExpression, String regionPath)
       throws Exception {
-    SelectResults nonIndexedResults = (SelectResults) qs.newQuery(query).execute();
+    var nonIndexedResults = (SelectResults) qs.newQuery(query).execute();
     assertFalse(observer.indexUsed);
 
     index = qs.createIndex("crIndex", indexedExpression, regionPath);
-    SelectResults indexedResults = (SelectResults) qs.newQuery(query).execute();
+    var indexedResults = (SelectResults) qs.newQuery(query).execute();
     assertEquals(nonIndexedResults.size(), indexedResults.size());
     assertTrue(observer.indexUsed);
   }
@@ -135,10 +132,10 @@ public class HashIndexQueryIntegrationTest {
   @Test
   public void testHashIndexWithORQueryForLocalRegion() throws Exception {
     createLocalRegion("portfolios");
-    int numEntries = 200;
-    int numIds = 100;
-    for (int i = 0; i < numEntries; i++) {
-      Portfolio p = new Portfolio(i % (numIds));
+    var numEntries = 200;
+    var numIds = 100;
+    for (var i = 0; i < numEntries; i++) {
+      var p = new Portfolio(i % (numIds));
       p.shortID = (short) i;
       region.put("" + i, p);
     }
@@ -150,11 +147,11 @@ public class HashIndexQueryIntegrationTest {
   @Test
   public void testHashIndexWithNullsForLocalRegion() throws Exception {
     createLocalRegion("portfolios");
-    int numEntries = 200;
-    int numIds = 100;
-    for (int i = 0; i < numEntries; i++) {
-      int id = i % numIds;
-      Portfolio p = new Portfolio(id);
+    var numEntries = 200;
+    var numIds = 100;
+    for (var i = 0; i < numEntries; i++) {
+      var id = i % numIds;
+      var p = new Portfolio(id);
       if (id % 2 == 0) {
         p.status = null;
       }
@@ -190,10 +187,10 @@ public class HashIndexQueryIntegrationTest {
   @Test
   public void testHashIndexWithNestedQueryForLocalRegion() throws Exception {
     createLocalRegion("portfolios");
-    int numEntries = 200;
-    int numIds = 100;
-    for (int i = 0; i < numEntries; i++) {
-      Portfolio p = new Portfolio(i % (numIds));
+    var numEntries = 200;
+    var numIds = 100;
+    for (var i = 0; i < numEntries; i++) {
+      var p = new Portfolio(i % (numIds));
       p.shortID = (short) i;
       region.put("" + i, p);
     }
@@ -209,10 +206,10 @@ public class HashIndexQueryIntegrationTest {
   public void testHashIndexWithNestedQueryWithShortVsIntegerCompareForLocalRegion()
       throws Exception {
     createLocalRegion("portfolios");
-    int numEntries = 200;
-    int numIds = 100;
-    for (int i = 0; i < numEntries; i++) {
-      Portfolio p = new Portfolio(i % (numIds));
+    var numEntries = 200;
+    var numIds = 100;
+    for (var i = 0; i < numEntries; i++) {
+      var p = new Portfolio(i % (numIds));
       p.shortID = (short) i;
       region.put("" + i, p);
     }
@@ -228,10 +225,10 @@ public class HashIndexQueryIntegrationTest {
   @Test
   public void testHashIndexWithAndQueryForLocalRegion() throws Exception {
     createLocalRegion("portfolios");
-    int numEntries = 200;
-    int numIds = 100;
-    for (int i = 0; i < numEntries; i++) {
-      Portfolio p = new Portfolio(i % (numIds));
+    var numEntries = 200;
+    var numIds = 100;
+    for (var i = 0; i < numEntries; i++) {
+      var p = new Portfolio(i % (numIds));
       p.shortID = (short) i;
       region.put("" + i, p);
     }
@@ -246,10 +243,10 @@ public class HashIndexQueryIntegrationTest {
   @Test
   public void testHashIndexWithLimitQueryForLocalRegion() throws Exception {
     createLocalRegion("portfolios");
-    int numEntries = 200;
-    int numIds = 100;
-    for (int i = 0; i < numEntries; i++) {
-      Portfolio p = new Portfolio(i % (numIds));
+    var numEntries = 200;
+    var numIds = 100;
+    for (var i = 0; i < numEntries; i++) {
+      var p = new Portfolio(i % (numIds));
       p.shortID = (short) i;
       region.put("" + i, p);
     }
@@ -332,7 +329,7 @@ public class HashIndexQueryIntegrationTest {
     createReplicatedRegion("portfolios");
     createData(region, 200);
     createJoinTable(400);
-    Index index = qs.createHashIndex("index2", "p2.ID", SEPARATOR + "portfolios2 p2");
+    var index = qs.createHashIndex("index2", "p2.ID", SEPARATOR + "portfolios2 p2");
     helpTestHashIndexForQuery(
         "Select * FROM " + SEPARATOR + "portfolios p, " + SEPARATOR
             + "portfolios2 p2 where (p.ID = 1 or p.ID = 2 )and p.ID = p2.ID");
@@ -346,7 +343,7 @@ public class HashIndexQueryIntegrationTest {
     createReplicatedRegion("portfolios");
     createData(region, 200);
     createJoinTable(400);
-    Index index = qs.createIndex("index2", "p2.ID", SEPARATOR + "portfolios2 p2");
+    var index = qs.createIndex("index2", "p2.ID", SEPARATOR + "portfolios2 p2");
     helpTestHashIndexForQuery(
         "Select * FROM " + SEPARATOR + "portfolios p, " + SEPARATOR
             + "portfolios2 p2 where (p.ID = 1 or p.ID = 2 )and p.ID = p2.ID");
@@ -360,7 +357,7 @@ public class HashIndexQueryIntegrationTest {
     createReplicatedRegion("portfolios");
     createData(region, 200);
     createJoinTable(400);
-    Index index =
+    var index =
         qs.createIndex("index2", "p2.ID", SEPARATOR + "portfolios2 p2, p2.positions.values v");
     helpTestHashIndexForQuery(
         "Select * FROM " + SEPARATOR + "portfolios p, " + SEPARATOR
@@ -376,7 +373,7 @@ public class HashIndexQueryIntegrationTest {
     createReplicatedRegion("portfolios");
     createData(region, 400);
     createJoinTable(200);
-    Index index = qs.createHashIndex("index2", "p2.ID", SEPARATOR + "portfolios2 p2");
+    var index = qs.createHashIndex("index2", "p2.ID", SEPARATOR + "portfolios2 p2");
     helpTestHashIndexForQuery(
         "Select * FROM " + SEPARATOR + "portfolios p, " + SEPARATOR
             + "portfolios2 p2 where (p.ID = 1 or p.ID = 2 )and p.ID = p2.ID");
@@ -391,7 +388,7 @@ public class HashIndexQueryIntegrationTest {
     createReplicatedRegion("portfolios");
     createData(region, 400);
     createJoinTable(200);
-    Index index = qs.createIndex("index2", "p2.ID", SEPARATOR + "portfolios2 p2");
+    var index = qs.createIndex("index2", "p2.ID", SEPARATOR + "portfolios2 p2");
     helpTestHashIndexForQuery(
         "Select * FROM " + SEPARATOR + "portfolios p, " + SEPARATOR
             + "portfolios2 p2 where (p.ID = 1 or p.ID = 2 )and p.ID = p2.ID");
@@ -406,7 +403,7 @@ public class HashIndexQueryIntegrationTest {
     createReplicatedRegion("portfolios");
     createData(region, 400);
     createJoinTable(200);
-    Index index =
+    var index =
         qs.createIndex("index2", "p2.ID", SEPARATOR + "portfolios2 p2, p2.positions.values v");
     helpTestHashIndexForQuery(
         "Select * FROM " + SEPARATOR + "portfolios p, " + SEPARATOR
@@ -420,10 +417,10 @@ public class HashIndexQueryIntegrationTest {
   public void testHashIndexEqualsForMultipleResultQueryOnLocalRegion() throws Exception {
     createLocalRegion("portfolios");
     // Create the data
-    int numEntries = 200;
-    int numIds = 100;
-    for (int i = 0; i < numEntries; i++) {
-      Portfolio p = new Portfolio(i % (numIds));
+    var numEntries = 200;
+    var numIds = 100;
+    for (var i = 0; i < numEntries; i++) {
+      var p = new Portfolio(i % (numIds));
       p.shortID = (short) i;
       region.put("" + i, p);
     }
@@ -439,10 +436,10 @@ public class HashIndexQueryIntegrationTest {
   public void testHashIndexEqualsForMultipleResultQueryOnReplicatedRegion() throws Exception {
     createReplicatedRegion("portfolios");
     // Create the data
-    int numEntries = 200;
-    int numIds = 100;
-    for (int i = 0; i < numEntries; i++) {
-      Portfolio p = new Portfolio(i % (numIds));
+    var numEntries = 200;
+    var numIds = 100;
+    for (var i = 0; i < numEntries; i++) {
+      var p = new Portfolio(i % (numIds));
       p.shortID = (short) i;
       region.put("" + i, p);
     }
@@ -458,10 +455,10 @@ public class HashIndexQueryIntegrationTest {
   public void testHashIndexEqualsForMultipleResultQueryOnPartitionedRegion() throws Exception {
     createPartitionedRegion("portfolios");
     // Create the data
-    int numEntries = 200;
-    int numIds = 100;
-    for (int i = 0; i < numEntries; i++) {
-      Portfolio p = new Portfolio(i % (numIds));
+    var numEntries = 200;
+    var numIds = 100;
+    for (var i = 0; i < numEntries; i++) {
+      var p = new Portfolio(i % (numIds));
       p.shortID = (short) i;
       region.put("" + i, p);
     }
@@ -477,16 +474,16 @@ public class HashIndexQueryIntegrationTest {
     createReplicatedRegion("portfolios");
     createJoinTable(400);
     index = qs.createHashIndex("idHash", "p.ID", SEPARATOR + "portfolios p");
-    Index index = qs.createHashIndex("index2", "p2.ID", SEPARATOR + "portfolios2 p2");
+    var index = qs.createHashIndex("index2", "p2.ID", SEPARATOR + "portfolios2 p2");
 
-    int numEntries = 200;
-    int numIds = 100;
-    for (int i = 0; i < numEntries; i++) {
-      Portfolio p = new Portfolio(i % (numIds));
+    var numEntries = 200;
+    var numIds = 100;
+    for (var i = 0; i < numEntries; i++) {
+      var p = new Portfolio(i % (numIds));
       p.shortID = (short) i;
       region.put("" + i, p);
     }
-    SelectResults results = (SelectResults) qs
+    var results = (SelectResults) qs
         .newQuery("Select * FROM " + SEPARATOR + "portfolios p, " + SEPARATOR
             + "portfolios2 p2 where p.ID = 1 and p.ID = p2.ID")
         .execute();
@@ -519,7 +516,7 @@ public class HashIndexQueryIntegrationTest {
     createPartitionedRegion("portfolios");
     createData(region, 200);
     region.destroy("1");
-    SelectResults noIndexResults =
+    var noIndexResults =
         (SelectResults) qs.newQuery("Select * FROM " + SEPARATOR + "portfolios p where p.ID = 1")
             .execute();
 
@@ -528,7 +525,7 @@ public class HashIndexQueryIntegrationTest {
     createData(region, 200);
     region.destroy("1");
     index = qs.createHashIndex("idHash", "p.ID", SEPARATOR + "portfolios p");
-    SelectResults results =
+    var results =
         (SelectResults) qs.newQuery("Select * FROM " + SEPARATOR + "portfolios p where p.ID = 1")
             .execute();
     assertEquals(noIndexResults.size(), results.size());
@@ -542,7 +539,7 @@ public class HashIndexQueryIntegrationTest {
   private void helpTestHashIndexRemove() throws Exception {
     createData(region, 200);
     region.destroy("1");
-    SelectResults noIndexResults =
+    var noIndexResults =
         (SelectResults) qs.newQuery("Select * FROM " + SEPARATOR + "portfolios p where p.ID = 1")
             .execute();
 
@@ -550,7 +547,7 @@ public class HashIndexQueryIntegrationTest {
     createData(region, 200);
     region.destroy("1");
     index = qs.createHashIndex("idHash", "p.ID", SEPARATOR + "portfolios p");
-    SelectResults results =
+    var results =
         (SelectResults) qs.newQuery("Select * FROM " + SEPARATOR + "portfolios p where p.ID = 1")
             .execute();
     assertEquals(noIndexResults.size(), results.size());
@@ -588,25 +585,25 @@ public class HashIndexQueryIntegrationTest {
   }
 
   private void helpTestHashIndexRemoveFromCommonKeyQuery() throws Exception {
-    int numEntries = 200;
-    int numIds = 100;
-    for (int i = 0; i < numEntries; i++) {
-      Portfolio p = new Portfolio(i % (numIds));
+    var numEntries = 200;
+    var numIds = 100;
+    for (var i = 0; i < numEntries; i++) {
+      var p = new Portfolio(i % (numIds));
       p.shortID = (short) i;
       region.put("" + i, p);
     }
-    Portfolio p2 = new Portfolio(10000);
+    var p2 = new Portfolio(10000);
     region.put("2", p2);
     p2.ID = 1000;
     region.put("2", p2);
-    SelectResults noIndexResult =
+    var noIndexResult =
         (SelectResults) qs.newQuery("Select * FROM " + SEPARATOR + "portfolios p where p.ID = 2")
             .execute();
 
     region.clear();
     index = qs.createHashIndex("idHash", "p.ID", SEPARATOR + "portfolios p");
-    for (int i = 0; i < numEntries; i++) {
-      Portfolio p = new Portfolio(i % (numIds));
+    for (var i = 0; i < numEntries; i++) {
+      var p = new Portfolio(i % (numIds));
       p.shortID = (short) i;
       region.put("" + i, p);
     }
@@ -615,7 +612,7 @@ public class HashIndexQueryIntegrationTest {
     p2.ID = 1000;
     region.put("2", p2);
 
-    SelectResults results =
+    var results =
         (SelectResults) qs.newQuery("Select * FROM " + SEPARATOR + "portfolios p where p.ID = 2")
             .execute();
     assertEquals(numEntries / numIds - 1, results.size());
@@ -660,10 +657,10 @@ public class HashIndexQueryIntegrationTest {
   @Test
   public void testHashIndexNotEqualsForMultipleResultQueryForLocalRegion() throws Exception {
     createLocalRegion("portfolios");
-    int numEntries = 200;
-    int numIds = 100;
-    for (int i = 0; i < numEntries; i++) {
-      Portfolio p = new Portfolio(i % (numIds));
+    var numEntries = 200;
+    var numIds = 100;
+    for (var i = 0; i < numEntries; i++) {
+      var p = new Portfolio(i % (numIds));
       p.shortID = (short) i;
       region.put("" + i, p);
     }
@@ -677,10 +674,10 @@ public class HashIndexQueryIntegrationTest {
   @Test
   public void testHashIndexNotEqualsForMultipleResultQueryForReplicatedRegion() throws Exception {
     createReplicatedRegion("portfolios");
-    int numEntries = 200;
-    int numIds = 100;
-    for (int i = 0; i < numEntries; i++) {
-      Portfolio p = new Portfolio(i % (numIds));
+    var numEntries = 200;
+    var numIds = 100;
+    for (var i = 0; i < numEntries; i++) {
+      var p = new Portfolio(i % (numIds));
       p.shortID = (short) i;
       region.put("" + i, p);
     }
@@ -694,10 +691,10 @@ public class HashIndexQueryIntegrationTest {
   @Test
   public void testHashIndexNotEqualsForMultipleResultQueryForPartitionedRegion() throws Exception {
     createPartitionedRegion("portfolios");
-    int numEntries = 200;
-    int numIds = 100;
-    for (int i = 0; i < numEntries; i++) {
-      Portfolio p = new Portfolio(i % (numIds));
+    var numEntries = 200;
+    var numIds = 100;
+    for (var i = 0; i < numEntries; i++) {
+      var p = new Portfolio(i % (numIds));
       p.shortID = (short) i;
       region.put("" + i, p);
     }
@@ -768,7 +765,7 @@ public class HashIndexQueryIntegrationTest {
    * Tests that hash index is used and that it returns the correct result
    */
   private void helpTestHashIndexNotUsedInRangeQuery() throws Exception {
-    SelectResults results =
+    var results =
         (SelectResults) qs.newQuery("Select * FROM " + SEPARATOR + "portfolios p where p.ID < 2")
             .execute();
     assertFalse(observer.indexUsed);
@@ -806,14 +803,14 @@ public class HashIndexQueryIntegrationTest {
 
   private void helpTestHashIndexOrderByAscQuery() throws Exception {
     index = qs.createHashIndex("idHash", "p.ID", SEPARATOR + "portfolios p");
-    SelectResults results = (SelectResults) qs
+    var results = (SelectResults) qs
         .newQuery("Select * FROM " + SEPARATOR + "portfolios p where p.ID != 0 order by ID asc ")
         .execute();
     assertEquals(199, results.size());
     assertTrue(observer.indexUsed);
-    int countUp = 1;
-    for (Object o : results) {
-      Portfolio p = (Portfolio) o;
+    var countUp = 1;
+    for (var o : results) {
+      var p = (Portfolio) o;
       assertEquals(countUp++, p.getID());
     }
   }
@@ -854,20 +851,20 @@ public class HashIndexQueryIntegrationTest {
   @Test
   public void testHashIndexOnNonSequentialHashForLocalRegion() throws Exception {
     createLocalRegion("portfolios");
-    for (int i = 0; i < 100; i++) {
-      Portfolio p = new Portfolio(i);
+    for (var i = 0; i < 100; i++) {
+      var p = new Portfolio(i);
       p.shortID = (short) i;
       region.put("" + i, p);
     }
 
-    for (int i = 200; i < 300; i++) {
-      Portfolio p = new Portfolio(i);
+    for (var i = 200; i < 300; i++) {
+      var p = new Portfolio(i);
       p.shortID = (short) i;
       region.put("" + i, p);
     }
 
-    for (int i = 500; i < 600; i++) {
-      Portfolio p = new Portfolio(i);
+    for (var i = 500; i < 600; i++) {
+      var p = new Portfolio(i);
       p.shortID = (short) i;
       region.put("" + i, p);
     }
@@ -880,20 +877,20 @@ public class HashIndexQueryIntegrationTest {
   @Test
   public void testHashIndexOnNonSequentialHashForReplicatedRegion() throws Exception {
     createReplicatedRegion("portfolios");
-    for (int i = 0; i < 100; i++) {
-      Portfolio p = new Portfolio(i);
+    for (var i = 0; i < 100; i++) {
+      var p = new Portfolio(i);
       p.shortID = (short) i;
       region.put("" + i, p);
     }
 
-    for (int i = 200; i < 300; i++) {
-      Portfolio p = new Portfolio(i);
+    for (var i = 200; i < 300; i++) {
+      var p = new Portfolio(i);
       p.shortID = (short) i;
       region.put("" + i, p);
     }
 
-    for (int i = 500; i < 600; i++) {
-      Portfolio p = new Portfolio(i);
+    for (var i = 500; i < 600; i++) {
+      var p = new Portfolio(i);
       p.shortID = (short) i;
       region.put("" + i, p);
     }
@@ -906,20 +903,20 @@ public class HashIndexQueryIntegrationTest {
   @Test
   public void testHashIndexOnNonSequentialHashForPartitionedRegion() throws Exception {
     createPartitionedRegion("portfolios");
-    for (int i = 0; i < 100; i++) {
-      Portfolio p = new Portfolio(i);
+    for (var i = 0; i < 100; i++) {
+      var p = new Portfolio(i);
       p.shortID = (short) i;
       region.put("" + i, p);
     }
 
-    for (int i = 200; i < 300; i++) {
-      Portfolio p = new Portfolio(i);
+    for (var i = 200; i < 300; i++) {
+      var p = new Portfolio(i);
       p.shortID = (short) i;
       region.put("" + i, p);
     }
 
-    for (int i = 500; i < 600; i++) {
-      Portfolio p = new Portfolio(i);
+    for (var i = 500; i < 600; i++) {
+      var p = new Portfolio(i);
       p.shortID = (short) i;
       region.put("" + i, p);
     }
@@ -928,14 +925,14 @@ public class HashIndexQueryIntegrationTest {
 
   private void helpTestHashIndexOrderByDescQuery() throws Exception {
     index = qs.createHashIndex("idHash", "p.ID", SEPARATOR + "portfolios p");
-    SelectResults results = (SelectResults) qs
+    var results = (SelectResults) qs
         .newQuery("Select * FROM " + SEPARATOR + "portfolios p where p.ID != 0 order by ID desc ")
         .execute();
     assertEquals(199, results.size());
     assertTrue(observer.indexUsed);
-    int countDown = 199;
-    for (Object o : results) {
-      Portfolio p = (Portfolio) o;
+    var countDown = 199;
+    for (var o : results) {
+      var p = (Portfolio) o;
       assertEquals(countDown--, p.getID());
     }
   }
@@ -950,7 +947,7 @@ public class HashIndexQueryIntegrationTest {
   }
 
   private void helpTestAsyncMaintenance() throws Exception {
-    boolean expected = false;
+    var expected = false;
     try {
       index = qs.createHashIndex("idHash", "p.ID", SEPARATOR + "portfolios_async p");
     } catch (UnsupportedOperationException e) {
@@ -991,7 +988,7 @@ public class HashIndexQueryIntegrationTest {
   }
 
   private void helpTestMultipleIteratorsException() throws Exception {
-    boolean expected = false;
+    var expected = false;
     try {
       index =
           qs.createHashIndex("idHash", "p.ID", SEPARATOR + "portfolios p, p.positions.values p");
@@ -1011,17 +1008,17 @@ public class HashIndexQueryIntegrationTest {
   }
 
   private void helpTestRemoveAndNotEqualsQuery() throws Exception {
-    int numEntries = 200;
+    var numEntries = 200;
     index = qs.createHashIndex("idHash", "p.ID", SEPARATOR + "portfolios p");
-    for (int i = 0; i < numEntries; i++) {
-      Portfolio p = new Portfolio(i);
+    for (var i = 0; i < numEntries; i++) {
+      var p = new Portfolio(i);
       p.shortID = (short) i;
       region.put("" + i, p);
     }
 
     region.destroy("1");
 
-    SelectResults results =
+    var results =
         (SelectResults) qs.newQuery("Select * FROM " + SEPARATOR + "portfolios p where p.ID != 1")
             .execute();
     assertEquals(numEntries - 1, results.size());
@@ -1031,27 +1028,27 @@ public class HashIndexQueryIntegrationTest {
   @Test
   public void testHashCollisionAndProbe() throws Exception {
     createReplicatedRegion("relationships");
-    int numEntries = 40000;
-    int numIds = 200;
-    for (int i = 0; i < numEntries; i++) {
-      int ki = i % numIds;
+    var numEntries = 40000;
+    var numIds = 200;
+    for (var i = 0; i < numEntries; i++) {
+      var ki = i % numIds;
       Object key = new RelationshipKey(ki, i);
       Object value = new Schema(new Relationship(new RelationshipKey(ki, i)));
       region.put(key, value);
     }
-    Object[] params = new Object[2];
+    var params = new Object[2];
     params[0] = new Identifier("Customer" + 1);
     params[1] = new Identifier("Customer" + 1);
-    String query = "select * from " + SEPARATOR
+    var query = "select * from " + SEPARATOR
         + "relationships.keySet k where k.leftKey = $1 OR k.rightKey = $2";
-    SelectResults nonIndexedResults = (SelectResults) qs.newQuery(query).execute(params);
+    var nonIndexedResults = (SelectResults) qs.newQuery(query).execute(params);
     assertFalse(observer.indexUsed);
 
     index = qs.createHashIndex("leftKey", "k.leftKey", SEPARATOR + "relationships.keySet k");
-    Index index2 =
+    var index2 =
         qs.createHashIndex("rightKey", "k.rightKey", SEPARATOR + "relationships.keySet k");
-    Index index3 = qs.createKeyIndex("keyIndex", "r.key", SEPARATOR + "relationships r");
-    SelectResults indexedResults = (SelectResults) qs.newQuery(query).execute(params);
+    var index3 = qs.createKeyIndex("keyIndex", "r.key", SEPARATOR + "relationships r");
+    var indexedResults = (SelectResults) qs.newQuery(query).execute(params);
     assertEquals(nonIndexedResults.size(), indexedResults.size());
     assertEquals(nonIndexedResults.size(), numEntries / numIds);
     assertTrue(observer.indexUsed);
@@ -1073,11 +1070,11 @@ public class HashIndexQueryIntegrationTest {
     index = qs.createHashIndex("idHash", "p.ID", SEPARATOR + "portfolios p");
     createData(region, 200);
 
-    SelectResults noIndexResults =
+    var noIndexResults =
         (SelectResults) qs.newQuery("Select * FROM " + SEPARATOR + "portfolios p where p.ID = 1")
             .execute();
 
-    IndexStatistics ist = index.getStatistics();
+    var ist = index.getStatistics();
     assertEquals(200, ist.getNumberOfValues());
     assertEquals(200, ist.getNumUpdates());
     assertEquals(1, ist.getTotalUses());
@@ -1091,7 +1088,7 @@ public class HashIndexQueryIntegrationTest {
 
     createData(region, 200);
 
-    SelectResults results =
+    var results =
         (SelectResults) qs.newQuery("Select * FROM " + SEPARATOR + "portfolios p where p.ID = 1")
             .execute();
 
@@ -1111,26 +1108,26 @@ public class HashIndexQueryIntegrationTest {
   }
 
   private void helpTestUpdatesOnKeyWithSameHash() throws Exception {
-    int numEntries = 10;
-    for (int i = 0; i < numEntries; i++) {
-      SameHashObject p = new SameHashObject(5, i);
+    var numEntries = 10;
+    for (var i = 0; i < numEntries; i++) {
+      var p = new SameHashObject(5, i);
       region.put("" + i, p);
     }
     region.put("0", new SameHashObject(100, 100));
-    SelectResults noIndexResults =
+    var noIndexResults =
         (SelectResults) qs.newQuery("Select * FROM " + SEPARATOR + "portfolios p where p.ID = 5")
             .execute();
     region.clear();
 
-    HashIndex index = (HashIndex) qs.createHashIndex("idHash", "p.ID", SEPARATOR + "portfolios p");
-    for (int i = 0; i < numEntries; i++) {
-      SameHashObject p = new SameHashObject(5, i);
+    var index = (HashIndex) qs.createHashIndex("idHash", "p.ID", SEPARATOR + "portfolios p");
+    for (var i = 0; i < numEntries; i++) {
+      var p = new SameHashObject(5, i);
       region.put("" + i, p);
     }
     region.put("0",
         new SameHashObject(index.entriesSet.hashIndexSetProperties.set.length + 5, 100));
 
-    SelectResults results =
+    var results =
         (SelectResults) qs.newQuery("Select * FROM " + SEPARATOR + "portfolios p where p.ID = 5")
             .execute();
 
@@ -1142,17 +1139,17 @@ public class HashIndexQueryIntegrationTest {
   @Test
   public void testInPlaceModification() throws Exception {
     createReplicatedRegion("portfolios");
-    int numEntries = 10;
-    HashIndex index = (HashIndex) qs.createHashIndex("idHash", "p.ID", SEPARATOR + "portfolios p");
-    for (int i = 0; i < numEntries; i++) {
-      SameHashObject p = new SameHashObject(5, i);
+    var numEntries = 10;
+    var index = (HashIndex) qs.createHashIndex("idHash", "p.ID", SEPARATOR + "portfolios p");
+    for (var i = 0; i < numEntries; i++) {
+      var p = new SameHashObject(5, i);
       region.put("" + i, p);
     }
-    SameHashObject object = (SameHashObject) region.get("0");
+    var object = (SameHashObject) region.get("0");
     object.ID = 200;
     region.put("0", object);
 
-    SelectResults results =
+    var results =
         (SelectResults) qs.newQuery("Select * FROM " + SEPARATOR + "portfolios p where p.ID = 5")
             .execute();
     assertEquals(10, index.getStatistics().getNumberOfValues());
@@ -1163,17 +1160,17 @@ public class HashIndexQueryIntegrationTest {
   @Test
   public void testInPlaceModificationToSameKey() throws Exception {
     createReplicatedRegion("portfolios");
-    int numEntries = 10;
-    HashIndex index = (HashIndex) qs.createHashIndex("idHash", "p.ID", SEPARATOR + "portfolios p");
-    for (int i = 0; i < numEntries; i++) {
-      SameHashObject p = new SameHashObject(5, i);
+    var numEntries = 10;
+    var index = (HashIndex) qs.createHashIndex("idHash", "p.ID", SEPARATOR + "portfolios p");
+    for (var i = 0; i < numEntries; i++) {
+      var p = new SameHashObject(5, i);
       region.put("" + i, p);
     }
-    SameHashObject object = (SameHashObject) region.get("0");
+    var object = (SameHashObject) region.get("0");
     object.ID = 5;
     region.put("0", object);
 
-    SelectResults results =
+    var results =
         (SelectResults) qs.newQuery("Select * FROM " + SEPARATOR + "portfolios p where p.ID = 5")
             .execute();
     assertEquals(10, index.getStatistics().getNumberOfValues());
@@ -1184,17 +1181,17 @@ public class HashIndexQueryIntegrationTest {
   @Test
   public void testInPlaceModificationWithUndefinedKeys() throws Exception {
     createReplicatedRegion("portfolios");
-    int numEntries = 10;
-    Index index = qs.createIndex("idHash", "p.IDS", SEPARATOR + "portfolios p");
-    for (int i = 0; i < numEntries; i++) {
-      SameHashObject p = new SameHashObject(5, i);
+    var numEntries = 10;
+    var index = qs.createIndex("idHash", "p.IDS", SEPARATOR + "portfolios p");
+    for (var i = 0; i < numEntries; i++) {
+      var p = new SameHashObject(5, i);
       region.put("" + i, p);
     }
-    SameHashObject object = (SameHashObject) region.get("0");
+    var object = (SameHashObject) region.get("0");
     object.ID = 5;
     region.put("0", object);
 
-    SelectResults results =
+    var results =
         (SelectResults) qs.newQuery("Select * FROM " + SEPARATOR + "portfolios p where p.IDS = 5")
             .execute();
     assertEquals(10, index.getStatistics().getNumberOfValues());
@@ -1205,17 +1202,17 @@ public class HashIndexQueryIntegrationTest {
   @Test
   public void testInPlaceModificationWithNullKeys() throws Exception {
     createReplicatedRegion("portfolios");
-    int numEntries = 10;
-    Index index = qs.createHashIndex("idHash", "p.stringValue", SEPARATOR + "portfolios p");
-    for (int i = 0; i < numEntries; i++) {
-      SameHashObject p = new SameHashObject(5, i, null);
+    var numEntries = 10;
+    var index = qs.createHashIndex("idHash", "p.stringValue", SEPARATOR + "portfolios p");
+    for (var i = 0; i < numEntries; i++) {
+      var p = new SameHashObject(5, i, null);
       region.put("" + i, p);
     }
-    SameHashObject object = (SameHashObject) region.get("0");
+    var object = (SameHashObject) region.get("0");
     object.stringValue = "wow";
     region.put("0", object);
 
-    SelectResults results = (SelectResults) qs
+    var results = (SelectResults) qs
         .newQuery("Select * FROM " + SEPARATOR + "portfolios p where p.stringValue = 'wow'")
         .execute();
     assertEquals(10, index.getStatistics().getNumberOfValues());
@@ -1226,32 +1223,32 @@ public class HashIndexQueryIntegrationTest {
   @Test
   public void testOverflowWithRehash() throws Exception {
     try {
-      final boolean[] threadCompleted = new boolean[3];
+      final var threadCompleted = new boolean[3];
       createReplicatedRegionWithOverflow("portfolios");
       HashIndexSet.TEST_ALWAYS_REHASH = true;
-      Index index = qs.createHashIndex("idHash", "p", SEPARATOR + "portfolios p");
+      var index = qs.createHashIndex("idHash", "p", SEPARATOR + "portfolios p");
 
-      Thread puts = new Thread(() -> {
-        for (int j = 0; j < 20; j++) {
-          for (int i = 0; i < 2; i++) {
+      var puts = new Thread(() -> {
+        for (var j = 0; j < 20; j++) {
+          for (var i = 0; i < 2; i++) {
             region.put("" + i, "SOME STRING OBJECT" + i);
           }
         }
         threadCompleted[0] = true;
       });
 
-      Thread morePuts = new Thread(() -> {
-        for (int j = 0; j < 20; j++) {
-          for (int i = 0; i < 1; i++) {
+      var morePuts = new Thread(() -> {
+        for (var j = 0; j < 20; j++) {
+          for (var i = 0; i < 1; i++) {
             region.put("" + (i + 100), "SOME OTHER STRING OBJECT" + (i + 100));
           }
         }
         threadCompleted[1] = true;
       });
 
-      Thread evenMorePuts = new Thread(() -> {
-        for (int j = 0; j < 20; j++) {
-          for (int i = 0; i < 1; i++) {
+      var evenMorePuts = new Thread(() -> {
+        for (var j = 0; j < 20; j++) {
+          for (var i = 0; i < 1; i++) {
             region.put("" + (i + 200), "ANOTHER STRING OBJECT" + (i + 200));
           }
         }
@@ -1269,7 +1266,7 @@ public class HashIndexQueryIntegrationTest {
       assertTrue("Thread possibly deadlocked, thread did not complete", threadCompleted[1]);
       assertTrue("Thread possibly deadlocked, thread did not complete", threadCompleted[2]);
 
-      SelectResults results =
+      var results =
           (SelectResults) qs.newQuery("Select * FROM " + SEPARATOR + "portfolios p").execute();
       assertEquals(4, results.size());
     } finally {
@@ -1280,15 +1277,15 @@ public class HashIndexQueryIntegrationTest {
   @Test
   public void testPdxWithStringIndexKeyValues() throws Exception {
     createPartitionedRegion("test_region");
-    int numEntries = 10;
-    Index index = qs.createHashIndex("idHash", "p.id", SEPARATOR + "test_region p");
-    for (int i = 0; i < numEntries; i++) {
-      PdxInstance record = CacheUtils.getCache().createPdxInstanceFactory("test_region")
+    var numEntries = 10;
+    var index = qs.createHashIndex("idHash", "p.id", SEPARATOR + "test_region p");
+    for (var i = 0; i < numEntries; i++) {
+      var record = CacheUtils.getCache().createPdxInstanceFactory("test_region")
           .writeString("id", "" + i).writeString("domain", "A").create();
       region.put("" + i, record);
     }
 
-    SelectResults results = (SelectResults) qs
+    var results = (SelectResults) qs
         .newQuery("SELECT DISTINCT tr.domain FROM " + SEPARATOR + "test_region tr WHERE tr.id='1'")
         .execute();
     assertEquals(1, results.size());
@@ -1302,10 +1299,10 @@ public class HashIndexQueryIntegrationTest {
   private void createLocalRegion(String regionName, boolean synchMaintenance)
       throws ParseException {
     Cache cache = CacheUtils.getCache();
-    AttributesFactory attributesFactory = new AttributesFactory();
+    var attributesFactory = new AttributesFactory();
     attributesFactory.setDataPolicy(DataPolicy.NORMAL);
     attributesFactory.setIndexMaintenanceSynchronous(synchMaintenance);
-    RegionAttributes regionAttributes = attributesFactory.create();
+    var regionAttributes = attributesFactory.create();
     region = cache.createRegion(regionName, regionAttributes);
   }
 
@@ -1316,20 +1313,20 @@ public class HashIndexQueryIntegrationTest {
   private void createReplicatedRegion(String regionName, boolean synchMaintenance)
       throws ParseException {
     Cache cache = CacheUtils.getCache();
-    AttributesFactory attributesFactory = new AttributesFactory();
+    var attributesFactory = new AttributesFactory();
     attributesFactory.setDataPolicy(DataPolicy.REPLICATE);
     attributesFactory.setIndexMaintenanceSynchronous(synchMaintenance);
-    RegionAttributes regionAttributes = attributesFactory.create();
+    var regionAttributes = attributesFactory.create();
     region = cache.createRegion(regionName, regionAttributes);
   }
 
   private void createReplicatedRegionWithOverflow(String regionName) throws ParseException {
     Cache cache = CacheUtils.getCache();
-    AttributesFactory attributesFactory = new AttributesFactory();
+    var attributesFactory = new AttributesFactory();
     attributesFactory.setDataPolicy(DataPolicy.REPLICATE);
     attributesFactory.setEvictionAttributes(
         EvictionAttributes.createLRUEntryAttributes(1, EvictionAction.OVERFLOW_TO_DISK));
-    RegionAttributes regionAttributes = attributesFactory.create();
+    var regionAttributes = attributesFactory.create();
     region = cache.createRegion(regionName, regionAttributes);
   }
 
@@ -1340,17 +1337,17 @@ public class HashIndexQueryIntegrationTest {
   private void createPartitionedRegion(String regionName, boolean synchMaintenance)
       throws ParseException {
     Cache cache = CacheUtils.getCache();
-    PartitionAttributesFactory prAttFactory = new PartitionAttributesFactory();
-    AttributesFactory attributesFactory = new AttributesFactory();
+    var prAttFactory = new PartitionAttributesFactory();
+    var attributesFactory = new AttributesFactory();
     attributesFactory.setPartitionAttributes(prAttFactory.create());
     attributesFactory.setIndexMaintenanceSynchronous(synchMaintenance);
-    RegionAttributes regionAttributes = attributesFactory.create();
+    var regionAttributes = attributesFactory.create();
     region = cache.createRegion(regionName, regionAttributes);
   }
 
   private void createData(Region region, int numEntries) {
-    for (int i = 0; i < numEntries; i++) {
-      Portfolio p = new Portfolio(i);
+    for (var i = 0; i < numEntries; i++) {
+      var p = new Portfolio(i);
       region.put("" + i, p);
     }
   }
@@ -1430,7 +1427,7 @@ public class HashIndexQueryIntegrationTest {
     @Override
     public int compareTo(Object o) {
       if (o instanceof Identifier) {
-        String otherId = ((Identifier) o).id;
+        var otherId = ((Identifier) o).id;
         return id.compareTo(otherId);
       }
       throw new ClassCastException("Unable to cast " + o + " to Identifier");

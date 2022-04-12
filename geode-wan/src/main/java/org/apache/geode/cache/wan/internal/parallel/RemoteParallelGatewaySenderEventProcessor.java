@@ -22,7 +22,6 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.wan.GatewaySender;
 import org.apache.geode.cache.wan.internal.GatewaySenderEventRemoteDispatcher;
 import org.apache.geode.internal.cache.wan.AbstractGatewaySender;
-import org.apache.geode.internal.cache.wan.GatewaySenderStats;
 import org.apache.geode.internal.cache.wan.parallel.ParallelGatewaySenderEventProcessor;
 import org.apache.geode.internal.monitoring.ThreadsMonitoring;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -41,11 +40,11 @@ public class RemoteParallelGatewaySenderEventProcessor extends ParallelGatewaySe
 
   @Override
   protected void rebalance() {
-    GatewaySenderStats statistics = sender.getStatistics();
-    long startTime = statistics.startLoadBalance();
+    var statistics = sender.getStatistics();
+    var startTime = statistics.startLoadBalance();
     try {
       if (dispatcher.isRemoteDispatcher()) {
-        GatewaySenderEventRemoteDispatcher remoteDispatcher =
+        var remoteDispatcher =
             (GatewaySenderEventRemoteDispatcher) dispatcher;
         if (remoteDispatcher.isConnectedToRemote()) {
           remoteDispatcher.stopAckReaderThread();

@@ -21,7 +21,6 @@ import static org.apache.geode.test.junit.rules.gfsh.GfshRule.startServerCommand
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,16 +29,12 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import org.apache.geode.internal.AvailablePortHelper;
-import org.apache.geode.management.api.ClusterManagementOperationResult;
 import org.apache.geode.management.api.ClusterManagementResult;
-import org.apache.geode.management.api.ClusterManagementService;
 import org.apache.geode.management.cluster.client.ClusterManagementServiceBuilder;
 import org.apache.geode.management.operation.RebalanceOperation;
-import org.apache.geode.management.runtime.RebalanceResult;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.internal.DUnitLauncher;
 import org.apache.geode.test.junit.categories.BackwardCompatibilityTest;
-import org.apache.geode.test.junit.rules.gfsh.GfshExecution;
 import org.apache.geode.test.junit.rules.gfsh.GfshRule;
 import org.apache.geode.test.junit.rules.gfsh.GfshScript;
 import org.apache.geode.test.junit.runners.CategoryWithParameterizedRunnerFactory;
@@ -55,7 +50,7 @@ public class OperationManagementUpgradeTest {
 
   @Parameterized.Parameters(name = "{0}")
   public static Collection<String> data() {
-    List<String> result = VersionManager.getInstance().getVersionsWithoutCurrent();
+    var result = VersionManager.getInstance().getVersionsWithoutCurrent();
     result.removeIf(s -> TestVersion.compare(s, "1.13.0") < 0);
     return result;
   }
@@ -76,16 +71,16 @@ public class OperationManagementUpgradeTest {
 
   @Test
   public void newLocatorCanReadOldConfigurationData() {
-    int[] ports = AvailablePortHelper.getRandomAvailableTCPPorts(7);
-    int locatorPort1 = ports[0];
-    int jmxPort1 = ports[1];
-    int httpPort1 = ports[2];
-    int locatorPort2 = ports[3];
-    int jmxPort2 = ports[4];
-    int httpPort2 = ports[5];
-    int serverPort = ports[6];
-    final String hostname = "localhost";
-    GfshExecution execute =
+    var ports = AvailablePortHelper.getRandomAvailableTCPPorts(7);
+    var locatorPort1 = ports[0];
+    var jmxPort1 = ports[1];
+    var httpPort1 = ports[2];
+    var locatorPort2 = ports[3];
+    var jmxPort2 = ports[4];
+    var httpPort2 = ports[5];
+    var serverPort = ports[6];
+    final var hostname = "localhost";
+    var execute =
         GfshScript
             .of(startLocatorCommand("locator1", hostname, locatorPort1, jmxPort1, httpPort1, 0))
             .and(startLocatorCommand("locator2", hostname, locatorPort2, jmxPort2, httpPort2,
@@ -93,14 +88,14 @@ public class OperationManagementUpgradeTest {
             .and(startServerCommand("server", hostname, serverPort, locatorPort1))
             .execute(oldGfsh);
 
-    String operationId = vm.invoke(() -> {
+    var operationId = vm.invoke(() -> {
       // start a cms client that connects to locator1's http port
-      ClusterManagementService cms = new ClusterManagementServiceBuilder()
+      var cms = new ClusterManagementServiceBuilder()
           .setHost(hostname)
           .setPort(httpPort1)
           .build();
 
-      ClusterManagementOperationResult<RebalanceOperation, RebalanceResult> startResult =
+      var startResult =
           cms.start(new RebalanceOperation());
       assertThat(startResult.getStatusCode())
           .isEqualTo(ClusterManagementResult.StatusCode.ACCEPTED);
@@ -115,11 +110,11 @@ public class OperationManagementUpgradeTest {
         .execute(gfsh, execute.getWorkingDir());
 
     // use the new cms client
-    ClusterManagementService cms = new ClusterManagementServiceBuilder()
+    var cms = new ClusterManagementServiceBuilder()
         .setHost(hostname)
         .setPort(httpPort1)
         .build();
-    ClusterManagementOperationResult<RebalanceOperation, RebalanceResult> operationResult =
+    var operationResult =
         cms.get(new RebalanceOperation(), operationId);
     System.out.println(operationResult);
     assertThat(operationResult.getStatusCode()).isEqualTo(ClusterManagementResult.StatusCode.OK);

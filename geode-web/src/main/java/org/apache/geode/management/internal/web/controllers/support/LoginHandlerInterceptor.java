@@ -15,7 +15,6 @@
 package org.apache.geode.management.internal.web.controllers.support;
 
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -82,11 +81,11 @@ public class LoginHandlerInterceptor implements AsyncHandlerInterceptor, Servlet
       final Object handler) throws Exception {
     final Map<String, String> requestParameterValues = new HashMap<>();
 
-    for (Enumeration<String> requestParameters = request.getParameterNames(); requestParameters
+    for (var requestParameters = request.getParameterNames(); requestParameters
         .hasMoreElements();) {
-      final String requestParameter = requestParameters.nextElement();
+      final var requestParameter = requestParameters.nextElement();
       if (requestParameter.startsWith(ENVIRONMENT_VARIABLE_REQUEST_PARAMETER_PREFIX)) {
-        String requestValue = request.getParameter(requestParameter);
+        var requestValue = request.getParameter(requestParameter);
         requestParameterValues.put(
             requestParameter.substring(ENVIRONMENT_VARIABLE_REQUEST_PARAMETER_PREFIX.length()),
             requestValue);
@@ -95,10 +94,10 @@ public class LoginHandlerInterceptor implements AsyncHandlerInterceptor, Servlet
 
     ENV.set(requestParameterValues);
 
-    String token = request.getHeader(ResourceConstants.TOKEN);
-    String username = request.getHeader(ResourceConstants.USER_NAME);
-    String password = request.getHeader(ResourceConstants.PASSWORD);
-    Properties credentials = new Properties();
+    var token = request.getHeader(ResourceConstants.TOKEN);
+    var username = request.getHeader(ResourceConstants.USER_NAME);
+    var password = request.getHeader(ResourceConstants.PASSWORD);
+    var credentials = new Properties();
     if (token != null) {
       credentials.put(ResourceConstants.TOKEN, token);
     } else {

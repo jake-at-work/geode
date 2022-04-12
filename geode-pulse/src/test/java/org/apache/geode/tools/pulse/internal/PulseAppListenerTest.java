@@ -52,17 +52,17 @@ public class PulseAppListenerTest {
 
     repository = new Repository();
 
-    PulseController pulseController = mock(PulseController.class);
+    var pulseController = mock(PulseController.class);
     appListener =
         new PulseAppListener(pulseController, repository, new ClassPathPropertiesFileLoader());
-    PulseVersion pulseVersion = new PulseVersion(repository);
+    var pulseVersion = new PulseVersion(repository);
     when(pulseController.getPulseVersion()).thenReturn(pulseVersion);
 
     contextEvent = mock(ContextRefreshedEvent.class);
-    WebApplicationContext applicationContext = mock(WebApplicationContext.class);
+    var applicationContext = mock(WebApplicationContext.class);
     when(contextEvent.getApplicationContext()).thenReturn(applicationContext);
 
-    ServletContext servletContext = mock(ServletContext.class);
+    var servletContext = mock(ServletContext.class);
     when(servletContext.getAttribute(anyString())).thenReturn(null);
     when(applicationContext.getServletContext()).thenReturn(servletContext);
   }

@@ -33,7 +33,7 @@ public class GemFireAST extends CommonAST {
 
   @Override
   public String getText() {
-    String txt = super.getText();
+    var txt = super.getText();
     if (txt == null) {
       return "[no text]";
     }
@@ -45,7 +45,7 @@ public class GemFireAST extends CommonAST {
   }
 
   public void childrenCompile(QCompiler compiler) {
-    GemFireAST child = (GemFireAST) getFirstChild();
+    var child = (GemFireAST) getFirstChild();
     while (child != null) {
       child.compile(compiler);
       child = (GemFireAST) child.getNextSibling();

@@ -211,7 +211,7 @@ public class FindCoordinatorResponse<ID extends MemberIdentifier> extends Abstra
     if (getClass() != obj.getClass()) {
       return false;
     }
-    FindCoordinatorResponse other = (FindCoordinatorResponse) obj;
+    var other = (FindCoordinatorResponse) obj;
     if (coordinator == null) {
       if (other.coordinator != null) {
         return false;

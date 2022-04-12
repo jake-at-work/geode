@@ -35,7 +35,6 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionFactory;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.internal.cache.tier.sockets.CacheClientNotifier;
 import org.apache.geode.internal.cache.tier.sockets.CacheClientProxy;
 import org.apache.geode.internal.lang.SystemProperty;
@@ -98,7 +97,7 @@ public class HARegionQueueThreadIdExpiryRegressionTest implements Serializable {
 
   @Test
   public void testThreadIdentifiersExpiry() {
-    int puts = 10;
+    var puts = 10;
 
     server1.invoke(() -> doPuts(puts));
 
@@ -121,14 +120,14 @@ public class HARegionQueueThreadIdExpiryRegressionTest implements Serializable {
     RegionFactory<String, String> rf = cacheRule.getCache().createRegionFactory(REPLICATE);
     rf.create(regionName);
 
-    CacheServer server = cacheRule.getCache().addCacheServer();
+    var server = cacheRule.getCache().addCacheServer();
     server.setPort(0);
     server.start();
     return server.getPort();
   }
 
   private void createClientCache(int port1, int port2) {
-    ClientCacheFactory ccf = new ClientCacheFactory();
+    var ccf = new ClientCacheFactory();
     ccf.setPoolSubscriptionEnabled(true);
     ccf.setPoolSubscriptionAckInterval(50);
     ccf.setPoolSubscriptionRedundancy(1);
@@ -140,13 +139,13 @@ public class HARegionQueueThreadIdExpiryRegressionTest implements Serializable {
     ClientRegionFactory<String, String> crf =
         clientCacheRule.getClientCache().createClientRegionFactory(CACHING_PROXY);
 
-    Region<String, String> region = crf.create(regionName);
+    var region = crf.create(regionName);
     region.registerInterest("ALL_KEYS");
   }
 
   private void doPuts(int puts) {
     Region<String, String> region = cacheRule.getCache().getRegion(regionName);
-    for (int i = 1; i <= puts; i++) {
+    for (var i = 1; i <= puts; i++) {
       region.put("KEY-" + i, "VALUE-" + i);
     }
   }
@@ -160,9 +159,9 @@ public class HARegionQueueThreadIdExpiryRegressionTest implements Serializable {
   }
 
   private void verifyThreadsBeforeExpiration(int expectedThreadIds) {
-    HARegionQueueStats stats = getCacheClientProxy().getHARegionQueue().getStatistics();
+    var stats = getCacheClientProxy().getHARegionQueue().getStatistics();
 
-    int actualThreadIds = stats.getThreadIdentiferCount();
+    var actualThreadIds = stats.getThreadIdentiferCount();
 
     assertThat(actualThreadIds)
         .as("Expected ThreadIdentifier count >= " + expectedThreadIds + " but actual: "
@@ -177,9 +176,9 @@ public class HARegionQueueThreadIdExpiryRegressionTest implements Serializable {
   }
 
   private void verifyStatsAfterExpiration(int numOfEvents) {
-    HARegionQueueStats stats = getCacheClientProxy().getHARegionQueue().getStatistics();
+    var stats = getCacheClientProxy().getHARegionQueue().getStatistics();
 
-    long actualEventsExpired = stats.getEventsExpired();
+    var actualEventsExpired = stats.getEventsExpired();
     long expectedEventsExpired = isPrimaryServer() ? 0 : numOfEvents;
 
     assertThat(actualEventsExpired)
@@ -187,7 +186,7 @@ public class HARegionQueueThreadIdExpiryRegressionTest implements Serializable {
             + actualEventsExpired + (isPrimaryServer() ? " at primary." : " at secondary."))
         .isEqualTo(expectedEventsExpired);
 
-    int actualThreadIds = stats.getThreadIdentiferCount();
+    var actualThreadIds = stats.getThreadIdentiferCount();
 
     // Sometimes we may see 1 threadIdentifier due to slow machines, but never equal to
     // expectedThreadIds

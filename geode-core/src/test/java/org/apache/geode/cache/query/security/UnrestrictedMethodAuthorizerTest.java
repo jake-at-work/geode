@@ -64,7 +64,7 @@ public class UnrestrictedMethodAuthorizerTest {
 
   @Before
   public void setUp() {
-    InternalCache mockCache = mock(InternalCache.class);
+    var mockCache = mock(InternalCache.class);
     mockSecurityService = mock(SecurityService.class);
     when(mockCache.getSecurityService()).thenReturn(mockSecurityService);
     unrestrictedMethodAuthorizer =
@@ -87,7 +87,7 @@ public class UnrestrictedMethodAuthorizerTest {
 
   @Test
   public void authorizeShouldReturnFalseForKnownDangerousMethods() throws Exception {
-    TestBean testBean = new TestBean();
+    var testBean = new TestBean();
     List<Method> dangerousMethods = new ArrayList<>();
     dangerousMethods.add(TestBean.class.getMethod("getClass"));
     dangerousMethods.add(TestBean.class.getMethod("readResolve"));
@@ -125,8 +125,8 @@ public class UnrestrictedMethodAuthorizerTest {
 
   @Test
   public void authorizeShouldReturnTrueForAllowedMethodsOnQRegionInstances() throws Exception {
-    QRegion qRegionInstance = mock(QRegion.class);
-    DummyQRegion dummyQRegionInstance = mock(DummyQRegion.class);
+    var qRegionInstance = mock(QRegion.class);
+    var dummyQRegionInstance = mock(DummyQRegion.class);
 
     List<Method> methods = new ArrayList<>();
     methods.add(Map.class.getMethod("containsKey", Object.class));
@@ -148,9 +148,9 @@ public class UnrestrictedMethodAuthorizerTest {
   @Test
   public void authorizeShouldReturnTrueForMapMethodsOnRegionInstancesWheneverTheSecurityServiceAllowsOperationsOnTheRegion()
       throws Exception {
-    Region region = mock(Region.class);
+    var region = mock(Region.class);
     Region localRegion = mock(LocalRegion.class);
-    PartitionedRegion partitionedRegion = mock(PartitionedRegion.class);
+    var partitionedRegion = mock(PartitionedRegion.class);
 
     List<Method> methods = new ArrayList<>();
     methods.add(Map.class.getMethod("containsKey", Object.class));
@@ -173,9 +173,9 @@ public class UnrestrictedMethodAuthorizerTest {
       throws Exception {
     doThrow(new NotAuthorizedException("Mock Exception")).when(mockSecurityService).authorize(
         ResourcePermission.Resource.DATA, ResourcePermission.Operation.READ, "testRegion");
-    Region region = mock(Region.class);
+    var region = mock(Region.class);
     when(region.getName()).thenReturn("testRegion");
-    PartitionedRegion partitionedRegion = mock(PartitionedRegion.class);
+    var partitionedRegion = mock(PartitionedRegion.class);
     when(partitionedRegion.getName()).thenReturn("testRegion");
 
     List<Method> methods = new ArrayList<>();
@@ -194,10 +194,10 @@ public class UnrestrictedMethodAuthorizerTest {
   @Test
   public void authorizeShouldReturnFalseForGeodeObjectsThatAreNotInstanceOfRegionAndRegionEntry()
       throws Exception {
-    EntryEvent entryEvent = mock(EntryEvent.class);
-    HAContainerMap haContainerMap = mock(HAContainerMap.class);
-    GatewayQueueEvent gatewayQueueEvent = mock(GatewayQueueEvent.class);
-    PartitionedRegionDataStore partitionedRegionDataStore = mock(PartitionedRegionDataStore.class);
+    var entryEvent = mock(EntryEvent.class);
+    var haContainerMap = mock(HAContainerMap.class);
+    var gatewayQueueEvent = mock(GatewayQueueEvent.class);
+    var partitionedRegionDataStore = mock(PartitionedRegionDataStore.class);
 
     List<Method> queueRegionMethods = new ArrayList<>();
     queueRegionMethods.add(QRegion.class.getMethod("getEntries"));
@@ -238,10 +238,10 @@ public class UnrestrictedMethodAuthorizerTest {
     regionEntryInstances.add(mock(NonTXEntry.class));
     regionEntryInstances.add(mock(Region.Entry.class));
     regionEntryInstances.add(mock(EntrySnapshot.class));
-    Method getKeyMethod = Region.Entry.class.getMethod("getKey");
-    Method getValueMethod = Region.Entry.class.getMethod("getValue");
-    Method toStringMethod = Object.class.getMethod("toString");
-    Method equalsMethod = Object.class.getMethod("equals", Object.class);
+    var getKeyMethod = Region.Entry.class.getMethod("getKey");
+    var getValueMethod = Region.Entry.class.getMethod("getValue");
+    var toStringMethod = Object.class.getMethod("toString");
+    var equalsMethod = Object.class.getMethod("equals", Object.class);
 
     regionEntryInstances.forEach((regionEntry) -> {
       assertThat(unrestrictedMethodAuthorizer.authorize(getKeyMethod, regionEntry)).isTrue();

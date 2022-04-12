@@ -51,7 +51,7 @@ public class CloseCacheMessage extends HighPriorityDistributionMessage implement
   protected void process(ClusterDistributionManager dm) {
     // Now that Cache.close calls close on each region we don't need
     // any of the following code so we can just do an immediate ack.
-    boolean systemError = false;
+    var systemError = false;
     try {
       try {
         PartitionedRegionHelper.cleanUpMetaDataOnNodeFailure(dm.getCache(), getSender());

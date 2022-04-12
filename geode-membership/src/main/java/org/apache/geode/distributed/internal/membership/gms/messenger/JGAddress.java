@@ -88,7 +88,7 @@ public class JGAddress extends UUID {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
+    var sb = new StringBuilder();
 
     if (ip_addr == null) {
       sb.append("<no address>");
@@ -129,7 +129,7 @@ public class JGAddress extends UUID {
   @Override
   public void writeTo(DataOutput out) throws Exception {
     if (ip_addr != null) {
-      byte[] address = ip_addr.getAddress(); // 4 bytes (IPv4) or 16 bytes (IPv6)
+      var address = ip_addr.getAddress(); // 4 bytes (IPv4) or 16 bytes (IPv6)
       out.writeByte(address.length); // 1 byte
       out.write(address, 0, address.length);
       if (ip_addr instanceof Inet6Address) {
@@ -159,10 +159,10 @@ public class JGAddress extends UUID {
       throw new IOException("length has to be " + Global.IPV4_SIZE + " or " + Global.IPV6_SIZE
           + " bytes (was " + len + " bytes)");
     }
-    byte[] a = new byte[len]; // 4 bytes (IPv4) or 16 bytes (IPv6)
+    var a = new byte[len]; // 4 bytes (IPv4) or 16 bytes (IPv6)
     in.readFully(a);
     if (len == Global.IPV6_SIZE) {
-      int scope_id = in.readInt();
+      var scope_id = in.readInt();
       ip_addr = Inet6Address.getByAddress(null, a, scope_id);
     } else {
       ip_addr = InetAddress.getByAddress(a);
@@ -178,7 +178,7 @@ public class JGAddress extends UUID {
   @Override
   public int size() {
     // length (1 bytes) + 4 bytes for port
-    int tmp_size =
+    var tmp_size =
         Global.BYTE_SIZE + Global.SHORT_SIZE + Global.SHORT_SIZE + (2 * Global.LONG_SIZE);
     if (ip_addr != null) {
       // 4 bytes for IPv4, 20 for IPv6 (16 + 4 for scope-id)
@@ -189,7 +189,7 @@ public class JGAddress extends UUID {
 
   @Override
   public JGAddress copy() {
-    JGAddress result = new JGAddress();
+    var result = new JGAddress();
     result.mostSigBits = mostSigBits;
     result.leastSigBits = leastSigBits;
     result.ip_addr = ip_addr;

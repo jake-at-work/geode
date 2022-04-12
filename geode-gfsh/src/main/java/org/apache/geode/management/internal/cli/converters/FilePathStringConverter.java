@@ -44,7 +44,7 @@ public class FilePathStringConverter implements Converter<String> {
   }
 
   public List<String> getRoots() {
-    File[] roots = File.listRoots();
+    var roots = File.listRoots();
     return Arrays.stream(roots).map(File::getAbsolutePath).collect(Collectors.toList());
   }
 
@@ -53,7 +53,7 @@ public class FilePathStringConverter implements Converter<String> {
    * will return all the siblings of this file
    */
   public List<String> getSiblings(String path) {
-    File currentFile = new File(path);
+    var currentFile = new File(path);
 
     // if currentFile is not a dir, convert currentFile to it's parent dir
     if (!currentFile.isDirectory()) {

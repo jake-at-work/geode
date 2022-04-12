@@ -30,11 +30,9 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.query.FunctionDomainException;
 import org.apache.geode.cache.query.NameResolutionException;
-import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.QueryInvocationTargetException;
 import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.TypeMismatchException;
@@ -63,7 +61,7 @@ public abstract class AbstractQuerySecurityDistributedTest implements Serializab
         .withProperty(SERIALIZABLE_OBJECT_FILTER, "org.apache.geode.security.query.data.*")
         .withRegion(regionShortcut, regionName));
 
-    String superUserPassword = userPerms.getUserPassword("super-user");
+    var superUserPassword = userPerms.getUserPassword("super-user");
     superUserClient =
         cluster.startClientVM(2, ccf -> ccf.withCredential("super-user", superUserPassword)
             .withPoolSubscription(true)
@@ -77,7 +75,7 @@ public abstract class AbstractQuerySecurityDistributedTest implements Serializab
   }
 
   protected void setUpSpecificClient(String specificUser) throws Exception {
-    String specificUserPassword = userPerms.getUserPassword(specificUser);
+    var specificUserPassword = userPerms.getUserPassword(specificUser);
     specificUserClient =
         cluster.startClientVM(3, ccf -> ccf.withCredential(specificUser, specificUserPassword)
             .withPoolSubscription(true)
@@ -101,7 +99,7 @@ public abstract class AbstractQuerySecurityDistributedTest implements Serializab
 
   protected void putIntoRegion(ClientVM vm, Object[] keys, Object[] values, String regionName) {
     vm.invoke(() -> {
-      Region<Object, Object> region = getClientCache().getRegion(regionName);
+      var region = getClientCache().getRegion(regionName);
       assertThat(values.length)
           .as("The list of keys does not have the same length as the list of values.")
           .isEqualTo(keys.length);
@@ -121,7 +119,7 @@ public abstract class AbstractQuerySecurityDistributedTest implements Serializab
       Object[] bindParameters, List<Object> expectedResults) throws FunctionDomainException,
       TypeMismatchException, NameResolutionException, QueryInvocationTargetException {
     Collection results;
-    Query query = clientCache.getQueryService().newQuery(queryString);
+    var query = clientCache.getQueryService().newQuery(queryString);
 
     if (bindParameters == null) {
       results = (Collection) query.execute();
@@ -162,7 +160,7 @@ public abstract class AbstractQuerySecurityDistributedTest implements Serializab
       assertExceptionOccurred(getClientCache().getQueryService(), query,
           regexForExpectedExceptions);
 
-      Pool pool = PoolManager.find(region);
+      var pool = PoolManager.find(region);
       assertExceptionOccurred(pool.getQueryService(), query, regexForExpectedExceptions);
     });
   }

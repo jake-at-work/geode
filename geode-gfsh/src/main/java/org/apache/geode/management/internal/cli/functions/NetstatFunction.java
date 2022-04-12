@@ -23,7 +23,6 @@ import static org.apache.geode.internal.lang.SystemUtils.isSolaris;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -78,19 +77,19 @@ public class NetstatFunction implements InternalFunction<NetstatFunction.Netstat
       return;
     }
 
-    String host = ds.getDistributedMember().getHost();
-    NetstatFunctionArgument args = context.getArguments();
-    boolean withlsof = args.isWithlsof();
-    String lineSeparator = args.getLineSeparator();
+    var host = ds.getDistributedMember().getHost();
+    var args = context.getArguments();
+    var withlsof = args.isWithlsof();
+    var lineSeparator = args.getLineSeparator();
 
-    String netstatOutput = executeCommand(lineSeparator, withlsof);
+    var netstatOutput = executeCommand(lineSeparator, withlsof);
 
-    StringBuilder netstatInfo = new StringBuilder();
+    var netstatInfo = new StringBuilder();
 
     // {0} will be replaced on Manager
     addMemberHostHeader(netstatInfo, "{0}", host, lineSeparator);
 
-    NetstatFunctionResult result = new NetstatFunctionResult(host, netstatInfo.toString(),
+    var result = new NetstatFunctionResult(host, netstatInfo.toString(),
         CliUtils.compressBytes(netstatOutput.getBytes()));
 
     context.getResultSender().lastResult(result);
@@ -99,17 +98,17 @@ public class NetstatFunction implements InternalFunction<NetstatFunction.Netstat
   private static void addMemberHostHeader(final StringBuilder netstatInfo, final String id,
       final String host, final String lineSeparator) {
 
-    String osInfo = getOsName() + " " + getOsVersion() + " " + getOsArchitecture();
+    var osInfo = getOsName() + " " + getOsVersion() + " " + getOsArchitecture();
 
-    int nameIdLength = Math.max(Math.max(id.length(), host.length()), osInfo.length()) * 2;
+    var nameIdLength = Math.max(Math.max(id.length(), host.length()), osInfo.length()) * 2;
 
-    StringBuilder netstatInfoBottom = new StringBuilder();
-    for (int i = 0; i < nameIdLength; i++) {
+    var netstatInfoBottom = new StringBuilder();
+    for (var i = 0; i < nameIdLength; i++) {
       netstatInfo.append("#");
       netstatInfoBottom.append("#");
     }
 
-    String memberPlatFormInfo = CliStrings.format(CliStrings.NETSTAT__MSG__FOR_HOST_1_OS_2_MEMBER_0,
+    var memberPlatFormInfo = CliStrings.format(CliStrings.NETSTAT__MSG__FOR_HOST_1_OS_2_MEMBER_0,
         id, host, osInfo, lineSeparator);
     netstatInfo.append(lineSeparator).append(memberPlatFormInfo).append(lineSeparator)
         .append(netstatInfoBottom).append(lineSeparator);
@@ -133,14 +132,14 @@ public class NetstatFunction implements InternalFunction<NetstatFunction.Netstat
       logger.debug("NetstatFunction executing {}", cmdOptionsList);
     }
 
-    ProcessBuilder processBuilder = new ProcessBuilder(cmdOptionsList);
+    var processBuilder = new ProcessBuilder(cmdOptionsList);
     Process netstat = null;
     InputStreamReader inputStreamReader = null;
     BufferedReader breader = null;
     try {
       netstat = processBuilder.start();
 
-      InputStream is = netstat.getInputStream();
+      var is = netstat.getInputStream();
       inputStreamReader = new InputStreamReader(is);
       breader = new BufferedReader(inputStreamReader);
       String line;
@@ -169,7 +168,7 @@ public class NetstatFunction implements InternalFunction<NetstatFunction.Netstat
       cmdOptionsList.add("-n");
       cmdOptionsList.add("-P");
 
-      ProcessBuilder procBuilder = new ProcessBuilder(cmdOptionsList);
+      var procBuilder = new ProcessBuilder(cmdOptionsList);
 
       Process lsof = null;
       InputStreamReader reader = null;
@@ -185,7 +184,7 @@ public class NetstatFunction implements InternalFunction<NetstatFunction.Netstat
         }
       } catch (IOException e) {
         // TODO: change this to keep the full stack trace
-        String message = e.getMessage();
+        var message = e.getMessage();
         if (message.contains("error=2, No such file or directory")) {
           existingNetstatInfo
               .append(CliStrings.format(CliStrings.NETSTAT__MSG__COULD_NOT_EXECUTE_0_REASON_1,
@@ -225,7 +224,7 @@ public class NetstatFunction implements InternalFunction<NetstatFunction.Netstat
   }
 
   private static String executeCommand(final String lineSeparator, final boolean withlsof) {
-    StringBuilder netstatInfo = new StringBuilder();
+    var netstatInfo = new StringBuilder();
 
     executeNetstat(netstatInfo, lineSeparator);
 
@@ -247,7 +246,7 @@ public class NetstatFunction implements InternalFunction<NetstatFunction.Netstat
   }
 
   public static void main(final String[] args) {
-    String netstat = executeCommand(GfshParser.LINE_SEPARATOR, true);
+    var netstat = executeCommand(GfshParser.LINE_SEPARATOR, true);
     System.out.println(netstat);
   }
 

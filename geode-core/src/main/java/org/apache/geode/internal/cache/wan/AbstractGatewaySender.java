@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -62,10 +61,8 @@ import org.apache.geode.internal.cache.EntryEventImpl;
 import org.apache.geode.internal.cache.EnumListenerEvent;
 import org.apache.geode.internal.cache.HasCachePerfStats;
 import org.apache.geode.internal.cache.InternalCache;
-import org.apache.geode.internal.cache.InternalRegion;
 import org.apache.geode.internal.cache.InternalRegionFactory;
 import org.apache.geode.internal.cache.LocalRegion;
-import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.RegionQueue;
 import org.apache.geode.internal.cache.execute.BucketMovedException;
 import org.apache.geode.internal.cache.ha.ThreadIdentifier;
@@ -518,7 +515,7 @@ public abstract class AbstractGatewaySender implements InternalGatewaySender, Di
     if (!(obj instanceof GatewaySender)) {
       return false;
     }
-    AbstractGatewaySender sender = (AbstractGatewaySender) obj;
+    var sender = (AbstractGatewaySender) obj;
     return sender.getId().equals(getId());
   }
 
@@ -610,9 +607,9 @@ public abstract class AbstractGatewaySender implements InternalGatewaySender, Di
       getLifeCycleLock().writeLock().lock();
       // first, check if this sender is attached to any region. If so, throw
       // GatewaySenderException
-      Set<InternalRegion> regions = cache.getApplicationRegions();
-      for (final InternalRegion internalRegion : regions) {
-        LocalRegion region = (LocalRegion) internalRegion;
+      var regions = cache.getApplicationRegions();
+      for (final var internalRegion : regions) {
+        var region = (LocalRegion) internalRegion;
 
         if (region.getAttributes().getGatewaySenderIds().contains(id)) {
           throw new GatewaySenderException(
@@ -622,7 +619,7 @@ public abstract class AbstractGatewaySender implements InternalGatewaySender, Di
         }
       }
       // close the GatewaySenderAdvisor
-      GatewaySenderAdvisor advisor = getSenderAdvisor();
+      var advisor = getSenderAdvisor();
       if (advisor != null) {
         if (logger.isDebugEnabled()) {
           logger.debug("Stopping the GatewaySender advisor");
@@ -635,14 +632,14 @@ public abstract class AbstractGatewaySender implements InternalGatewaySender, Di
 
       // destroy the region underneath the sender's queue
       if (initiator) {
-        Set<RegionQueue> regionQueues = getQueues();
+        var regionQueues = getQueues();
         if (regionQueues != null) {
-          for (RegionQueue regionQueue : regionQueues) {
+          for (var regionQueue : regionQueues) {
             try {
               if (regionQueue instanceof ConcurrentParallelGatewaySenderQueue) {
-                Set<PartitionedRegion> queueRegions =
+                var queueRegions =
                     ((ConcurrentParallelGatewaySenderQueue) regionQueue).getRegions();
-                for (PartitionedRegion queueRegion : queueRegions) {
+                for (var queueRegion : queueRegions) {
                   queueRegion.destroyRegion();
                 }
               } else {// For SerialGatewaySenderQueue, do local destroy
@@ -762,8 +759,8 @@ public abstract class AbstractGatewaySender implements InternalGatewaySender, Di
   }
 
   public boolean beforeEnqueue(GatewayQueueEvent gatewayEvent) {
-    boolean enqueue = true;
-    for (GatewayEventFilter filter : getGatewayEventFilters()) {
+    var enqueue = true;
+    for (var filter : getGatewayEventFilters()) {
       enqueue = filter.beforeEnqueue(gatewayEvent);
       if (!enqueue) {
         return enqueue;
@@ -774,7 +771,7 @@ public abstract class AbstractGatewaySender implements InternalGatewaySender, Di
 
   protected void stopProcessing() {
     // Stop the dispatcher
-    AbstractGatewaySenderEventProcessor ev = eventProcessor;
+    var ev = eventProcessor;
     if (ev != null && !ev.isStopped()) {
       ev.stopProcessing();
     }
@@ -785,8 +782,8 @@ public abstract class AbstractGatewaySender implements InternalGatewaySender, Di
   }
 
   protected void stompProxyDead() {
-    Runnable stomper = () -> {
-      PoolImpl bpi = proxy;
+    var stomper = (Runnable) () -> {
+      var bpi = proxy;
       if (bpi != null) {
         try {
           bpi.destroy();
@@ -862,7 +859,7 @@ public abstract class AbstractGatewaySender implements InternalGatewaySender, Di
 
     @Override
     public RuntimeException generateCancelledException(Throwable e) {
-      RuntimeException result = stper.generateCancelledException(e);
+      var result = stper.generateCancelledException(e);
       return result;
     }
   }
@@ -900,7 +897,7 @@ public abstract class AbstractGatewaySender implements InternalGatewaySender, Di
           Thread.currentThread().interrupt();
         }
       }
-      Exception ex = eventProcessor.getException();
+      var ex = eventProcessor.getException();
       if (ex != null) {
         throw new GatewaySenderException(
             String.format("Could not start a gateway sender %s because of exception %s",
@@ -928,7 +925,7 @@ public abstract class AbstractGatewaySender implements InternalGatewaySender, Di
       getLifeCycleLock().writeLock().lock();
       try {
         eventProcessor.pauseDispatching();
-        InternalDistributedSystem system =
+        var system =
             (InternalDistributedSystem) cache.getDistributedSystem();
         system.handleResourceEvent(ResourceEvent.GATEWAYSENDER_PAUSE, this);
         logger.info("Paused {}", this);
@@ -950,7 +947,7 @@ public abstract class AbstractGatewaySender implements InternalGatewaySender, Di
         }
         eventProcessor.pauseDispatching();
 
-        InternalDistributedSystem system =
+        var system =
             (InternalDistributedSystem) cache.getDistributedSystem();
         system.handleResourceEvent(ResourceEvent.GATEWAYSENDER_PAUSE, this);
 
@@ -973,8 +970,7 @@ public abstract class AbstractGatewaySender implements InternalGatewaySender, Di
         }
         eventProcessor.resumeDispatching();
 
-
-        InternalDistributedSystem system =
+        var system =
             (InternalDistributedSystem) cache.getDistributedSystem();
         system.handleResourceEvent(ResourceEvent.GATEWAYSENDER_RESUME, this);
 
@@ -1034,15 +1030,15 @@ public abstract class AbstractGatewaySender implements InternalGatewaySender, Di
   public void distribute(EnumListenerEvent operation, EntryEventImpl event,
       List<Integer> allRemoteDSIds, boolean isLastEventInTransaction) {
 
-    final boolean isDebugEnabled = logger.isDebugEnabled();
+    final var isDebugEnabled = logger.isDebugEnabled();
 
     // released by this method or transfers ownership to TmpQueueEvent
     @Released
-    EntryEventImpl clonedEvent = new EntryEventImpl(event, false);
-    boolean freeClonedEvent = true;
+    var clonedEvent = new EntryEventImpl(event, false);
+    var freeClonedEvent = true;
     try {
 
-      final GatewaySenderStats stats = getStatistics();
+      final var stats = getStatistics();
       stats.incEventsReceived();
 
       if (!checkForDistribution(event, stats)) {
@@ -1060,7 +1056,7 @@ public abstract class AbstractGatewaySender implements InternalGatewaySender, Di
 
       // start to distribute
       setModifiedEventId(clonedEvent);
-      Object callbackArg = clonedEvent.getRawCallbackArgument();
+      var callbackArg = clonedEvent.getRawCallbackArgument();
 
       if (isDebugEnabled) {
         // We can't deserialize here for logging purposes so don't
@@ -1071,7 +1067,7 @@ public abstract class AbstractGatewaySender implements InternalGatewaySender, Di
       }
 
       if (callbackArg instanceof GatewaySenderEventCallbackArgument) {
-        GatewaySenderEventCallbackArgument seca = (GatewaySenderEventCallbackArgument) callbackArg;
+        var seca = (GatewaySenderEventCallbackArgument) callbackArg;
         if (isDebugEnabled) {
           logger.debug(
               "{}: Event originated in {}. My DS id is {}. The remote DS id is {}. The recipients are: {}",
@@ -1093,7 +1089,7 @@ public abstract class AbstractGatewaySender implements InternalGatewaySender, Di
           // if the dispatcher is GatewaySenderEventCallbackDispatcher (which is the case of WBCL),
           // skip the below check of remoteDSId.
           // Fix for #46517
-          AbstractGatewaySenderEventProcessor ep = getEventProcessor();
+          var ep = getEventProcessor();
           // if manual-start is true, ep is null
           if (ep == null || !(ep.getDispatcher() instanceof GatewaySenderEventCallbackDispatcher)) {
             if (seca.getOriginatingDSId() == getRemoteDSId()) {
@@ -1116,7 +1112,7 @@ public abstract class AbstractGatewaySender implements InternalGatewaySender, Di
           seca.getRecipientDSIds().addAll(allRemoteDSIds);
         }
       } else {
-        GatewaySenderEventCallbackArgument geCallbackArg =
+        var geCallbackArg =
             new GatewaySenderEventCallbackArgument(callbackArg, getMyDSId(), allRemoteDSIds);
         clonedEvent.setCallbackArgument(geCallbackArg);
       }
@@ -1136,7 +1132,7 @@ public abstract class AbstractGatewaySender implements InternalGatewaySender, Di
         synchronized (queuedEventsSync) {
           if (!enqueuedAllTempQueueEvents) {
             if (!getLifeCycleLock().readLock().tryLock()) {
-              Object substituteValue = getSubstituteValue(clonedEvent, operation);
+              var substituteValue = getSubstituteValue(clonedEvent, operation);
               tmpQueuedEvents.add(new TmpQueueEvent(operation, clonedEvent, substituteValue));
               freeClonedEvent = false;
               stats.incTempQueueSize();
@@ -1165,7 +1161,7 @@ public abstract class AbstractGatewaySender implements InternalGatewaySender, Di
         }
 
         try {
-          AbstractGatewaySenderEventProcessor ev = eventProcessor;
+          var ev = eventProcessor;
           if (ev == null) {
             getStopper().checkCancelInProgress(null);
             getCache().getDistributedSystem().getCancelCriterion().checkCancelInProgress(null);
@@ -1178,7 +1174,7 @@ public abstract class AbstractGatewaySender implements InternalGatewaySender, Di
           }
 
           // Get substitution value to enqueue if necessary
-          Object substituteValue = getSubstituteValue(clonedEvent, operation);
+          var substituteValue = getSubstituteValue(clonedEvent, operation);
 
           ev.enqueueEvent(operation, clonedEvent, substituteValue, isLastEventInTransaction);
         } catch (CancelException e) {
@@ -1242,7 +1238,7 @@ public abstract class AbstractGatewaySender implements InternalGatewaySender, Di
       }
 
       TmpQueueEvent nextEvent = null;
-      final GatewaySenderStats stats = getStatistics();
+      final var stats = getStatistics();
       try {
         // Now finish emptying the queue with synchronization to make
         // sure we don't miss any events.
@@ -1280,9 +1276,9 @@ public abstract class AbstractGatewaySender implements InternalGatewaySender, Di
    */
   public boolean removeFromTempQueueEvents(Object tailKey) {
     synchronized (queuedEventsSync) {
-      Iterator<TmpQueueEvent> itr = tmpQueuedEvents.iterator();
+      var itr = tmpQueuedEvents.iterator();
       while (itr.hasNext()) {
-        TmpQueueEvent event = itr.next();
+        var event = itr.next();
         if (tailKey.equals(event.getEvent().getTailKey())) {
           if (logger.isDebugEnabled()) {
             logger.debug(
@@ -1343,9 +1339,9 @@ public abstract class AbstractGatewaySender implements InternalGatewaySender, Di
   }
 
   protected void initializeEventIdIndex() {
-    final boolean isDebugEnabled = logger.isDebugEnabled();
+    final var isDebugEnabled = logger.isDebugEnabled();
 
-    boolean gotLock = false;
+    var gotLock = false;
     try {
       // Obtain the distributed lock
       gotLock = getCache().getGatewaySenderLockService().lock(META_DATA_REGION_NAME, -1, -1);
@@ -1358,10 +1354,10 @@ public abstract class AbstractGatewaySender implements InternalGatewaySender, Di
           logger.debug("{}: Locked the metadata region", this);
         }
         // Get metadata region
-        Region<String, Integer> region = getEventIdIndexMetaDataRegion();
+        var region = getEventIdIndexMetaDataRegion();
 
         // Get or create the index
-        int index = 0;
+        var index = 0;
         String messagePrefix = null;
         if (region.containsKey(getId())) {
           index = region.get(getId());
@@ -1408,15 +1404,16 @@ public abstract class AbstractGatewaySender implements InternalGatewaySender, Di
 
   private static synchronized Region<String, Integer> initializeEventIdIndexMetaDataRegion(
       AbstractGatewaySender sender) {
-    final InternalCache cache = sender.getCache();
+    final var cache = sender.getCache();
     Region<String, Integer> region = cache.getRegion(META_DATA_REGION_NAME);
     if (region == null) {
       InternalRegionFactory<String, Integer> factory =
           cache.createInternalRegionFactory(RegionShortcut.REPLICATE);
 
       // Create a stats holder for the meta data stats
-      final HasCachePerfStats statsHolder = () -> new CachePerfStats(cache.getDistributedSystem(),
-          "RegionStats-" + META_DATA_REGION_NAME, sender.statisticsClock);
+      final var statsHolder =
+          (HasCachePerfStats) () -> new CachePerfStats(cache.getDistributedSystem(),
+              "RegionStats-" + META_DATA_REGION_NAME, sender.statisticsClock);
       factory.setIsUsedForMetaRegion(true);
       factory.setCachePerfStatsHolder(statsHolder);
       try {
@@ -1462,12 +1459,12 @@ public abstract class AbstractGatewaySender implements InternalGatewaySender, Di
 
   @Override
   public int getEventQueueSize() {
-    AbstractGatewaySenderEventProcessor localProcessor = eventProcessor;
+    var localProcessor = eventProcessor;
     return localProcessor == null ? 0 : localProcessor.eventQueueSize();
   }
 
   public int getSecondaryEventQueueSize() {
-    AbstractGatewaySenderEventProcessor localProcessor = eventProcessor;
+    var localProcessor = eventProcessor;
     return localProcessor == null ? 0 : localProcessor.secondaryEventQueueSize();
   }
 
@@ -1489,10 +1486,10 @@ public abstract class AbstractGatewaySender implements InternalGatewaySender, Di
 
   @Override
   public boolean waitUntilFlushed(long timeout, TimeUnit unit) throws InterruptedException {
-    boolean result = false;
+    var result = false;
     if (isParallel()) {
       try {
-        WaitUntilParallelGatewaySenderFlushedCoordinator coordinator =
+        var coordinator =
             new WaitUntilParallelGatewaySenderFlushedCoordinator(this, timeout, unit, true);
         result = coordinator.waitUntilFlushed();
       } catch (BucketMovedException | CancelException | RegionDestroyedException e) {
@@ -1580,13 +1577,13 @@ public abstract class AbstractGatewaySender implements InternalGatewaySender, Di
 
   protected GatewayQueueEvent getSynchronizationEvent(Object key, long timestamp) {
     GatewayQueueEvent event = null;
-    for (RegionQueue queue : getQueues()) {
-      Region region = queue.getRegion();
+    for (var queue : getQueues()) {
+      var region = queue.getRegion();
       if (region == null) {
         continue;
       }
-      for (final Object o : region.values()) {
-        GatewaySenderEventImpl gsei = (GatewaySenderEventImpl) o;
+      for (final var o : region.values()) {
+        var gsei = (GatewaySenderEventImpl) o;
         if (gsei.getKey().equals(key) && gsei.getVersionTimeStamp() == timestamp) {
           event = gsei;
           logger.info("{}: Providing synchronization event for key={}; timestamp={}: {}",

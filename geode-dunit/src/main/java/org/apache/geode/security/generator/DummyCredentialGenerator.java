@@ -44,11 +44,11 @@ public class DummyCredentialGenerator extends CredentialGenerator {
 
   @Override
   public Properties getValidCredentials(final int index) {
-    final String[] validGroups = new String[] {"admin", "user", "reader", "writer"};
-    final String[] admins = new String[] {"root", "admin", "administrator"};
+    final var validGroups = new String[] {"admin", "user", "reader", "writer"};
+    final var admins = new String[] {"root", "admin", "administrator"};
 
-    final Properties props = new Properties();
-    final int groupNum = index % validGroups.length;
+    final var props = new Properties();
+    final var groupNum = index % validGroups.length;
 
     String userName;
     if (groupNum == 0) {
@@ -64,10 +64,10 @@ public class DummyCredentialGenerator extends CredentialGenerator {
 
   @Override
   public Properties getValidCredentials(final Principal principal) {
-    final String userName = principal.getName();
+    final var userName = principal.getName();
 
     if (DummyAuthenticator.checkValidName(userName)) {
-      Properties props = new Properties();
+      var props = new Properties();
       props.setProperty(UserPasswordAuthInit.USER_NAME, userName);
       props.setProperty(UserPasswordAuthInit.PASSWORD, userName);
       return props;
@@ -79,7 +79,7 @@ public class DummyCredentialGenerator extends CredentialGenerator {
 
   @Override
   public Properties getInvalidCredentials(int index) {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(UserPasswordAuthInit.USER_NAME, "invalid" + index);
     props.setProperty(UserPasswordAuthInit.PASSWORD, "none");
     return props;

@@ -72,7 +72,7 @@ public class OverflowQueueWithDMStats<E> extends LinkedBlockingQueue<E> {
       throw new InterruptedException();
     }
     preAddInterruptibly(e);
-    boolean didOp = false;
+    var didOp = false;
     try {
       super.put(e);
       didOp = true;
@@ -90,7 +90,7 @@ public class OverflowQueueWithDMStats<E> extends LinkedBlockingQueue<E> {
       throw new InterruptedException();
     }
     preAddInterruptibly(e);
-    boolean didOp = false;
+    var didOp = false;
     try {
       if (super.offer(e, timeout, unit)) {
         didOp = true;
@@ -111,7 +111,7 @@ public class OverflowQueueWithDMStats<E> extends LinkedBlockingQueue<E> {
     if (Thread.interrupted()) {
       throw new InterruptedException();
     }
-    E result = super.take();
+    var result = super.take();
     postRemove(result);
     stats.remove();
     return result;
@@ -122,7 +122,7 @@ public class OverflowQueueWithDMStats<E> extends LinkedBlockingQueue<E> {
     if (Thread.interrupted()) {
       throw new InterruptedException();
     }
-    E result = super.poll(timeout, unit);
+    var result = super.poll(timeout, unit);
     if (result != null) {
       postRemove(result);
       stats.remove();
@@ -143,7 +143,7 @@ public class OverflowQueueWithDMStats<E> extends LinkedBlockingQueue<E> {
 
   @Override
   public int drainTo(Collection<? super E> c) {
-    int result = super.drainTo(c);
+    var result = super.drainTo(c);
     if (result > 0) {
       stats.remove(result);
       postDrain(c);
@@ -153,7 +153,7 @@ public class OverflowQueueWithDMStats<E> extends LinkedBlockingQueue<E> {
 
   @Override
   public int drainTo(Collection<? super E> c, int maxElements) {
-    int result = super.drainTo(c, maxElements);
+    var result = super.drainTo(c, maxElements);
     if (result > 0) {
       stats.remove(result);
       postDrain(c);

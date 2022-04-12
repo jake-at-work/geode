@@ -33,14 +33,12 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.WebApplicationContext;
 
-import org.apache.geode.management.api.ClusterManagementGetResult;
 import org.apache.geode.management.api.ClusterManagementResult;
 import org.apache.geode.management.api.ClusterManagementService;
 import org.apache.geode.management.api.RestTemplateClusterManagementServiceTransport;
 import org.apache.geode.management.cluster.client.ClusterManagementServiceBuilder;
 import org.apache.geode.management.configuration.DiskDir;
 import org.apache.geode.management.configuration.DiskStore;
-import org.apache.geode.management.runtime.DiskStoreInfo;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(locations = {"classpath*:WEB-INF/management-servlet.xml"},
@@ -60,7 +58,7 @@ public class DiskStoreManagementIntegrationTest {
   @Before
   public void before() {
     // needs to be used together with any BaseLocatorContextLoader
-    LocatorWebContext context = new LocatorWebContext(webApplicationContext);
+    var context = new LocatorWebContext(webApplicationContext);
     client = new ClusterManagementServiceBuilder().setTransport(
         new RestTemplateClusterManagementServiceTransport(
             new RestTemplate(context.getRequestFactory())))
@@ -141,7 +139,7 @@ public class DiskStoreManagementIntegrationTest {
     assertManagementResult(client.create(diskStore))
         .hasStatusCode(ClusterManagementResult.StatusCode.OK);
 
-    ClusterManagementGetResult<DiskStore, DiskStoreInfo> clusterManagementGetResult =
+    var clusterManagementGetResult =
         client.get(diskStore);
     assertThat(clusterManagementGetResult.isSuccessful());
     assertThat(clusterManagementGetResult.getResult().getId()).isEqualTo("storeone");

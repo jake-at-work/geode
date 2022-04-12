@@ -16,8 +16,6 @@
 
 package org.apache.geode.cache.query.internal.parse;
 
-import java.sql.Time;
-import java.sql.Timestamp;
 import java.util.StringTokenizer;
 
 import antlr.Token;
@@ -80,8 +78,8 @@ public class ASTLiteral extends GemFireAST {
   }
 
   public Long getLong(String s) throws QueryInvalidException {
-    char last = s.charAt(s.length() - 1);
-    boolean strip = last == 'L' || last == 'l';
+    var last = s.charAt(s.length() - 1);
+    var strip = last == 'L' || last == 'l';
 
     if (strip) {
       s = s.substring(0, s.length() - 1);
@@ -95,8 +93,8 @@ public class ASTLiteral extends GemFireAST {
   }
 
   public Float getFloat(String s) throws QueryInvalidException {
-    char last = s.charAt(s.length() - 1);
-    boolean strip = last == 'F' || last == 'f';
+    var last = s.charAt(s.length() - 1);
+    var strip = last == 'F' || last == 'f';
 
     if (strip) {
       s = s.substring(0, s.length() - 1);
@@ -110,8 +108,8 @@ public class ASTLiteral extends GemFireAST {
 
 
   public Double getDouble(String s) throws QueryInvalidException {
-    char last = s.charAt(s.length() - 1);
-    boolean strip = last == 'D' || last == 'd';
+    var last = s.charAt(s.length() - 1);
+    var strip = last == 'D' || last == 'd';
     if (strip) {
       s = s.substring(0, s.length() - 1);
     }
@@ -126,9 +124,9 @@ public class ASTLiteral extends GemFireAST {
 
   private String getString(String s, char delim) {
     // replace embedded double delims with delim
-    StringBuilder buf = new StringBuilder(s.length());
-    for (int i = 0; i < s.length(); i++) {
-      char c = s.charAt(i);
+    var buf = new StringBuilder(s.length());
+    for (var i = 0; i < s.length(); i++) {
+      var c = s.charAt(i);
       if (c == delim && i < (s.length() - 1) && s.charAt(i + 1) == delim) {
         i++;
       }
@@ -139,7 +137,7 @@ public class ASTLiteral extends GemFireAST {
 
   @Override
   public void compile(QCompiler compiler) throws QueryInvalidException {
-    Object value = computeValue();
+    var value = computeValue();
     compiler.pushLiteral(value);
   }
 
@@ -155,12 +153,12 @@ public class ASTLiteral extends GemFireAST {
 
   private java.sql.Date getDate(String s) {
     try {
-      java.sql.Date date = java.sql.Date.valueOf(s);
+      var date = java.sql.Date.valueOf(s);
       // passed valueOf, now verify args are really in range
-      int firstDash = s.indexOf('-');
-      int secondDash = s.indexOf('-', firstDash + 1);
-      int month = Integer.parseInt(s.substring(firstDash + 1, secondDash));
-      int day = Integer.parseInt(s.substring(secondDash + 1));
+      var firstDash = s.indexOf('-');
+      var secondDash = s.indexOf('-', firstDash + 1);
+      var month = Integer.parseInt(s.substring(firstDash + 1, secondDash));
+      var day = Integer.parseInt(s.substring(secondDash + 1));
       if (month < 1 || month > 12) {
         throw new QueryInvalidException(
             "Month must be 1..12 in DATE literal");
@@ -180,13 +178,13 @@ public class ASTLiteral extends GemFireAST {
 
   private java.sql.Time getTime(String s) {
     try {
-      Time time = java.sql.Time.valueOf(s);
+      var time = java.sql.Time.valueOf(s);
       // passed valueOf, now verify args are really in range
-      int firstColon = s.indexOf(':');
-      int secondColon = s.indexOf(':', firstColon + 1);
-      int hour = Integer.parseInt(s.substring(0, firstColon));
-      int minute = Integer.parseInt(s.substring(firstColon + 1, secondColon));
-      int second = Integer.parseInt(s.substring(secondColon + 1));
+      var firstColon = s.indexOf(':');
+      var secondColon = s.indexOf(':', firstColon + 1);
+      var hour = Integer.parseInt(s.substring(0, firstColon));
+      var minute = Integer.parseInt(s.substring(firstColon + 1, secondColon));
+      var second = Integer.parseInt(s.substring(secondColon + 1));
       if (hour < 0 || hour > 23) {
         throw new QueryInvalidException(
             "Hour must be 0..23 in TIME literal");
@@ -209,11 +207,11 @@ public class ASTLiteral extends GemFireAST {
 
   private java.sql.Timestamp getTimestamp(String s) {
     try {
-      Timestamp timestamp = java.sql.Timestamp.valueOf(s);
+      var timestamp = java.sql.Timestamp.valueOf(s);
       // passed valueOf, now make sure parameters are in range
       // first rule out negative numbers by counting the dashes
-      int count = 0;
-      int index = -1;
+      var count = 0;
+      var index = -1;
       while ((index = s.indexOf('-', index + 1)) >= 0) {
         count++;
       }
@@ -224,31 +222,31 @@ public class ASTLiteral extends GemFireAST {
       }
 
       // now just get the numbers, ignoring delimiters
-      StringTokenizer tokenizer = new StringTokenizer(s, ":-\t\n\r\f ");
+      var tokenizer = new StringTokenizer(s, ":-\t\n\r\f ");
       // skip year, anything is valid
       tokenizer.nextToken();
-      int month = Integer.parseInt(tokenizer.nextToken());
+      var month = Integer.parseInt(tokenizer.nextToken());
       if (month < 1 || month > 12) {
         throw new QueryInvalidException(
             "Month must be 1..12 in TIMESTAMP literal");
       }
-      int day = Integer.parseInt(tokenizer.nextToken());
+      var day = Integer.parseInt(tokenizer.nextToken());
       if (day < 1 || day > 31) {
         throw new QueryInvalidException(
             "Day must be 1..31 in TIMESTAMP literal");
       }
-      int hour = Integer.parseInt(tokenizer.nextToken());
+      var hour = Integer.parseInt(tokenizer.nextToken());
       if (hour < 0 || hour > 23) {
         throw new QueryInvalidException(
             "Hour must be 0..23 in TIMESTAMP literal");
       }
-      int minute = Integer.parseInt(tokenizer.nextToken());
+      var minute = Integer.parseInt(tokenizer.nextToken());
       if (minute < 0 || minute > 59) {
         throw new QueryInvalidException(
             "Minute must be 0..59 in TIMESTAMP literal");
       }
-      String sec_s = tokenizer.nextToken();
-      int period = sec_s.indexOf('.');
+      var sec_s = tokenizer.nextToken();
+      var period = sec_s.indexOf('.');
       int second;
       if (period >= 0) {
         second = Integer.parseInt(sec_s.substring(0, period));

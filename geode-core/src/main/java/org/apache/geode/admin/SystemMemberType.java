@@ -136,7 +136,7 @@ public class SystemMemberType implements java.io.Serializable {
     if (!(other instanceof SystemMemberType)) {
       return false;
     }
-    final SystemMemberType that = (SystemMemberType) other;
+    final var that = (SystemMemberType) other;
     return ordinal == that.ordinal;
   }
 
@@ -148,8 +148,8 @@ public class SystemMemberType implements java.io.Serializable {
    */
   @Override
   public int hashCode() {
-    int result = 17;
-    final int mult = 37;
+    var result = 17;
+    final var mult = 37;
     result = mult * result + ordinal;
     return result;
   }

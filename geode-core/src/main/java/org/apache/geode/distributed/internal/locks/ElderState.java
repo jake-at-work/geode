@@ -59,8 +59,8 @@ public class ElderState {
       }
     } finally {
       if (logger.isTraceEnabled(LogMarker.DLS_VERBOSE)) {
-        StringBuilder sb = new StringBuilder("ElderState initialized with:");
-        for (String key : nameToInfo.keySet()) {
+        var sb = new StringBuilder("ElderState initialized with:");
+        for (var key : nameToInfo.keySet()) {
           sb.append("\n\t").append(key).append(": ").append(nameToInfo.get(key));
         }
         logger.trace(LogMarker.DLS_VERBOSE, sb.toString());
@@ -97,10 +97,10 @@ public class ElderState {
   public GrantorInfo getGrantor(String serviceName, InternalDistributedMember requestor,
       int dlsSerialNumberRequestor) {
     synchronized (this) {
-      GrantorInfo gi = nameToInfo.get(serviceName);
+      var gi = nameToInfo.get(serviceName);
       if (gi != null) {
         waitWhileInitiatingTransfer(gi);
-        InternalDistributedMember currentGrantor = gi.getId();
+        var currentGrantor = gi.getId();
         // Note that elder recovery may put GrantorInfo instances in
         // the map whose id is null and whose needRecovery is true
         if (currentGrantor != null
@@ -113,7 +113,7 @@ public class ElderState {
                     : "of unclean grantor shutdown"));
           }
           // current grantor crashed; make new member grantor and force recovery
-          long myVersion = gi.getVersionId() + 1;
+          var myVersion = gi.getVersionId() + 1;
           nameToInfo.put(serviceName,
               new GrantorInfo(requestor, myVersion, dlsSerialNumberRequestor, false));
           return new GrantorInfo(requestor, myVersion, dlsSerialNumberRequestor, true);
@@ -140,10 +140,10 @@ public class ElderState {
    */
   public GrantorInfo peekGrantor(String serviceName) {
     synchronized (this) {
-      GrantorInfo gi = nameToInfo.get(serviceName);
+      var gi = nameToInfo.get(serviceName);
       if (gi != null) {
         waitWhileInitiatingTransfer(gi);
-        InternalDistributedMember currentGrantor = gi.getId();
+        var currentGrantor = gi.getId();
         // Note that elder recovery may put GrantorInfo instances in
         // the map whose id is null and whose needRecovery is true
         if (currentGrantor != null
@@ -174,7 +174,7 @@ public class ElderState {
     long newGrantorVersion = -1;
     try {
       synchronized (this) {
-        GrantorInfo gi = nameToInfo.get(serviceName);
+        var gi = nameToInfo.get(serviceName);
         while (gi != null && gi.isInitiatingTransfer()) {
           waitWhileInitiatingTransfer(gi);
           gi = nameToInfo.get(serviceName);
@@ -207,7 +207,7 @@ public class ElderState {
                   logger.trace(LogMarker.DLS_VERBOSE, "Elder forced to set grantor for {} to {}",
                       serviceName, newGrantor);
                 }
-                long myVersion = gi.getVersionId() + 1;
+                var myVersion = gi.getVersionId() + 1;
                 newGrantorVersion = myVersion;
                 newInfo = new GrantorInfo(newGrantor, myVersion, newGrantorSerialNumber, false);
                 nameToInfo.put(serviceName, newInfo);
@@ -225,7 +225,7 @@ public class ElderState {
 
           // no previousGrantor in existence...
           else {
-            long myVersion = gi.getVersionId() + 1;
+            var myVersion = gi.getVersionId() + 1;
 
             // problem: oldTurk was specified but there is no previousGrantor...
             if (oldTurk != null) {
@@ -302,7 +302,7 @@ public class ElderState {
         return;
       }
 
-      GrantorInfo currentGI = nameToInfo.get(serviceName);
+      var currentGI = nameToInfo.get(serviceName);
       if (currentGI == null) {
         // added null check because becomeGrantor may not have talked to elder before destroy dls
         return;
@@ -321,7 +321,7 @@ public class ElderState {
         gi = nameToInfo.remove(serviceName);
       }
       if (gi != null) {
-        InternalDistributedMember currentGrantor = gi.getId();
+        var currentGrantor = gi.getId();
         if (!oldGrantor.equals(currentGrantor)) { // fix for 32603
           nameToInfo.put(serviceName, gi);
           if (logger.isTraceEnabled(LogMarker.DLS_VERBOSE)) {
@@ -363,7 +363,7 @@ public class ElderState {
 
   private void waitWhileInitiatingTransfer(GrantorInfo gi) {
     synchronized (this) {
-      boolean interrupted = false;
+      var interrupted = false;
       try {
         while (gi.isInitiatingTransfer()) {
           try {
@@ -384,7 +384,7 @@ public class ElderState {
   /** Testing method to force grantor recovery state for named service */
   public void forceGrantorRecovery(String serviceName) {
     synchronized (this) {
-      GrantorInfo gi = nameToInfo.get(serviceName);
+      var gi = nameToInfo.get(serviceName);
       if (gi.isInitiatingTransfer()) {
         throw new IllegalStateException(
             "Cannot force grantor recovery for grantor that is transferring");

@@ -20,7 +20,6 @@ import static org.apache.geode.internal.lang.SystemProperty.getProductStringProp
 import static org.apache.geode.internal.lang.SystemPropertyHelper.DEFAULT_DISK_DIRS_PROPERTY;
 
 import java.io.File;
-import java.util.Optional;
 
 import org.apache.geode.annotations.Immutable;
 
@@ -30,9 +29,9 @@ public class DefaultDiskDirs {
   private static final File[] DEFAULT_DISK_DIRS_VALUE = new File[] {new File(".")};
 
   public static File[] getDefaultDiskDirs() {
-    Optional<String> value = getProductStringProperty(DEFAULT_DISK_DIRS_PROPERTY);
+    var value = getProductStringProperty(DEFAULT_DISK_DIRS_PROPERTY);
     if (value.isPresent()) {
-      String diskDirs = value.get();
+      var diskDirs = value.get();
       return new File[] {new File(diskDirs)};
     } else {
       return DEFAULT_DISK_DIRS_VALUE.clone();

@@ -26,15 +26,12 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.client.ServerOperationException;
 import org.apache.geode.examples.SimpleSecurityManager;
 import org.apache.geode.test.dunit.IgnoredException;
-import org.apache.geode.test.dunit.rules.ClientVM;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.junit.categories.SecurityTest;
 import org.apache.geode.test.junit.rules.ServerStarterRule;
@@ -64,24 +61,24 @@ public class ClientAuthDUnitTest {
 
   @Test
   public void authWithCorrectPasswordShouldPass() throws Exception {
-    int serverPort = server.getPort();
-    ClientVM clientVM = lsRule.startClientVM(0, clientVersion,
+    var serverPort = server.getPort();
+    var clientVM = lsRule.startClientVM(0, clientVersion,
         c -> c.withCredential("data", "data")
             .withPoolSubscription(true)
             .withServerConnection(serverPort));
 
     clientVM.invoke(() -> {
-      ClientCache clientCache = ClusterStartupRule.getClientCache();
+      var clientCache = ClusterStartupRule.getClientCache();
       ClientRegionFactory clientRegionFactory =
           clientCache.createClientRegionFactory(ClientRegionShortcut.PROXY);
-      Region region = clientRegionFactory.create("region");
+      var region = clientRegionFactory.create("region");
       region.put("A", "A");
     });
   }
 
   @Test
   public void authWithIncorrectPasswordWithSubscriptionEnabled() throws Exception {
-    int serverPort = server.getPort();
+    var serverPort = server.getPort();
     IgnoredException.addIgnoredException(AuthenticationFailedException.class.getName());
 
     // for older version of client when we did not implement lazy initialization of the pool, the
@@ -97,13 +94,13 @@ public class ClientAuthDUnitTest {
       return;
     }
 
-    ClientVM clientVM =
+    var clientVM =
         lsRule.startClientVM(0, clientVersion, c -> c.withCredential("test", "invalidPassword")
             .withPoolSubscription(true)
             .withServerConnection(serverPort));
 
     clientVM.invoke(() -> {
-      ClientCache clientCache = ClusterStartupRule.getClientCache();
+      var clientCache = ClusterStartupRule.getClientCache();
       ClientRegionFactory clientRegionFactory =
           clientCache.createClientRegionFactory(ClientRegionShortcut.PROXY);
       assertThatThrownBy(() -> clientRegionFactory.create("region"))
@@ -113,18 +110,18 @@ public class ClientAuthDUnitTest {
 
   @Test
   public void authWithIncorrectPasswordWithSubscriptionNotEnabled() throws Exception {
-    int serverPort = server.getPort();
+    var serverPort = server.getPort();
     IgnoredException.addIgnoredException(AuthenticationFailedException.class.getName());
-    ClientVM clientVM =
+    var clientVM =
         lsRule.startClientVM(0, clientVersion, c -> c.withCredential("test", "invalidPassword")
             .withPoolSubscription(false)
             .withServerConnection(serverPort));
 
     clientVM.invoke(() -> {
-      ClientCache clientCache = ClusterStartupRule.getClientCache();
+      var clientCache = ClusterStartupRule.getClientCache();
       ClientRegionFactory clientRegionFactory =
           clientCache.createClientRegionFactory(ClientRegionShortcut.PROXY);
-      Region region = clientRegionFactory.create("region");
+      var region = clientRegionFactory.create("region");
       assertThatThrownBy(() -> region.put("A", "A")).isInstanceOf(ServerOperationException.class)
           .hasCauseInstanceOf(AuthenticationFailedException.class);
     });

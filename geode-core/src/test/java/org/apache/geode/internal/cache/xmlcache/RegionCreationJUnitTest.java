@@ -19,8 +19,6 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 
-import org.apache.geode.cache.Region;
-import org.apache.geode.internal.cache.extension.ExtensionPoint;
 import org.apache.geode.internal.cache.extension.SimpleExtensionPoint;
 import org.apache.geode.internal.cache.extension.SimpleExtensionPointJUnitTest;
 
@@ -39,9 +37,9 @@ public class RegionCreationJUnitTest {
    */
   @Test
   public void testGetExtensionPoint() {
-    final CacheCreation cache = new CacheCreation();
-    final RegionCreation region = new RegionCreation(cache, "test");
-    final ExtensionPoint<Region<?, ?>> extensionPoint = region.getExtensionPoint();
+    final var cache = new CacheCreation();
+    final var region = new RegionCreation(cache, "test");
+    final var extensionPoint = region.getExtensionPoint();
     assertNotNull(extensionPoint);
     assertEquals(extensionPoint.getClass(), SimpleExtensionPoint.class);
   }

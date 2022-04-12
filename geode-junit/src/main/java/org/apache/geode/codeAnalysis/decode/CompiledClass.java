@@ -58,16 +58,16 @@ public class CompiledClass implements Comparable {
   public CompiledAttribute[] attributes;
 
   public static CompiledClass getInstance(File classFile) throws IOException {
-    FileInputStream fstream = new FileInputStream(classFile);
-    DataInputStream source = new DataInputStream(fstream);
-    CompiledClass instance = new CompiledClass(source);
+    var fstream = new FileInputStream(classFile);
+    var source = new DataInputStream(fstream);
+    var instance = new CompiledClass(source);
     fstream.close();
     return instance;
   }
 
   public static CompiledClass getInstance(InputStream classStream) throws IOException {
-    DataInputStream source = new DataInputStream(classStream);
-    CompiledClass instance = new CompiledClass(source);
+    var source = new DataInputStream(classStream);
+    var instance = new CompiledClass(source);
     classStream.close();
     return instance;
   }
@@ -187,18 +187,18 @@ public class CompiledClass implements Comparable {
     if (!(other instanceof CompiledClass)) {
       return -1;
     }
-    String otherName = ((CompiledClass) other).fullyQualifiedName();
+    var otherName = ((CompiledClass) other).fullyQualifiedName();
     return fullyQualifiedName().compareTo(otherName);
   }
 
   public boolean refersToClass(String name) {
-    for (Cp constantPoolEntry : constant_pool) {
+    for (var constantPoolEntry : constant_pool) {
       if (constantPoolEntry instanceof CpClass &&
           ((CpClass) constantPoolEntry).className(this).equals(name)) {
         return true;
       }
     }
-    for (CompiledMethod compiledMethod : methods) {
+    for (var compiledMethod : methods) {
       if (compiledMethod == null) {
         continue;
       }
@@ -210,9 +210,9 @@ public class CompiledClass implements Comparable {
   }
 
   public boolean refersToMethod(String className, String methodName) {
-    for (Cp constantPoolEntry : constant_pool) {
+    for (var constantPoolEntry : constant_pool) {
       if (constantPoolEntry instanceof CpMethodref) {
-        CpMethodref methodref = (CpMethodref) constantPoolEntry;
+        var methodref = (CpMethodref) constantPoolEntry;
         if (methodref.className(this).equals(className)
             && methodref.methodName(this).equals(methodName)) {
           return true;

@@ -74,9 +74,7 @@ import org.apache.geode.internal.admin.remote.RemoteTransportConfig;
 import org.apache.geode.internal.inet.LocalHostUtil;
 import org.apache.geode.internal.net.SocketCreatorFactory;
 import org.apache.geode.internal.security.SecurableCommunicationChannel;
-import org.apache.geode.internal.security.SecurityService;
 import org.apache.geode.internal.security.SecurityServiceFactory;
-import org.apache.geode.internal.serialization.DSFIDSerializer;
 
 @Category({MembershipJUnitTest.class})
 public class MembershipJUnitTest {
@@ -102,11 +100,11 @@ public class MembershipJUnitTest {
    */
   @Test
   public void testManagersWithLargeGroups() throws Exception {
-    StringBuilder stringBuilder = new StringBuilder(80000);
-    boolean first = true;
+    var stringBuilder = new StringBuilder(80000);
+    var first = true;
     // create 8000 10-byte group names
-    for (int thousands = 1; thousands < 9; thousands++) {
-      for (int group = 0; group < 1000; group++) {
+    for (var thousands = 1; thousands < 9; thousands++) {
+      for (var group = 0; group < 1000; group++) {
         if (!first) {
           stringBuilder.append(',');
         }
@@ -114,9 +112,9 @@ public class MembershipJUnitTest {
         stringBuilder.append(String.format("%1$02d%2$08d", thousands, group));
       }
     }
-    List<String> result = doTestMultipleManagersInSameProcessWithGroups(stringBuilder.toString());
+    var result = doTestMultipleManagersInSameProcessWithGroups(stringBuilder.toString());
     assertEquals(8000, result.size());
-    for (String group : result) {
+    for (var group : result) {
       assertEquals(10, group.length());
     }
   }
@@ -135,8 +133,8 @@ public class MembershipJUnitTest {
     try {
 
       // boot up a locator
-      int port = AvailablePortHelper.getRandomAvailableTCPPort();
-      HostAddress localHost = new HostAddress(LocalHostUtil.getLocalHost());
+      var port = AvailablePortHelper.getRandomAvailableTCPPort();
+      var localHost = new HostAddress(LocalHostUtil.getLocalHost());
 
       // this locator will hook itself up with the first Membership
       // to be created
@@ -145,7 +143,7 @@ public class MembershipJUnitTest {
               new Properties(), null, temporaryFolder.getRoot().toPath());
 
       // create configuration objects
-      Properties nonDefault = new Properties();
+      var nonDefault = new Properties();
       nonDefault.put(DISABLE_TCP, "true");
       nonDefault.put(MCAST_PORT, "0");
       nonDefault.put(LOG_FILE, "");
@@ -153,21 +151,21 @@ public class MembershipJUnitTest {
       nonDefault.put(GROUPS, groups);
       nonDefault.put(MEMBER_TIMEOUT, "2000");
       nonDefault.put(LOCATORS, localHost.getHostName() + '[' + port + ']');
-      DistributionConfigImpl config = new DistributionConfigImpl(nonDefault);
-      RemoteTransportConfig transport =
+      var config = new DistributionConfigImpl(nonDefault);
+      var transport =
           new RemoteTransportConfig(config, ClusterDistributionManager.LOCATOR_DM_TYPE);
 
       // start the first membership manager
-      final MembershipLocator<InternalDistributedMember> membershipLocator =
+      final var membershipLocator =
           internalLocator.getMembershipLocator();
 
       m1 = createMembershipManager(config, transport, membershipLocator).getLeft();
 
       // start the second membership manager
-      final Pair<Membership, MessageListener> pair =
+      final var pair =
           createMembershipManager(config, transport, membershipLocator);
       m2 = pair.getLeft();
-      final MessageListener listener2 = pair.getRight();
+      final var listener2 = pair.getRight();
 
       // we have to check the views with JoinLeave because the membership
       // manager queues new views for processing through the DM listener,
@@ -175,7 +173,7 @@ public class MembershipJUnitTest {
       System.out.println("waiting for views to stabilize");
       final Membership mgr1 = m1;
       final Membership mgr2 = m2;
-      long giveUp = System.currentTimeMillis() + 15000;
+      var giveUp = System.currentTimeMillis() + 15000;
       for (;;) {
         try {
           assertTrue("view = " + mgr2.getView(), mgr2.getView().size() == 2);
@@ -197,15 +195,15 @@ public class MembershipJUnitTest {
       } else {
         notCreator = view.getMembers().get(0);
       }
-      List<String> result = notCreator.getGroups();
+      var result = notCreator.getGroups();
 
       System.out.println("sending SerialAckedMessage from m1 to m2");
-      SerialAckedMessage msg = new SerialAckedMessage();
+      var msg = new SerialAckedMessage();
       msg.setRecipient(m2.getLocalMember());
       msg.setMulticast(false);
       m1.send(new InternalDistributedMember[] {m2.getLocalMember()}, msg);
       giveUp = System.currentTimeMillis() + 15000;
-      boolean verified = false;
+      var verified = false;
       Throwable problem = null;
       while (giveUp > System.currentTimeMillis()) {
         try {
@@ -218,7 +216,7 @@ public class MembershipJUnitTest {
         }
       }
       if (!verified) {
-        AssertionError error = new AssertionError("Expected a message to be received");
+        var error = new AssertionError("Expected a message to be received");
         if (problem != null) {
           error.initCause(problem);
         }
@@ -255,17 +253,17 @@ public class MembershipJUnitTest {
       final MembershipLocator<InternalDistributedMember> locator) throws MemberStartupException {
     final MembershipListener<InternalDistributedMember> listener = mock(MembershipListener.class);
     final MessageListener<InternalDistributedMember> messageListener = mock(MessageListener.class);
-    final DMStats stats1 = mock(DMStats.class);
-    final InternalDistributedSystem mockSystem = mock(InternalDistributedSystem.class);
-    final SecurityService securityService = SecurityServiceFactory.create();
-    DSFIDSerializer serializer = InternalDataSerializer.getDSFIDSerializer();
-    final MemberIdentifierFactory memberFactory = mock(MemberIdentifierFactory.class);
+    final var stats1 = mock(DMStats.class);
+    final var mockSystem = mock(InternalDistributedSystem.class);
+    final var securityService = SecurityServiceFactory.create();
+    var serializer = InternalDataSerializer.getDSFIDSerializer();
+    final var memberFactory = mock(MemberIdentifierFactory.class);
     when(memberFactory.create(isA(MemberData.class))).thenAnswer(
         (Answer<MemberIdentifier>) invocation -> new InternalDistributedMember(
             (MemberData) invocation.getArgument(0)));
     LifecycleListener<InternalDistributedMember> lifeCycleListener = mock(LifecycleListener.class);
 
-    final MemberIdentifierFactory<InternalDistributedMember> memberIdentifierFactory =
+    final var memberIdentifierFactory =
         new MemberIdentifierFactory<InternalDistributedMember>() {
           @Override
           public InternalDistributedMember create(MemberData memberInfo) {
@@ -278,17 +276,17 @@ public class MembershipJUnitTest {
           }
         };
 
-    final TcpClient locatorClient = new TcpClient(SocketCreatorFactory
+    final var locatorClient = new TcpClient(SocketCreatorFactory
         .getSocketCreatorForComponent(SecurableCommunicationChannel.LOCATOR),
         InternalDataSerializer.getDSFIDSerializer().getObjectSerializer(),
         InternalDataSerializer.getDSFIDSerializer().getObjectDeserializer(),
         TcpSocketFactory.DEFAULT);
     final TcpSocketCreator socketCreator = SocketCreatorFactory
         .getSocketCreatorForComponent(SecurableCommunicationChannel.CLUSTER);
-    final GMSAuthenticator authenticator =
+    final var authenticator =
         new GMSAuthenticator(config.getSecurityProps(), securityService,
             mockSystem.getSecurityLogWriter(), mockSystem.getInternalLogWriter());
-    final Membership<InternalDistributedMember> m1 =
+    final var m1 =
         MembershipBuilder.newMembershipBuilder(
             socketCreator, locatorClient, serializer, memberIdentifierFactory)
             .setMembershipLocator(locator)
@@ -318,14 +316,14 @@ public class MembershipJUnitTest {
 
     Membership<InternalDistributedMember> m1 = null, m2 = null;
     InternalLocator internalLocator = null;
-    int mcastPort = AvailablePortHelper.getRandomAvailableUDPPort();
+    var mcastPort = AvailablePortHelper.getRandomAvailableUDPPort();
 
     try {
 
       // boot up a locator
-      int port = AvailablePortHelper.getRandomAvailableTCPPort();
-      HostAddress localHost = new HostAddress(LocalHostUtil.getLocalHost());
-      Properties p = new Properties();
+      var port = AvailablePortHelper.getRandomAvailableTCPPort();
+      var localHost = new HostAddress(LocalHostUtil.getLocalHost());
+      var p = new Properties();
       p.setProperty(ConfigurationProperties.SECURITY_UDP_DHALGO, "AES:128");
       // this locator will hook itself up with the first Membership
       // to be created
@@ -335,7 +333,7 @@ public class MembershipJUnitTest {
               temporaryFolder.getRoot().toPath());
 
       // create configuration objects
-      Properties nonDefault = new Properties();
+      var nonDefault = new Properties();
       nonDefault.put(DistributionConfig.DISABLE_TCP_NAME, "true");
       nonDefault.put(DistributionConfig.MCAST_PORT_NAME, String.valueOf(mcastPort));
       nonDefault.put(DistributionConfig.LOG_FILE_NAME, "");
@@ -344,21 +342,21 @@ public class MembershipJUnitTest {
       nonDefault.put(DistributionConfig.MEMBER_TIMEOUT_NAME, "2000");
       nonDefault.put(DistributionConfig.LOCATORS_NAME, localHost.getHostName() + '[' + port + ']');
       nonDefault.put(ConfigurationProperties.SECURITY_UDP_DHALGO, "AES:128");
-      DistributionConfigImpl config = new DistributionConfigImpl(nonDefault);
-      RemoteTransportConfig transport =
+      var config = new DistributionConfigImpl(nonDefault);
+      var transport =
           new RemoteTransportConfig(config, ClusterDistributionManager.LOCATOR_DM_TYPE);
 
       // start the first membership manager
-      final MembershipLocator<InternalDistributedMember> membershipLocator =
+      final var membershipLocator =
           internalLocator.getMembershipLocator();
 
       m1 = createMembershipManager(config, transport, membershipLocator).getLeft();
 
       // start the second membership manager
-      final Pair<Membership, MessageListener> pair =
+      final var pair =
           createMembershipManager(config, transport, membershipLocator);
       m2 = pair.getLeft();
-      final MessageListener listener2 = pair.getRight();
+      final var listener2 = pair.getRight();
 
       // we have to check the views with JoinLeave because the membership
       // manager queues new views for processing through the DM listener,
@@ -366,7 +364,7 @@ public class MembershipJUnitTest {
       System.out.println("waiting for views to stabilize");
       final Membership mgr1 = m1;
       final Membership mgr2 = m2;
-      long giveUp = System.currentTimeMillis() + 15000;
+      var giveUp = System.currentTimeMillis() + 15000;
       for (;;) {
         try {
           assertTrue("view = " + mgr2.getView(), mgr2.getView().size() == 2);
@@ -385,12 +383,12 @@ public class MembershipJUnitTest {
       assertTrue(m1.testMulticast());
 
       System.out.println("multicasting SerialAckedMessage from m1 to m2");
-      SerialAckedMessage msg = new SerialAckedMessage();
+      var msg = new SerialAckedMessage();
       msg.setRecipient(m2.getLocalMember());
       msg.setMulticast(true);
       m1.send(new InternalDistributedMember[] {m2.getLocalMember()}, msg);
       giveUp = System.currentTimeMillis() + 5000;
-      boolean verified = false;
+      var verified = false;
       Throwable problem = null;
       while (giveUp > System.currentTimeMillis()) {
         try {
@@ -435,10 +433,10 @@ public class MembershipJUnitTest {
   @Test
   public void testJoinTimeoutSetting() throws Exception {
     long timeout = 30000;
-    Properties nonDefault = new Properties();
+    var nonDefault = new Properties();
     nonDefault.put(MEMBER_TIMEOUT, "" + timeout);
-    DistributionConfigImpl config = new DistributionConfigImpl(nonDefault);
-    RemoteTransportConfig transport =
+    var config = new DistributionConfigImpl(nonDefault);
+    var transport =
         new RemoteTransportConfig(config, ClusterDistributionManager.NORMAL_DM_TYPE);
     MembershipConfig sc = new ServiceConfig(transport, config);
     assertEquals(2 * timeout + MembershipConfig.MEMBER_REQUEST_COLLECTION_INTERVAL,

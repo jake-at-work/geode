@@ -25,12 +25,12 @@ import org.apache.geode.modules.session.catalina.DeltaSessionInterface;
 public class DeltaSessionUpdateAttributeEventTest {
   @Test
   public void DeltaSessionDestroyAttributeEventAppliesAttributeToSession() {
-    final String attributeName = "UpdateAttribute";
-    final String attributeValue = "UpdateValue";
+    final var attributeName = "UpdateAttribute";
+    final var attributeValue = "UpdateValue";
 
-    final DeltaSessionUpdateAttributeEvent event =
+    final var event =
         new DeltaSessionUpdateAttributeEvent(attributeName, attributeValue);
-    final DeltaSessionInterface deltaSessionInterface = mock(DeltaSessionInterface.class);
+    final var deltaSessionInterface = mock(DeltaSessionInterface.class);
     event.apply((deltaSessionInterface));
 
     verify(deltaSessionInterface).localUpdateAttribute(attributeName, attributeValue);

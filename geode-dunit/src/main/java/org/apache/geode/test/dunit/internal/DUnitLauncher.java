@@ -32,7 +32,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
@@ -44,13 +43,10 @@ import java.rmi.registry.Registry;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
-import java.util.regex.Pattern;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.appender.FileAppender;
-import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.junit.Assert;
 
@@ -136,8 +132,8 @@ public class DUnitLauncher {
     try {
       // TODO - this is hacky way to test for a hydra environment - see
       // if there is registered test configuration object.
-      Class<?> clazz = Class.forName("hydra.TestConfig");
-      Method getInstance = clazz.getMethod("getInstance");
+      var clazz = Class.forName("hydra.TestConfig");
+      var getInstance = clazz.getMethod("getInstance");
       getInstance.invoke(null);
       return true;
     } catch (Exception e) {
@@ -205,13 +201,13 @@ public class DUnitLauncher {
     deleteDunitSuspectFiles();
 
     // create an RMI registry and add an object to share our tests config
-    int namingPort = getRandomAvailableTCPPort();
-    Registry registry = LocateRegistry.createRegistry(namingPort);
+    var namingPort = getRandomAvailableTCPPort();
+    var registry = LocateRegistry.createRegistry(namingPort);
     System.setProperty(RMI_PORT_PARAM, "" + namingPort);
 
     JUnit4DistributedTestCase.initializeBlackboard();
 
-    final ProcessManager processManager = new ProcessManager(namingPort, registry);
+    final var processManager = new ProcessManager(namingPort, registry);
     master = new Master(registry, processManager);
     registry.bind(MASTER_PARAM, master);
 
@@ -238,7 +234,7 @@ public class DUnitLauncher {
     init(master);
 
     // Launch an initial set of VMs
-    for (int i = 0; i < NUM_VMS; i++) {
+    for (var i = 0; i < NUM_VMS; i++) {
       processManager.launchVM(i);
     }
 
@@ -248,14 +244,14 @@ public class DUnitLauncher {
     }
 
     // populate the Host class with our stubs. The tests use this host class
-    DUnitHost host =
+    var host =
         new DUnitHost(InetAddress.getLocalHost().getCanonicalHostName(), processManager,
             vmEventNotifier);
     host.init(NUM_VMS, launchLocator);
   }
 
   public static Properties getDistributedSystemProperties() {
-    Properties p = new Properties();
+    var p = new Properties();
     p.setProperty(LOCATORS, getLocatorString());
     p.setProperty(MCAST_PORT, "0");
     p.setProperty(ENABLE_CLUSTER_CONFIGURATION, "false");
@@ -271,7 +267,7 @@ public class DUnitLauncher {
    * format so that hydra will be able to parse them.
    */
   private static void addSuspectFileAppender(final String workspaceDir) {
-    final String suspectFilename = createDunitSuspectFile(DUnitEnv.get().getId(), workspaceDir)
+    final var suspectFilename = createDunitSuspectFile(DUnitEnv.get().getId(), workspaceDir)
         .getAbsolutePath();
 
     Object mainLogger = LogManager.getLogger(LoggingProvider.MAIN_LOGGER_NAME);
@@ -282,34 +278,34 @@ public class DUnitLauncher {
       return;
     }
 
-    final LoggerContext appenderContext =
+    final var appenderContext =
         ((org.apache.logging.log4j.core.Logger) mainLogger).getContext();
 
-    final PatternLayout layout = PatternLayout.createLayout(
+    final var layout = PatternLayout.createLayout(
         "[%level{lowerCase=true} %date{yyyy/MM/dd HH:mm:ss.SSS z} <%thread> tid=%tid] %message%n%throwable%n",
         null, null, null, Charset.defaultCharset(), true, false, "", "");
 
-    final FileAppender fileAppender = FileAppender.createAppender(suspectFilename, "true", "false",
+    final var fileAppender = FileAppender.createAppender(suspectFilename, "true", "false",
         DUnitLauncher.class.getName(), "true", "false", "false", "0", layout, null, null, null,
         appenderContext.getConfiguration());
     fileAppender.start();
 
-    LoggerConfig loggerConfig =
+    var loggerConfig =
         appenderContext.getConfiguration().getLoggerConfig(LoggingProvider.MAIN_LOGGER_NAME);
     loggerConfig.addAppender(fileAppender, Level.INFO, null);
   }
 
   private static int startLocator(Registry registry) throws IOException, NotBoundException {
-    RemoteDUnitVMIF remote = (RemoteDUnitVMIF) registry.lookup("vm" + LOCATOR_VM_NUM);
+    var remote = (RemoteDUnitVMIF) registry.lookup("vm" + LOCATOR_VM_NUM);
 
-    int port = getRandomAvailableTCPPort();
-    final File locatorLogFile =
+    var port = getRandomAvailableTCPPort();
+    final var locatorLogFile =
         LOCATOR_LOG_TO_DISK ? new File("locator-" + port + ".log") : new File("");
 
-    MethodInvokerResult result = remote.executeMethodOnObject(new SerializableCallable() {
+    var result = remote.executeMethodOnObject(new SerializableCallable() {
       @Override
       public Object call() throws IOException {
-        Properties p = getDistributedSystemProperties();
+        var p = getDistributedSystemProperties();
         // I never want this locator to end up starting a jmx manager
         // since it is part of the unit test framework
         p.setProperty(JMX_MANAGER, "false");
@@ -335,7 +331,7 @@ public class DUnitLauncher {
       }
     }, "call");
     if (result.getException() != null) {
-      RuntimeException ex = new RuntimeException("Failed to start locator", result.getException());
+      var ex = new RuntimeException("Failed to start locator", result.getException());
       ex.printStackTrace();
       throw ex;
     }
@@ -354,7 +350,7 @@ public class DUnitLauncher {
   }
 
   private static List<File> getDunitSuspectFiles() {
-    File[] suspectFiles = getDunitSuspectsDir()
+    var suspectFiles = getDunitSuspectsDir()
         .listFiles((dir, name) -> name.startsWith(SUSPECT_FILENAME_PREFIX));
 
     return Arrays.asList(suspectFiles);
@@ -382,7 +378,7 @@ public class DUnitLauncher {
         suffix = "vm" + vmId;
     }
 
-    File dunitSuspect = new File(getDunitSuspectsDir(),
+    var dunitSuspect = new File(getDunitSuspectsDir(),
         getSuspectFileName(suffix));
     dunitSuspect.deleteOnExit();
 
@@ -390,16 +386,16 @@ public class DUnitLauncher {
   }
 
   private static String getWorkspaceDir() {
-    String workspaceDir = System.getProperty(DUnitLauncher.WORKSPACE_DIR_PARAM);
+    var workspaceDir = System.getProperty(DUnitLauncher.WORKSPACE_DIR_PARAM);
     workspaceDir = workspaceDir == null ? new File(".").getAbsolutePath() : workspaceDir;
 
     return workspaceDir;
   }
 
   public static void closeAndCheckForSuspects(int vmIndex) {
-    String suffix = "vm" + vmIndex;
-    String fileName = getSuspectFileName(suffix);
-    File[] suspectFiles = getDunitSuspectsDir()
+    var suffix = "vm" + vmIndex;
+    var fileName = getSuspectFileName(suffix);
+    var suspectFiles = getDunitSuspectsDir()
         .listFiles((dir, name) -> name.startsWith(fileName));
     closeAndCheckForSuspects(Arrays.asList(suspectFiles));
   }
@@ -409,8 +405,8 @@ public class DUnitLauncher {
   }
 
   public static void closeAndCheckForSuspects(List<File> suspectFiles) {
-    StringBuilder suspectStringCollector = new StringBuilder();
-    for (File suspect : suspectFiles) {
+    var suspectStringCollector = new StringBuilder();
+    for (var suspect : suspectFiles) {
       checkSuspectFile(suspect, suspectStringCollector);
     }
 
@@ -429,7 +425,7 @@ public class DUnitLauncher {
     if (!isLaunched()) {
       return;
     }
-    List<File> suspectFiles = getDunitSuspectFiles();
+    var suspectFiles = getDunitSuspectFiles();
     if (suspectFiles.isEmpty()) {
       throw new IllegalStateException("No dunit suspect log files found in '"
           + getDunitSuspectsDir().getAbsolutePath()
@@ -439,8 +435,8 @@ public class DUnitLauncher {
   }
 
   private static void checkSuspectFile(File suspectFile, StringBuilder suspectStringCollector) {
-    final List<Pattern> expectedStrings = ExpectedStrings.create("dunit");
-    final LogConsumer logConsumer = new LogConsumer(true, expectedStrings,
+    final var expectedStrings = ExpectedStrings.create("dunit");
+    final var logConsumer = new LogConsumer(true, expectedStrings,
         suspectFile.getName(), 5);
 
     BufferedReader buffReader;
@@ -456,7 +452,7 @@ public class DUnitLauncher {
       String line;
       try {
         while ((line = buffReader.readLine()) != null) {
-          final String suspectString = logConsumer.consume(line);
+          final var suspectString = logConsumer.consume(line);
           if (suspectString != null) {
             suspectStringCollector.append(suspectString);
           }

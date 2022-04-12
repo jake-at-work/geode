@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,7 +43,6 @@ import org.apache.geode.distributed.internal.MembershipListener;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.Assert;
 import org.apache.geode.internal.InternalDataSerializer;
-import org.apache.geode.internal.cache.LocalRegion.InitializationLevel;
 import org.apache.geode.internal.cache.partitioned.PRLocallyDestroyedException;
 import org.apache.geode.internal.cache.persistence.DiskStoreID;
 import org.apache.geode.internal.cache.persistence.PersistentMemberID;
@@ -132,7 +130,7 @@ public class CacheDistributionAdvisor extends DistributionAdvisor {
 
   static CacheDistributionAdvisor createCacheDistributionAdvisor(
       CacheDistributionAdvisee region) {
-    CacheDistributionAdvisor advisor = new CacheDistributionAdvisor(region);
+    var advisor = new CacheDistributionAdvisor(region);
     advisor.initialize();
     return advisor;
   }
@@ -159,8 +157,8 @@ public class CacheDistributionAdvisor extends DistributionAdvisor {
     getAdvisee().getCancelCriterion().checkCancelInProgress(null);
 
     // minimize volatile reads by copying ref to local var
-    long tempProfilesVersion = profilesVersion; // volatile read
-    long tempInRecoveryVersion = inRecoveryVersion; // volatile read
+    var tempProfilesVersion = profilesVersion; // volatile read
+    var tempInRecoveryVersion = inRecoveryVersion; // volatile read
 
     if (adviseAllEventsVersion != tempProfilesVersion
         || adviseInRecoveryVersion != tempInRecoveryVersion) {
@@ -169,7 +167,7 @@ public class CacheDistributionAdvisor extends DistributionAdvisor {
             || adviseInRecoveryVersion != tempInRecoveryVersion) {
 
           adviseSetforAllEvents = Collections.unmodifiableSet(adviseFilter(profile -> {
-            CacheProfile cp = (CacheProfile) profile;
+            var cp = (CacheProfile) profile;
             if (cp.getInRecovery()) {
               return false;
             }
@@ -199,15 +197,15 @@ public class CacheDistributionAdvisor extends DistributionAdvisor {
       // or all events that are not a proxy or if a proxy has a listener
 
       // minimize volatile reads by copying ref to local var
-      long tempProfilesVersion = profilesVersion; // volatile read
+      var tempProfilesVersion = profilesVersion; // volatile read
 
       if (adviseUpdateVersion != tempProfilesVersion) {
         synchronized (adviseSetforUpdate) {
           if (adviseUpdateVersion != tempProfilesVersion) {
 
             adviseSetforUpdate = Collections.unmodifiableSet(adviseFilter(profile -> {
-              CacheProfile cp = (CacheProfile) profile;
-              DataPolicy dp = cp.getDataPolicy();
+              var cp = (CacheProfile) profile;
+              var dp = cp.getDataPolicy();
               return dp.withReplication()
                   || (cp.allEvents() && (dp.withStorage() || cp.hasCacheListener));
             }));
@@ -228,26 +226,26 @@ public class CacheDistributionAdvisor extends DistributionAdvisor {
    */
   Set<InternalDistributedMember> adviseTX() throws IllegalStateException {
 
-    boolean isMetaDataWithTransactions = getAdvisee() instanceof LocalRegion
+    var isMetaDataWithTransactions = getAdvisee() instanceof LocalRegion
         && ((LocalRegion) getAdvisee()).isMetaRegionWithTransactions();
 
     Set<InternalDistributedMember> badList = Collections.emptySet();
     if (!TXManagerImpl.ALLOW_PERSISTENT_TRANSACTIONS && !isMetaDataWithTransactions) {
       badList = adviseFilter(profile -> {
         assert profile instanceof CacheProfile;
-        CacheProfile prof = (CacheProfile) profile;
+        var prof = (CacheProfile) profile;
         return (prof.isPersistent());
       });
     }
     if (badList.isEmpty()) {
       return adviseFilter(profile -> {
         assert profile instanceof CacheProfile;
-        CacheProfile cp = (CacheProfile) profile;
+        var cp = (CacheProfile) profile;
         return cp.cachedOrAllEvents();
       });
     } else {
-      StringBuilder badIds = new StringBuilder();
-      Iterator<InternalDistributedMember> biI = badList.iterator();
+      var badIds = new StringBuilder();
+      var biI = badList.iterator();
       while (biI.hasNext()) {
         badIds.append(biI.next().toString());
         if (biI.hasNext()) {
@@ -268,7 +266,7 @@ public class CacheDistributionAdvisor extends DistributionAdvisor {
   public Set<InternalDistributedMember> adviseNetLoad() {
     return adviseFilter(profile -> {
       assert profile instanceof CacheProfile;
-      CacheProfile prof = (CacheProfile) profile;
+      var prof = (CacheProfile) profile;
 
       // if region in cache is not yet initialized, exclude
       if (!prof.regionInitialized) { // fix for bug 41102
@@ -281,7 +279,7 @@ public class CacheDistributionAdvisor extends DistributionAdvisor {
 
   public FilterRoutingInfo adviseFilterRouting(CacheEvent<?, ?> event,
       Set<InternalDistributedMember> cacheOpRecipients) {
-    FilterProfile fp = ((LocalRegion) event.getRegion()).getFilterProfile();
+    var fp = ((LocalRegion) event.getRegion()).getFilterProfile();
     if (fp != null) {
       return fp.getFilterRoutingInfoPart1(event, profiles, cacheOpRecipients);
     }
@@ -302,7 +300,7 @@ public class CacheDistributionAdvisor extends DistributionAdvisor {
   Set<InternalDistributedMember> adviseInvalidateRegion() {
     return adviseFilter(profile -> {
       assert profile instanceof CacheProfile;
-      CacheProfile cp = (CacheProfile) profile;
+      var cp = (CacheProfile) profile;
       return !cp.getInRecovery();
     });
   }
@@ -324,7 +322,7 @@ public class CacheDistributionAdvisor extends DistributionAdvisor {
   public Set<InternalDistributedMember> adviseNetWrite() {
     return adviseFilter(profile -> {
       assert profile instanceof CacheProfile;
-      CacheProfile prof = (CacheProfile) profile;
+      var prof = (CacheProfile) profile;
       // if region in cache is in recovery, exclude
       if (prof.getInRecovery()) {
         return false;
@@ -337,7 +335,7 @@ public class CacheDistributionAdvisor extends DistributionAdvisor {
   public Set<InternalDistributedMember> adviseInitializedReplicates() {
     return adviseFilter(profile -> {
       assert profile instanceof CacheProfile;
-      CacheProfile cp = (CacheProfile) profile;
+      var cp = (CacheProfile) profile;
       return cp.dataPolicy.withReplication() && cp.regionInitialized;
     });
   }
@@ -351,12 +349,12 @@ public class CacheDistributionAdvisor extends DistributionAdvisor {
   Set<InternalDistributedMember> adviseNetSearch() {
     return adviseFilter(profile -> {
       assert profile instanceof CacheProfile;
-      CacheProfile cp = (CacheProfile) profile;
+      var cp = (CacheProfile) profile;
       // if region in cache is not yet initialized, exclude
       if (!cp.regionInitialized) {
         return false;
       }
-      DataPolicy dp = cp.dataPolicy;
+      var dp = cp.dataPolicy;
       return dp.withStorage();
     });
   }
@@ -376,7 +374,7 @@ public class CacheDistributionAdvisor extends DistributionAdvisor {
       dumpProfiles("AdviseInitialImage");
     }
 
-    Profile[] allProfiles = profiles; // volatile read
+    var allProfiles = profiles; // volatile read
     if (allProfiles.length == 0) {
       return new InitialImageAdvice();
     }
@@ -391,13 +389,13 @@ public class CacheDistributionAdvisor extends DistributionAdvisor {
     Map<InternalDistributedMember, CacheProfile> memberProfiles =
         new HashMap<>();
 
-    for (Profile allProfile : allProfiles) {
-      CacheProfile profile = (CacheProfile) allProfile;
+    for (var allProfile : allProfiles) {
+      var profile = (CacheProfile) allProfile;
 
       // Make sure that we don't return a member that was in the previous initial image advice.
       // Unless that member has changed it's profile since the last time we checked.
       if (previousAdvice != null) {
-        CacheProfile previousProfile =
+        var previousProfile =
             previousAdvice.memberProfiles.get(profile.getDistributedMember());
         if (previousProfile != null
             && previousProfile.getSerialNumber() == profile.getSerialNumber()
@@ -438,7 +436,7 @@ public class CacheDistributionAdvisor extends DistributionAdvisor {
       }
     }
 
-    InitialImageAdvice advice = new InitialImageAdvice(replicates, others, preloaded, empties,
+    var advice = new InitialImageAdvice(replicates, others, preloaded, empties,
         uninitialized, nonPersistent, memberProfiles);
 
     if (logger.isDebugEnabled()) {
@@ -456,7 +454,7 @@ public class CacheDistributionAdvisor extends DistributionAdvisor {
   Set<InternalDistributedMember> adviseRequiresOldValueInCacheOp() {
     return adviseFilter(profile -> {
       assert profile instanceof CacheProfile;
-      CacheProfile cp = (CacheProfile) profile;
+      var cp = (CacheProfile) profile;
       return cp.requiresOldValueInEvents && !cp.regionInitialized;
     });
   }
@@ -478,13 +476,13 @@ public class CacheDistributionAdvisor extends DistributionAdvisor {
 
   @Override
   protected boolean evaluateProfiles(Profile newProfile, Profile oldProfile) {
-    boolean result = super.evaluateProfiles(newProfile, oldProfile);
+    var result = super.evaluateProfiles(newProfile, oldProfile);
     if (result) {
-      CacheProfile newCP = (CacheProfile) newProfile;
-      CacheProfile oldCP = (CacheProfile) oldProfile;
+      var newCP = (CacheProfile) newProfile;
+      var oldCP = (CacheProfile) oldProfile;
       if ((oldCP == null || !oldCP.regionInitialized) && newCP.regionInitialized) {
         // invoke membership listeners, if any
-        CacheDistributionAdvisee advisee = (CacheDistributionAdvisee) getAdvisee();
+        var advisee = (CacheDistributionAdvisee) getAdvisee();
         advisee.remoteRegionInitialized(newCP);
       }
     }
@@ -579,7 +577,7 @@ public class CacheDistributionAdvisor extends DistributionAdvisor {
 
     /** Return the profile data information that can be stored in an int */
     protected int getIntInfo() {
-      int s = 0;
+      var s = 0;
       if (dataPolicy.withReplication()) {
         s |= REPLICATE_MASK;
         if (dataPolicy.isPersistentReplicate()) {
@@ -779,9 +777,9 @@ public class CacheDistributionAdvisor extends DistributionAdvisor {
         Assert.assertTrue(adviseePath != null, "adviseePath was null");
 
         InternalRegion lclRgn;
-        final InitializationLevel oldLevel = LocalRegion.setThreadInitLevelRequirement(ANY_INIT);
+        final var oldLevel = LocalRegion.setThreadInitLevelRequirement(ANY_INIT);
         try {
-          InternalCache cache = dm.getCache();
+          var cache = dm.getCache();
           lclRgn = cache == null ? null : cache.getInternalRegionByPath(adviseePath);
         } finally {
           LocalRegion.setThreadInitLevelRequirement(oldLevel);
@@ -883,7 +881,7 @@ public class CacheDistributionAdvisor extends DistributionAdvisor {
     public void fromData(DataInput in,
         DeserializationContext context) throws IOException, ClassNotFoundException {
       super.fromData(in, context);
-      int bits = in.readInt();
+      var bits = in.readInt();
       setIntInfo(bits);
       if (hasPersistentID(bits)) {
         persistentID = new PersistentMemberID();
@@ -1025,7 +1023,7 @@ public class CacheDistributionAdvisor extends DistributionAdvisor {
   public Set<InternalDistributedMember> adviseReplicates() {
     return adviseFilter(profile -> {
       assert profile instanceof CacheProfile;
-      CacheProfile cp = (CacheProfile) profile;
+      var cp = (CacheProfile) profile;
       return cp.dataPolicy.withReplication();
     });
   }
@@ -1039,7 +1037,7 @@ public class CacheDistributionAdvisor extends DistributionAdvisor {
   public Set<InternalDistributedMember> advisePreloadeds() {
     return adviseFilter(profile -> {
       assert profile instanceof CacheProfile;
-      CacheProfile cp = (CacheProfile) profile;
+      var cp = (CacheProfile) profile;
       return cp.dataPolicy.withPreloaded();
     });
   }
@@ -1053,7 +1051,7 @@ public class CacheDistributionAdvisor extends DistributionAdvisor {
   Set<InternalDistributedMember> adviseEmptys() {
     return adviseFilter(profile -> {
       assert profile instanceof CacheProfile;
-      CacheProfile cp = (CacheProfile) profile;
+      var cp = (CacheProfile) profile;
       return cp.dataPolicy.isEmpty();
     });
   }
@@ -1077,9 +1075,9 @@ public class CacheDistributionAdvisor extends DistributionAdvisor {
 
     Map<InternalDistributedMember, PersistentMemberID> result =
         new HashMap<>();
-    Profile[] snapshot = profiles;
-    for (Profile profile : snapshot) {
-      CacheProfile cp = (CacheProfile) profile;
+    var snapshot = profiles;
+    for (var profile : snapshot) {
+      var cp = (CacheProfile) profile;
       if (cp.persistentID != null) {
         result.put(cp.getDistributedMember(), cp.persistentID);
       }
@@ -1093,9 +1091,9 @@ public class CacheDistributionAdvisor extends DistributionAdvisor {
 
     Map<InternalDistributedMember, PersistentMemberID> result =
         new HashMap<>();
-    Profile[] snapshot = profiles;
-    for (Profile profile : snapshot) {
-      CacheProfile cp = (CacheProfile) profile;
+    var snapshot = profiles;
+    for (var profile : snapshot) {
+      var cp = (CacheProfile) profile;
       if (cp.persistentID != null && cp.persistenceInitialized) {
         result.put(cp.getDistributedMember(), cp.persistentID);
       }
@@ -1108,7 +1106,7 @@ public class CacheDistributionAdvisor extends DistributionAdvisor {
     getAdvisee().getCancelCriterion().checkCancelInProgress(null);
     return adviseFilter(profile -> {
       assert profile instanceof CacheProfile;
-      CacheProfile cp = (CacheProfile) profile;
+      var cp = (CacheProfile) profile;
       return cp.hasCacheServer;
     });
   }
@@ -1127,28 +1125,28 @@ public class CacheDistributionAdvisor extends DistributionAdvisor {
   public boolean removeId(ProfileId memberId, boolean crashed, boolean destroyed,
       boolean fromMembershipListener) {
 
-    boolean isPersistent = false;
+    var isPersistent = false;
     DiskStoreID persistentId = null;
-    CacheDistributionAdvisee advisee = (CacheDistributionAdvisee) getAdvisee();
+    var advisee = (CacheDistributionAdvisee) getAdvisee();
     if (advisee.getAttributes().getDataPolicy().withPersistence()) {
       isPersistent = true;
-      CacheProfile profile = (CacheProfile) getProfile(memberId);
+      var profile = (CacheProfile) getProfile(memberId);
       if (profile != null && profile.persistentID != null) {
         persistentId = ((CacheProfile) getProfile(memberId)).persistentID.getDiskStoreId();
       }
     }
 
-    boolean result = super.removeId(memberId, crashed, destroyed, fromMembershipListener);
+    var result = super.removeId(memberId, crashed, destroyed, fromMembershipListener);
 
     // bug #48962 - record members that leave during GII so IIOp knows about them
     if (advisee instanceof DistributedRegion) {
-      DistributedRegion r = (DistributedRegion) advisee;
+      var r = (DistributedRegion) advisee;
       if (!r.isInitialized() && !r.isUsedForPartitionedRegionBucket()) {
         if (logger.isDebugEnabled()) {
           logger.debug("recording that {} has left during initialization of {}", memberId,
               r.getName());
         }
-        ImageState state = r.getImageState();
+        var state = r.getImageState();
         if (isPersistent) {
           if (persistentId != null) {
             state.addLeftMember(persistentId);

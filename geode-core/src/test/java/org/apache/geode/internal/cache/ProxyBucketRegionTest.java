@@ -37,8 +37,8 @@ public class ProxyBucketRegionTest {
 
   @Test
   public void shouldBeMockable() throws Exception {
-    ProxyBucketRegion mockProxyBucketRegion = mock(ProxyBucketRegion.class);
-    BucketAdvisor mockBucketAdvisor = mock(BucketAdvisor.class);
+    var mockProxyBucketRegion = mock(ProxyBucketRegion.class);
+    var mockBucketAdvisor = mock(BucketAdvisor.class);
 
     when(mockProxyBucketRegion.getBucketAdvisor()).thenReturn(mockBucketAdvisor);
 
@@ -47,20 +47,20 @@ public class ProxyBucketRegionTest {
 
   @Test
   public void testTwoTimesCallToRecoverFromDiskWillExecuteOneRecovery() {
-    PartitionedRegion partitionedRegion = mock(PartitionedRegion.class);
-    InternalRegionArguments internalRegionArguments = mock(InternalRegionArguments.class);
-    RegionAdvisor regionAdvisor = mock(RegionAdvisor.class);
-    PartitionAttributes partitionAttributes = mock(PartitionAttributes.class);
-    InternalCache cache = mock(InternalCache.class);
-    InternalDistributedSystem ids = mock(InternalDistributedSystem.class);
-    DataPolicy dp = mock(DataPolicy.class);
-    RegionAttributes ra = mock(RegionAttributes.class);
-    DiskStoreImpl ds = mock(DiskStoreImpl.class);
-    DiskInitFile dif = mock(DiskInitFile.class);
-    DiskRegion dr = mock(DiskRegion.class);
-    DistributionManager dm = mock(DistributionManager.class);
-    DistributionConfig config = mock(DistributionConfig.class);
-    CancelCriterion cancel = mock(CancelCriterion.class);
+    var partitionedRegion = mock(PartitionedRegion.class);
+    var internalRegionArguments = mock(InternalRegionArguments.class);
+    var regionAdvisor = mock(RegionAdvisor.class);
+    var partitionAttributes = mock(PartitionAttributes.class);
+    var cache = mock(InternalCache.class);
+    var ids = mock(InternalDistributedSystem.class);
+    var dp = mock(DataPolicy.class);
+    var ra = mock(RegionAttributes.class);
+    var ds = mock(DiskStoreImpl.class);
+    var dif = mock(DiskInitFile.class);
+    var dr = mock(DiskRegion.class);
+    var dm = mock(DistributionManager.class);
+    var config = mock(DistributionConfig.class);
+    var cancel = mock(CancelCriterion.class);
 
     when(internalRegionArguments.getPartitionedRegionAdvisor()).thenReturn(regionAdvisor);
     when(regionAdvisor.getPartitionedRegion()).thenReturn(partitionedRegion);
@@ -86,7 +86,7 @@ public class ProxyBucketRegionTest {
     when(cache.getCancelCriterion()).thenReturn(cancel);
     when(regionAdvisor.isInitialized()).thenReturn(true);
 
-    ProxyBucketRegion proxyBucketRegion =
+    var proxyBucketRegion =
         new ProxyBucketRegion(0, partitionedRegion, internalRegionArguments);
 
     proxyBucketRegion.recoverFromDisk();

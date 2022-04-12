@@ -53,8 +53,6 @@ import org.mockito.Mock;
 
 import org.apache.geode.cache.CacheExistsException;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
-import org.apache.geode.internal.cache.InternalCacheBuilder.InternalCacheConstructor;
-import org.apache.geode.internal.cache.InternalCacheBuilder.InternalDistributedSystemConstructor;
 import org.apache.geode.metrics.internal.MetricsService;
 
 /**
@@ -81,7 +79,7 @@ public class InternalCacheBuilderTest {
 
   @Test
   public void setsMetricsServiceBuilderIsClientFalseByDefault() {
-    MetricsService.Builder theMetricsServiceBuilder = mock(MetricsService.Builder.class);
+    var theMetricsServiceBuilder = mock(MetricsService.Builder.class);
 
     new InternalCacheBuilder(new Properties(), new CacheConfig(), theMetricsServiceBuilder,
         nullSingletonSystemSupplier, constructorOf(constructedSystem()), nullSingletonCacheSupplier,
@@ -92,12 +90,12 @@ public class InternalCacheBuilderTest {
 
   @Test
   public void addMeterSubregistry_addsGivenRegistryToMetricsServiceBuilder() {
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), new CacheConfig(), metricsServiceBuilder, nullSingletonSystemSupplier,
         constructorOf(constructedSystem()), nullSingletonCacheSupplier,
         constructorOf(constructedCache()));
 
-    SimpleMeterRegistry addedMeterRegistry = new SimpleMeterRegistry();
+    var addedMeterRegistry = new SimpleMeterRegistry();
 
     internalCacheBuilder.addMeterSubregistry(addedMeterRegistry);
 
@@ -106,7 +104,7 @@ public class InternalCacheBuilderTest {
 
   @Test
   public void addMeterSubregistry_throwsNullPointerExceptionIfTheGivenRegistryIsNull() {
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), new CacheConfig(), metricsServiceBuilder, nullSingletonSystemSupplier,
         constructorOf(constructedSystem()), nullSingletonCacheSupplier,
         constructorOf(constructedCache()));
@@ -117,9 +115,9 @@ public class InternalCacheBuilderTest {
 
   @Test
   public void setIsClient_setsIsClientInMetricsServiceBuilder() {
-    MetricsService.Builder theMetricsServiceBuilder = mock(MetricsService.Builder.class);
+    var theMetricsServiceBuilder = mock(MetricsService.Builder.class);
 
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), new CacheConfig(), theMetricsServiceBuilder, nullSingletonSystemSupplier,
         constructorOf(constructedSystem()), nullSingletonCacheSupplier,
         constructorOf(constructedCache()));
@@ -131,7 +129,7 @@ public class InternalCacheBuilderTest {
 
   @Test
   public void create_throwsNullPointerException_ifConfigPropertiesIsNull() {
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         null, new CacheConfig(), metricsServiceBuilder, nullSingletonSystemSupplier,
         constructorOf(constructedSystem()),
         nullSingletonCacheSupplier, constructorOf(constructedCache()));
@@ -142,7 +140,7 @@ public class InternalCacheBuilderTest {
 
   @Test
   public void create_throwsNullPointerException_andCacheConfigIsNull() {
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), null, metricsServiceBuilder, nullSingletonSystemSupplier,
         constructorOf(constructedSystem()), nullSingletonCacheSupplier,
         constructorOf(constructedCache()));
@@ -153,10 +151,10 @@ public class InternalCacheBuilderTest {
 
   @Test
   public void create_constructsSystem_withGivenProperties_ifNoSystemExists_andNoCacheExists() {
-    InternalDistributedSystemConstructor systemConstructor = constructorOf(constructedSystem());
-    Properties configProperties = new Properties();
+    var systemConstructor = constructorOf(constructedSystem());
+    var configProperties = new Properties();
 
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         configProperties, new CacheConfig(), metricsServiceBuilder, nullSingletonSystemSupplier,
         systemConstructor, nullSingletonCacheSupplier, constructorOf(constructedCache()));
 
@@ -168,8 +166,8 @@ public class InternalCacheBuilderTest {
 
   @Test
   public void create_passesIsClientToSystemConstructor_isNoSystemExists() {
-    InternalCacheConstructor cacheConstructor = constructorOf(constructedCache());
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var cacheConstructor = constructorOf(constructedCache());
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), new CacheConfig(), metricsServiceBuilder, nullSingletonSystemSupplier,
         constructorOf(constructedSystem()), nullSingletonCacheSupplier, cacheConstructor);
 
@@ -183,10 +181,10 @@ public class InternalCacheBuilderTest {
 
   @Test
   public void create_passesMetricsServiceBuilderToSystemConstructor_ifNoSystemExists() {
-    InternalDistributedSystemConstructor systemConstructor = constructorOf(constructedSystem());
+    var systemConstructor = constructorOf(constructedSystem());
 
-    MetricsService.Builder theMetricsServiceBuilder = mock(MetricsService.Builder.class);
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var theMetricsServiceBuilder = mock(MetricsService.Builder.class);
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), new CacheConfig(), theMetricsServiceBuilder, nullSingletonSystemSupplier,
         systemConstructor, nullSingletonCacheSupplier, constructorOf(constructedCache()));
 
@@ -197,14 +195,14 @@ public class InternalCacheBuilderTest {
 
   @Test
   public void create_returnsConstructedCache_ifNoSystemExists() {
-    InternalCache constructedCache = constructedCache();
+    var constructedCache = constructedCache();
 
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), new CacheConfig(), metricsServiceBuilder, nullSingletonSystemSupplier,
         constructorOf(constructedSystem()), nullSingletonCacheSupplier,
         constructorOf(constructedCache));
 
-    InternalCache result = internalCacheBuilder
+    var result = internalCacheBuilder
         .create();
 
     assertThat(result).isSameAs(constructedCache);
@@ -212,10 +210,10 @@ public class InternalCacheBuilderTest {
 
   @Test
   public void create_setsConstructedCache_onConstructedSystem_ifNoSystemExists() {
-    InternalDistributedSystem constructedSystem = constructedSystem();
-    InternalCache constructedCache = constructedCache();
+    var constructedSystem = constructedSystem();
+    var constructedCache = constructedCache();
 
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), new CacheConfig(), metricsServiceBuilder, nullSingletonSystemSupplier,
         constructorOf(constructedSystem), nullSingletonCacheSupplier,
         constructorOf(constructedCache));
@@ -228,12 +226,12 @@ public class InternalCacheBuilderTest {
 
   @Test
   public void create_setsConstructedSystem_onConstructedCache_ifNoSystemExists_() {
-    InternalDistributedSystem constructedSystem = constructedSystem();
-    InternalCache constructedCache = constructedCache();
+    var constructedSystem = constructedSystem();
+    var constructedCache = constructedCache();
 
-    InternalCacheConstructor cacheConstructor = constructorOf(constructedCache);
+    var cacheConstructor = constructorOf(constructedCache);
 
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), new CacheConfig(), metricsServiceBuilder, nullSingletonSystemSupplier,
         constructorOf(constructedSystem), nullSingletonCacheSupplier, cacheConstructor);
 
@@ -246,13 +244,13 @@ public class InternalCacheBuilderTest {
 
   @Test
   public void create_returnsConstructedCache_ifSingletonSystemExists_andNoCacheExists() {
-    InternalCache constructedCache = constructedCache();
+    var constructedCache = constructedCache();
 
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), new CacheConfig(), metricsServiceBuilder, supplierOf(singletonSystem()),
         THROWING_SYSTEM_CONSTRUCTOR, nullSingletonCacheSupplier, constructorOf(constructedCache));
 
-    InternalCache result = internalCacheBuilder
+    var result = internalCacheBuilder
         .create();
 
     assertThat(result).isSameAs(constructedCache);
@@ -260,12 +258,12 @@ public class InternalCacheBuilderTest {
 
   @Test
   public void create_setsSingletonSystem_onConstructedCache_ifSingletonSystemExists_andNoCacheExists() {
-    InternalDistributedSystem singletonSystem = singletonSystem();
-    InternalCache constructedCache = constructedCache();
+    var singletonSystem = singletonSystem();
+    var constructedCache = constructedCache();
 
-    InternalCacheConstructor cacheConstructor = constructorOf(constructedCache);
+    var cacheConstructor = constructorOf(constructedCache);
 
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), new CacheConfig(), metricsServiceBuilder, supplierOf(singletonSystem),
         THROWING_SYSTEM_CONSTRUCTOR, nullSingletonCacheSupplier, cacheConstructor);
 
@@ -277,12 +275,12 @@ public class InternalCacheBuilderTest {
 
   @Test
   public void create_setsConstructedCache_onSingletonSystem_ifSingletonSystemExists_andNoCacheExists() {
-    InternalDistributedSystem singletonSystem = singletonSystem();
-    InternalCache constructedCache = constructedCache();
+    var singletonSystem = singletonSystem();
+    var constructedCache = constructedCache();
 
-    InternalCacheConstructor cacheConstructor = constructorOf(constructedCache);
+    var cacheConstructor = constructorOf(constructedCache);
 
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), new CacheConfig(), metricsServiceBuilder, supplierOf(singletonSystem),
         THROWING_SYSTEM_CONSTRUCTOR, nullSingletonCacheSupplier, cacheConstructor);
 
@@ -295,14 +293,14 @@ public class InternalCacheBuilderTest {
 
   @Test
   public void create_returnsConstructedCache_ifSingletonSystemExists_andSingletonCacheIsClosed() {
-    InternalCache constructedCache = constructedCache();
+    var constructedCache = constructedCache();
 
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), new CacheConfig(), metricsServiceBuilder, supplierOf(singletonSystem()),
         THROWING_SYSTEM_CONSTRUCTOR, supplierOf(cache("singleton", CLOSED)),
         constructorOf(constructedCache));
 
-    InternalCache result = internalCacheBuilder
+    var result = internalCacheBuilder
         .create();
 
     assertThat(result).isSameAs(constructedCache);
@@ -310,10 +308,10 @@ public class InternalCacheBuilderTest {
 
   @Test
   public void create_setsConstructedCache_onSingletonSystem_ifSingletonSystemExists_andSingletonCacheIsClosed() {
-    InternalDistributedSystem singletonSystem = singletonSystem();
-    InternalCache constructedCache = constructedCache();
+    var singletonSystem = singletonSystem();
+    var constructedCache = constructedCache();
 
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), new CacheConfig(), metricsServiceBuilder, supplierOf(singletonSystem),
         THROWING_SYSTEM_CONSTRUCTOR, supplierOf(cache("singleton", CLOSED)),
         constructorOf(constructedCache));
@@ -326,11 +324,11 @@ public class InternalCacheBuilderTest {
 
   @Test
   public void create_setsSingletonSystem_onConstructedCache_ifSingletonSystemExists_andSingletonCacheIsClosed() {
-    InternalDistributedSystem singletonSystem = singletonSystem();
+    var singletonSystem = singletonSystem();
 
-    InternalCacheConstructor cacheConstructor = constructorOf(constructedCache());
+    var cacheConstructor = constructorOf(constructedCache());
 
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), new CacheConfig(), metricsServiceBuilder, supplierOf(singletonSystem),
         THROWING_SYSTEM_CONSTRUCTOR, supplierOf(cache("singleton", CLOSED)), cacheConstructor);
 
@@ -343,12 +341,12 @@ public class InternalCacheBuilderTest {
 
   @Test
   public void create_throwsCacheExistsException_ifSingletonSystemExists_andSingletonCacheIsOpen_butExistingIsNotOk() {
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), new CacheConfig(), metricsServiceBuilder, supplierOf(singletonSystem()),
         THROWING_SYSTEM_CONSTRUCTOR, supplierOf(cache("singleton", OPEN)),
         THROWING_CACHE_CONSTRUCTOR);
 
-    Throwable thrown = catchThrowable(() -> internalCacheBuilder
+    var thrown = catchThrowable(() -> internalCacheBuilder
         .setIsExistingOk(false)
         .create());
 
@@ -359,13 +357,13 @@ public class InternalCacheBuilderTest {
   public void create_propagatesCacheConfigException_ifSingletonSystemExists_andSingletonCacheIsOpen_andExistingIsOk_butCacheIsIncompatible() {
     Throwable thrownByCacheConfig = new IllegalStateException("incompatible");
 
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), throwingCacheConfig(thrownByCacheConfig), metricsServiceBuilder,
         supplierOf(singletonSystem()),
         THROWING_SYSTEM_CONSTRUCTOR, supplierOf(cache("singleton", OPEN)),
         THROWING_CACHE_CONSTRUCTOR);
 
-    Throwable thrown = catchThrowable(() -> internalCacheBuilder
+    var thrown = catchThrowable(() -> internalCacheBuilder
         .setIsExistingOk(true)
         .create());
 
@@ -374,13 +372,13 @@ public class InternalCacheBuilderTest {
 
   @Test
   public void create_returnsSingletonCache_ifSingletonCacheIsOpen() {
-    InternalCache singletonCache = cache("singleton", OPEN);
+    var singletonCache = cache("singleton", OPEN);
 
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), new CacheConfig(), metricsServiceBuilder, supplierOf(singletonSystem()),
         THROWING_SYSTEM_CONSTRUCTOR, supplierOf(singletonCache), THROWING_CACHE_CONSTRUCTOR);
 
-    InternalCache result = internalCacheBuilder
+    var result = internalCacheBuilder
         .create();
 
     assertThat(result).isSameAs(singletonCache);
@@ -388,12 +386,12 @@ public class InternalCacheBuilderTest {
 
   @Test
   public void createWithSystem_throwsNullPointerException_ifSystemIsNull() {
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), new CacheConfig(), metricsServiceBuilder, THROWING_SYSTEM_SUPPLIER,
         THROWING_SYSTEM_CONSTRUCTOR,
         THROWING_CACHE_SUPPLIER, THROWING_CACHE_CONSTRUCTOR);
 
-    Throwable thrown = catchThrowable(() -> internalCacheBuilder
+    var thrown = catchThrowable(() -> internalCacheBuilder
         .create(null));
 
     assertThat(thrown).isInstanceOf(NullPointerException.class);
@@ -401,14 +399,14 @@ public class InternalCacheBuilderTest {
 
   @Test
   public void createWithSystem_returnsConstructedCache_ifNoCacheExists() {
-    InternalCache constructedCache = constructedCache();
+    var constructedCache = constructedCache();
 
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), new CacheConfig(), metricsServiceBuilder, THROWING_SYSTEM_SUPPLIER,
         THROWING_SYSTEM_CONSTRUCTOR,
         nullSingletonCacheSupplier, constructorOf(constructedCache));
 
-    InternalCache result = internalCacheBuilder
+    var result = internalCacheBuilder
         .create(systemWithNoCache());
 
     assertThat(result).isSameAs(constructedCache);
@@ -416,10 +414,10 @@ public class InternalCacheBuilderTest {
 
   @Test
   public void createWithSystem_setsConstructedCache_onGivenSystem_ifNoCacheExists() {
-    InternalDistributedSystem givenSystem = systemWithNoCache();
-    InternalCache constructedCache = constructedCache();
+    var givenSystem = systemWithNoCache();
+    var constructedCache = constructedCache();
 
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), new CacheConfig(), metricsServiceBuilder, THROWING_SYSTEM_SUPPLIER,
         THROWING_SYSTEM_CONSTRUCTOR,
         nullSingletonCacheSupplier, constructorOf(constructedCache));
@@ -432,11 +430,11 @@ public class InternalCacheBuilderTest {
 
   @Test
   public void createWithSystem_setsGivenSystem_onConstructedCache_ifNoCacheExists() {
-    InternalDistributedSystem givenSystem = systemWithNoCache();
+    var givenSystem = systemWithNoCache();
 
-    InternalCacheConstructor cacheConstructor = constructorOf(constructedCache());
+    var cacheConstructor = constructorOf(constructedCache());
 
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), new CacheConfig(), metricsServiceBuilder, THROWING_SYSTEM_SUPPLIER,
         THROWING_SYSTEM_CONSTRUCTOR,
         nullSingletonCacheSupplier, cacheConstructor);
@@ -450,14 +448,14 @@ public class InternalCacheBuilderTest {
 
   @Test
   public void createWithSystem_returnsConstructedCache_ifSingletonCacheIsClosed() {
-    InternalCache constructedCache = constructedCache();
+    var constructedCache = constructedCache();
 
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), new CacheConfig(), metricsServiceBuilder, THROWING_SYSTEM_SUPPLIER,
         THROWING_SYSTEM_CONSTRUCTOR,
         supplierOf(cache("singleton", CLOSED)), constructorOf(constructedCache));
 
-    InternalCache result = internalCacheBuilder
+    var result = internalCacheBuilder
         .create(systemWithNoCache());
 
     assertThat(result).isSameAs(constructedCache);
@@ -465,10 +463,10 @@ public class InternalCacheBuilderTest {
 
   @Test
   public void createWithSystem_setsConstructedCache_onGivenSystem_ifSingletonCacheIsClosed() {
-    InternalDistributedSystem givenSystem = systemWithNoCache();
-    InternalCache constructedCache = constructedCache();
+    var givenSystem = systemWithNoCache();
+    var constructedCache = constructedCache();
 
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), new CacheConfig(), metricsServiceBuilder, THROWING_SYSTEM_SUPPLIER,
         THROWING_SYSTEM_CONSTRUCTOR,
         supplierOf(cache("singleton", CLOSED)), constructorOf(constructedCache));
@@ -481,11 +479,11 @@ public class InternalCacheBuilderTest {
 
   @Test
   public void createWithSystem_setsGivenSystem_onConstructedCache_ifSingletonCacheIsClosed() {
-    InternalDistributedSystem givenSystem = systemWithNoCache();
+    var givenSystem = systemWithNoCache();
 
-    InternalCacheConstructor cacheConstructor = constructorOf(constructedCache());
+    var cacheConstructor = constructorOf(constructedCache());
 
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), new CacheConfig(), metricsServiceBuilder, THROWING_SYSTEM_SUPPLIER,
         THROWING_SYSTEM_CONSTRUCTOR,
         supplierOf(cache("singleton", CLOSED)), cacheConstructor);
@@ -499,12 +497,12 @@ public class InternalCacheBuilderTest {
 
   @Test
   public void createWithSystem_throwsCacheExistsException_ifSingletonCacheIsOpen_butExistingIsNotOk() {
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), new CacheConfig(), metricsServiceBuilder, THROWING_SYSTEM_SUPPLIER,
         THROWING_SYSTEM_CONSTRUCTOR,
         supplierOf(cache("singleton", OPEN)), THROWING_CACHE_CONSTRUCTOR);
 
-    Throwable thrown = catchThrowable(() -> internalCacheBuilder
+    var thrown = catchThrowable(() -> internalCacheBuilder
         .setIsExistingOk(false)
         .create(systemWithNoCache()));
 
@@ -513,9 +511,9 @@ public class InternalCacheBuilderTest {
 
   @Test
   public void createWithSystem_doesNotSetSingletonCache_onGivenSystem_ifSingletonCacheIsOpen_butExistingIsNotOk() {
-    InternalDistributedSystem givenSystem = systemWithNoCache();
+    var givenSystem = systemWithNoCache();
 
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), new CacheConfig(), metricsServiceBuilder, THROWING_SYSTEM_SUPPLIER,
         THROWING_SYSTEM_CONSTRUCTOR,
         supplierOf(cache("singleton", OPEN)), THROWING_CACHE_CONSTRUCTOR);
@@ -531,13 +529,13 @@ public class InternalCacheBuilderTest {
   public void createWithSystem_propagatesCacheConfigException_ifSingletonCacheIsOpen_andExistingIsOk_butCacheIsIncompatible() {
     Throwable thrownByCacheConfig = new IllegalStateException("incompatible");
 
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), throwingCacheConfig(thrownByCacheConfig), metricsServiceBuilder,
         THROWING_SYSTEM_SUPPLIER,
         THROWING_SYSTEM_CONSTRUCTOR, supplierOf(cache("singleton", OPEN)),
         THROWING_CACHE_CONSTRUCTOR);
 
-    Throwable thrown = catchThrowable(() -> internalCacheBuilder
+    var thrown = catchThrowable(() -> internalCacheBuilder
         .setIsExistingOk(true)
         .create(systemWithNoCache()));
 
@@ -546,9 +544,9 @@ public class InternalCacheBuilderTest {
 
   @Test
   public void createWithSystem_doesNotSetSingletonCache_onGivenSystem_ifSingletonCacheIsOpen_andExistingIsOk_butCacheIsNotCompatible() {
-    InternalDistributedSystem givenSystem = systemWithNoCache();
+    var givenSystem = systemWithNoCache();
 
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), throwingCacheConfig(new IllegalStateException("incompatible")),
         metricsServiceBuilder, THROWING_SYSTEM_SUPPLIER, THROWING_SYSTEM_CONSTRUCTOR,
         supplierOf(cache("singleton", OPEN)),
@@ -563,14 +561,14 @@ public class InternalCacheBuilderTest {
 
   @Test
   public void createWithSystem_returnsSingletonCache_ifSingletonCacheIsOpen_andExistingIsOk_andCacheIsCompatible() {
-    InternalCache singletonCache = cache("singleton", OPEN);
+    var singletonCache = cache("singleton", OPEN);
 
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), new CacheConfig(), metricsServiceBuilder, THROWING_SYSTEM_SUPPLIER,
         THROWING_SYSTEM_CONSTRUCTOR,
         supplierOf(singletonCache), THROWING_CACHE_CONSTRUCTOR);
 
-    InternalCache result = internalCacheBuilder
+    var result = internalCacheBuilder
         .setIsExistingOk(true)
         .create(systemWithNoCache());
 
@@ -579,10 +577,10 @@ public class InternalCacheBuilderTest {
 
   @Test
   public void createWithSystem_setsSingletonCache_onGivenSystem_ifSingletonCacheIsOpen_andExistingIsOk_andCacheIsCompatible() {
-    InternalDistributedSystem givenSystem = systemWithNoCache();
-    InternalCache singletonCache = cache("singleton", OPEN);
+    var givenSystem = systemWithNoCache();
+    var singletonCache = cache("singleton", OPEN);
 
-    InternalCacheBuilder internalCacheBuilder = new InternalCacheBuilder(
+    var internalCacheBuilder = new InternalCacheBuilder(
         new Properties(), new CacheConfig(), metricsServiceBuilder, THROWING_SYSTEM_SUPPLIER,
         THROWING_SYSTEM_CONSTRUCTOR,
         supplierOf(singletonCache), THROWING_CACHE_CONSTRUCTOR);

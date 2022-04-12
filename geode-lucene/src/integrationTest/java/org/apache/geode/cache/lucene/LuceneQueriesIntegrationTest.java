@@ -93,9 +93,9 @@ public class LuceneQueriesIntegrationTest extends LuceneIntegrationTest {
     region = createRegionAndIndex(fields);
 
     // Put two values with some of the same tokens
-    String value1 = "one three";
-    String value2 = "one two three";
-    String value3 = "one@three";
+    var value1 = "one three";
+    var value2 = "one two three";
+    var value3 = "one@three";
     region.put("A", new TestObject(value1, value1));
     region.put("B", new TestObject(value2, value2));
     region.put("C", new TestObject(value3, value3));
@@ -124,7 +124,7 @@ public class LuceneQueriesIntegrationTest extends LuceneIntegrationTest {
     // query will be--field1:one field1:three
     verifyQuery("field1:one@three", DEFAULT_FIELD, "A", "B", "C");
 
-    HashMap expectedResults = new HashMap();
+    var expectedResults = new HashMap();
     expectedResults.put("A", new TestObject(value1, value1));
     expectedResults.put("B", new TestObject(value2, value2));
     expectedResults.put("C", new TestObject(value3, value3));
@@ -147,7 +147,7 @@ public class LuceneQueriesIntegrationTest extends LuceneIntegrationTest {
     // Note: range query on numeric field has some limitations. But IntRangeQueryProvider
     // provided basic functionality
     region = createRegionAndIndex(RegionShortcut.PARTITION, LuceneService.REGION_VALUE_FIELD);
-    final LuceneIndex index = luceneService.getIndex(INDEX_NAME, REGION_NAME);
+    final var index = luceneService.getIndex(INDEX_NAME, REGION_NAME);
 
     region.put("primitiveInt0", 122);
     region.put("primitiveInt1", 123);
@@ -167,13 +167,13 @@ public class LuceneQueriesIntegrationTest extends LuceneIntegrationTest {
     region = createRegionAndIndex(fields);
 
     // Put two values with some of the same tokens
-    String value1 = "Stefan";
-    String value2 = "Steph";
-    String value3 = "Stephen";
-    String value4 = "Steve";
-    String value5 = "Steven";
-    String value6 = "Stove";
-    String value7 = "Stuffin";
+    var value1 = "Stefan";
+    var value2 = "Steph";
+    var value3 = "Stephen";
+    var value4 = "Steve";
+    var value5 = "Steven";
+    var value6 = "Stove";
+    var value7 = "Stuffin";
 
     region.put("A", new TestObject(value1, value1));
     region.put("B", new TestObject(value2, value2));
@@ -199,7 +199,7 @@ public class LuceneQueriesIntegrationTest extends LuceneIntegrationTest {
     // Note: range query on numeric field has some limitations. But IntRangeQueryProvider
     // provided basic functionality
     region = createRegionAndIndex(RegionShortcut.PARTITION, LuceneService.REGION_VALUE_FIELD);
-    final LuceneIndex index = luceneService.getIndex(INDEX_NAME, REGION_NAME);
+    final var index = luceneService.getIndex(INDEX_NAME, REGION_NAME);
 
     region.put("primitiveInt0", 122);
     region.put("primitiveInt1", 123);
@@ -223,15 +223,15 @@ public class LuceneQueriesIntegrationTest extends LuceneIntegrationTest {
   @Test()
   public void shouldPaginateResults() throws Exception {
 
-    final LuceneQuery<Object, Object> query = addValuesAndCreateQuery(2);
+    final var query = addValuesAndCreateQuery(2);
 
-    final PageableLuceneQueryResults<Object, Object> pages = query.findPages();
+    final var pages = query.findPages();
     assertTrue(pages.hasNext());
     assertEquals(7, pages.size());
-    final List<LuceneResultStruct<Object, Object>> page1 = pages.next();
-    final List<LuceneResultStruct<Object, Object>> page2 = pages.next();
-    final List<LuceneResultStruct<Object, Object>> page3 = pages.next();
-    final List<LuceneResultStruct<Object, Object>> page4 = pages.next();
+    final var page1 = pages.next();
+    final var page2 = pages.next();
+    final var page3 = pages.next();
+    final var page4 = pages.next();
     List<LuceneResultStruct<Object, Object>> allEntries = new ArrayList<>();
     allEntries.addAll(page1);
     allEntries.addAll(page2);
@@ -246,19 +246,19 @@ public class LuceneQueriesIntegrationTest extends LuceneIntegrationTest {
 
   @Test
   public void shouldReturnValuesFromFindValues() throws Exception {
-    final LuceneQuery<Object, Object> query = addValuesAndCreateQuery(2);
+    final var query = addValuesAndCreateQuery(2);
     assertEquals(region.values(), new HashSet(query.findValues()));
   }
 
   private LuceneQuery<Object, Object> addValuesAndCreateQuery(int pagesize)
       throws InterruptedException {
     region = createRegionAndIndex(RegionShortcut.PARTITION, "field1", "field2");
-    final LuceneIndex index = luceneService.getIndex(INDEX_NAME, REGION_NAME);
+    final var index = luceneService.getIndex(INDEX_NAME, REGION_NAME);
 
     // Put two values with some of the same tokens
-    String value1 = "one three";
-    String value2 = "one two three";
-    String value3 = "one@three";
+    var value1 = "one three";
+    var value2 = "one two three";
+    var value3 = "one@three";
     region.put("A", new TestObject(value1, value1));
     region.put("B", new TestObject(value2, value2));
     region.put("C", new TestObject(value3, value3));
@@ -282,9 +282,9 @@ public class LuceneQueriesIntegrationTest extends LuceneIntegrationTest {
     region = createRegionAndIndex(fields);
 
     // Put two values with some of the same tokens
-    String value1 = "one three";
-    String value4 = "two_four";
-    String value3 = "two@four";
+    var value1 = "one three";
+    var value4 = "two_four";
+    var value3 = "two@four";
     region.put("A", new TestObject(value1, value4));
     region.put("B", new TestObject(value1, value3));
     region.put("C", new TestObject(value3, value3));
@@ -305,7 +305,7 @@ public class LuceneQueriesIntegrationTest extends LuceneIntegrationTest {
     region = createRegionAndIndex(fields);
 
     // Put two values with some of the same tokens
-    String value1 = "one three";
+    var value1 = "one three";
     region.put("A", new TestObject(value1, null));
     luceneService.waitUntilFlushed(INDEX_NAME, REGION_NAME, 60000, TimeUnit.MILLISECONDS);
 
@@ -321,12 +321,12 @@ public class LuceneQueriesIntegrationTest extends LuceneIntegrationTest {
     region = createRegionAndIndex(fields);
 
     // Put two values with some of the same tokens
-    PdxInstance pdx1 = insertAJson(region, "jsondoc1");
-    PdxInstance pdx2 = insertAJson(region, "jsondoc2");
-    PdxInstance pdx10 = insertAJson(region, "jsondoc10");
+    var pdx1 = insertAJson(region, "jsondoc1");
+    var pdx2 = insertAJson(region, "jsondoc2");
+    var pdx10 = insertAJson(region, "jsondoc10");
     luceneService.waitUntilFlushed(INDEX_NAME, REGION_NAME, 60000, TimeUnit.MILLISECONDS);
 
-    HashMap expectedResults = new HashMap();
+    var expectedResults = new HashMap();
     expectedResults.put("jsondoc1", pdx1);
     expectedResults.put("jsondoc10", pdx10);
     verifyQuery("name:jsondoc1*", DEFAULT_FIELD, expectedResults);
@@ -341,8 +341,8 @@ public class LuceneQueriesIntegrationTest extends LuceneIntegrationTest {
     region = createRegionAndIndex(fields);
 
     // This is to send IllegalStateException from WaitUntilFlushedFunction
-    String nonCreatedIndex = "index2";
-    boolean result = false;
+    var nonCreatedIndex = "index2";
+    var result = false;
     try {
       result = luceneService.waitUntilFlushed(nonCreatedIndex, REGION_NAME, 60000,
           TimeUnit.MILLISECONDS);
@@ -359,7 +359,7 @@ public class LuceneQueriesIntegrationTest extends LuceneIntegrationTest {
   @Test()
   public void shouldAllowQueryOnRegionWithStringValue() throws Exception {
     region = createRegionAndIndex(RegionShortcut.PARTITION, LuceneService.REGION_VALUE_FIELD);
-    final LuceneIndex index = luceneService.getIndex(INDEX_NAME, REGION_NAME);
+    final var index = luceneService.getIndex(INDEX_NAME, REGION_NAME);
 
     region.put("A", "one three");
     luceneService.waitUntilFlushed(INDEX_NAME, REGION_NAME, 60000, TimeUnit.MILLISECONDS);
@@ -369,11 +369,11 @@ public class LuceneQueriesIntegrationTest extends LuceneIntegrationTest {
 
   @Test()
   public void throwFunctionExceptionWhenGivenBadQuery() throws Exception {
-    LuceneService luceneService = LuceneServiceProvider.get(cache);
+    var luceneService = LuceneServiceProvider.get(cache);
     region = createRegionAndIndex(RegionShortcut.PARTITION, "text");
 
     // Create a query that throws an exception
-    final LuceneQuery<Object, Object> query =
+    final var query =
         luceneService.createLuceneQueryFactory().create(INDEX_NAME, REGION_NAME, (index) -> {
           throw new LuceneQueryException("Bad query");
         });
@@ -386,11 +386,11 @@ public class LuceneQueriesIntegrationTest extends LuceneIntegrationTest {
   @Test
   public void shouldReturnAllResultsWhenPaginationIsDisabled() throws Exception {
     // Pagination disabled by setting page size = 0.
-    final LuceneQuery<Object, Object> query = addValuesAndCreateQuery(0);
-    final PageableLuceneQueryResults<Object, Object> pages = query.findPages();
+    final var query = addValuesAndCreateQuery(0);
+    final var pages = query.findPages();
     assertTrue(pages.hasNext());
     assertEquals(7, pages.size());
-    final List<LuceneResultStruct<Object, Object>> page = pages.next();
+    final var page = pages.next();
     assertFalse(pages.hasNext());
     assertEquals(region.keySet(),
         page.stream().map(LuceneResultStruct::getKey).collect(Collectors.toSet()));
@@ -400,18 +400,18 @@ public class LuceneQueriesIntegrationTest extends LuceneIntegrationTest {
 
   @Test
   public void shouldReturnCorrectResultsOnDeletionAfterQueryExecution() throws Exception {
-    final LuceneQuery<Object, Object> query = addValuesAndCreateQuery(2);
-    final PageableLuceneQueryResults<Object, Object> pages = query.findPages();
+    final var query = addValuesAndCreateQuery(2);
+    final var pages = query.findPages();
     List<LuceneResultStruct<Object, Object>> allEntries = new ArrayList<>();
     assertTrue(pages.hasNext());
     assertEquals(7, pages.size());
     // Destroying an entry from the region after the query is executed.
     region.destroy("C");
-    final List<LuceneResultStruct<Object, Object>> page1 = pages.next();
+    final var page1 = pages.next();
     assertEquals(2, page1.size());
-    final List<LuceneResultStruct<Object, Object>> page2 = pages.next();
+    final var page2 = pages.next();
     assertEquals(2, page2.size());
-    final List<LuceneResultStruct<Object, Object>> page3 = pages.next();
+    final var page3 = pages.next();
     assertEquals(2, page3.size());
     assertFalse(pages.hasNext());
 
@@ -426,8 +426,8 @@ public class LuceneQueriesIntegrationTest extends LuceneIntegrationTest {
 
   @Test
   public void shouldReturnCorrectResultsOnDeletionAfterQueryExecutionWithLoader() throws Exception {
-    final int pageSize = 2;
-    final LuceneQuery<Object, Object> query = addValuesAndCreateQuery(pageSize);
+    final var pageSize = 2;
+    final var query = addValuesAndCreateQuery(pageSize);
     region.getAttributesMutator().setCacheLoader(new CacheLoader() {
       @Override
       public Object load(final LoaderHelper helper) throws CacheLoaderException {
@@ -439,17 +439,17 @@ public class LuceneQueriesIntegrationTest extends LuceneIntegrationTest {
 
       }
     });
-    final PageableLuceneQueryResults<Object, Object> pages = query.findPages();
+    final var pages = query.findPages();
     List<LuceneResultStruct<Object, Object>> allEntries = new ArrayList<>();
     assertTrue(pages.hasNext());
     assertEquals(7, pages.size());
     // Destroying an entry from the region after the query is executed.
     region.destroy("C");
-    final List<LuceneResultStruct<Object, Object>> page1 = pages.next();
+    final var page1 = pages.next();
     assertEquals(pageSize, page1.size());
-    final List<LuceneResultStruct<Object, Object>> page2 = pages.next();
+    final var page2 = pages.next();
     assertEquals(pageSize, page2.size());
-    final List<LuceneResultStruct<Object, Object>> page3 = pages.next();
+    final var page3 = pages.next();
     assertEquals(pageSize, page3.size());
     assertFalse(pages.hasNext());
 
@@ -464,9 +464,9 @@ public class LuceneQueriesIntegrationTest extends LuceneIntegrationTest {
 
   @Test
   public void shouldReturnCorrectResultsOnMultipleDeletionsAfterQueryExecution() throws Exception {
-    final LuceneQuery<Object, Object> query = addValuesAndCreateQuery(2);
+    final var query = addValuesAndCreateQuery(2);
 
-    final PageableLuceneQueryResults<Object, Object> pages = query.findPages();
+    final var pages = query.findPages();
     List<LuceneResultStruct<Object, Object>> allEntries = new ArrayList<>();
 
     assertTrue(pages.hasNext());
@@ -477,7 +477,7 @@ public class LuceneQueriesIntegrationTest extends LuceneIntegrationTest {
     allEntries.addAll(pages.next());
 
     // Destroying an entry from allEntries and the region after it is fetched through pages.next().
-    Object removeKey = allEntries.remove(0).getKey();
+    var removeKey = allEntries.remove(0).getKey();
     region.destroy(removeKey);
     allEntries.addAll(pages.next());
 
@@ -485,7 +485,7 @@ public class LuceneQueriesIntegrationTest extends LuceneIntegrationTest {
     Set resultKeySet =
         allEntries.stream().map(LuceneResultStruct::getKey).collect(Collectors.toSet());
 
-    for (Object key : region.keySet()) {
+    for (var key : region.keySet()) {
       if (!resultKeySet.contains(key)) {
         region.destroy(key);
         break;
@@ -503,9 +503,9 @@ public class LuceneQueriesIntegrationTest extends LuceneIntegrationTest {
 
   @Test
   public void shouldReturnCorrectResultsOnAllDeletionsAfterQueryExecution() throws Exception {
-    final LuceneQuery<Object, Object> query = addValuesAndCreateQuery(2);
+    final var query = addValuesAndCreateQuery(2);
 
-    final PageableLuceneQueryResults<Object, Object> pages = query.findPages();
+    final var pages = query.findPages();
     assertTrue(pages.hasNext());
     assertEquals(7, pages.size());
     region.destroy("A");
@@ -516,7 +516,7 @@ public class LuceneQueriesIntegrationTest extends LuceneIntegrationTest {
     region.destroy("F");
     region.destroy("G");
     assertTrue(pages.hasNext());
-    final List<LuceneResultStruct<Object, Object>> page1 = pages.next();
+    final var page1 = pages.next();
     assertEquals(2, page1.size());
     assertFalse(pages.hasNext());
 
@@ -542,20 +542,20 @@ public class LuceneQueriesIntegrationTest extends LuceneIntegrationTest {
   }
 
   private PdxInstance insertAJson(Region region, String key) {
-    String jsonCustomer = "{" + "\"name\": \"" + key + "\"," + "\"lastName\": \"Smith\","
+    var jsonCustomer = "{" + "\"name\": \"" + key + "\"," + "\"lastName\": \"Smith\","
         + " \"age\": 25," + "\"address\":" + "{" + "\"streetAddress\": \"21 2nd Street\","
         + "\"city\": \"New York\"," + "\"state\": \"NY\"," + "\"postalCode\": \"10021\"" + "},"
         + "\"phoneNumber\":" + "[" + "{" + " \"type\": \"home\"," + "\"number\": \"212 555-1234\""
         + "}," + "{" + " \"type\": \"fax\"," + "\"number\": \"646 555-4567\"" + "}" + "]" + "}";
 
-    PdxInstance pdx = JSONFormatter.fromJSON(jsonCustomer);
+    var pdx = JSONFormatter.fromJSON(jsonCustomer);
     region.put(key, pdx);
     return pdx;
   }
 
   private void verifyQueryUsingCustomizedProvider(String fieldName, int lowerValue, int upperValue,
       String... expectedKeys) throws Exception {
-    IntRangeQueryProvider provider = new IntRangeQueryProvider(fieldName, lowerValue, upperValue);
+    var provider = new IntRangeQueryProvider(fieldName, lowerValue, upperValue);
     LuceneQuery<String, Object> queryWithCustomizedProvider =
         luceneService.createLuceneQueryFactory().create(INDEX_NAME, REGION_NAME, provider);
 

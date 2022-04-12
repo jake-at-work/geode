@@ -18,7 +18,6 @@ package org.apache.geode.management.internal.cli.functions;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.Serializable;
-import java.nio.file.Path;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -32,9 +31,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.execute.FunctionContext;
-import org.apache.geode.distributed.internal.DistributionConfig;
 import org.apache.geode.internal.cache.InternalCache;
-import org.apache.geode.internal.cache.InternalCacheForClientAccess;
 import org.apache.geode.internal.cache.InternalRegionFactory;
 import org.apache.geode.internal.cache.execute.InternalFunction;
 import org.apache.geode.logging.internal.log4j.LogLevel;
@@ -70,16 +67,16 @@ public class ExportLogsFunction implements InternalFunction<ExportLogsFunction.A
   @Override
   public void execute(final FunctionContext<Args> context) {
     try {
-      InternalCache cache = (InternalCache) context.getCache();
-      DistributionConfig config = cache.getInternalDistributedSystem().getConfig();
+      var cache = (InternalCache) context.getCache();
+      var config = cache.getInternalDistributedSystem().getConfig();
 
       @SuppressWarnings("deprecation")
-      String memberId = cache.getDistributedSystem().getMemberId();
+      var memberId = cache.getDistributedSystem().getMemberId();
       logger.info("ExportLogsFunction started for member {}", memberId);
 
-      Region<String, byte[]> exportLogsRegion = createOrGetExistingExportLogsRegion(false, cache);
+      var exportLogsRegion = createOrGetExistingExportLogsRegion(false, cache);
 
-      Args args = context.getArguments();
+      var args = context.getArguments();
       File baseLogFile = null;
       File baseStatsFile = null;
 
@@ -90,10 +87,10 @@ public class ExportLogsFunction implements InternalFunction<ExportLogsFunction.A
         baseStatsFile = config.getStatisticArchiveFile().getAbsoluteFile();
       }
 
-      LogFilter logFilter = new LogFilter(args.getLogLevel(), args.isThisLogLevelOnly(),
+      var logFilter = new LogFilter(args.getLogLevel(), args.isThisLogLevelOnly(),
           args.getStartTime(), args.getEndTime());
 
-      Path exportedZipFile = new LogExporter(logFilter, baseLogFile, baseStatsFile).export();
+      var exportedZipFile = new LogExporter(logFilter, baseLogFile, baseStatsFile).export();
 
       // nothing to return back
       if (exportedZipFile == null) {
@@ -102,8 +99,8 @@ public class ExportLogsFunction implements InternalFunction<ExportLogsFunction.A
       }
 
       logger.info("Streaming zipped file: " + exportedZipFile);
-      try (FileInputStream inputStream = new FileInputStream(exportedZipFile.toFile())) {
-        byte[] buffer = new byte[BUFFER_SIZE];
+      try (var inputStream = new FileInputStream(exportedZipFile.toFile())) {
+        var buffer = new byte[BUFFER_SIZE];
 
         int bytesRead;
         while ((bytesRead = inputStream.read(buffer)) > 0) {
@@ -128,7 +125,7 @@ public class ExportLogsFunction implements InternalFunction<ExportLogsFunction.A
       boolean isInitiatingMember,
       InternalCache cache) {
 
-    InternalCacheForClientAccess cacheForClientAccess = cache.getCacheForProcessingClientRequests();
+    var cacheForClientAccess = cache.getCacheForProcessingClientRequests();
     Region<String, byte[]> exportLogsRegion =
         cacheForClientAccess.getInternalRegion(EXPORT_LOGS_REGION);
     if (exportLogsRegion == null) {
@@ -213,11 +210,11 @@ public class ExportLogsFunction implements InternalFunction<ExportLogsFunction.A
     }
 
     try {
-      SimpleDateFormat df = new SimpleDateFormat(ExportLogsCommand.FORMAT);
+      var df = new SimpleDateFormat(ExportLogsCommand.FORMAT);
       return df.parse(dateString).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
     } catch (ParseException e) {
       try {
-        SimpleDateFormat df = new SimpleDateFormat(ExportLogsCommand.ONLY_DATE_FORMAT);
+        var df = new SimpleDateFormat(ExportLogsCommand.ONLY_DATE_FORMAT);
         return df.parse(dateString).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
       } catch (ParseException e1) {
         return null;

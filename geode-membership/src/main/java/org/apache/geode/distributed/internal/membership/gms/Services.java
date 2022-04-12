@@ -201,7 +201,7 @@ public class Services<ID extends MemberIdentifier> implements DataSerializableFi
    * Invoke init() before this method.
    */
   public void start() throws MemberStartupException {
-    boolean started = false;
+    var started = false;
     try {
       logger.info("Starting membership services");
       logger.debug("starting Messenger");
@@ -223,7 +223,7 @@ public class Services<ID extends MemberIdentifier> implements DataSerializableFi
          * about them. We must do this before telling the manager to joinDistributedSystem()
          * later in this method
          */
-        final MembershipLocatorImpl locatorImpl =
+        final var locatorImpl =
             (MembershipLocatorImpl) membershipLocator;
         locatorImpl.setServices(this);
       }
@@ -423,12 +423,12 @@ public class Services<ID extends MemberIdentifier> implements DataSerializableFi
 
     public RuntimeException generateCancelledException(Throwable e) {
       if (shutdownCause instanceof MemberDisconnectedException) {
-        MembershipClosedException newException =
+        var newException =
             new MembershipClosedException("membership shutdown",
                 e);
         throw newException;
       }
-      String reason = cancelInProgress();
+      var reason = cancelInProgress();
       if (reason == null) {
         return null;
       } else {
@@ -445,7 +445,7 @@ public class Services<ID extends MemberIdentifier> implements DataSerializableFi
     }
 
     public void checkCancelInProgress(Throwable e) {
-      String reason = cancelInProgress();
+      var reason = cancelInProgress();
       if (reason == null) {
         return;
       }

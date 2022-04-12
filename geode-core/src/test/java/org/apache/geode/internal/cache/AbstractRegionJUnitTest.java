@@ -20,7 +20,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-import java.util.Set;
 import java.util.function.Function;
 
 import org.junit.Test;
@@ -30,11 +29,9 @@ import org.apache.geode.cache.DiskWriteAttributes;
 import org.apache.geode.cache.EvictionAction;
 import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.cache.ExpirationAttributes;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.asyncqueue.internal.AsyncEventQueueImpl;
 import org.apache.geode.internal.cache.LocalRegion.RegionMapConstructor;
-import org.apache.geode.internal.cache.extension.ExtensionPoint;
 import org.apache.geode.internal.cache.extension.SimpleExtensionPoint;
 import org.apache.geode.test.fake.Fakes;
 
@@ -54,71 +51,71 @@ public class AbstractRegionJUnitTest {
    */
   @Test
   public void extensionPointIsSimpleExtensionPointByDefault() {
-    AbstractRegion region = spy(AbstractRegion.class);
-    ExtensionPoint<Region<?, ?>> extensionPoint = region.getExtensionPoint();
+    var region = spy(AbstractRegion.class);
+    var extensionPoint = region.getExtensionPoint();
     assertThat(extensionPoint).isNotNull().isInstanceOf(SimpleExtensionPoint.class);
   }
 
   @Test
   public void getAllGatewaySenderIdsReturnsEmptySet() {
-    AbstractRegion region = createTestableAbstractRegion();
+    var region = createTestableAbstractRegion();
 
-    Set<String> result = region.getAllGatewaySenderIds();
+    var result = region.getAllGatewaySenderIds();
 
     assertThat(result).isEmpty();
   }
 
   @Test
   public void getAllGatewaySenderIdsIncludesAsyncEventQueueId() {
-    AbstractRegion region = createTestableAbstractRegion();
+    var region = createTestableAbstractRegion();
     region.addAsyncEventQueueId("asyncQueueId", false);
-    String asyncQueueId = AsyncEventQueueImpl.getSenderIdFromAsyncEventQueueId("asyncQueueId");
+    var asyncQueueId = AsyncEventQueueImpl.getSenderIdFromAsyncEventQueueId("asyncQueueId");
 
-    Set<String> result = region.getAllGatewaySenderIds();
+    var result = region.getAllGatewaySenderIds();
 
     assertThat(result).containsExactlyInAnyOrder(asyncQueueId);
   }
 
   @Test
   public void getAllGatewaySenderIdsIncludesGatewaySenderIds() {
-    AbstractRegion region = createTestableAbstractRegion();
+    var region = createTestableAbstractRegion();
     region.addGatewaySenderId("gatewaySenderId");
 
-    Set<String> result = region.getAllGatewaySenderIds();
+    var result = region.getAllGatewaySenderIds();
 
     assertThat(result).containsExactlyInAnyOrder("gatewaySenderId");
   }
 
   @Test
   public void getAllGatewaySenderIdsIncludesBothGatewaySenderIdsAndAsyncQueueIds() {
-    AbstractRegion region = createTestableAbstractRegion();
+    var region = createTestableAbstractRegion();
     region.addGatewaySenderId("gatewaySenderId");
     region.addAsyncEventQueueId("asyncQueueId", false);
-    String asyncQueueId = AsyncEventQueueImpl.getSenderIdFromAsyncEventQueueId("asyncQueueId");
+    var asyncQueueId = AsyncEventQueueImpl.getSenderIdFromAsyncEventQueueId("asyncQueueId");
 
-    Set<String> result = region.getAllGatewaySenderIds();
+    var result = region.getAllGatewaySenderIds();
 
     assertThat(result).containsExactlyInAnyOrder("gatewaySenderId", asyncQueueId);
   }
 
   private AbstractRegion createTestableAbstractRegion() {
-    RegionAttributes regionAttributes = mock(RegionAttributes.class);
+    var regionAttributes = mock(RegionAttributes.class);
     when(regionAttributes.getDataPolicy()).thenReturn(DataPolicy.DEFAULT);
-    EvictionAttributes evictionAttributes = mock(EvictionAttributes.class);
+    var evictionAttributes = mock(EvictionAttributes.class);
     when(evictionAttributes.getAction()).thenReturn(EvictionAction.NONE);
     when(regionAttributes.getEvictionAttributes()).thenReturn(evictionAttributes);
-    ExpirationAttributes expirationAttributes = mock(ExpirationAttributes.class);
+    var expirationAttributes = mock(ExpirationAttributes.class);
     when(regionAttributes.getRegionTimeToLive()).thenReturn(expirationAttributes);
     when(regionAttributes.getRegionIdleTimeout()).thenReturn(expirationAttributes);
     when(regionAttributes.getEntryTimeToLive()).thenReturn(expirationAttributes);
     when(regionAttributes.getEntryIdleTimeout()).thenReturn(expirationAttributes);
-    DiskWriteAttributes diskWriteAttributes = mock(DiskWriteAttributes.class);
+    var diskWriteAttributes = mock(DiskWriteAttributes.class);
     when(regionAttributes.getDiskWriteAttributes()).thenReturn(diskWriteAttributes);
-    RegionMapConstructor regionMapConstructor = mock(RegionMapConstructor.class);
-    LocalRegion.ServerRegionProxyConstructor proxyConstructor = mock(
+    var regionMapConstructor = mock(RegionMapConstructor.class);
+    var proxyConstructor = mock(
         LocalRegion.ServerRegionProxyConstructor.class);
-    Function<LocalRegion, RegionPerfStats> regionPerfStatsFactory =
-        (localRegion) -> mock(RegionPerfStats.class);
+    var regionPerfStatsFactory =
+        (Function<LocalRegion, RegionPerfStats>) (localRegion) -> mock(RegionPerfStats.class);
     AbstractRegion region = new LocalRegion("regionName", regionAttributes, null, Fakes.cache(),
         new InternalRegionArguments(), null, regionMapConstructor, proxyConstructor, null, null,
         regionPerfStatsFactory, disabledClock());

@@ -40,7 +40,7 @@ public class TestSampleHandler implements SampleHandler {
 
   @Override
   public synchronized void sampled(long timeStamp, List<ResourceInstance> resourceInstances) {
-    int resourceCount = resourceInstances.size();
+    var resourceCount = resourceInstances.size();
     notifications.add(new SampledInfo("sampled", timeStamp, resourceCount));
   }
 
@@ -83,7 +83,7 @@ public class TestSampleHandler implements SampleHandler {
 
     @Override
     public String toString() {
-      final StringBuilder sb = new StringBuilder(getClass().getName());
+      final var sb = new StringBuilder(getClass().getName());
       sb.append("@").append(System.identityHashCode(this)).append("{");
       sb.append("name=").append(name);
       appendToString(sb);

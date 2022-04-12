@@ -112,7 +112,7 @@ public abstract class AbstractZRemRangeByScoreIntegrationTest implements RedisIn
 
   @Test
   public void shouldReturnZero_givenRangeExcludingScore() {
-    int score = 1;
+    var score = 1;
     jedis.zadd(KEY, score, MEMBER_NAME);
 
     // Range 2 <= score <= 3
@@ -122,7 +122,7 @@ public abstract class AbstractZRemRangeByScoreIntegrationTest implements RedisIn
 
   @Test
   public void shouldRemoveRange_givenMinAndMaxEqualToScore() {
-    int score = 1;
+    var score = 1;
     jedis.zadd(KEY, score, MEMBER_NAME);
 
     // Range 1 <= score <= 1
@@ -192,7 +192,7 @@ public abstract class AbstractZRemRangeByScoreIntegrationTest implements RedisIn
 
   @Test
   public void shouldRemoveRange_givenExclusiveMin() {
-    Map<String, Double> map = getExclusiveTestMap();
+    var map = getExclusiveTestMap();
 
     jedis.zadd(KEY, map);
 
@@ -205,7 +205,7 @@ public abstract class AbstractZRemRangeByScoreIntegrationTest implements RedisIn
 
   @Test
   public void shouldRemoveRange_givenExclusiveMax() {
-    Map<String, Double> map = getExclusiveTestMap();
+    var map = getExclusiveTestMap();
 
     jedis.zadd(KEY, map);
 
@@ -218,7 +218,7 @@ public abstract class AbstractZRemRangeByScoreIntegrationTest implements RedisIn
 
   @Test
   public void shouldRemoveRange_givenExclusiveMinAndMax() {
-    Map<String, Double> map = getExclusiveTestMap();
+    var map = getExclusiveTestMap();
 
     jedis.zadd(KEY, map);
 
@@ -243,7 +243,7 @@ public abstract class AbstractZRemRangeByScoreIntegrationTest implements RedisIn
     double score = 1;
     jedis.zadd(KEY, score, MEMBER_NAME);
 
-    String scoreExclusive = "(" + score;
+    var scoreExclusive = "(" + score;
     assertThat(jedis.zremrangeByScore(KEY, scoreExclusive, scoreExclusive)).isZero();
     assertThat(jedis.zscore(KEY, MEMBER_NAME)).isNotNull();
   }

@@ -63,7 +63,7 @@ public class RegionDescription implements Serializable {
    * @return boolean describing if description was successfully added
    */
   public boolean add(RegionDescriptionPerMember regionDescPerMember) {
-    boolean isAdded = false;
+    var isAdded = false;
 
     if (regionDescPerMemberMap == null) {
       regionDescPerMemberMap = new HashMap<>();
@@ -106,12 +106,12 @@ public class RegionDescription implements Serializable {
   static void findCommon(Map<String, String> commonValuesMap,
       Map<String, String> additionalValuesMap) {
 
-    Set<String> sharedKeySet = commonValuesMap.keySet();
+    var sharedKeySet = commonValuesMap.keySet();
     sharedKeySet.retainAll(additionalValuesMap.keySet());
 
-    for (String sharedKey : new HashSet<>(sharedKeySet)) {
-      String commonNdValue = commonValuesMap.get(sharedKey);
-      String incomingNdValue = additionalValuesMap.get(sharedKey);
+    for (var sharedKey : new HashSet<>(sharedKeySet)) {
+      var commonNdValue = commonValuesMap.get(sharedKey);
+      var incomingNdValue = additionalValuesMap.get(sharedKey);
       if (commonNdValue != null && !commonNdValue.equals(incomingNdValue)
           || commonNdValue == null && incomingNdValue != null) {
         commonValuesMap.remove(sharedKey);
@@ -123,7 +123,7 @@ public class RegionDescription implements Serializable {
   @Override
   public boolean equals(Object obj) {
     if (obj instanceof RegionDescription) {
-      RegionDescription regionDesc = (RegionDescription) obj;
+      var regionDesc = (RegionDescription) obj;
 
       return getName().equals(regionDesc.getName()) && scope.equals(regionDesc.getScope())
           && dataPolicy.equals(regionDesc.getDataPolicy());

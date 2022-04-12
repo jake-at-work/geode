@@ -15,14 +15,11 @@
 
 package org.apache.geode.management.internal.cli.commands;
 
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
-import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.internal.InternalConfigurationPersistenceService;
 import org.apache.geode.management.cli.CliMetaData;
 import org.apache.geode.management.cli.ConverterHint;
@@ -31,8 +28,6 @@ import org.apache.geode.management.cli.Result;
 import org.apache.geode.management.internal.cli.functions.UndeployFunction;
 import org.apache.geode.management.internal.cli.remote.CommandExecutor;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
-import org.apache.geode.management.internal.functions.CliFunctionResult;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.security.ResourceOperation;
 import org.apache.geode.security.ResourcePermission;
@@ -59,29 +54,29 @@ public class UndeployCommand extends GfshCommand {
       @CliOption(key = {CliStrings.JAR, CliStrings.JARS},
           help = CliStrings.UNDEPLOY__JAR__HELP) String[] jars) {
 
-    Set<DistributedMember> targetMembers = findMembers(groups, null);
+    var targetMembers = findMembers(groups, null);
 
     if (targetMembers.isEmpty()) {
       return ResultModel.createError(CliStrings.NO_MEMBERS_FOUND_MESSAGE);
     }
 
-    List<CliFunctionResult> results =
+    var results =
         executeAndGetFunctionResult(undeployFunction, new Object[] {jars}, targetMembers);
 
-    ResultModel result = new ResultModel();
-    TabularResultModel tabularData = result.addTable("jars");
-    for (CliFunctionResult cliResult : results) {
+    var result = new ResultModel();
+    var tabularData = result.addTable("jars");
+    for (var cliResult : results) {
       if (!cliResult.isSuccessful()) {
         result.setStatus(Result.Status.ERROR);
       }
 
       @SuppressWarnings("unchecked")
-      Map<String, String> undeployedJars = (Map<String, String>) cliResult.getResultObject();
+      var undeployedJars = (Map<String, String>) cliResult.getResultObject();
       if (undeployedJars == null) {
         continue;
       }
 
-      for (String key : undeployedJars.keySet()) {
+      for (var key : undeployedJars.keySet()) {
         tabularData.accumulate("Member", cliResult.getMemberIdOrName());
         tabularData.accumulate("Un-Deployed JAR", key);
         tabularData.accumulate("Un-Deployed From JAR Location", undeployedJars.get(key));

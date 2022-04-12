@@ -32,11 +32,8 @@ import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.execute.FunctionService;
 import org.apache.geode.cache.execute.RegionFunctionContext;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
-import org.apache.geode.test.junit.assertions.CommandResultAssert;
-import org.apache.geode.test.junit.assertions.TabularResultModelAssert;
 import org.apache.geode.test.junit.categories.GfshTest;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
 
@@ -54,12 +51,12 @@ public class ExecuteFunctionCommandDUnitTest {
   @BeforeClass
   @SuppressWarnings("deprecation")
   public static void setUpClass() throws Exception {
-    MemberVM locator = cluster.startLocatorVM(0);
+    var locator = cluster.startLocatorVM(0);
     gfsh.connectAndVerify(locator);
 
-    MemberVM server1 = cluster.startServerVM(1, "group1", locator.getPort());
-    MemberVM server2 = cluster.startServerVM(2, "group1", locator.getPort());
-    MemberVM server3 = cluster.startServerVM(3, "group2", locator.getPort());
+    var server1 = cluster.startServerVM(1, "group1", locator.getPort());
+    var server2 = cluster.startServerVM(2, "group1", locator.getPort());
+    var server3 = cluster.startServerVM(3, "group2", locator.getPort());
     MemberVM.invokeInEveryMember(
         () -> FunctionService.registerFunction(new GenericFunctionOp(functionId)), server1, server2,
         server3);
@@ -76,7 +73,7 @@ public class ExecuteFunctionCommandDUnitTest {
     locator.waitUntilRegionIsReadyOnExactlyThisManyServers(SEPARATOR + "regionA", 2);
 
     server1.invoke(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
+      var cache = ClusterStartupRule.getCache();
       assertThat(cache).isNotNull();
       Region<String, String> region = cache.getRegion(SEPARATOR + "regionA");
       region.put("a", "a");
@@ -84,7 +81,7 @@ public class ExecuteFunctionCommandDUnitTest {
     });
 
     // this makes sure entry a and entry b are on different member
-    CommandResultAssert locateACommand =
+    var locateACommand =
         gfsh.executeAndAssertThat("locate entry --key=a --region=" + SEPARATOR + "regionA")
             .statusIsSuccess()
             .hasSection("location", "data-info");
@@ -92,7 +89,7 @@ public class ExecuteFunctionCommandDUnitTest {
     locateACommand.hasTableSection().hasColumnSize(4).hasColumn("MemberName").hasSize(1)
         .isSubsetOf("server-1", "server-2");
 
-    CommandResultAssert locateBCommand =
+    var locateBCommand =
         gfsh.executeAndAssertThat("locate entry --key=b --region=" + SEPARATOR + "regionA")
             .statusIsSuccess()
             .hasSection("location", "data-info");
@@ -100,9 +97,9 @@ public class ExecuteFunctionCommandDUnitTest {
     locateBCommand.hasTableSection().hasColumnSize(4).hasColumn("MemberName").hasSize(1)
         .isSubsetOf("server-1", "server-2");
 
-    String member1 =
+    var member1 =
         locateACommand.getResultModel().getTableSection("location").getValue("MemberName", 0);
-    String member2 =
+    var member2 =
         locateBCommand.getResultModel().getTableSection("location").getValue("MemberName", 0);
 
     assertThat(member1).isNotEqualToIgnoringCase(member2);
@@ -110,7 +107,7 @@ public class ExecuteFunctionCommandDUnitTest {
 
   @Test
   public void noExtraArgument() {
-    TabularResultModelAssert tableAssert =
+    var tableAssert =
         gfsh.executeAndAssertThat(command).statusIsSuccess()
             .hasTableSection()
             .hasRowSize(3)
@@ -131,7 +128,7 @@ public class ExecuteFunctionCommandDUnitTest {
 
   @Test
   public void withGroupOnly() {
-    TabularResultModelAssert tableAssert =
+    var tableAssert =
         gfsh.executeAndAssertThat(command + "--group=group1").statusIsSuccess()
             .hasTableSection()
             .hasRowSize(2)
@@ -142,7 +139,7 @@ public class ExecuteFunctionCommandDUnitTest {
 
   @Test
   public void withArgumentsOnly() {
-    TabularResultModelAssert tableAssert =
+    var tableAssert =
         gfsh.executeAndAssertThat(command + "--arguments=arguments").statusIsSuccess()
             .hasTableSection()
             .hasRowSize(3)
@@ -267,7 +264,7 @@ public class ExecuteFunctionCommandDUnitTest {
   @Test
   public void withArgumentAndResultCollector() {
 
-    TabularResultModelAssert tableAssert =
+    var tableAssert =
         gfsh.executeAndAssertThat(command + "--arguments=arguments  --result-collector="
             + ToUpperResultCollector.class.getName()).statusIsSuccess()
             .hasTableSection()
@@ -281,7 +278,7 @@ public class ExecuteFunctionCommandDUnitTest {
 
   @Test
   public void functionWithNoResults() {
-    TabularResultModelAssert tableAssert =
+    var tableAssert =
         gfsh.executeAndAssertThat("execute function --id=FireAndForget").statusIsSuccess()
             .hasTableSection().hasRowSize(3).hasColumnSize(3);
 
@@ -325,14 +322,14 @@ public class ExecuteFunctionCommandDUnitTest {
     public void execute(FunctionContext<Object> context) {
       String filter = null;
       if (context instanceof RegionFunctionContext) {
-        RegionFunctionContext rContext = (RegionFunctionContext) context;
+        var rContext = (RegionFunctionContext) context;
         @SuppressWarnings("unchecked")
-        Set<Object> filters = (Set<Object>) rContext.getFilter();
+        var filters = (Set<Object>) rContext.getFilter();
         filter = Strings.join(filters, ',');
       }
 
       String argument = null;
-      Object arguments = (context.getArguments());
+      var arguments = (context.getArguments());
       if (arguments instanceof String[]) {
         argument = String.join(",", (String[]) arguments);
       }

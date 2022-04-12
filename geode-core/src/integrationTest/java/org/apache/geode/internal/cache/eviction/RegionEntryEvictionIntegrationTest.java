@@ -17,7 +17,6 @@ package org.apache.geode.internal.cache.eviction;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -75,19 +74,19 @@ public class RegionEntryEvictionIntegrationTest {
 
   @Test
   public void evictionWithCustomExpiryCallingGetValueDoesNotDeadLock() throws Exception {
-    int numThreads = 2;
-    int entries = 1000;
-    int evictionCount = 1;
+    var numThreads = 2;
+    var entries = 1000;
+    var evictionCount = 1;
     region = createRegionWithCustomExpiration(evictionCount);
 
-    ExecutorService executorService = Executors.newFixedThreadPool(numThreads);
-    ArrayList<Future> futures = new ArrayList<>();
+    var executorService = Executors.newFixedThreadPool(numThreads);
+    var futures = new ArrayList<Future>();
 
-    for (int i = 0; i < numThreads; i++) {
+    for (var i = 0; i < numThreads; i++) {
       futures.add(executorService.submit(() -> doCreates(region, entries)));
     }
 
-    for (int i = 0; i < numThreads; i++) {
+    for (var i = 0; i < numThreads; i++) {
       int ops = (Integer) futures.get(i).get(2, TimeUnit.MINUTES);
       assertThat(ops).isEqualTo(entries);
     }
@@ -96,8 +95,8 @@ public class RegionEntryEvictionIntegrationTest {
   }
 
   private int doCreates(Region region, int entries) {
-    String key = Thread.currentThread().getName();
-    for (int i = 1; i < entries; i++) {
+    var key = Thread.currentThread().getName();
+    for (var i = 1; i < entries; i++) {
       region.create(key + i, "value " + i);
     }
     return entries;

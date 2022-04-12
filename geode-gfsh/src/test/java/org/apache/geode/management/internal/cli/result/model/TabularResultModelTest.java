@@ -44,7 +44,7 @@ public class TabularResultModelTest {
 
     assertThat(table1.getColumnSize()).isEqualTo(3);
 
-    TabularResultModel table2 = new TabularResultModel();
+    var table2 = new TabularResultModel();
     table2.setColumnHeader("c1", "c2", "c3");
     table2.addRow("v1", "v2", "v3");
     table2.addRow("v4", "v5", "v6");
@@ -56,7 +56,7 @@ public class TabularResultModelTest {
 
   @Test
   public void fromJson() {
-    ResultModel result = new ResultModel();
+    var result = new ResultModel();
     table1 = result.addTable("table1");
     // create table that has 2 columns and 1 rows
     table1.accumulate("c1", "v1");
@@ -64,7 +64,7 @@ public class TabularResultModelTest {
     assertThat(table1.getColumnSize()).isEqualTo(2);
     assertThat(table1.getRowSize()).isEqualTo(1);
 
-    String json = result.toJson();
+    var json = result.toJson();
     assertThat(json).contains(
         "{\"table1\":{\"modelClass\":\"org.apache.geode.management.internal.cli.result.model.TabularResultModel\",\"header\":\"\",\"footer\":\"\",\"content\":{\"c1\":[\"v1\"],\"c2\":[\"v2\"]}}}");
     // these make sure we don't serialize extra info
@@ -76,8 +76,8 @@ public class TabularResultModelTest {
     assertThat(json).doesNotContain("valuesInRow");
 
     // convert the json back to the ResultModel object
-    ResultModel result2 = ResultModel.fromJson(json);
-    TabularResultModel table2 = result2.getTableSection("table1");
+    var result2 = ResultModel.fromJson(json);
+    var table2 = result2.getTableSection("table1");
     assertThat(table2.getColumnSize()).isEqualTo(2);
     assertThat(table2.getHeaders()).containsExactly("c1", "c2");
     assertThat(table2.getValuesInRow(0)).containsExactly("v1", "v2");

@@ -30,7 +30,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.CacheUtils;
 import org.apache.geode.cache.query.Index;
 import org.apache.geode.cache.query.IndexType;
@@ -48,8 +47,8 @@ public class IndexUsageInNestedQueryJUnitTest {
   @Before
   public void setUp() throws java.lang.Exception {
     CacheUtils.startCache();
-    Region r = CacheUtils.createRegion("portfolios", Portfolio.class);
-    for (int i = 0; i < 4; i++) {
+    var r = CacheUtils.createRegion("portfolios", Portfolio.class);
+    for (var i = 0; i < 4; i++) {
       r.put(i + "", new Portfolio(i));
     }
   }
@@ -64,7 +63,7 @@ public class IndexUsageInNestedQueryJUnitTest {
 
     QueryService qs;
     qs = CacheUtils.getQueryService();
-    String[] queries = {
+    var queries = new String[] {
         "select distinct * from " + SEPARATOR + "portfolios p, (select distinct pos  as poos from "
             + SEPARATOR + "portfolios x, x.positions.values pos"
             + " where pos.secId = 'YHOO') as k",
@@ -92,12 +91,12 @@ public class IndexUsageInNestedQueryJUnitTest {
             + "portfolios p, p.positions.values vals where vals.secId = 'YHOO')",
 
     };
-    SelectResults[][] r = new SelectResults[queries.length][2];
+    var r = new SelectResults[queries.length][2];
 
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
-        QueryObserverImpl observer = new QueryObserverImpl();
+        var observer = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer);
         q = CacheUtils.getQueryService().newQuery(queries[i]);
         CacheUtils.getLogger().info("Executing query: " + queries[i]);
@@ -118,10 +117,10 @@ public class IndexUsageInNestedQueryJUnitTest {
         SEPARATOR + "portfolios pf, pf.positions.values b");
     qs.createIndex("cIndex", IndexType.FUNCTIONAL,
         "pf.collectionHolderMap[(pf.ID).toString()].arr[pf.ID]", SEPARATOR + "portfolios pf");
-    for (int i = 0; i < queries.length; i++) {
+    for (var i = 0; i < queries.length; i++) {
       Query q = null;
       try {
-        QueryObserverImpl observer2 = new QueryObserverImpl();
+        var observer2 = new QueryObserverImpl();
         QueryObserverHolder.setInstance(observer2);
         q = CacheUtils.getQueryService().newQuery(queries[i]);
         r[i][1] = (SelectResults) q.execute();

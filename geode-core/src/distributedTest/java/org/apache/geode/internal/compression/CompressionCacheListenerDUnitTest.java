@@ -104,28 +104,28 @@ public class CompressionCacheListenerDUnitTest extends JUnit4CacheTestCase {
       new CacheListenerAdapter<String, String>() {
         @Override
         public void afterCreate(EntryEvent<String, String> event) {
-          EntryEventImpl copy = new EntryEventImpl((EntryEventImpl) event);
+          var copy = new EntryEventImpl((EntryEventImpl) event);
           copy.copyOffHeapToHeap();
           LISTENER_QUEUE.add(copy);
         }
 
         @Override
         public void afterDestroy(EntryEvent<String, String> event) {
-          EntryEventImpl copy = new EntryEventImpl((EntryEventImpl) event);
+          var copy = new EntryEventImpl((EntryEventImpl) event);
           copy.copyOffHeapToHeap();
           LISTENER_QUEUE.add(copy);
         }
 
         @Override
         public void afterInvalidate(EntryEvent<String, String> event) {
-          EntryEventImpl copy = new EntryEventImpl((EntryEventImpl) event);
+          var copy = new EntryEventImpl((EntryEventImpl) event);
           copy.copyOffHeapToHeap();
           LISTENER_QUEUE.add(copy);
         }
 
         @Override
         public void afterUpdate(EntryEvent<String, String> event) {
-          EntryEventImpl copy = new EntryEventImpl((EntryEventImpl) event);
+          var copy = new EntryEventImpl((EntryEventImpl) event);
           copy.copyOffHeapToHeap();
           LISTENER_QUEUE.add(copy);
         }
@@ -144,21 +144,21 @@ public class CompressionCacheListenerDUnitTest extends JUnit4CacheTestCase {
       new CacheWriterAdapter<String, String>() {
         @Override
         public void beforeCreate(EntryEvent<String, String> event) {
-          EntryEventImpl copy = new EntryEventImpl((EntryEventImpl) event);
+          var copy = new EntryEventImpl((EntryEventImpl) event);
           copy.copyOffHeapToHeap();
           WRITER_QUEUE.add(copy);
         }
 
         @Override
         public void beforeDestroy(EntryEvent<String, String> event) {
-          EntryEventImpl copy = new EntryEventImpl((EntryEventImpl) event);
+          var copy = new EntryEventImpl((EntryEventImpl) event);
           copy.copyOffHeapToHeap();
           WRITER_QUEUE.add(copy);
         }
 
         @Override
         public void beforeUpdate(EntryEvent<String, String> event) {
-          EntryEventImpl copy = new EntryEventImpl((EntryEventImpl) event);
+          var copy = new EntryEventImpl((EntryEventImpl) event);
           copy.copyOffHeapToHeap();
           WRITER_QUEUE.add(copy);
         }
@@ -247,7 +247,7 @@ public class CompressionCacheListenerDUnitTest extends JUnit4CacheTestCase {
           assertNull(region.get(KEY_1));
 
           // beforeCreate
-          String oldValue = region.put(KEY_1, VALUE_1);
+          var oldValue = region.put(KEY_1, VALUE_1);
           EntryEvent<String, String> event = WRITER_QUEUE.poll(5, TimeUnit.SECONDS);
           assertNotNull(event);
           assertNull(oldValue);

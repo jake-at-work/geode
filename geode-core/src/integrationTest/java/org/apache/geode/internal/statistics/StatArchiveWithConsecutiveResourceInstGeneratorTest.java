@@ -18,7 +18,6 @@ import static org.apache.geode.internal.statistics.StatUtils.compareStatArchiveF
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
@@ -41,8 +40,8 @@ public class StatArchiveWithConsecutiveResourceInstGeneratorTest
 
   @Before
   public void setUpGeneratorTest() throws Exception {
-    URL url = getClass().getResource(ARCHIVE_FILE_NAME);
-    File testFolder = temporaryFolder.newFolder(getClass().getSimpleName());
+    var url = getClass().getResource(ARCHIVE_FILE_NAME);
+    var testFolder = temporaryFolder.newFolder(getClass().getSimpleName());
     expectedStatArchiveFile = new File(testFolder, ARCHIVE_FILE_NAME);
     FileUtils.copyURLToFile(url, expectedStatArchiveFile);
   }

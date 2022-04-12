@@ -18,18 +18,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.Properties;
-import java.util.Set;
 
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.asyncqueue.AsyncEventQueue;
-import org.apache.geode.cache.asyncqueue.AsyncEventQueueFactory;
 import org.apache.geode.cache.wan.GatewayEventSubstitutionFilter;
 import org.apache.geode.cache.wan.GatewayReceiver;
-import org.apache.geode.cache.wan.GatewayReceiverFactory;
-import org.apache.geode.cache.wan.GatewaySender;
-import org.apache.geode.cache.wan.GatewaySenderFactory;
 import org.apache.geode.cache.wan.GatewayTransportFilter;
 import org.apache.geode.cache30.CacheXml70DUnitTestHelper;
 import org.apache.geode.cache30.CacheXmlTestCase;
@@ -50,9 +44,9 @@ public class CacheXml80GatewayDUnitTest extends CacheXmlTestCase {
   @Test
   public void testGatewayReceiverWithManualStartTRUE() throws Exception {
     // getSystem();
-    CacheCreation cache = new CacheCreation();
+    var cache = new CacheCreation();
 
-    GatewayReceiverFactory gatewayReceiverFactory = cache.createGatewayReceiverFactory();
+    var gatewayReceiverFactory = cache.createGatewayReceiverFactory();
     gatewayReceiverFactory.setBindAddress("");
     gatewayReceiverFactory.setStartPort(20000);
     gatewayReceiverFactory.setEndPort(29999);
@@ -63,15 +57,15 @@ public class CacheXml80GatewayDUnitTest extends CacheXmlTestCase {
     gatewayReceiverFactory.addGatewayTransportFilter(myStreamFilter1);
     GatewayTransportFilter myStreamFilter2 = new MyGatewayTransportFilter2();
     gatewayReceiverFactory.addGatewayTransportFilter(myStreamFilter2);
-    GatewayReceiver receiver1 = gatewayReceiverFactory.create();
+    var receiver1 = gatewayReceiverFactory.create();
 
     receiver1.start();
 
     testXml(cache);
     Cache c = getCache();
     assertNotNull(c);
-    Set<GatewayReceiver> receivers = c.getGatewayReceivers();
-    for (GatewayReceiver receiver : receivers) {
+    var receivers = c.getGatewayReceivers();
+    for (var receiver : receivers) {
       validateGatewayReceiver(receiver1, receiver);
     }
   }
@@ -79,13 +73,13 @@ public class CacheXml80GatewayDUnitTest extends CacheXmlTestCase {
   @Test
   public void testAsyncEventQueueWithSubstitutionFilter() throws Exception {
     getSystem();
-    CacheCreation cache = new CacheCreation();
+    var cache = new CacheCreation();
 
     // Create an AsyncEventQueue with GatewayEventSubstitutionFilter.
-    String id = getName();
-    AsyncEventQueueFactory factory = cache.createAsyncEventQueueFactory();
+    var id = getName();
+    var factory = cache.createAsyncEventQueueFactory();
     factory.setGatewayEventSubstitutionListener(new MyGatewayEventSubstitutionFilter());
-    AsyncEventQueue queue =
+    var queue =
         factory.create(id, new CacheXml70DUnitTestHelper.MyAsyncEventListener());
 
     // Verify the GatewayEventSubstitutionFilter is set on the AsyncEventQueue.
@@ -96,7 +90,7 @@ public class CacheXml80GatewayDUnitTest extends CacheXmlTestCase {
     assertNotNull(c);
 
     // Get the AsyncEventQueue. Verify the GatewayEventSubstitutionFilter is not null.
-    AsyncEventQueue queueOnCache = c.getAsyncEventQueue(id);
+    var queueOnCache = c.getAsyncEventQueue(id);
     assertNotNull(queueOnCache);
     assertNotNull(queueOnCache.getGatewayEventSubstitutionFilter());
   }
@@ -104,16 +98,16 @@ public class CacheXml80GatewayDUnitTest extends CacheXmlTestCase {
   @Test
   public void testGatewaySenderWithSubstitutionFilter() throws Exception {
     getSystem();
-    CacheCreation cache = new CacheCreation();
+    var cache = new CacheCreation();
 
     // Create a GatewaySender with GatewayEventSubstitutionFilter.
     // Don't start the sender to avoid 'Locators must be configured before starting gateway-sender'
     // exception.
-    String id = getName();
-    GatewaySenderFactory factory = cache.createGatewaySenderFactory();
+    var id = getName();
+    var factory = cache.createGatewaySenderFactory();
     factory.setManualStart(true);
     factory.setGatewayEventSubstitutionFilter(new MyGatewayEventSubstitutionFilter());
-    GatewaySender sender = factory.create(id, 2);
+    var sender = factory.create(id, 2);
 
     // Verify the GatewayEventSubstitutionFilter is set on the GatewaySender.
     assertNotNull(sender.getGatewayEventSubstitutionFilter());
@@ -123,7 +117,7 @@ public class CacheXml80GatewayDUnitTest extends CacheXmlTestCase {
     assertNotNull(c);
 
     // Get the GatewaySender. Verify the GatewayEventSubstitutionFilter is not null.
-    GatewaySender senderOnCache = c.getGatewaySender(id);
+    var senderOnCache = c.getGatewaySender(id);
     assertNotNull(senderOnCache);
     assertNotNull(senderOnCache.getGatewayEventSubstitutionFilter());
   }

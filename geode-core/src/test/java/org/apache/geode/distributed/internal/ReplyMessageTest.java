@@ -29,13 +29,13 @@ import org.apache.geode.internal.InternalDataSerializer;
 public class ReplyMessageTest {
   @Test
   public void replyMessageCanSerializeWithNonSerializableValue() throws Exception {
-    final ReplyMessage replyMessage = new ReplyMessage();
+    final var replyMessage = new ReplyMessage();
     replyMessage.setReturnValue(new Object());
-    final HeapDataOutputStream heapDataOutputStream = new HeapDataOutputStream(1000);
+    final var heapDataOutputStream = new HeapDataOutputStream(1000);
     InternalDataSerializer.getDSFIDSerializer().invokeToData(replyMessage, heapDataOutputStream);
-    final byte[] bytes = heapDataOutputStream.toByteArray();
-    final DataInputStream dataInputStream = new DataInputStream(new ByteArrayInputStream(bytes));
-    final ReplyMessage newReplyMessage = new ReplyMessage();
+    final var bytes = heapDataOutputStream.toByteArray();
+    final var dataInputStream = new DataInputStream(new ByteArrayInputStream(bytes));
+    final var newReplyMessage = new ReplyMessage();
     InternalDataSerializer.getDSFIDSerializer().invokeFromData(newReplyMessage, dataInputStream);
     assertThat(newReplyMessage.getException()).hasCauseInstanceOf(
         NotSerializableException.class);

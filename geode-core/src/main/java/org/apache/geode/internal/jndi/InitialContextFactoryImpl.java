@@ -68,7 +68,7 @@ public class InitialContextFactoryImpl implements InitialContextFactory {
    */
   public void setAsInitial() throws NamingException {
     // Preserve current set system props
-    String key = Context.INITIAL_CONTEXT_FACTORY;
+    var key = Context.INITIAL_CONTEXT_FACTORY;
     oldSystemProps.put(key, System.getProperty(key));
     key = Context.URL_PKG_PREFIXES;
     oldSystemProps.put(key, System.getProperty(key));
@@ -81,8 +81,8 @@ public class InitialContextFactoryImpl implements InitialContextFactory {
    * clean up all changes to the environment in case if the test is running in the app server.
    */
   public static void revertSetAsInitial() {
-    for (final Object o : oldSystemProps.entrySet()) {
-      Map.Entry entry = (Map.Entry) o;
+    for (final var o : oldSystemProps.entrySet()) {
+      var entry = (Map.Entry) o;
       restoreSystemProperty((String) entry.getKey(), (String) entry.getValue());
     }
   }

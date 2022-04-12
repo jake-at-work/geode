@@ -42,31 +42,31 @@ public class DataCommandsUtils {
   static DataCommandResult callFunctionForRegion(DataCommandRequest request,
       DataCommandFunction putfn, Set<DistributedMember> members) {
     if (members.size() == 1) {
-      DistributedMember member = members.iterator().next();
+      var member = members.iterator().next();
       @SuppressWarnings("unchecked")
       ResultCollector<Object, List<Object>> collector =
           FunctionService.onMember(member).setArguments(request).execute(putfn);
-      List<Object> list = collector.getResult();
-      Object object = list.get(0);
+      var list = collector.getResult();
+      var object = list.get(0);
       if (object instanceof Throwable) {
-        Throwable error = (Throwable) object;
-        DataCommandResult result = new DataCommandResult();
+        var error = (Throwable) object;
+        var result = new DataCommandResult();
         result.setErorr(error);
         result.setErrorString(error.getMessage());
         return result;
       }
-      DataCommandResult result = (DataCommandResult) list.get(0);
+      var result = (DataCommandResult) list.get(0);
       result.aggregate(null);
       return result;
     } else {
       @SuppressWarnings("unchecked")
       ResultCollector<Object, List<Object>> collector =
           FunctionService.onMembers(members).setArguments(request).execute(putfn);
-      List<Object> list = collector.getResult();
+      var list = collector.getResult();
       DataCommandResult result = null;
-      for (Object object : list) {
+      for (var object : list) {
         if (object instanceof Throwable) {
-          Throwable error = (Throwable) object;
+          var error = (Throwable) object;
           result = new DataCommandResult();
           result.setErorr(error);
           result.setErrorString(error.getMessage());

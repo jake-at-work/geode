@@ -40,7 +40,7 @@ public class QueryCommandTest {
 
   @Test
   public void targetMemberIsNotSetIfMemberOptionsIsNotUsed() {
-    String query = "select query";
+    var query = "select query";
     doReturn(mock(DataCommandResult.class)).when(spyCommand).select(query, null);
 
     spyCommand.query(query, null, false, null);
@@ -50,9 +50,9 @@ public class QueryCommandTest {
 
   @Test
   public void targetMemberIsSetIfMemberOptionsIsUsed() {
-    DistributedMember member = mock(DistributedMember.class);
-    String query = "select query";
-    String memberName = "member";
+    var member = mock(DistributedMember.class);
+    var query = "select query";
+    var memberName = "member";
     doReturn(member).when(spyCommand).getMember(memberName);
     doReturn(mock(DataCommandResult.class)).when(spyCommand).select(query, member);
 
@@ -63,7 +63,7 @@ public class QueryCommandTest {
 
   @Test
   public void getQueryRegionsAssociatedMembersInvokedIfNoTargetProvided() {
-    InternalCache cache = mock(InternalCache.class);
+    var cache = mock(InternalCache.class);
     Set<String> regionsInQuery = new HashSet<>();
     doReturn(new HashSet<>()).when(spyCommand).getQueryRegionsAssociatedMembers(cache,
         regionsInQuery);

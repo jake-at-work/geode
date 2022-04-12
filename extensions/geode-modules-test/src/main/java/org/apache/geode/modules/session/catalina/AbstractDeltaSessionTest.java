@@ -31,7 +31,6 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.List;
 
 import javax.servlet.http.HttpSession;
@@ -57,7 +56,7 @@ public abstract class AbstractDeltaSessionTest<SessionT extends DeltaSession> {
 
   @Before
   public void setup() {
-    String sessionRegionName = "sessionRegionName";
+    var sessionRegionName = "sessionRegionName";
     when(manager.getRegionName()).thenReturn(sessionRegionName);
     when(manager.getSessionCache()).thenReturn(sessionCache);
     when(manager.getLogger()).thenReturn(logger);
@@ -81,7 +80,7 @@ public abstract class AbstractDeltaSessionTest<SessionT extends DeltaSession> {
 
   @Test
   public void sessionConstructionThrowsIllegalArgumentExceptionIfProvidedManagerIsNotDeltaSessionManager() {
-    final Manager invalidManager = mock(Manager.class);
+    final var invalidManager = mock(Manager.class);
 
     assertThatThrownBy(() -> newDeltaSession(invalidManager))
         .isInstanceOf(IllegalArgumentException.class)
@@ -98,7 +97,7 @@ public abstract class AbstractDeltaSessionTest<SessionT extends DeltaSession> {
   public void getSessionCreatesFacadeWhenFacadeIsNullAndPackageProtectionDisabled() {
     final DeltaSession session = newDeltaSession(manager);
 
-    final HttpSession returnedSession = session.getSession();
+    final var returnedSession = session.getSession();
 
     assertThat(returnedSession).isNotNull();
   }
@@ -106,11 +105,11 @@ public abstract class AbstractDeltaSessionTest<SessionT extends DeltaSession> {
   @Test
   public void getSessionCreatesFacadeWhenFacadeIsNullAndPackageProtectionEnabled() {
     final DeltaSession session = spy(newDeltaSession(manager));
-    final DeltaSessionFacade facade = mock(DeltaSessionFacade.class);
+    final var facade = mock(DeltaSessionFacade.class);
     doReturn(true).when(session).isPackageProtectionEnabled();
     doReturn(facade).when(session).getNewFacade(any(DeltaSession.class));
 
-    final HttpSession returnedSession = session.getSession();
+    final var returnedSession = session.getSession();
 
     assertThat(returnedSession).isEqualTo(facade);
   }
@@ -127,8 +126,8 @@ public abstract class AbstractDeltaSessionTest<SessionT extends DeltaSession> {
 
   @Test
   public void applyEventsAppliesEachEventAndPutsSessionIntoRegion() {
-    final DeltaSessionAttributeEvent event1 = mock(DeltaSessionAttributeEvent.class);
-    final DeltaSessionAttributeEvent event2 = mock(DeltaSessionAttributeEvent.class);
+    final var event1 = mock(DeltaSessionAttributeEvent.class);
+    final var event2 = mock(DeltaSessionAttributeEvent.class);
     final List<DeltaSessionAttributeEvent> events = new ArrayList<>();
     events.add(event1);
     events.add(event2);
@@ -148,7 +147,7 @@ public abstract class AbstractDeltaSessionTest<SessionT extends DeltaSession> {
   @Test
   public void commitThrowsIllegalStateExceptionWhenCalledOnInvalidSession() {
     final DeltaSession session = spy(newDeltaSession(manager));
-    final String sessionId = "invalidatedSession";
+    final var sessionId = "invalidatedSession";
     doReturn(sessionId).when(session).getId();
 
     assertThatThrownBy(session::commit).isInstanceOf(IllegalStateException.class)
@@ -157,24 +156,24 @@ public abstract class AbstractDeltaSessionTest<SessionT extends DeltaSession> {
 
   @Test
   public void getSizeInBytesReturnsProperValueForMultipleAttributes() {
-    final String attrName1 = "attrName1";
-    final String attrName2 = "attrName2";
+    final var attrName1 = "attrName1";
+    final var attrName2 = "attrName2";
     final List<String> attrList = new ArrayList<>();
     attrList.add(attrName1);
     attrList.add(attrName2);
 
-    final Enumeration<String> attrNames = Collections.enumeration(attrList);
+    final var attrNames = Collections.enumeration(attrList);
 
     final byte[] value1 = {0, 0, 0, 0};
     final byte[] value2 = {0, 0, 0, 0, 0};
-    final int totalSize = value1.length + value2.length;
+    final var totalSize = value1.length + value2.length;
 
     final DeltaSession session = spy(newDeltaSession(manager));
     doReturn(attrNames).when(session).getAttributeNames();
     doReturn(value1).when(session).getAttributeWithoutDeserialize(attrName1);
     doReturn(value2).when(session).getAttributeWithoutDeserialize(attrName2);
 
-    final int sessionSize = session.getSizeInBytes();
+    final var sessionSize = session.getSizeInBytes();
 
     assertThat(sessionSize).isEqualTo(totalSize);
   }
@@ -182,8 +181,8 @@ public abstract class AbstractDeltaSessionTest<SessionT extends DeltaSession> {
   @Test
   public void serializeLogsWarningWhenExceptionIsThrownDuringSerialization() throws IOException {
     final Object obj = "unserialized object";
-    final String exceptionMessaage = "Serialization failed.";
-    final IOException exception = new IOException(exceptionMessaage);
+    final var exceptionMessaage = "Serialization failed.";
+    final var exception = new IOException(exceptionMessaage);
 
     final DeltaSession session = spy(newDeltaSession(manager));
     doThrow(exception).when(session).serializeViaBlobHelper(obj);
@@ -195,10 +194,10 @@ public abstract class AbstractDeltaSessionTest<SessionT extends DeltaSession> {
   @Test
   public void serializeReturnsSerializedObject() throws IOException {
     final Object obj = "unserialized object";
-    final byte[] serializedObj = BlobHelper.serializeToBlob(obj);
+    final var serializedObj = BlobHelper.serializeToBlob(obj);
 
     final DeltaSession session = spy(newDeltaSession(manager));
-    final byte[] result = session.serialize(obj);
+    final var result = session.serialize(obj);
 
     assertThat(result).isEqualTo(serializedObj);
   }

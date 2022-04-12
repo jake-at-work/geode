@@ -41,9 +41,9 @@ class RemoteDUnitVM extends UnicastRemoteObject implements RemoteDUnitVMIF {
    */
   @Override
   public MethodInvokerResult executeMethodOnObject(Object target, String methodName) {
-    String name = target.getClass().getName() + '.' + methodName + " on object: " + target;
-    long start = start(name);
-    MethodInvokerResult result = MethodInvoker.executeObject(target, methodName);
+    var name = target.getClass().getName() + '.' + methodName + " on object: " + target;
+    var start = start(name);
+    var result = MethodInvoker.executeObject(target, methodName);
     logDelta(name, start, result);
     return result;
   }
@@ -54,7 +54,7 @@ class RemoteDUnitVM extends UnicastRemoteObject implements RemoteDUnitVMIF {
   }
 
   private void logDelta(String name, long start, MethodInvokerResult result) {
-    long delta = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start);
+    var delta = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start);
     logger.info("Got result: {} from {} (took {} ms)", result, name, delta);
   }
 
@@ -72,10 +72,10 @@ class RemoteDUnitVM extends UnicastRemoteObject implements RemoteDUnitVMIF {
       }
     }
     try {
-      String name = target.getClass().getName() + '.' + methodName
+      var name = target.getClass().getName() + '.' + methodName
           + (args != null ? " with " + args.length + " args" : "") + " on object: " + target;
-      long start = start(name);
-      MethodInvokerResult result = MethodInvoker.executeObject(target, methodName, args);
+      var start = start(name);
+      var result = MethodInvoker.executeObject(target, methodName, args);
       logDelta(name, start, result);
       return result;
     } finally {
@@ -95,9 +95,9 @@ class RemoteDUnitVM extends UnicastRemoteObject implements RemoteDUnitVMIF {
    * @return the result of method execution
    */
   public MethodInvokerResult executeMethodOnClass(String className, String methodName) {
-    String name = className + '.' + methodName;
-    long start = start(name);
-    MethodInvokerResult result = MethodInvoker.execute(className, methodName);
+    var name = className + '.' + methodName;
+    var start = start(name);
+    var result = MethodInvoker.execute(className, methodName);
     logDelta(name, start, result);
 
     return result;
@@ -109,10 +109,10 @@ class RemoteDUnitVM extends UnicastRemoteObject implements RemoteDUnitVMIF {
   @Override
   public MethodInvokerResult executeMethodOnClass(String className, String methodName,
       Object[] args) {
-    String name =
+    var name =
         className + '.' + methodName + (args != null ? " with " + args.length + " args" : "");
-    long start = start(name);
-    MethodInvokerResult result = MethodInvoker.execute(className, methodName, args);
+    var start = start(name);
+    var result = MethodInvoker.execute(className, methodName, args);
     logDelta(name, start, result);
     return result;
   }

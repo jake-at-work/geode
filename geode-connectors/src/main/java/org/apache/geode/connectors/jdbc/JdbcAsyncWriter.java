@@ -68,7 +68,7 @@ public class JdbcAsyncWriter extends AbstractJdbcCallback implements AsyncEventL
       }
     }
 
-    Boolean initialPdxReadSerialized = cache.getPdxReadSerializedOverride();
+    var initialPdxReadSerialized = cache.getPdxReadSerializedOverride();
     cache.setPdxReadSerializedOverride(true);
     try {
       processEventsList(events);
@@ -80,7 +80,7 @@ public class JdbcAsyncWriter extends AbstractJdbcCallback implements AsyncEventL
 
   @SuppressWarnings({"rawtypes", "unchecked"})
   private void processEventsList(List<AsyncEvent> events) {
-    for (AsyncEvent event : events) {
+    for (var event : events) {
       if (eventCanBeIgnored(event.getOperation())) {
         changeIgnoredEvents(1);
         continue;
@@ -132,7 +132,7 @@ public class JdbcAsyncWriter extends AbstractJdbcCallback implements AsyncEventL
    * precondition: DefaultQuery.setPdxReadSerialized(true)
    */
   private PdxInstance getPdxInstance(@SuppressWarnings("rawtypes") AsyncEvent event) {
-    Object value = event.getDeserializedValue();
+    var value = event.getDeserializedValue();
     if (!(value instanceof PdxInstance)) {
       value = CopyHelper.copy(value);
     }

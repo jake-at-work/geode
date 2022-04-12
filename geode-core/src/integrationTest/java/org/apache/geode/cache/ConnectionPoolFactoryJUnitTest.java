@@ -31,7 +31,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.distributed.DistributedSystem;
@@ -46,7 +45,7 @@ public class ConnectionPoolFactoryJUnitTest {
 
   @Before
   public void setUp() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.setProperty(MCAST_PORT, "0");
     props.setProperty(LOCATORS, "");
     props.setProperty(LOG_LEVEL, "info"); // to keep diskPerf logs smaller
@@ -66,7 +65,7 @@ public class ConnectionPoolFactoryJUnitTest {
 
   @Test
   public void testAddIllegalArgs() {
-    PoolFactory cpf = PoolManager.createFactory();
+    var cpf = PoolManager.createFactory();
     try {
       cpf.addServer("localhost", 0);
       fail("expected IllegalArgumentException");
@@ -113,7 +112,7 @@ public class ConnectionPoolFactoryJUnitTest {
 
   @Test
   public void testCreateDefaultAndInvalidAndLegitAttributes() {
-    PoolFactory cpf = PoolManager.createFactory();
+    var cpf = PoolManager.createFactory();
     ((PoolFactoryImpl) cpf).setStartDisabled(true);
 
     try {
@@ -124,7 +123,7 @@ public class ConnectionPoolFactoryJUnitTest {
 
     cpf.addServer("localhost", 40907);
 
-    Pool defaultAttr = cpf.create("defaults");
+    var defaultAttr = cpf.create("defaults");
     try {
       // now add a source and try defaults again
       assertEquals(PoolFactory.DEFAULT_FREE_CONNECTION_TIMEOUT,
@@ -148,20 +147,20 @@ public class ConnectionPoolFactoryJUnitTest {
      * Lets configure each attribute and make sure they are reflected in the attributes
      */
 
-    int connectionTimeout = -1;
-    int serverConnectionTimeout = -2;
-    int connectionLifetime = -2;
-    boolean threadLocalConnections = false;
-    int readTimeout = -1;
-    int messageTrackingTimeout = -1;
-    int ackInterval = -1;
-    int minConnections = -1;
-    int maxConnections = -2;
-    int retryAttempts = -2;
-    int pingInterval = -1;
-    int idleTimeout = -2;
-    int redundancy = -2;
-    int bufferSize = -1;
+    var connectionTimeout = -1;
+    var serverConnectionTimeout = -2;
+    var connectionLifetime = -2;
+    var threadLocalConnections = false;
+    var readTimeout = -1;
+    var messageTrackingTimeout = -1;
+    var ackInterval = -1;
+    var minConnections = -1;
+    var maxConnections = -2;
+    var retryAttempts = -2;
+    var pingInterval = -1;
+    var idleTimeout = -2;
+    var redundancy = -2;
+    var bufferSize = -1;
 
     /* All of these should fail */
     try {
@@ -319,7 +318,7 @@ public class ConnectionPoolFactoryJUnitTest {
     cpf.setIdleTimeout(idleTimeout);
     cpf.setSocketBufferSize(bufferSize);
 
-    Pool cpa = cpf.create("mypool");
+    var cpa = cpf.create("mypool");
     try {
 
       assertEquals(connectionTimeout, cpa.getFreeConnectionTimeout());
@@ -357,15 +356,15 @@ public class ConnectionPoolFactoryJUnitTest {
 
   @Test
   public void testCreateADirectPool() throws Exception {
-    int connectionTimeout = 20;
-    boolean threadLocalConnections = true;
-    int readTimeout = 20;
-    int messageTrackingTimeout = 20;
-    int redundancy = 20;
-    int bufferSize = 20;
-    int ackInterval = 15;
+    var connectionTimeout = 20;
+    var threadLocalConnections = true;
+    var readTimeout = 20;
+    var messageTrackingTimeout = 20;
+    var redundancy = 20;
+    var bufferSize = 20;
+    var ackInterval = 15;
 
-    PoolFactory cpf = PoolManager.createFactory();
+    var cpf = PoolManager.createFactory();
     ((PoolFactoryImpl) cpf).setStartDisabled(true);
     cpf.addServer("localhost", 40907).setFreeConnectionTimeout(connectionTimeout)
         .setThreadLocalConnections(threadLocalConnections).setReadTimeout(readTimeout)
@@ -373,7 +372,7 @@ public class ConnectionPoolFactoryJUnitTest {
         .setSubscriptionMessageTrackingTimeout(messageTrackingTimeout)
         .setSubscriptionAckInterval(ackInterval).setSocketBufferSize(bufferSize);
 
-    Pool pool1 = cpf.create("myfriendlypool");
+    var pool1 = cpf.create("myfriendlypool");
 
     // @todo validate non default props
 
@@ -384,7 +383,7 @@ public class ConnectionPoolFactoryJUnitTest {
 
     /* lets make another with same name - should fail! */
 
-    boolean gotit = false;
+    var gotit = false;
     try {
       cpf.create("myfriendlypool");
     } catch (IllegalStateException ise) {
@@ -399,7 +398,7 @@ public class ConnectionPoolFactoryJUnitTest {
 
     /* create another legit one */
 
-    Pool pool2 = cpf.create("myfriendlypool2");
+    var pool2 = cpf.create("myfriendlypool2");
 
     pools = PoolManager.getAll();
     assertEquals("there should be two pools", 2, pools.size());

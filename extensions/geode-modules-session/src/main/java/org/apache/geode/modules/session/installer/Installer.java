@@ -20,18 +20,14 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import org.apache.geode.internal.ExitCode;
 import org.apache.geode.modules.session.installer.args.Argument;
@@ -78,7 +74,7 @@ public class Installer {
 
 
   public Installer(String[] args) {
-    final ArgumentProcessor processor = new ArgumentProcessor("Installer");
+    final var processor = new ArgumentProcessor("Installer");
 
     argValues = null;
     try {
@@ -95,13 +91,13 @@ public class Installer {
       argValues = processor.process(args);
 
       if (argValues.isDefined(ARG_HELP)) {
-        final UsageException usageException = new UsageException("Usage requested by user");
+        final var usageException = new UsageException("Usage requested by user");
         usageException.setUsage(processor.getUsage());
         throw (usageException);
       }
 
     } catch (UsageException ux) {
-      final StringBuilder error = new StringBuilder();
+      final var error = new StringBuilder();
       error.append("\nERROR: ");
       error.append(ux.getMessage());
       error.append("\n");
@@ -121,9 +117,9 @@ public class Installer {
    * @throws Exception if any errors occur.
    */
   private void process() throws Exception {
-    String argInputFile = argValues.getFirstResult(ARG_WEB_XML_FILE);
+    var argInputFile = argValues.getFirstResult(ARG_WEB_XML_FILE);
 
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    var output = new ByteArrayOutputStream();
     InputStream input = new FileInputStream(argInputFile);
 
     processWebXml(input, output);
@@ -135,7 +131,7 @@ public class Installer {
 
   public void processWebXml(final InputStream webXml, final OutputStream out) throws Exception {
 
-    Document doc = createWebXmlDoc(webXml);
+    var doc = createWebXmlDoc(webXml);
     mangleWebXml(doc);
 
     streamXML(doc, out);
@@ -144,8 +140,8 @@ public class Installer {
 
   private Document createWebXmlDoc(final InputStream webXml) throws Exception {
     Document doc;
-    final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-    final DocumentBuilder builder = factory.newDocumentBuilder();
+    final var factory = DocumentBuilderFactory.newInstance();
+    final var builder = factory.newDocumentBuilder();
     doc = builder.parse(webXml);
 
     return doc;
@@ -153,15 +149,15 @@ public class Installer {
 
 
   private Document mangleWebXml(final Document doc) {
-    final Element docElement = doc.getDocumentElement();
-    final NodeList nodelist = docElement.getChildNodes();
+    final var docElement = doc.getDocumentElement();
+    final var nodelist = docElement.getChildNodes();
     Node firstFilter = null;
     Node displayElement = null;
     Node afterDisplayElement = null;
 
-    for (int i = 0; i < nodelist.getLength(); i++) {
-      final Node node = nodelist.item(i);
-      final String name = node.getNodeName();
+    for (var i = 0; i < nodelist.getLength(); i++) {
+      final var node = nodelist.item(i);
+      final var name = node.getNodeName();
       if ("display-name".equals(name)) {
         displayElement = node;
       } else {
@@ -177,7 +173,7 @@ public class Installer {
     }
 
     Node initParam;
-    final Element filter = doc.createElement("filter");
+    final var filter = doc.createElement("filter");
     append(doc, filter, "filter-name", "gemfire-session-filter");
     append(doc, filter, "filter-class", GEMFIRE_FILTER_CLASS);
 
@@ -188,16 +184,16 @@ public class Installer {
 
 
     if (argValues.isDefined(ARG_GEMFIRE_PARAMETERS)) {
-      for (String[] val : argValues.getAllResults(ARG_GEMFIRE_PARAMETERS)) {
-        String gfParam = val[0];
-        int idx = gfParam.indexOf("=");
+      for (var val : argValues.getAllResults(ARG_GEMFIRE_PARAMETERS)) {
+        var gfParam = val[0];
+        var idx = gfParam.indexOf("=");
         initParam = append(doc, filter, "init-param", null);
         append(doc, initParam, "param-name", gfParam.substring(0, idx));
         append(doc, initParam, "param-value", gfParam.substring(idx + 1));
       }
     }
 
-    Node first = firstFilter;
+    var first = firstFilter;
     if (first == null) {
       if (afterDisplayElement != null) {
         first = afterDisplayElement;
@@ -207,7 +203,7 @@ public class Installer {
       first = docElement.getFirstChild();
     }
     docElement.insertBefore(filter, first);
-    final Element filterMapping = doc.createElement("filter-mapping");
+    final var filterMapping = doc.createElement("filter-mapping");
     append(doc, filterMapping, "filter-name", "gemfire-session-filter");
     append(doc, filterMapping, "url-pattern", "/*");
     docElement.insertBefore(filterMapping, after(docElement, "filter"));
@@ -215,11 +211,11 @@ public class Installer {
   }
 
   private Node after(final Node parent, final String nodeName) {
-    final NodeList nodelist = parent.getChildNodes();
-    int index = -1;
-    for (int i = 0; i < nodelist.getLength(); i++) {
-      final Node node = nodelist.item(i);
-      final String name = node.getNodeName();
+    final var nodelist = parent.getChildNodes();
+    var index = -1;
+    for (var i = 0; i < nodelist.getLength(); i++) {
+      final var node = nodelist.item(i);
+      final var name = node.getNodeName();
       if (nodeName.equals(name)) {
         index = i;
       }
@@ -235,7 +231,7 @@ public class Installer {
 
   private Node append(final Document doc, final Node parent, final String element,
       final String value) {
-    final Element child = doc.createElement(element);
+    final var child = doc.createElement(element);
     if (value != null) {
       child.setTextContent(value);
     }
@@ -245,18 +241,18 @@ public class Installer {
 
   private void streamXML(final Document doc, final OutputStream out) {
     try {// Use a Transformer for output
-      final TransformerFactory tFactory = TransformerFactory.newInstance();
-      final Transformer transformer = tFactory.newTransformer();
+      final var tFactory = TransformerFactory.newInstance();
+      final var transformer = tFactory.newTransformer();
       if (doc.getDoctype() != null) {
-        final String systemId = doc.getDoctype().getSystemId();
-        final String publicId = doc.getDoctype().getPublicId();
+        final var systemId = doc.getDoctype().getSystemId();
+        final var publicId = doc.getDoctype().getPublicId();
         transformer.setOutputProperty(OutputKeys.DOCTYPE_PUBLIC, publicId);
         transformer.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, systemId);
       }
       transformer.setOutputProperty(OutputKeys.INDENT, "yes");
       transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
-      final DOMSource source = new DOMSource(doc);
-      final StreamResult result = new StreamResult(out);
+      final var source = new DOMSource(doc);
+      final var result = new StreamResult(out);
       transformer.transform(source, result);
     } catch (final Exception e) {
       e.printStackTrace();

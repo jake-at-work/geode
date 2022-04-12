@@ -14,7 +14,6 @@
  */
 package org.apache.geode.cache.query.cq.internal;
 
-import org.apache.geode.cache.query.CqQuery;
 import org.apache.geode.cache.query.CqServiceStatistics;
 import org.apache.geode.cache.query.internal.DefaultQueryService;
 
@@ -83,10 +82,10 @@ public class CqServiceStatisticsImpl implements CqServiceStatistics {
    */
   @Override
   public long numCqsOnRegion(String regionName) {
-    DefaultQueryService queryService =
+    var queryService =
         (DefaultQueryService) cqService.getInternalCache().getLocalQueryService();
     try {
-      CqQuery[] cqs = queryService.getCqs(regionName);
+      var cqs = queryService.getCqs(regionName);
 
       if (cqs != null) {
         return cqs.length;

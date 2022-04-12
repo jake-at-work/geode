@@ -46,10 +46,10 @@ class ReflectionLuceneSerializer implements LuceneSerializer {
     // Iterate through all declared fields and save them
     // in a list if they are an indexed field and have the correct
     // type.
-    ArrayList<Field> foundFields = new ArrayList<>();
+    var foundFields = new ArrayList<Field>();
     while (clazz != Object.class) {
-      for (Field field : clazz.getDeclaredFields()) {
-        Class<?> type = field.getType();
+      for (var field : clazz.getDeclaredFields()) {
+        var type = field.getType();
         if (fieldSet.contains(field.getName()) && SerializerUtil.isSupported(type)) {
           field.setAccessible(true);
           foundFields.add(field);
@@ -64,10 +64,10 @@ class ReflectionLuceneSerializer implements LuceneSerializer {
 
   @Override
   public Collection<Document> toDocuments(LuceneIndex index, Object value) {
-    Document doc = new Document();
-    for (Field field : fields) {
+    var doc = new Document();
+    for (var field : fields) {
       try {
-        Object fieldValue = field.get(value);
+        var fieldValue = field.get(value);
         if (fieldValue == null) {
           continue;
         }

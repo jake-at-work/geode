@@ -18,10 +18,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.net.URL;
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.Arrays;
-import java.util.List;
 
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -51,8 +49,8 @@ public class PostgresTableMetaDataManagerIntegrationTest
   }
 
   protected void createTableWithSchemaAndCatalog() throws SQLException {
-    DatabaseMetaData metaData = connection.getMetaData();
-    String quote = metaData.getIdentifierQuoteString();
+    var metaData = connection.getMetaData();
+    var quote = metaData.getIdentifierQuoteString();
     statement.execute("CREATE SCHEMA MYSCHEMA");
     statement.execute(
         "CREATE TABLE " + DB_NAME + ".MYSCHEMA." + REGION_TABLE_NAME + " (" + quote + "id" + quote
@@ -66,9 +64,9 @@ public class PostgresTableMetaDataManagerIntegrationTest
     createTableWithSchemaAndCatalog();
     regionMapping.setSchema("MYSCHEMA");
     regionMapping.setCatalog(DB_NAME);
-    TableMetaDataView metaData = manager.getTableMetaDataView(connection, regionMapping);
+    var metaData = manager.getTableMetaDataView(connection, regionMapping);
 
-    List<String> keyColumnNames = metaData.getKeyColumnNames();
+    var keyColumnNames = metaData.getKeyColumnNames();
 
     assertThat(keyColumnNames).isEqualTo(Arrays.asList("id"));
   }

@@ -48,9 +48,9 @@ public class LogFileUtils {
       throw new IOException("Destination '" + destFile + "' exists but is a directory");
     }
 
-    FileInputStream input = new FileInputStream(srcFile);
+    var input = new FileInputStream(srcFile);
     try {
-      FileOutputStream output = new FileOutputStream(destFile);
+      var output = new FileOutputStream(destFile);
       try {
         copy(input, output);
       } finally {
@@ -78,9 +78,9 @@ public class LogFileUtils {
    * @throws ArithmeticException if the byte count is too large
    */
   public static int copy(InputStream input, OutputStream output) throws IOException {
-    byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
+    var buffer = new byte[DEFAULT_BUFFER_SIZE];
     long count = 0;
-    int n = 0;
+    var n = 0;
     while (-1 != (n = input.read(buffer))) {
       output.write(buffer, 0, n);
       count += n;
@@ -141,15 +141,15 @@ public class LogFileUtils {
 
 
   public static boolean renameAggressively(File oldFile, File newFile) {
-    boolean renameOK = oldFile.renameTo(newFile.getAbsoluteFile());
+    var renameOK = oldFile.renameTo(newFile.getAbsoluteFile());
     if (!renameOK) {
       try {
         LogFileUtils.copyFile(oldFile, newFile.getAbsoluteFile());
-        long timeStop = System.currentTimeMillis() + 600000;
-        boolean noDelete = !oldFile.delete();
+        var timeStop = System.currentTimeMillis() + 600000;
+        var noDelete = !oldFile.delete();
         if (noDelete) {
           try {
-            RandomAccessFile raf = new RandomAccessFile(oldFile, "rws");
+            var raf = new RandomAccessFile(oldFile, "rws");
             raf.setLength(0);
             raf.close();
             noDelete = false;

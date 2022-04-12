@@ -71,7 +71,7 @@ public class FileProcessControllerTest {
 
   @Test
   public void statusTimeoutMillis_defaultsToOneMinute() throws Exception {
-    FileProcessController controller = new FileProcessController(mockParameters, pid);
+    var controller = new FileProcessController(mockParameters, pid);
 
     assertThat(controller.getStatusTimeoutMillis()).isEqualTo(DEFAULT_STATUS_TIMEOUT_MILLIS);
   }

@@ -74,11 +74,11 @@ public class TXLockUpdateParticipantsMessage extends PooledDistributionMessage
   @Override
   public void process(ClusterDistributionManager dm) {
     // dm.getLogger().info("DEBUG Processing " + this);
-    DLockService svc = DLockService.getInternalServiceNamed(serviceName);
+    var svc = DLockService.getInternalServiceNamed(serviceName);
     if (svc != null) {
       updateParticipants(svc, txLockId, updatedParticipants);
     }
-    TXLockUpdateParticipantsReplyMessage reply = new TXLockUpdateParticipantsReplyMessage();
+    var reply = new TXLockUpdateParticipantsReplyMessage();
     reply.setProcessorId(processorId);
     reply.setRecipient(getSender());
     dm.putOutgoing(reply);
@@ -95,7 +95,7 @@ public class TXLockUpdateParticipantsMessage extends PooledDistributionMessage
       grantor = DLockGrantor.waitForGrantor(svc);
       if (grantor != null) {
         try {
-          TXLockBatch txb = (TXLockBatch) grantor.getLockBatch(txLockId);
+          var txb = (TXLockBatch) grantor.getLockBatch(txLockId);
           if (txb == null) {
             // we became grantor after the original grantor left
             // fixes bug 42656

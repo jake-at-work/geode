@@ -32,7 +32,6 @@ import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
 
 import org.apache.geode.redis.ConcurrentLoopingThreads;
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.dunit.rules.RedisClusterStartupRule;
 
 public class ZAddDUnitTest {
@@ -49,12 +48,12 @@ public class ZAddDUnitTest {
 
   @BeforeClass
   public static void classSetup() {
-    MemberVM locator = clusterStartUp.startLocatorVM(0);
+    var locator = clusterStartUp.startLocatorVM(0);
     clusterStartUp.startRedisVM(1, locator.getPort());
     clusterStartUp.startRedisVM(2, locator.getPort());
     clusterStartUp.startRedisVM(3, locator.getPort());
 
-    int redisServerPort = clusterStartUp.getRedisPort(1);
+    var redisServerPort = clusterStartUp.getRedisPort(1);
     jedis = new JedisCluster(new HostAndPort(BIND_ADDRESS, redisServerPort), REDIS_CLIENT_TIMEOUT);
   }
 
@@ -71,8 +70,8 @@ public class ZAddDUnitTest {
   @Test
   public void shouldDistributeDataAmongCluster_givenConcurrentlyAddingMultipleSets()
       throws Exception {
-    Map<String, Double> memberScoreMap1 = makeMemberScoreMapSlice(MEMBER_BASE, 0, SET_SIZE / 2);
-    Map<String, Double> memberScoreMap2 =
+    var memberScoreMap1 = makeMemberScoreMapSlice(MEMBER_BASE, 0, SET_SIZE / 2);
+    var memberScoreMap2 =
         makeMemberScoreMapSlice(MEMBER_BASE, SET_SIZE / 2, SET_SIZE / 2);
 
     new ConcurrentLoopingThreads(NUM_SORTED_SETS / 2,
@@ -90,10 +89,10 @@ public class ZAddDUnitTest {
 
 
   private void confirmAllDataIsPresent() throws Exception {
-    for (int i = 0; i < NUM_SORTED_SETS; i++) {
-      for (int j = 0; j < SET_SIZE; j++) {
-        final int final_i = i;
-        final int final_j = j;
+    for (var i = 0; i < NUM_SORTED_SETS; i++) {
+      for (var j = 0; j < SET_SIZE; j++) {
+        final var final_i = i;
+        final var final_j = j;
         assertThat(
             redisCommandWithRetries(() -> jedis.zscore(KEY_BASE + final_i, MEMBER_BASE + final_j),
                 10)).isEqualTo((double) final_j);
@@ -108,7 +107,7 @@ public class ZAddDUnitTest {
       throws Exception {
     Exception lastException = null;
     assertThat(maxRetries).isGreaterThan(0);
-    for (int i = 0; i < maxRetries; i++) {
+    for (var i = 0; i < maxRetries; i++) {
       try {
         return supplier.get();
       } catch (Exception e) {
@@ -120,7 +119,7 @@ public class ZAddDUnitTest {
 
   private Map<String, Double> makeMemberScoreMapSlice(String baseString, int start, int count) {
     Map<String, Double> scoreMemberPairs = new HashMap<>();
-    for (int i = 0; i < count; i++) {
+    for (var i = 0; i < count; i++) {
       scoreMemberPairs.put(baseString + (i + start), Double.valueOf((i + start) + ""));
     }
     return scoreMemberPairs;

@@ -58,39 +58,39 @@ public class XmlAuthzCredentialGenerator extends AuthzCredentialGenerator {
 
   static {
     readerOpsSet = new HashSet();
-    for (final OperationCode readerOp : READER_OPS) {
+    for (final var readerOp : READER_OPS) {
       readerOpsSet.add(readerOp);
     }
 
     writerOpsSet = new HashSet();
-    for (final OperationCode writerOp : WRITER_OPS) {
+    for (final var writerOp : WRITER_OPS) {
       writerOpsSet.add(writerOp);
     }
 
     queryOpsSet = new HashSet();
-    for (final OperationCode queryOp : QUERY_OPS) {
+    for (final var queryOp : QUERY_OPS) {
       queryOpsSet.add(queryOp);
     }
 
     queryRegionSet = new HashSet();
-    for (final String queryRegion : QUERY_REGIONS) {
+    for (final var queryRegion : QUERY_REGIONS) {
       queryRegionSet.add(queryRegion);
     }
   }
 
   @Override
   protected Properties init() throws IllegalArgumentException {
-    final Properties sysProps = new Properties();
-    final String dirName = "/org/apache/geode/security/generator/";
+    final var sysProps = new Properties();
+    final var dirName = "/org/apache/geode/security/generator/";
 
     if (generator.classCode().isDummy()) {
-      final String xmlFilename =
+      final var xmlFilename =
           createTempFileFromResource(XmlAuthzCredentialGenerator.class, dirName + dummyXml)
               .getAbsolutePath();
       sysProps.setProperty(XmlAuthorization.DOC_URI_PROP_NAME, xmlFilename);
 
     } else if (generator.classCode().isLDAP()) {
-      final String xmlFilename =
+      final var xmlFilename =
           createTempFileFromResource(XmlAuthzCredentialGenerator.class, dirName + ldapXml)
               .getAbsolutePath();
       sysProps.setProperty(XmlAuthorization.DOC_URI_PROP_NAME, xmlFilename);
@@ -120,9 +120,9 @@ public class XmlAuthzCredentialGenerator extends AuthzCredentialGenerator {
   }
 
   private Principal getDummyPrincipal(final byte roleType, final int index) {
-    final String[] admins = new String[] {"root", "admin", "administrator"};
-    final int numReaders = 3;
-    final int numWriters = 3;
+    final var admins = new String[] {"root", "admin", "administrator"};
+    final var numReaders = 3;
+    final var numWriters = 3;
 
     switch (roleType) {
       case READER_ROLE:
@@ -140,11 +140,11 @@ public class XmlAuthzCredentialGenerator extends AuthzCredentialGenerator {
   protected Principal getAllowedPrincipal(final OperationCode[] opCodes, final String[] regionNames,
       final int index) {
     if (generator.classCode().isDummy()) {
-      final byte roleType = getRequiredRole(opCodes, regionNames);
+      final var roleType = getRequiredRole(opCodes, regionNames);
       return getDummyPrincipal(roleType, index);
 
     } else if (generator.classCode().isLDAP()) {
-      final byte roleType = getRequiredRole(opCodes, regionNames);
+      final var roleType = getRequiredRole(opCodes, regionNames);
       return getLdapPrincipal(roleType, index);
     }
 
@@ -154,9 +154,9 @@ public class XmlAuthzCredentialGenerator extends AuthzCredentialGenerator {
   @Override
   protected Principal getDisallowedPrincipal(final OperationCode[] opCodes,
       final String[] regionNames, final int index) {
-    final byte roleType = getRequiredRole(opCodes, regionNames);
+    final var roleType = getRequiredRole(opCodes, regionNames);
 
-    byte disallowedRoleType = READER_ROLE;
+    var disallowedRoleType = READER_ROLE;
     switch (roleType) {
       case READER_ROLE:
         disallowedRoleType = WRITER_ROLE;
@@ -188,35 +188,35 @@ public class XmlAuthzCredentialGenerator extends AuthzCredentialGenerator {
   }
 
   private Principal getLdapPrincipal(final byte roleType, final int index) {
-    final String userPrefix = "gemfire";
-    final int[] readerIndices = {3, 4, 5};
-    final int[] writerIndices = {6, 7, 8};
-    final int[] queryIndices = {9, 10};
-    final int[] adminIndices = {1, 2};
+    final var userPrefix = "gemfire";
+    final var readerIndices = new int[] {3, 4, 5};
+    final var writerIndices = new int[] {6, 7, 8};
+    final var queryIndices = new int[] {9, 10};
+    final var adminIndices = new int[] {1, 2};
 
     switch (roleType) {
       case READER_ROLE:
-        int readerIndex = readerIndices[index % readerIndices.length];
+        var readerIndex = readerIndices[index % readerIndices.length];
         return new UsernamePrincipal(userPrefix + readerIndex);
       case WRITER_ROLE:
-        int writerIndex = writerIndices[index % writerIndices.length];
+        var writerIndex = writerIndices[index % writerIndices.length];
         return new UsernamePrincipal(userPrefix + writerIndex);
       case QUERY_ROLE:
-        int queryIndex = queryIndices[index % queryIndices.length];
+        var queryIndex = queryIndices[index % queryIndices.length];
         return new UsernamePrincipal(userPrefix + queryIndex);
       default:
-        int adminIndex = adminIndices[index % adminIndices.length];
+        var adminIndex = adminIndices[index % adminIndices.length];
         return new UsernamePrincipal(userPrefix + adminIndex);
     }
   }
 
   private byte getRequiredRole(final OperationCode[] opCodes, final String[] regionNames) {
-    byte roleType = ADMIN_ROLE;
-    boolean requiresReader = true;
-    boolean requiresWriter = true;
-    boolean requiresQuery = true;
+    var roleType = ADMIN_ROLE;
+    var requiresReader = true;
+    var requiresWriter = true;
+    var requiresQuery = true;
 
-    for (final OperationCode opCode : opCodes) {
+    for (final var opCode : opCodes) {
       if (requiresReader && !readerOpsSet.contains(opCode)) {
         requiresReader = false;
       }
@@ -236,8 +236,8 @@ public class XmlAuthzCredentialGenerator extends AuthzCredentialGenerator {
 
     } else if (requiresQuery) {
       if (regionNames != null && regionNames.length > 0) {
-        for (final String name : regionNames) {
-          final String regionName = XmlAuthorization.normalizeRegionName(name);
+        for (final var name : regionNames) {
+          final var regionName = XmlAuthorization.normalizeRegionName(name);
           if (requiresQuery && !queryRegionSet.contains(regionName)) {
             requiresQuery = false;
             break;

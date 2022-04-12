@@ -40,7 +40,7 @@ class ReflectiveFacadeGlobalSerialFilterFactory implements GlobalSerialFilterFac
 
   @Override
   public GlobalSerialFilter create(String pattern, Collection<String> sanctionedClasses) {
-    ObjectInputFilterApi api = objectInputFilterApiSupplier.get();
+    var api = objectInputFilterApiSupplier.get();
     return new ReflectiveFacadeGlobalSerialFilter(api, pattern, sanctionedClasses);
   }
 }

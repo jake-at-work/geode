@@ -20,13 +20,10 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.CacheTransactionManager;
 import org.apache.geode.cache.Region;
-import org.apache.geode.internal.cache.DiskRegion;
 import org.apache.geode.internal.cache.DiskStoreImpl;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.TXManagerImpl;
-import org.apache.geode.test.dunit.AsyncInvocation;
 import org.apache.geode.test.dunit.Host;
 import org.apache.geode.test.dunit.Invoke;
 import org.apache.geode.test.dunit.LogWriterUtils;
@@ -73,14 +70,14 @@ public class PersistentPartitionedRegionWithTransactionDUnitTest
 
   @Test
   public void testRollback() throws Throwable {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
 
-    int redundancy = 1;
+    var redundancy = 1;
 
-    int numBuckets = 50;
+    var numBuckets = 50;
 
     createPR(vm0, redundancy);
     createPR(vm1, redundancy);
@@ -94,9 +91,9 @@ public class PersistentPartitionedRegionWithTransactionDUnitTest
     closeCache(vm1);
     closeCache(vm2);
 
-    AsyncInvocation a1 = createPRAsync(vm0, redundancy);
-    AsyncInvocation a2 = createPRAsync(vm1, redundancy);
-    AsyncInvocation a3 = createPRAsync(vm2, redundancy);
+    var a1 = createPRAsync(vm0, redundancy);
+    var a2 = createPRAsync(vm1, redundancy);
+    var a3 = createPRAsync(vm2, redundancy);
 
     a1.getResult(MAX_WAIT);
     a2.getResult(MAX_WAIT);
@@ -116,16 +113,16 @@ public class PersistentPartitionedRegionWithTransactionDUnitTest
 
   private void createDataWithRollback(VM vm, final int startKey, final int endKey,
       final String value) {
-    SerializableRunnable createData = new SerializableRunnable() {
+    var createData = new SerializableRunnable() {
 
       @Override
       public void run() {
         Cache cache = getCache();
 
-        CacheTransactionManager tx = cache.getCacheTransactionManager();
+        var tx = cache.getCacheTransactionManager();
         Region region = cache.getRegion(getPartitionedRegionName());
 
-        for (int i = startKey; i < endKey; i++) {
+        for (var i = startKey; i < endKey; i++) {
           tx.begin();
           region.put(i, value);
           region.destroy(i + 113, value);
@@ -142,7 +139,7 @@ public class PersistentPartitionedRegionWithTransactionDUnitTest
   protected void createData(VM vm, final int startKey, final int endKey, final String value,
       final String regionName) {
     LogWriterUtils.getLogWriter().info("creating runnable to create data for region " + regionName);
-    SerializableRunnable createData = new SerializableRunnable() {
+    var createData = new SerializableRunnable() {
 
       @Override
       public void run() {
@@ -150,8 +147,8 @@ public class PersistentPartitionedRegionWithTransactionDUnitTest
         LogWriterUtils.getLogWriter().info("getting region " + regionName);
         Region region = cache.getRegion(regionName);
 
-        for (int i = startKey; i < endKey; i++) {
-          CacheTransactionManager tx = cache.getCacheTransactionManager();
+        for (var i = startKey; i < endKey; i++) {
+          var tx = cache.getCacheTransactionManager();
           tx.begin();
           region.put(i, value);
           region.put(i + 113, value);
@@ -159,7 +156,7 @@ public class PersistentPartitionedRegionWithTransactionDUnitTest
           tx.commit();
         }
         { // add a destroy to make sure bug 43063 is fixed
-          CacheTransactionManager tx = cache.getCacheTransactionManager();
+          var tx = cache.getCacheTransactionManager();
           tx.begin();
           region.put(endKey + 113 * 3, value);
           tx.commit();
@@ -175,7 +172,7 @@ public class PersistentPartitionedRegionWithTransactionDUnitTest
   @Override
   protected void checkData(VM vm, final int startKey, final int endKey, final String value,
       final String regionName) {
-    SerializableRunnable checkData = new SerializableRunnable() {
+    var checkData = new SerializableRunnable() {
 
       @Override
       public void run() {
@@ -183,7 +180,7 @@ public class PersistentPartitionedRegionWithTransactionDUnitTest
         LogWriterUtils.getLogWriter().info("checking data in " + regionName);
         Region region = cache.getRegion(regionName);
 
-        for (int i = startKey; i < endKey; i++) {
+        for (var i = startKey; i < endKey; i++) {
           assertEquals(value, region.get(i));
           assertEquals(value, region.get(i + 113));
           assertEquals(value, region.get(i + 113 * 2));
@@ -200,8 +197,8 @@ public class PersistentPartitionedRegionWithTransactionDUnitTest
       @Override
       public void run() {
         Cache cache = getCache();
-        PartitionedRegion region = (PartitionedRegion) cache.getRegion(getPartitionedRegionName());
-        DiskRegion disk = region.getRegionAdvisor().getBucket(bucketId).getDiskRegion();
+        var region = (PartitionedRegion) cache.getRegion(getPartitionedRegionName());
+        var disk = region.getRegionAdvisor().getBucket(bucketId).getDiskRegion();
         if (recoveredLocally) {
           assertEquals(0, disk.getStats().getRemoteInitializations());
           assertEquals(1, disk.getStats().getLocalInitializations());

@@ -18,7 +18,6 @@ import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.Statistics;
 import org.apache.geode.StatisticsFactory;
 import org.apache.geode.StatisticsType;
-import org.apache.geode.StatisticsTypeFactory;
 import org.apache.geode.annotations.Immutable;
 
 /**
@@ -32,7 +31,7 @@ public class VMStats implements VMStatsContract {
   private static final int totalMemoryId;
   private static final int maxMemoryId;
   static {
-    StatisticsTypeFactory f = StatisticsTypeFactoryImpl.singleton();
+    var f = StatisticsTypeFactoryImpl.singleton();
     vmType = f.createType("VMStats", "Stats available on any java virtual machine.",
         new StatisticDescriptor[] {
             f.createIntGauge("cpus", "Number of cpus available to the java VM on its machine.",
@@ -61,7 +60,7 @@ public class VMStats implements VMStatsContract {
 
   @Override
   public void refresh() {
-    Runtime rt = Runtime.getRuntime();
+    var rt = Runtime.getRuntime();
     vmStats.setInt(cpusId, rt.availableProcessors());
     vmStats.setLong(freeMemoryId, rt.freeMemory());
     vmStats.setLong(totalMemoryId, rt.totalMemory());

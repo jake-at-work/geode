@@ -27,7 +27,6 @@ import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.CacheLoader;
 import org.apache.geode.cache.CacheLoaderException;
 import org.apache.geode.cache.LoaderHelper;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.internal.cache.CachedDeserializable;
 import org.apache.geode.internal.cache.LocalRegion;
@@ -46,28 +45,28 @@ public class PdxInstanceLoaderIntegrationTest {
   @Test
   public void loadOfPdxInstanceWithReadSerializedFalseAttemptsToDeserialize() {
     cache = new CacheFactory().set(MCAST_PORT, "0").setPdxReadSerialized(false).create();
-    Region region = cache.createRegionFactory(RegionShortcut.LOCAL)
+    var region = cache.createRegionFactory(RegionShortcut.LOCAL)
         .setCacheLoader(new PdxInstanceLoader()).create("region");
-    Throwable thrown = catchThrowable(() -> region.get("key"));
+    var thrown = catchThrowable(() -> region.get("key"));
     assertThat(thrown).isInstanceOf(PdxSerializationException.class);
   }
 
   @Test
   public void loadOfPdxInstanceWithReadSerializedTrueReturnsPdxInstance() {
     cache = new CacheFactory().set(MCAST_PORT, "0").setPdxReadSerialized(true).create();
-    Region region = cache.createRegionFactory(RegionShortcut.LOCAL)
+    var region = cache.createRegionFactory(RegionShortcut.LOCAL)
         .setCacheLoader(new PdxInstanceLoader()).create("region");
-    Object obj = region.get("key");
+    var obj = region.get("key");
     assertThat(obj).isInstanceOf(PdxInstance.class);
   }
 
   @Test
   public void loadOfPdxInstanceWithPreferCDReturnsCachedDeserializable() {
     cache = new CacheFactory().set(MCAST_PORT, "0").setPdxReadSerialized(false).create();
-    LocalRegion region = (LocalRegion) cache.createRegionFactory(RegionShortcut.LOCAL)
+    var region = (LocalRegion) cache.createRegionFactory(RegionShortcut.LOCAL)
         .setCacheLoader(new PdxInstanceLoader()).create("region");
 
-    Object obj = region.get("key", null, true, true, true, null, null, false);
+    var obj = region.get("key", null, true, true, true, null, null, false);
 
     assertThat(obj).isInstanceOf(CachedDeserializable.class);
   }

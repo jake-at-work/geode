@@ -26,10 +26,8 @@ import static org.apache.geode.internal.inet.LocalHostUtil.getLocalHost;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
-import java.io.File;
 import java.net.BindException;
 import java.net.UnknownHostException;
-import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
@@ -38,7 +36,6 @@ import org.junit.Test;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.ServerLauncher.Builder;
-import org.apache.geode.distributed.ServerLauncher.ServerState;
 import org.apache.geode.internal.GemFireVersion;
 import org.apache.geode.internal.process.ProcessControllerFactory;
 import org.apache.geode.internal.process.ProcessType;
@@ -78,7 +75,7 @@ public class ServerLauncherLocalIntegrationTest extends ServerLauncherLocalInteg
 
   @Test
   public void startWithPortUsesPort() {
-    ServerLauncher launcher = startServer(newBuilder()
+    var launcher = startServer(newBuilder()
         .setDisableDefaultServer(false)
         .setServerPort(defaultServerPort));
 
@@ -87,7 +84,7 @@ public class ServerLauncherLocalIntegrationTest extends ServerLauncherLocalInteg
 
   @Test
   public void startWithPortZeroUsesAnEphemeralPort() {
-    ServerLauncher launcher = startServer(newBuilder()
+    var launcher = startServer(newBuilder()
         .setDisableDefaultServer(false)
         .setServerPort(0));
 
@@ -96,13 +93,13 @@ public class ServerLauncherLocalIntegrationTest extends ServerLauncherLocalInteg
 
   @Test
   public void startUsesBuilderValues() {
-    ServerLauncher launcher = startServer(newBuilder()
+    var launcher = startServer(newBuilder()
         .set(DISABLE_AUTO_RECONNECT, "true"));
 
-    Cache cache = launcher.getCache();
+    var cache = launcher.getCache();
     assertThat(cache).isNotNull();
 
-    DistributedSystem system = cache.getDistributedSystem();
+    var system = cache.getDistributedSystem();
     assertThat(system).isNotNull();
     assertThat(system.getProperties().getProperty(DISABLE_AUTO_RECONNECT)).isEqualTo("true");
     assertThat(system.getProperties().getProperty(LOG_LEVEL)).isEqualTo("config");
@@ -126,9 +123,9 @@ public class ServerLauncherLocalIntegrationTest extends ServerLauncherLocalInteg
 
   @Test
   public void startDeletesStaleControlFiles() {
-    File stopRequestFile = givenControlFile(getProcessType().getStopRequestFileName());
-    File statusRequestFile = givenControlFile(getProcessType().getStatusRequestFileName());
-    File statusFile = givenControlFile(getProcessType().getStatusFileName());
+    var stopRequestFile = givenControlFile(getProcessType().getStopRequestFileName());
+    var statusRequestFile = givenControlFile(getProcessType().getStatusRequestFileName());
+    var statusFile = givenControlFile(getProcessType().getStatusFileName());
 
     startServer();
 
@@ -166,9 +163,9 @@ public class ServerLauncherLocalIntegrationTest extends ServerLauncherLocalInteg
 
   @Test
   public void startWithServerPortOverridesPortInCacheXml() {
-    int[] freePorts = getRandomAvailableTCPPorts(2);
-    int cacheXmlPort = freePorts[0];
-    int startPort = freePorts[1];
+    var freePorts = getRandomAvailableTCPPorts(2);
+    var cacheXmlPort = freePorts[0];
+    var startPort = freePorts[1];
     givenCacheXmlFileWithServerPort(cacheXmlPort);
 
     launcher = startServer(newBuilder()
@@ -201,7 +198,7 @@ public class ServerLauncherLocalIntegrationTest extends ServerLauncherLocalInteg
         .setDisableDefaultServer(DEFAULT_SERVER_IS_NEEDED)
         .build();
 
-    Throwable thrown = catchThrowable(() -> launcher.start());
+    var thrown = catchThrowable(() -> launcher.start());
 
     assertThat(thrown)
         .isInstanceOf(RuntimeException.class)
@@ -216,7 +213,7 @@ public class ServerLauncherLocalIntegrationTest extends ServerLauncherLocalInteg
         .setServerPort(nonDefaultServerPort)
         .build();
 
-    Throwable thrown = catchThrowable(() -> launcher.start());
+    var thrown = catchThrowable(() -> launcher.start());
 
     assertThat(thrown)
         .isInstanceOf(RuntimeException.class)
@@ -225,18 +222,18 @@ public class ServerLauncherLocalIntegrationTest extends ServerLauncherLocalInteg
 
   @Test
   public void startWithParametersOverridesCacheXmlConfiguration() {
-    int[] freePorts = getRandomAvailableTCPPorts(2);
-    int xmlPort = freePorts[0];
-    int serverPort = freePorts[1];
-    int maxThreads = 100;
-    int maxConnections = 1200;
-    int maxMessageCount = 500000;
-    int socketBufferSize = 342768;
-    int messageTimeToLive = 120;
-    String hostnameForClients = "hostName4Clients";
-    String serverBindAddress = "127.0.0.1";
+    var freePorts = getRandomAvailableTCPPorts(2);
+    var xmlPort = freePorts[0];
+    var serverPort = freePorts[1];
+    var maxThreads = 100;
+    var maxConnections = 1200;
+    var maxMessageCount = 500000;
+    var socketBufferSize = 342768;
+    var messageTimeToLive = 120;
+    var hostnameForClients = "hostName4Clients";
+    var serverBindAddress = "127.0.0.1";
 
-    ServerLauncher.Builder launcherBuilder = newBuilder()
+    var launcherBuilder = newBuilder()
         .setDisableDefaultServer(DEFAULT_SERVER_IS_NEEDED)
         .setHostNameForClients(hostnameForClients)
         .setMaxConnections(maxConnections)
@@ -258,10 +255,10 @@ public class ServerLauncherLocalIntegrationTest extends ServerLauncherLocalInteg
     assertThatServerPortIsFree(xmlPort);
     assertThat(Integer.valueOf(launcher.status().getPort())).isEqualTo(serverPort);
 
-    List<CacheServer> servers = launcher.getCache().getCacheServers();
+    var servers = launcher.getCache().getCacheServers();
     assertThat(servers.size()).isEqualTo(1);
 
-    CacheServer server = servers.get(0);
+    var server = servers.get(0);
     assertThat(server.getBindAddress()).isEqualTo(serverBindAddress);
     assertThat(server.getHostnameForClients()).isEqualTo(hostnameForClients);
     assertThat(server.getMaxConnections()).isEqualTo(maxConnections);
@@ -275,7 +272,7 @@ public class ServerLauncherLocalIntegrationTest extends ServerLauncherLocalInteg
   public void statusForDisableDefaultServerHasEmptyPort() {
     givenServerPortIsFree(defaultServerPort);
 
-    ServerState serverState = startServer(newBuilder()
+    var serverState = startServer(newBuilder()
         .setDisableDefaultServer(true))
             .status();
 
@@ -286,7 +283,7 @@ public class ServerLauncherLocalIntegrationTest extends ServerLauncherLocalInteg
   public void statusWithPidReturnsOnlineWithDetails() throws UnknownHostException {
     givenRunningServer();
 
-    ServerState serverState = new Builder()
+    var serverState = new Builder()
         .setPid(localPid)
         .build()
         .status();
@@ -308,7 +305,7 @@ public class ServerLauncherLocalIntegrationTest extends ServerLauncherLocalInteg
   public void statusWithWorkingDirectoryReturnsOnlineWithDetails() throws UnknownHostException {
     givenRunningServer();
 
-    ServerState serverState = new Builder()
+    var serverState = new Builder()
         .setWorkingDirectory(getWorkingDirectoryPath())
         .build()
         .status();
@@ -329,11 +326,11 @@ public class ServerLauncherLocalIntegrationTest extends ServerLauncherLocalInteg
   @Test
   public void statusWithEmptyPidFileThrowsIllegalArgumentException() {
     givenEmptyPidFile();
-    ServerLauncher launcher = new Builder()
+    var launcher = new Builder()
         .setWorkingDirectory(getWorkingDirectoryPath())
         .build();
 
-    Throwable thrown = catchThrowable(launcher::status);
+    var thrown = catchThrowable(launcher::status);
 
     assertThat(thrown)
         .isInstanceOf(IllegalArgumentException.class)
@@ -345,7 +342,7 @@ public class ServerLauncherLocalIntegrationTest extends ServerLauncherLocalInteg
       throws UnknownHostException {
     givenEmptyWorkingDirectory();
 
-    ServerState serverState = new Builder()
+    var serverState = new Builder()
         .setWorkingDirectory(getWorkingDirectoryPath())
         .build()
         .status();
@@ -370,7 +367,7 @@ public class ServerLauncherLocalIntegrationTest extends ServerLauncherLocalInteg
   public void statusWithStalePidFileReturnsNotResponding() {
     givenPidFile(fakePid);
 
-    ServerState serverState = new Builder()
+    var serverState = new Builder()
         .setWorkingDirectory(getWorkingDirectoryPath())
         .build()
         .status();
@@ -382,7 +379,7 @@ public class ServerLauncherLocalIntegrationTest extends ServerLauncherLocalInteg
   public void stopWithPidReturnsStopped() {
     givenRunningServer();
 
-    ServerState serverState = new Builder()
+    var serverState = new Builder()
         .setPid(localPid)
         .build()
         .stop();
@@ -406,7 +403,7 @@ public class ServerLauncherLocalIntegrationTest extends ServerLauncherLocalInteg
   public void stopWithWorkingDirectoryReturnsStopped() {
     givenRunningServer();
 
-    ServerState serverState = new Builder()
+    var serverState = new Builder()
         .setWorkingDirectory(getWorkingDirectoryPath())
         .build()
         .stop();

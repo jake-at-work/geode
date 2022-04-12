@@ -41,7 +41,7 @@ public class FlusherThreadTest {
   public void setup() {
     diskStoreImpl = mock(DiskStoreImpl.class);
     diskStoreStats = mock(DiskStoreStats.class);
-    PersistentOplogSet persistentOpLogSet = mock(PersistentOplogSet.class);
+    var persistentOpLogSet = mock(PersistentOplogSet.class);
 
     when(diskStoreImpl.getAsyncMonitor()).thenReturn(new Object());
     when(diskStoreImpl.getForceFlushCount()).thenReturn(new AtomicInteger(1));

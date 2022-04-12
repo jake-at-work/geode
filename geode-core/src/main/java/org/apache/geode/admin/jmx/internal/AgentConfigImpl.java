@@ -44,7 +44,6 @@ import java.util.StringTokenizer;
 
 import org.apache.geode.GemFireIOException;
 import org.apache.geode.admin.DistributedSystemConfig;
-import org.apache.geode.admin.DistributionLocatorConfig;
 import org.apache.geode.admin.internal.DistributedSystemConfigImpl;
 import org.apache.geode.admin.jmx.Agent;
 import org.apache.geode.admin.jmx.AgentConfig;
@@ -159,7 +158,7 @@ public class AgentConfigImpl extends DistributedSystemConfigImpl implements Agen
    * Creates a new <code>Properties</code> object that contains all of the default values.
    */
   private static Properties getDefaultProperties() {
-    Properties props = new Properties();
+    var props = new Properties();
 
     props.setProperty(AUTO_CONNECT_NAME, String.valueOf(DEFAULT_AUTO_CONNECT));
 
@@ -199,7 +198,7 @@ public class AgentConfigImpl extends DistributedSystemConfigImpl implements Agen
    * @return default values for all valid agent properties
    */
   static Properties getDefaultValuesForAllProperties() {
-    Properties props = new Properties();
+    var props = new Properties();
 
     props.setProperty(AUTO_CONNECT_NAME, String.valueOf(DEFAULT_AUTO_CONNECT));
 
@@ -485,10 +484,10 @@ public class AgentConfigImpl extends DistributedSystemConfigImpl implements Agen
     // Initialize default values
     this();
 
-    Properties props = new Properties();
+    var props = new Properties();
     if (propFile.exists()) {
       try {
-        FileInputStream in = new FileInputStream(propFile);
+        var in = new FileInputStream(propFile);
         props.load(in);
         in.close();
       } catch (java.io.IOException e) {
@@ -573,15 +572,15 @@ public class AgentConfigImpl extends DistributedSystemConfigImpl implements Agen
    * @return contents of this config as String
    */
   public String toPropertiesAsString() {
-    Properties p = toProperties(true /* include DS properties */);
+    var p = toProperties(true /* include DS properties */);
 
-    StringWriter sw = new StringWriter();
-    PrintWriter pw = new PrintWriter(sw);
+    var sw = new StringWriter();
+    var pw = new PrintWriter(sw);
     pw.println("Agent Configuration:");
     Enumeration e = p.propertyNames();
     while (e.hasMoreElements()) {
-      String pn = (String) e.nextElement();
-      String pv = p.getProperty(pn);
+      var pn = (String) e.nextElement();
+      var pv = p.getProperty(pn);
       pw.println("  " + pn + " = " + pv);
     }
     pw.close();
@@ -607,7 +606,7 @@ public class AgentConfigImpl extends DistributedSystemConfigImpl implements Agen
    * @return contents of this config as java.util.Properties
    */
   public Properties toProperties(boolean includeDSProperties) {
-    Properties props = new Properties();
+    var props = new Properties();
 
     props.setProperty(AUTO_CONNECT_NAME, toString(AUTO_CONNECT_NAME, getAutoConnect()));
 
@@ -672,21 +671,21 @@ public class AgentConfigImpl extends DistributedSystemConfigImpl implements Agen
     props.setProperty(CLUSTER_SSL_REQUIRE_AUTHENTICATION,
         toString(CLUSTER_SSL_REQUIRE_AUTHENTICATION, isSSLAuthenticationRequired()));
 
-    Properties sslProps = getSSLProperties();
+    var sslProps = getSSLProperties();
     if (sslProps.size() > 0) {
-      int sequence = 0;
-      for (final Object o : sslProps.keySet()) {
-        String key = (String) o;
-        String value = sslProps.getProperty(key);
+      var sequence = 0;
+      for (final var o : sslProps.keySet()) {
+        var key = (String) o;
+        var value = sslProps.getProperty(key);
         props.setProperty("ssl-property-" + sequence, key + "=" + OBFUSCATED_STRING);
         sequence++;
       }
     }
 
     if (getDistributionLocatorConfigs().length > 0) {
-      DistributionLocatorConfig[] configs = getDistributionLocatorConfigs();
-      for (int i = 0; i < configs.length; i++) {
-        DistributionLocatorConfig locator = configs[i];
+      var configs = getDistributionLocatorConfigs();
+      for (var i = 0; i < configs.length; i++) {
+        var locator = configs[i];
         props.setProperty(LOCATOR_HOST_NAME + i, toString(LOCATOR_HOST_NAME, locator.getHost()));
         props.setProperty(LOCATOR_PORT_NAME + i, toString(LOCATOR_PORT_NAME, locator.getPort()));
         props.setProperty(LOCATOR_PRODUCT_DIRECTORY_NAME + i,
@@ -1045,21 +1044,21 @@ public class AgentConfigImpl extends DistributedSystemConfigImpl implements Agen
     sslAuthenticationRequired = validateBoolean(
         props.getProperty(CLUSTER_SSL_REQUIRE_AUTHENTICATION), DEFAULT_SSL_REQUIRE_AUTHENTICATION);
     sslProperties = new Properties();
-    for (int i = 0; true; i++) {
-      String key = "ssl-property-" + i;
-      String value = props.getProperty(key);
+    for (var i = 0; true; i++) {
+      var key = "ssl-property-" + i;
+      var value = props.getProperty(key);
       if (value == null) {
         break;
       }
-      StringTokenizer st = new StringTokenizer(value, "=");
+      var st = new StringTokenizer(value, "=");
       if (!st.hasMoreTokens()) {
         break;
       }
-      String propKey = st.nextToken();
+      var propKey = st.nextToken();
       if (!st.hasMoreTokens()) {
         break;
       }
-      String propValue = st.nextToken();
+      var propValue = st.nextToken();
       sslProperties.put(propKey, propValue);
     }
 
@@ -1077,21 +1076,21 @@ public class AgentConfigImpl extends DistributedSystemConfigImpl implements Agen
         DEFAULT_STATE_SAVE_FILE);
 
     try {
-      for (int i = 0; true; i++) {
-        String hostProp = props.getProperty(LOCATOR_HOST_NAME + i);
+      for (var i = 0; true; i++) {
+        var hostProp = props.getProperty(LOCATOR_HOST_NAME + i);
         if (isEmpty(hostProp)) {
           break;
         }
-        String host = hostProp;
-        int port = Integer.parseInt(props.getProperty(LOCATOR_PORT_NAME + i));
-        File workDir =
+        var host = hostProp;
+        var port = Integer.parseInt(props.getProperty(LOCATOR_PORT_NAME + i));
+        var workDir =
             validateWorkingDirectory(props.getProperty(LOCATOR_WORKING_DIRECTORY_NAME + i));
-        File prodDir = new File(
+        var prodDir = new File(
             validateProductDirectory(props.getProperty(LOCATOR_PRODUCT_DIRECTORY_NAME + i)));
-        String remoteCmd = props.getProperty(LOCATOR_REMOTE_COMMAND + i);
-        String bindAddr = props.getProperty(LOCATOR_BIND_ADDRESS + i);
+        var remoteCmd = props.getProperty(LOCATOR_REMOTE_COMMAND + i);
+        var bindAddr = props.getProperty(LOCATOR_BIND_ADDRESS + i);
 
-        DistributionLocatorConfig config = createDistributionLocatorConfig();
+        var config = createDistributionLocatorConfig();
         config.setHost(host);
         config.setPort(port);
         config.setBindAddress(bindAddr);
@@ -1119,11 +1118,11 @@ public class AgentConfigImpl extends DistributedSystemConfigImpl implements Agen
    * @see AgentConfigImpl#_getPropertyDescription(String)
    */
   private static Properties filterOutAgentProperties(final Properties props) {
-    final Properties filteredProps = new Properties();
+    final var filteredProps = new Properties();
 
-    for (final Object key : props.keySet()) {
+    for (final var key : props.keySet()) {
       if (_getPropertyDescription(key.toString()) == null) {
-        final String value = props.getProperty(key.toString());
+        final var value = props.getProperty(key.toString());
         if (value != null) {
           filteredProps.setProperty(key.toString(), value);
         }
@@ -1158,8 +1157,8 @@ public class AgentConfigImpl extends DistributedSystemConfigImpl implements Agen
    * @return appendedProps Properties appened to from the property-file if any
    */
   private static Properties appendOptionalPropertyFileProperties(final Properties props) {
-    final URL url = getPropertyFileURL(retrievePropertyFile());
-    final Properties appendedProps = new Properties();
+    final var url = getPropertyFileURL(retrievePropertyFile());
+    final var appendedProps = new Properties();
 
     appendedProps.putAll(props);
 
@@ -1170,12 +1169,12 @@ public class AgentConfigImpl extends DistributedSystemConfigImpl implements Agen
       try {
         in = url.openStream();
 
-        final Properties agentPropertyFileProperties = new Properties();
+        final var agentPropertyFileProperties = new Properties();
 
         agentPropertyFileProperties.load(in);
 
         // don't let any properties from the file override those on the command-line
-        for (final Object key : agentPropertyFileProperties.keySet()) {
+        for (final var key : agentPropertyFileProperties.keySet()) {
           if (props.getProperty(key.toString()) == null) {
             appendedProps.setProperty(key.toString(),
                 agentPropertyFileProperties.getProperty(key.toString()));
@@ -1191,9 +1190,9 @@ public class AgentConfigImpl extends DistributedSystemConfigImpl implements Agen
 
     // last override values with those from the system properties
     // TODO this is not exactly overriding!
-    for (final Object propSuffix : props.keySet()) {
-      final String key = SYSTEM_PROPERTY_PREFIX + propSuffix;
-      final String value = System.getProperty(key);
+    for (final var propSuffix : props.keySet()) {
+      final var key = SYSTEM_PROPERTY_PREFIX + propSuffix;
+      final var value = System.getProperty(key);
 
       if (value != null) {
         appendedProps.put(key, value);
@@ -1247,7 +1246,7 @@ public class AgentConfigImpl extends DistributedSystemConfigImpl implements Agen
     } else if (prop.equals(CLUSTER_SSL_REQUIRE_AUTHENTICATION)) {
       return "Whether connection to the distributed system needs SSL authentication.";
     } else {
-      String description = _getPropertyDescription(prop);
+      var description = _getPropertyDescription(prop);
       if (description == null) {
         throw new IllegalArgumentException(
             String.format("Unknown config property: %s", prop));
@@ -1372,27 +1371,27 @@ public class AgentConfigImpl extends DistributedSystemConfigImpl implements Agen
    * @param args the command-line arguments to convert into a Properties
    */
   private static Properties toProperties(String[] args) {
-    Properties props = new Properties();
+    var props = new Properties();
     // loop all args and pick out key=value pairs...
-    for (final String arg : args) {
+    for (final var arg : args) {
       // VM args...
       if (arg.startsWith("-J")) {
-        int eq = arg.indexOf("=");
-        String key = arg.substring(2, eq);
-        String value = arg.substring(eq + 1);
+        var eq = arg.indexOf("=");
+        var key = arg.substring(2, eq);
+        var value = arg.substring(eq + 1);
         System.setProperty(key, value);
       } else if (arg.indexOf(AGENT_DEBUG) > 0) {
-        int eq = arg.indexOf("=");
-        String key = arg.substring(2, eq);
-        String value = arg.substring(eq + 1);
+        var eq = arg.indexOf("=");
+        var key = arg.substring(2, eq);
+        var value = arg.substring(eq + 1);
         System.setProperty(key, value);
       }
 
       // all other args
       else if (arg.indexOf("=") > 0) {
-        int eq = arg.indexOf("=");
-        String key = arg.substring(0, eq);
-        String value = arg.substring(eq + 1);
+        var eq = arg.indexOf("=");
+        var key = arg.substring(0, eq);
+        var value = arg.substring(eq + 1);
         props.setProperty(key, value);
       }
     }
@@ -1508,7 +1507,7 @@ public class AgentConfigImpl extends DistributedSystemConfigImpl implements Agen
    * httpBindAddress can be used to create a valid InetAddress.
    */
   private String validateHttpBindAddress(String val) {
-    String value = validateHost(val);
+    var value = validateHost(val);
     if (value == null) {
       return DEFAULT_HTTP_BIND_ADDRESS;
     } else {
@@ -1534,7 +1533,7 @@ public class AgentConfigImpl extends DistributedSystemConfigImpl implements Agen
    * snmpBindAddress can be used to create a valid InetAddress.
    */
   private String validateSnmpBindAddress(String val) {
-    String value = validateHost(val);
+    var value = validateHost(val);
     if (value == null) {
       return DEFAULT_SNMP_BIND_ADDRESS;
     } else {
@@ -1609,7 +1608,7 @@ public class AgentConfigImpl extends DistributedSystemConfigImpl implements Agen
    * rmiBindAddress can be used to create a valid InetAddress.
    */
   private String validateRmiBindAddress(String val) {
-    String value = validateHost(val);
+    var value = validateHost(val);
     if (value == null) {
       return DEFAULT_RMI_BIND_ADDRESS;
     } else {
@@ -1648,7 +1647,7 @@ public class AgentConfigImpl extends DistributedSystemConfigImpl implements Agen
    *         found.
    */
   public static URL getPropertyFileURL(final String propFileLocation) {
-    File propFile = new File(propFileLocation);
+    var propFile = new File(propFileLocation);
 
     // first, try the current directory...
     if (propFile.exists()) {

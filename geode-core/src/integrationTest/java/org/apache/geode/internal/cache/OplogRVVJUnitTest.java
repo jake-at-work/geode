@@ -23,7 +23,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -66,16 +65,16 @@ public class OplogRVVJUnitTest {
 
   @Test
   public void testRecoverRVV() {
-    final DiskInitFile df = mock(DiskInitFile.class);
-    final GemFireCacheImpl cache = mock(GemFireCacheImpl.class);
+    final var df = mock(DiskInitFile.class);
+    final var cache = mock(GemFireCacheImpl.class);
 
     // Create a mock disk store impl.
-    final DiskStoreImpl parent = mock(DiskStoreImpl.class);
-    final StatisticsFactory sf = mock(StatisticsFactory.class);
-    final DiskStoreID ownerId = DiskStoreID.random();
-    final DiskStoreID m1 = DiskStoreID.random();
-    final DiskStoreID m2 = DiskStoreID.random();
-    final DiskRecoveryStore drs = mock(DiskRecoveryStore.class);
+    final var parent = mock(DiskStoreImpl.class);
+    final var sf = mock(StatisticsFactory.class);
+    final var ownerId = DiskStoreID.random();
+    final var m1 = DiskStoreID.random();
+    final var m2 = DiskStoreID.random();
+    final var drs = mock(DiskRecoveryStore.class);
     when(parent.getWriteBufferSize()).thenReturn(DiskStoreFactory.DEFAULT_WRITE_BUFFER_SIZE);
     when(df.getOrCreateCanonicalId(m1)).thenReturn(1);
     when(df.getOrCreateCanonicalId(m2)).thenReturn(2);
@@ -86,19 +85,19 @@ public class OplogRVVJUnitTest {
     when(sf.createStatistics(any(), anyString())).thenReturn(mock(Statistics.class));
     when(sf.createAtomicStatistics(any(), anyString())).thenReturn(mock(Statistics.class));
 
-    DirectoryHolder dirHolder = new DirectoryHolder(sf, testDirectory, 0, 0);
+    var dirHolder = new DirectoryHolder(sf, testDirectory, 0, 0);
     when(cache.cacheTimeMillis()).thenReturn(System.currentTimeMillis());
     when(parent.getCache()).thenReturn(cache);
     when(parent.getMaxOplogSizeInBytes()).thenReturn(10000L);
     when(parent.getName()).thenReturn("test");
-    DiskStoreStats diskStoreStats = new DiskStoreStats(sf, "stats");
+    var diskStoreStats = new DiskStoreStats(sf, "stats");
     when(parent.getStats()).thenReturn(diskStoreStats);
     when(parent.getDiskInitFile()).thenReturn(df);
     when(parent.getDiskStoreID()).thenReturn(DiskStoreID.random());
     when(parent.getBackupLock()).thenReturn(mock(ReentrantLock.class));
     when(parent.getCancelCriterion()).thenReturn(mock(CancelCriterion.class));
 
-    final DiskRegionVersionVector rvv = new DiskRegionVersionVector(ownerId);
+    final var rvv = new DiskRegionVersionVector(ownerId);
     rvv.recordVersion(m1, 0);
     rvv.recordVersion(m1, 1);
     rvv.recordVersion(m1, 2);
@@ -111,8 +110,8 @@ public class OplogRVVJUnitTest {
     rvv.recordGCVersion(m2, 0);
 
     // create the oplog
-    final AbstractDiskRegion diskRegion = mock(AbstractDiskRegion.class);
-    final PersistentOplogSet oplogSet = mock(PersistentOplogSet.class);
+    final var diskRegion = mock(AbstractDiskRegion.class);
+    final var oplogSet = mock(PersistentOplogSet.class);
     final Map<Long, AbstractDiskRegion> map = new HashMap<>();
     map.put(5L, diskRegion);
     when(diskRegion.getRegionVersionVector()).thenReturn(rvv);
@@ -122,17 +121,17 @@ public class OplogRVVJUnitTest {
     when(oplogSet.getParent()).thenReturn(parent);
     when(diskRegion.getFlags()).thenReturn(EnumSet.of(DiskRegionFlag.IS_WITH_VERSIONING));
 
-    Oplog oplog = new Oplog(1, oplogSet, dirHolder);
+    var oplog = new Oplog(1, oplogSet, dirHolder);
     oplog.close();
 
     oplog = new Oplog(1, oplogSet);
-    Collection<File> drfFiles = FileUtils.listFiles(testDirectory, new String[] {"drf"}, true);
+    var drfFiles = FileUtils.listFiles(testDirectory, new String[] {"drf"}, true);
     assertThat(drfFiles.size()).isEqualTo(1);
-    Collection<File> crfFiles = FileUtils.listFiles(testDirectory, new String[] {"crf"}, true);
+    var crfFiles = FileUtils.listFiles(testDirectory, new String[] {"crf"}, true);
     assertThat(crfFiles.size()).isEqualTo(1);
     oplog.addRecoveredFile(drfFiles.iterator().next(), dirHolder);
     oplog.addRecoveredFile(crfFiles.iterator().next(), dirHolder);
-    OplogEntryIdSet deletedIds = new OplogEntryIdSet();
+    var deletedIds = new OplogEntryIdSet();
     oplog.recoverDrf(deletedIds, false, true);
     oplog.recoverCrf(deletedIds, true, true, false, Collections.singleton(oplog), true);
     verify(drs, times(1)).recordRecoveredGCVersion(m1, 1);

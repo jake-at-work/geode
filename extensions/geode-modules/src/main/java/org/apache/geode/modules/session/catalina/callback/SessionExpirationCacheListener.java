@@ -16,8 +16,6 @@ package org.apache.geode.modules.session.catalina.callback;
 
 import javax.servlet.http.HttpSession;
 
-import org.apache.catalina.session.ManagerBase;
-
 import org.apache.geode.cache.Declarable;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.Operation;
@@ -43,10 +41,10 @@ public class SessionExpirationCacheListener extends CacheListenerAdapter<String,
        * correctly. Having the destroyed object come back as the callback arg depends on setting the
        * property gemfire.EXPIRE_SENDS_ENTRY_AS_CALLBACK.
        */
-      Object callback = event.getCallbackArgument();
+      var callback = event.getCallbackArgument();
       if (callback instanceof DeltaSessionInterface) {
         session = (DeltaSessionInterface) callback;
-        ManagerBase m = ContextMapper.getContext(session.getContextName());
+        var m = ContextMapper.getContext(session.getContextName());
         if (m != null) {
           session.setOwner(m);
         }

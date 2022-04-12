@@ -17,8 +17,6 @@ package org.apache.geode.internal.cache;
 import static org.apache.geode.test.dunit.Host.getHost;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Map.Entry;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -67,14 +65,14 @@ public class PREntrySetIteratorRegressionTest extends CacheTestCase {
   public void regionEntrySetIteratorNextShouldNeverReturnNull() throws Exception {
     AsyncInvocation destroySomeEntries = vm1.invokeAsync(() -> {
       Region<Integer, Object> region = getCache().getRegion(uniqueName);
-      for (int j = 0; j < ENTRY_COUNT / ENTRY_DESTROY_SEQUENCE; j += ENTRY_DESTROY_SEQUENCE) {
+      for (var j = 0; j < ENTRY_COUNT / ENTRY_DESTROY_SEQUENCE; j += ENTRY_DESTROY_SEQUENCE) {
         region.destroy(j);
       }
     });
 
     AsyncInvocation validateEntrySetIteratorContainsNoNulls = vm2.invokeAsync(() -> {
       Region<Integer, Object> region = getCache().getRegion(uniqueName);
-      for (Entry<Integer, Object> entry : region.entrySet()) {
+      for (var entry : region.entrySet()) {
         assertThat(entry).isNotNull();
       }
     });
@@ -89,7 +87,7 @@ public class PREntrySetIteratorRegressionTest extends CacheTestCase {
 
   private void doPuts() {
     Region<Integer, Object> region = getCache().getRegion(uniqueName);
-    for (int i = 0; i < ENTRY_COUNT; i++) {
+    for (var i = 0; i < ENTRY_COUNT; i++) {
       region.put(i, i);
     }
   }

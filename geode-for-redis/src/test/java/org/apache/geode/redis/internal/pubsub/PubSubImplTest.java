@@ -22,7 +22,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
-import java.util.List;
 
 import org.junit.Test;
 
@@ -33,18 +32,18 @@ public class PubSubImplTest {
 
   @Test
   public void findNumberOfSubscribersPerChannel_handlesEmptyList() {
-    List<Object> result = pubsub.findNumberOfSubscribersPerChannel(Collections.emptyList());
+    var result = pubsub.findNumberOfSubscribersPerChannel(Collections.emptyList());
     assertThat(result).isEmpty();
   }
 
   @Test
   public void findNumberOfSubscribersPerChannel_hasCorrectResults() {
-    byte[] channel1 = stringToBytes("channel1");
-    byte[] channel2 = stringToBytes("channel2");
+    var channel1 = stringToBytes("channel1");
+    var channel2 = stringToBytes("channel2");
     when(subscriptions.getChannelSubscriptionCount(channel1)).thenReturn(1);
     when(subscriptions.getChannelSubscriptionCount(channel2)).thenReturn(2);
 
-    List<Object> result = pubsub.findNumberOfSubscribersPerChannel(asList(channel1, channel2));
+    var result = pubsub.findNumberOfSubscribersPerChannel(asList(channel1, channel2));
 
     assertThat(result).containsExactly(channel1, 1, channel2, 2);
   }

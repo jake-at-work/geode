@@ -140,7 +140,7 @@ public class RemoveAllTest {
 
     removeAll.cmdExecute(message, serverConnection, securityService, 0);
 
-    for (Object key : KEYS) {
+    for (var key : KEYS) {
       verify(securityService).authorize(Resource.DATA, Operation.WRITE, REGION_NAME);
     }
 
@@ -152,14 +152,14 @@ public class RemoveAllTest {
     when(securityService.isClientSecurityRequired()).thenReturn(true);
     when(securityService.isIntegratedSecurity()).thenReturn(true);
 
-    for (Object key : KEYS) {
+    for (var key : KEYS) {
       doThrow(new NotAuthorizedException("")).when(securityService).authorize(Resource.DATA,
           Operation.READ, REGION_NAME, key.toString());
     }
 
     removeAll.cmdExecute(message, serverConnection, securityService, 0);
 
-    for (Object key : KEYS) {
+    for (var key : KEYS) {
       verify(securityService).authorize(Resource.DATA, Operation.WRITE, REGION_NAME);
     }
 
@@ -173,7 +173,7 @@ public class RemoveAllTest {
 
     removeAll.cmdExecute(message, serverConnection, securityService, 0);
 
-    for (Object key : KEYS) {
+    for (var key : KEYS) {
       verify(authzRequest).removeAllAuthorize(eq(REGION_NAME), any(), any());
     }
 
@@ -185,13 +185,13 @@ public class RemoveAllTest {
     when(securityService.isClientSecurityRequired()).thenReturn(true);
     when(securityService.isIntegratedSecurity()).thenReturn(false);
 
-    for (Object key : KEYS) {
+    for (var key : KEYS) {
       doThrow(new NotAuthorizedException("")).when(authzRequest).getAuthorize(eq(REGION_NAME),
           eq(key.toString()), eq(null));
     }
     removeAll.cmdExecute(message, serverConnection, securityService, 0);
 
-    for (Object key : KEYS) {
+    for (var key : KEYS) {
       verify(authzRequest).removeAllAuthorize(eq(REGION_NAME), any(), any());
     }
     verify(chunkedResponseMessage).sendChunk(eq(serverConnection));

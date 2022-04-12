@@ -18,7 +18,6 @@ package org.apache.geode.internal.gfsh.console;
 import java.io.Console;
 
 import org.apache.geode.annotations.Immutable;
-import org.apache.geode.management.internal.cli.LogWrapper;
 import org.apache.geode.management.internal.cli.shell.Gfsh;
 import org.apache.geode.management.internal.cli.util.GfshConsoleReader;
 
@@ -42,7 +41,7 @@ public class GfeConsoleReaderFactory {
     GfeConsoleReader consoleReader;
 
     if (Gfsh.getCurrentInstance() != null) {
-      LogWrapper logWrapper = Gfsh.getCurrentInstance().getGfshFileLogger();
+      var logWrapper = Gfsh.getCurrentInstance().getGfshFileLogger();
       logWrapper.info("GfeConsoleReaderFactory.createConsoleReader(): isGfshVM");
       consoleReader = new GfshConsoleReader();
       logWrapper.info("GfeConsoleReaderFactory.createConsoleReader(): consoleReader: "

@@ -195,7 +195,7 @@ public class DLockRequestProcessor extends ReplyProcessor21 {
   }
 
   protected boolean requestLock(boolean interruptible, int lockId) throws InterruptedException {
-    final boolean isDebugEnabled_DLS = logger.isTraceEnabled(LogMarker.DLS_VERBOSE);
+    final var isDebugEnabled_DLS = logger.isTraceEnabled(LogMarker.DLS_VERBOSE);
 
     Assert.assertTrue(lockId > -1, "lockId is < 0: " + this);
     request.lockId = lockId;
@@ -273,7 +273,7 @@ public class DLockRequestProcessor extends ReplyProcessor21 {
 
   @Override
   public void process(DistributionMessage msg) {
-    final boolean isDebugEnabled_DLS = logger.isTraceEnabled(LogMarker.DLS_VERBOSE);
+    final var isDebugEnabled_DLS = logger.isTraceEnabled(LogMarker.DLS_VERBOSE);
     try {
       Assert.assertTrue(msg instanceof DLockResponseMessage,
           "DLockRequestProcessor is unable to process message of type " + msg.getClass());
@@ -281,7 +281,7 @@ public class DLockRequestProcessor extends ReplyProcessor21 {
       if (isDebugEnabled_DLS) {
         logger.trace(LogMarker.DLS_VERBOSE, "Processing DLockResponseMessage: '{}'", msg);
       }
-      final DLockResponseMessage reply = (DLockResponseMessage) msg;
+      final var reply = (DLockResponseMessage) msg;
       response = reply;
 
       if (response.getLockId() != request.getLockId()) {
@@ -518,7 +518,7 @@ public class DLockRequestProcessor extends ReplyProcessor21 {
      */
     @Override
     protected void process(final ClusterDistributionManager dm) {
-      boolean failed = false;
+      var failed = false;
       Throwable replyException = null;
       try {
         statStart = startGrantWait();
@@ -573,7 +573,7 @@ public class DLockRequestProcessor extends ReplyProcessor21 {
      * this.svc and this.grantor must be set before calling this method.
      */
     private void executeBasicProcess(final DistributionManager dm) {
-      final DLockRequestMessage msg = this;
+      final var msg = this;
       dm.getExecutors().getWaitingThreadPool().execute(() -> {
         if (logger.isTraceEnabled(LogMarker.DLS_VERBOSE)) {
           logger.trace(LogMarker.DLS_VERBOSE, "calling waitForGrantor {}", msg);
@@ -583,7 +583,7 @@ public class DLockRequestProcessor extends ReplyProcessor21 {
     }
 
     protected void basicProcess(final DistributionManager dm, final boolean waitForGrantor) {
-      final boolean isDebugEnabled_DLS = logger.isTraceEnabled(LogMarker.DLS_VERBOSE);
+      final var isDebugEnabled_DLS = logger.isTraceEnabled(LogMarker.DLS_VERBOSE);
       try {
         receivingDM = dm;
         if (isDebugEnabled_DLS) {
@@ -780,7 +780,7 @@ public class DLockRequestProcessor extends ReplyProcessor21 {
       if (waitMillis == -1 || waitMillis == Long.MAX_VALUE) {
         return Long.MAX_VALUE;
       } else {
-        long result = startTime + waitMillis;
+        var result = startTime + waitMillis;
         if (result < startTime) {
           result = Long.MAX_VALUE;
         }
@@ -795,7 +795,7 @@ public class DLockRequestProcessor extends ReplyProcessor21 {
       if (tryLock) {
         return false;
       }
-      long now = DLockService.getLockTimeStamp(receivingDM);
+      var now = DLockService.getLockTimeStamp(receivingDM);
       if (now < startTime) {
         now = startTime;
       }
@@ -815,7 +815,7 @@ public class DLockRequestProcessor extends ReplyProcessor21 {
       if (statStart == -1) {
         return; // failed to start the stat
       }
-      DistributedLockStats stats = DLockService.getDistributedLockStats();
+      var stats = DLockService.getDistributedLockStats();
       switch (response.responseCode) {
         case DLockResponseMessage.GRANT:
           stats.endGrantWait(statStart);
@@ -850,14 +850,14 @@ public class DLockRequestProcessor extends ReplyProcessor21 {
         if (responded) {
           return;
         }
-        InternalDistributedMember myId = receivingDM.getDistributionManagerId();
+        var myId = receivingDM.getDistributionManagerId();
 
         // local... don't actually use messaging
         if (getSender().equals(myId)) {
           if (debugReleaseOrphanedGrant()) {
             waitToProcessDLockResponse(receivingDM);
           }
-          ReplyProcessor21 processor = getReplyProcessor();
+          var processor = getReplyProcessor();
           if (processor == null) {
             // lock request was probably interrupted so we need to release it...
             logger.warn(LogMarker.DLS_MARKER,
@@ -885,7 +885,7 @@ public class DLockRequestProcessor extends ReplyProcessor21 {
 
         // remote... use messaging
         else {
-          DLockResponseMessage responseMessage = response;
+          var responseMessage = response;
           executeGrantToRemote(responseMessage);
         }
       } finally {
@@ -1090,16 +1090,16 @@ public class DLockRequestProcessor extends ReplyProcessor21 {
      * releases any lock grant for which we cannot find an active reply processor.
      */
     public void releaseOrphanedGrant(DistributionManager dm) {
-      InternalDistributedMember grantor = getSender();
+      var grantor = getSender();
       // method is rewritten to fix bug 35252
-      boolean released = false;
+      var released = false;
       logger.info("Releasing orphaned grant for  {}", this);
       try {
         while (!released) {
           dm.getCancelCriterion().checkCancelInProgress(null);
           try {
             if (grantor == null) { // use grantor arg on first iteration
-              GrantorInfo gi = DLockService.checkLockGrantorInfo(serviceName, dm.getSystem());
+              var gi = DLockService.checkLockGrantorInfo(serviceName, dm.getSystem());
               grantor = gi.getId();
             }
             if (grantor == null) { // still null if elder says no one is grantor
@@ -1213,7 +1213,7 @@ public class DLockRequestProcessor extends ReplyProcessor21 {
 
     @Override
     public String toString() {
-      String response = responseCodeToString(responseCode);
+      var response = responseCodeToString(responseCode);
       return "DLockRequestProcessor.DLockResponseMessage " + "responding " + response
           + "; serviceName=" + serviceName + "(version " + dlsSerialNumber + ")" + "; objectName="
           + objectName + "; responseCode=" + responseCode + "; keyIfFailed=" + keyIfFailed
@@ -1247,7 +1247,7 @@ public class DLockRequestProcessor extends ReplyProcessor21 {
     synchronized (waitToProcessDLockResponseLock) {
       while (waitToProcessDLockResponse) {
         dm.getCancelCriterion().checkCancelInProgress(null);
-        boolean interrupted = Thread.interrupted();
+        var interrupted = Thread.interrupted();
         try {
           logger.info("Waiting to process DLockResponseMessage");
           waitToProcessDLockResponseLock.wait();

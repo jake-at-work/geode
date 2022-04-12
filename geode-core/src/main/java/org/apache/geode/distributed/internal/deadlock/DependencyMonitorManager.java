@@ -16,7 +16,6 @@ package org.apache.geode.distributed.internal.deadlock;
 
 import java.io.Serializable;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.geode.annotations.internal.MakeNotStatic;
@@ -65,8 +64,8 @@ public class DependencyMonitorManager {
   public static Set<Dependency<Thread, Serializable>> getBlockedThreads() {
     Set<Dependency<Thread, Serializable>> blockedThreads =
         new HashSet<>();
-    Thread[] allThreads = getAllThreads();
-    for (DependencyMonitor monitor : monitors) {
+    var allThreads = getAllThreads();
+    for (var monitor : monitors) {
       blockedThreads.addAll(monitor.getBlockedThreads(allThreads));
     }
 
@@ -78,10 +77,10 @@ public class DependencyMonitorManager {
    * dependency monitors registered with this manager.
    */
   public static Set<Dependency<Serializable, Thread>> getHeldResources() {
-    Thread[] allThreads = getAllThreads();
+    var allThreads = getAllThreads();
     Set<Dependency<Serializable, Thread>> heldResources =
         new HashSet<>();
-    for (DependencyMonitor monitor : monitors) {
+    for (var monitor : monitors) {
       heldResources.addAll(monitor.getHeldResources(allThreads));
     }
 
@@ -96,8 +95,8 @@ public class DependencyMonitorManager {
 
     // Ok, this lame. This seems to be the easiest way
     // to get all threads in java. Weak.
-    Map<Thread, StackTraceElement[]> allStacks = Thread.getAllStackTraces();
-    Thread[] results = new Thread[allStacks.size()];
+    var allStacks = Thread.getAllStackTraces();
+    var results = new Thread[allStacks.size()];
     results = allStacks.keySet().toArray(results);
     return results;
   }

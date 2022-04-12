@@ -30,7 +30,7 @@ abstract class AbstractBackupWriterConfig {
   }
 
   String getTimestamp() {
-    String value = properties.getProperty(TIMESTAMP);
+    var value = properties.getProperty(TIMESTAMP);
     if (StringUtils.isBlank(value)) {
       throw new IllegalStateException("Timestamp is missing");
     }
@@ -38,7 +38,7 @@ abstract class AbstractBackupWriterConfig {
   }
 
   String getBackupType() {
-    String value = properties.getProperty(TYPE);
+    var value = properties.getProperty(TYPE);
     if (StringUtils.isBlank(value)) {
       throw new IllegalStateException("Type is missing");
     }

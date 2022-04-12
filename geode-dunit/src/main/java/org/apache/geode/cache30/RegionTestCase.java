@@ -151,8 +151,8 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
    */
   @Test
   public void testContainsKey() throws CacheException {
-    String key = getUniqueName();
-    Region<Object, Object> region = createRegion(key);
+    var key = getUniqueName();
+    var region = createRegion(key);
     Object value = 42;
 
     assertFalse(region.containsKey(key));
@@ -183,8 +183,8 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
    */
   @Test
   public void testBadRegionAccess() throws CacheException {
-    String key = getUniqueName();
-    Region<Object, Object> region = createRegion(key);
+    var key = getUniqueName();
+    var region = createRegion(key);
 
     assertNull(region.get(key));
     assertNull(region.getEntry(key));
@@ -213,8 +213,8 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
    */
   @Test
   public void testPutNonExistentEntry() throws CacheException {
-    String key = getUniqueName();
-    Region<Object, Object> region = createRegion(key);
+    var key = getUniqueName();
+    var region = createRegion(key);
 
     assertNull(region.getEntry(key));
 
@@ -262,8 +262,8 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
     if (!supportsSubregions()) {
       return;
     }
-    String key = getUniqueName();
-    Region<Object, Object> region = createRegion(key);
+    var key = getUniqueName();
+    var region = createRegion(key);
 
     try {
       region.getSubregion(null);
@@ -366,27 +366,27 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
     if (!supportsSubregions()) {
       return;
     }
-    String name = getUniqueName();
+    var name = getUniqueName();
 
-    RegionAttributes<Object, Object> attrs = getRegionAttributes();
-    RegionFactory<Object, Object> regionFactory = getCache().createRegionFactory(attrs);
+    var attrs = getRegionAttributes();
+    var regionFactory = getCache().createRegionFactory(attrs);
     regionFactory.setStatisticsEnabled(true);
 
-    Region<Object, Object> region = createRegion(name, regionFactory);
+    var region = createRegion(name, regionFactory);
 
 
     attrs = region.getAttributes();
 
-    CacheStatistics stats = region.getStatistics();
-    long lastAccessed = stats.getLastAccessedTime();
-    long lastModified = stats.getLastModifiedTime();
+    var stats = region.getStatistics();
+    var lastAccessed = stats.getLastAccessedTime();
+    var lastModified = stats.getLastModifiedTime();
 
     try {
       region.createSubregion(name + SEPARATOR + "BAD", attrs);
       fail("Should have thrown an IllegalArgumentException");
 
     } catch (IllegalArgumentException ex) {
-      CacheStatistics stats2 = region.getStatistics();
+      var stats2 = region.getStatistics();
       assertEquals(lastAccessed, stats2.getLastAccessedTime());
       assertEquals(lastModified, stats2.getLastModifiedTime());
     }
@@ -412,10 +412,10 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
    */
   @Test
   public void testDestroyEntry() throws CacheException {
-    String key = getUniqueName();
+    var key = getUniqueName();
     Object value = 42;
 
-    Region<Object, Object> region = createRegion(key);
+    var region = createRegion(key);
 
     try {
       region.destroy(key);
@@ -503,11 +503,11 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
     if (!supportsSubregions()) {
       return;
     }
-    String name = getUniqueName();
+    var name = getUniqueName();
     Object key = "KEY";
     Object value = "VALUE";
 
-    Region<Object, Object> region = createRegion(name);
+    var region = createRegion(name);
     region.put(key, value);
 
     Region.Entry entry = region.getEntry(key);
@@ -800,8 +800,8 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
    */
   @Test
   public void testEntries() throws CacheException {
-    String name = getUniqueName();
-    Region<Object, Object> region = createRegion(name);
+    var name = getUniqueName();
+    var region = createRegion(name);
     assertEquals(0, region.entrySet(true).size());
     assertEquals(0, region.entrySet(false).size());
 
@@ -814,8 +814,8 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
       assertEquals(3, entries.size());
 
       Set<Object> keys = new HashSet<>(Arrays.asList("A", "B", "C"));
-      Iterator iter = entries.iterator();
-      for (int i = 0; i < 3; i++) {
+      var iter = entries.iterator();
+      for (var i = 0; i < 3; i++) {
         assertTrue(iter.hasNext());
         assertTrue(keys.remove(((Region.Entry) iter.next()).getKey()));
       }
@@ -827,8 +827,8 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
       assertEquals(3, entries.size());
 
       Set<Object> keys = new HashSet<>(Arrays.asList("A", "B", "C"));
-      Iterator iter = entries.iterator();
-      for (int i = 0; i < 3; i++) {
+      var iter = entries.iterator();
+      for (var i = 0; i < 3; i++) {
         assertTrue(iter.hasNext());
         assertTrue(keys.remove(((Region.Entry) iter.next()).getKey()));
       }
@@ -836,7 +836,7 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
     }
     {
       Iterator iter = region.entrySet(false).iterator();
-      Region.Entry entry = (Region.Entry) iter.next();
+      var entry = (Region.Entry) iter.next();
       region.destroy(entry.getKey());
       if (entry.isLocal()) {
         assertTrue(entry.isDestroyed());
@@ -855,13 +855,13 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
     if (!supportsSubregions()) {
       return;
     }
-    String name = getUniqueName();
+    var name = getUniqueName();
     Region<String, String> region = createRegion(name);
 
     region.put("A", "a");
     region.put("B", "b");
     region.put("C", "c");
-    Region<String, String> sub = region.createSubregion("SUB", region.getAttributes());
+    var sub = region.createSubregion("SUB", region.getAttributes());
     sub.put("D", "d");
     sub.put("E", "e");
     sub.put("F", "f");
@@ -872,8 +872,8 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
 
 
       Set<Object> keys = new HashSet<>(Arrays.asList("A", "B", "C", "D", "E", "F"));
-      Iterator iter = entries.iterator();
-      for (int i = 0; i < 6; i++) {
+      var iter = entries.iterator();
+      for (var i = 0; i < 6; i++) {
         assertTrue("!hasNext, i=" + i, iter.hasNext());
         assertTrue("remove returned false, i=" + i,
             keys.remove(((Region.Entry) iter.next()).getKey()));
@@ -882,13 +882,13 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
     }
 
     {
-      Set<Region.Entry<?, ?>> entries = region.entrySet(true);
+      var entries = region.entrySet(true);
       assertEquals(6, entries.size());
 
 
       Set<Object> keys = new HashSet<>(Arrays.asList("A", "B", "C", "D", "E", "F"));
-      Iterator<Region.Entry<?, ?>> iter = entries.iterator();
-      for (int i = 0; i < 6; i++) {
+      var iter = entries.iterator();
+      for (var i = 0; i < 6; i++) {
         assertTrue("!hasNext, i=" + i, iter.hasNext());
         assertTrue("remove returned false, i=" + i,
             keys.remove(iter.next().getKey()));
@@ -899,7 +899,7 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
     {
       Iterator iter = region.entrySet(true).iterator();
       Region.Entry<String, String> entry = (Region.Entry) iter.next();
-      String key = entry.getKey();
+      var key = entry.getKey();
       region.destroy(key);
       assertFalse(region.containsKey(key));
       assertTrue(entry.isDestroyed());
@@ -913,8 +913,8 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
    */
   @Test
   public void testGetCache() throws CacheException {
-    String name = getUniqueName();
-    Region<Object, Object> region = createRegion(name);
+    var name = getUniqueName();
+    var region = createRegion(name);
     assertSame(getCache(), region.getCache());
   }
 
@@ -923,8 +923,8 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
    */
   @Test
   public void testGetName() throws CacheException {
-    String name = getUniqueName();
-    Region<Object, Object> region = createRegion(name);
+    var name = getUniqueName();
+    var region = createRegion(name);
     assertEquals(name, region.getName());
 
     assertEquals("root", region.getParentRegion().getName());
@@ -938,13 +938,13 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
     if (!supportsSubregions()) {
       return;
     }
-    String name = getUniqueName();
+    var name = getUniqueName();
 
-    Region<Object, Object> region = createRegion(name);
-    String fullPath = SEPARATOR + "root" + SEPARATOR + name;
+    var region = createRegion(name);
+    var fullPath = SEPARATOR + "root" + SEPARATOR + name;
     assertEquals(fullPath, region.getFullPath());
     assertEquals(SEPARATOR + "root", region.getParentRegion().getFullPath());
-    RegionFactory<Object, Object> regionFactory = cache.createRegionFactory(region.getAttributes());
+    var regionFactory = cache.createRegionFactory(region.getAttributes());
     Region sub = regionFactory.createSubregion(region, "SUB");
     assertEquals(fullPath + SEPARATOR + "SUB", sub.getFullPath());
   }
@@ -957,12 +957,12 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
     if (!supportsSubregions()) {
       return;
     }
-    String name = getUniqueName();
+    var name = getUniqueName();
 
-    Region<Object, Object> region = createRegion(name);
+    var region = createRegion(name);
     assertEquals(getRootRegion(), region.getParentRegion());
 
-    RegionFactory<Object, Object> regionFactory = cache.createRegionFactory(region.getAttributes());
+    var regionFactory = cache.createRegionFactory(region.getAttributes());
     Region sub = regionFactory.createSubregion(region, "SUB");
     assertEquals(region, sub.getParentRegion());
     assertSame(sub, region.getSubregion("SUB"));
@@ -976,10 +976,10 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
    */
   @Test
   public void testRegionUserAttribute() throws CacheException {
-    String name = getUniqueName();
+    var name = getUniqueName();
     Object value = "USER_ATTRIBUTE";
 
-    Region<Object, Object> region = createRegion(name);
+    var region = createRegion(name);
     assertNull(region.getUserAttribute());
 
     region.setUserAttribute(value);
@@ -991,12 +991,12 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
    */
   @Test
   public void testEntryUserAttribute() throws CacheException {
-    String name = getUniqueName();
-    String key = "KEY";
+    var name = getUniqueName();
+    var key = "KEY";
 
-    String attr = "USER_ATTRIBUTE";
+    var attr = "USER_ATTRIBUTE";
 
-    Region<Object, Object> region = createRegion(name);
+    var region = createRegion(name);
     region.create(key, null);
 
     Region.Entry entry = region.getEntry(key);
@@ -1012,14 +1012,14 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
    */
   @Test
   public void testInvalidateEntry() throws CacheException {
-    String name = getUniqueName();
+    var name = getUniqueName();
     Object key = "KEY";
     Object value = "VALUE";
 
-    Region<Object, Object> region = createRegion(name);
+    var region = createRegion(name);
     region.put(key, value);
 
-    long beforeInvalidates = getCache()
+    var beforeInvalidates = getCache()
         .getCachePerfStats().getInvalidates();
     Region.Entry entry = region.getEntry(key);
     region.invalidate(key);
@@ -1027,7 +1027,7 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
       assertNull(entry.getValue());
     }
     assertNull(region.get(key));
-    long afterInvalidates = getCache()
+    var afterInvalidates = getCache()
         .getCachePerfStats().getInvalidates();
     assertEquals("Invalidate CachePerfStats incorrect", beforeInvalidates + 1, afterInvalidates);
   }
@@ -1037,14 +1037,14 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
    */
   @Test
   public void testInvalidateRegion() throws CacheException {
-    String name = getUniqueName();
+    var name = getUniqueName();
 
-    Region<Object, Object> region = createRegion(name);
+    var region = createRegion(name);
     region.put("A", "a");
     region.put("B", "b");
     region.put("C", "c");
 
-    for (int i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       region.put("Key=" + i, "Value-" + i);
     }
 
@@ -1063,8 +1063,8 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
     assertNotNull(entry);
     assertNull(entry.getValue());
 
-    for (int i = 0; i < 50; i++) {
-      String key = "Key=" + i;
+    for (var i = 0; i < 50; i++) {
+      var key = "Key=" + i;
       assertFalse("containsValueForKey returned true for key " + key,
           region.containsValueForKey(key));
       assertTrue("containsKey returned false for key " + key, region.containsKey(key));
@@ -1076,9 +1076,9 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
    */
   @Test
   public void testKeys() throws CacheException {
-    String name = getUniqueName();
+    var name = getUniqueName();
 
-    Region<Object, Object> region = createRegion(name);
+    var region = createRegion(name);
     assertEquals(0, region.keySet().size());
 
     region.put("A", "a");
@@ -1104,12 +1104,12 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
     if (!supportsLocalDestroyAndLocalInvalidate()) {
       return;
     }
-    String key = getUniqueName();
+    var key = getUniqueName();
     Object value = 42;
 
-    Region<Object, Object> region = createRegion(key);
+    var region = createRegion(key);
 
-    boolean isMirrored = getRegionAttributes().getMirrorType().isMirrored();
+    var isMirrored = getRegionAttributes().getMirrorType().isMirrored();
 
     try {
       region.localDestroy(key);
@@ -1195,11 +1195,11 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
    */
   @Test
   public void testLocalDestroyRegion() throws CacheException {
-    String name = getUniqueName();
+    var name = getUniqueName();
     Object key = "KEY";
     Object value = "VALUE";
 
-    Region<Object, Object> region = createRegion(name);
+    var region = createRegion(name);
     region.put(key, value);
 
     Region.Entry entry = region.getEntry(key);
@@ -1494,12 +1494,12 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
   public void testCloseRegion() throws CacheException {
     // @todo added a remote region to make sure close just does a localDestroy
 
-    String name = getUniqueName();
+    var name = getUniqueName();
 
-    RegionFactory<Object, Object> regionFactory =
+    var regionFactory =
         getCache().createRegionFactory(getRegionAttributes());
 
-    TestCacheListener<Object, Object> list = new TestCacheListener<Object, Object>() {
+    var list = new TestCacheListener<Object, Object>() {
       @Override
       public void afterCreate2(EntryEvent event) {
         // do nothing
@@ -1518,7 +1518,7 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
 
     regionFactory.addCacheListener(list);
 
-    Region<Object, Object> region = createRegion(name, regionFactory);
+    var region = createRegion(name, regionFactory);
 
     File diskDir = null;
     if (getRegionAttributes().getDataPolicy().withPersistence()) {
@@ -1533,7 +1533,7 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
       // 0, diskDir.list().length);
     }
 
-    for (int i = 0; i < 1000; i++) {
+    for (var i = 0; i < 1000; i++) {
       region.put(i, String.valueOf(i));
     }
 
@@ -1558,12 +1558,12 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
 
     // if this is a disk region, then check to see if recreating the region
     // repopulates with data
-    RegionFactory<Object, Object> regionFactory2 =
+    var regionFactory2 =
         getCache().createRegionFactory(getRegionAttributes());
     region = createRegion(name, regionFactory2);
 
     if (getRegionAttributes().getDataPolicy().withPersistence()) {
-      for (int i = 0; i < 1000; i++) {
+      for (var i = 0; i < 1000; i++) {
         Region.Entry entry = region.getEntry(i);
         assertNotNull("entry " + i + " not found", entry);
         assertEquals(String.valueOf(i), entry.getValue());
@@ -1585,15 +1585,15 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
     if (!supportsLocalDestroyAndLocalInvalidate()) {
       return;
     }
-    String name = getUniqueName();
+    var name = getUniqueName();
     Object key = "KEY";
     Object value = "VALUE";
 
-    Region<Object, Object> region = createRegion(name);
+    var region = createRegion(name);
     region.put(key, value);
 
     Region.Entry entry = region.getEntry(key);
-    boolean isMirrorKeysValues = getRegionAttributes().getMirrorType().isKeysValues();
+    var isMirrorKeysValues = getRegionAttributes().getMirrorType().isKeysValues();
     try {
       region.localInvalidate(key);
       if (isMirrorKeysValues) {
@@ -1615,14 +1615,14 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
    */
   @Test
   public void testLocalInvalidateRegion() throws CacheException {
-    String name = getUniqueName();
+    var name = getUniqueName();
 
-    Region<Object, Object> region = createRegion(name);
+    var region = createRegion(name);
     region.put("A", "a");
     region.put("B", "b");
     region.put("C", "c");
 
-    boolean isKV = getRegionAttributes().getMirrorType().isKeysValues();
+    var isKV = getRegionAttributes().getMirrorType().isKeysValues();
     try {
       region.localInvalidateRegion();
       if (isKV) {
@@ -1659,8 +1659,8 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
     if (!supportsSubregions()) {
       return;
     }
-    String name = getUniqueName();
-    Region<Object, Object> region = createRegion(name);
+    var name = getUniqueName();
+    var region = createRegion(name);
 
     assertEquals(0, region.subregions(false).size());
 
@@ -1673,8 +1673,8 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
       assertEquals(3, subregions.size());
 
       Set<Object> names = new HashSet<>(Arrays.asList("A", "B", "C"));
-      Iterator iter = subregions.iterator();
-      for (int i = 0; i < 3; i++) {
+      var iter = subregions.iterator();
+      for (var i = 0; i < 3; i++) {
         assertTrue(iter.hasNext());
         assertTrue(names.remove(((Region) iter.next()).getName()));
       }
@@ -1692,9 +1692,9 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
       return;
     }
 
-    String name = getUniqueName();
-    Region<Object, Object> region = createRegion(name);
-    RegionFactory<Object, Object> regionFactory =
+    var name = getUniqueName();
+    var region = createRegion(name);
+    var regionFactory =
         getCache().createRegionFactory(region.getAttributes());
     Region A = regionFactory.createSubregion(region, "A");
     Region B = regionFactory.createSubregion(region, "B");
@@ -1710,8 +1710,8 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
       assertEquals(6, subRegions.size());
 
       Set<Object> names = new HashSet<>(Arrays.asList("A", "B", "C", "D", "E", "F"));
-      Iterator iter = subRegions.iterator();
-      for (int i = 0; i < 6; i++) {
+      var iter = subRegions.iterator();
+      for (var i = 0; i < 6; i++) {
         assertTrue(iter.hasNext());
         assertTrue(names.remove(((Region) iter.next()).getName()));
       }
@@ -1724,9 +1724,9 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
    */
   @Test
   public void testValues() throws CacheException {
-    String name = getUniqueName();
+    var name = getUniqueName();
     LogService.getLogger().info("testValues region name is " + name);
-    Region<Object, Object> region = createRegion(name);
+    var region = createRegion(name);
     assertEquals(0, region.values().size());
 
     region.create("A", null);
@@ -1790,9 +1790,9 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
     if (re.isLocal()) {
       return re.getValue();
     } else {
-      Region r = re.getRegion();
-      Object key = re.getKey();
-      Region.Entry freshRE = r.getEntry(key);
+      var r = re.getRegion();
+      var key = re.getKey();
+      var freshRE = r.getEntry(key);
       if (freshRE == null) {
         return null; // or should we throw an exception?
       }
@@ -1820,7 +1820,7 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
    * @param pauseMs the number of milliseconds to pause before checking again
    */
   private void waitForInvalidate(Region.Entry entry, long p_tilt, int pauseMs) {
-    long tilt = p_tilt;
+    var tilt = p_tilt;
     // up until the time that the expiry fires, the entry
     // better not be null...
     if (entry == null) {
@@ -1829,8 +1829,8 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
       return;
     }
     for (;;) {
-      boolean wasInvalidated = fetchEntryValue(entry) == null; // do this 1st
-      long now = System.currentTimeMillis(); // do this 2nd
+      var wasInvalidated = fetchEntryValue(entry) == null; // do this 1st
+      var now = System.currentTimeMillis(); // do this 2nd
       if (now >= tilt) {
         // once this is true it is ok if it was invalidated
         break;
@@ -1873,9 +1873,9 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
     if (re.isLocal()) {
       return re.isDestroyed();
     } else {
-      Region r = re.getRegion();
-      Object key = re.getKey();
-      Region.Entry freshRE = r.getEntry(key);
+      var r = re.getRegion();
+      var key = re.getKey();
+      var freshRE = r.getEntry(key);
       if (freshRE == null) {
         return true;
       }
@@ -1903,11 +1903,11 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
    * @param pauseMs the number of milliseconds to pause before checking again
    */
   private void waitForDestroy(Region.Entry entry, long p_tilt, int pauseMs) {
-    long tilt = p_tilt;
+    var tilt = p_tilt;
     // up until the time that the expiry fires, the entry
     // better not be null...
     for (;;) {
-      long now = System.currentTimeMillis();
+      var now = System.currentTimeMillis();
       if (now >= tilt) {
         break;
       }
@@ -1949,12 +1949,12 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
    */
 
   private void waitForRegionDestroy(Region<Object, Object> region, long p_tilt) {
-    long tilt = p_tilt;
+    var tilt = p_tilt;
     // up until the time that the expiry fires, the entry
     // better not be null...
 
     for (;;) {
-      long now = System.currentTimeMillis();
+      var now = System.currentTimeMillis();
       if (now >= tilt) {
         break;
       }
@@ -1992,13 +1992,13 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
   @Test
   public void testEntryTtlInvalidate() throws CacheException {
 
-    final String name = getUniqueName();
-    final int timeout = 20; // ms!
-    final String key = "KEY";
-    final String value = "VALUE";
-    RegionFactory<Object, Object> regionFactory =
+    final var name = getUniqueName();
+    final var timeout = 20; // ms!
+    final var key = "KEY";
+    final var value = "VALUE";
+    var regionFactory =
         getCache().createRegionFactory(getRegionAttributes());
-    ExpirationAttributes expire = new ExpirationAttributes(timeout, ExpirationAction.INVALIDATE);
+    var expire = new ExpirationAttributes(timeout, ExpirationAction.INVALIDATE);
     regionFactory.setEntryTimeToLive(expire);
     regionFactory.setStatisticsEnabled(true);
     Region<Object, Object> region;
@@ -2034,15 +2034,15 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
   @Test
   public void testCustomEntryTtl1() {
 
-    final String name = getUniqueName();
-    final int timeout = 20; // ms!
-    final String key1 = "KEY1";
-    final String key2 = "KEY2";
-    final String value = "VALUE";
+    final var name = getUniqueName();
+    final var timeout = 20; // ms!
+    final var key1 = "KEY1";
+    final var key2 = "KEY2";
+    final var value = "VALUE";
 
-    RegionFactory<Object, Object> regionFactory =
+    var regionFactory =
         getCache().createRegionFactory(getRegionAttributes());
-    ExpirationAttributes expire = new ExpirationAttributes(timeout, ExpirationAction.INVALIDATE);
+    var expire = new ExpirationAttributes(timeout, ExpirationAction.INVALIDATE);
     regionFactory.setCustomEntryTimeToLive(new TestExpiry<>(key2, expire));
     regionFactory.setStatisticsEnabled(true);
 
@@ -2086,19 +2086,19 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
   @Test
   public void testCustomEntryTtl2() {
 
-    final String name = getUniqueName();
-    final int timeout = 20; // ms
-    final String key1 = "KEY1";
-    final String key2 = "KEY2";
-    final String value = "VALUE";
+    final var name = getUniqueName();
+    final var timeout = 20; // ms
+    final var key1 = "KEY1";
+    final var key2 = "KEY2";
+    final var value = "VALUE";
 
-    RegionFactory<Object, Object> regionFactory =
+    var regionFactory =
         getCache().createRegionFactory(getRegionAttributes());
 
-    ExpirationAttributes expire2 = new ExpirationAttributes(timeout, ExpirationAction.INVALIDATE);
+    var expire2 = new ExpirationAttributes(timeout, ExpirationAction.INVALIDATE);
     regionFactory.setCustomEntryTimeToLive(new TestExpiry<>(key2, expire2));
     regionFactory.setStatisticsEnabled(true);
-    TestCacheListenerCustom list = new TestCacheListenerCustom();
+    var list = new TestCacheListenerCustom();
     regionFactory.addCacheListener(list);
 
     Region<Object, Object> region;
@@ -2159,19 +2159,19 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
   @Test
   public void testCustomEntryTtl3() {
 
-    final String name = getUniqueName();
-    final int timeout1 = 20; // ms
-    final int timeout2 = 40;
-    final String key1 = "KEY1";
-    final String value1 = "VALUE1";
-    final String value2 = "VALUE2";
+    final var name = getUniqueName();
+    final var timeout1 = 20; // ms
+    final var timeout2 = 40;
+    final var key1 = "KEY1";
+    final var value1 = "VALUE1";
+    final var value2 = "VALUE2";
 
-    RegionFactory<Object, Object> regionFactory =
+    var regionFactory =
         getCache().createRegionFactory(getRegionAttributes());
-    ExpirationAttributes expire1 = new ExpirationAttributes(timeout1, ExpirationAction.INVALIDATE);
+    var expire1 = new ExpirationAttributes(timeout1, ExpirationAction.INVALIDATE);
     regionFactory.setCustomEntryTimeToLive(new TestExpiry<>(key1, expire1));
     regionFactory.setStatisticsEnabled(true);
-    TestCacheListenerEventCount list = new TestCacheListenerEventCount();
+    var list = new TestCacheListenerEventCount();
     // Disk regions are VERY slow, so we need to wait for the event...
 
     eventCount.set(0);
@@ -2216,9 +2216,9 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
       eventCount.set(0);
 
       // Change custom expiry for this region now...
-      final String key2 = "KEY2";
+      final var key2 = "KEY2";
       AttributesMutator mutt = region.getAttributesMutator();
-      ExpirationAttributes expire2 =
+      var expire2 =
           new ExpirationAttributes(timeout2, INVALIDATE);
       mutt.setCustomEntryTimeToLive(new TestExpiry<>(key2, expire2));
 
@@ -2243,7 +2243,7 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
       entry = region.getEntry(key1);
       Assert.assertTrue(value1.equals(entry.getValue()));
       // now mutate back to key1 and change the action
-      ExpirationAttributes expire3 = new ExpirationAttributes(timeout1, DESTROY);
+      var expire3 = new ExpirationAttributes(timeout1, DESTROY);
       mutt.setCustomEntryTimeToLive(new TestExpiry<>(key1, expire3));
       waitForDestroy(entry, tilt1, timeout1 / 2);
     } finally {
@@ -2258,18 +2258,18 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
    */
   @Test
   public void testEntryTtl3() {
-    final String name = getUniqueName();
+    final var name = getUniqueName();
     // test no longer waits for this expiration to happen
-    final int timeout1 = 500 * 1000; // ms
-    final int timeout2 = 2000 * 1000; // ms
-    final String key1 = "KEY1";
-    final String value1 = "VALUE1";
+    final var timeout1 = 500 * 1000; // ms
+    final var timeout2 = 2000 * 1000; // ms
+    final var key1 = "KEY1";
+    final var value1 = "VALUE1";
 
-    RegionFactory<Object, Object> factory = getCache().createRegionFactory(getRegionAttributes());
-    ExpirationAttributes expire1 = new ExpirationAttributes(timeout1, INVALIDATE);
+    var factory = getCache().createRegionFactory(getRegionAttributes());
+    var expire1 = new ExpirationAttributes(timeout1, INVALIDATE);
     factory.setEntryTimeToLive(expire1);
     factory.setStatisticsEnabled(true);
-    TestCacheListenerEventCount list = new TestCacheListenerEventCount();
+    var list = new TestCacheListenerEventCount();
     eventCount.set(0);
     factory.addCacheListener(list);
 
@@ -2283,14 +2283,14 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
     }
 
     region.create(key1, value1);
-    EntryExpiryTask eet = region.getEntryExpiryTask(key1);
-    final long firstExpiryTime = eet.getExpirationTime();
+    var eet = region.getEntryExpiryTask(key1);
+    final var firstExpiryTime = eet.getExpirationTime();
 
-    AttributesMutator mutt = region.getAttributesMutator();
-    ExpirationAttributes expire2 = new ExpirationAttributes(timeout2, INVALIDATE);
+    var mutt = region.getAttributesMutator();
+    var expire2 = new ExpirationAttributes(timeout2, INVALIDATE);
     mutt.setEntryTimeToLive(expire2);
     eet = region.getEntryExpiryTask(key1);
-    final long secondExpiryTime = eet.getExpirationTime();
+    final var secondExpiryTime = eet.getExpirationTime();
     if ((secondExpiryTime - firstExpiryTime) <= 0) {
       fail(
           "expiration time should have been greater after changing region config from 500 to 2000. firstExpiryTime="
@@ -2299,19 +2299,19 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
 
     // now set back to be more recent
     mutt = region.getAttributesMutator();
-    ExpirationAttributes expire3 = new ExpirationAttributes(timeout1, INVALIDATE);
+    var expire3 = new ExpirationAttributes(timeout1, INVALIDATE);
     mutt.setEntryTimeToLive(expire3);
     eet = region.getEntryExpiryTask(key1);
-    final long thirdExpiryTime = eet.getExpirationTime();
+    final var thirdExpiryTime = eet.getExpirationTime();
     assertEquals(firstExpiryTime, thirdExpiryTime);
     // confirm that it still has not expired
     assertEquals(0, eventCount.get());
 
     // now set it to a really short time and make sure it expires immediately
     waitForExpiryClockToChange(region);
-    final Region.Entry entry = region.getEntry(key1);
+    final var entry = region.getEntry(key1);
     mutt = region.getAttributesMutator();
-    ExpirationAttributes expire4 = new ExpirationAttributes(1, INVALIDATE);
+    var expire4 = new ExpirationAttributes(1, INVALIDATE);
     mutt.setEntryTimeToLive(expire4);
 
     await().alias("entry never became invalid").until(() -> fetchEntryValue(entry) == null);
@@ -2327,13 +2327,13 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
   @Test
   public void testEntryFromLoadTtlInvalidate() throws CacheException {
 
-    final String name = getUniqueName();
-    final int timeout = 20; // ms!
-    final String key = "KEY";
-    final String value = "VALUE";
+    final var name = getUniqueName();
+    final var timeout = 20; // ms!
+    final var key = "KEY";
+    final var value = "VALUE";
 
-    RegionFactory<Object, Object> factory = getCache().createRegionFactory(getRegionAttributes());
-    ExpirationAttributes expire = new ExpirationAttributes(timeout, ExpirationAction.INVALIDATE);
+    var factory = getCache().createRegionFactory(getRegionAttributes());
+    var expire = new ExpirationAttributes(timeout, ExpirationAction.INVALIDATE);
     factory.setEntryTimeToLive(expire);
     factory.setStatisticsEnabled(true);
     factory.setCacheLoader(new TestCacheLoader<Object, Object>() {
@@ -2371,16 +2371,16 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
   @Test
   public void testEntryTtlDestroy() throws CacheException {
 
-    final String name = getUniqueName();
-    final int timeout = 20; // ms
-    final String key = "KEY";
-    final String value = "VALUE";
+    final var name = getUniqueName();
+    final var timeout = 20; // ms
+    final var key = "KEY";
+    final var value = "VALUE";
 
-    AttributesFactory<Object, Object> factory = new AttributesFactory<>(getRegionAttributes());
-    ExpirationAttributes expire = new ExpirationAttributes(timeout, ExpirationAction.DESTROY);
+    var factory = new AttributesFactory<Object, Object>(getRegionAttributes());
+    var expire = new ExpirationAttributes(timeout, ExpirationAction.DESTROY);
     factory.setEntryTimeToLive(expire);
     factory.setStatisticsEnabled(true);
-    RegionAttributes<Object, Object> attrs = factory.create();
+    var attrs = factory.create();
 
 
     Region<Object, Object> region;
@@ -2416,19 +2416,19 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
       return;
     }
 
-    VM vm0 = VM.getVM(0);
-    final String name = getUniqueName();
+    var vm0 = VM.getVM(0);
+    final var name = getUniqueName();
 
     vm0.invoke("testRegionTtlInvalidate", new CacheSerializableRunnable() {
       @Override
       public void run2() throws CacheException {
-        final int timeout = 22; // ms
+        final var timeout = 22; // ms
         final Object key = "KEY";
         final Object value = "VALUE";
 
-        RegionFactory<Object, Object> factory =
+        var factory =
             getCache().createRegionFactory(getRegionAttributes());
-        ExpirationAttributes expire =
+        var expire =
             new ExpirationAttributes(timeout, ExpirationAction.INVALIDATE);
         factory.setRegionTimeToLive(expire);
         factory.setStatisticsEnabled(true);
@@ -2469,13 +2469,13 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
       return;
     }
 
-    final String name = getUniqueName();
-    final int timeout = 22; // ms
+    final var name = getUniqueName();
+    final var timeout = 22; // ms
     final Object key = "KEY";
     final Object value = "VALUE";
 
-    RegionFactory<Object, Object> factory = getCache().createRegionFactory(getRegionAttributes());
-    ExpirationAttributes expire = new ExpirationAttributes(timeout, ExpirationAction.DESTROY);
+    var factory = getCache().createRegionFactory(getRegionAttributes());
+    var expire = new ExpirationAttributes(timeout, ExpirationAction.DESTROY);
     factory.setRegionTimeToLive(expire);
     factory.setStatisticsEnabled(true);
 
@@ -2508,16 +2508,16 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
   @Test
   public void testEntryIdleInvalidate() throws CacheException {
 
-    final String name = getUniqueName();
-    final int timeout = 20; // ms
-    final String key = "KEY";
-    final String value = "VALUE";
+    final var name = getUniqueName();
+    final var timeout = 20; // ms
+    final var key = "KEY";
+    final var value = "VALUE";
 
-    RegionFactory<Object, Object> factory = getCache().createRegionFactory(getRegionAttributes());
-    ExpirationAttributes expire = new ExpirationAttributes(timeout, ExpirationAction.INVALIDATE);
+    var factory = getCache().createRegionFactory(getRegionAttributes());
+    var expire = new ExpirationAttributes(timeout, ExpirationAction.INVALIDATE);
     factory.setEntryIdleTimeout(expire);
     factory.setStatisticsEnabled(true);
-    TestCacheListenerCustom list = new TestCacheListenerCustom();
+    var list = new TestCacheListenerCustom();
     factory.addCacheListener(list);
 
 
@@ -2619,17 +2619,17 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
   @Test
   public void testCustomEntryIdleTimeout1() {
 
-    final String name = getUniqueName();
-    final int timeout = 20; // ms
-    final String key1 = "KEY1";
-    final String key2 = "KEY2";
-    final String value = "VALUE";
+    final var name = getUniqueName();
+    final var timeout = 20; // ms
+    final var key1 = "KEY1";
+    final var key2 = "KEY2";
+    final var value = "VALUE";
 
-    RegionFactory<Object, Object> factory = getCache().createRegionFactory(getRegionAttributes());
-    ExpirationAttributes expire = new ExpirationAttributes(timeout, ExpirationAction.INVALIDATE);
+    var factory = getCache().createRegionFactory(getRegionAttributes());
+    var expire = new ExpirationAttributes(timeout, ExpirationAction.INVALIDATE);
     factory.setCustomEntryIdleTimeout(new TestExpiry<>(key2, expire));
     factory.setStatisticsEnabled(true);
-    TestCacheListenerCustom list = new TestCacheListenerCustom();
+    var list = new TestCacheListenerCustom();
     factory.addCacheListener(list);
 
     Region<Object, Object> region;
@@ -2686,19 +2686,19 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
   @Test
   public void testCustomEntryIdleTimeout2() {
 
-    final String name = getUniqueName();
-    final int timeout = 20; // ms
-    final String key1 = "KEY1";
-    final String key2 = "KEY2";
-    final String value = "VALUE";
+    final var name = getUniqueName();
+    final var timeout = 20; // ms
+    final var key1 = "KEY1";
+    final var key2 = "KEY2";
+    final var value = "VALUE";
 
-    RegionFactory<Object, Object> factory = getCache().createRegionFactory(getRegionAttributes());
-    ExpirationAttributes expire = new ExpirationAttributes(timeout, ExpirationAction.INVALIDATE);
+    var factory = getCache().createRegionFactory(getRegionAttributes());
+    var expire = new ExpirationAttributes(timeout, ExpirationAction.INVALIDATE);
     factory.setEntryIdleTimeout(expire);
-    ExpirationAttributes expire2 = new ExpirationAttributes(0, ExpirationAction.INVALIDATE);
+    var expire2 = new ExpirationAttributes(0, ExpirationAction.INVALIDATE);
     factory.setCustomEntryIdleTimeout(new TestExpiry<>(key2, expire2));
     factory.setStatisticsEnabled(true);
-    TestCacheListenerCustom list = new TestCacheListenerCustom();
+    var list = new TestCacheListenerCustom();
     factory.addCacheListener(list);
 
     Region<Object, Object> region;
@@ -2756,18 +2756,18 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
    */
   @Test
   public void testCustomEntryIdleTimeout3() {
-    final String name = getUniqueName();
+    final var name = getUniqueName();
     // test no longer waits for this expiration to happen
-    final int timeout1 = 500 * 1000; // ms
-    final int timeout2 = 2000 * 1000; // ms
-    final String key1 = "KEY1";
-    final String value1 = "VALUE1";
+    final var timeout1 = 500 * 1000; // ms
+    final var timeout2 = 2000 * 1000; // ms
+    final var key1 = "KEY1";
+    final var value1 = "VALUE1";
 
-    RegionFactory<Object, Object> factory = getCache().createRegionFactory(getRegionAttributes());
-    ExpirationAttributes expire1 = new ExpirationAttributes(timeout1, INVALIDATE);
+    var factory = getCache().createRegionFactory(getRegionAttributes());
+    var expire1 = new ExpirationAttributes(timeout1, INVALIDATE);
     factory.setCustomEntryIdleTimeout(new TestExpiry<>(key1, expire1));
     factory.setStatisticsEnabled(true);
-    TestCacheListenerEventCount list = new TestCacheListenerEventCount();
+    var list = new TestCacheListenerEventCount();
     eventCount.set(0);
     factory.addCacheListener(list);
 
@@ -2781,14 +2781,14 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
     }
 
     region.create(key1, value1);
-    EntryExpiryTask eet = region.getEntryExpiryTask(key1);
-    final long firstExpiryTime = eet.getExpirationTime();
+    var eet = region.getEntryExpiryTask(key1);
+    final var firstExpiryTime = eet.getExpirationTime();
 
     AttributesMutator<Object, Object> mutt = region.getAttributesMutator();
-    ExpirationAttributes expire2 = new ExpirationAttributes(timeout2, INVALIDATE);
+    var expire2 = new ExpirationAttributes(timeout2, INVALIDATE);
     mutt.setCustomEntryIdleTimeout(new TestExpiry<>(key1, expire2));
     eet = region.getEntryExpiryTask(key1);
-    final long secondExpiryTime = eet.getExpirationTime();
+    final var secondExpiryTime = eet.getExpirationTime();
     if ((secondExpiryTime - firstExpiryTime) <= 0) {
       fail(
           "expiration time should have been greater after changing region config from 500 to 2000. firstExpiryTime="
@@ -2797,19 +2797,19 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
 
     // now set back to be more recent
     mutt = region.getAttributesMutator();
-    ExpirationAttributes expire3 = new ExpirationAttributes(timeout1, INVALIDATE);
+    var expire3 = new ExpirationAttributes(timeout1, INVALIDATE);
     mutt.setCustomEntryIdleTimeout(new TestExpiry<>(key1, expire3));
     eet = region.getEntryExpiryTask(key1);
-    final long thirdExpiryTime = eet.getExpirationTime();
+    final var thirdExpiryTime = eet.getExpirationTime();
     assertEquals(firstExpiryTime, thirdExpiryTime);
     // confirm that it still has not expired
     assertEquals(0, eventCount.get());
 
     // now set it to a really short time and make sure it expires immediately
     waitForExpiryClockToChange(region);
-    final Region.Entry entry = region.getEntry(key1);
+    final var entry = region.getEntry(key1);
     mutt = region.getAttributesMutator();
-    ExpirationAttributes expire4 = new ExpirationAttributes(1, INVALIDATE);
+    var expire4 = new ExpirationAttributes(1, INVALIDATE);
     mutt.setCustomEntryIdleTimeout(new TestExpiry<>(key1, expire4));
 
     await().alias("entry never became invalid").until(() -> fetchEntryValue(entry) == null);
@@ -2826,18 +2826,18 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
    */
   @Test
   public void testEntryIdleTimeout3() {
-    final String name = getUniqueName();
+    final var name = getUniqueName();
     // test no longer waits for this expiration to happen
-    final int timeout1 = 500 * 1000; // ms
-    final int timeout2 = 2000 * 1000; // ms
-    final String key1 = "KEY1";
-    final String value1 = "VALUE1";
+    final var timeout1 = 500 * 1000; // ms
+    final var timeout2 = 2000 * 1000; // ms
+    final var key1 = "KEY1";
+    final var value1 = "VALUE1";
 
     AttributesFactory<Object, Object> factory = new AttributesFactory(getRegionAttributes());
-    ExpirationAttributes expire1 = new ExpirationAttributes(timeout1, INVALIDATE);
+    var expire1 = new ExpirationAttributes(timeout1, INVALIDATE);
     factory.setEntryIdleTimeout(expire1);
     factory.setStatisticsEnabled(true);
-    TestCacheListenerEventCount list = new TestCacheListenerEventCount();
+    var list = new TestCacheListenerEventCount();
     eventCount.set(0);
     factory.setCacheListener(list);
 
@@ -2850,14 +2850,14 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
     }
 
     region.create(key1, value1);
-    EntryExpiryTask eet = region.getEntryExpiryTask(key1);
-    final long firstExpiryTime = eet.getExpirationTime();
+    var eet = region.getEntryExpiryTask(key1);
+    final var firstExpiryTime = eet.getExpirationTime();
 
-    AttributesMutator mutt = region.getAttributesMutator();
-    ExpirationAttributes expire2 = new ExpirationAttributes(timeout2, INVALIDATE);
+    var mutt = region.getAttributesMutator();
+    var expire2 = new ExpirationAttributes(timeout2, INVALIDATE);
     mutt.setEntryIdleTimeout(expire2);
     eet = region.getEntryExpiryTask(key1);
-    final long secondExpiryTime = eet.getExpirationTime();
+    final var secondExpiryTime = eet.getExpirationTime();
     if ((secondExpiryTime - firstExpiryTime) <= 0) {
       fail(
           "expiration time should have been greater after changing region config from 500 to 2000. firstExpiryTime="
@@ -2866,19 +2866,19 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
 
     // now set back to be more recent
     mutt = region.getAttributesMutator();
-    ExpirationAttributes expire3 = new ExpirationAttributes(timeout1, INVALIDATE);
+    var expire3 = new ExpirationAttributes(timeout1, INVALIDATE);
     mutt.setEntryIdleTimeout(expire3);
     eet = region.getEntryExpiryTask(key1);
-    final long thirdExpiryTime = eet.getExpirationTime();
+    final var thirdExpiryTime = eet.getExpirationTime();
     assertEquals(firstExpiryTime, thirdExpiryTime);
     // confirm that it still has not expired
     assertEquals(0, eventCount.get());
 
     // now set it to a really short time and make sure it expires immediately
     waitForExpiryClockToChange(region);
-    final Region.Entry entry = region.getEntry(key1);
+    final var entry = region.getEntry(key1);
     mutt = region.getAttributesMutator();
-    ExpirationAttributes expire4 = new ExpirationAttributes(1, INVALIDATE);
+    var expire4 = new ExpirationAttributes(1, INVALIDATE);
     mutt.setEntryIdleTimeout(expire4);
     await().alias("entry never became invalid").until(() -> fetchEntryValue(entry) == null);
     await().alias("eventCount never became 1").until(() -> eventCount.get() == 1);
@@ -2909,9 +2909,9 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
      */
     @Override
     public ExpirationAttributes getExpiry(Entry entry) {
-      Object key = entry.getKey();
+      var key = entry.getKey();
       synchronized (CountExpiry.class) {
-        Integer count = (Integer) invokeCounts.get(key);
+        var count = (Integer) invokeCounts.get(key);
         if (count == null) {
           invokeCounts.put(key, 1);
         } else {
@@ -2947,14 +2947,14 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
   @Test
   public void testCustomIdleOnce() {
 
-    final String name = getUniqueName();
-    final int timeout = 20; // ms!
-    final String key1 = "KEY1";
-    final String key2 = "KEY2";
-    final String value = "VALUE";
+    final var name = getUniqueName();
+    final var timeout = 20; // ms!
+    final var key1 = "KEY1";
+    final var key2 = "KEY2";
+    final var value = "VALUE";
 
-    RegionFactory<Object, Object> factory = getCache().createRegionFactory(getRegionAttributes());
-    ExpirationAttributes expire = new ExpirationAttributes(timeout, ExpirationAction.INVALIDATE);
+    var factory = getCache().createRegionFactory(getRegionAttributes());
+    var expire = new ExpirationAttributes(timeout, ExpirationAction.INVALIDATE);
     factory.setCustomEntryTimeToLive(new CountExpiry<>(key2, expire));
     factory.setStatisticsEnabled(true);
     synchronized (CountExpiry.class) {
@@ -3003,7 +3003,7 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
       if (CountExpiry.invokeCounts.size() != 2) {
         fail("CountExpiry not invoked correctly, size = " + CountExpiry.invokeCounts.size());
       }
-      Integer i = (Integer) CountExpiry.invokeCounts.get(key1);
+      var i = (Integer) CountExpiry.invokeCounts.get(key1);
       assertNotNull(i);
       assertEquals(1, i.intValue());
 
@@ -3019,35 +3019,35 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
   @Test
   public void testCustomEntryIdleReset() {
 
-    final String name = getUniqueName();
-    final int timeout = 200 * 1000; // ms
-    final String key1 = "KEY1";
-    final String value = "VALUE";
+    final var name = getUniqueName();
+    final var timeout = 200 * 1000; // ms
+    final var key1 = "KEY1";
+    final var value = "VALUE";
 
-    RegionFactory<Object, Object> factory = getCache().createRegionFactory(getRegionAttributes());
-    ExpirationAttributes expire = new ExpirationAttributes(timeout, ExpirationAction.INVALIDATE);
+    var factory = getCache().createRegionFactory(getRegionAttributes());
+    var expire = new ExpirationAttributes(timeout, ExpirationAction.INVALIDATE);
     factory.setCustomEntryIdleTimeout(new TestExpiry<>(key1, expire));
     factory.setStatisticsEnabled(true);
-    TestCacheListenerCustom list = new TestCacheListenerCustom();
+    var list = new TestCacheListenerCustom();
     factory.addCacheListener(list);
 
 
     System.setProperty(LocalRegion.EXPIRY_MS_PROPERTY, "true");
     try {
-      LocalRegion region = (LocalRegion) createRegion(name, factory);
+      var region = (LocalRegion) createRegion(name, factory);
 
       ExpiryTask.suspendExpiration();
       try {
         region.create(key1, value);
         assertTrue(list.waitForInvocation(5000));
-        Region.Entry entry = region.getEntry(key1);
+        var entry = region.getEntry(key1);
         assertNotNull(entry.getValue());
-        EntryExpiryTask eet = region.getEntryExpiryTask(key1);
-        final long createExpiryTime = eet.getExpirationTime();
+        var eet = region.getEntryExpiryTask(key1);
+        final var createExpiryTime = eet.getExpirationTime();
         Wait.waitForExpiryClockToChange(region);
         region.get(key1);
         assertSame(eet, region.getEntryExpiryTask(key1));
-        final long getExpiryTime = eet.getExpirationTime();
+        final var getExpiryTime = eet.getExpirationTime();
         if (getExpiryTime - createExpiryTime <= 0L) {
           fail("get did not reset the expiration time. createExpiryTime=" + createExpiryTime
               + " getExpiryTime=" + getExpiryTime);
@@ -3055,7 +3055,7 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
         Wait.waitForExpiryClockToChange(region);
         region.put(key1, value);
         assertSame(eet, region.getEntryExpiryTask(key1));
-        final long putExpiryTime = eet.getExpirationTime();
+        final var putExpiryTime = eet.getExpirationTime();
         if (putExpiryTime - getExpiryTime <= 0L) {
           fail("put did not reset the expiration time. getExpiryTime=" + getExpiryTime
               + " putExpiryTime=" + putExpiryTime);
@@ -3086,22 +3086,22 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
     }
 
     void printState(ExpiryTask et, String callback) {
-      Date now = new Date();
-      Date ttl = now;
+      var now = new Date();
+      var ttl = now;
       try {
         ttl = new Date(et.getExpirationTime());
       } catch (EntryNotFoundException ignored) {
         // ignore
       }
-      Date idleExpTime = now;
+      var idleExpTime = now;
       try {
         idleExpTime = new Date(et.getIdleExpirationTime());
       } catch (EntryNotFoundException ignored) {
         // ignore
       }
-      Date ttlTime = new Date(et.getTTLExpirationTime());
-      Date getNow = new Date(et.calculateNow());
-      Date scheduleETime = new Date(et.scheduledExecutionTime());
+      var ttlTime = new Date(et.getTTLExpirationTime());
+      var getNow = new Date(et.calculateNow());
+      var scheduleETime = new Date(et.scheduledExecutionTime());
       getCache().getLogger()
           .info(callback + " now: " + getCurrentTimeStamp(now) + " ttl:" + getCurrentTimeStamp(ttl)
               + " idleExpTime:" + getCurrentTimeStamp(idleExpTime) + " ttlTime:"
@@ -3134,16 +3134,16 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
   public void testEntryIdleDestroy() {
 
     EntryExpiryTask.expiryTaskListener = new ExpiryCallbacks();
-    final String name = getUniqueName();
-    final int timeout = 20; // ms
-    final String key = "KEY";
-    final String value = "VALUE";
+    final var name = getUniqueName();
+    final var timeout = 20; // ms
+    final var key = "KEY";
+    final var value = "VALUE";
 
-    RegionFactory<Object, Object> factory = getCache().createRegionFactory(getRegionAttributes());
-    ExpirationAttributes expire = new ExpirationAttributes(timeout, ExpirationAction.DESTROY);
+    var factory = getCache().createRegionFactory(getRegionAttributes());
+    var expire = new ExpirationAttributes(timeout, ExpirationAction.DESTROY);
     factory.setEntryIdleTimeout(expire);
     factory.setStatisticsEnabled(true);
-    TestCacheListener<Object, Object> list = new TestCacheListener<Object, Object>() {
+    var list = new TestCacheListener<Object, Object>() {
       @Override
       public void afterCreate2(EntryEvent e) {}
 
@@ -3196,27 +3196,26 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
   @Test
   public void testEntryIdleReset() {
 
-    final String name = getUniqueName();
+    final var name = getUniqueName();
     // Test no longer waits for this timeout to expire
-    final int timeout = 90; // seconds
-    final String key = "KEY";
-    final String value = "VALUE";
+    final var timeout = 90; // seconds
+    final var key = "KEY";
+    final var value = "VALUE";
 
-    RegionFactory<Object, Object> factory = getCache().createRegionFactory(getRegionAttributes());
-    ExpirationAttributes expire = new ExpirationAttributes(timeout, ExpirationAction.DESTROY);
+    var factory = getCache().createRegionFactory(getRegionAttributes());
+    var expire = new ExpirationAttributes(timeout, ExpirationAction.DESTROY);
     factory.setEntryIdleTimeout(expire);
     factory.setStatisticsEnabled(true);
 
-
-    LocalRegion region = (LocalRegion) createRegion(name, factory);
+    var region = (LocalRegion) createRegion(name, factory);
     region.create(key, null);
-    EntryExpiryTask eet = region.getEntryExpiryTask(key);
-    long createExpiryTime = eet.getExpirationTime();
+    var eet = region.getEntryExpiryTask(key);
+    var createExpiryTime = eet.getExpirationTime();
 
     Wait.waitForExpiryClockToChange(region);
     region.get(key); // touch
     assertSame(eet, region.getEntryExpiryTask(key));
-    long getExpiryTime = eet.getExpirationTime();
+    var getExpiryTime = eet.getExpirationTime();
     if (getExpiryTime - createExpiryTime <= 0L) {
       fail("get did not reset the expiration time. createExpiryTime=" + createExpiryTime
           + " getExpiryTime=" + getExpiryTime);
@@ -3225,7 +3224,7 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
     Wait.waitForExpiryClockToChange(region);
     region.put(key, value); // touch
     assertSame(eet, region.getEntryExpiryTask(key));
-    long putExpiryTime = eet.getExpirationTime();
+    var putExpiryTime = eet.getExpirationTime();
     if (putExpiryTime - getExpiryTime <= 0L) {
       fail("put did not reset the expiration time. getExpiryTime=" + getExpiryTime
           + " putExpiryTime=" + putExpiryTime);
@@ -3238,7 +3237,7 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
     Wait.waitForExpiryClockToChange(region);
     region.invalidate(key); // touch
     assertSame(eet, region.getEntryExpiryTask(key));
-    long invalidateExpiryTime = eet.getExpirationTime();
+    var invalidateExpiryTime = eet.getExpirationTime();
     if (region.getConcurrencyChecksEnabled()) {
       if (putExpiryTime - getExpiryTime <= 0L) {
         fail("invalidate did not reset the expiration time. putExpiryTime=" + putExpiryTime
@@ -3255,17 +3254,17 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
   @Test
   public void testEntryExpirationAfterMutate() throws CacheException {
 
-    final String name = getUniqueName();
-    final int timeout = 20; // ms
-    final int hugeTimeout = Integer.MAX_VALUE;
-    final ExpirationAttributes expire =
+    final var name = getUniqueName();
+    final var timeout = 20; // ms
+    final var hugeTimeout = Integer.MAX_VALUE;
+    final var expire =
         new ExpirationAttributes(timeout, ExpirationAction.INVALIDATE);
-    final ExpirationAttributes hugeExpire =
+    final var hugeExpire =
         new ExpirationAttributes(hugeTimeout, ExpirationAction.INVALIDATE);
-    final String key = "KEY";
-    final String value = "VALUE";
+    final var key = "KEY";
+    final var value = "VALUE";
 
-    RegionFactory<Object, Object> factory = getCache().createRegionFactory(getRegionAttributes());
+    var factory = getCache().createRegionFactory(getRegionAttributes());
     factory.setStatisticsEnabled(true);
 
     Region<Object, Object> region;
@@ -3309,26 +3308,25 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
   @Test
   public void testEntryIdleTtl() {
 
-    final String name = getUniqueName();
+    final var name = getUniqueName();
     // test no longer waits for this timeout to expire
-    final int timeout = 2000; // seconds
-    final String key = "IDLE_TTL_KEY";
-    final String value = "IDLE_TTL_VALUE";
-    RegionFactory<Object, Object> factory = getCache().createRegionFactory(getRegionAttributes());
-    ExpirationAttributes expireIdle =
+    final var timeout = 2000; // seconds
+    final var key = "IDLE_TTL_KEY";
+    final var value = "IDLE_TTL_VALUE";
+    var factory = getCache().createRegionFactory(getRegionAttributes());
+    var expireIdle =
         new ExpirationAttributes(timeout / 2, ExpirationAction.DESTROY);
     factory.setEntryIdleTimeout(expireIdle);
-    ExpirationAttributes expireTtl = new ExpirationAttributes(timeout, ExpirationAction.DESTROY);
+    var expireTtl = new ExpirationAttributes(timeout, ExpirationAction.DESTROY);
     factory.setEntryTimeToLive(expireTtl);
     factory.setStatisticsEnabled(true);
 
-
-    LocalRegion region = (LocalRegion) createRegion(name, factory);
+    var region = (LocalRegion) createRegion(name, factory);
 
     region.create(key, value);
-    EntryExpiryTask eet = region.getEntryExpiryTask(key);
-    final long firstIdleExpiryTime = eet.getIdleExpirationTime();
-    final long firstTTLExpiryTime = eet.getTTLExpirationTime();
+    var eet = region.getEntryExpiryTask(key);
+    final var firstIdleExpiryTime = eet.getIdleExpirationTime();
+    final var firstTTLExpiryTime = eet.getTTLExpirationTime();
     if ((firstIdleExpiryTime - firstTTLExpiryTime) >= 0) {
       fail("idle should be less than ttl: idle=" + firstIdleExpiryTime + " ttl="
           + firstTTLExpiryTime);
@@ -3336,8 +3334,8 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
     Wait.waitForExpiryClockToChange(region);
     region.get(key);
     eet = region.getEntryExpiryTask(key);
-    final long secondIdleExpiryTime = eet.getIdleExpirationTime();
-    final long secondTTLExpiryTime = eet.getTTLExpirationTime();
+    final var secondIdleExpiryTime = eet.getIdleExpirationTime();
+    final var secondTTLExpiryTime = eet.getTTLExpirationTime();
     // make sure the get does not change the ttl expiry time
     assertEquals(firstTTLExpiryTime, secondTTLExpiryTime);
     // and does change the idle expiry time
@@ -3354,11 +3352,11 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
       return;
     }
 
-    final String name = getUniqueName();
+    final var name = getUniqueName();
     final Object key = "KEY";
     final Object value = "VALUE";
 
-    RegionFactory<Object, Object> factory = getCache().createRegionFactory(getRegionAttributes());
+    var factory = getCache().createRegionFactory(getRegionAttributes());
     factory.setStatisticsEnabled(true);
 
     LocalRegion region;
@@ -3369,19 +3367,19 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
       region.create(key, value);
 
       // Now go from no timeout to a timeout
-      Region.Entry entry = region.getEntry(key);
+      var entry = region.getEntry(key);
       assertEquals(value, entry.getValue());
       region.getAttributesMutator().setRegionIdleTimeout(
           new ExpirationAttributes(12000/* ms */, ExpirationAction.INVALIDATE));
       region.put(key, value);
-      long tilt = System.currentTimeMillis();
+      var tilt = System.currentTimeMillis();
 
       ExpiryTask expiryTask = region.getRegionIdleExpiryTask();
-      long mediumExpiryTime = expiryTask.getExpirationTime();
+      var mediumExpiryTime = expiryTask.getExpirationTime();
       region.getAttributesMutator().setRegionIdleTimeout(
           new ExpirationAttributes(999000/* ms */, ExpirationAction.INVALIDATE));
       expiryTask = region.getRegionIdleExpiryTask();
-      long hugeExpiryTime = expiryTask.getExpirationTime();
+      var hugeExpiryTime = expiryTask.getExpirationTime();
       ExpiryTask.suspendExpiration();
       long shortExpiryTime;
       try {
@@ -3414,18 +3412,17 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
       return;
     }
 
-    final String name = getUniqueName();
-    final String subname = getUniqueName() + "-SUB";
-    final int timeout = 22; // ms
+    final var name = getUniqueName();
+    final var subname = getUniqueName() + "-SUB";
+    final var timeout = 22; // ms
     final Object key = "KEY";
     final Object value = "VALUE";
 
-
-    VM vm0 = VM.getVM(0);
+    var vm0 = VM.getVM(0);
     vm0.invoke("testRegionIdleInvalidate", new CacheSerializableRunnable() {
       @Override
       public void run2() throws CacheException {
-        TestCacheListener<Object, Object> list = new TestCacheListener<Object, Object>() {
+        var list = new TestCacheListener<Object, Object>() {
           private int createCount = 0;
 
           @Override
@@ -3449,9 +3446,9 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
             wasInvoked(); // Clear the flag
           }
         };
-        RegionFactory<Object, Object> factory =
+        var factory =
             getCache().createRegionFactory(getRegionAttributes());
-        ExpirationAttributes expire =
+        var expire =
             new ExpirationAttributes(timeout, ExpirationAction.INVALIDATE);
         factory.setRegionIdleTimeout(expire);
         factory.setStatisticsEnabled(true);
@@ -3483,18 +3480,18 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
         // expiration time to be extended.
         // For this phase we don't worry about actually expiring but just
         // making sure the expiration time gets extended.
-        final int EXPIRATION_MS = 9000;
+        final var EXPIRATION_MS = 9000;
         region.getAttributesMutator().setRegionIdleTimeout(
             new ExpirationAttributes(EXPIRATION_MS, ExpirationAction.INVALIDATE));
 
-        LocalRegion lr = (LocalRegion) region;
+        var lr = (LocalRegion) region;
         {
           ExpiryTask expiryTask = lr.getRegionIdleExpiryTask();
           region.put(key, value);
-          long createExpiry = expiryTask.getExpirationTime();
-          long changeTime = Wait.waitForExpiryClockToChange(lr, createExpiry - EXPIRATION_MS);
+          var createExpiry = expiryTask.getExpirationTime();
+          var changeTime = Wait.waitForExpiryClockToChange(lr, createExpiry - EXPIRATION_MS);
           region.put(key, "VALUE2");
-          long putExpiry = expiryTask.getExpirationTime();
+          var putExpiry = expiryTask.getExpirationTime();
           assertTrue(
               "CLOCK went back in time! Expected putBaseExpiry=" + (putExpiry - EXPIRATION_MS)
                   + " to be >= than changeTime=" + changeTime,
@@ -3504,7 +3501,7 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
               (putExpiry - createExpiry) > 0);
           changeTime = Wait.waitForExpiryClockToChange(lr, putExpiry - EXPIRATION_MS);
           region.get(key);
-          long getExpiry = expiryTask.getExpirationTime();
+          var getExpiry = expiryTask.getExpirationTime();
           assertTrue(
               "CLOCK went back in time! Expected getBaseExpiry=" + (getExpiry - EXPIRATION_MS)
                   + " to be >= than changeTime=" + changeTime,
@@ -3514,7 +3511,7 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
 
           changeTime = Wait.waitForExpiryClockToChange(lr, getExpiry - EXPIRATION_MS);
           sub.put(key, value);
-          long subPutExpiry = expiryTask.getExpirationTime();
+          var subPutExpiry = expiryTask.getExpirationTime();
           assertTrue(
               "CLOCK went back in time! Expected subPutBaseExpiry=" + (subPutExpiry - EXPIRATION_MS)
                   + " to be >= than changeTime=" + changeTime,
@@ -3524,7 +3521,7 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
               (subPutExpiry - getExpiry) > 0);
           changeTime = Wait.waitForExpiryClockToChange(lr, subPutExpiry - EXPIRATION_MS);
           sub.get(key);
-          long subGetExpiry = expiryTask.getExpirationTime();
+          var subGetExpiry = expiryTask.getExpirationTime();
           assertTrue(
               "CLOCK went back in time! Expected subGetBaseExpiry=" + (subGetExpiry - EXPIRATION_MS)
                   + " to be >= than changeTime=" + changeTime,
@@ -3547,13 +3544,13 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
       return;
     }
 
-    final String name = getUniqueName();
-    final int timeout = 22; // ms
+    final var name = getUniqueName();
+    final var timeout = 22; // ms
     final Object key = "KEY";
     final Object value = "VALUE";
 
-    RegionFactory<Object, Object> factory = getCache().createRegionFactory(getRegionAttributes());
-    ExpirationAttributes expire = new ExpirationAttributes(timeout, ExpirationAction.DESTROY);
+    var factory = getCache().createRegionFactory(getRegionAttributes());
+    var expire = new ExpirationAttributes(timeout, ExpirationAction.DESTROY);
     factory.setRegionIdleTimeout(expire);
     factory.setStatisticsEnabled(true);
 
@@ -3585,13 +3582,13 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
 
   @Test
   public void testSnapshot() throws IOException, CacheException, ClassNotFoundException {
-    final String name = getUniqueName();
+    final var name = getUniqueName();
 
     // create region in controller
     preSnapshotRegion = createRegion(name);
 
     // create region in other VMs if distributed
-    boolean isDistributed = getRegionAttributes().getScope().isDistributed();
+    var isDistributed = getRegionAttributes().getScope().isDistributed();
     if (isDistributed) {
       invokeInEveryVM("create presnapshot region", new CacheSerializableRunnable() {
         @Override
@@ -3602,7 +3599,7 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
     }
 
     // add data to region in controller
-    for (int i = 0; i < MAX_KEYS; i++) {
+    for (var i = 0; i < MAX_KEYS; i++) {
       if (i == MAX_KEYS - 1) {
         // bug 33311 coverage
         preSnapshotRegion.create(String.valueOf(i), null);
@@ -3612,7 +3609,7 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
     }
 
     // save snapshot
-    File file = new File(name + ".snap");
+    var file = new File(name + ".snap");
     OutputStream out = new FileOutputStream(file);
 
     try {
@@ -3621,7 +3618,7 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
       assertEquals(5, preSnapshotRegion.get("5"));
 
       // destroy all data
-      for (int i = 0; i < MAX_KEYS; i++) {
+      for (var i = 0; i < MAX_KEYS; i++) {
         preSnapshotRegion.destroy(String.valueOf(i));
       }
 
@@ -3649,13 +3646,13 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
 
   @Test
   public void testRootSnapshot() throws IOException, CacheException, ClassNotFoundException {
-    final String name = getUniqueName();
+    final var name = getUniqueName();
 
     // create region in controller
     preSnapshotRegion = createRootRegion(name, getRegionAttributes());
 
     // create region in other VMs if distributed
-    boolean isDistributed = getRegionAttributes().getScope().isDistributed();
+    var isDistributed = getRegionAttributes().getScope().isDistributed();
     if (isDistributed) {
       invokeInEveryVM("create presnapshot region", new CacheSerializableRunnable() {
         @Override
@@ -3667,7 +3664,7 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
 
 
     // add data to region in controller
-    for (int i = 0; i < MAX_KEYS; i++) {
+    for (var i = 0; i < MAX_KEYS; i++) {
       if (i == MAX_KEYS - 1) {
         // bug 33311 coverage
         preSnapshotRegion.create(String.valueOf(i), null);
@@ -3677,7 +3674,7 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
     }
 
     // save snapshot
-    File file = new File(name + ".snap");
+    var file = new File(name + ".snap");
     OutputStream out = new FileOutputStream(file);
 
     try {
@@ -3686,7 +3683,7 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
       assertThat(preSnapshotRegion.get("5")).isEqualTo(5);
 
       // destroy all data
-      for (int i = 0; i < MAX_KEYS; i++) {
+      for (var i = 0; i < MAX_KEYS; i++) {
         preSnapshotRegion.destroy(String.valueOf(i));
       }
 
@@ -3729,7 +3726,7 @@ public abstract class RegionTestCase extends JUnit4CacheTestCase {
     Region postSnapshotRegion = isRoot ? getRootRegion(name) : getRootRegion().getSubregion(name);
     assertNotNull("Could not get reference to reinitialized region", postSnapshotRegion);
 
-    boolean expectData =
+    var expectData =
         isController || postSnapshotRegion.getAttributes().getMirrorType().isMirrored()
             || postSnapshotRegion.getAttributes().getDataPolicy().isPreloaded();
 

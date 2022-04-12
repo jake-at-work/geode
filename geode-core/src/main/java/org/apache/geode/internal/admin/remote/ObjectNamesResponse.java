@@ -20,7 +20,6 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.geode.DataSerializer;
@@ -44,7 +43,7 @@ public class ObjectNamesResponse extends AdminResponse implements Cancellable {
    */
   public static ObjectNamesResponse create(DistributionManager dm,
       InternalDistributedMember recipient) {
-    ObjectNamesResponse m = new ObjectNamesResponse();
+    var m = new ObjectNamesResponse();
     m.setRecipient(recipient);
     return m;
   }
@@ -54,15 +53,15 @@ public class ObjectNamesResponse extends AdminResponse implements Cancellable {
       return;
     }
 
-    Set nameSet = r.keySet();
-    Iterator it = nameSet.iterator();
+    var nameSet = r.keySet();
+    var it = nameSet.iterator();
     objectNames = new HashSet();
     synchronized (r) {
       while (it.hasNext()) {
         if (cancelled) {
           break;
         }
-        Object name = it.next();
+        var name = it.next();
         if (name instanceof String || name instanceof Number) {
           objectNames.add(name);
         } else {

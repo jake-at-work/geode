@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
 import org.apache.geode.cache.configuration.CacheConfig;
-import org.apache.geode.cache.configuration.DiskStoreType;
 import org.apache.geode.distributed.ConfigurationPersistenceService;
 import org.apache.geode.management.configuration.DiskStore;
 import org.apache.geode.management.internal.configuration.converters.DiskStoreConverter;
@@ -39,7 +38,7 @@ public class DiskStoreManager extends CacheConfigurationManager<DiskStore> {
 
   @Override
   public void add(DiskStore config, CacheConfig existing) {
-    List<DiskStoreType> diskStoreTypes = existing.getDiskStores();
+    var diskStoreTypes = existing.getDiskStores();
     if (diskStoreTypes.stream().noneMatch(diskStoreType -> diskStoreType.getName()
         .equals(config.getName()))) {
       diskStoreTypes.add(diskStoreConverter.fromConfigObject(config));

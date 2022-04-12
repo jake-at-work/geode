@@ -37,15 +37,15 @@ public class TXCommitMessageTest {
 
   @Test
   public void commitProcessQueryMessageIsSentIfHostDeparted() {
-    DistributionManager manager = mock(DistributionManager.class);
-    InternalDistributedMember member = mock(InternalDistributedMember.class);
-    DistributionManager dm = mock(DistributionManager.class);
-    TXCommitMessage.CommitProcessQueryReplyProcessor processor = mock(
+    var manager = mock(DistributionManager.class);
+    var member = mock(InternalDistributedMember.class);
+    var dm = mock(DistributionManager.class);
+    var processor = mock(
         TXCommitMessage.CommitProcessQueryReplyProcessor.class);
-    TXCommitMessage.CommitProcessQueryMessage queryMessage =
+    var queryMessage =
         mock(TXCommitMessage.CommitProcessQueryMessage.class);
-    HashSet farSiders = mock(HashSet.class);
-    TXCommitMessage message = spy(new TXCommitMessage());
+    var farSiders = mock(HashSet.class);
+    var message = spy(new TXCommitMessage());
     doReturn(dm).when(message).getDistributionManager();
     when(dm.getCancelCriterion()).thenReturn(mock(CancelCriterion.class));
     doReturn(member).when(message).getSender();
@@ -63,10 +63,10 @@ public class TXCommitMessageTest {
 
   @Test
   public void firePendingCallbacksSendsAFTER_CREATECallbackIfUpdateEntryEventHasNullNewValue() {
-    TXCommitMessage message = spy(new TXCommitMessage());
-    LocalRegion region = mock(LocalRegion.class, RETURNS_DEEP_STUBS);
-    EntryEventImpl updateEvent = mock(EntryEventImpl.class, RETURNS_DEEP_STUBS);
-    EntryEventImpl lastTxEvent = mock(EntryEventImpl.class, RETURNS_DEEP_STUBS);
+    var message = spy(new TXCommitMessage());
+    var region = mock(LocalRegion.class, RETURNS_DEEP_STUBS);
+    var updateEvent = mock(EntryEventImpl.class, RETURNS_DEEP_STUBS);
+    var lastTxEvent = mock(EntryEventImpl.class, RETURNS_DEEP_STUBS);
 
     List<EntryEventImpl> callbacks = new ArrayList<>();
     callbacks.add(updateEvent);

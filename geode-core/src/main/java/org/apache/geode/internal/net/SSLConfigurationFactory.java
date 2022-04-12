@@ -42,9 +42,9 @@ public class SSLConfigurationFactory {
 
   private SSLConfig createSSLConfigForComponent(final DistributionConfig distributionConfig,
       final SecurableCommunicationChannel sslEnabledComponent) {
-    SSLConfig.Builder sslConfigBuilder =
+    var sslConfigBuilder =
         createSSLConfigBuilder(distributionConfig, sslEnabledComponent);
-    SecurableCommunicationChannel[] sslEnabledComponents =
+    var sslEnabledComponents =
         distributionConfig.getSecurableCommunicationChannels();
     if (sslEnabledComponents.length == 0) {
       configureLegacyClusterSSL(distributionConfig, sslConfigBuilder);
@@ -117,7 +117,7 @@ public class SSLConfigurationFactory {
 
   private SSLConfig.Builder createSSLConfigBuilder(final DistributionConfig distributionConfig,
       final SecurableCommunicationChannel sslEnabledComponent) {
-    SSLConfig.Builder sslConfigBuilder = new SSLConfig.Builder();
+    var sslConfigBuilder = new SSLConfig.Builder();
     sslConfigBuilder.setCiphers(distributionConfig.getSSLCiphers());
     sslConfigBuilder
         .setEndpointIdentificationEnabled(distributionConfig.getSSLEndPointIdentificationEnabled());
@@ -317,7 +317,7 @@ public class SSLConfigurationFactory {
   public static SSLConfig getSSLConfigForComponent(final boolean useSSL,
       final boolean needClientAuth, final String protocols, final String ciphers,
       final Properties gfsecurityProps, final String alias) {
-    SSLConfig.Builder sslConfigBuilder = new SSLConfig.Builder();
+    var sslConfigBuilder = new SSLConfig.Builder();
     sslConfigBuilder.setAlias(alias);
     sslConfigBuilder.setCiphers(ciphers);
     sslConfigBuilder.setProtocols(protocols);

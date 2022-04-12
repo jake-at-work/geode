@@ -22,7 +22,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import org.junit.Test;
 
@@ -30,9 +29,9 @@ public class ArgumentRedactorTest {
 
   @Test
   public void isSensitive_isTrueForGemfireSecurityPassword() {
-    String input = "gemfire.security-password";
+    var input = "gemfire.security-password";
 
-    boolean output = isSensitive(input);
+    var output = isSensitive(input);
 
     assertThat(output)
         .as("output of isSensitive(" + input + ")")
@@ -41,9 +40,9 @@ public class ArgumentRedactorTest {
 
   @Test
   public void isSensitive_isTrueForPassword() {
-    String input = "password";
+    var input = "password";
 
-    boolean output = isSensitive(input);
+    var output = isSensitive(input);
 
     assertThat(output)
         .as("output of isSensitive(" + input + ")")
@@ -52,9 +51,9 @@ public class ArgumentRedactorTest {
 
   @Test
   public void isSensitive_isTrueForOptionContainingPassword() {
-    String input = "other-password-option";
+    var input = "other-password-option";
 
-    boolean output = isSensitive(input);
+    var output = isSensitive(input);
 
     assertThat(output)
         .as("output of isSensitive(" + input + ")")
@@ -63,9 +62,9 @@ public class ArgumentRedactorTest {
 
   @Test
   public void isSensitive_isTrueForClusterSslTruststorePassword() {
-    String input = "cluster-ssl-truststore-password";
+    var input = "cluster-ssl-truststore-password";
 
-    boolean output = isSensitive(input);
+    var output = isSensitive(input);
 
     assertThat(output)
         .as("output of isSensitive(" + input + ")")
@@ -74,9 +73,9 @@ public class ArgumentRedactorTest {
 
   @Test
   public void isSensitive_isTrueForGatewaySslTruststorePassword() {
-    String input = "gateway-ssl-truststore-password";
+    var input = "gateway-ssl-truststore-password";
 
-    boolean output = isSensitive(input);
+    var output = isSensitive(input);
 
     assertThat(output)
         .as("output of isSensitive(" + input + ")")
@@ -85,9 +84,9 @@ public class ArgumentRedactorTest {
 
   @Test
   public void isSensitive_isTrueForServerSslKeystorePassword() {
-    String input = "server-ssl-keystore-password";
+    var input = "server-ssl-keystore-password";
 
-    boolean output = isSensitive(input);
+    var output = isSensitive(input);
 
     assertThat(output)
         .as("output of isSensitive(" + input + ")")
@@ -96,9 +95,9 @@ public class ArgumentRedactorTest {
 
   @Test
   public void isSensitive_isTrueForSecurityUsername() {
-    String input = "security-username";
+    var input = "security-username";
 
-    boolean output = isSensitive(input);
+    var output = isSensitive(input);
 
     assertThat(output)
         .as("output of isSensitive(" + input + ")")
@@ -107,9 +106,9 @@ public class ArgumentRedactorTest {
 
   @Test
   public void isSensitive_isTrueForSecurityManager() {
-    String input = "security-manager";
+    var input = "security-manager";
 
-    boolean output = isSensitive(input);
+    var output = isSensitive(input);
 
     assertThat(output)
         .as("output of isSensitive(" + input + ")")
@@ -118,9 +117,9 @@ public class ArgumentRedactorTest {
 
   @Test
   public void isSensitive_isTrueForOptionStartingWithSecurityHyphen() {
-    String input = "security-important-property";
+    var input = "security-important-property";
 
-    boolean output = isSensitive(input);
+    var output = isSensitive(input);
 
     assertThat(output)
         .as("output of isSensitive(" + input + ")")
@@ -129,9 +128,9 @@ public class ArgumentRedactorTest {
 
   @Test
   public void isSensitive_isTrueForJavaxNetSslKeyStorePassword() {
-    String input = "javax.net.ssl.keyStorePassword";
+    var input = "javax.net.ssl.keyStorePassword";
 
-    boolean output = isSensitive(input);
+    var output = isSensitive(input);
 
     assertThat(output)
         .as("output of isSensitive(" + input + ")")
@@ -140,9 +139,9 @@ public class ArgumentRedactorTest {
 
   @Test
   public void isSensitive_isTrueForOptionStartingWithJavaxNetSsl() {
-    String input = "javax.net.ssl.some.security.item";
+    var input = "javax.net.ssl.some.security.item";
 
-    boolean output = isSensitive(input);
+    var output = isSensitive(input);
 
     assertThat(output)
         .as("output of isSensitive(" + input + ")")
@@ -151,9 +150,9 @@ public class ArgumentRedactorTest {
 
   @Test
   public void isSensitive_isTrueForJavaxNetSslKeyStoreType() {
-    String input = "javax.net.ssl.keyStoreType";
+    var input = "javax.net.ssl.keyStoreType";
 
-    boolean output = isSensitive(input);
+    var output = isSensitive(input);
 
     assertThat(output)
         .as("output of isSensitive(" + input + ")")
@@ -162,9 +161,9 @@ public class ArgumentRedactorTest {
 
   @Test
   public void isSensitive_isTrueForOptionStartingWithSyspropHyphen() {
-    String input = "sysprop-secret-prop";
+    var input = "sysprop-secret-prop";
 
-    boolean output = isSensitive(input);
+    var output = isSensitive(input);
 
     assertThat(output)
         .as("output of isSensitive(" + input + ")")
@@ -173,9 +172,9 @@ public class ArgumentRedactorTest {
 
   @Test
   public void isSensitive_isFalseForGemfireSecurityManager() {
-    String input = "gemfire.security-manager";
+    var input = "gemfire.security-manager";
 
-    boolean output = isSensitive(input);
+    var output = isSensitive(input);
 
     assertThat(output)
         .as("output of isSensitive(" + input + ")")
@@ -184,9 +183,9 @@ public class ArgumentRedactorTest {
 
   @Test
   public void isSensitive_isFalseForClusterSslEnabled() {
-    String input = "cluster-ssl-enabled";
+    var input = "cluster-ssl-enabled";
 
-    boolean output = isSensitive(input);
+    var output = isSensitive(input);
 
     assertThat(output)
         .as("output of isSensitive(" + input + ")")
@@ -195,9 +194,9 @@ public class ArgumentRedactorTest {
 
   @Test
   public void isSensitive_isFalseForConserveSockets() {
-    String input = "conserve-sockets";
+    var input = "conserve-sockets";
 
-    boolean output = isSensitive(input);
+    var output = isSensitive(input);
 
     assertThat(output)
         .as("output of isSensitive(" + input + ")")
@@ -206,9 +205,9 @@ public class ArgumentRedactorTest {
 
   @Test
   public void isSensitive_isFalseForUsername() {
-    String input = "username";
+    var input = "username";
 
-    boolean output = isSensitive(input);
+    var output = isSensitive(input);
 
     assertThat(output)
         .as("output of isSensitive(" + input + ")")
@@ -217,9 +216,9 @@ public class ArgumentRedactorTest {
 
   @Test
   public void isSensitive_isFalseForNonMatchingStringContainingHyphens() {
-    String input = "just-an-option";
+    var input = "just-an-option";
 
-    boolean output = isSensitive(input);
+    var output = isSensitive(input);
 
     assertThat(output)
         .as("output of isSensitive(" + input + ")")
@@ -228,12 +227,12 @@ public class ArgumentRedactorTest {
 
   @Test
   public void redactString_redactsGemfirePasswordWithHyphenD() {
-    String string = "-Dgemfire.password=%s";
-    String sensitive = "__this_should_be_redacted__";
-    String input = String.format(string, sensitive);
-    String expected = String.format(string, getRedacted());
+    var string = "-Dgemfire.password=%s";
+    var sensitive = "__this_should_be_redacted__";
+    var input = String.format(string, sensitive);
+    var expected = String.format(string, getRedacted());
 
-    String output = redact(input);
+    var output = redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -243,12 +242,12 @@ public class ArgumentRedactorTest {
 
   @Test
   public void redactString_redactsPasswordWithHyphens() {
-    String string = "--password=%s";
-    String sensitive = "__this_should_be_redacted__";
-    String input = String.format(string, sensitive);
-    String expected = String.format(string, getRedacted());
+    var string = "--password=%s";
+    var sensitive = "__this_should_be_redacted__";
+    var input = String.format(string, sensitive);
+    var expected = String.format(string, getRedacted());
 
-    String output = redact(input);
+    var output = redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -258,12 +257,12 @@ public class ArgumentRedactorTest {
 
   @Test
   public void redactString_redactsOptionEndingWithPasswordWithHyphensJDd() {
-    String string = "--J=-Dgemfire.some.very.qualified.item.password=%s";
-    String sensitive = "__this_should_be_redacted__";
-    String input = String.format(string, sensitive);
-    String expected = String.format(string, getRedacted());
+    var string = "--J=-Dgemfire.some.very.qualified.item.password=%s";
+    var sensitive = "__this_should_be_redacted__";
+    var input = String.format(string, sensitive);
+    var expected = String.format(string, getRedacted());
 
-    String output = redact(input);
+    var output = redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -273,12 +272,12 @@ public class ArgumentRedactorTest {
 
   @Test
   public void redactString_redactsOptionStartingWithSyspropHyphenWithHyphensJD() {
-    String string = "--J=-Dsysprop-secret.information=%s";
-    String sensitive = "__this_should_be_redacted__";
-    String input = String.format(string, sensitive);
-    String expected = String.format(string, getRedacted());
+    var string = "--J=-Dsysprop-secret.information=%s";
+    var sensitive = "__this_should_be_redacted__";
+    var input = String.format(string, sensitive);
+    var expected = String.format(string, getRedacted());
 
-    String output = redact(input);
+    var output = redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -288,12 +287,12 @@ public class ArgumentRedactorTest {
 
   @Test
   public void redactString_redactsGemfireSecurityPasswordWithHyphenD() {
-    String string = "-Dgemfire.security-password=%s";
-    String sensitive = "secret";
-    String input = String.format(string, sensitive);
-    String expected = String.format(string, getRedacted());
+    var string = "-Dgemfire.security-password=%s";
+    var sensitive = "secret";
+    var input = String.format(string, sensitive);
+    var expected = String.format(string, getRedacted());
 
-    String output = redact(input);
+    var output = redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -302,9 +301,9 @@ public class ArgumentRedactorTest {
 
   @Test
   public void redactString_doesNotRedactOptionEndingWithSecurityPropertiesWithHyphenD1() {
-    String input = "-Dgemfire.security-properties=argument-value";
+    var input = "-Dgemfire.security-properties=argument-value";
 
-    String output = redact(input);
+    var output = redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -313,9 +312,9 @@ public class ArgumentRedactorTest {
 
   @Test
   public void redactString_doesNotRedactOptionEndingWithSecurityPropertiesWithHyphenD2() {
-    String input = "-Dgemfire.security-properties=\"c:\\Program Files (x86)\\My Folder\"";
+    var input = "-Dgemfire.security-properties=\"c:\\Program Files (x86)\\My Folder\"";
 
-    String output = redact(input);
+    var output = redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -324,9 +323,9 @@ public class ArgumentRedactorTest {
 
   @Test
   public void redactString_doesNotRedactOptionEndingWithSecurityPropertiesWithHyphenD3() {
-    String input = "-Dgemfire.security-properties=./security-properties";
+    var input = "-Dgemfire.security-properties=./security-properties";
 
-    String output = redact(input);
+    var output = redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -335,9 +334,9 @@ public class ArgumentRedactorTest {
 
   @Test
   public void redactString_doesNotRedactOptionContainingSecurityHyphenWithHyphensJD() {
-    String input = "--J=-Dgemfire.sys.security-option=someArg";
+    var input = "--J=-Dgemfire.sys.security-option=someArg";
 
-    String output = redact(input);
+    var output = redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -346,9 +345,9 @@ public class ArgumentRedactorTest {
 
   @Test
   public void redactString_doesNotRedactNonMatchingGemfireOptionWithHyphenD() {
-    String input = "-Dgemfire.sys.option=printable";
+    var input = "-Dgemfire.sys.option=printable";
 
-    String output = redact(input);
+    var output = redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -357,9 +356,9 @@ public class ArgumentRedactorTest {
 
   @Test
   public void redactString_redactsGemfireUseClusterConfigurationWithHyphenD() {
-    String input = "-Dgemfire.use-cluster-configuration=true";
+    var input = "-Dgemfire.use-cluster-configuration=true";
 
-    String output = redact(input);
+    var output = redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -368,9 +367,9 @@ public class ArgumentRedactorTest {
 
   @Test
   public void redactString_returnsNonMatchingString() {
-    String input = "someotherstringoption";
+    var input = "someotherstringoption";
 
-    String output = redact(input);
+    var output = redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -379,9 +378,9 @@ public class ArgumentRedactorTest {
 
   @Test
   public void redactString_doesNotRedactClasspathWithHyphens() {
-    String input = "--classpath=.";
+    var input = "--classpath=.";
 
-    String output = redact(input);
+    var output = redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -390,12 +389,12 @@ public class ArgumentRedactorTest {
 
   @Test
   public void redactString_redactsMatchingOptionWithNonMatchingOptionAndFlagAndMultiplePrefixes() {
-    String string = "--J=-Dflag -Duser-password=%s --classpath=.";
-    String sensitive = "foo";
-    String input = String.format(string, sensitive);
-    String expected = String.format(string, getRedacted());
+    var string = "--J=-Dflag -Duser-password=%s --classpath=.";
+    var sensitive = "foo";
+    var input = String.format(string, sensitive);
+    var expected = String.format(string, getRedacted());
 
-    String output = redact(input);
+    var output = redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -405,13 +404,13 @@ public class ArgumentRedactorTest {
 
   @Test
   public void redactString_redactsMultipleMatchingOptionsWithFlags() {
-    String string = "-DmyArg -Duser-password=%s -DOtherArg -Dsystem-password=%s";
-    String sensitive1 = "foo";
-    String sensitive2 = "bar";
-    String input = String.format(string, sensitive1, sensitive2);
-    String expected = String.format(string, getRedacted(), getRedacted());
+    var string = "-DmyArg -Duser-password=%s -DOtherArg -Dsystem-password=%s";
+    var sensitive1 = "foo";
+    var sensitive2 = "bar";
+    var input = String.format(string, sensitive1, sensitive2);
+    var expected = String.format(string, getRedacted(), getRedacted());
 
-    String output = redact(input);
+    var output = redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -422,19 +421,19 @@ public class ArgumentRedactorTest {
 
   @Test
   public void redactString_redactsMultipleMatchingOptionsWithMultipleNonMatchingOptionsAndMultiplePrefixes() {
-    String string =
+    var string =
         "-Dlogin-password=%s -Dlogin-name=%s -Dgemfire-password = %s --geode-password= %s --J=-Dsome-other-password =%s";
-    String sensitive1 = "secret";
-    String nonSensitive = "admin";
-    String sensitive2 = "super-secret";
-    String sensitive3 = "confidential";
-    String sensitive4 = "shhhh";
-    String input = String.format(
+    var sensitive1 = "secret";
+    var nonSensitive = "admin";
+    var sensitive2 = "super-secret";
+    var sensitive3 = "confidential";
+    var sensitive4 = "shhhh";
+    var input = String.format(
         string, sensitive1, nonSensitive, sensitive2, sensitive3, sensitive4);
-    String expected = String.format(
+    var expected = String.format(
         string, getRedacted(), nonSensitive, getRedacted(), getRedacted(), getRedacted());
 
-    String output = redact(input);
+    var output = redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -448,12 +447,12 @@ public class ArgumentRedactorTest {
 
   @Test
   public void redactString_redactsMatchingOptionWithNonMatchingOptionAfterCommand() {
-    String string = "connect --password=%s --user=%s";
-    String reusedSensitive = "test";
-    String input = String.format(string, reusedSensitive, reusedSensitive);
-    String expected = String.format(string, getRedacted(), reusedSensitive);
+    var string = "connect --password=%s --user=%s";
+    var reusedSensitive = "test";
+    var input = String.format(string, reusedSensitive, reusedSensitive);
+    var expected = String.format(string, getRedacted(), reusedSensitive);
 
-    String output = redact(input);
+    var output = redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -463,13 +462,13 @@ public class ArgumentRedactorTest {
 
   @Test
   public void redactString_redactsMultipleMatchingOptionsButNotKeyUsingSameStringAsValue() {
-    String string = "connect --%s-password=%s --product-password=%s";
-    String reusedSensitive = "test";
-    String sensitive = "test1";
-    String input = String.format(string, reusedSensitive, reusedSensitive, sensitive);
-    String expected = String.format(string, reusedSensitive, getRedacted(), getRedacted());
+    var string = "connect --%s-password=%s --product-password=%s";
+    var reusedSensitive = "test";
+    var sensitive = "test1";
+    var input = String.format(string, reusedSensitive, reusedSensitive, sensitive);
+    var expected = String.format(string, reusedSensitive, getRedacted(), getRedacted());
 
-    String output = redact(input);
+    var output = redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -480,12 +479,12 @@ public class ArgumentRedactorTest {
 
   @Test
   public void redactString_redactRedactsGemfireSslTruststorePassword() {
-    String string = "-Dgemfire.ssl-truststore-password=%s";
-    String sensitive = "gibberish";
-    String input = String.format(string, sensitive);
-    String expected = String.format(string, getRedacted());
+    var string = "-Dgemfire.ssl-truststore-password=%s";
+    var sensitive = "gibberish";
+    var input = String.format(string, sensitive);
+    var expected = String.format(string, getRedacted());
 
-    String output = redact(input);
+    var output = redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -495,12 +494,12 @@ public class ArgumentRedactorTest {
 
   @Test
   public void redactString_redactsGemfireSslKeystorePassword() {
-    String string = "-Dgemfire.ssl-keystore-password=%s";
-    String sensitive = "gibberish";
-    String input = String.format(string, sensitive);
-    String expected = String.format(string, getRedacted());
+    var string = "-Dgemfire.ssl-keystore-password=%s";
+    var sensitive = "gibberish";
+    var input = String.format(string, sensitive);
+    var expected = String.format(string, getRedacted());
 
-    String output = redact(input);
+    var output = redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -510,12 +509,12 @@ public class ArgumentRedactorTest {
 
   @Test
   public void redactString_redactsValueEndingWithHyphen() {
-    String string = "-Dgemfire.ssl-keystore-password=%s";
-    String sensitive = "supersecret-";
-    String input = String.format(string, sensitive);
-    String expected = String.format(string, getRedacted());
+    var string = "-Dgemfire.ssl-keystore-password=%s";
+    var sensitive = "supersecret-";
+    var input = String.format(string, sensitive);
+    var expected = String.format(string, getRedacted());
 
-    String output = redact(input);
+    var output = redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -525,12 +524,12 @@ public class ArgumentRedactorTest {
 
   @Test
   public void redactString_redactsValueContainingHyphen() {
-    String string = "-Dgemfire.ssl-keystore-password=%s";
-    String sensitive = "super-secret";
-    String input = String.format(string, sensitive);
-    String expected = String.format(string, getRedacted());
+    var string = "-Dgemfire.ssl-keystore-password=%s";
+    var sensitive = "super-secret";
+    var input = String.format(string, sensitive);
+    var expected = String.format(string, getRedacted());
 
-    String output = redact(input);
+    var output = redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -540,12 +539,12 @@ public class ArgumentRedactorTest {
 
   @Test
   public void redactString_redactsValueContainingManyHyphens() {
-    String string = "-Dgemfire.ssl-keystore-password=%s";
-    String sensitive = "this-is-super-secret";
-    String input = String.format(string, sensitive);
-    String expected = String.format(string, getRedacted());
+    var string = "-Dgemfire.ssl-keystore-password=%s";
+    var sensitive = "this-is-super-secret";
+    var input = String.format(string, sensitive);
+    var expected = String.format(string, getRedacted());
 
-    String output = redact(input);
+    var output = redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -555,12 +554,12 @@ public class ArgumentRedactorTest {
 
   @Test
   public void redactString_redactsValueStartingWithHyphen() {
-    String string = "-Dgemfire.ssl-keystore-password=%s";
-    String sensitive = "-supersecret";
-    String input = String.format(string, sensitive);
-    String expected = String.format(string, getRedacted());
+    var string = "-Dgemfire.ssl-keystore-password=%s";
+    var sensitive = "-supersecret";
+    var input = String.format(string, sensitive);
+    var expected = String.format(string, getRedacted());
 
-    String output = redact(input);
+    var output = redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -570,12 +569,12 @@ public class ArgumentRedactorTest {
 
   @Test
   public void redactString_redactsQuotedValueStartingWithHyphen() {
-    String string = "-Dgemfire.ssl-keystore-password=%s";
-    String sensitive = "\"-supersecret\"";
-    String input = String.format(string, sensitive);
-    String expected = String.format(string, getRedacted());
+    var string = "-Dgemfire.ssl-keystore-password=%s";
+    var sensitive = "\"-supersecret\"";
+    var input = String.format(string, sensitive);
+    var expected = String.format(string, getRedacted());
 
-    String output = redact(input);
+    var output = redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -585,11 +584,11 @@ public class ArgumentRedactorTest {
 
   @Test
   public void redactIterable_redactsMultipleMatchingOptions() {
-    String sensitive1 = "secret";
-    String sensitive2 = "super-secret";
-    String sensitive3 = "confidential";
-    String sensitive4 = "shhhh";
-    String sensitive5 = "failed";
+    var sensitive1 = "secret";
+    var sensitive2 = "super-secret";
+    var sensitive3 = "confidential";
+    var sensitive4 = "shhhh";
+    var sensitive5 = "failed";
 
     Collection<String> input = new ArrayList<>();
     input.add("--gemfire.security-password=" + sensitive1);
@@ -599,7 +598,7 @@ public class ArgumentRedactorTest {
     input.add("--some-other-password =" + sensitive4);
     input.add("--justapassword =" + sensitive5);
 
-    String output = redact(input);
+    var output = redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -627,7 +626,7 @@ public class ArgumentRedactorTest {
     input.add("--myArg --myArg2 --myArg3=-arg4");
     input.add("--myArg --myArg2 --myArg3=\"-arg4\"");
 
-    String output = redact(input);
+    var output = redact(input);
 
     assertThat(output)
         .as("output of redact(" + input + ")")
@@ -642,11 +641,11 @@ public class ArgumentRedactorTest {
 
   @Test
   public void redactEachInList_redactsCollectionOfMatchingOptions() {
-    String sensitive1 = "secret";
-    String sensitive2 = "super-secret";
-    String sensitive3 = "confidential";
-    String sensitive4 = "shhhh";
-    String sensitive5 = "failed";
+    var sensitive1 = "secret";
+    var sensitive2 = "super-secret";
+    var sensitive3 = "confidential";
+    var sensitive4 = "shhhh";
+    var sensitive5 = "failed";
 
     Collection<String> input = new ArrayList<>();
     input.add("--gemfire.security-password=" + sensitive1);
@@ -656,7 +655,7 @@ public class ArgumentRedactorTest {
     input.add("--some-other-password =" + sensitive4);
     input.add("--justapassword =" + sensitive5);
 
-    List<String> output = redactEachInList(input);
+    var output = redactEachInList(input);
 
     assertThat(output)
         .as("output of redactEachInList(" + input + ")")

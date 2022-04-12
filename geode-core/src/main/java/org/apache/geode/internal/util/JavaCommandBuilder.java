@@ -35,19 +35,19 @@ public class JavaCommandBuilder {
       final Properties systemProperties, final List<String> jvmOptions) {
     final List<String> javaCommandLine = new ArrayList<>();
 
-    final File javaBinDir = new File(System.getProperty("java.home"), "bin");
-    final File javaCommand = new File(javaBinDir, "java");
+    final var javaBinDir = new File(System.getProperty("java.home"), "bin");
+    final var javaCommand = new File(javaBinDir, "java");
 
     javaCommandLine.add(javaCommand.getPath());
 
-    final String dashServerArg = getDashServerArg(javaBinDir);
+    final var dashServerArg = getDashServerArg(javaBinDir);
 
     if (dashServerArg != null) {
       javaCommandLine.add(dashServerArg);
     }
 
     if (jvmOptions != null) {
-      for (final String jvmOption : jvmOptions) {
+      for (final var jvmOption : jvmOptions) {
         javaCommandLine.add(jvmOption);
       }
     }
@@ -56,7 +56,7 @@ public class JavaCommandBuilder {
     javaCommandLine.add(buildClasspath(additionalClasspath));
 
     if (systemProperties != null) {
-      for (final Object key : systemProperties.keySet()) {
+      for (final var key : systemProperties.keySet()) {
         javaCommandLine.add("-D" + key + "=" + systemProperties.getProperty(key.toString()));
       }
     }
@@ -67,7 +67,7 @@ public class JavaCommandBuilder {
   }
 
   private static String buildClasspath(final String additionalClasspath) {
-    final StringBuilder classpath = new StringBuilder(System.getProperty("java.class.path"));
+    final var classpath = new StringBuilder(System.getProperty("java.class.path"));
 
     if (additionalClasspath != null) {
       classpath.append(File.pathSeparator);
@@ -80,7 +80,7 @@ public class JavaCommandBuilder {
   private static String getDashServerArg(final File javaBinDir) {
     // the gemfire.vmarg.dashserver property allows customers to add a custom argument in place of
     // -server
-    final String altDashServerArg =
+    final var altDashServerArg =
         System.getProperty(GeodeGlossary.GEMFIRE_PREFIX + "vmarg.dashserver", null);
     return (altDashServerArg != null ? altDashServerArg
         : (omitDashServerArg(javaBinDir) ? null : "-server"));
@@ -93,20 +93,20 @@ public class JavaCommandBuilder {
    * @return true if the VM is known not to support the -server arg
    */
   private static boolean omitDashServerArg(final File javaBinDir) {
-    final String vendor = System.getProperty("java.vm.vendor");
+    final var vendor = System.getProperty("java.vm.vendor");
 
     if (vendor != null) {
-      final String vendorUpperCase = vendor.toUpperCase();
+      final var vendorUpperCase = vendor.toUpperCase();
 
       if (vendorUpperCase.startsWith("IBM")) {
         return true;
       }
 
       if (vendorUpperCase.startsWith("SUN")) {
-        final String os = System.getProperty("os.name");
+        final var os = System.getProperty("os.name");
 
         if (os != null && os.indexOf("Windows") != -1) {
-          final File serverDir = new File(javaBinDir, "server");
+          final var serverDir = new File(javaBinDir, "server");
 
           // On Windows with a Sun JVM and there is no ${java.home}/bin/server directory
           // This is true for the 32bit JRE, but not for the JDK

@@ -63,8 +63,6 @@ import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.PartitionResolver;
 import org.apache.geode.cache.PartitionedRegionStorageException;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.control.RebalanceOperation;
-import org.apache.geode.cache.control.ResourceManager;
 import org.apache.geode.cache.partition.PartitionNotAvailableException;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.PartitionedRegionDataStore;
@@ -125,7 +123,7 @@ public class FixedPartitioningDUnitTest implements Serializable {
 
   @After
   public void tearDown() {
-    for (VM vm : asList(getVM(0), getVM(1), getVM(2), getVM(3))) {
+    for (var vm : asList(getVM(0), getVM(1), getVM(2), getVM(3))) {
       vm.invoke(() -> {
         PartitionedRegion.BEFORE_CALCULATE_STARTING_BUCKET_FLAG = false;
         PartitionedRegionObserverHolder.clear();
@@ -140,9 +138,9 @@ public class FixedPartitioningDUnitTest implements Serializable {
   public void testNullPartitionName() {
     member1.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa = createFixedPartition(null, true, 3);
+      var fpa = createFixedPartition(null, true, 3);
 
-      Throwable thrown = catchThrowable(() -> {
+      var thrown = catchThrowable(() -> {
         createPartitionedRegion(REGION_NAME, singletonList(fpa), 0, 40, 3,
             newQuarterPartitionResolver());
       });
@@ -161,10 +159,10 @@ public class FixedPartitioningDUnitTest implements Serializable {
   public void testSamePartitionNameTwice() {
     member1.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa1 = createFixedPartition(QUARTER_1, true, 3);
-      FixedPartitionAttributes fpa2 = createFixedPartition(QUARTER_1, false, 3);
+      var fpa1 = createFixedPartition(QUARTER_1, true, 3);
+      var fpa2 = createFixedPartition(QUARTER_1, false, 3);
 
-      Throwable thrown = catchThrowable(() -> {
+      var thrown = catchThrowable(() -> {
         createPartitionedRegion(REGION_NAME, asList(fpa1, fpa2), 0, 40, 3,
             newQuarterPartitionResolver());
       });
@@ -182,10 +180,10 @@ public class FixedPartitioningDUnitTest implements Serializable {
   public void testFixedPartitionAttributes_Accessor() {
     member1.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa1 = createFixedPartition(QUARTER_1, true, 3);
-      FixedPartitionAttributes fpa2 = createFixedPartition(QUARTER_2, false, 3);
+      var fpa1 = createFixedPartition(QUARTER_1, true, 3);
+      var fpa2 = createFixedPartition(QUARTER_2, false, 3);
 
-      Throwable thrown = catchThrowable(() -> {
+      var thrown = catchThrowable(() -> {
         createPartitionedRegion(REGION_NAME, asList(fpa1, fpa2), 0, 0, 3,
             newQuarterPartitionResolver());
       });
@@ -207,23 +205,23 @@ public class FixedPartitioningDUnitTest implements Serializable {
 
     member1.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa = createFixedPartition(QUARTER_1, true, 3);
+      var fpa = createFixedPartition(QUARTER_1, true, 3);
       createPartitionedRegion(REGION_NAME, singletonList(fpa), 0, 40, 9,
           newQuarterPartitionResolver());
     });
 
     member2.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa = createFixedPartition(QUARTER_2, true, 3);
+      var fpa = createFixedPartition(QUARTER_2, true, 3);
       createPartitionedRegion(REGION_NAME, singletonList(fpa), 0, 40, 9,
           newQuarterPartitionResolver());
     });
 
     member3.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa = createFixedPartition(QUARTER_2, true, 3);
+      var fpa = createFixedPartition(QUARTER_2, true, 3);
 
-      Throwable thrown = catchThrowable(() -> {
+      var thrown = catchThrowable(() -> {
         createPartitionedRegion(REGION_NAME, singletonList(fpa), 0, 40, 9,
             newQuarterPartitionResolver());
       });
@@ -244,18 +242,18 @@ public class FixedPartitioningDUnitTest implements Serializable {
 
     member1.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa1 = createFixedPartition(QUARTER_1, true, 3);
-      FixedPartitionAttributes fpa2 = createFixedPartition(QUARTER_2, false, 3);
+      var fpa1 = createFixedPartition(QUARTER_1, true, 3);
+      var fpa2 = createFixedPartition(QUARTER_2, false, 3);
       createPartitionedRegion(REGION_NAME, asList(fpa1, fpa2), 1, 40, 9,
           newQuarterPartitionResolver());
     });
 
     member2.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa1 = createFixedPartition(QUARTER_2, true, 3);
-      FixedPartitionAttributes fpa2 = createFixedPartition(QUARTER_1, false, 8);
+      var fpa1 = createFixedPartition(QUARTER_2, true, 3);
+      var fpa2 = createFixedPartition(QUARTER_1, false, 8);
 
-      Throwable thrown = catchThrowable(() -> {
+      var thrown = catchThrowable(() -> {
         createPartitionedRegion(REGION_NAME, asList(fpa1, fpa2), 1, 40, 9,
             newQuarterPartitionResolver());
       });
@@ -282,27 +280,27 @@ public class FixedPartitioningDUnitTest implements Serializable {
 
     member2.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa1 = createFixedPartition("Q11", true, 3);
-      FixedPartitionAttributes fpa2 = createFixedPartition("Q12", false, 3);
+      var fpa1 = createFixedPartition("Q11", true, 3);
+      var fpa2 = createFixedPartition("Q12", false, 3);
       createPartitionedRegion(REGION_NAME, asList(fpa1, fpa2), 1, 40, 9,
           newQuarterPartitionResolver());
     });
 
     member3.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa1 = createFixedPartition("Q12", true, 3);
-      FixedPartitionAttributes fpa2 = createFixedPartition("Q13", false, 3);
-      FixedPartitionAttributes fpa3 = createFixedPartition("Q11", false, 3);
+      var fpa1 = createFixedPartition("Q12", true, 3);
+      var fpa2 = createFixedPartition("Q13", false, 3);
+      var fpa3 = createFixedPartition("Q11", false, 3);
       createPartitionedRegion(REGION_NAME, asList(fpa1, fpa2, fpa3), 1, 40, 9,
           newQuarterPartitionResolver());
     });
 
     member4.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa1 = createFixedPartition("Q13", true, 3);
-      FixedPartitionAttributes fpa2 = createFixedPartition("Q11", false, 3);
+      var fpa1 = createFixedPartition("Q13", true, 3);
+      var fpa2 = createFixedPartition("Q11", false, 3);
 
-      Throwable thrown = catchThrowable(() -> {
+      var thrown = catchThrowable(() -> {
         createPartitionedRegion(REGION_NAME, asList(fpa1, fpa2), 1, 40, 9,
             newQuarterPartitionResolver());
       });
@@ -327,18 +325,18 @@ public class FixedPartitioningDUnitTest implements Serializable {
 
     member2.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa1 = createFixedPartition(QUARTER_1, true, 3);
-      FixedPartitionAttributes fpa2 = createFixedPartition(QUARTER_2, false, 3);
+      var fpa1 = createFixedPartition(QUARTER_1, true, 3);
+      var fpa2 = createFixedPartition(QUARTER_2, false, 3);
       createPartitionedRegion(REGION_NAME, asList(fpa1, fpa2), 1, 40, 5,
           newQuarterPartitionResolver());
     });
 
     member3.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa1 = createFixedPartition(QUARTER_2, true, 3);
-      FixedPartitionAttributes fpa2 = createFixedPartition(QUARTER_3, false, 3);
+      var fpa1 = createFixedPartition(QUARTER_2, true, 3);
+      var fpa2 = createFixedPartition(QUARTER_3, false, 3);
 
-      Throwable thrown = catchThrowable(() -> {
+      var thrown = catchThrowable(() -> {
         createPartitionedRegion(REGION_NAME, asList(fpa1, fpa2), 1, 40, 5,
             newQuarterPartitionResolver());
       });
@@ -363,20 +361,20 @@ public class FixedPartitioningDUnitTest implements Serializable {
 
     member2.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa = createFixedPartition(QUARTER_1, true, 3);
+      var fpa = createFixedPartition(QUARTER_1, true, 3);
       createPartitionedRegion(REGION_NAME, singletonList(fpa), 1, 40, 12,
           newQuarterPartitionResolver());
     });
 
     member3.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa = createFixedPartition(QUARTER_2, true, 3);
+      var fpa = createFixedPartition(QUARTER_2, true, 3);
       createPartitionedRegion(REGION_NAME, singletonList(fpa), 1, 40, 12,
           newQuarterPartitionResolver());
     });
 
     member1.invoke(() -> {
-      Throwable thrown = catchThrowable(() -> {
+      var thrown = catchThrowable(() -> {
         putThroughAccessor(REGION_NAME);
       });
 
@@ -400,9 +398,9 @@ public class FixedPartitioningDUnitTest implements Serializable {
 
     member2.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa = createFixedPartition(QUARTER_1, true, 3);
+      var fpa = createFixedPartition(QUARTER_1, true, 3);
 
-      Throwable thrown = catchThrowable(() -> {
+      var thrown = catchThrowable(() -> {
         createPartitionedRegion(REGION_NAME, singletonList(fpa), 1, 40, 12,
             newQuarterPartitionResolver());
       });
@@ -422,7 +420,7 @@ public class FixedPartitioningDUnitTest implements Serializable {
 
     member2.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa = createFixedPartition(QUARTER_1, true, 3);
+      var fpa = createFixedPartition(QUARTER_1, true, 3);
       createPartitionedRegion(REGION_NAME, singletonList(fpa), 1, 40, 12,
           newQuarterPartitionResolver());
     });
@@ -430,7 +428,7 @@ public class FixedPartitioningDUnitTest implements Serializable {
     member1.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
 
-      Throwable thrown = catchThrowable(() -> {
+      var thrown = catchThrowable(() -> {
         createPartitionedRegion(REGION_NAME, null, 1, 40, 12, newQuarterPartitionResolver());
       });
 
@@ -452,21 +450,21 @@ public class FixedPartitioningDUnitTest implements Serializable {
 
     member2.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa = createFixedPartition(QUARTER_1, true, 3);
+      var fpa = createFixedPartition(QUARTER_1, true, 3);
       createPartitionedRegion(REGION_NAME, singletonList(fpa), 0, 40, 12,
           newQuarterPartitionResolver());
     });
 
     member3.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa = createFixedPartition(QUARTER_2, true, 3);
+      var fpa = createFixedPartition(QUARTER_2, true, 3);
       createPartitionedRegion(REGION_NAME, singletonList(fpa), 0, 40, 12,
           newQuarterPartitionResolver());
     });
 
     member4.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa = createFixedPartition(QUARTER_3, true, 3);
+      var fpa = createFixedPartition(QUARTER_3, true, 3);
       createPartitionedRegion(REGION_NAME, singletonList(fpa), 0, 40, 12,
           newQuarterPartitionResolver());
     });
@@ -480,10 +478,10 @@ public class FixedPartitioningDUnitTest implements Serializable {
 
   @Test
   public void putWhileDataStoresAreBeingCreatedFails() throws Exception {
-    VM accessor = getVM(0);
-    VM datastore1 = getVM(1);
-    VM datastore2 = getVM(2);
-    VM datastore3 = getVM(3);
+    var accessor = getVM(0);
+    var datastore1 = getVM(1);
+    var datastore2 = getVM(2);
+    var datastore3 = getVM(3);
 
     accessor.invoke(() -> cache.set(new CacheFactory(getDistributedSystemProperties()).create()));
     datastore1.invoke(() -> cache.set(new CacheFactory(getDistributedSystemProperties()).create()));
@@ -515,7 +513,7 @@ public class FixedPartitioningDUnitTest implements Serializable {
 
     // Make sure a put to datastore1, which is in the middle of pr initialization, fails correctly
     accessor.invoke(() -> {
-      Throwable thrown = catchThrowable(() -> {
+      var thrown = catchThrowable(() -> {
         putForQuarter(REGION_NAME, QUARTER_1);
       });
 
@@ -526,7 +524,7 @@ public class FixedPartitioningDUnitTest implements Serializable {
     // Make sure a put to datastore2, which stuck behind datastore1 in initialization, fails
     // correctly
     accessor.invoke(() -> {
-      Throwable thrown = catchThrowable(() -> {
+      var thrown = catchThrowable(() -> {
         putForQuarter(REGION_NAME, QUARTER_2);
       });
 
@@ -549,28 +547,28 @@ public class FixedPartitioningDUnitTest implements Serializable {
   public void testPut_ValidateDataOnMember_OnlyPrimary_Datastore() {
     member1.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa = createFixedPartition(QUARTER_1, true, 3);
+      var fpa = createFixedPartition(QUARTER_1, true, 3);
       createPartitionedRegion("Quarter", singletonList(fpa), 0, 40, 12,
           newQuarterPartitionResolver());
     });
 
     member2.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa = createFixedPartition(QUARTER_2, true, 3);
+      var fpa = createFixedPartition(QUARTER_2, true, 3);
       createPartitionedRegion("Quarter", singletonList(fpa), 0, 40, 12,
           newQuarterPartitionResolver());
     });
 
     member3.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa = createFixedPartition(QUARTER_3, true, 3);
+      var fpa = createFixedPartition(QUARTER_3, true, 3);
       createPartitionedRegion("Quarter", singletonList(fpa), 0, 40, 12,
           newQuarterPartitionResolver());
     });
 
     member4.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa = createFixedPartition(QUARTER_4, true, 3);
+      var fpa = createFixedPartition(QUARTER_4, true, 3);
       createPartitionedRegion("Quarter", singletonList(fpa), 0, 40, 12,
           newQuarterPartitionResolver());
     });
@@ -595,34 +593,34 @@ public class FixedPartitioningDUnitTest implements Serializable {
   public void testDelete_WithoutPut() {
     member1.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa = createFixedPartition(QUARTER_1, true, 3);
+      var fpa = createFixedPartition(QUARTER_1, true, 3);
       createPartitionedRegion("Quarter", singletonList(fpa), 0, 40, 12,
           newQuarterPartitionResolver());
     });
 
     member2.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa = createFixedPartition(QUARTER_2, true, 3);
+      var fpa = createFixedPartition(QUARTER_2, true, 3);
       createPartitionedRegion("Quarter", singletonList(fpa), 0, 40, 12,
           newQuarterPartitionResolver());
     });
 
     member3.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa = createFixedPartition(QUARTER_3, true, 3);
+      var fpa = createFixedPartition(QUARTER_3, true, 3);
       createPartitionedRegion("Quarter", singletonList(fpa), 0, 40, 12,
           newQuarterPartitionResolver());
     });
 
     member4.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa = createFixedPartition(QUARTER_4, true, 3);
+      var fpa = createFixedPartition(QUARTER_4, true, 3);
       createPartitionedRegion("Quarter", singletonList(fpa), 0, 40, 12,
           newQuarterPartitionResolver());
     });
 
     member1.invoke(() -> {
-      Throwable thrown = catchThrowable(() -> {
+      var thrown = catchThrowable(() -> {
         deleteOperation("Quarter");
       });
 
@@ -643,30 +641,30 @@ public class FixedPartitioningDUnitTest implements Serializable {
   public void testPut_NoResolver() {
     member1.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa = createFixedPartition(QUARTER_1, true, 3);
+      var fpa = createFixedPartition(QUARTER_1, true, 3);
       createPartitionedRegion("Quarter", singletonList(fpa), 0, 40, 12, null);
     });
 
     member2.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa = createFixedPartition(QUARTER_2, true, 3);
+      var fpa = createFixedPartition(QUARTER_2, true, 3);
       createPartitionedRegion("Quarter", singletonList(fpa), 0, 40, 12, null);
     });
 
     member3.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa = createFixedPartition(QUARTER_3, true, 3);
+      var fpa = createFixedPartition(QUARTER_3, true, 3);
       createPartitionedRegion("Quarter", singletonList(fpa), 0, 40, 12, null);
     });
 
     member4.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa = createFixedPartition(QUARTER_4, true, 3);
+      var fpa = createFixedPartition(QUARTER_4, true, 3);
       createPartitionedRegion("Quarter", singletonList(fpa), 0, 40, 12, null);
     });
 
     member1.invoke(() -> {
-      Throwable thrown = catchThrowable(() -> {
+      var thrown = catchThrowable(() -> {
         putThroughDataStore_NoResolver("Quarter");
       });
 
@@ -682,30 +680,30 @@ public class FixedPartitioningDUnitTest implements Serializable {
    */
   @Test
   public void testPut_CallBackWithResolver() {
-    Properties props = getDistributedSystemProperties();
+    var props = getDistributedSystemProperties();
     props.setProperty(SERIALIZABLE_OBJECT_FILTER, "*");
 
     member1.invoke(() -> {
       cache.set(new CacheFactory(props).create());
-      FixedPartitionAttributes fpa = createFixedPartition(QUARTER_1, true, 3);
+      var fpa = createFixedPartition(QUARTER_1, true, 3);
       createPartitionedRegion("Quarter", singletonList(fpa), 0, 40, 12, null);
     });
 
     member2.invoke(() -> {
       cache.set(new CacheFactory(props).create());
-      FixedPartitionAttributes fpa = createFixedPartition(QUARTER_2, true, 3);
+      var fpa = createFixedPartition(QUARTER_2, true, 3);
       createPartitionedRegion("Quarter", singletonList(fpa), 0, 40, 12, null);
     });
 
     member3.invoke(() -> {
       cache.set(new CacheFactory(props).create());
-      FixedPartitionAttributes fpa = createFixedPartition(QUARTER_3, true, 3);
+      var fpa = createFixedPartition(QUARTER_3, true, 3);
       createPartitionedRegion("Quarter", singletonList(fpa), 0, 40, 12, null);
     });
 
     member4.invoke(() -> {
       cache.set(new CacheFactory(props).create());
-      FixedPartitionAttributes fpa = createFixedPartition(QUARTER_4, true, 3);
+      var fpa = createFixedPartition(QUARTER_4, true, 3);
       createPartitionedRegion("Quarter", singletonList(fpa), 0, 40, 12, null);
     });
 
@@ -761,30 +759,30 @@ public class FixedPartitioningDUnitTest implements Serializable {
   public void testPut_FixedPartitionResolver_NoResolver() {
     member1.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa = createFixedPartition(QUARTER_1, true, 3);
+      var fpa = createFixedPartition(QUARTER_1, true, 3);
       createPartitionedRegion("Quarter", singletonList(fpa), 0, 40, 12, null);
     });
 
     member2.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa = createFixedPartition(QUARTER_2, true, 3);
+      var fpa = createFixedPartition(QUARTER_2, true, 3);
       createPartitionedRegion("Quarter", singletonList(fpa), 0, 40, 12, null);
     });
 
     member3.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa = createFixedPartition(QUARTER_3, true, 3);
+      var fpa = createFixedPartition(QUARTER_3, true, 3);
       createPartitionedRegion("Quarter", singletonList(fpa), 0, 40, 12, null);
     });
 
     member4.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa = createFixedPartition(QUARTER_4, true, 3);
+      var fpa = createFixedPartition(QUARTER_4, true, 3);
       createPartitionedRegion("Quarter", singletonList(fpa), 0, 40, 12, null);
     });
 
     member1.invoke(() -> {
-      Throwable thrown = catchThrowable(() -> {
+      var thrown = catchThrowable(() -> {
         putThroughDataStore_FixedPartitionResolver_NoResolver("Quarter");
       });
 
@@ -803,30 +801,30 @@ public class FixedPartitioningDUnitTest implements Serializable {
   public void testPut_FixedPartitionResolver_PartitionResolver() {
     member1.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa = createFixedPartition(QUARTER_1, true, 3);
+      var fpa = createFixedPartition(QUARTER_1, true, 3);
       createPartitionedRegion("Quarter", singletonList(fpa), 0, 40, 12, null);
     });
 
     member2.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa = createFixedPartition(QUARTER_2, true, 3);
+      var fpa = createFixedPartition(QUARTER_2, true, 3);
       createPartitionedRegion("Quarter", singletonList(fpa), 0, 40, 12, null);
     });
 
     member3.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa = createFixedPartition(QUARTER_3, true, 3);
+      var fpa = createFixedPartition(QUARTER_3, true, 3);
       createPartitionedRegion("Quarter", singletonList(fpa), 0, 40, 12, null);
     });
 
     member4.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa = createFixedPartition(QUARTER_4, true, 3);
+      var fpa = createFixedPartition(QUARTER_4, true, 3);
       createPartitionedRegion("Quarter", singletonList(fpa), 0, 40, 12, null);
     });
 
     member1.invoke(() -> {
-      Throwable thrown = catchThrowable(() -> {
+      var thrown = catchThrowable(() -> {
         putThroughDataStore_FixedPartitionResolver_PartitionResolver("Quarter");
       });
 
@@ -844,28 +842,28 @@ public class FixedPartitioningDUnitTest implements Serializable {
   public void testFPR_DefaultNumBuckets() {
     member1.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa = createFixedPartition(QUARTER_1, true);
+      var fpa = createFixedPartition(QUARTER_1, true);
       createPartitionedRegion("Quarter", singletonList(fpa), 0, 40, 12,
           newQuarterPartitionResolver());
     });
 
     member2.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa = createFixedPartition(QUARTER_2, true);
+      var fpa = createFixedPartition(QUARTER_2, true);
       createPartitionedRegion("Quarter", singletonList(fpa), 0, 40, 12,
           newQuarterPartitionResolver());
     });
 
     member3.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa = createFixedPartition(QUARTER_3, true);
+      var fpa = createFixedPartition(QUARTER_3, true);
       createPartitionedRegion("Quarter", singletonList(fpa), 0, 40, 12,
           newQuarterPartitionResolver());
     });
 
     member4.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa = createFixedPartition(QUARTER_4, true);
+      var fpa = createFixedPartition(QUARTER_4, true);
       createPartitionedRegion("Quarter", singletonList(fpa), 0, 40, 12,
           newQuarterPartitionResolver());
     });
@@ -894,36 +892,36 @@ public class FixedPartitioningDUnitTest implements Serializable {
 
     member1.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa1 = createFixedPartition(QUARTER_1, true, 3);
-      FixedPartitionAttributes fpa2 = createFixedPartition(QUARTER_3, false, 3);
-      FixedPartitionAttributes fpa3 = createFixedPartition(QUARTER_4, false, 3);
+      var fpa1 = createFixedPartition(QUARTER_1, true, 3);
+      var fpa2 = createFixedPartition(QUARTER_3, false, 3);
+      var fpa3 = createFixedPartition(QUARTER_4, false, 3);
       createPartitionedRegion("Quarter", asList(fpa1, fpa2, fpa3), 3, 40, 12,
           newQuarterPartitionResolver());
     });
 
     member2.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa1 = createFixedPartition(QUARTER_2, true, 3);
-      FixedPartitionAttributes fpa2 = createFixedPartition(QUARTER_3, false, 3);
-      FixedPartitionAttributes fpa3 = createFixedPartition(QUARTER_4, false, 3);
+      var fpa1 = createFixedPartition(QUARTER_2, true, 3);
+      var fpa2 = createFixedPartition(QUARTER_3, false, 3);
+      var fpa3 = createFixedPartition(QUARTER_4, false, 3);
       createPartitionedRegion("Quarter", asList(fpa1, fpa2, fpa3), 3, 40, 12,
           newQuarterPartitionResolver());
     });
 
     member3.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa1 = createFixedPartition(QUARTER_3, true, 3);
-      FixedPartitionAttributes fpa2 = createFixedPartition(QUARTER_1, false, 3);
-      FixedPartitionAttributes fpa3 = createFixedPartition(QUARTER_2, false, 3);
+      var fpa1 = createFixedPartition(QUARTER_3, true, 3);
+      var fpa2 = createFixedPartition(QUARTER_1, false, 3);
+      var fpa3 = createFixedPartition(QUARTER_2, false, 3);
       createPartitionedRegion("Quarter", asList(fpa1, fpa2, fpa3), 3, 40, 12,
           newQuarterPartitionResolver());
     });
 
     member4.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa1 = createFixedPartition(QUARTER_4, true, 3);
-      FixedPartitionAttributes fpa2 = createFixedPartition(QUARTER_1, false, 3);
-      FixedPartitionAttributes fpa3 = createFixedPartition(QUARTER_2, false, 3);
+      var fpa1 = createFixedPartition(QUARTER_4, true, 3);
+      var fpa2 = createFixedPartition(QUARTER_1, false, 3);
+      var fpa3 = createFixedPartition(QUARTER_2, false, 3);
       createPartitionedRegion("Quarter", asList(fpa1, fpa2, fpa3), 3, 40, 12,
           newQuarterPartitionResolver());
     });
@@ -944,32 +942,32 @@ public class FixedPartitioningDUnitTest implements Serializable {
   public void testPut_ValidateDataOnMember_PrimarySecondary_Datastore() {
     member1.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa1 = createFixedPartition(QUARTER_1, true, 3);
-      FixedPartitionAttributes fpa2 = createFixedPartition(QUARTER_2, false, 3);
+      var fpa1 = createFixedPartition(QUARTER_1, true, 3);
+      var fpa2 = createFixedPartition(QUARTER_2, false, 3);
       createPartitionedRegion("Quarter", asList(fpa1, fpa2), 1, 40, 12,
           newQuarterPartitionResolver());
     });
 
     member2.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa1 = createFixedPartition(QUARTER_2, true, 3);
-      FixedPartitionAttributes fpa2 = createFixedPartition(QUARTER_3, false, 3);
+      var fpa1 = createFixedPartition(QUARTER_2, true, 3);
+      var fpa2 = createFixedPartition(QUARTER_3, false, 3);
       createPartitionedRegion("Quarter", asList(fpa1, fpa2), 1, 40, 12,
           newQuarterPartitionResolver());
     });
 
     member3.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa1 = createFixedPartition(QUARTER_3, true, 3);
-      FixedPartitionAttributes fpa2 = createFixedPartition(QUARTER_4, false, 3);
+      var fpa1 = createFixedPartition(QUARTER_3, true, 3);
+      var fpa2 = createFixedPartition(QUARTER_4, false, 3);
       createPartitionedRegion("Quarter", asList(fpa1, fpa2), 1, 40, 12,
           newQuarterPartitionResolver());
     });
 
     member4.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa1 = createFixedPartition(QUARTER_4, true, 3);
-      FixedPartitionAttributes fpa2 = createFixedPartition(QUARTER_1, false, 3);
+      var fpa1 = createFixedPartition(QUARTER_4, true, 3);
+      var fpa2 = createFixedPartition(QUARTER_1, false, 3);
       createPartitionedRegion("Quarter", asList(fpa1, fpa2), 1, 40, 12,
           newQuarterPartitionResolver());
     });
@@ -998,28 +996,28 @@ public class FixedPartitioningDUnitTest implements Serializable {
   public void testPut_ValidateDataOnMember_OnlySecondary_Datastore() {
     member1.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa = createFixedPartition(QUARTER_1, false, 3);
+      var fpa = createFixedPartition(QUARTER_1, false, 3);
       createPartitionedRegion("Quarter", singletonList(fpa), 3, 40, 12,
           newQuarterPartitionResolver());
     });
 
     member2.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa = createFixedPartition(QUARTER_2, false, 3);
+      var fpa = createFixedPartition(QUARTER_2, false, 3);
       createPartitionedRegion("Quarter", singletonList(fpa), 3, 40, 12,
           newQuarterPartitionResolver());
     });
 
     member3.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa = createFixedPartition(QUARTER_3, false, 3);
+      var fpa = createFixedPartition(QUARTER_3, false, 3);
       createPartitionedRegion("Quarter", singletonList(fpa), 3, 40, 12,
           newQuarterPartitionResolver());
     });
 
     member4.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa = createFixedPartition(QUARTER_4, false, 3);
+      var fpa = createFixedPartition(QUARTER_4, false, 3);
       createPartitionedRegion("Quarter", singletonList(fpa), 3, 40, 12,
           newQuarterPartitionResolver());
     });
@@ -1032,7 +1030,7 @@ public class FixedPartitioningDUnitTest implements Serializable {
     member4.invoke(() -> checkPrimaryBucketsForQuarter(3, 3));
 
     cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-    FixedPartitionAttributes fpa = createFixedPartition(QUARTER_1, true, 3);
+    var fpa = createFixedPartition(QUARTER_1, true, 3);
     createPartitionedRegion("Quarter", singletonList(fpa), 3, 40, 12,
         newQuarterPartitionResolver());
 
@@ -1072,36 +1070,36 @@ public class FixedPartitioningDUnitTest implements Serializable {
 
     member1.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa1 = createFixedPartition(QUARTER_1, true, 3);
-      FixedPartitionAttributes fpa2 = createFixedPartition(QUARTER_3, false, 3);
-      FixedPartitionAttributes fpa3 = createFixedPartition(QUARTER_4, false, 3);
+      var fpa1 = createFixedPartition(QUARTER_1, true, 3);
+      var fpa2 = createFixedPartition(QUARTER_3, false, 3);
+      var fpa3 = createFixedPartition(QUARTER_4, false, 3);
       createPartitionedRegion("Quarter", asList(fpa1, fpa2, fpa3), 3, 40, 12,
           newQuarterPartitionResolver());
     });
 
     member2.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa1 = createFixedPartition(QUARTER_2, true, 3);
-      FixedPartitionAttributes fpa2 = createFixedPartition(QUARTER_3, false, 3);
-      FixedPartitionAttributes fpa3 = createFixedPartition(QUARTER_4, false, 3);
+      var fpa1 = createFixedPartition(QUARTER_2, true, 3);
+      var fpa2 = createFixedPartition(QUARTER_3, false, 3);
+      var fpa3 = createFixedPartition(QUARTER_4, false, 3);
       createPartitionedRegion("Quarter", asList(fpa1, fpa2, fpa3), 3, 40, 12,
           newQuarterPartitionResolver());
     });
 
     member3.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa1 = createFixedPartition(QUARTER_3, true, 3);
-      FixedPartitionAttributes fpa2 = createFixedPartition(QUARTER_1, false, 3);
-      FixedPartitionAttributes fpa3 = createFixedPartition(QUARTER_2, false, 3);
+      var fpa1 = createFixedPartition(QUARTER_3, true, 3);
+      var fpa2 = createFixedPartition(QUARTER_1, false, 3);
+      var fpa3 = createFixedPartition(QUARTER_2, false, 3);
       createPartitionedRegion("Quarter", asList(fpa1, fpa2, fpa3), 3, 40, 12,
           newQuarterPartitionResolver());
     });
 
     member4.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa1 = createFixedPartition(QUARTER_4, true, 3);
-      FixedPartitionAttributes fpa2 = createFixedPartition(QUARTER_1, false, 3);
-      FixedPartitionAttributes fpa3 = createFixedPartition(QUARTER_2, false, 3);
+      var fpa1 = createFixedPartition(QUARTER_4, true, 3);
+      var fpa2 = createFixedPartition(QUARTER_1, false, 3);
+      var fpa3 = createFixedPartition(QUARTER_2, false, 3);
       createPartitionedRegion("Quarter", asList(fpa1, fpa2, fpa3), 3, 40, 12,
           newQuarterPartitionResolver());
     });
@@ -1152,32 +1150,32 @@ public class FixedPartitioningDUnitTest implements Serializable {
   public void testPut_ValidateDataOnMember_PrimarySecondary_Datastore_CacheClosed() {
     member1.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa1 = createFixedPartition(QUARTER_1, true, 3);
-      FixedPartitionAttributes fpa2 = createFixedPartition(QUARTER_2, false, 3);
+      var fpa1 = createFixedPartition(QUARTER_1, true, 3);
+      var fpa2 = createFixedPartition(QUARTER_2, false, 3);
       createPartitionedRegion("Quarter", asList(fpa1, fpa2), 1, 40, 12,
           newQuarterPartitionResolver());
     });
 
     member2.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa1 = createFixedPartition(QUARTER_2, true, 3);
-      FixedPartitionAttributes fpa2 = createFixedPartition(QUARTER_3, false, 3);
+      var fpa1 = createFixedPartition(QUARTER_2, true, 3);
+      var fpa2 = createFixedPartition(QUARTER_3, false, 3);
       createPartitionedRegion("Quarter", asList(fpa1, fpa2), 1, 40, 12,
           newQuarterPartitionResolver());
     });
 
     member3.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa1 = createFixedPartition(QUARTER_3, true, 3);
-      FixedPartitionAttributes fpa2 = createFixedPartition(QUARTER_4, false, 3);
+      var fpa1 = createFixedPartition(QUARTER_3, true, 3);
+      var fpa2 = createFixedPartition(QUARTER_4, false, 3);
       createPartitionedRegion("Quarter", asList(fpa1, fpa2), 1, 40, 12,
           newQuarterPartitionResolver());
     });
 
     member4.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa1 = createFixedPartition(QUARTER_4, true, 3);
-      FixedPartitionAttributes fpa2 = createFixedPartition(QUARTER_1, false, 3);
+      var fpa1 = createFixedPartition(QUARTER_4, true, 3);
+      var fpa2 = createFixedPartition(QUARTER_1, false, 3);
       createPartitionedRegion("Quarter", asList(fpa1, fpa2), 1, 40, 12,
           newQuarterPartitionResolver());
     });
@@ -1204,8 +1202,8 @@ public class FixedPartitioningDUnitTest implements Serializable {
 
     member4.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa1 = createFixedPartition(QUARTER_4, true, 3);
-      FixedPartitionAttributes fpa2 = createFixedPartition(QUARTER_1, false, 3);
+      var fpa1 = createFixedPartition(QUARTER_4, true, 3);
+      var fpa2 = createFixedPartition(QUARTER_1, false, 3);
       createPartitionedRegion("Quarter", asList(fpa1, fpa2), 1, 40, 12,
           newQuarterPartitionResolver());
     });
@@ -1227,32 +1225,32 @@ public class FixedPartitioningDUnitTest implements Serializable {
   public void test_Bug46619_Put_ValidateDataOnMember_PrimarySecondary_Datastore_CacheClosed() {
     member1.invoke(() -> {
       createCacheOnMember_DisableMovePrimary();
-      FixedPartitionAttributes fpa1 = createFixedPartition(QUARTER_1, true, 3);
-      FixedPartitionAttributes fpa2 = createFixedPartition(QUARTER_2, false, 3);
+      var fpa1 = createFixedPartition(QUARTER_1, true, 3);
+      var fpa2 = createFixedPartition(QUARTER_2, false, 3);
       createPartitionedRegion("Quarter", asList(fpa1, fpa2), 1, 40, 12,
           newQuarterPartitionResolver());
     });
 
     member2.invoke(() -> {
       createCacheOnMember_DisableMovePrimary();
-      FixedPartitionAttributes fpa1 = createFixedPartition(QUARTER_2, true, 3);
-      FixedPartitionAttributes fpa2 = createFixedPartition(QUARTER_3, false, 3);
+      var fpa1 = createFixedPartition(QUARTER_2, true, 3);
+      var fpa2 = createFixedPartition(QUARTER_3, false, 3);
       createPartitionedRegion("Quarter", asList(fpa1, fpa2), 1, 40, 12,
           newQuarterPartitionResolver());
     });
 
     member3.invoke(() -> {
       createCacheOnMember_DisableMovePrimary();
-      FixedPartitionAttributes fpa1 = createFixedPartition(QUARTER_3, true, 3);
-      FixedPartitionAttributes fpa2 = createFixedPartition(QUARTER_4, false, 3);
+      var fpa1 = createFixedPartition(QUARTER_3, true, 3);
+      var fpa2 = createFixedPartition(QUARTER_4, false, 3);
       createPartitionedRegion("Quarter", asList(fpa1, fpa2), 1, 40, 12,
           newQuarterPartitionResolver());
     });
 
     member4.invoke(() -> {
       createCacheOnMember_DisableMovePrimary();
-      FixedPartitionAttributes fpa1 = createFixedPartition(QUARTER_4, true, 3);
-      FixedPartitionAttributes fpa2 = createFixedPartition(QUARTER_1, false, 3);
+      var fpa1 = createFixedPartition(QUARTER_4, true, 3);
+      var fpa2 = createFixedPartition(QUARTER_1, false, 3);
       createPartitionedRegion("Quarter", asList(fpa1, fpa2), 1, 40, 12,
           newQuarterPartitionResolver());
     });
@@ -1281,16 +1279,16 @@ public class FixedPartitioningDUnitTest implements Serializable {
 
     member4.invoke(() -> {
       createCacheOnMember_DisableMovePrimary();
-      FixedPartitionAttributes fpa1 = createFixedPartition(QUARTER_4, true, 3);
-      FixedPartitionAttributes fpa2 = createFixedPartition(QUARTER_1, false, 3);
+      var fpa1 = createFixedPartition(QUARTER_4, true, 3);
+      var fpa2 = createFixedPartition(QUARTER_1, false, 3);
       createPartitionedRegion("Quarter", asList(fpa1, fpa2), 1, 40, 12,
           newQuarterPartitionResolver());
     });
 
     member2.invoke(() -> {
       createCacheOnMember_DisableMovePrimary();
-      FixedPartitionAttributes fpa1 = createFixedPartition(QUARTER_2, true, 3);
-      FixedPartitionAttributes fpa2 = createFixedPartition(QUARTER_3, false, 3);
+      var fpa1 = createFixedPartition(QUARTER_2, true, 3);
+      var fpa2 = createFixedPartition(QUARTER_3, false, 3);
       createPartitionedRegion("Quarter", asList(fpa1, fpa2), 1, 40, 12,
           newQuarterPartitionResolver());
     });
@@ -1343,28 +1341,28 @@ public class FixedPartitioningDUnitTest implements Serializable {
   public void testPut_ValidateDataOnMember_MultiplePrimaries_Datastore_CacheClosed() {
     member1.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa1 = createFixedPartition(QUARTER_1, true, 3);
-      FixedPartitionAttributes fpa2 = createFixedPartition(QUARTER_2, false, 3);
-      FixedPartitionAttributes fpa3 = createFixedPartition(QUARTER_3, false, 3);
-      FixedPartitionAttributes fpa4 = createFixedPartition(QUARTER_4, false, 3);
+      var fpa1 = createFixedPartition(QUARTER_1, true, 3);
+      var fpa2 = createFixedPartition(QUARTER_2, false, 3);
+      var fpa3 = createFixedPartition(QUARTER_3, false, 3);
+      var fpa4 = createFixedPartition(QUARTER_4, false, 3);
       createPartitionedRegion("Quarter", asList(fpa1, fpa2, fpa3, fpa4), 2, 40, 12,
           newQuarterPartitionResolver());
     });
 
     member2.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
-      FixedPartitionAttributes fpa1 = createFixedPartition(QUARTER_3, true, 3);
-      FixedPartitionAttributes fpa2 = createFixedPartition(QUARTER_1, false, 3);
-      FixedPartitionAttributes fpa3 = createFixedPartition(QUARTER_2, false, 3);
-      FixedPartitionAttributes fpa4 = createFixedPartition(QUARTER_4, false, 3);
+      var fpa1 = createFixedPartition(QUARTER_3, true, 3);
+      var fpa2 = createFixedPartition(QUARTER_1, false, 3);
+      var fpa3 = createFixedPartition(QUARTER_2, false, 3);
+      var fpa4 = createFixedPartition(QUARTER_4, false, 3);
       createPartitionedRegion("Quarter", asList(fpa1, fpa2, fpa3, fpa4), 2, 40, 12,
           newQuarterPartitionResolver());
     });
 
-    FixedPartitionAttributes fpa1 = createFixedPartition(QUARTER_2, true, 3);
-    FixedPartitionAttributes fpa2 = createFixedPartition(QUARTER_4, true, 3);
-    FixedPartitionAttributes fpa3 = createFixedPartition(QUARTER_1, false, 3);
-    FixedPartitionAttributes fpa4 = createFixedPartition(QUARTER_3, false, 3);
+    var fpa1 = createFixedPartition(QUARTER_2, true, 3);
+    var fpa2 = createFixedPartition(QUARTER_4, true, 3);
+    var fpa3 = createFixedPartition(QUARTER_1, false, 3);
+    var fpa4 = createFixedPartition(QUARTER_3, false, 3);
 
     member3.invoke(() -> {
       cache.set(new CacheFactory(getDistributedSystemProperties()).create());
@@ -1399,7 +1397,7 @@ public class FixedPartitioningDUnitTest implements Serializable {
   }
 
   private void createRegionWithQuarter(String quarter) {
-    FixedPartitionAttributes partition = createFixedPartition(quarter, true, 3);
+    var partition = createFixedPartition(quarter, true, 3);
     createPartitionedRegion("Quarter", singletonList(partition), 0, 40, 12,
         newQuarterPartitionResolver());
   }
@@ -1423,7 +1421,7 @@ public class FixedPartitioningDUnitTest implements Serializable {
             .setTotalNumBuckets(totalNumBuckets);
 
     if (fpaList != null) {
-      for (FixedPartitionAttributes fpa : fpaList) {
+      for (var fpa : fpaList) {
         partitionAttributesFactory.addFixedPartitionAttributes(fpa);
       }
     }
@@ -1435,18 +1433,18 @@ public class FixedPartitioningDUnitTest implements Serializable {
   }
 
   private void doRebalance() throws InterruptedException {
-    ResourceManager manager = cache.get().getResourceManager();
-    RebalanceOperation operation = manager.createRebalanceFactory().start();
+    var manager = cache.get().getResourceManager();
+    var operation = manager.createRebalanceFactory().start();
     operation.getResults();
   }
 
   private void putThroughAccessor(String regionName) throws ParseException {
     Region<Date, String> region = cache.get().getRegion(regionName);
 
-    for (Months_Accessor month : Months_Accessor.values()) {
-      for (int i = 1; i < 10; i++) {
-        Date date = generateDate(i, month.toString(), "Date");
-        String value = month.toString() + i;
+    for (var month : Months_Accessor.values()) {
+      for (var i = 1; i < 10; i++) {
+        var date = generateDate(i, month.toString(), "Date");
+        var value = month.toString() + i;
         region.put(date, value);
       }
     }
@@ -1455,10 +1453,10 @@ public class FixedPartitioningDUnitTest implements Serializable {
   private void putThroughDataStore(String regionName) throws ParseException {
     Region<Date, String> region = cache.get().getRegion(regionName);
 
-    for (Months_DataStore month : Months_DataStore.values()) {
-      for (int i = 1; i < 10; i++) {
-        Date date = generateDate(i, month.toString(), "Date");
-        String value = month.toString() + i;
+    for (var month : Months_DataStore.values()) {
+      for (var i = 1; i < 10; i++) {
+        var date = generateDate(i, month.toString(), "Date");
+        var value = month.toString() + i;
         region.put(date, value);
       }
     }
@@ -1469,37 +1467,37 @@ public class FixedPartitioningDUnitTest implements Serializable {
 
     switch (quarters) {
       case "Q1":
-        for (Q1_Months month : Q1_Months.values()) {
-          for (int i = 1; i < 10; i++) {
-            Date date = generateDate(i, month.toString(), "Date");
-            String value = month.toString() + i;
+        for (var month : Q1_Months.values()) {
+          for (var i = 1; i < 10; i++) {
+            var date = generateDate(i, month.toString(), "Date");
+            var value = month.toString() + i;
             region.put(date, value);
           }
         }
         break;
       case "Q2":
-        for (Q2_Months month : Q2_Months.values()) {
-          for (int i = 1; i < 10; i++) {
-            Date date = generateDate(i, month.toString(), "Date");
-            String value = month.toString() + i;
+        for (var month : Q2_Months.values()) {
+          for (var i = 1; i < 10; i++) {
+            var date = generateDate(i, month.toString(), "Date");
+            var value = month.toString() + i;
             region.put(date, value);
           }
         }
         break;
       case "Q3":
-        for (Q3_Months month : Q3_Months.values()) {
-          for (int i = 1; i < 10; i++) {
-            Date date = generateDate(i, month.toString(), "Date");
-            String value = month.toString() + i;
+        for (var month : Q3_Months.values()) {
+          for (var i = 1; i < 10; i++) {
+            var date = generateDate(i, month.toString(), "Date");
+            var value = month.toString() + i;
             region.put(date, value);
           }
         }
         break;
       case "Q4":
-        for (Q4_Months month : Q4_Months.values()) {
-          for (int i = 1; i < 10; i++) {
-            Date date = generateDate(i, month.toString(), "Date");
-            String value = month.toString() + i;
+        for (var month : Q4_Months.values()) {
+          for (var i = 1; i < 10; i++) {
+            var date = generateDate(i, month.toString(), "Date");
+            var value = month.toString() + i;
             region.put(date, value);
           }
         }
@@ -1513,10 +1511,10 @@ public class FixedPartitioningDUnitTest implements Serializable {
   private void getThroughDataStore(String regionName) throws ParseException {
     Region<Date, String> region = cache.get().getRegion(regionName);
 
-    for (Months_DataStore month : Months_DataStore.values()) {
-      for (int i = 1; i < 10; i++) {
-        Date date = generateDate(i, month.toString(), "Date");
-        String value = month.toString() + i;
+    for (var month : Months_DataStore.values()) {
+      for (var i = 1; i < 10; i++) {
+        var date = generateDate(i, month.toString(), "Date");
+        var value = month.toString() + i;
 
         assertThat(region.get(date)).isEqualTo(value);
       }
@@ -1526,10 +1524,10 @@ public class FixedPartitioningDUnitTest implements Serializable {
   private void putThroughDataStore_NoResolver(String regionName) throws ParseException {
     Region<Date, String> region = cache.get().getRegion(regionName);
 
-    for (Months_DataStore month : Months_DataStore.values()) {
-      for (int i = 1; i < 10; i++) {
-        Date date = generateDate(i, month.toString(), "Date");
-        String value = month.toString() + i;
+    for (var month : Months_DataStore.values()) {
+      for (var i = 1; i < 10; i++) {
+        var date = generateDate(i, month.toString(), "Date");
+        var value = month.toString() + i;
         region.put(date, value);
       }
     }
@@ -1538,11 +1536,11 @@ public class FixedPartitioningDUnitTest implements Serializable {
   private void putThroughDataStore_CallBackWithResolver(String regionName) throws ParseException {
     Region<Date, String> region = cache.get().getRegion(regionName);
 
-    for (Months_DataStore month : Months_DataStore.values()) {
-      for (int i = 1; i < 10; i++) {
-        Date date = generateDate(i, month.toString(), "Date");
-        Date callbackDate = generateDate(i, month.toString(), "MyDate3");
-        String value = month.toString() + i;
+    for (var month : Months_DataStore.values()) {
+      for (var i = 1; i < 10; i++) {
+        var date = generateDate(i, month.toString(), "Date");
+        var callbackDate = generateDate(i, month.toString(), "MyDate3");
+        var value = month.toString() + i;
         region.put(date, value, callbackDate);
       }
     }
@@ -1552,15 +1550,15 @@ public class FixedPartitioningDUnitTest implements Serializable {
       throws ParseException {
     Region<Date, String> region = cache.get().getRegion(regionName);
 
-    for (Months_DataStore month : Months_DataStore.values()) {
-      for (int i = 1; i < 10; i++) {
+    for (var month : Months_DataStore.values()) {
+      for (var i = 1; i < 10; i++) {
         if (i % 2 == 1) {
-          MyDate1 date = (MyDate1) generateDate(i, month.toString(), "MyDate1");
-          String value = month.toString() + i;
+          var date = (MyDate1) generateDate(i, month.toString(), "MyDate1");
+          var value = month.toString() + i;
           region.put(date, value);
         } else {
-          Date date = generateDate(i, month.toString(), "Date");
-          String value = month.toString() + i;
+          var date = generateDate(i, month.toString(), "Date");
+          var value = month.toString() + i;
           region.put(date, value);
         }
       }
@@ -1571,15 +1569,15 @@ public class FixedPartitioningDUnitTest implements Serializable {
       throws ParseException {
     Region<Date, String> region = cache.get().getRegion(regionName);
 
-    for (int i = 1; i < 10; i++) {
-      for (Months_DataStore month : Months_DataStore.values()) {
+    for (var i = 1; i < 10; i++) {
+      for (var month : Months_DataStore.values()) {
         if (month.ordinal() % 2 == 1) {
-          MyDate1 date = (MyDate1) generateDate(i, month.toString(), "MyDate1");
-          String value = month.toString() + i;
+          var date = (MyDate1) generateDate(i, month.toString(), "MyDate1");
+          var value = month.toString() + i;
           region.put(date, value);
         } else {
-          MyDate2 date = (MyDate2) generateDate(i, month.toString(), "MyDate2");
-          String value = month.toString() + i;
+          var date = (MyDate2) generateDate(i, month.toString(), "MyDate2");
+          var value = month.toString() + i;
           region.put(date, value);
         }
       }
@@ -1588,26 +1586,26 @@ public class FixedPartitioningDUnitTest implements Serializable {
 
   private void deleteOperation(String regionName) throws ParseException {
     Region<Date, String> region = cache.get().getRegion(regionName);
-    Date date = generateDate(1, "JAN", "Date");
+    var date = generateDate(1, "JAN", "Date");
     region.destroy(date);
   }
 
   private void putHAData(String regionName) throws ParseException {
     Region<Date, String> region = cache.get().getRegion(regionName);
 
-    for (Months_DataStore month : Months_DataStore.values()) {
-      for (int i = 10; i < 20; i++) {
-        Date date = generateDate(i, month.toString(), "Date");
-        String value = month.toString() + i;
+    for (var month : Months_DataStore.values()) {
+      for (var i = 10; i < 20; i++) {
+        var date = generateDate(i, month.toString(), "Date");
+        var value = month.toString() + i;
         region.put(date, value);
       }
     }
   }
 
   private Date generateDate(int i, String month, String dateType) throws ParseException {
-    String day = i > 0 && i < 10 ? "0" + i : Integer.toString(i);
-    String dateString = day + "-" + month + "-2010";
-    SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yyyy", Locale.US);
+    var day = i > 0 && i < 10 ? "0" + i : Integer.toString(i);
+    var dateString = day + "-" + month + "-2010";
+    var sdf = new SimpleDateFormat("dd-MMM-yyyy", Locale.US);
 
     if (StringUtils.equals(dateType, "Date")) {
       return sdf.parse(dateString);
@@ -1721,11 +1719,11 @@ public class FixedPartitioningDUnitTest implements Serializable {
   private void assertTRUE_Q1(boolean isHA) throws ParseException {
     Region localRegion = getLocalData(cache.get().getRegion(REGION_NAME));
 
-    int day = isHA ? 20 : 10;
+    var day = isHA ? 20 : 10;
 
-    for (Q1_Months month : Q1_Months.values()) {
-      for (int i = 1; i < day; i++) {
-        Date date = generateDate(i, month.toString(), "Date");
+    for (var month : Q1_Months.values()) {
+      for (var i = 1; i < day; i++) {
+        var date = generateDate(i, month.toString(), "Date");
         assertThat(localRegion.keySet().contains(date)).isTrue();
       }
     }
@@ -1734,11 +1732,11 @@ public class FixedPartitioningDUnitTest implements Serializable {
   private void assertTRUE_Q2(boolean isHA) throws ParseException {
     Region localRegion = getLocalData(cache.get().getRegion(REGION_NAME));
 
-    int day = isHA ? 20 : 10;
+    var day = isHA ? 20 : 10;
 
-    for (Q2_Months month : Q2_Months.values()) {
-      for (int i = 1; i < day; i++) {
-        Date date = generateDate(i, month.toString(), "Date");
+    for (var month : Q2_Months.values()) {
+      for (var i = 1; i < day; i++) {
+        var date = generateDate(i, month.toString(), "Date");
         assertThat(localRegion.keySet().contains(date)).isTrue();
       }
     }
@@ -1747,11 +1745,11 @@ public class FixedPartitioningDUnitTest implements Serializable {
   private void assertTRUE_Q3(boolean isHA) throws ParseException {
     Region localRegion = getLocalData(cache.get().getRegion(REGION_NAME));
 
-    int day = isHA ? 20 : 10;
+    var day = isHA ? 20 : 10;
 
-    for (Q3_Months month : Q3_Months.values()) {
-      for (int i = 1; i < day; i++) {
-        Date date = generateDate(i, month.toString(), "Date");
+    for (var month : Q3_Months.values()) {
+      for (var i = 1; i < day; i++) {
+        var date = generateDate(i, month.toString(), "Date");
         assertThat(localRegion.keySet().contains(date)).isTrue();
       }
     }
@@ -1760,11 +1758,11 @@ public class FixedPartitioningDUnitTest implements Serializable {
   private void assertTRUE_Q4(boolean isHA) throws ParseException {
     Region localRegion = getLocalData(cache.get().getRegion(REGION_NAME));
 
-    int day = isHA ? 20 : 10;
+    var day = isHA ? 20 : 10;
 
-    for (Q4_Months month : Q4_Months.values()) {
-      for (int i = 1; i < day; i++) {
-        Date date = generateDate(i, month.toString(), "Date");
+    for (var month : Q4_Months.values()) {
+      for (var i = 1; i < day; i++) {
+        var date = generateDate(i, month.toString(), "Date");
         assertThat(localRegion.keySet().contains(date)).isTrue();
       }
     }
@@ -1773,11 +1771,11 @@ public class FixedPartitioningDUnitTest implements Serializable {
   private void assertFALSE_Q1(boolean isHA) throws ParseException {
     Region localRegion = getLocalData(cache.get().getRegion(REGION_NAME));
 
-    int day = isHA ? 20 : 10;
+    var day = isHA ? 20 : 10;
 
-    for (Q1_Months month : Q1_Months.values()) {
-      for (int i = 1; i < day; i++) {
-        Date date = generateDate(i, month.toString(), "Date");
+    for (var month : Q1_Months.values()) {
+      for (var i = 1; i < day; i++) {
+        var date = generateDate(i, month.toString(), "Date");
         assertThat(localRegion.keySet().contains(date)).isFalse();
       }
     }
@@ -1786,11 +1784,11 @@ public class FixedPartitioningDUnitTest implements Serializable {
   private void assertFALSE_Q2(boolean isHA) throws ParseException {
     Region localRegion = getLocalData(cache.get().getRegion(REGION_NAME));
 
-    int day = isHA ? 20 : 10;
+    var day = isHA ? 20 : 10;
 
-    for (Q2_Months month : Q2_Months.values()) {
-      for (int i = 1; i < day; i++) {
-        Date date = generateDate(i, month.toString(), "Date");
+    for (var month : Q2_Months.values()) {
+      for (var i = 1; i < day; i++) {
+        var date = generateDate(i, month.toString(), "Date");
         assertThat(localRegion.keySet().contains(date)).isFalse();
       }
     }
@@ -1799,11 +1797,11 @@ public class FixedPartitioningDUnitTest implements Serializable {
   private void assertFALSE_Q3(boolean isHA) throws ParseException {
     Region localRegion = getLocalData(cache.get().getRegion(REGION_NAME));
 
-    int day = isHA ? 20 : 10;
+    var day = isHA ? 20 : 10;
 
-    for (Q3_Months month : Q3_Months.values()) {
-      for (int i = 1; i < day; i++) {
-        Date date = generateDate(i, month.toString(), "Date");
+    for (var month : Q3_Months.values()) {
+      for (var i = 1; i < day; i++) {
+        var date = generateDate(i, month.toString(), "Date");
         assertThat(localRegion.keySet().contains(date)).isFalse();
       }
     }
@@ -1812,18 +1810,18 @@ public class FixedPartitioningDUnitTest implements Serializable {
   private void assertFALSE_Q4(boolean isHA) throws ParseException {
     Region localRegion = getLocalData(cache.get().getRegion(REGION_NAME));
 
-    int day = isHA ? 20 : 10;
+    var day = isHA ? 20 : 10;
 
-    for (Q4_Months month : Q4_Months.values()) {
-      for (int i = 1; i < day; i++) {
-        Date date = generateDate(i, month.toString(), "Date");
+    for (var month : Q4_Months.values()) {
+      for (var i = 1; i < day; i++) {
+        var date = generateDate(i, month.toString(), "Date");
         assertThat(localRegion.keySet().contains(date)).isFalse();
       }
     }
   }
 
   private void checkPrimaryBucketsForQuarter(int numBuckets, int primaryBuckets) {
-    PartitionedRegionDataStore dataStore = getDataStore(REGION_NAME);
+    var dataStore = getDataStore(REGION_NAME);
 
     assertThat(dataStore.getSizeLocally())
         .hasSize(numBuckets);
@@ -1832,7 +1830,7 @@ public class FixedPartitioningDUnitTest implements Serializable {
   }
 
   private void checkPrimaryBucketsForQuarterAfterCacheClosed(int numBuckets, int primaryBuckets) {
-    PartitionedRegionDataStore dataStore = getDataStore(REGION_NAME);
+    var dataStore = getDataStore(REGION_NAME);
 
     assertThat(dataStore.getSizeLocally())
         .hasSize(numBuckets);
@@ -1841,7 +1839,7 @@ public class FixedPartitioningDUnitTest implements Serializable {
   }
 
   private void checkStartingBucketIDs() {
-    PartitionedRegionDataStore dataStore = getDataStore(REGION_NAME);
+    var dataStore = getDataStore(REGION_NAME);
     assertThat(dataStore.getAllLocalPrimaryBucketIds().size() % 3)
         .isZero();
   }
@@ -1865,7 +1863,7 @@ public class FixedPartitioningDUnitTest implements Serializable {
 
   private PartitionedRegionDataStore getDataStore(String regionName) {
     Region<Date, String> region = cache.get().getRegion(regionName);
-    PartitionedRegion partitionedRegion = (PartitionedRegion) region;
+    var partitionedRegion = (PartitionedRegion) region;
     return partitionedRegion.getDataStore();
   }
 
@@ -1944,7 +1942,7 @@ public class FixedPartitioningDUnitTest implements Serializable {
 
     @Override
     public String getPartitionName(EntryOperation opDetails, Set allAvailablePartitions) {
-      int month = getZeroBasedMonth((Date) opDetails.getKey());
+      var month = getZeroBasedMonth((Date) opDetails.getKey());
       return getQuarterFromZeroBasedMonth(month);
     }
 
@@ -1970,7 +1968,7 @@ public class FixedPartitioningDUnitTest implements Serializable {
 
     @Override
     public void fromData(DataInput in) throws IOException, ClassNotFoundException {
-      Properties inProps = DataSerializer.readProperties(in);
+      var inProps = DataSerializer.readProperties(in);
       resolveProps.putAll(inProps);
     }
 
@@ -1990,7 +1988,7 @@ public class FixedPartitioningDUnitTest implements Serializable {
       if (!obj.getClass().equals(getClass())) {
         return false;
       }
-      QuarterPartitionResolver other = (QuarterPartitionResolver) obj;
+      var other = (QuarterPartitionResolver) obj;
       return resolveProps.equals(other.getConfig());
     }
   }
@@ -2008,7 +2006,7 @@ public class FixedPartitioningDUnitTest implements Serializable {
 
     @Override
     public String getPartitionName(EntryOperation opDetails, Set targetPartitions) {
-      int month = getZeroBasedMonth((Date) opDetails.getKey());
+      var month = getZeroBasedMonth((Date) opDetails.getKey());
       return getQuarterFromZeroBasedMonth(month);
     }
 
@@ -2052,7 +2050,7 @@ public class FixedPartitioningDUnitTest implements Serializable {
 
     @Override
     public String getPartitionName(EntryOperation opDetails, Set targetPartitions) {
-      int month = getZeroBasedMonth((Date) opDetails.getKey());
+      var month = getZeroBasedMonth((Date) opDetails.getKey());
       return getQuarterFromZeroBasedMonth(month);
     }
 

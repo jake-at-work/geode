@@ -29,7 +29,6 @@ import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.client.internal.PoolImpl;
-import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.CacheRule;
 import org.apache.geode.test.dunit.rules.ClientCacheRule;
@@ -94,7 +93,7 @@ public class GetConnectedServerCountRegressionTest implements Serializable {
 
     // no region is created on server
 
-    CacheServer cacheServer = cacheRule.getCache().addCacheServer();
+    var cacheServer = cacheRule.getCache().addCacheServer();
     cacheServer.setPort(0);
     cacheServer.start();
     return cacheServer.getPort();
@@ -103,7 +102,7 @@ public class GetConnectedServerCountRegressionTest implements Serializable {
   private void createClientCache() {
     clientCacheRule.createClientCache();
 
-    PoolImpl pool = (PoolImpl) PoolManager.createFactory().addServer(hostName, port1)
+    var pool = (PoolImpl) PoolManager.createFactory().addServer(hostName, port1)
         .addServer(hostName, port2).addServer(hostName, port3).setSubscriptionEnabled(true)
         .setSubscriptionRedundancy(-1).setSubscriptionMessageTrackingTimeout(54321)
         .setIdleTimeout(-1).setPingInterval(200).create(uniqueName);

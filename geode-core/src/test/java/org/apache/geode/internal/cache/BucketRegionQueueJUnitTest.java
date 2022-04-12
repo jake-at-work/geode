@@ -25,8 +25,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
-import java.util.List;
-import java.util.function.Predicate;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -94,7 +92,7 @@ public class BucketRegionQueueJUnitTest {
   }
 
   private void createBucketRegionQueue() {
-    BucketRegionQueue realBucketRegionQueue = ParallelGatewaySenderHelper
+    var realBucketRegionQueue = ParallelGatewaySenderHelper
         .createBucketRegionQueue(cache, rootRegion, queueRegion, BUCKET_ID);
     bucketRegionQueue = spy(realBucketRegionQueue);
     bucketRegionQueue.getEventTracker().setInitialized();
@@ -103,7 +101,7 @@ public class BucketRegionQueueJUnitTest {
   @Test
   public void testBasicDestroyConflationEnabledAndValueInRegionAndIndex() {
     // Create the event
-    EntryEventImpl event = EntryEventImpl.create(bucketRegionQueue, Operation.DESTROY,
+    var event = EntryEventImpl.create(bucketRegionQueue, Operation.DESTROY,
         KEY, "value", null, false, mock(DistributedMember.class));
 
     // Don't allow hasSeenEvent to be invoked
@@ -124,7 +122,7 @@ public class BucketRegionQueueJUnitTest {
   @Test(expected = EntryNotFoundException.class)
   public void testBasicDestroyConflationEnabledAndValueNotInRegion() {
     // Create the event
-    EntryEventImpl event = EntryEventImpl.create(bucketRegionQueue, Operation.DESTROY,
+    var event = EntryEventImpl.create(bucketRegionQueue, Operation.DESTROY,
         KEY, "value", null, false, mock(DistributedMember.class));
 
     // Don't allow hasSeenEvent to be invoked
@@ -147,14 +145,14 @@ public class BucketRegionQueueJUnitTest {
     TransactionId tx2 = new TXId(null, 2);
     TransactionId tx3 = new TXId(null, 3);
 
-    GatewaySenderEventImpl event1 = createMockGatewaySenderEvent(1, tx1, false);
-    GatewaySenderEventImpl eventNotInTransaction1 = createMockGatewaySenderEvent(2, null, false);
-    GatewaySenderEventImpl event2 = createMockGatewaySenderEvent(3, tx2, false);
-    GatewaySenderEventImpl event3 = createMockGatewaySenderEvent(4, tx1, true);
-    GatewaySenderEventImpl event4 = createMockGatewaySenderEvent(5, tx2, true);
-    GatewaySenderEventImpl event5 = createMockGatewaySenderEvent(6, tx3, false);
-    GatewaySenderEventImpl event6 = createMockGatewaySenderEvent(7, tx3, false);
-    GatewaySenderEventImpl event7 = createMockGatewaySenderEvent(8, tx1, true);
+    var event1 = createMockGatewaySenderEvent(1, tx1, false);
+    var eventNotInTransaction1 = createMockGatewaySenderEvent(2, null, false);
+    var event2 = createMockGatewaySenderEvent(3, tx2, false);
+    var event3 = createMockGatewaySenderEvent(4, tx1, true);
+    var event4 = createMockGatewaySenderEvent(5, tx2, true);
+    var event5 = createMockGatewaySenderEvent(6, tx3, false);
+    var event6 = createMockGatewaySenderEvent(7, tx3, false);
+    var event7 = createMockGatewaySenderEvent(8, tx1, true);
 
     bucketRegionQueue
         .cleanUpDestroyedTokensAndMarkGIIComplete(InitialImageOperation.GIIStatus.NO_GII);
@@ -168,11 +166,11 @@ public class BucketRegionQueueJUnitTest {
     bucketRegionQueue.addToQueue(7L, event6);
     bucketRegionQueue.addToQueue(8L, event7);
 
-    Predicate<GatewaySenderEventImpl> hasTransactionIdPredicate =
+    var hasTransactionIdPredicate =
         ParallelGatewaySenderQueue.getHasTransactionIdPredicate(tx1);
-    Predicate<GatewaySenderEventImpl> isLastEventInTransactionPredicate =
+    var isLastEventInTransactionPredicate =
         ParallelGatewaySenderQueue.getIsLastEventInTransactionPredicate();
-    List<Object> objects = bucketRegionQueue.getElementsMatching(hasTransactionIdPredicate,
+    var objects = bucketRegionQueue.getElementsMatching(hasTransactionIdPredicate,
         isLastEventInTransactionPredicate);
 
     assertEquals(2, objects.size());
@@ -196,7 +194,7 @@ public class BucketRegionQueueJUnitTest {
       throws Exception {
     ParallelGatewaySenderHelper.createParallelGatewaySenderEventProcessor(sender);
 
-    LocalRegion lr = mock(LocalRegion.class);
+    var lr = mock(LocalRegion.class);
     when(lr.getFullPath()).thenReturn(SEPARATOR + "dataStoreRegion");
     when(lr.getCache()).thenReturn(cache);
 
@@ -210,15 +208,15 @@ public class BucketRegionQueueJUnitTest {
     // Create a batch of conflatable events with duplicate update events
     Object lastUpdateValue = "Object_13968_5";
     long lastUpdateSequenceId = 104;
-    GatewaySenderEventImpl event1 = createGatewaySenderEvent(lr, Operation.CREATE,
+    var event1 = createGatewaySenderEvent(lr, Operation.CREATE,
         "Object_13964", "Object_13964_1", 1, 100);
-    GatewaySenderEventImpl event2 = createGatewaySenderEvent(lr, Operation.CREATE,
+    var event2 = createGatewaySenderEvent(lr, Operation.CREATE,
         "Object_13965", "Object_13965_2", 1, 101);
-    GatewaySenderEventImpl event3 = createGatewaySenderEvent(lr, Operation.CREATE,
+    var event3 = createGatewaySenderEvent(lr, Operation.CREATE,
         "Object_13966", "Object_13966_3", 1, 102);
-    GatewaySenderEventImpl event4 = createGatewaySenderEvent(lr, Operation.CREATE,
+    var event4 = createGatewaySenderEvent(lr, Operation.CREATE,
         "Object_13967", "Object_13967_4", 1, 103);
-    GatewaySenderEventImpl event5 = createGatewaySenderEvent(lr, Operation.CREATE,
+    var event5 = createGatewaySenderEvent(lr, Operation.CREATE,
         "Object_13968", lastUpdateValue, 1, lastUpdateSequenceId);
 
     bucketRegionQueue.addToQueue(1L, event1);
@@ -229,15 +227,15 @@ public class BucketRegionQueueJUnitTest {
 
     bucketRegionQueue.beforeAcquiringPrimaryState();
 
-    List<Object> objects = bucketRegionQueue.getHelperQueueList();
+    var objects = bucketRegionQueue.getHelperQueueList();
 
     assertThat(objects.size()).isEqualTo(5);
 
-    for (Object o : objects) {
+    for (var o : objects) {
       assertThat(((GatewaySenderEventImpl) o).getPossibleDuplicate()).isFalse();
     }
 
-    Object peekObj = bucketRegionQueue.peek();
+    var peekObj = bucketRegionQueue.peek();
 
     while (peekObj != null) {
       assertThat(((GatewaySenderEventImpl) peekObj).getPossibleDuplicate()).isTrue();
@@ -248,7 +246,7 @@ public class BucketRegionQueueJUnitTest {
 
   GatewaySenderEventImpl createMockGatewaySenderEvent(Object key, TransactionId tId,
       boolean isLastEventInTx) {
-    GatewaySenderEventImpl event = mock(GatewaySenderEventImpl.class);
+    var event = mock(GatewaySenderEventImpl.class);
     when(event.isLastEventInTransaction()).thenReturn(isLastEventInTx);
     when(event.getTransactionId()).thenReturn(tId);
     when(event.getKey()).thenReturn(key);
@@ -261,7 +259,7 @@ public class BucketRegionQueueJUnitTest {
     when(lr.getKeyInfo(key, value, null)).thenReturn(new KeyInfo(key, null, null));
     when(lr.getTXId()).thenReturn(null);
 
-    EntryEventImpl eei = EntryEventImpl.create(lr, operation, key, value, null, false, null);
+    var eei = EntryEventImpl.create(lr, operation, key, value, null, false, null);
     eei.setEventId(new EventID(new byte[16], threadId, sequenceId));
 
     return new GatewaySenderEventImpl(getEnumListenerEvent(operation), eei, null);

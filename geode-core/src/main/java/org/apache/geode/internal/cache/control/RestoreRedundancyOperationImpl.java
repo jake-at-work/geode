@@ -67,11 +67,11 @@ class RestoreRedundancyOperationImpl implements RestoreRedundancyOperation {
 
   @Override
   public CompletableFuture<RestoreRedundancyResults> start() {
-    RegionFilter filter = getRegionFilter();
-    long start = manager.getStats().startRestoreRedundancy();
+    var filter = getRegionFilter();
+    var start = manager.getStats().startRestoreRedundancy();
 
     // Create a list of completable futures for each restore redundancy operation
-    List<CompletableFuture<RestoreRedundancyResults>> regionFutures =
+    var regionFutures =
         cache.getPartitionedRegions().stream()
             .filter(filter::include)
             .map(this::getRedundancyOpFuture)
@@ -79,12 +79,12 @@ class RestoreRedundancyOperationImpl implements RestoreRedundancyOperation {
 
     // Create a single completable future which completes when all of the restore redundancy
     // futures return
-    CompletableFuture<Void> combinedFuture =
+    var combinedFuture =
         CompletableFuture.allOf(regionFutures.toArray(new CompletableFuture[0]));
 
     // Once all restore redundancy futures have returned, combine the results from each into one
     // results object
-    CompletableFuture<RestoreRedundancyResults> resultsFuture =
+    var resultsFuture =
         getResultsFuture(regionFutures, combinedFuture);
 
     // Once results have been collected and combined, mark the operation as finished
@@ -99,8 +99,8 @@ class RestoreRedundancyOperationImpl implements RestoreRedundancyOperation {
 
   @Override
   public RestoreRedundancyResults redundancyStatus() {
-    RegionFilter filter = getRegionFilter();
-    SerializableRestoreRedundancyResultsImpl results = getEmptyRestoreRedundancyResults();
+    var filter = getRegionFilter();
+    var results = getEmptyRestoreRedundancyResults();
     cache.getPartitionedRegions().stream().filter(filter::include)
         .forEach(region -> results.addRegionResult(getRegionResult(region)));
     return results;
@@ -108,7 +108,7 @@ class RestoreRedundancyOperationImpl implements RestoreRedundancyOperation {
 
   RestoreRedundancyResults doRestoreRedundancy(PartitionedRegion region) {
     try {
-      PartitionedRegionRebalanceOp op = getPartitionedRegionRebalanceOp(region);
+      var op = getPartitionedRegionRebalanceOp(region);
 
       cache.getCancelCriterion().checkCancelInProgress(null);
 
@@ -116,14 +116,14 @@ class RestoreRedundancyOperationImpl implements RestoreRedundancyOperation {
       try {
         detailSet = op.execute();
 
-        SerializableRestoreRedundancyResultsImpl results = getEmptyRestoreRedundancyResults();
+        var results = getEmptyRestoreRedundancyResults();
         // No work was done, either because redundancy was not impaired or because colocation
         // was not complete
         if (detailSet.isEmpty()) {
           results.addRegionResult(getRegionResult(region));
         } else {
-          for (PartitionRebalanceInfo details : detailSet) {
-            PartitionedRegion detailRegion =
+          for (var details : detailSet) {
+            var detailRegion =
                 (PartitionedRegion) cache.getRegion(details.getRegionPath());
             results.addRegionResult(getRegionResult(detailRegion));
             results.addPrimaryReassignmentDetails(details);
@@ -143,7 +143,7 @@ class RestoreRedundancyOperationImpl implements RestoreRedundancyOperation {
 
   RestoreRedundancyResults getRestoreRedundancyResults(
       List<CompletableFuture<RestoreRedundancyResults>> regionFutures) {
-    SerializableRestoreRedundancyResultsImpl finalResult = getEmptyRestoreRedundancyResults();
+    var finalResult = getEmptyRestoreRedundancyResults();
     regionFutures.stream()
         .map(CompletableFuture::join)
         .forEach(finalResult::addRegionResults);
@@ -162,7 +162,7 @@ class RestoreRedundancyOperationImpl implements RestoreRedundancyOperation {
 
   // Extracted for testing
   PartitionedRegionRebalanceOp getPartitionedRegionRebalanceOp(PartitionedRegion region) {
-    CompositeDirector director = new CompositeDirector(true, true, false, shouldReassign);
+    var director = new CompositeDirector(true, true, false, shouldReassign);
     director.setIsRestoreRedundancy(true);
     return new PartitionedRegionRebalanceOp(region, false, director, true, false,
         new AtomicBoolean(), manager.getStats());

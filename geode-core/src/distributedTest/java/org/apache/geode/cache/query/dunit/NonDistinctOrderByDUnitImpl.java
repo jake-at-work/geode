@@ -40,130 +40,130 @@ public abstract class NonDistinctOrderByDUnitImpl extends JUnit4CacheTestCase {
 
   @Test
   public void testOrderByWithIndexResultDefaultProjection() throws Exception {
-    Host host = Host.getHost(0);
-    final VM vm0 = host.getVM(0);
-    final VM vm1 = host.getVM(1);
-    final VM vm2 = host.getVM(2);
-    final VM vm3 = host.getVM(3);
+    var host = Host.getHost(0);
+    final var vm0 = host.getVM(0);
+    final var vm1 = host.getVM(1);
+    final var vm2 = host.getVM(2);
+    final var vm3 = host.getVM(3);
     Cache cache = getCache();
-    NonDistinctOrderByTestImplementation test = createTestInstance();
+    var test = createTestInstance();
     test.testOrderByWithIndexResultDefaultProjection();
     closeCache(vm0, vm1, vm2, vm3);
   }
 
   @Test
   public void testOrderByWithIndexResultWithProjection() throws Exception {
-    Host host = Host.getHost(0);
-    final VM vm0 = host.getVM(0);
-    final VM vm1 = host.getVM(1);
-    final VM vm2 = host.getVM(2);
-    final VM vm3 = host.getVM(3);
+    var host = Host.getHost(0);
+    final var vm0 = host.getVM(0);
+    final var vm1 = host.getVM(1);
+    final var vm2 = host.getVM(2);
+    final var vm3 = host.getVM(3);
     Cache cache = getCache();
-    NonDistinctOrderByTestImplementation test = createTestInstance();
+    var test = createTestInstance();
     test.testOrderByWithIndexResultWithProjection();
     closeCache(vm0, vm1, vm2, vm3);
   }
 
   @Test
   public void testMultiColOrderByWithIndexResultDefaultProjection() throws Exception {
-    Host host = Host.getHost(0);
-    final VM vm0 = host.getVM(0);
-    final VM vm1 = host.getVM(1);
-    final VM vm2 = host.getVM(2);
-    final VM vm3 = host.getVM(3);
+    var host = Host.getHost(0);
+    final var vm0 = host.getVM(0);
+    final var vm1 = host.getVM(1);
+    final var vm2 = host.getVM(2);
+    final var vm3 = host.getVM(3);
     Cache cache = getCache();
-    NonDistinctOrderByTestImplementation test = createTestInstance();
+    var test = createTestInstance();
     test.testMultiColOrderByWithIndexResultDefaultProjection();
     closeCache(vm0, vm1, vm2, vm3);
   }
 
   @Test
   public void testMultiColOrderByWithIndexResultWithProjection() throws Exception {
-    Host host = Host.getHost(0);
-    final VM vm0 = host.getVM(0);
-    final VM vm1 = host.getVM(1);
-    final VM vm2 = host.getVM(2);
-    final VM vm3 = host.getVM(3);
+    var host = Host.getHost(0);
+    final var vm0 = host.getVM(0);
+    final var vm1 = host.getVM(1);
+    final var vm2 = host.getVM(2);
+    final var vm3 = host.getVM(3);
     Cache cache = getCache();
-    NonDistinctOrderByTestImplementation test = createTestInstance();
+    var test = createTestInstance();
     test.testMultiColOrderByWithIndexResultWithProjection();
     closeCache(vm0, vm1, vm2, vm3);
   }
 
   @Test
   public void testMultiColOrderByWithMultiIndexResultDefaultProjection() throws Exception {
-    Host host = Host.getHost(0);
-    final VM vm0 = host.getVM(0);
-    final VM vm1 = host.getVM(1);
-    final VM vm2 = host.getVM(2);
-    final VM vm3 = host.getVM(3);
+    var host = Host.getHost(0);
+    final var vm0 = host.getVM(0);
+    final var vm1 = host.getVM(1);
+    final var vm2 = host.getVM(2);
+    final var vm3 = host.getVM(3);
     Cache cache = getCache();
-    NonDistinctOrderByTestImplementation test = createTestInstance();
+    var test = createTestInstance();
     test.testMultiColOrderByWithMultiIndexResultDefaultProjection();
     closeCache(vm0, vm1, vm2, vm3);
   }
 
   @Test
   public void testMultiColOrderByWithMultiIndexResultProjection() throws Exception {
-    Host host = Host.getHost(0);
-    final VM vm0 = host.getVM(0);
-    final VM vm1 = host.getVM(1);
-    final VM vm2 = host.getVM(2);
-    final VM vm3 = host.getVM(3);
+    var host = Host.getHost(0);
+    final var vm0 = host.getVM(0);
+    final var vm1 = host.getVM(1);
+    final var vm2 = host.getVM(2);
+    final var vm3 = host.getVM(3);
     Cache cache = getCache();
-    NonDistinctOrderByTestImplementation test = createTestInstance();
+    var test = createTestInstance();
     test.testMultiColOrderByWithMultiIndexResultProjection();
     closeCache(vm0, vm1, vm2, vm3);
   }
 
   @Test
   public void testLimitNotAppliedIfOrderByNotUsingIndex() throws Exception {
-    Host host = Host.getHost(0);
-    final VM vm0 = host.getVM(0);
-    final VM vm1 = host.getVM(1);
-    final VM vm2 = host.getVM(2);
-    final VM vm3 = host.getVM(3);
+    var host = Host.getHost(0);
+    final var vm0 = host.getVM(0);
+    final var vm1 = host.getVM(1);
+    final var vm2 = host.getVM(2);
+    final var vm3 = host.getVM(3);
     Cache cache = getCache();
-    NonDistinctOrderByTestImplementation test = createTestInstance();
+    var test = createTestInstance();
     test.testLimitNotAppliedIfOrderByNotUsingIndex();
     closeCache(vm0, vm1, vm2, vm3);
   }
 
   @Test
   public void testOrderByWithNullValues() throws Exception {
-    Host host = Host.getHost(0);
-    final VM vm0 = host.getVM(0);
-    final VM vm1 = host.getVM(1);
-    final VM vm2 = host.getVM(2);
-    final VM vm3 = host.getVM(3);
+    var host = Host.getHost(0);
+    final var vm0 = host.getVM(0);
+    final var vm1 = host.getVM(1);
+    final var vm2 = host.getVM(2);
+    final var vm3 = host.getVM(3);
     Cache cache = getCache();
-    NonDistinctOrderByTestImplementation test = createTestInstance();
+    var test = createTestInstance();
     test.testOrderByWithNullValues();
     closeCache(vm0, vm1, vm2, vm3);
   }
 
   @Test
   public void testOrderByWithNullValuesUseIndex() throws Exception {
-    Host host = Host.getHost(0);
-    final VM vm0 = host.getVM(0);
-    final VM vm1 = host.getVM(1);
-    final VM vm2 = host.getVM(2);
-    final VM vm3 = host.getVM(3);
+    var host = Host.getHost(0);
+    final var vm0 = host.getVM(0);
+    final var vm1 = host.getVM(1);
+    final var vm2 = host.getVM(2);
+    final var vm3 = host.getVM(3);
     Cache cache = getCache();
-    NonDistinctOrderByTestImplementation test = createTestInstance();
+    var test = createTestInstance();
     test.testOrderByWithNullValuesUseIndex();
     closeCache(vm0, vm1, vm2, vm3);
   }
 
   @Test
   public void testOrderByForUndefined() throws Exception {
-    Host host = Host.getHost(0);
-    final VM vm0 = host.getVM(0);
-    final VM vm1 = host.getVM(1);
-    final VM vm2 = host.getVM(2);
-    final VM vm3 = host.getVM(3);
+    var host = Host.getHost(0);
+    final var vm0 = host.getVM(0);
+    final var vm1 = host.getVM(1);
+    final var vm2 = host.getVM(2);
+    final var vm3 = host.getVM(3);
     Cache cache = getCache();
-    NonDistinctOrderByTestImplementation test = createTestInstance();
+    var test = createTestInstance();
     test.testOrderByForUndefined();
     closeCache(vm0, vm1, vm2, vm3);
   }
@@ -189,7 +189,7 @@ public abstract class NonDistinctOrderByDUnitImpl extends JUnit4CacheTestCase {
 
   protected void createIndex(VM vm, final String indexName, IndexType indexType,
       final String indexedExpression, final String fromClause) {
-    int indxTypeCode = -1;
+    var indxTypeCode = -1;
     if (indexType.equals(IndexType.FUNCTIONAL)) {
       indxTypeCode = 0;
     } else if (indexType.equals(IndexType.PRIMARY_KEY)) {
@@ -197,7 +197,7 @@ public abstract class NonDistinctOrderByDUnitImpl extends JUnit4CacheTestCase {
     } else if (indexType.equals(IndexType.HASH)) {
       indxTypeCode = 2;
     }
-    final int finalIndxTypeCode = indxTypeCode;
+    final var finalIndxTypeCode = indxTypeCode;
     vm.invoke(new SerializableRunnable("create index") {
       @Override
       public void run() {
@@ -259,7 +259,7 @@ public abstract class NonDistinctOrderByDUnitImpl extends JUnit4CacheTestCase {
   }
 
   private void closeCache(VM... vms) {
-    for (VM vm : vms) {
+    for (var vm : vms) {
       vm.invoke(new SerializableRunnable() {
         @Override
         public void run() {

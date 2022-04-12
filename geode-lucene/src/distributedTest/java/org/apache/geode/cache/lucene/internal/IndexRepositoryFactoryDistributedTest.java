@@ -36,13 +36,10 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.lucene.LuceneService;
 import org.apache.geode.cache.lucene.LuceneServiceProvider;
 import org.apache.geode.cache.lucene.test.LuceneTestUtilities;
-import org.apache.geode.distributed.DistributedLockService;
 import org.apache.geode.internal.cache.BucketRegion;
 import org.apache.geode.internal.cache.PartitionedRegion;
-import org.apache.geode.internal.cache.PartitionedRegionDataStore;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
 
@@ -72,8 +69,8 @@ public class IndexRepositoryFactoryDistributedTest implements Serializable {
   }
 
   private void initDataStoreAndLuceneIndex() {
-    Cache cache = getCache();
-    LuceneService luceneService = LuceneServiceProvider.get(cache);
+    var cache = getCache();
+    var luceneService = LuceneServiceProvider.get(cache);
     luceneService.createIndexFactory().setFields(DEFAULT_FIELD).create(INDEX_NAME, REGION_NAME);
 
     cache.<Integer, TestObject>createRegionFactory(RegionShortcut.PARTITION_REDUNDANT)
@@ -83,14 +80,14 @@ public class IndexRepositoryFactoryDistributedTest implements Serializable {
   }
 
   private void insertEntries() {
-    Cache cache = getCache();
+    var cache = getCache();
     Region<Integer, TestObject> region = cache.getRegion(REGION_NAME);
     IntStream.range(0, 1000).forEach(i -> region.put(i, new TestObject("hello world" + i)));
   }
 
   private void assertPrimariesAndSecondaries(int primaries, int secondaries) {
-    Cache cache = getCache();
-    PartitionedRegionDataStore partitionedRegionDataStore =
+    var cache = getCache();
+    var partitionedRegionDataStore =
         ((PartitionedRegion) cache.getRegion(REGION_NAME)).getDataStore();
     assertThat(partitionedRegionDataStore.getAllLocalPrimaryBucketIds().size())
         .isEqualTo(primaries);
@@ -99,12 +96,12 @@ public class IndexRepositoryFactoryDistributedTest implements Serializable {
   }
 
   private BucketRegion getFileAndChunkBucket() {
-    Cache cache = getCache();
-    LuceneServiceImpl luceneService = (LuceneServiceImpl) LuceneServiceProvider.get(cache);
-    InternalLuceneIndex index =
+    var cache = getCache();
+    var luceneService = (LuceneServiceImpl) LuceneServiceProvider.get(cache);
+    var index =
         (InternalLuceneIndex) luceneService.getIndex(INDEX_NAME, REGION_NAME);
-    LuceneIndexForPartitionedRegion indexForPR = (LuceneIndexForPartitionedRegion) index;
-    PartitionedRegion fileRegion = indexForPR.getFileAndChunkRegion();
+    var indexForPR = (LuceneIndexForPartitionedRegion) index;
+    var fileRegion = indexForPR.getFileAndChunkRegion();
 
     return PartitionedRepositoryManager.indexRepositoryFactory.getMatchingBucket(fileRegion, 0);
   }
@@ -118,8 +115,8 @@ public class IndexRepositoryFactoryDistributedTest implements Serializable {
     dataStore1.invoke(() -> LuceneTestUtilities.resumeSender(getCache()));
 
     dataStore1.invoke(() -> {
-      Cache cache = getCache();
-      LuceneService service = LuceneServiceProvider.get(cache);
+      var cache = getCache();
+      var service = LuceneServiceProvider.get(cache);
       await().untilAsserted(
           () -> assertThat(service.waitUntilFlushed(INDEX_NAME, REGION_NAME, 1, TimeUnit.MINUTES))
               .isTrue());
@@ -129,17 +126,17 @@ public class IndexRepositoryFactoryDistributedTest implements Serializable {
 
     // Lock is already held by server1.
     dataStore1.invoke(() -> {
-      BucketRegion fileAndChunkBucket = getFileAndChunkBucket();
-      String lockName =
+      var fileAndChunkBucket = getFileAndChunkBucket();
+      var lockName =
           PartitionedRepositoryManager.indexRepositoryFactory.getLockName(fileAndChunkBucket);
-      DistributedLockService lockService =
+      var lockService =
           PartitionedRepositoryManager.indexRepositoryFactory.getLockService();
       assertThat(lockService.lock(lockName, 10000, -1)).isFalse();
     });
 
     // Try to become primary on server2, it should fail.
     dataStore2.invoke(() -> {
-      BucketRegion fileAndChunkBucket = getFileAndChunkBucket();
+      var fileAndChunkBucket = getFileAndChunkBucket();
       try {
         await().atMost(10, TimeUnit.SECONDS).untilAsserted(
             () -> assertThat(fileAndChunkBucket.getBucketAdvisor().becomePrimary(false)).isTrue());
@@ -164,8 +161,8 @@ public class IndexRepositoryFactoryDistributedTest implements Serializable {
 
     @Override
     public int hashCode() {
-      final int prime = 31;
-      int result = 1;
+      final var prime = 31;
+      var result = 1;
       result = prime * result + ((text == null) ? 0 : text.hashCode());
       return result;
     }
@@ -181,7 +178,7 @@ public class IndexRepositoryFactoryDistributedTest implements Serializable {
       if (getClass() != obj.getClass()) {
         return false;
       }
-      TestObject other = (TestObject) obj;
+      var other = (TestObject) obj;
       if (text == null) {
         return other.text == null;
       } else {

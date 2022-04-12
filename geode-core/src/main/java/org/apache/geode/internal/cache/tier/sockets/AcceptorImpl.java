@@ -41,7 +41,6 @@ import java.nio.channels.ClosedSelectorException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -57,7 +56,6 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
-import io.micrometer.core.instrument.MeterRegistry;
 import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.CancelException;
@@ -71,17 +69,13 @@ import org.apache.geode.cache.client.internal.PoolImpl;
 import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache.wan.GatewayTransportFilter;
 import org.apache.geode.distributed.DistributedMember;
-import org.apache.geode.distributed.internal.DistributionConfig;
-import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.LonerDistributionManager;
-import org.apache.geode.distributed.internal.ReplyProcessor21;
 import org.apache.geode.internal.HeapDataOutputStream;
 import org.apache.geode.internal.SystemTimer;
 import org.apache.geode.internal.cache.BucketAdvisor;
 import org.apache.geode.internal.cache.BucketAdvisor.BucketProfile;
 import org.apache.geode.internal.cache.InternalCache;
-import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.partitioned.AllBucketProfilesUpdateMessage;
 import org.apache.geode.internal.cache.tier.Acceptor;
 import org.apache.geode.internal.cache.tier.CachedRegionHelper;
@@ -447,14 +441,14 @@ public class AcceptorImpl implements Acceptor, Runnable {
     this.notifyBySubscription = notifyBySubscription;
 
     {
-      int tmp_maxConnections = maxConnections;
+      var tmp_maxConnections = maxConnections;
       if (tmp_maxConnections < MINIMUM_MAX_CONNECTIONS) {
         tmp_maxConnections = MINIMUM_MAX_CONNECTIONS;
       }
       this.maxConnections = tmp_maxConnections;
     }
     {
-      int tmp_maxThreads = maxThreads;
+      var tmp_maxThreads = maxThreads;
       if (maxThreads == CacheServer.DEFAULT_MAX_THREADS) {
         // consult system properties for 5.0.2 backwards compatibility
         if (DEPRECATED_SELECTOR) {
@@ -466,8 +460,8 @@ public class AcceptorImpl implements Acceptor, Runnable {
       } else if (tmp_maxThreads > this.maxConnections) {
         tmp_maxThreads = this.maxConnections;
       }
-      boolean isWindows = false;
-      String os = System.getProperty("os.name");
+      var isWindows = false;
+      var os = System.getProperty("os.name");
       if (os != null) {
         if (os.contains("Windows")) {
           isWindows = true;
@@ -520,14 +514,14 @@ public class AcceptorImpl implements Acceptor, Runnable {
         gc = null;
       }
       final int backLog = Integer.getInteger(BACKLOG_PROPERTY_NAME, DEFAULT_BACKLOG);
-      final long tilt = System.currentTimeMillis() + timeLimitMillis;
+      final var tilt = System.currentTimeMillis() + timeLimitMillis;
 
       if (isSelector()) {
         if (socketCreator.forCluster().useSSL()) {
           throw new IllegalArgumentException(
               "Selector thread pooling can not be used with client/server SSL. The selector can be disabled by setting max-threads=0.");
         }
-        ServerSocketChannel channel = ServerSocketChannel.open();
+        var channel = ServerSocketChannel.open();
         serverSock = channel.socket();
         serverSock.setReuseAddress(true);
 
@@ -549,7 +543,7 @@ public class AcceptorImpl implements Acceptor, Runnable {
             }
           }
 
-          boolean interrupted = Thread.interrupted();
+          var interrupted = Thread.interrupted();
           try {
             Thread.sleep(1000);
           } catch (InterruptedException e) {
@@ -579,7 +573,7 @@ public class AcceptorImpl implements Acceptor, Runnable {
             }
           }
 
-          boolean interrupted = Thread.interrupted();
+          var interrupted = Thread.interrupted();
           try {
             Thread.sleep(1000);
           } catch (InterruptedException e) {
@@ -601,9 +595,9 @@ public class AcceptorImpl implements Acceptor, Runnable {
         localPort = port;
       }
       {
-        InternalDistributedSystem ds = internalCache.getInternalDistributedSystem();
+        var ds = internalCache.getInternalDistributedSystem();
         if (ds != null) {
-          DistributionManager dm = ds.getDistributionManager();
+          var dm = ds.getDistributionManager();
           if (dm != null && dm.getDistributionManagerId().getMembershipPort() == 0
               && dm instanceof LonerDistributionManager) {
             // a server with a loner distribution manager - update it's port number
@@ -611,13 +605,13 @@ public class AcceptorImpl implements Acceptor, Runnable {
           }
         }
       }
-      String sockName = getServerName();
+      var sockName = getServerName();
       logger.info("Cache server connection listener bound to address {} with backlog {}.",
           sockName, backLog);
       StatisticsFactory statisticsFactory =
           internalCache.getInternalDistributedSystem().getStatisticsManager();
       if (isGatewayReceiver()) {
-        MeterRegistry meterRegistry = internalCache.getMeterRegistry();
+        var meterRegistry = internalCache.getMeterRegistry();
         stats = GatewayReceiverStats.createGatewayReceiverStats(statisticsFactory, sockName,
             meterRegistry);
       } else {
@@ -646,7 +640,7 @@ public class AcceptorImpl implements Acceptor, Runnable {
 
     isAuthenticationRequired = securityService.isClientSecurityRequired();
 
-    String postAuthzFactoryName =
+    var postAuthzFactoryName =
         cache.getDistributedSystem().getProperties().getProperty(SECURITY_CLIENT_ACCESSOR_PP);
 
     isPostAuthzCallbackPresent =
@@ -654,7 +648,7 @@ public class AcceptorImpl implements Acceptor, Runnable {
   }
 
   private ExecutorService initializeHandshakerThreadPool() throws IOException {
-    String threadName =
+    var threadName =
         "Handshaker " + serverSock.getInetAddress() + ":" + localPort + " Thread ";
     try {
       logger.warn("Handshaker max Pool size: " + HANDSHAKE_POOL_SIZE);
@@ -684,8 +678,8 @@ public class AcceptorImpl implements Acceptor, Runnable {
   }
 
   private ExecutorService initializeServerConnectionThreadPool() throws IOException {
-    ThreadInitializer threadInitializer = thread -> getStats().incConnectionThreadsCreated();
-    CommandWrapper commandWrapper = command -> {
+    var threadInitializer = (ThreadInitializer) thread -> getStats().incConnectionThreadsCreated();
+    var commandWrapper = (CommandWrapper) command -> {
       try {
         command.run();
       } catch (CancelException e) { // bug 39463
@@ -695,7 +689,7 @@ public class AcceptorImpl implements Acceptor, Runnable {
       }
     };
     try {
-      String threadName = "ServerConnection on port " + localPort + " Thread ";
+      var threadName = "ServerConnection on port " + localPort + " Thread ";
       if (isSelector()) {
         return CoreLoggingExecutors.newThreadPoolWithUnlimitedFeed(maxThreads, Integer.MAX_VALUE,
             MILLISECONDS, threadName, threadInitializer, commandWrapper,
@@ -711,7 +705,7 @@ public class AcceptorImpl implements Acceptor, Runnable {
   }
 
   private ThreadsMonitoring getThreadMonitorObj() {
-    DistributionManager distributionManager = cache.getDistributionManager();
+    var distributionManager = cache.getDistributionManager();
     if (distributionManager != null) {
       return distributionManager.getThreadMonitoring();
     }
@@ -775,23 +769,23 @@ public class AcceptorImpl implements Acceptor, Runnable {
               this::runSelectorLoop);
       selectorThread.start();
     }
-    Set<PartitionedRegion> prs = cache.getPartitionedRegions();
-    for (PartitionedRegion pr : prs) {
+    var prs = cache.getPartitionedRegions();
+    for (var pr : prs) {
       Map<Integer, BucketAdvisor.BucketProfile> profiles =
           new HashMap<>();
       // get all local real bucket advisors
-      Map<Integer, BucketAdvisor> advisors = pr.getRegionAdvisor().getAllBucketAdvisors();
-      for (Map.Entry<Integer, BucketAdvisor> entry : advisors.entrySet()) {
-        BucketAdvisor advisor = entry.getValue();
+      var advisors = pr.getRegionAdvisor().getAllBucketAdvisors();
+      for (var entry : advisors.entrySet()) {
+        var advisor = entry.getValue();
         // addLocally
-        BucketProfile bp = (BucketProfile) advisor.createProfile();
+        var bp = (BucketProfile) advisor.createProfile();
         advisor.updateServerBucketProfile(bp);
         // advisor.basicAddClientProfile(bp);
         profiles.put(entry.getKey(), bp);
       }
       Set recipients = pr.getRegionAdvisor().adviseAllPRNodes();
       // send it to all in one message
-      ReplyProcessor21 reply = AllBucketProfilesUpdateMessage.send(recipients,
+      var reply = AllBucketProfilesUpdateMessage.send(recipients,
           pr.getDistributionManager(), pr.getPRId(), profiles);
       if (reply != null) {
         reply.waitForRepliesUninterruptibly();
@@ -815,7 +809,7 @@ public class AcceptorImpl implements Acceptor, Runnable {
    * wake up the selector thread
    */
   private void wakeupSelector() {
-    Selector s = getSelector();
+    var s = getSelector();
     if (s != null && s.isOpen()) {
       selector.wakeup();
     }
@@ -827,8 +821,8 @@ public class AcceptorImpl implements Acceptor, Runnable {
     synchronized (allSCsLock) {
       allSCs.remove(serverConnection);
       Iterator it = allSCs.iterator();
-      ServerConnection[] again = new ServerConnection[allSCs.size()];
-      for (int i = 0; i < again.length; i++) {
+      var again = new ServerConnection[allSCs.size()];
+      for (var i = 0; i < again.length; i++) {
         again[i] = (ServerConnection) it.next();
       }
       allSCList = again;
@@ -847,7 +841,7 @@ public class AcceptorImpl implements Acceptor, Runnable {
   }
 
   private void drainSelectorQueue() {
-    ServerConnection sc = selectorQueue.poll();
+    var sc = selectorQueue.poll();
     CancelException cce = null;
     while (sc != null) {
       try {
@@ -859,7 +853,7 @@ public class AcceptorImpl implements Acceptor, Runnable {
       }
       sc = selectorQueue.poll();
     }
-    for (ServerConnection selectorRegistration : selectorRegistrations) {
+    for (var selectorRegistration : selectorRegistrations) {
       try {
         finishCon(selectorRegistration);
       } catch (CancelException e) {
@@ -878,7 +872,7 @@ public class AcceptorImpl implements Acceptor, Runnable {
    */
   @Override
   public void emergencyClose() {
-    ServerSocket ss = serverSock;
+    var ss = serverSock;
     if (ss != null) {
       try {
         ss.close();
@@ -892,8 +886,8 @@ public class AcceptorImpl implements Acceptor, Runnable {
     // TODO I'm worried about a fat lock to acquire this synchronization
     // synchronized (this.allSCsLock)
     {
-      ServerConnection[] snap = allSCList;
-      for (ServerConnection serverConnection : snap) {
+      var snap = allSCList;
+      for (var serverConnection : snap) {
         serverConnection.emergencyClose(); // part of cleanup()
       }
     }
@@ -904,12 +898,12 @@ public class AcceptorImpl implements Acceptor, Runnable {
   }
 
   private int checkRegisteredKeys(int count) {
-    int result = count;
+    var result = count;
     CancelException cce = null;
     if (count > 0) {
       Iterator it = selectorRegistrations.iterator();
       while (it.hasNext()) {
-        ServerConnection sc = (ServerConnection) it.next();
+        var sc = (ServerConnection) it.next();
         if (isRegisteredObjectClosed(sc)) {
           result--;
           it.remove();
@@ -948,19 +942,19 @@ public class AcceptorImpl implements Acceptor, Runnable {
 
     }
     // logger.info("DEBUG: checking for stuck keys");
-    for (SelectionKey sk : new ArrayList<>(selector.keys())) {
-      ServerConnection sc = (ServerConnection) sk.attachment();
+    for (var sk : new ArrayList<>(selector.keys())) {
+      var sc = (ServerConnection) sk.attachment();
       if (sc == null) {
         continue;
       }
       try {
         sk.cancel();
         selector.selectNow(); // clear the cancelled key
-        SelectionKey tmpsk = sc.getSelectableChannel().register(tmpSel,
+        var tmpsk = sc.getSelectableChannel().register(tmpSel,
             SelectionKey.OP_WRITE | SelectionKey.OP_READ);
         try {
           // it should always be writable
-          int events = tmpSel.selectNow();
+          var events = tmpSel.selectNow();
           if (events == 0) {
             logger.info("stuck selection key detected on {}", sc);
             tmpsk.cancel();
@@ -1043,7 +1037,7 @@ public class AcceptorImpl implements Acceptor, Runnable {
   private void runSelectorLoop() {
     // int zeroEventsCount = 0;
     try {
-      long lastCheckedTime = System.nanoTime();
+      var lastCheckedTime = System.nanoTime();
       logger.info("SELECTOR enabled");
       while (selector.isOpen() && !Thread.currentThread().isInterrupted()) {
         {
@@ -1054,7 +1048,7 @@ public class AcceptorImpl implements Acceptor, Runnable {
           if (cache.getCancelCriterion().isCancelInProgress()) {
             break;
           }
-          long delta = System.nanoTime() - lastCheckedTime;
+          var delta = System.nanoTime() - lastCheckedTime;
           if (checkRegisteredKeysInterval == 0 || delta >= checkRegisteredKeysInterval) {
             registeredKeys = checkRegisteredKeys(registeredKeys);
             lastCheckedTime = System.nanoTime();
@@ -1086,7 +1080,7 @@ public class AcceptorImpl implements Acceptor, Runnable {
         if (registeredKeys == 0) {
           continue;
         }
-        int events = selector.select();
+        var events = selector.select();
         // select() could have returned due to wakeup() during close of cache
         if (cache.getCancelCriterion().isCancelInProgress()) {
           break;
@@ -1103,13 +1097,13 @@ public class AcceptorImpl implements Acceptor, Runnable {
             events = 0;
             break;
           }
-          Iterator keysIterator = sk.iterator();
-          int cancelCount = 0;
+          var keysIterator = sk.iterator();
+          var cancelCount = 0;
           while (keysIterator.hasNext()) {
-            SelectionKey key = (SelectionKey) keysIterator.next();
+            var key = (SelectionKey) keysIterator.next();
             // Remove the key from the selector's selectedKeys
             keysIterator.remove();
-            final ServerConnection sc = (ServerConnection) key.attachment();
+            final var sc = (ServerConnection) key.attachment();
             try {
               if (key.isValid() && key.isReadable()) {
                 // this is the only event we currently register for
@@ -1191,7 +1185,7 @@ public class AcceptorImpl implements Acceptor, Runnable {
 
   @Override
   public String getServerName() {
-    String name = serverSock.getLocalSocketAddress().toString();
+    var name = serverSock.getLocalSocketAddress().toString();
     try {
       name = LocalHostUtil.getCanonicalLocalHostName() + "-" + name;
     } catch (Exception ignored) {
@@ -1256,7 +1250,7 @@ public class AcceptorImpl implements Acceptor, Runnable {
     while (isRunning()) {
       if (SystemFailure.getFailure() != null) {
         // Allocate no objects here!
-        ServerSocket s = serverSock;
+        var s = serverSock;
         if (s != null) {
           try {
             s.close();
@@ -1338,7 +1332,7 @@ public class AcceptorImpl implements Acceptor, Runnable {
     try {
       stats.incAcceptsInProgress();
       hsPool.execute(() -> {
-        boolean finished = false;
+        var finished = false;
         try {
           handleNewClientConnection(socket);
           finished = true;
@@ -1384,7 +1378,7 @@ public class AcceptorImpl implements Acceptor, Runnable {
   }
 
   private ByteBuffer takeCommBuffer() {
-    ByteBuffer result = commBufferQueue.poll();
+    var result = commBufferQueue.poll();
     if (result == null) {
       result = ByteBuffer.allocateDirect(socketBufferSize);
     }
@@ -1447,9 +1441,9 @@ public class AcceptorImpl implements Acceptor, Runnable {
 
     logger.debug("cache server: Initializing {} communication socket: {}", communicationMode,
         socket);
-    boolean notForQueue = communicationMode != ClientToServerForQueue;
+    var notForQueue = communicationMode != ClientToServerForQueue;
     if (notForQueue) {
-      int curCnt = getClientServerConnectionCount();
+      var curCnt = getClientServerConnectionCount();
       if (curCnt >= maxConnections) {
         logger.warn(
             "Rejected connection from {} because current connection count of {} is greater than or equal to the configured max of {}",
@@ -1468,13 +1462,13 @@ public class AcceptorImpl implements Acceptor, Runnable {
       }
     }
 
-    ServerConnection serverConn = new ServerConnection(socket, cache, crHelper, stats,
+    var serverConn = new ServerConnection(socket, cache, crHelper, stats,
         handshakeTimeout, socketBufferSize, communicationMode.toString(),
         communicationMode.getModeNumber(), this, securityService);
 
     synchronized (allSCsLock) {
       allSCs.add(serverConn);
-      ServerConnection[] snap = allSCList; // avoid volatile read
+      var snap = allSCList; // avoid volatile read
       allSCList = (ServerConnection[]) ArrayUtils.insert(snap, snap.length, serverConn);
     }
     if (notForQueue) {
@@ -1508,8 +1502,8 @@ public class AcceptorImpl implements Acceptor, Runnable {
 
   @Override
   public void refuseHandshake(OutputStream out, String message, byte exception) throws IOException {
-    try (HeapDataOutputStream hdos = new HeapDataOutputStream(32, KnownVersion.CURRENT)) {
-      DataOutputStream dos = new DataOutputStream(hdos);
+    try (var hdos = new HeapDataOutputStream(32, KnownVersion.CURRENT)) {
+      var dos = new DataOutputStream(hdos);
       // Write refused reply
       dos.writeByte(exception);
 
@@ -1520,7 +1514,7 @@ public class AcceptorImpl implements Acceptor, Runnable {
 
       // Write the server's member
       DistributedMember member = InternalDistributedSystem.getAnyInstance().getDistributedMember();
-      HeapDataOutputStream memberDos = new HeapDataOutputStream(KnownVersion.CURRENT);
+      var memberDos = new HeapDataOutputStream(KnownVersion.CURRENT);
       DataSerializer.writeObject(member, memberDos);
       DataSerializer.writeByteArray(memberDos.toByteArray(), dos);
       memberDos.close();
@@ -1543,7 +1537,7 @@ public class AcceptorImpl implements Acceptor, Runnable {
 
   private boolean handOffQueueInitialization(Socket socket, CommunicationMode communicationMode) {
     if (communicationMode.isSubscriptionFeed()) {
-      boolean isPrimaryServerToClient =
+      var isPrimaryServerToClient =
           communicationMode == CommunicationMode.PrimaryServerToClient;
       clientQueueInitPool
           .execute(new ClientQueueInitializerTask(socket, isPrimaryServerToClient, this));
@@ -1555,7 +1549,7 @@ public class AcceptorImpl implements Acceptor, Runnable {
   private CommunicationMode getCommunicationModeForNonSelector(Socket socket) throws IOException {
     socket.setSoTimeout(0);
     socketCreator.forCluster().handshakeIfSocketIsSSL(socket, acceptTimeout);
-    byte communicationModeByte = (byte) socket.getInputStream().read();
+    var communicationModeByte = (byte) socket.getInputStream().read();
     if (communicationModeByte == -1) {
       throw new EOFException();
     }
@@ -1563,11 +1557,11 @@ public class AcceptorImpl implements Acceptor, Runnable {
   }
 
   private CommunicationMode getCommunicationModeForSelector(Socket socket) throws IOException {
-    ByteBuffer byteBuffer = ByteBuffer.allocateDirect(1);
-    final SocketChannel socketChannel = socket.getChannel();
+    var byteBuffer = ByteBuffer.allocateDirect(1);
+    final var socketChannel = socket.getChannel();
     socketChannel.configureBlocking(false);
     // try to read the byte first in non-blocking mode
-    int res = socketChannel.read(byteBuffer);
+    var res = socketChannel.read(byteBuffer);
     socketChannel.configureBlocking(true);
     if (res < 0) {
       throw new EOFException();
@@ -1575,7 +1569,7 @@ public class AcceptorImpl implements Acceptor, Runnable {
     if (res == 0) {
       // now do a blocking read so setup a timer to close the socket if the
       // the read takes too long
-      SystemTimer.SystemTimerTask timerTask = new SystemTimer.SystemTimerTask() {
+      var timerTask = new SystemTimer.SystemTimerTask() {
         @Override
         public void run2() {
           logger.warn("Cache server: timed out waiting for handshake from {}",
@@ -1637,20 +1631,20 @@ public class AcceptorImpl implements Acceptor, Runnable {
     if (logger.isDebugEnabled()) {
       logger.debug("sending messages to all peers for removing this server..");
     }
-    for (PartitionedRegion pr : cache.getPartitionedRegions()) {
+    for (var pr : cache.getPartitionedRegions()) {
       Map<Integer, BucketAdvisor.BucketProfile> profiles = new HashMap<>();
       // get all local real bucket advisors
-      Map<Integer, BucketAdvisor> advisors = pr.getRegionAdvisor().getAllBucketAdvisors();
-      for (Map.Entry<Integer, BucketAdvisor> entry : advisors.entrySet()) {
-        BucketAdvisor advisor = entry.getValue();
-        BucketProfile bp = (BucketProfile) advisor.createProfile();
+      var advisors = pr.getRegionAdvisor().getAllBucketAdvisors();
+      for (var entry : advisors.entrySet()) {
+        var advisor = entry.getValue();
+        var bp = (BucketProfile) advisor.createProfile();
         advisor.updateServerBucketProfile(bp);
         profiles.put(entry.getKey(), bp);
       }
 
       Set recipients = pr.getRegionAdvisor().adviseAllPRNodes();
       // send it to all in one message
-      ReplyProcessor21 reply = AllBucketProfilesUpdateMessage.send(recipients,
+      var reply = AllBucketProfilesUpdateMessage.send(recipients,
           pr.getDistributionManager(), pr.getPRId(), profiles);
       if (reply != null) {
         reply.waitForRepliesUninterruptibly();
@@ -1697,8 +1691,8 @@ public class AcceptorImpl implements Acceptor, Runnable {
   private void shutdownSCs() {
     // added to fix part 2 of bug 37351.
     synchronized (allSCsLock) {
-      ServerConnection[] snap = allSCList;
-      for (ServerConnection serverConnection : snap) {
+      var snap = allSCList;
+      for (var serverConnection : snap) {
         serverConnection.cleanup();
       }
       socketCloser.close();
@@ -1725,18 +1719,18 @@ public class AcceptorImpl implements Acceptor, Runnable {
       return bindName;
     }
 
-    InternalDistributedSystem system = cache.getInternalDistributedSystem();
-    DistributionConfig config = system.getConfig();
+    var system = cache.getInternalDistributedSystem();
+    var config = system.getConfig();
     String hostName = null;
 
     // Get the server-bind-address. If it is not null, use it.
     // If it is null, get the bind-address. If it is not null, use it.
     // Otherwise set default.
-    String serverBindAddress = config.getServerBindAddress();
+    var serverBindAddress = config.getServerBindAddress();
     if (serverBindAddress != null && !serverBindAddress.isEmpty()) {
       hostName = serverBindAddress;
     } else {
-      String bindAddress = config.getBindAddress();
+      var bindAddress = config.getBindAddress();
       if (bindAddress != null && !bindAddress.isEmpty()) {
         hostName = bindAddress;
       }
@@ -1758,16 +1752,16 @@ public class AcceptorImpl implements Acceptor, Runnable {
    */
   @Override
   public String getExternalAddress() {
-    String result = bindHostName;
-    boolean needCanonicalHostName = false;
+    var result = bindHostName;
+    var needCanonicalHostName = false;
     if (result == null || result.isEmpty()) {
       needCanonicalHostName = true;
     } else {
       // check to see if we are listening on all local addresses
-      ServerSocket ss = serverSock;
+      var ss = serverSock;
       if (ss != null && ss.getLocalSocketAddress() instanceof InetSocketAddress) {
-        InetSocketAddress isa = (InetSocketAddress) ss.getLocalSocketAddress();
-        InetAddress ssAddr = isa.getAddress();
+        var isa = (InetSocketAddress) ss.getLocalSocketAddress();
+        var ssAddr = isa.getAddress();
         if (ssAddr != null) {
           if (ssAddr.isAnyLocalAddress()) {
             needCanonicalHostName = true;
@@ -1889,7 +1883,7 @@ public class AcceptorImpl implements Acceptor, Runnable {
       logger.info(":Cache server: Initializing {} server-to-client communication socket: {}",
           isPrimaryServerToClient ? "primary" : "secondary", socket);
       try {
-        ClientRegistrationMetadata clientRegistrationMetadata =
+        var clientRegistrationMetadata =
             new ClientRegistrationMetadata(acceptor.cache, socket);
 
         if (clientRegistrationMetadata.initialize()) {

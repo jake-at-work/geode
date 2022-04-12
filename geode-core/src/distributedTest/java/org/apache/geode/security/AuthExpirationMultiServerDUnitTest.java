@@ -25,7 +25,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.fail;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 
@@ -37,14 +36,10 @@ import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.client.ServerOperationException;
-import org.apache.geode.cache.query.dunit.SecurityTestUtils.EventsCqListner;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.test.concurrent.FileBasedCountDownLatch;
 import org.apache.geode.test.dunit.AsyncInvocation;
-import org.apache.geode.test.dunit.rules.ClientVM;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.categories.SecurityTest;
@@ -67,7 +62,7 @@ public class AuthExpirationMultiServerDUnitTest {
   @Before
   public void setup() {
     locator = cluster.startLocatorVM(0, l -> l.withSecurityManager(ExpirableSecurityManager.class));
-    int locatorPort = locator.getPort();
+    var locatorPort = locator.getPort();
     server1 = cluster.startServerVM(1, s -> s.withSecurityManager(ExpirableSecurityManager.class)
         .withCredential("test", "test")
         .withRegion(RegionShortcut.REPLICATE, REPLICATE_REGION)
@@ -94,8 +89,8 @@ public class AuthExpirationMultiServerDUnitTest {
         .withPoolSubscription(true)
         .withServerConnection(server1.getPort());
     clientCacheRule.createCache();
-    Region<Object, Object> region1 = clientCacheRule.createProxyRegion(REPLICATE_REGION);
-    Region<Object, Object> region2 = clientCacheRule.createProxyRegion(PARTITION_REGION);
+    var region1 = clientCacheRule.createProxyRegion(REPLICATE_REGION);
+    var region2 = clientCacheRule.createProxyRegion(PARTITION_REGION);
     region1.put("0", "value0");
     region2.put("0", "value0");
 
@@ -107,41 +102,41 @@ public class AuthExpirationMultiServerDUnitTest {
 
     // locator only validates peer
     locator.invoke(() -> {
-      ExpirableSecurityManager securityManager = getSecurityManager();
-      Map<String, List<String>> authorizedOps = securityManager.getAuthorizedOps();
+      var securityManager = getSecurityManager();
+      var authorizedOps = securityManager.getAuthorizedOps();
       assertThat(authorizedOps.keySet()).containsExactly("test");
-      Map<String, List<String>> unAuthorizedOps = securityManager.getUnAuthorizedOps();
+      var unAuthorizedOps = securityManager.getUnAuthorizedOps();
       assertThat(unAuthorizedOps.keySet()).isEmpty();
     });
 
     // client is connected to server1, server1 gets all the initial contact,
     // authorization checks happens here
     server1.invoke(() -> {
-      ExpirableSecurityManager securityManager = getSecurityManager();
-      Map<String, List<String>> authorizedOps = securityManager.getAuthorizedOps();
+      var securityManager = getSecurityManager();
+      var authorizedOps = securityManager.getAuthorizedOps();
       assertThat(authorizedOps.get("user1")).containsExactlyInAnyOrder(
           "DATA:WRITE:replicateRegion:0", "DATA:WRITE:partitionRegion:0");
       assertThat(authorizedOps.get("user2")).containsExactlyInAnyOrder(
           "DATA:WRITE:replicateRegion:1", "DATA:WRITE:partitionRegion:1");
-      Map<String, List<String>> unAuthorizedOps = securityManager.getUnAuthorizedOps();
+      var unAuthorizedOps = securityManager.getUnAuthorizedOps();
       assertThat(unAuthorizedOps.get("user1"))
           .containsExactly("DATA:WRITE:replicateRegion:1");
     });
 
     // server2 performs no authorization checks
     server2.invoke(() -> {
-      ExpirableSecurityManager securityManager = getSecurityManager();
-      Map<String, List<String>> authorizedOps = securityManager.getAuthorizedOps();
-      Map<String, List<String>> unAuthorizedOps = securityManager.getUnAuthorizedOps();
+      var securityManager = getSecurityManager();
+      var authorizedOps = securityManager.getAuthorizedOps();
+      var unAuthorizedOps = securityManager.getUnAuthorizedOps();
       assertThat(authorizedOps.size()).isEqualTo(0);
       assertThat(unAuthorizedOps.size()).isEqualTo(0);
     });
 
     MemberVM.invokeInEveryMember(() -> {
-      InternalCache cache = ClusterStartupRule.getCache();
-      Region<Object, Object> serverRegion1 = cache.getRegion(REPLICATE_REGION);
+      var cache = ClusterStartupRule.getCache();
+      var serverRegion1 = cache.getRegion(REPLICATE_REGION);
       assertThat(serverRegion1.size()).isEqualTo(2);
-      Region<Object, Object> serverRegion2 = cache.getRegion(PARTITION_REGION);
+      var serverRegion2 = cache.getRegion(PARTITION_REGION);
       assertThat(serverRegion2.size()).isEqualTo(2);
     }, server1, server2);
   }
@@ -154,14 +149,14 @@ public class AuthExpirationMultiServerDUnitTest {
         .withPoolSubscription(true)
         .withLocatorConnection(locator.getPort());
     clientCacheRule.createCache();
-    Region<Object, Object> region = clientCacheRule.createProxyRegion(PARTITION_REGION);
+    var region = clientCacheRule.createProxyRegion(PARTITION_REGION);
     expireUserOnAllVms("user1");
     UpdatableUserAuthInitialize.setUser("user2");
     IntStream.range(0, 100).forEach(i -> region.put(i, "value" + i));
 
-    ExpirableSecurityManager consolidated = collectSecurityManagers(server1, server2);
-    Map<String, List<String>> authorized = consolidated.getAuthorizedOps();
-    Map<String, List<String>> unAuthorized = consolidated.getUnAuthorizedOps();
+    var consolidated = collectSecurityManagers(server1, server2);
+    var authorized = consolidated.getAuthorizedOps();
+    var unAuthorized = consolidated.getUnAuthorizedOps();
 
     assertThat(authorized.keySet()).containsExactly("user2");
     assertThat(authorized.get("user2")).hasSize(100);
@@ -178,9 +173,9 @@ public class AuthExpirationMultiServerDUnitTest {
         .withPoolSubscription(true)
         .withLocatorConnection(locator.getPort());
     clientCacheRule.createCache();
-    Region<Object, Object> region = clientCacheRule.createProxyRegion(PARTITION_REGION);
+    var region = clientCacheRule.createProxyRegion(PARTITION_REGION);
     expireUserOnAllVms("user1");
-    for (int i = 1; i < 100; i++) {
+    for (var i = 1; i < 100; i++) {
       try {
         region.put(1, "value1");
         fail("Exception expected");
@@ -190,20 +185,20 @@ public class AuthExpirationMultiServerDUnitTest {
             AuthenticationRequiredException.class, AuthenticationExpiredException.class);
       }
     }
-    ExpirableSecurityManager consolidated = collectSecurityManagers(server1, server2);
+    var consolidated = collectSecurityManagers(server1, server2);
     assertThat(consolidated.getAuthorizedOps().keySet()).isEmpty();
   }
 
   @Test
   public void cqWithMultiServer() throws Exception {
-    int locatorPort = locator.getPort();
+    var locatorPort = locator.getPort();
     UpdatableUserAuthInitialize.setUser("user1");
     clientCacheRule
         .withProperty(SECURITY_CLIENT_AUTH_INIT, UpdatableUserAuthInitialize.class.getName())
         .withPoolSubscription(true)
         .withLocatorConnection(locatorPort);
-    ClientCache cache = clientCacheRule.createCache();
-    EventsCqListner listener =
+    var cache = clientCacheRule.createCache();
+    var listener =
         createAndExecuteCQ(cache.getQueryService(), "cq1", "select * from /" + PARTITION_REGION);
 
     UpdatableUserAuthInitialize.setUser("user2");
@@ -212,7 +207,7 @@ public class AuthExpirationMultiServerDUnitTest {
 
     // make sure listener still gets all the events
     await().untilAsserted(() -> assertThat(listener.getKeys()).hasSize(100));
-    ExpirableSecurityManager securityManager = collectSecurityManagers(server1, server2);
+    var securityManager = collectSecurityManagers(server1, server2);
     assertThat(securityManager.getAuthorizedOps().get("user1"))
         .containsExactly("DATA:READ:partitionRegion");
     assertThat(securityManager.getUnAuthorizedOps().get("user1"))
@@ -221,13 +216,13 @@ public class AuthExpirationMultiServerDUnitTest {
 
   private void doPutsUsingAnotherClient(int locatorPort, String user, int size) throws Exception {
     // create another client to do puts
-    ClientVM client = cluster.startClientVM(3,
+    var client = cluster.startClientVM(3,
         c -> c.withProperty(SECURITY_CLIENT_AUTH_INIT, UpdatableUserAuthInitialize.class.getName())
             .withPoolSubscription(true)
             .withLocatorConnection(locatorPort));
     client.invoke(() -> {
       UpdatableUserAuthInitialize.setUser(user);
-      Region<Object, Object> proxyRegion =
+      var proxyRegion =
           ClusterStartupRule.clientCacheRule.createProxyRegion(PARTITION_REGION);
       IntStream.range(0, size).forEach(i -> proxyRegion.put("key" + i, "value" + i));
     });
@@ -235,13 +230,13 @@ public class AuthExpirationMultiServerDUnitTest {
 
   @Test
   public void registerInterestsWithMultiServers() throws Exception {
-    int locatorPort = locator.getPort();
+    var locatorPort = locator.getPort();
     UpdatableUserAuthInitialize.setUser("user1");
-    ClientCache cache = clientCacheRule
+    var cache = clientCacheRule
         .withProperty(SECURITY_CLIENT_AUTH_INIT, UpdatableUserAuthInitialize.class.getName())
         .withPoolSubscription(true)
         .withLocatorConnection(locatorPort).createCache();
-    Region<Object, Object> clientRegion =
+    var clientRegion =
         cache.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY)
             .create(PARTITION_REGION);
     clientRegion.registerInterestForAllKeys();
@@ -252,7 +247,7 @@ public class AuthExpirationMultiServerDUnitTest {
 
     // make sure clientRegion gets all the events
     await().untilAsserted(() -> assertThat(clientRegion).hasSize(100));
-    ExpirableSecurityManager securityManager = collectSecurityManagers(server1, server2);
+    var securityManager = collectSecurityManagers(server1, server2);
     assertThat(securityManager.getAuthorizedOps().get("user1"))
         .containsExactly("DATA:READ:partitionRegion");
     assertThat(securityManager.getUnAuthorizedOps().get("user1"))
@@ -261,20 +256,20 @@ public class AuthExpirationMultiServerDUnitTest {
 
   @Test
   public void consecutivePut() throws Exception {
-    FileBasedCountDownLatch latch = new FileBasedCountDownLatch(1);
-    int locatorPort = locator.getPort();
+    var latch = new FileBasedCountDownLatch(1);
+    var locatorPort = locator.getPort();
     // do consecutive puts using a client
-    ClientVM client = cluster.startClientVM(3,
+    var client = cluster.startClientVM(3,
         c -> c.withProperty(SECURITY_CLIENT_AUTH_INIT, UpdatableUserAuthInitialize.class.getName())
             .withCacheSetup(ccf -> ccf.setPoolMaxConnections(2))
             .withLocatorConnection(locatorPort));
     AsyncInvocation<Void> invokePut = client.invokeAsync(() -> {
       UpdatableUserAuthInitialize.setUser("user1");
-      Region<Object, Object> proxyRegion =
+      var proxyRegion =
           ClusterStartupRule.getClientCache()
               .createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY)
               .create(PARTITION_REGION);
-      for (int i = 0; i < 1000; i++) {
+      for (var i = 0; i < 1000; i++) {
         // make sure at least some data is put by user2
         if (i == 900) {
           latch.await();
@@ -293,8 +288,8 @@ public class AuthExpirationMultiServerDUnitTest {
     latch.countDown();
     invokePut.await();
 
-    ExpirableSecurityManager securityManager = collectSecurityManagers(server1, server2);
-    Map<String, List<String>> authorizedOps = securityManager.getAuthorizedOps();
+    var securityManager = collectSecurityManagers(server1, server2);
+    var authorizedOps = securityManager.getAuthorizedOps();
 
     assertThat(authorizedOps).hasSize(2);
     assertThat(authorizedOps.get("user1").size() + authorizedOps.get("user2").size())
@@ -302,7 +297,7 @@ public class AuthExpirationMultiServerDUnitTest {
             authorizedOps.get("user1").size(),
             authorizedOps.get("user2").size()))
         .isEqualTo(1000);
-    Map<String, List<String>> unAuthorizedOps = securityManager.getUnAuthorizedOps();
+    var unAuthorizedOps = securityManager.getUnAuthorizedOps();
     assertThat(unAuthorizedOps).hasSize(1);
     // user1 may not be unauthorized for just 1 operations, puts maybe done by different
     // connections
@@ -320,12 +315,12 @@ public class AuthExpirationMultiServerDUnitTest {
         .withPoolSubscription(true)
         .withLocatorConnection(locator.getPort());
     clientCacheRule.createCache();
-    Region<Object, Object> region = clientCacheRule.createProxyRegion(REPLICATE_REGION);
+    var region = clientCacheRule.createProxyRegion(REPLICATE_REGION);
     IntStream.range(0, 10).forEach(i -> region.put("key" + i, "value" + i));
 
     // assert that data still get into all servers
     MemberVM.invokeInEveryMember(() -> {
-      Region<Object, Object> serverRegion =
+      var serverRegion =
           ClusterStartupRule.getCache().getRegion(REPLICATE_REGION);
       assertThat(serverRegion).hasSize(10);
     }, server1, server2);
@@ -333,15 +328,15 @@ public class AuthExpirationMultiServerDUnitTest {
 
   @Test
   public void putAll() throws Exception {
-    int locatorPort = locator.getPort();
+    var locatorPort = locator.getPort();
     // do putAll using a client
-    ClientVM client = cluster.startClientVM(3,
+    var client = cluster.startClientVM(3,
         c -> c.withProperty(SECURITY_CLIENT_AUTH_INIT, UpdatableUserAuthInitialize.class.getName())
             .withPoolSubscription(true)
             .withLocatorConnection(locatorPort));
-    AsyncInvocation invokePut = client.invokeAsync(() -> {
+    var invokePut = client.invokeAsync(() -> {
       UpdatableUserAuthInitialize.setUser("user1");
-      Region<Object, Object> proxyRegion =
+      var proxyRegion =
           ClusterStartupRule.getClientCache()
               .createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY)
               .create(PARTITION_REGION);
@@ -359,7 +354,7 @@ public class AuthExpirationMultiServerDUnitTest {
     expireUserOnAllVms("user1");
     invokePut.await();
 
-    ExpirableSecurityManager securityManager = collectSecurityManagers(server1, server2);
+    var securityManager = collectSecurityManagers(server1, server2);
     assertThat(securityManager.getAuthorizedOps()).hasSize(1);
     assertThat(securityManager.getAuthorizedOps().get("user1"))
         .containsExactly("DATA:WRITE:partitionRegion");

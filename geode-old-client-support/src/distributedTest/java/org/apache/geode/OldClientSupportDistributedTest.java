@@ -73,7 +73,7 @@ public class OldClientSupportDistributedTest implements Serializable {
 
   @BeforeClass
   public static void setUp() {
-    MemberVM locator = clusterStartupRule.startLocatorVM(0);
+    var locator = clusterStartupRule.startLocatorVM(0);
     server =
         clusterStartupRule.startServerVM(1,
             s -> s.withProperty(ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER,
@@ -100,12 +100,12 @@ public class OldClientSupportDistributedTest implements Serializable {
     server.invoke(() -> {
       List<Throwable> problems = new LinkedList<>();
 
-      for (String geodeClassName : allGeodeThrowableClasses) {
+      for (var geodeClassName : allGeodeThrowableClasses) {
         try {
           convertThrowable(geodeClassName);
         } catch (Exception e) {
           System.out.println("-- failed");
-          Exception failure =
+          var failure =
               new Exception("Failed processing " + geodeClassName + ": " + e, e);
           problems.add(failure);
         }
@@ -120,28 +120,28 @@ public class OldClientSupportDistributedTest implements Serializable {
   @Test
   public void testConversionOfArrayTypes() {
     server.invoke(() -> {
-      OldClientSupportService oldClientSupport =
+      var oldClientSupport =
           OldClientSupportProvider.getService(ClusterStartupRule.getCache());
 
-      KnownVersion oldClientVersion = KnownVersion.GFE_81;
-      VersionedDataOutputStream dout = new VersionedDataOutputStream(
+      var oldClientVersion = KnownVersion.GFE_81;
+      var dout = new VersionedDataOutputStream(
           new HeapDataOutputStream(10, oldClientVersion), oldClientVersion);
 
-      for (String geodeClassName : newArrayClassNames) {
-        String newName = oldClientSupport.processOutgoingClassName(geodeClassName, dout);
+      for (var geodeClassName : newArrayClassNames) {
+        var newName = oldClientSupport.processOutgoingClassName(geodeClassName, dout);
         assertThat(geodeClassName).isNotEqualTo(newName);
       }
 
-      for (String className : allNonconformingArrayClassNames) {
-        String newName = oldClientSupport.processOutgoingClassName(className, dout);
+      for (var className : allNonconformingArrayClassNames) {
+        var newName = oldClientSupport.processOutgoingClassName(className, dout);
         assertThat(className).isEqualTo(newName);
       }
 
-      VersionedDataInputStream din = new VersionedDataInputStream(
+      var din = new VersionedDataInputStream(
           new DataInputStream(new ByteArrayInputStream(new byte[10])), oldClientVersion);
 
-      for (String oldClassName : oldArrayClassNames) {
-        String newName = oldClientSupport.processIncomingClassName(oldClassName, din);
+      for (var oldClassName : oldArrayClassNames) {
+        var newName = oldClientSupport.processIncomingClassName(oldClassName, din);
         assertThat(oldClassName).isNotEqualTo(newName);
       }
     });
@@ -149,19 +149,19 @@ public class OldClientSupportDistributedTest implements Serializable {
   }
 
   private void convertThrowable(String geodeClassName) throws Exception {
-    KnownVersion oldClientVersion = KnownVersion.GFE_81;
-    final String comGemstoneGemFire = "com.gemstone.gemfire";
-    final int comGemstoneGemFireLength = comGemstoneGemFire.length();
+    var oldClientVersion = KnownVersion.GFE_81;
+    final var comGemstoneGemFire = "com.gemstone.gemfire";
+    final var comGemstoneGemFireLength = comGemstoneGemFire.length();
 
-    OldClientSupportService oldClientSupport =
+    var oldClientSupport =
         OldClientSupportProvider.getService(ClusterStartupRule.getCache());
 
     System.out.println("checking " + geodeClassName);
-    Class<?> geodeClass = Class.forName(geodeClassName);
-    Object geodeObject = instantiate(geodeClass);
+    var geodeClass = Class.forName(geodeClassName);
+    var geodeObject = instantiate(geodeClass);
     if (geodeObject instanceof Throwable) {
-      Throwable geodeThrowable = (Throwable) instantiate(geodeClass);
-      Throwable gemfireThrowable = oldClientSupport.getThrowable(geodeThrowable, oldClientVersion);
+      var geodeThrowable = (Throwable) instantiate(geodeClass);
+      var gemfireThrowable = oldClientSupport.getThrowable(geodeThrowable, oldClientVersion);
       assertThat(comGemstoneGemFire)
           .withFailMessage("Failed to convert " + geodeClassName + ". Throwable class is "
               + gemfireThrowable.getClass().getName())
@@ -197,26 +197,26 @@ public class OldClientSupportDistributedTest implements Serializable {
   @Test
   public void oldClientObjectTranslatesToGeodeObject_javaSerialization() {
     server.invoke(() -> {
-      com.gemstone.gemfire.ClientSerializableObject gemfireObject =
+      var gemfireObject =
           new com.gemstone.gemfire.ClientSerializableObject();
-      com.gemstone.gemfire.ClientSerializableObject subObject =
+      var subObject =
           new com.gemstone.gemfire.ClientSerializableObject();
       gemfireObject.setSubObject(subObject);
 
-      ByteArrayOutputStream byteStream = new ByteArrayOutputStream(500);
-      DataOutputStream dataOut = new DataOutputStream(byteStream);
+      var byteStream = new ByteArrayOutputStream(500);
+      var dataOut = new DataOutputStream(byteStream);
       DataSerializer.writeObject(gemfireObject, dataOut);
       dataOut.flush();
-      byte[] serializedForm = byteStream.toByteArray();
+      var serializedForm = byteStream.toByteArray();
 
-      ByteArrayDataInput byteDataInput = new ByteArrayDataInput();
+      var byteDataInput = new ByteArrayDataInput();
       byteDataInput.initialize(serializedForm, KnownVersion.GFE_81);
       ClientSerializableObject result = DataSerializer.readObject(byteDataInput);
       assertThat(
           result.getClass().getName().substring(0, "org.apache.geode".length()))
               .withFailMessage("Expected an org.apache.geode exception but found " + result)
               .isEqualTo("org.apache.geode");
-      ClientSerializableObject newSubObject = result.getSubObject();
+      var newSubObject = result.getSubObject();
       assertThat(newSubObject).isNotNull();
     });
   }
@@ -230,7 +230,7 @@ public class OldClientSupportDistributedTest implements Serializable {
   @Test
   public void oldClientObjectTranslatesToGeodeObject_dataSerialization() {
     server.invoke(() -> {
-      com.gemstone.gemfire.ClientDataSerializableObject gemfireObject =
+      var gemfireObject =
           new com.gemstone.gemfire.ClientDataSerializableObject();
 
       validateObjectTranslation(gemfireObject);
@@ -239,16 +239,16 @@ public class OldClientSupportDistributedTest implements Serializable {
 
   private void validateObjectTranslation(Object gemfireObject)
       throws IOException, ClassNotFoundException {
-    ByteArrayOutputStream byteStream = new ByteArrayOutputStream(500);
-    DataOutputStream dataOut = new DataOutputStream(byteStream);
+    var byteStream = new ByteArrayOutputStream(500);
+    var dataOut = new DataOutputStream(byteStream);
     // use an internal API to ensure that java serialization isn't used
     InternalDataSerializer.writeObject(gemfireObject, dataOut, false);
     dataOut.flush();
-    byte[] serializedForm = byteStream.toByteArray();
+    var serializedForm = byteStream.toByteArray();
 
-    ByteArrayDataInput byteDataInput = new ByteArrayDataInput();
+    var byteDataInput = new ByteArrayDataInput();
     byteDataInput.initialize(serializedForm, KnownVersion.GFE_81);
-    Object result = DataSerializer.readObject(byteDataInput);
+    var result = DataSerializer.readObject(byteDataInput);
     assertThat(
         result.getClass().getName().substring(0, "org.apache.geode".length()))
             .withFailMessage("Expected an org.apache.geode object but found " + result)
@@ -263,7 +263,7 @@ public class OldClientSupportDistributedTest implements Serializable {
   @Test
   public void oldClientObjectTranslatesToGeodeObject_pdxSerialization() {
     server.invoke(() -> {
-      com.gemstone.gemfire.ClientPDXSerializableObject gemfireObject =
+      var gemfireObject =
           new com.gemstone.gemfire.ClientPDXSerializableObject();
 
       validateObjectTranslation(gemfireObject);

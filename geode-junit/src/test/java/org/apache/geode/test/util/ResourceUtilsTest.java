@@ -18,7 +18,6 @@ package org.apache.geode.test.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.net.URL;
 import java.nio.charset.Charset;
 
 import org.apache.commons.io.IOUtils;
@@ -51,7 +50,7 @@ public class ResourceUtilsTest {
 
   @Test
   public void getResource() throws Exception {
-    URL resource = ResourceUtils.getResource(resourceName);
+    var resource = ResourceUtils.getResource(resourceName);
 
     assertThat(resource).isNotNull();
     assertThat(IOUtils.toString(resource, Charset.defaultCharset())).contains(RESOURCE_CONTENT);
@@ -59,7 +58,7 @@ public class ResourceUtilsTest {
 
   @Test
   public void getResourceWithClass() throws Exception {
-    URL resource = ResourceUtils.getResource(getClass(), resourceName);
+    var resource = ResourceUtils.getResource(getClass(), resourceName);
 
     assertThat(resource).isNotNull();
     assertThat(IOUtils.toString(resource, Charset.defaultCharset())).contains(RESOURCE_CONTENT);

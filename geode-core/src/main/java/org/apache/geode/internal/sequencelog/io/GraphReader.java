@@ -61,20 +61,20 @@ public class GraphReader {
   }
 
   public GraphSet readGraphs(Filter filter, boolean areGemfireLogs) throws IOException {
-    GraphSet graphs = new GraphSet();
+    var graphs = new GraphSet();
 
     if (areGemfireLogs) {
       // TODO - probably don't need to go all the way
       // to a binary format here, but this is quick and easy.
-      try (HeapDataOutputStream out = new HeapDataOutputStream(KnownVersion.CURRENT)) {
+      try (var out = new HeapDataOutputStream(KnownVersion.CURRENT)) {
         GemfireLogConverter.convertFiles(out, files);
-        InputStreamReader reader = new InputStreamReader(out.getInputStream());
+        var reader = new InputStreamReader(out.getInputStream());
         reader.addToGraphs(graphs, filter);
       }
     } else {
-      for (File file : files) {
-        try (FileInputStream fis = new FileInputStream(file)) {
-          InputStreamReader reader = new InputStreamReader(fis);
+      for (var file : files) {
+        try (var fis = new FileInputStream(file)) {
+          var reader = new InputStreamReader(fis);
           reader.addToGraphs(graphs, filter);
         }
       }

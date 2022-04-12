@@ -98,10 +98,10 @@ public class CacheRealizationFunctionTest {
 
     function.execute(context);
     verify(function, never()).logError(any(), any());
-    ArgumentCaptor<RealizationResult> argumentCaptor =
+    var argumentCaptor =
         ArgumentCaptor.forClass(RealizationResult.class);
     verify(resultSender).lastResult(argumentCaptor.capture());
-    RealizationResult result = argumentCaptor.getValue();
+    var result = argumentCaptor.getValue();
     // since cache is already closed, no way to get the membername
     // in the result
     assertThat(result.getMemberName()).isNull();
@@ -120,10 +120,10 @@ public class CacheRealizationFunctionTest {
 
     function.execute(context);
     verify(function).logError(any(), any());
-    ArgumentCaptor<RealizationResult> argumentCaptor =
+    var argumentCaptor =
         ArgumentCaptor.forClass(RealizationResult.class);
     verify(resultSender).lastResult(argumentCaptor.capture());
-    RealizationResult result = argumentCaptor.getValue();
+    var result = argumentCaptor.getValue();
     assertThat(result.getMemberName()).isEqualTo("testName");
   }
 

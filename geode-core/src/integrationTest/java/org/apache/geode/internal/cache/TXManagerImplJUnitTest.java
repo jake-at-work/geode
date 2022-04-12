@@ -38,11 +38,9 @@ import org.mockito.stubbing.Answer;
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.CacheTransactionManager;
 import org.apache.geode.cache.ExpirationAttributes;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.TransactionId;
 import org.apache.geode.util.internal.GeodeGlossary;
 
 /**
@@ -62,7 +60,7 @@ public class TXManagerImplJUnitTest {
   }
 
   protected void createCache() {
-    Properties props = new Properties();
+    var props = new Properties();
     props.put(MCAST_PORT, "0");
     props.put(LOCATORS, "");
     cache = new CacheFactory(props).create();
@@ -80,20 +78,20 @@ public class TXManagerImplJUnitTest {
    */
   @Test
   public void testSuspendResume() throws Exception {
-    final CacheTransactionManager mgr = cache.getCacheTransactionManager();
+    final var mgr = cache.getCacheTransactionManager();
     mgr.begin();
     region.put("key", "value");
     assertEquals("value", region.get("key"));
-    final TransactionId txId = mgr.suspend();
+    final var txId = mgr.suspend();
     mgr.resume(txId);
     try {
       mgr.resume(txId);
       fail("expected ex not thrown");
     } catch (IllegalStateException ignored) {
     }
-    final CountDownLatch latch = new CountDownLatch(1);
-    final CountDownLatch latch2 = new CountDownLatch(1);
-    Thread t = new Thread(() -> {
+    final var latch = new CountDownLatch(1);
+    final var latch2 = new CountDownLatch(1);
+    var t = new Thread(() -> {
       try {
         mgr.resume(txId);
         fail("expected exception not thrown");
@@ -121,20 +119,20 @@ public class TXManagerImplJUnitTest {
 
   @Test
   public void testResumeTimeout() throws Exception {
-    final CacheTransactionManager mgr = cache.getCacheTransactionManager();
+    final var mgr = cache.getCacheTransactionManager();
     mgr.begin();
     region.put("key", "value");
-    final TransactionId txId = mgr.suspend();
+    final var txId = mgr.suspend();
     mgr.resume(txId);
-    final CountDownLatch latch = new CountDownLatch(1);
-    Thread t = new Thread(() -> {
+    final var latch = new CountDownLatch(1);
+    var t = new Thread(() -> {
       assertFalse(mgr.tryResume(txId, 1, TimeUnit.SECONDS));
       latch.countDown();
     });
-    long start = System.currentTimeMillis();
+    var start = System.currentTimeMillis();
     t.start();
     latch.await();
-    long end = System.currentTimeMillis();
+    var end = System.currentTimeMillis();
     // other thread waits for 1 second
     assertTrue(end - start > 950);
     t.join();
@@ -143,22 +141,22 @@ public class TXManagerImplJUnitTest {
 
   @Test
   public void testMultipleSuspends() throws Exception {
-    final CacheTransactionManager mgr = cache.getCacheTransactionManager();
+    final var mgr = cache.getCacheTransactionManager();
     mgr.begin();
     region.put("key", "value");
-    final TransactionId txId = mgr.suspend();
+    final var txId = mgr.suspend();
     mgr.resume(txId);
-    final CountDownLatch latch = new CountDownLatch(1);
-    final CountDownLatch latch2 = new CountDownLatch(1);
-    final CountDownLatch latch3 = new CountDownLatch(1);
-    Thread t1 = new Thread(() -> {
+    final var latch = new CountDownLatch(1);
+    final var latch2 = new CountDownLatch(1);
+    final var latch3 = new CountDownLatch(1);
+    var t1 = new Thread(() -> {
       latch2.countDown();
       assertTrue(mgr.tryResume(txId, 1, TimeUnit.SECONDS));
       assertNull(region.get("key2"));
       region.put("key1", "value1");
       assertEquals(txId, mgr.suspend());
     });
-    Thread t2 = new Thread(() -> {
+    var t2 = new Thread(() -> {
       latch3.countDown();
       assertTrue(mgr.tryResume(txId, 1, TimeUnit.SECONDS));
       assertEquals("value1", region.get("key1"));
@@ -183,19 +181,19 @@ public class TXManagerImplJUnitTest {
 
   @Test
   public void testUnblockOnCommit() throws Exception {
-    final CacheTransactionManager mgr = cache.getCacheTransactionManager();
+    final var mgr = cache.getCacheTransactionManager();
     mgr.begin();
     region.put("key", "value");
-    final TransactionId txId = mgr.suspend();
+    final var txId = mgr.suspend();
     mgr.resume(txId);
-    final CountDownLatch latch = new CountDownLatch(2);
-    final CountDownLatch latch2 = new CountDownLatch(2);
-    Thread t1 = new Thread(() -> {
+    final var latch = new CountDownLatch(2);
+    final var latch2 = new CountDownLatch(2);
+    var t1 = new Thread(() -> {
       latch.countDown();
       assertFalse(mgr.tryResume(txId, 10, TimeUnit.SECONDS));
       latch2.countDown();
     });
-    Thread t2 = new Thread(() -> {
+    var t2 = new Thread(() -> {
       latch.countDown();
       assertFalse(mgr.tryResume(txId, 10, TimeUnit.SECONDS));
       latch2.countDown();
@@ -204,7 +202,7 @@ public class TXManagerImplJUnitTest {
     t2.start();
     latch.await();
     Thread.sleep(100);
-    long start = System.currentTimeMillis();
+    var start = System.currentTimeMillis();
     mgr.commit();
     assertTrue("expected to wait for less than 100 millis, but waited for:"
         + (System.currentTimeMillis() - start), latch2.await(100, TimeUnit.MILLISECONDS));
@@ -214,9 +212,9 @@ public class TXManagerImplJUnitTest {
 
   @Test
   public void testExists() {
-    CacheTransactionManager mgr = cache.getCacheTransactionManager();
+    var mgr = cache.getCacheTransactionManager();
     mgr.begin();
-    TransactionId txId = mgr.suspend();
+    var txId = mgr.suspend();
     assertTrue(mgr.exists(txId));
     mgr.resume(txId);
     assertTrue(mgr.exists(txId));
@@ -234,13 +232,13 @@ public class TXManagerImplJUnitTest {
 
   @Test
   public void testEarlyoutOnTryResume() {
-    CacheTransactionManager mgr = cache.getCacheTransactionManager();
+    var mgr = cache.getCacheTransactionManager();
     mgr.begin();
-    TransactionId txId = mgr.suspend();
+    var txId = mgr.suspend();
     mgr.resume(txId);
     mgr.commit();
 
-    long start = System.currentTimeMillis();
+    var start = System.currentTimeMillis();
     mgr.tryResume(txId, 10, TimeUnit.SECONDS);
     assertTrue("did not expect tryResume to block", System.currentTimeMillis() - start < 100);
   }
@@ -251,16 +249,16 @@ public class TXManagerImplJUnitTest {
    */
   @Test
   public void testWaitForever() throws Exception {
-    final CacheTransactionManager mgr = cache.getCacheTransactionManager();
+    final var mgr = cache.getCacheTransactionManager();
     mgr.begin();
     region.put("key", "value");
-    final TransactionId txId = mgr.suspend();
+    final var txId = mgr.suspend();
     mgr.resume(txId);
-    final CountDownLatch latch = new CountDownLatch(1);
-    Thread t = new Thread(() -> {
-      long start = System.currentTimeMillis();
+    final var latch = new CountDownLatch(1);
+    var t = new Thread(() -> {
+      var start = System.currentTimeMillis();
       assertTrue(mgr.tryResume(txId, Long.MAX_VALUE, TimeUnit.MILLISECONDS));
-      long end = System.currentTimeMillis();
+      var end = System.currentTimeMillis();
       assert end - start >= 1000;
       latch.countDown();
     });
@@ -272,10 +270,10 @@ public class TXManagerImplJUnitTest {
 
   @Test
   public void testResumeCommitWithExpiry_bug45558() throws Exception {
-    final CacheTransactionManager mgr = cache.getCacheTransactionManager();
-    final CountDownLatch l = new CountDownLatch(1);
+    final var mgr = cache.getCacheTransactionManager();
+    final var l = new CountDownLatch(1);
     region.close();
-    AttributesFactory<String, String> af = new AttributesFactory<>();
+    var af = new AttributesFactory<String, String>();
     af.setStatisticsEnabled(true);
     af.setEntryIdleTimeout(new ExpirationAttributes(5));
     // region.getAttributesMutator().setEntryTimeToLive(new ExpirationAttributes(5));
@@ -283,9 +281,9 @@ public class TXManagerImplJUnitTest {
     region.put("key", "value");
     mgr.begin();
     region.put("key", "value");
-    final TransactionId txId = mgr.suspend();
+    final var txId = mgr.suspend();
 
-    Thread t = new Thread(() -> {
+    var t = new Thread(() -> {
       mgr.resume(txId);
       mgr.commit();
       l.countDown();
@@ -299,11 +297,11 @@ public class TXManagerImplJUnitTest {
     cache.close();
     System.setProperty(GeodeGlossary.GEMFIRE_PREFIX + "suspendedTxTimeout", "1");
     createCache();
-    TXManagerImpl mgr = (TXManagerImpl) cache.getCacheTransactionManager();
+    var mgr = (TXManagerImpl) cache.getCacheTransactionManager();
     assertEquals(1, mgr.getSuspendedTransactionTimeout());
     mgr.begin();
     region.put("key", "value");
-    final TransactionId txId = mgr.suspend();
+    final var txId = mgr.suspend();
     Thread.sleep(70 * 1000);
     try {
       mgr.resume(txId);
@@ -316,7 +314,7 @@ public class TXManagerImplJUnitTest {
 
   @Test
   public void testIsDistributedDoesNotThrowNPE() {
-    TXManagerImpl txMgr = (TXManagerImpl) cache.getCacheTransactionManager();
+    var txMgr = (TXManagerImpl) cache.getCacheTransactionManager();
     cache.getDistributedSystem().disconnect();
     callIsDistributed(txMgr);
   }
@@ -327,28 +325,28 @@ public class TXManagerImplJUnitTest {
 
   @Test
   public void testTryResumeRemoveItselfFromWaitingQueue() throws Exception {
-    int time = 30;
-    long timeout = TimeUnit.SECONDS.toNanos(time);
-    TXManagerImpl txMgr = (TXManagerImpl) cache.getCacheTransactionManager();
-    TXManagerImpl spyMgr = spy(txMgr);
+    var time = 30;
+    var timeout = TimeUnit.SECONDS.toNanos(time);
+    var txMgr = (TXManagerImpl) cache.getCacheTransactionManager();
+    var spyMgr = spy(txMgr);
     doAnswer((Answer<Void>) invocation -> {
       Thread.sleep(10);
       return null;
     }).when(spyMgr).parkToRetryResume(timeout);
     spyMgr.begin();
     region.put("key", "value");
-    final TransactionId txId = spyMgr.suspend();
+    final var txId = spyMgr.suspend();
     spyMgr.resume(txId);
-    final CountDownLatch latch1 = new CountDownLatch(2);
-    final CountDownLatch latch2 = new CountDownLatch(2);
-    Thread t1 = new Thread(() -> {
+    final var latch1 = new CountDownLatch(2);
+    final var latch2 = new CountDownLatch(2);
+    var t1 = new Thread(() -> {
       latch1.countDown();
       assertTrue(spyMgr.tryResume(txId, time, TimeUnit.SECONDS));
       region.put("key1", "value1");
       assertEquals(txId, spyMgr.suspend());
       latch2.countDown();
     });
-    Thread t2 = new Thread(() -> {
+    var t2 = new Thread(() -> {
       latch1.countDown();
       assertTrue(spyMgr.tryResume(txId, time, TimeUnit.SECONDS));
       region.put("key2", "value1");

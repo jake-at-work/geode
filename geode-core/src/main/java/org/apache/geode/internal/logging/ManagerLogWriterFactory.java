@@ -64,21 +64,21 @@ public class ManagerLogWriterFactory {
   }
 
   public ManagerLogWriter create(final LogConfig logConfig, final StatisticsConfig statsConfig) {
-    File logFile = getLogFile(logConfig);
+    var logFile = getLogFile(logConfig);
     if (logFile == null || logFile.equals(new File(""))) {
       return null;
     }
 
     // if logFile exists attempt to rename it for rolling
     if (logFile.exists()) {
-      boolean useChildLogging = useChildLogging(logConfig);
-      boolean statArchivesRolling = statArchivesRolling(statsConfig);
+      var useChildLogging = useChildLogging(logConfig);
+      var statArchivesRolling = statArchivesRolling(statsConfig);
 
       if (!appendLog || useChildLogging || statArchivesRolling) {
-        File oldMain =
+        var oldMain =
             getLogNameForOldMainLog(logFile, security || useChildLogging || statArchivesRolling);
 
-        boolean succeeded = LogFileUtils.renameAggressively(logFile, oldMain);
+        var succeeded = LogFileUtils.renameAggressively(logFile, oldMain);
 
         if (succeeded) {
           logFileRolloverDetails.message = String.format("Renamed old log file to %s.", oldMain);
@@ -90,7 +90,7 @@ public class ManagerLogWriterFactory {
       }
     }
 
-    ManagerLogWriter logWriter = newManagerLogWriter(logConfig, createPrintStream(logFile));
+    var logWriter = newManagerLogWriter(logConfig, createPrintStream(logFile));
     logWriter.setConfig(logConfig);
     redirectOutput(logConfig);
     return logWriter;
@@ -130,7 +130,7 @@ public class ManagerLogWriterFactory {
     try {
       fos = new FileOutputStream(logFile, true);
     } catch (FileNotFoundException e) {
-      String message = String.format("Could not open log file %s.", logFile);
+      var message = String.format("Could not open log file %s.", logFile);
       throw new GemFireIOException(message, e);
     }
     return new PrintStream(fos);

@@ -20,7 +20,6 @@ import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.Statistics;
 import org.apache.geode.StatisticsFactory;
 import org.apache.geode.StatisticsType;
-import org.apache.geode.StatisticsTypeFactory;
 import org.apache.geode.internal.statistics.StatisticsTypeFactoryImpl;
 
 public class FileSystemStats {
@@ -40,7 +39,7 @@ public class FileSystemStats {
   private static final int bytesId;
 
   static {
-    final StatisticsTypeFactory f = StatisticsTypeFactoryImpl.singleton();
+    final var f = StatisticsTypeFactoryImpl.singleton();
     statsType = f.createType(statsTypeName, statsTypeDescription,
         new StatisticDescriptor[] {
             f.createLongCounter("readBytes", "Number of bytes written", "bytes"),

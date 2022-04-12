@@ -15,9 +15,7 @@
 package org.apache.geode.internal.cache;
 
 import java.io.IOException;
-import java.nio.channels.FileChannel;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,7 +52,7 @@ public class OverflowOplogSet implements OplogSet {
 
   @Override
   public void modify(InternalRegion region, DiskEntry entry, ValueWrapper value, boolean async) {
-    DiskRegion dr = region.getDiskRegion();
+    var dr = region.getDiskRegion();
     synchronized (overflowMap) {
       if (lastOverflowWrite != null) {
         if (lastOverflowWrite.modify(dr, entry, value, async)) {
@@ -62,10 +60,10 @@ public class OverflowOplogSet implements OplogSet {
         }
       }
       // Create a new one and put it on the front of the list.
-      OverflowOplog oo = createOverflowOplog(value.getLength());
+      var oo = createOverflowOplog(value.getLength());
       addOverflow(oo);
       lastOverflowWrite = oo;
-      boolean didIt = oo.modify(dr, entry, value, async);
+      var didIt = oo.modify(dr, entry, value, async);
       assert didIt;
     }
   }
@@ -86,23 +84,23 @@ public class OverflowOplogSet implements OplogSet {
     if (lastOverflowDir >= getDirectories().length) {
       lastOverflowDir = 0;
     }
-    int idx = -1;
-    long maxOplogSizeParam = getMaxOplogSizeInBytes();
+    var idx = -1;
+    var maxOplogSizeParam = getMaxOplogSizeInBytes();
     if (maxOplogSizeParam < minSize) {
       maxOplogSizeParam = minSize;
     }
 
     // first look for a directory that has room for maxOplogSize
-    for (int i = lastOverflowDir; i < getDirectories().length; i++) {
-      long availableSpace = getDirectories()[i].getAvailableSpace();
+    for (var i = lastOverflowDir; i < getDirectories().length; i++) {
+      var availableSpace = getDirectories()[i].getAvailableSpace();
       if (availableSpace >= maxOplogSizeParam) {
         idx = i;
         break;
       }
     }
     if (idx == -1 && lastOverflowDir != 0) {
-      for (int i = 0; i < lastOverflowDir; i++) {
-        long availableSpace = getDirectories()[i].getAvailableSpace();
+      for (var i = 0; i < lastOverflowDir; i++) {
+        var availableSpace = getDirectories()[i].getAvailableSpace();
         if (availableSpace >= maxOplogSizeParam) {
           idx = i;
           break;
@@ -113,16 +111,16 @@ public class OverflowOplogSet implements OplogSet {
     if (idx == -1) {
       // if we couldn't find one big enough for the max look for one
       // that has min room
-      for (int i = lastOverflowDir; i < getDirectories().length; i++) {
-        long availableSpace = getDirectories()[i].getAvailableSpace();
+      for (var i = lastOverflowDir; i < getDirectories().length; i++) {
+        var availableSpace = getDirectories()[i].getAvailableSpace();
         if (availableSpace >= minSize) {
           idx = i;
           break;
         }
       }
       if (idx == -1 && lastOverflowDir != 0) {
-        for (int i = 0; i < lastOverflowDir; i++) {
-          long availableSpace = getDirectories()[i].getAvailableSpace();
+        for (var i = 0; i < lastOverflowDir; i++) {
+          var availableSpace = getDirectories()[i].getAvailableSpace();
           if (availableSpace >= minSize) {
             idx = i;
             break;
@@ -148,7 +146,7 @@ public class OverflowOplogSet implements OplogSet {
             parent);
       }
     }
-    int id = overflowOplogId.incrementAndGet();
+    var id = overflowOplogId.incrementAndGet();
     lastOverflowDir = idx;
     return new OverflowOplog(id, this, getDirectories()[idx], minSize);
   }
@@ -173,11 +171,11 @@ public class OverflowOplogSet implements OplogSet {
   }
 
   public void closeOverflow() {
-    for (OverflowOplog oo : overflowMap.values()) {
+    for (var oo : overflowMap.values()) {
       oo.destroy();
     }
     synchronized (compactibleOverflowMap) {
-      for (OverflowOplog oo : compactibleOverflowMap.values()) {
+      for (var oo : compactibleOverflowMap.values()) {
         oo.destroy();
       }
     }
@@ -185,12 +183,12 @@ public class OverflowOplogSet implements OplogSet {
 
   private void removeOverflow(DiskRegion dr, DiskEntry entry) {
     // find the overflow oplog that it is currently in and remove the entry from it
-    DiskId id = entry.getDiskId();
+    var id = entry.getDiskId();
     synchronized (id) {
-      long oplogId = id.setOplogId(-1);
+      var oplogId = id.setOplogId(-1);
       if (oplogId != -1) {
         synchronized (overflowMap) { // to prevent concurrent remove see bug 41646
-          OverflowOplog oplog = getChild((int) oplogId);
+          var oplog = getChild((int) oplogId);
           if (oplog != null) {
             oplog.remove(dr, entry);
           }
@@ -207,10 +205,10 @@ public class OverflowOplogSet implements OplogSet {
           return;
         }
       }
-      OverflowOplog oo = createOverflowOplog(length);
+      var oo = createOverflowOplog(length);
       lastOverflowWrite = oo;
       addOverflow(oo);
-      boolean didIt = oo.copyForwardForOverflowCompact(de, valueBytes, length, userBits);
+      var didIt = oo.copyForwardForOverflowCompact(de, valueBytes, length, userBits);
       assert didIt;
     }
   }
@@ -223,7 +221,7 @@ public class OverflowOplogSet implements OplogSet {
   }
 
   public OverflowOplog getChild(int oplogId) {
-    OverflowOplog result = overflowMap.get(oplogId);
+    var result = overflowMap.get(oplogId);
     if (result == null) {
       synchronized (compactibleOverflowMap) {
         result = compactibleOverflowMap.get(oplogId);
@@ -252,9 +250,9 @@ public class OverflowOplogSet implements OplogSet {
 
   public void getCompactableOplogs(List<CompactableOplog> l, int max) {
     synchronized (compactibleOverflowMap) {
-      Iterator<OverflowOplog> itr = compactibleOverflowMap.values().iterator();
+      var itr = compactibleOverflowMap.values().iterator();
       while (itr.hasNext() && l.size() < max) {
-        OverflowOplog oplog = itr.next();
+        var oplog = itr.next();
         if (oplog.needsCompaction()) {
           l.add(oplog);
         }
@@ -264,8 +262,8 @@ public class OverflowOplogSet implements OplogSet {
 
   void testHookCloseAllOverflowChannels() {
     synchronized (overflowMap) {
-      for (OverflowOplog oo : overflowMap.values()) {
-        FileChannel oplogFileChannel = oo.getFileChannel();
+      for (var oo : overflowMap.values()) {
+        var oplogFileChannel = oo.getFileChannel();
         try {
           oplogFileChannel.close();
         } catch (IOException ignore) {
@@ -273,8 +271,8 @@ public class OverflowOplogSet implements OplogSet {
       }
     }
     synchronized (compactibleOverflowMap) {
-      for (OverflowOplog oo : compactibleOverflowMap.values()) {
-        FileChannel oplogFileChannel = oo.getFileChannel();
+      for (var oo : compactibleOverflowMap.values()) {
+        var oplogFileChannel = oo.getFileChannel();
         try {
           oplogFileChannel.close();
         } catch (IOException ignore) {
@@ -284,14 +282,14 @@ public class OverflowOplogSet implements OplogSet {
   }
 
   ArrayList<OverflowOplog> testHookGetAllOverflowOplogs() {
-    ArrayList<OverflowOplog> result = new ArrayList<>();
+    var result = new ArrayList<OverflowOplog>();
     synchronized (overflowMap) {
-      for (OverflowOplog oo : overflowMap.values()) {
+      for (var oo : overflowMap.values()) {
         result.add(oo);
       }
     }
     synchronized (compactibleOverflowMap) {
-      for (OverflowOplog oo : compactibleOverflowMap.values()) {
+      for (var oo : compactibleOverflowMap.values()) {
         result.add(oo);
       }
     }
@@ -301,12 +299,12 @@ public class OverflowOplogSet implements OplogSet {
 
   void testHookCloseAllOverflowOplogs() {
     synchronized (overflowMap) {
-      for (OverflowOplog oo : overflowMap.values()) {
+      for (var oo : overflowMap.values()) {
         oo.close();
       }
     }
     synchronized (compactibleOverflowMap) {
-      for (OverflowOplog oo : compactibleOverflowMap.values()) {
+      for (var oo : compactibleOverflowMap.values()) {
         oo.close();
       }
     }

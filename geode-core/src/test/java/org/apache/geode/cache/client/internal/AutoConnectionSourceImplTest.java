@@ -31,7 +31,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Arrays;
-import java.util.List;
 
 import javax.net.ssl.SSLHandshakeException;
 
@@ -53,20 +52,20 @@ class AutoConnectionSourceImplTest {
 
   @Test
   void queryLocatorsTriesNextLocatorOnSSLExceptions() throws IOException, ClassNotFoundException {
-    final HostAndPort locator1 = new HostAndPort("locator1", 1234);
-    final HostAndPort locator2 = new HostAndPort("locator2", 1234);
-    final TcpSocketCreator socketCreator = mock(TcpSocketCreator.class);
-    final ObjectSerializer objectSerializer = mock(ObjectSerializer.class);
-    final ObjectDeserializer objectDeserializer = mock(ObjectDeserializer.class);
-    final TcpSocketFactory socketFactory = mock(TcpSocketFactory.class);
-    final ClusterSocketCreator clusterSocketCreator = mock(ClusterSocketCreator.class);
-    final Socket socket = mock(Socket.class);
-    final InternalPool internalPool = mock(InternalPool.class);
-    final ServerLocationRequest request = mock(ServerLocationRequest.class);
-    final ServerLocationResponse response = mock(ServerLocationResponse.class);
+    final var locator1 = new HostAndPort("locator1", 1234);
+    final var locator2 = new HostAndPort("locator2", 1234);
+    final var socketCreator = mock(TcpSocketCreator.class);
+    final var objectSerializer = mock(ObjectSerializer.class);
+    final var objectDeserializer = mock(ObjectDeserializer.class);
+    final var socketFactory = mock(TcpSocketFactory.class);
+    final var clusterSocketCreator = mock(ClusterSocketCreator.class);
+    final var socket = mock(Socket.class);
+    final var internalPool = mock(InternalPool.class);
+    final var request = mock(ServerLocationRequest.class);
+    final var response = mock(ServerLocationResponse.class);
 
-    final List<HostAndPort> locators = Arrays.asList(locator1, locator2);
-    final TcpClient tcpClient =
+    final var locators = Arrays.asList(locator1, locator2);
+    final var tcpClient =
         new TcpClient(socketCreator, objectSerializer, objectDeserializer, socketFactory);
 
     when(internalPool.getStats()).thenReturn(mock(PoolStats.class));
@@ -81,7 +80,7 @@ class AutoConnectionSourceImplTest {
     when(socket.getOutputStream()).thenReturn(mock(OutputStream.class));
     when(objectDeserializer.readObject(any())).thenReturn(new VersionResponse(), response);
 
-    final AutoConnectionSourceImpl autoConnectionSource =
+    final var autoConnectionSource =
         new AutoConnectionSourceImpl(locators, "", Integer.MAX_VALUE, tcpClient);
     autoConnectionSource.start(internalPool);
 

@@ -63,7 +63,7 @@ public abstract class AbstractZUnionStoreIntegrationTest implements RedisIntegra
 
   @Test
   public void shouldError_givenWrongKeyType() {
-    final String stringKey = "{tag1}stringKey";
+    final var stringKey = "{tag1}stringKey";
     jedis.set(stringKey, "value");
     assertThatThrownBy(
         () -> jedis.sendCommand(NEW_SET, Protocol.Command.ZUNIONSTORE, NEW_SET, "2", stringKey,
@@ -74,7 +74,7 @@ public abstract class AbstractZUnionStoreIntegrationTest implements RedisIntegra
   public void shouldReturnWrongTypeError_givenNonSortedSetKeyAsFirstKey() {
     jedis.zadd(KEY1, 1, "value1");
     jedis.zadd(KEY2, 1, "value2");
-    final String stringKey = "{tag1}stringKey";
+    final var stringKey = "{tag1}stringKey";
     jedis.set(stringKey, "value");
 
     assertThatThrownBy(() -> jedis.zunionstore(NEW_SET, stringKey, KEY1, KEY2))
@@ -85,7 +85,7 @@ public abstract class AbstractZUnionStoreIntegrationTest implements RedisIntegra
   public void shouldReturnWrongTypeError_givenNonSortedSetKeyAsThirdKey() {
     jedis.zadd(KEY1, 1, "value1");
     jedis.zadd(KEY2, 1, "value2");
-    final String stringKey = "{tag1}stringKey";
+    final var stringKey = "{tag1}stringKey";
     jedis.set(stringKey, "value");
 
     assertThatThrownBy(() -> jedis.zunionstore(NEW_SET, KEY1, KEY2, stringKey))
@@ -95,7 +95,7 @@ public abstract class AbstractZUnionStoreIntegrationTest implements RedisIntegra
   @Test
   public void shouldReturnWrongTypeError_givenNonSortedSetKeyAsThirdKeyAndNonExistentSortedSetAsFirstKey() {
     jedis.zadd(KEY1, 1, "value1");
-    final String stringKey = "{tag1}stringKey";
+    final var stringKey = "{tag1}stringKey";
     jedis.set(stringKey, "value");
 
     assertThatThrownBy(() -> jedis.zunionstore(NEW_SET, "{tag1}nonExistentKey", KEY1, stringKey))
@@ -104,7 +104,7 @@ public abstract class AbstractZUnionStoreIntegrationTest implements RedisIntegra
 
   @Test
   public void shouldError_givenSetsCrossSlots() {
-    final String crossSlotKey = "{tag2}another";
+    final var crossSlotKey = "{tag2}another";
     assertThatThrownBy(
         () -> jedis.sendCommand(NEW_SET, Protocol.Command.ZUNIONSTORE, NEW_SET, "2", crossSlotKey,
             KEY1)).hasMessage(RedisConstants.ERROR_WRONG_SLOT);
@@ -221,12 +221,12 @@ public abstract class AbstractZUnionStoreIntegrationTest implements RedisIntegra
     scores.put("player2", 0D);
     scores.put("player3", 1D);
     scores.put("player4", Double.POSITIVE_INFINITY);
-    List<Tuple> expectedResults = convertToTuples(scores, (i, x) -> x);
+    var expectedResults = convertToTuples(scores, (i, x) -> x);
     jedis.zadd(KEY1, scores);
 
     jedis.zunionstore(NEW_SET, new ZParams().weights(1), KEY1);
 
-    List<Tuple> results = jedis.zrangeWithScores(NEW_SET, 0, scores.size());
+    var results = jedis.zrangeWithScores(NEW_SET, 0, scores.size());
     assertThat(results).containsExactlyElementsOf(expectedResults);
 
     jedis.zunionstore(NEW_SET, new ZParams().weights(0), KEY1);
@@ -254,245 +254,245 @@ public abstract class AbstractZUnionStoreIntegrationTest implements RedisIntegra
 
   @Test
   public void shouldUnionize_givenASingleSet() {
-    Map<String, Double> scores = makeScoreMap(10, x -> (double) x);
-    final List<Tuple> expectedResults = convertToTuples(scores, (i, x) -> x);
+    var scores = makeScoreMap(10, x -> (double) x);
+    final var expectedResults = convertToTuples(scores, (i, x) -> x);
     jedis.zadd(KEY1, scores);
 
     assertThat(jedis.zunionstore(NEW_SET, KEY1)).isEqualTo(10);
 
-    final List<Tuple> results = jedis.zrangeWithScores(NEW_SET, 0, 10);
+    final var results = jedis.zrangeWithScores(NEW_SET, 0, 10);
 
     assertThat(results).containsExactlyElementsOf(expectedResults);
   }
 
   @Test
   public void shouldUnionize_givenOneSetDoesNotExist() {
-    Map<String, Double> scores = makeScoreMap(10, x -> (double) x);
-    final List<Tuple> expectedResults = convertToTuples(scores, (i, x) -> x);
+    var scores = makeScoreMap(10, x -> (double) x);
+    final var expectedResults = convertToTuples(scores, (i, x) -> x);
     jedis.zadd(KEY1, scores);
 
     jedis.zunionstore(NEW_SET, KEY1, KEY2);
 
-    final List<Tuple> results = jedis.zrangeWithScores(NEW_SET, 0, 10);
+    final var results = jedis.zrangeWithScores(NEW_SET, 0, 10);
 
     assertThat(results).containsExactlyElementsOf(expectedResults);
   }
 
   @Test
   public void shouldUnionize_givenWeight() {
-    Map<String, Double> scores = makeScoreMap(10, x -> (double) x);
-    final List<Tuple> expectedResults = convertToTuples(scores, (i, x) -> x * 1.5);
+    var scores = makeScoreMap(10, x -> (double) x);
+    final var expectedResults = convertToTuples(scores, (i, x) -> x * 1.5);
     jedis.zadd(KEY1, scores);
 
     jedis.zunionstore(KEY1, new ZParams().weights(1.5), KEY1);
 
-    final List<Tuple> results = jedis.zrangeWithScores(KEY1, 0, 10);
+    final var results = jedis.zrangeWithScores(KEY1, 0, 10);
 
     assertThat(results).containsExactlyElementsOf(expectedResults);
   }
 
   @Test
   public void shouldUnionizeWithWeightAndDefaultAggregate_givenMultipleSetsWithWeights() {
-    Map<String, Double> scores1 = makeScoreMap(10, x -> (double) x);
+    var scores1 = makeScoreMap(10, x -> (double) x);
     jedis.zadd(KEY1, scores1);
 
-    Map<String, Double> scores2 = makeScoreMap(10, x -> (double) (9 - x));
+    var scores2 = makeScoreMap(10, x -> (double) (9 - x));
     jedis.zadd(KEY2, scores2);
 
-    final List<Tuple> expectedResults =
+    final var expectedResults =
         convertToTuples(scores1, (i, x) -> (x * 2.0) + ((9 - x) * 1.5));
 
     jedis.zunionstore(NEW_SET, new ZParams().weights(2.0, 1.5), KEY1, KEY2);
 
-    final List<Tuple> results = jedis.zrangeWithScores(NEW_SET, 0, 10);
+    final var results = jedis.zrangeWithScores(NEW_SET, 0, 10);
 
     assertThat(results).containsExactlyElementsOf(expectedResults);
   }
 
   @Test
   public void shouldUnionize_givenMinAggregate() {
-    Map<String, Double> scores1 = makeScoreMap(10, x -> (double) x);
+    var scores1 = makeScoreMap(10, x -> (double) x);
     jedis.zadd(KEY1, scores1);
 
-    Map<String, Double> scores2 = makeScoreMap(10, x -> 0D);
+    var scores2 = makeScoreMap(10, x -> 0D);
     jedis.zadd(KEY2, scores2);
 
-    final List<Tuple> expectedResults = convertToTuples(scores2, (i, x) -> x);
+    final var expectedResults = convertToTuples(scores2, (i, x) -> x);
 
     jedis.zunionstore(NEW_SET, new ZParams().aggregate(ZParams.Aggregate.MIN),
         KEY1, KEY2);
 
-    final List<Tuple> results = jedis.zrangeWithScores(NEW_SET, 0, 10);
+    final var results = jedis.zrangeWithScores(NEW_SET, 0, 10);
 
     assertThat(results).containsExactlyElementsOf(expectedResults);
   }
 
   @Test
   public void shouldUnionize_givenMaxAggregate() {
-    Map<String, Double> scores1 = makeScoreMap(10, x -> (double) ((x % 2 == 0) ? 0 : x));
+    var scores1 = makeScoreMap(10, x -> (double) ((x % 2 == 0) ? 0 : x));
     jedis.zadd(KEY1, scores1);
 
-    Map<String, Double> scores2 = makeScoreMap(10, x -> (double) ((x % 2 == 0) ? x : 0));
+    var scores2 = makeScoreMap(10, x -> (double) ((x % 2 == 0) ? x : 0));
     jedis.zadd(KEY2, scores2);
 
-    final List<Tuple> expectedResults = convertToTuples(scores1, (i, x) -> (double) i);
+    final var expectedResults = convertToTuples(scores1, (i, x) -> (double) i);
 
     jedis.zunionstore(NEW_SET, new ZParams().aggregate(ZParams.Aggregate.MAX),
         KEY1, KEY2);
 
-    final List<Tuple> results = jedis.zrangeWithScores(NEW_SET, 0, 10);
+    final var results = jedis.zrangeWithScores(NEW_SET, 0, 10);
 
     assertThat(results).containsExactlyElementsOf(expectedResults);
   }
 
   @Test
   public void shouldUnionizeUsingLastAggregate_givenMultipleAggregateKeywords() {
-    Map<String, Double> scores1 = makeScoreMap(10, x -> (double) 0);
+    var scores1 = makeScoreMap(10, x -> (double) 0);
     jedis.zadd(KEY1, scores1);
 
-    Map<String, Double> scores2 = makeScoreMap(10, x -> (double) 1);
+    var scores2 = makeScoreMap(10, x -> (double) 1);
     jedis.zadd(KEY2, scores2);
 
-    final List<Tuple> expectedResults = convertToTuples(scores2, (i, x) -> x);
+    final var expectedResults = convertToTuples(scores2, (i, x) -> x);
 
     jedis.sendCommand(NEW_SET, Protocol.Command.ZUNIONSTORE, NEW_SET, "2",
         KEY1, KEY2, "AGGREGATE", "MIN", "AGGREGATE", "MAX");
 
-    final List<Tuple> results = jedis.zrangeWithScores(NEW_SET, 0, 10);
+    final var results = jedis.zrangeWithScores(NEW_SET, 0, 10);
 
     assertThat(results).containsExactlyElementsOf(expectedResults);
   }
 
   @Test
   public void shouldUnionize_givenMaxAggregateAndMultipleWeights() {
-    Map<String, Double> scores1 = makeScoreMap(10, x -> (double) ((x % 2 == 0) ? 0 : x));
+    var scores1 = makeScoreMap(10, x -> (double) ((x % 2 == 0) ? 0 : x));
     jedis.zadd(KEY1, scores1);
 
-    Map<String, Double> scores2 = makeScoreMap(10, x -> (double) ((x % 2 == 0) ? x : 0));
+    var scores2 = makeScoreMap(10, x -> (double) ((x % 2 == 0) ? x : 0));
     jedis.zadd(KEY2, scores2);
 
-    final List<Tuple> expectedResults = convertToTuples(scores1, (i, x) -> (double) (i * 2));
+    final var expectedResults = convertToTuples(scores1, (i, x) -> (double) (i * 2));
 
     jedis.zunionstore(NEW_SET, new ZParams().aggregate(ZParams.Aggregate.MAX).weights(2, 2),
         KEY1, KEY2);
 
-    final List<Tuple> results = jedis.zrangeWithScores(NEW_SET, 0, 10);
+    final var results = jedis.zrangeWithScores(NEW_SET, 0, 10);
 
     assertThat(results).containsExactlyElementsOf(expectedResults);
   }
 
   @Test
   public void shouldUnionize_givenSumAggregateAndMultipleSets() {
-    Map<String, Double> scores1 = makeScoreMap(10, x -> (double) x);
+    var scores1 = makeScoreMap(10, x -> (double) x);
     jedis.zadd(KEY1, scores1);
 
-    Map<String, Double> scores2 = makeScoreMap(10, x -> (double) (x * 2));
+    var scores2 = makeScoreMap(10, x -> (double) (x * 2));
     jedis.zadd(KEY2, scores2);
 
-    Map<String, Double> scores3 = makeScoreMap(10, x -> (double) (x * 3));
+    var scores3 = makeScoreMap(10, x -> (double) (x * 3));
     jedis.zadd(SORTED_SET_KEY3, scores3);
 
-    final List<Tuple> expectedResults = convertToTuples(scores1, (i, x) -> x * 6);
+    final var expectedResults = convertToTuples(scores1, (i, x) -> x * 6);
 
     jedis.zunionstore(NEW_SET, new ZParams().aggregate(ZParams.Aggregate.SUM),
         KEY1, KEY2, SORTED_SET_KEY3);
 
-    final List<Tuple> results = jedis.zrangeWithScores(NEW_SET, 0, 10);
+    final var results = jedis.zrangeWithScores(NEW_SET, 0, 10);
 
     assertThat(results).containsExactlyElementsOf(expectedResults);
   }
 
   @Test
   public void shouldUnionize_givenSetsDoNotOverlap() {
-    Map<String, Double> scores1 = makeScoreMap(0, 2, 10, x -> (double) x);
+    var scores1 = makeScoreMap(0, 2, 10, x -> (double) x);
     jedis.zadd(KEY1, scores1);
 
-    Map<String, Double> scores2 = makeScoreMap(1, 2, 10, x -> (double) x);
+    var scores2 = makeScoreMap(1, 2, 10, x -> (double) x);
     jedis.zadd(KEY2, scores2);
 
-    final List<Tuple> expectedResults =
+    final var expectedResults =
         convertToTuples(makeScoreMap(0, 1, 20, x -> (double) x), (i, x) -> x);
 
     jedis.zunionstore(NEW_SET, KEY1, KEY2);
 
-    final List<Tuple> results = jedis.zrangeWithScores(NEW_SET, 0, 20);
+    final var results = jedis.zrangeWithScores(NEW_SET, 0, 20);
 
     assertThat(results).containsExactlyElementsOf(expectedResults);
   }
 
   @Test
   public void shouldUnionize_givenSetsPartiallyOverlap() {
-    Map<String, Double> scores1 = makeScoreMap(10, x -> (double) x);
+    var scores1 = makeScoreMap(10, x -> (double) x);
     jedis.zadd(KEY1, scores1);
 
-    Map<String, Double> scores2 = makeScoreMap(5, 1, 10, x -> (double) (x < 10 ? x : x * 2));
+    var scores2 = makeScoreMap(5, 1, 10, x -> (double) (x < 10 ? x : x * 2));
     jedis.zadd(KEY2, scores2);
 
-    final List<Tuple> expectedResults = convertToTuples(makeScoreMap(0, 1, 15, x -> (double) x),
+    final var expectedResults = convertToTuples(makeScoreMap(0, 1, 15, x -> (double) x),
         (i, x) -> (double) (i < 5 ? i : i * 2));
 
     jedis.zunionstore(NEW_SET, KEY1, KEY2);
 
-    final List<Tuple> results = jedis.zrangeWithScores(NEW_SET, 0, 20);
+    final var results = jedis.zrangeWithScores(NEW_SET, 0, 20);
 
     assertThat(results).containsExactlyElementsOf(expectedResults);
   }
 
   @Test
   public void ensureWeightsAreAppliedBeforeAggregation() {
-    Map<String, Double> scores1 = makeScoreMap(10, x -> (double) x * 5);
+    var scores1 = makeScoreMap(10, x -> (double) x * 5);
     jedis.zadd(KEY1, scores1);
 
-    Map<String, Double> scores2 = makeScoreMap(10, x -> (double) x);
+    var scores2 = makeScoreMap(10, x -> (double) x);
     jedis.zadd(KEY2, scores2);
 
-    final List<Tuple> expectedResults = convertToTuples(scores1, (i, x) -> (double) (i * 10));
+    final var expectedResults = convertToTuples(scores1, (i, x) -> (double) (i * 10));
 
     jedis.zunionstore(KEY1,
         new ZParams().weights(1, 10).aggregate(ZParams.Aggregate.MAX), KEY1, KEY2);
 
-    final List<Tuple> results = jedis.zrangeWithScores(KEY1, 0, 20);
+    final var results = jedis.zrangeWithScores(KEY1, 0, 20);
 
     assertThat(results).containsExactlyElementsOf(expectedResults);
   }
 
   @Test
   public void shouldUnionize_whenTargetExistsAndSetsAreDuplicated() {
-    Map<String, Double> scores1 = makeScoreMap(10, x -> (double) x);
+    var scores1 = makeScoreMap(10, x -> (double) x);
     jedis.zadd(KEY1, scores1);
 
-    final List<Tuple> expectedResults = convertToTuples(scores1, (i, x) -> x * 2);
+    final var expectedResults = convertToTuples(scores1, (i, x) -> x * 2);
 
     // Default aggregation is SUM
     jedis.zunionstore(KEY1, KEY1, KEY1);
 
-    final List<Tuple> results = jedis.zrangeWithScores(KEY1, 0, 10);
+    final var results = jedis.zrangeWithScores(KEY1, 0, 10);
 
     assertThat(results).containsExactlyElementsOf(expectedResults);
   }
 
   @Test
   public void shouldPreserveSet_givenDestinationAndSourceAreTheSame() {
-    Map<String, Double> scores1 = makeScoreMap(10, x -> (double) x);
+    var scores1 = makeScoreMap(10, x -> (double) x);
     jedis.zadd(KEY1, scores1);
 
-    final List<Tuple> expectedResults = convertToTuples(scores1, (i, x) -> x);
+    final var expectedResults = convertToTuples(scores1, (i, x) -> x);
 
     jedis.zunionstore(KEY1, KEY1);
 
-    final List<Tuple> results = jedis.zrangeWithScores(KEY1, 0, 10);
+    final var results = jedis.zrangeWithScores(KEY1, 0, 10);
 
     assertThat(results).containsExactlyElementsOf(expectedResults);
   }
 
   @Test
   public void ensureSetConsistency_andNoExceptions_whenRunningConcurrently() {
-    int scoreCount = 1000;
+    var scoreCount = 1000;
     jedis.zadd("{A}ones", makeScoreMap(scoreCount, x -> 1D));
 
-    Map<String, Double> scores1 = makeScoreMap(scoreCount, x -> 1D);
+    var scores1 = makeScoreMap(scoreCount, x -> 1D);
     jedis.zadd("{A}scores1", scores1);
-    Map<String, Double> scores2 = makeScoreMap(scoreCount, x -> 2D);
+    var scores2 = makeScoreMap(scoreCount, x -> 2D);
     jedis.zadd("{A}scores2", scores2);
 
     new ConcurrentLoopingThreads(1000,
@@ -515,8 +515,8 @@ public abstract class AbstractZUnionStoreIntegrationTest implements RedisIntegra
       Function<Integer, Double> scoreProducer) {
     Map<String, Double> map = new LinkedHashMap<>();
 
-    int index = startIndex;
-    for (int i = 0; i < count; i++) {
+    var index = startIndex;
+    for (var i = 0; i < count; i++) {
       map.put(String.format("member-%05d", index), scoreProducer.apply(index));
       index += increment;
     }
@@ -526,8 +526,8 @@ public abstract class AbstractZUnionStoreIntegrationTest implements RedisIntegra
   private List<Tuple> convertToTuples(Map<String, Double> map,
       BiFunction<Integer, Double, Double> function) {
     List<Tuple> tuples = new ArrayList<>();
-    int x = 0;
-    for (Map.Entry<String, Double> e : map.entrySet()) {
+    var x = 0;
+    for (var e : map.entrySet()) {
       tuples.add(new Tuple(e.getKey().getBytes(), function.apply(x++, e.getValue())));
     }
 

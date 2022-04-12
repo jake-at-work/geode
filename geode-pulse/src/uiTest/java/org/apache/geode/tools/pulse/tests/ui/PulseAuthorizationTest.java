@@ -24,7 +24,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
 
 import org.apache.geode.tools.pulse.tests.PulseTestLocators;
 import org.apache.geode.tools.pulse.tests.rules.ScreenshotOnFailureRule;
@@ -51,7 +50,7 @@ public class PulseAuthorizationTest {
   }
 
   private void searchByXPathAndClick(String xpath) {
-    WebElement element = webDriverRule.getDriver().findElement(By.xpath(xpath));
+    var element = webDriverRule.getDriver().findElement(By.xpath(xpath));
     assertThat(element).isNotNull();
     element.click();
   }
@@ -76,13 +75,13 @@ public class PulseAuthorizationTest {
 
     // Try to access clusterView
     searchByXPathAndClick(PulseTestLocators.TopNavigation.clusterViewLinkXpath);
-    String clusterMsg = webDriverRule.getDriver().findElement(By.id("errorText")).getText();
+    var clusterMsg = webDriverRule.getDriver().findElement(By.id("errorText")).getText();
     assertThat(clusterMsg).isEqualTo("You don't have permissions to access this resource.");
     checkGeneralOptions();
 
     // Try to access dataBrowser
     searchByXPathAndClick(PulseTestLocators.TopNavigation.dataBrowserViewLinkXpath);
-    String dataMsg = webDriverRule.getDriver().findElement(By.id("errorText")).getText();
+    var dataMsg = webDriverRule.getDriver().findElement(By.id("errorText")).getText();
     assertThat(dataMsg).isEqualTo("You don't have permissions to access this resource.");
     checkGeneralOptions();
   }
@@ -98,7 +97,7 @@ public class PulseAuthorizationTest {
 
     // Try to access dataBrowser
     searchByXPathAndClick(PulseTestLocators.TopNavigation.dataBrowserViewLinkXpath);
-    String dataMsg = webDriverRule.getDriver().findElement(By.id("errorText")).getText();
+    var dataMsg = webDriverRule.getDriver().findElement(By.id("errorText")).getText();
     assertThat(dataMsg).isEqualTo("You don't have permissions to access this resource.");
     checkGeneralOptions();
 

@@ -20,7 +20,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.Before;
 import org.junit.Test;
 
-import org.apache.geode.cache.configuration.JndiBindingsType;
 
 
 public class ConfigPropertyConverterTest {
@@ -34,7 +33,7 @@ public class ConfigPropertyConverterTest {
 
   @Test
   public void validJson() {
-    JndiBindingsType.JndiBinding.ConfigProperty configProperty =
+    var configProperty =
         converter.convertFromText("{'name':'name','type':'type','value':'value'}", null, null);
     assertThat(configProperty.getName()).isEqualTo("name");
     assertThat(configProperty.getType()).isEqualTo("type");
@@ -56,7 +55,7 @@ public class ConfigPropertyConverterTest {
 
   @Test
   public void validWhenTypeMissing() {
-    JndiBindingsType.JndiBinding.ConfigProperty configProperty =
+    var configProperty =
         converter.convertFromText("{'name':'name','value':'value'}", null, null);
     assertThat(configProperty.getName()).isEqualTo("name");
     assertThat(configProperty.getType()).isNull();

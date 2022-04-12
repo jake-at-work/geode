@@ -30,7 +30,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import org.apache.geode.distributed.DistributedSystem;
-import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.AvailablePortHelper;
 import org.apache.geode.security.templates.DummyAuthenticator;
 import org.apache.geode.test.dunit.Host;
@@ -46,7 +45,7 @@ public class PeerAuthenticatorWithCachelessLocatorDUnitTest extends JUnit4Distri
 
   @Before
   public void before() throws Exception {
-    final Host host = Host.getHost(0);
+    final var host = Host.getHost(0);
     locator = host.getVM(0);
     server = host.getVM(1);
     server1 = host.getVM(2);
@@ -54,9 +53,9 @@ public class PeerAuthenticatorWithCachelessLocatorDUnitTest extends JUnit4Distri
 
   @Test
   public void testPeerAuthenticator() throws Exception {
-    int locatorPort = AvailablePortHelper.getRandomAvailableTCPPort();
+    var locatorPort = AvailablePortHelper.getRandomAvailableTCPPort();
     locator.invoke(() -> {
-      Properties props = new Properties();
+      var props = new Properties();
       props.setProperty(SECURITY_PEER_AUTHENTICATOR, DummyAuthenticator.class.getName());
       props.setProperty(MCAST_PORT, "0");
       props.put(JMX_MANAGER, "true");
@@ -67,9 +66,9 @@ public class PeerAuthenticatorWithCachelessLocatorDUnitTest extends JUnit4Distri
     });
 
     // set up server with security
-    String locators = "localhost[" + locatorPort + "]";
+    var locators = "localhost[" + locatorPort + "]";
     server.invoke(() -> {
-      Properties props = new Properties();
+      var props = new Properties();
       props.setProperty(MCAST_PORT, "0");
       props.setProperty(LOCATORS, locators);
 
@@ -77,11 +76,11 @@ public class PeerAuthenticatorWithCachelessLocatorDUnitTest extends JUnit4Distri
       props.setProperty("security-username", "user");
       props.setProperty("security-password", "user");
       // this should execute without exception
-      InternalDistributedSystem ds = getSystem(props);
+      var ds = getSystem(props);
     });
 
     server1.invoke(() -> {
-      Properties props = new Properties();
+      var props = new Properties();
       props.setProperty(MCAST_PORT, "0");
       props.setProperty(LOCATORS, locators);
 

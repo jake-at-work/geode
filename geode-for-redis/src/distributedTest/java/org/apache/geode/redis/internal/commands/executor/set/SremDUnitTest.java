@@ -19,7 +19,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -57,7 +56,7 @@ public class SremDUnitTest {
     server2 = clusterStartUp.startRedisVM(2, locator.getPort());
     server3 = clusterStartUp.startRedisVM(3, locator.getPort());
 
-    int redisServerPort = clusterStartUp.getRedisPort(1);
+    var redisServerPort = clusterStartUp.getRedisPort(1);
     jedis = new JedisCluster(new HostAndPort(LOCAL_HOST, redisServerPort), JEDIS_TIMEOUT);
   }
 
@@ -75,17 +74,17 @@ public class SremDUnitTest {
   @Test
   public void shouldDistributeDataAmongCluster_thenRemoveHalfOfData() {
 
-    String key = "key";
+    var key = "key";
 
-    List<String> members = makeMemberList(SET_SIZE, "member1-");
-    List<String> halfOfMembers = makeMemberList(SET_SIZE / 2, "member1-");
+    var members = makeMemberList(SET_SIZE, "member1-");
+    var halfOfMembers = makeMemberList(SET_SIZE / 2, "member1-");
     List<String> otherHalfOfMembers = new ArrayList<>(members);
     otherHalfOfMembers.removeAll(halfOfMembers);
 
     jedis.sadd(key, members.toArray(new String[] {}));
     jedis.srem(key, halfOfMembers.toArray(new String[] {}));
 
-    Set<String> result = jedis.smembers(key);
+    var result = jedis.smembers(key);
 
     assertThat(result.toArray().length).isEqualTo(otherHalfOfMembers.size());
     assertThat(result.toArray()).containsExactlyInAnyOrder(otherHalfOfMembers.toArray());
@@ -96,10 +95,10 @@ public class SremDUnitTest {
   @Test
   public void shouldDistributeDataAmongCluster_thenRemoveDifferentDataFromSameSetConcurrently() {
 
-    String key = "key";
+    var key = "key";
 
-    List<String> members1 = makeMemberList(SET_SIZE, "member1-");
-    List<String> members2 = makeMemberList(SET_SIZE, "member2-");
+    var members1 = makeMemberList(SET_SIZE, "member1-");
+    var members2 = makeMemberList(SET_SIZE, "member2-");
 
     List<String> allMembers = new ArrayList<>();
     allMembers.addAll(members1);
@@ -111,7 +110,7 @@ public class SremDUnitTest {
         (i) -> jedis.srem(key, members1.get(i)),
         (i) -> jedis.srem(key, members2.get(i))).run();
 
-    Set<String> results = jedis.smembers(key);
+    var results = jedis.smembers(key);
 
     assertThat(results).isEmpty();
 
@@ -121,9 +120,9 @@ public class SremDUnitTest {
   @Test
   public void shouldDistributeDataAmongCluster_thenRemoveSameDataFromSameSetConcurrently() {
 
-    String key = "key";
+    var key = "key";
 
-    List<String> members = makeMemberList(SET_SIZE, "member-");
+    var members = makeMemberList(SET_SIZE, "member-");
 
     jedis.sadd(key, members.toArray(new String[] {}));
 
@@ -131,7 +130,7 @@ public class SremDUnitTest {
         (i) -> jedis.srem(key, members.get(i)),
         (i) -> jedis.srem(key, members.get(i))).run();
 
-    Set<String> results = jedis.smembers(key);
+    var results = jedis.smembers(key);
 
     assertThat(results).isEmpty();
 
@@ -141,11 +140,11 @@ public class SremDUnitTest {
   @Test
   public void shouldDistributeDataAmongCluster_thenRemoveFromDifferentSetsConcurrently() {
 
-    String key1 = "key1";
-    String key2 = "key2";
+    var key1 = "key1";
+    var key2 = "key2";
 
-    List<String> members1 = makeMemberList(SET_SIZE, "member1-");
-    List<String> members2 = makeMemberList(SET_SIZE, "member2-");
+    var members1 = makeMemberList(SET_SIZE, "member1-");
+    var members2 = makeMemberList(SET_SIZE, "member2-");
 
     jedis.sadd(key1, members1.toArray(new String[] {}));
     jedis.sadd(key2, members2.toArray(new String[] {}));
@@ -154,8 +153,8 @@ public class SremDUnitTest {
         (i) -> jedis.srem(key1, members1.get(i)),
         (i) -> jedis.srem(key2, members2.get(i))).run();
 
-    Set<String> results1 = jedis.smembers(key1);
-    Set<String> results2 = jedis.smembers(key2);
+    var results1 = jedis.smembers(key1);
+    var results2 = jedis.smembers(key2);
 
     assertThat(results1).isEmpty();
     assertThat(results2).isEmpty();
@@ -165,7 +164,7 @@ public class SremDUnitTest {
 
   private List<String> makeMemberList(int setSize, String baseString) {
     List<String> members = new ArrayList<>();
-    for (int i = 0; i < setSize; i++) {
+    for (var i = 0; i < setSize; i++) {
       members.add(baseString + i);
     }
     return members;

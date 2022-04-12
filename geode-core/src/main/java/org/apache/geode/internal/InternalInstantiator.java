@@ -114,14 +114,14 @@ public class InternalInstantiator {
     if (instantiator == null) {
       throw new NullPointerException("Cannot register a null Instantiator.");
     }
-    final int classId = instantiator.getId();
+    final var classId = instantiator.getId();
     if (classId == 0) {
       throw new IllegalArgumentException("Instantiator id cannot be zero");
     }
     Class c = instantiator.getInstantiatedClass();
-    final String cName = c.getName();
+    final var cName = c.getName();
     {
-      int oldId = getClassId(c);
+      var oldId = getClassId(c);
       if (oldId != 0 && oldId != classId) {
         throw new IllegalStateException(String.format(
             "Class %s is already registered with id %s so it can not be registered with id %s",
@@ -134,7 +134,7 @@ public class InternalInstantiator {
       boolean retry;
       do {
         retry = false;
-        Object oldInst = idsToInstantiators.putIfAbsent(idx, instantiator);
+        var oldInst = idsToInstantiators.putIfAbsent(idx, instantiator);
         if (oldInst != null) {
           if (oldInst instanceof Marker) {
             retry = !idsToInstantiators.replace(idx, oldInst, instantiator);
@@ -178,7 +178,7 @@ public class InternalInstantiator {
    * new event id the the distributed system is connected
    */
   private static void setEventIdIfNew(final Instantiator instantiator) {
-    final InternalCache cache = getInternalCache();
+    final var cache = getInternalCache();
     if (cache != null && instantiator.getEventId() == null) {
       instantiator.setEventId(new EventID(cache.getDistributedSystem()));
     }
@@ -198,7 +198,7 @@ public class InternalInstantiator {
    * event ID , to avoid this just return
    */
   private static boolean checkForThread() {
-    String name = Thread.currentThread().getName();
+    var name = Thread.currentThread().getName();
     return !(name.startsWith(CacheClientUpdater.CLIENT_UPDATER_THREAD_NAME)
         || name.startsWith(SERVER_CONNECTION_THREAD));
   }
@@ -236,14 +236,14 @@ public class InternalInstantiator {
     if (!isCacheCreated()) {
       return;
     }
-    byte[][] serializedInstantiators = new byte[3][];
+    var serializedInstantiators = new byte[3][];
     try {
       serializedInstantiators[0] =
           CacheServerHelper.serialize(instantiator.getClass().toString().substring(6));
       serializedInstantiators[1] =
           CacheServerHelper.serialize(instantiator.getInstantiatedClass().toString().substring(6));
       {
-        byte[] idBytes = new byte[4];
+        var idBytes = new byte[4];
         Part.encodeInt(instantiator.getId(), idBytes);
         serializedInstantiators[2] = idBytes;
       }
@@ -253,7 +253,7 @@ public class InternalInstantiator {
             "IOException encountered while serializing instantiators using CacheServerHelper.serialize() method");
       }
     }
-    ClientInstantiatorMessage clientInstantiatorMessage = new ClientInstantiatorMessage(
+    var clientInstantiatorMessage = new ClientInstantiatorMessage(
         EnumListenerEvent.AFTER_REGISTER_INSTANTIATOR, serializedInstantiators,
         (ClientProxyMembershipID) instantiator.getContext(), (EventID) instantiator.getEventId());
     // Deliver it to all the clients
@@ -276,7 +276,7 @@ public class InternalInstantiator {
       boolean distribute) {
 
     if (checkForThread()) {
-      Instantiator inst = newInstance(instantiatorClass, instantiatedClass, id);
+      var inst = newInstance(instantiatorClass, instantiatedClass, id);
       _register(inst, distribute);
     }
   }
@@ -293,7 +293,7 @@ public class InternalInstantiator {
    */
   public static void register(Class instantiatorClass, Class instantiatedClass, int id,
       boolean distribute, EventID eventId, ClientProxyMembershipID context) {
-    Instantiator inst = newInstance(instantiatorClass, instantiatedClass, id);
+    var inst = newInstance(instantiatorClass, instantiatedClass, id);
     // This method is only called when server connection and CacheClientUpdaterThread
     inst.setEventId(eventId);
     inst.setContext(context);
@@ -343,7 +343,7 @@ public class InternalInstantiator {
           throw new IllegalArgumentException("Instantiator id cannot be zero");
         }
 
-        InstantiatorAttributesHolder iah =
+        var iah =
             classNamesToHolders.putIfAbsent(holder.getInstantiatedClassName(), holder);
 
         if (iah != null && iah.getId() != holder.getId()) {
@@ -375,7 +375,7 @@ public class InternalInstantiator {
         logClassNotFoundException(e);
       }
       synchronized (InternalInstantiator.class) {
-        Object inst2 = idsToInstantiators.get(holder.getId());
+        var inst2 = idsToInstantiators.get(holder.getId());
         if (inst2 == inst) {
           register(instantiatorClass, instantiatedClass, holder.getId(), distribute,
               holder.getEventId(), holder.getContext());
@@ -389,7 +389,7 @@ public class InternalInstantiator {
   }
 
   private static void logClassNotFoundException(final ClassNotFoundException e) {
-    final InternalCache cache = getInternalCache();
+    final var cache = getInternalCache();
     if (cache != null && cache.getLogger() != null && cache.getLogger().infoEnabled()) {
       cache.getLogger()
           .info(String.format("Could not load instantiator class: %s", e.getMessage()));
@@ -460,7 +460,7 @@ public class InternalInstantiator {
           "Cannot unregister a null class");
     }
     final Integer idx = classId;
-    final Instantiator i = (Instantiator) idsToInstantiators.remove(idx);
+    final var i = (Instantiator) idsToInstantiators.remove(idx);
     if (i == null) {
       throw new IllegalArgumentException(
           String.format("Class %s was not registered with id %s", c.getName(), classId));
@@ -490,12 +490,12 @@ public class InternalInstantiator {
    * @see DataSerializer#writeObject(Object, DataOutput)
    */
   public static int getClassId(Class c) {
-    int result = 0;
-    final Instantiator i = dsMap.get(c.getName());
+    var result = 0;
+    final var i = dsMap.get(c.getName());
     if (i != null) {
       result = i.getId();
     } else {
-      InstantiatorAttributesHolder iah = classNamesToHolders.get(c.getName());
+      var iah = classNamesToHolders.get(c.getName());
       if (iah != null) {
         result = iah.getId();
       }
@@ -512,7 +512,7 @@ public class InternalInstantiator {
     final Integer idx = classId;
     Marker marker;
     boolean retry;
-    Object o = idsToInstantiators.get(idx);
+    var o = idsToInstantiators.get(idx);
     do {
       retry = false;
       if (o == null) {
@@ -534,7 +534,7 @@ public class InternalInstantiator {
     if (instantiator != null) {
       return instantiator;
     } else {
-      InstantiatorAttributesHolder holder = idsToHolders.get(classId);
+      var holder = idsToHolders.get(classId);
       if (holder != null) {
         try {
           Class instantiatorClass =
@@ -562,7 +562,7 @@ public class InternalInstantiator {
    * a newly-registered instantiator.
    */
   private static void sendRegistrationMessage(Instantiator s) {
-    InternalDistributedSystem system = InternalDistributedSystem.getAnyInstance();
+    var system = InternalDistributedSystem.getAnyInstance();
     if (system != null) {
       RegistrationMessage m;
       if (s.getContext() == null) {
@@ -592,7 +592,7 @@ public class InternalInstantiator {
     }
 
     Constructor init;
-    boolean intConstructor = false;
+    var intConstructor = false;
     try {
       init = instantiatorClass.getDeclaredConstructor(Class.class, int.class);
       intConstructor = true;
@@ -645,7 +645,7 @@ public class InternalInstantiator {
    */
   public static Instantiator[] getInstantiators() {
     if (!classNamesToHolders.isEmpty()) {
-      for (InstantiatorAttributesHolder holder : classNamesToHolders.values()) {
+      for (var holder : classNamesToHolders.values()) {
         try {
           Class instantiatorClass =
               InternalDataSerializer.getCachedClass(holder.getInstantiatorClassName());
@@ -673,7 +673,7 @@ public class InternalInstantiator {
    * @return array of InstantiatorAttributesArray instances.
    */
   public static Object[] getInstantiatorsForSerialization() {
-    ArrayList<Object> instantiators = new ArrayList<>(dsMap.size() + idsToHolders.size());
+    var instantiators = new ArrayList<Object>(dsMap.size() + idsToHolders.size());
     instantiators.addAll(dsMap.values());
     instantiators.addAll(classNamesToHolders.values());
     return instantiators.toArray();
@@ -794,7 +794,7 @@ public class InternalInstantiator {
       }
 
       if (instantiatorClass != null && instantiatedClass != null) {
-        Instantiator s = newInstance(instantiatorClass, instantiatedClass, id);
+        var s = newInstance(instantiatorClass, instantiatedClass, id);
         s.setEventId(eventId);
         InternalInstantiator.register(s, false);
       } else if (instantiatorClassName != null && instantiatedClassName != null) {
@@ -858,9 +858,9 @@ public class InternalInstantiator {
 
     @Override
     public String toString() {
-      String instatiatorName = (instantiatorClass == null) ? instantiatorClassName
+      var instatiatorName = (instantiatorClass == null) ? instantiatorClassName
           : instantiatorClass.getName();
-      String instatiatedName = (instantiatedClass == null) ? instantiatedClassName
+      var instatiatedName = (instantiatedClass == null) ? instantiatedClassName
           : instantiatedClass.getName();
       return String.format("Register Instantiator %s of class %s that instantiates a %s", id,
           instatiatorName, instatiatedName);
@@ -905,7 +905,7 @@ public class InternalInstantiator {
         }
       }
       if (instantiatorClass != null && instantiatedClass != null) {
-        Instantiator s = newInstance(instantiatorClass, instantiatedClass, id);
+        var s = newInstance(instantiatorClass, instantiatedClass, id);
         s.setEventId(eventId);
         s.setContext(context);
         InternalInstantiator.register(s, false);
@@ -936,12 +936,12 @@ public class InternalInstantiator {
   }
 
   public static void logInstantiators() {
-    for (Instantiator instantiator : dsMap.values()) {
+    for (var instantiator : dsMap.values()) {
       logger.info("Instantiator registered with id {} class {}", instantiator.getId(),
           instantiator.getInstantiatedClass().getName());
     }
 
-    for (InstantiatorAttributesHolder holder : idsToHolders.values()) {
+    for (var holder : idsToHolders.values()) {
       logger.info("Instantiator registered with holder id {} class {}", holder.getId(),
           holder.getInstantiatedClassName());
     }

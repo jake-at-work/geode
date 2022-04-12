@@ -19,11 +19,8 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 import org.apache.geode.DataSerializer;
-import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.Statistics;
-import org.apache.geode.StatisticsType;
 import org.apache.geode.distributed.internal.DistributionManager;
-import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
@@ -34,16 +31,16 @@ public class FetchResourceAttributesResponse extends AdminResponse {
 
   public static FetchResourceAttributesResponse create(DistributionManager dm,
       InternalDistributedMember recipient, long rsrcUniqueId) {
-    FetchResourceAttributesResponse m = new FetchResourceAttributesResponse();
+    var m = new FetchResourceAttributesResponse();
     m.setRecipient(recipient);
     Statistics s = null;
-    InternalDistributedSystem ds = dm.getSystem();
+    var ds = dm.getSystem();
     s = ds.getStatisticsManager().findStatisticsByUniqueId(rsrcUniqueId);
     if (s != null) {
-      StatisticsType type = s.getType();
-      StatisticDescriptor[] tmp = type.getStatistics();
+      var type = s.getType();
+      var tmp = type.getStatistics();
       m.stats = new RemoteStat[tmp.length];
-      for (int i = 0; i < tmp.length; i++) {
+      for (var i = 0; i < tmp.length; i++) {
         m.stats[i] = new RemoteStat(s, tmp[i]);
       }
     }

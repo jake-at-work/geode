@@ -30,7 +30,6 @@ import javax.xml.xpath.XPathExpressionException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.ext.EntityResolver2;
@@ -102,15 +101,15 @@ public class CacheElement {
    */
   public static LinkedHashMap<String, CacheElement> buildElementMap(final Document doc)
       throws IOException, XPathExpressionException, SAXException, ParserConfigurationException {
-    Node cacheNode = doc.getFirstChild();
+    var cacheNode = doc.getFirstChild();
     if ("#comment".equals(cacheNode.getNodeName())) {
       cacheNode = cacheNode.getNextSibling();
     }
-    final Map<String, String> schemaLocationMap =
+    final var schemaLocationMap =
         XmlUtils.buildSchemaLocationMap(getAttribute(cacheNode,
             W3C_XML_SCHEMA_INSTANCE_ATTRIBUTE_SCHEMA_LOCATION, W3C_XML_SCHEMA_INSTANCE_NS_URI));
 
-    final LinkedHashMap<String, CacheElement> elementMap = new LinkedHashMap<>();
+    final var elementMap = new LinkedHashMap<String, CacheElement>();
 
     buildElementMapCacheType(elementMap,
         resolveSchema(schemaLocationMap, CacheXml.GEODE_NAMESPACE));
@@ -137,7 +136,7 @@ public class CacheElement {
     InputSource inputSource = null;
 
     // Try loading schema from locations until we find one.
-    final String location = schemaLocationMap.get(namespaceUri);
+    final var location = schemaLocationMap.get(namespaceUri);
 
     try {
       inputSource = entityResolver.resolveEntity(null, location);
@@ -163,11 +162,11 @@ public class CacheElement {
   private static void buildElementMapCacheType(final LinkedHashMap<String, CacheElement> elementMap,
       final InputSource inputSource)
       throws SAXException, IOException, ParserConfigurationException, XPathExpressionException {
-    final Document doc = XmlUtils.getDocumentBuilder().parse(inputSource);
+    final var doc = XmlUtils.getDocumentBuilder().parse(inputSource);
 
-    int rank = 0;
+    var rank = 0;
 
-    final XPathContext xPathContext =
+    final var xPathContext =
         new XPathContext(XSD_PREFIX, XMLConstants.W3C_XML_SCHEMA_NS_URI);
     final Node cacheType = XmlUtils.querySingleElement(doc, CACHE_TYPE_EMBEDDED, xPathContext);
 
@@ -191,12 +190,12 @@ public class CacheElement {
   private static int buildElementMapXPath(final LinkedHashMap<String, CacheElement> elementMap,
       final Document schema, final Node parent, int rank, final String xPath,
       final XPathContext xPathContext) throws XPathExpressionException {
-    final NodeList children = XmlUtils.query(parent, xPath, xPathContext);
-    for (int i = 0; i < children.getLength(); i++) {
-      final Element child = (Element) children.item(i);
+    final var children = XmlUtils.query(parent, xPath, xPathContext);
+    for (var i = 0; i < children.getLength(); i++) {
+      final var child = (Element) children.item(i);
       switch (child.getNodeName()) {
         case XSD_ALL_CHILDREN:
-          final String name = getAttribute(child, "name");
+          final var name = getAttribute(child, "name");
           elementMap.put(name, new CacheElement(name, rank++, isMultiple(child)));
           break;
         case "xsd:choice":
@@ -224,7 +223,7 @@ public class CacheElement {
    * @since GemFire 8.1
    */
   private static boolean isMultiple(final Element element) {
-    String maxOccurs = getAttribute(element, "maxOccurs");
+    var maxOccurs = getAttribute(element, "maxOccurs");
     return null != maxOccurs && !maxOccurs.equals("1");
   }
 

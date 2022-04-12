@@ -17,7 +17,6 @@ package org.apache.geode.internal;
 import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.Statistics;
 import org.apache.geode.StatisticsFactory;
-import org.apache.geode.StatisticsType;
 
 
 
@@ -41,10 +40,10 @@ public class HistogramStats {
   public HistogramStats(String name, String unit, StatisticsFactory factory, long[] breakPoints,
       boolean largerIsBetter) {
     bp = breakPoints;
-    StatisticDescriptor[] fieldDescriptors = new StatisticDescriptor[bp.length * 2];
-    int k = 0;
-    for (int bucketNumber = 0; bucketNumber < bp.length; bucketNumber++) {
-      String desc =
+    var fieldDescriptors = new StatisticDescriptor[bp.length * 2];
+    var k = 0;
+    for (var bucketNumber = 0; bucketNumber < bp.length; bucketNumber++) {
+      var desc =
           (bucketNumber < bp.length - 1 ? "ForLTE" : "ForGT") + bp[bucketNumber];
       fieldDescriptors[k] = factory.createIntCounter("BucketCount" + desc,
           "Number of data points in Bucket " + bucketNumber, "count", !largerIsBetter);
@@ -53,12 +52,12 @@ public class HistogramStats {
           "Sum of Bucket " + bucketNumber, unit, !largerIsBetter);
       k++;
     }
-    StatisticsType hist_type = factory.createType("HistogramWith" + breakPoints.length + "Buckets",
+    var hist_type = factory.createType("HistogramWith" + breakPoints.length + "Buckets",
         hist_typeDesc + unit + " for " + breakPoints.length + " breakpoints", fieldDescriptors);
     statCounterIndex = new int[bp.length * 2];
     k = 0;
-    for (int bucketNumber = 0; bucketNumber < bp.length; bucketNumber++) {
-      String desc =
+    for (var bucketNumber = 0; bucketNumber < bp.length; bucketNumber++) {
+      var desc =
           (bucketNumber < bp.length - 1 ? "ForLTE" : "ForGT") + bp[bucketNumber];
       statCounterIndex[k] = hist_type.nameToId("BucketCount" + desc);
       k++;
@@ -69,8 +68,8 @@ public class HistogramStats {
   }
 
   public void endOp(long delta) {
-    int index = statCounterIndex.length - 2;
-    for (int i = 0; i < bp.length; i++) {
+    var index = statCounterIndex.length - 2;
+    for (var i = 0; i < bp.length; i++) {
       if (delta <= bp[i]) {
         index = i * 2;
         break;

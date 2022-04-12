@@ -31,7 +31,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.apache.geode.cache.util.TransactionListenerAdapter;
 import org.apache.geode.distributed.DistributedMember;
@@ -54,7 +53,7 @@ public class ProxyJUnitTest {
 
   @Before
   public void setUp() throws Exception {
-    Properties p = new Properties();
+    var p = new Properties();
     p.setProperty(MCAST_PORT, "0");
     p.setProperty(LOCATORS, "");
     ds = DistributedSystem.connect(p);
@@ -320,7 +319,7 @@ public class ProxyJUnitTest {
     assertEquals(1, tlInvokeCount);
     assertEquals(1, tlLastEvents.size());
     {
-      Object old_CA = expected.cbArg;
+      var old_CA = expected.cbArg;
       // expected.cbArg = null;
       try {
         expected.check((CacheEvent) tlLastEvents.get(0));
@@ -351,7 +350,7 @@ public class ProxyJUnitTest {
   }
 
   private void setCallbacks(AttributesFactory af) {
-    CacheListener cl1 = new CacheListener() {
+    var cl1 = new CacheListener() {
       @Override
       public void afterUpdate(EntryEvent e) {
         clLastEvent = e;
@@ -411,7 +410,7 @@ public class ProxyJUnitTest {
         clClosed = true;
       }
     };
-    CacheWriter cw = new CacheWriter() {
+    var cw = new CacheWriter() {
       @Override
       public void beforeUpdate(EntryEvent e) throws CacheWriterException {
         cwLastEvent = e;
@@ -462,7 +461,7 @@ public class ProxyJUnitTest {
           tlClosed = true;
         }
       };
-      CacheTransactionManager ctm = c.getCacheTransactionManager();
+      var ctm = c.getCacheTransactionManager();
       ctm.addListener(tl);
     }
   }
@@ -472,14 +471,14 @@ public class ProxyJUnitTest {
    */
   @Test
   public void testRegionMethods() throws Exception {
-    Object cbArg = new Object();
-    AttributesFactory af = new AttributesFactory();
+    var cbArg = new Object();
+    var af = new AttributesFactory();
     af.setDataPolicy(DataPolicy.EMPTY);
     setCallbacks(af);
     clearCallbackState();
-    ExpectedRegionEvent expre = new ExpectedRegionEvent();
+    var expre = new ExpectedRegionEvent();
     assertEquals(0, getStats().getRegions());
-    Region r = c.createRegion("r", af.create());
+    var r = c.createRegion("r", af.create());
     assertEquals(1, getStats().getRegions());
     expre.r = r;
     expre.op = Operation.REGION_CREATE;
@@ -614,7 +613,7 @@ public class ProxyJUnitTest {
     } catch (UnsupportedOperationException ignored) {
     }
     {
-      Region sr = r.createSubregion("sr", af.create());
+      var sr = r.createSubregion("sr", af.create());
       assertEquals(2, getStats().getRegions());
       expre.r = sr;
       expre.op = Operation.REGION_CREATE;
@@ -639,15 +638,14 @@ public class ProxyJUnitTest {
       assertEquals(Collections.EMPTY_SET, r.subregions(false));
     }
 
-
-    ExpectedEntryEvent expee = new ExpectedEntryEvent();
+    var expee = new ExpectedEntryEvent();
     expee.r = r;
     expee.key = "key";
-    long creates = getStats().getCreates();
-    long destroys = getStats().getDestroys();
-    long invalidates = getStats().getInvalidates();
-    long gets = getStats().getGets();
-    long misses = getStats().getMisses();
+    var creates = getStats().getCreates();
+    var destroys = getStats().getDestroys();
+    var invalidates = getStats().getInvalidates();
+    var gets = getStats().getGets();
+    var misses = getStats().getMisses();
 
     r.put("key", "value", cbArg);
     expee.op = Operation.CREATE;
@@ -761,7 +759,7 @@ public class ProxyJUnitTest {
     assertEquals(false, r.containsValueForKey("key"));
     assertEquals(false, r.existsValue("this = 'value'"));
     {
-      SelectResults sr = r.query("this = 'value'");
+      var sr = r.query("this = 'value'");
       assertEquals(Collections.EMPTY_SET, sr.asSet());
     }
     assertEquals(null, r.selectValue("this = 'value'"));
@@ -794,7 +792,7 @@ public class ProxyJUnitTest {
 
     // check to see if a local loader works
     {
-      CacheLoader cl = new CacheLoader() {
+      var cl = new CacheLoader() {
         @Override
         public Object load(LoaderHelper helper) throws CacheLoaderException {
           return "loadedValue";
@@ -822,24 +820,24 @@ public class ProxyJUnitTest {
    */
   @Test
   public void testMapMethods() throws Exception {
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setDataPolicy(DataPolicy.EMPTY);
     setCallbacks(af);
     clearCallbackState();
-    ExpectedRegionEvent expre = new ExpectedRegionEvent();
+    var expre = new ExpectedRegionEvent();
 
-    Region r = c.createRegion("r", af.create());
+    var r = c.createRegion("r", af.create());
     expre.r = r;
     expre.cbArg = null;
     expre.op = Operation.REGION_CREATE;
     checkNoCW();
     checkCL(expre);
 
-    long creates = getStats().getCreates();
-    long destroys = getStats().getDestroys();
-    long gets = getStats().getGets();
-    long misses = getStats().getMisses();
-    ExpectedEntryEvent expee = new ExpectedEntryEvent();
+    var creates = getStats().getCreates();
+    var destroys = getStats().getDestroys();
+    var gets = getStats().getGets();
+    var misses = getStats().getMisses();
+    var expee = new ExpectedEntryEvent();
     expee.r = r;
     expee.key = "key";
     expee.cbArg = null;
@@ -853,7 +851,7 @@ public class ProxyJUnitTest {
     checkCL(expee);
 
     {
-      HashMap m = new HashMap();
+      var m = new HashMap();
       m.put("k1", "v1");
       m.put("k2", "v2");
       r.putAll(m);
@@ -908,15 +906,15 @@ public class ProxyJUnitTest {
    */
   @Test
   public void testAllMethodsWithTX() throws Exception {
-    Object cbArg = new Object();
-    AttributesFactory af = new AttributesFactory();
+    var cbArg = new Object();
+    var af = new AttributesFactory();
     af.setDataPolicy(DataPolicy.EMPTY);
     setCallbacks(af);
     clearCallbackState();
-    CacheTransactionManager ctm = c.getCacheTransactionManager();
-    ExpectedRegionEvent expre = new ExpectedRegionEvent();
+    var ctm = c.getCacheTransactionManager();
+    var expre = new ExpectedRegionEvent();
 
-    Region r = c.createRegion("r", af.create());
+    var r = c.createRegion("r", af.create());
     expre.r = r;
     expre.cbArg = null;
     expre.op = Operation.REGION_CREATE;
@@ -924,10 +922,10 @@ public class ProxyJUnitTest {
     checkNoTL();
     checkCL(expre);
 
-    long creates = getStats().getCreates();
-    long destroys = getStats().getDestroys();
-    long invalidates = getStats().getInvalidates();
-    ExpectedEntryEvent expee = new ExpectedEntryEvent();
+    var creates = getStats().getCreates();
+    var destroys = getStats().getDestroys();
+    var invalidates = getStats().getInvalidates();
+    var expee = new ExpectedEntryEvent();
     expee.r = r;
     expee.key = "key";
 
@@ -1047,7 +1045,7 @@ public class ProxyJUnitTest {
    */
   @Test
   public void testLRU() throws Exception {
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setEvictionAttributes(EvictionAttributes.createLRUEntryAttributes(1));
     CacheListener cl1 = new CacheListenerAdapter() {
       @Override
@@ -1073,7 +1071,7 @@ public class ProxyJUnitTest {
    */
   @Test
   public void testDiskProxy() throws Exception {
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setDataPolicy(DataPolicy.EMPTY);
     af.setEvictionAttributes(
         EvictionAttributes.createLRUEntryAttributes(1, EvictionAction.OVERFLOW_TO_DISK));
@@ -1089,13 +1087,13 @@ public class ProxyJUnitTest {
    */
   @Test
   public void testCacheStatisticsOnProxy() throws Exception {
-    AttributesFactory af = new AttributesFactory();
+    var af = new AttributesFactory();
     af.setDataPolicy(DataPolicy.EMPTY);
     af.setStatisticsEnabled(true);
-    Region r = c.createRegion("rEMPTY", af.create());
-    CacheStatistics stats = r.getStatistics();
-    long lastModifiedTime = stats.getLastModifiedTime();
-    long lastAccessedTime = stats.getLastAccessedTime();
+    var r = c.createRegion("rEMPTY", af.create());
+    var stats = r.getStatistics();
+    var lastModifiedTime = stats.getLastModifiedTime();
+    var lastAccessedTime = stats.getLastAccessedTime();
 
     waitForSystemTimeChange();
     r.put("k", "v");
@@ -1111,8 +1109,8 @@ public class ProxyJUnitTest {
     lastModifiedTime = stats.getLastModifiedTime();
     lastAccessedTime = stats.getLastAccessedTime();
 
-    long missCount = stats.getMissCount();
-    long hitCount = stats.getHitCount();
+    var missCount = stats.getMissCount();
+    var hitCount = stats.getHitCount();
     waitForSystemTimeChange();
     r.get("k");
     assertEquals(lastModifiedTime, stats.getLastModifiedTime());
@@ -1125,7 +1123,7 @@ public class ProxyJUnitTest {
    * Waits (hot) until the system time changes.
    */
   private void waitForSystemTimeChange() {
-    long start = System.currentTimeMillis();
+    var start = System.currentTimeMillis();
     while (System.currentTimeMillis() == start) {
     }
   }

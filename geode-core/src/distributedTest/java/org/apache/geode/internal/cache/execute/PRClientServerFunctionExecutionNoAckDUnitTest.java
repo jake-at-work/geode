@@ -115,12 +115,12 @@ public class PRClientServerFunctionExecutionNoAckDUnitTest extends PRClientServe
     } else {
       assertNull(FunctionService.getFunction(functionNoAck.getId()));
     }
-    Execution member = FunctionService.onServer(pool);
+    var member = FunctionService.onServer(pool);
 
     try {
-      TimeKeeper t = new TimeKeeper();
+      var t = new TimeKeeper();
       t.start();
-      for (int i = 0; i < NUM_ITERATION; i++) {
+      for (var i = 0; i < NUM_ITERATION; i++) {
         execute(member, Boolean.TRUE, functionNoAck, isByName, toRegister);
       }
       t.stop();
@@ -133,13 +133,13 @@ public class PRClientServerFunctionExecutionNoAckDUnitTest extends PRClientServe
     }
 
     try {
-      final HashSet testKeysSet = new HashSet();
-      for (int i = 0; i < 2; i++) {
+      final var testKeysSet = new HashSet();
+      for (var i = 0; i < 2; i++) {
         testKeysSet.add("execKey-" + i);
       }
-      TimeKeeper t = new TimeKeeper();
+      var t = new TimeKeeper();
       t.start();
-      for (int i = 0; i < NUM_ITERATION; i++) {
+      for (var i = 0; i < NUM_ITERATION; i++) {
         execute(member, testKeysSet, functionNoAck, isByName, toRegister);
       }
       t.stop();
@@ -156,11 +156,11 @@ public class PRClientServerFunctionExecutionNoAckDUnitTest extends PRClientServe
       assertNull(FunctionService.getFunction(functionAck.getId()));
     }
     try {
-      TimeKeeper t = new TimeKeeper();
+      var t = new TimeKeeper();
       long timeinms = 0;
       t.start();
-      for (int i = 0; i < NUM_ITERATION; i++) {
-        ResultCollector rc = execute(member, Boolean.TRUE, functionAck, isByName, toRegister);
+      for (var i = 0; i < NUM_ITERATION; i++) {
+        var rc = execute(member, Boolean.TRUE, functionAck, isByName, toRegister);
         t.stop();
         timeinms += t.getTimeInMs();
         assertEquals(Boolean.TRUE, ((List) rc.getResult()).get(0));
@@ -174,19 +174,19 @@ public class PRClientServerFunctionExecutionNoAckDUnitTest extends PRClientServe
     }
 
     try {
-      final HashSet testKeysSet = new HashSet();
-      for (int i = 0; i < 20; i++) {
+      final var testKeysSet = new HashSet();
+      for (var i = 0; i < 20; i++) {
         testKeysSet.add("execKey-" + i);
       }
-      TimeKeeper t = new TimeKeeper();
+      var t = new TimeKeeper();
       long timeinms = 0;
       t.start();
-      for (int i = 0; i < NUM_ITERATION; i++) {
-        ResultCollector rc = execute(member, testKeysSet, functionAck, isByName, toRegister);
+      for (var i = 0; i < NUM_ITERATION; i++) {
+        var rc = execute(member, testKeysSet, functionAck, isByName, toRegister);
         t.stop();
         timeinms += t.getTimeInMs();
-        List resultList = (List) rc.getResult();
-        for (int j = 0; j < 20; j++) {
+        var resultList = (List) rc.getResult();
+        for (var j = 0; j < 20; j++) {
           assertEquals(true, ((List) (resultList).get(0)).contains("execKey-" + j));
         }
 
@@ -209,7 +209,7 @@ public class PRClientServerFunctionExecutionNoAckDUnitTest extends PRClientServe
       FunctionService.unregisterFunction(function.getId());
       assertNull(FunctionService.getFunction(function.getId()));
     }
-    Execution member = FunctionService.onServers(pool);
+    var member = FunctionService.onServers(pool);
 
     try {
       execute(member, Boolean.TRUE, function, isByName, toRegister);
@@ -220,8 +220,8 @@ public class PRClientServerFunctionExecutionNoAckDUnitTest extends PRClientServe
     }
 
     try {
-      final HashSet testKeysSet = new HashSet();
-      for (int i = 0; i < 20; i++) {
+      final var testKeysSet = new HashSet();
+      for (var i = 0; i < 20; i++) {
         testKeysSet.add("execKey-" + i);
       }
       execute(member, testKeysSet, function, isByName, toRegister);
@@ -237,13 +237,13 @@ public class PRClientServerFunctionExecutionNoAckDUnitTest extends PRClientServe
     if (isByName) {// by name
       if (toRegister) {
         logger.info("The function name to execute : " + function.getId());
-        Execution me = member.setArguments(args);
+        var me = member.setArguments(args);
         logger.info("The args passed  : " + args);
         return me.execute(function.getId());
       } else {
         logger
             .info("The function name to execute : (without Register) " + function.getId());
-        Execution me = member.setArguments(args);
+        var me = member.setArguments(args);
         logger.info("The args passed  : " + args);
         return me.execute(function.getId());
       }

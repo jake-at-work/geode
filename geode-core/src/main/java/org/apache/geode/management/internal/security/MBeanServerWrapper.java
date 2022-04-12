@@ -166,7 +166,7 @@ public class MBeanServerWrapper implements MBeanServerForwarder {
   @Override
   public Object getAttribute(ObjectName name, String attribute)
       throws MBeanException, InstanceNotFoundException, ReflectionException {
-    ResourcePermission ctx = getOperationContext(name, attribute, false);
+    var ctx = getOperationContext(name, attribute, false);
     securityService.authorize(ctx);
     Object result;
     try {
@@ -195,8 +195,8 @@ public class MBeanServerWrapper implements MBeanServerForwarder {
   void checkAuthorization(ObjectName name, String[] attributes)
       throws InstanceNotFoundException, ReflectionException {
     Set<ResourcePermission> contextSet = new HashSet<>();
-    for (String attribute : attributes) {
-      ResourcePermission ctx = getOperationContext(name, attribute, false);
+    for (var attribute : attributes) {
+      var ctx = getOperationContext(name, attribute, false);
       if (ctx != null) {
         if (contextSet.add(ctx)) {
           securityService.authorize(ctx);
@@ -209,7 +209,7 @@ public class MBeanServerWrapper implements MBeanServerForwarder {
   public void setAttribute(ObjectName name, Attribute attribute)
       throws InstanceNotFoundException, AttributeNotFoundException, InvalidAttributeValueException,
       MBeanException, ReflectionException {
-    ResourcePermission ctx = getOperationContext(name, attribute.getName(), false);
+    var ctx = getOperationContext(name, attribute.getName(), false);
     securityService.authorize(ctx);
     mbs.setAttribute(name, attribute);
   }
@@ -234,7 +234,7 @@ public class MBeanServerWrapper implements MBeanServerForwarder {
   public Object invoke(ObjectName name, String operationName, Object[] params, String[] signature)
       throws InstanceNotFoundException, MBeanException, ReflectionException {
 
-    ResourcePermission ctx = getOperationContext(name, operationName, true);
+    var ctx = getOperationContext(name, operationName, true);
     securityService.authorize(ctx);
 
     return mbs.invoke(name, operationName, params, signature);
@@ -263,7 +263,7 @@ public class MBeanServerWrapper implements MBeanServerForwarder {
       featureInfos = beanInfo.getAttributes();
     }
     // still look into the attributes/operations to see if it's defined in the method level
-    for (MBeanFeatureInfo info : featureInfos) {
+    for (var info : featureInfos) {
       if (info.getName().equals(featureName)) {
         // found the featureInfo of this method on the bean
         result = getOperationContext(info.getDescriptor(), result);
@@ -275,9 +275,9 @@ public class MBeanServerWrapper implements MBeanServerForwarder {
 
   private ResourcePermission getOperationContext(Descriptor descriptor,
       ResourcePermission defaultValue) {
-    String resource = (String) descriptor.getFieldValue("resource");
-    String operationCode = (String) descriptor.getFieldValue("operation");
-    String targetCode = (String) descriptor.getFieldValue("target");
+    var resource = (String) descriptor.getFieldValue("resource");
+    var operationCode = (String) descriptor.getFieldValue("operation");
+    var targetCode = (String) descriptor.getFieldValue("target");
     if (resource != null && operationCode != null) {
       if (StringUtils.isBlank(targetCode)) {
         return new ResourcePermission(Resource.valueOf(resource), Operation.valueOf(operationCode));

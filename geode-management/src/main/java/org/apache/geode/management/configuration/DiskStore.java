@@ -153,7 +153,7 @@ public class DiskStore extends GroupableConfiguration<DiskStoreInfo> {
     if (!super.equals(o)) {
       return false;
     }
-    DiskStore diskStore = (DiskStore) o;
+    var diskStore = (DiskStore) o;
     return Objects.equals(name, diskStore.name);
   }
 

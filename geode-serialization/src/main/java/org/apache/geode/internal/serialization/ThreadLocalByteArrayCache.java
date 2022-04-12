@@ -43,8 +43,8 @@ class ThreadLocalByteArrayCache {
    * @return a byte array, owned by this thread, whose length is at least minimumLength.
    */
   public byte[] get(int minimumLength) {
-    SoftReference<byte[]> reference = cache.get();
-    byte[] result = (reference != null) ? reference.get() : null;
+    var reference = cache.get();
+    var result = (reference != null) ? reference.get() : null;
     if (result == null || result.length < minimumLength) {
       result = new byte[minimumLength];
       if (minimumLength <= maximumArraySize) {

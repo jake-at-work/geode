@@ -57,7 +57,7 @@ public class ConnectionConnectorTest {
   @Test(expected = GemFireSecurityException.class)
   public void failedConnectionIsDestroyed() throws IOException {
 
-    ConnectionConnector spyConnector =
+    var spyConnector =
         spy(new ConnectionConnector(endpointManager, ds, 0, 0, 0, false,
             null, socketCreator, handshake, null));
     doReturn(connection).when(spyConnector).getConnection(ds);
@@ -76,7 +76,7 @@ public class ConnectionConnectorTest {
   @Test
   public void successfulConnectionIsNotDestroyed() throws IOException {
 
-    ConnectionConnector spyConnector =
+    var spyConnector =
         spy(new ConnectionConnector(endpointManager, ds, 0, 0, 0, false,
             null, socketCreator, handshake, null));
     doReturn(connection).when(spyConnector).getConnection(ds);

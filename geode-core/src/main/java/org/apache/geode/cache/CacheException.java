@@ -50,11 +50,11 @@ public abstract class CacheException extends GemFireException {
 
   @Override
   public String toString() {
-    String result = super.toString();
-    Throwable cause = getCause();
+    var result = super.toString();
+    var cause = getCause();
     if (cause != null) {
-      String causeStr = cause.toString();
-      final String glue = ", caused by ";
+      var causeStr = cause.toString();
+      final var glue = ", caused by ";
       result = result + glue + causeStr;
     }
     return result;

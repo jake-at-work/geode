@@ -20,28 +20,27 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.IOException;
 
 import org.junit.Test;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 public class GeodeEntityResolverTest {
 
   @Test
   public void resolvesWithHttpUrl() throws IOException, SAXException {
-    InputSource inputSource = new GeodeEntityResolver().resolveEntity(null, null, null,
+    var inputSource = new GeodeEntityResolver().resolveEntity(null, null, null,
         "http://geode.apache.org/schema/cache/cache-1.0.xsd");
     assertThat(inputSource).isNotNull();
   }
 
   @Test
   public void resolvesWithHttpsUrl() throws IOException, SAXException {
-    InputSource inputSource = new GeodeEntityResolver().resolveEntity(null, null, null,
+    var inputSource = new GeodeEntityResolver().resolveEntity(null, null, null,
         "https://geode.apache.org/schema/cache/cache-1.0.xsd");
     assertThat(inputSource).isNotNull();
   }
 
   @Test
   public void doesNotResolveUnknownUrl() throws IOException, SAXException {
-    InputSource inputSource = new GeodeEntityResolver().resolveEntity(null, null, null,
+    var inputSource = new GeodeEntityResolver().resolveEntity(null, null, null,
         "http://geode.apache.org/schema/should/not/exist.xsd");
     assertThat(inputSource).isNull();
   }

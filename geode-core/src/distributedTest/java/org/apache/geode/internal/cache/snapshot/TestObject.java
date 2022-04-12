@@ -39,7 +39,7 @@ public class TestObject implements PdxSerializable {
       return false;
     }
 
-    final TestObject that = (TestObject) o;
+    final var that = (TestObject) o;
 
     if (id != that.id) {
       return false;
@@ -50,7 +50,7 @@ public class TestObject implements PdxSerializable {
 
   @Override
   public int hashCode() {
-    int result = id;
+    var result = id;
     result = 31 * result + (owner != null ? owner.hashCode() : 0);
     return result;
   }

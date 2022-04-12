@@ -58,7 +58,7 @@ public class BlockingHARegionJUnitTest {
     if (cache != null) {
       cache.close(); // fault tolerance
     }
-    CacheFactory cacheFactory = new CacheFactory();
+    var cacheFactory = new CacheFactory();
     cache = (InternalCache) cacheFactory.set(MCAST_PORT, "0").create();
 
   }
@@ -71,9 +71,9 @@ public class BlockingHARegionJUnitTest {
   @Test
   public void testBoundedPuts() throws Exception {
     exceptionOccurred = false;
-    HARegionQueueAttributes harqa = new HARegionQueueAttributes();
+    var harqa = new HARegionQueueAttributes();
     harqa.setBlockingQueueCapacity(1);
-    HARegionQueue hrq = HARegionQueue.getHARegionQueueInstance("BlockingHARegionJUnitTest_Region",
+    var hrq = HARegionQueue.getHARegionQueueInstance("BlockingHARegionJUnitTest_Region",
         cache, harqa, HARegionQueue.BLOCKING_HA_QUEUE, false, disabledClock());
     hrq.setPrimary(true);// fix for 40314 - capacity constraint is checked for primary only.
     Thread thread1 = new DoPuts(hrq, 1000);
@@ -104,9 +104,9 @@ public class BlockingHARegionJUnitTest {
   public void testPutBeingBlocked() throws Exception {
     exceptionOccurred = false;
     quitForLoop = false;
-    HARegionQueueAttributes harqa = new HARegionQueueAttributes();
+    var harqa = new HARegionQueueAttributes();
     harqa.setBlockingQueueCapacity(1);
-    final HARegionQueue hrq = getHARegionQueueInstance(
+    final var hrq = getHARegionQueueInstance(
         "BlockingHARegionJUnitTest_Region", cache, harqa, BLOCKING_HA_QUEUE, false,
         disabledClock());
     hrq.setPrimary(true);// fix for 40314 - capacity constraint is checked for primary only.
@@ -145,9 +145,9 @@ public class BlockingHARegionJUnitTest {
     exceptionOccurred = false;
     quitForLoop = false;
     List<Thread> listOfThreads = new ArrayList<>();
-    HARegionQueueAttributes harqa = new HARegionQueueAttributes();
+    var harqa = new HARegionQueueAttributes();
     harqa.setBlockingQueueCapacity(10000);
-    final HARegionQueue hrq = getHARegionQueueInstance(
+    final var hrq = getHARegionQueueInstance(
         "BlockingHARegionJUnitTest_Region", cache, harqa, BLOCKING_HA_QUEUE, false,
         disabledClock());
     hrq.setPrimary(true);// fix for 40314 - capacity constraint is checked for primary only.
@@ -157,13 +157,13 @@ public class BlockingHARegionJUnitTest {
     listOfThreads.add(new DoPuts(hrq, 20000, 4));
     listOfThreads.add(new DoPuts(hrq, 20000, 5));
 
-    for (Thread thread : listOfThreads) {
+    for (var thread : listOfThreads) {
       thread.start();
     }
 
     GeodeAwaitility.await().until(() -> hrq.region.size() == 20000);
 
-    for (Thread thread : listOfThreads) {
+    for (var thread : listOfThreads) {
       assertThat(thread.isAlive()).isTrue();
     }
 
@@ -171,13 +171,13 @@ public class BlockingHARegionJUnitTest {
 
     quitForLoop = true;
 
-    for (Thread thread : listOfThreads) {
+    for (var thread : listOfThreads) {
       thread.interrupt();
     }
 
     sleep(2000);
 
-    for (Thread thread : listOfThreads) {
+    for (var thread : listOfThreads) {
       join(thread, 10 * 60 * 1000);
     }
 
@@ -196,9 +196,9 @@ public class BlockingHARegionJUnitTest {
   public void testConcurrentPutsTakesNotExceedingLimit() throws Exception {
     exceptionOccurred = false;
     quitForLoop = false;
-    HARegionQueueAttributes harqa = new HARegionQueueAttributes();
+    var harqa = new HARegionQueueAttributes();
     harqa.setBlockingQueueCapacity(10000);
-    final HARegionQueue hrq = getHARegionQueueInstance(
+    final var hrq = getHARegionQueueInstance(
         "BlockingHARegionJUnitTest_Region", cache, harqa, BLOCKING_HA_QUEUE, false,
         disabledClock());
     Thread thread1 = new DoPuts(hrq, 40000, 1);
@@ -275,17 +275,17 @@ public class BlockingHARegionJUnitTest {
     try {
       exceptionOccurred = false;
       quitForLoop = false;
-      HARegionQueueAttributes harqa = new HARegionQueueAttributes();
+      var harqa = new HARegionQueueAttributes();
       harqa.setBlockingQueueCapacity(1);
       harqa.setExpiryTime(180);
-      final HARegionQueue hrq = HARegionQueue.getHARegionQueueInstance(
+      final var hrq = HARegionQueue.getHARegionQueueInstance(
           "BlockingHARegionJUnitTest_Region", cache, harqa, HARegionQueue.BLOCKING_HA_QUEUE, false,
           disabledClock());
       hrq.setPrimary(true);// fix for 40314 - capacity constraint is checked for primary only.
-      final EventID id1 = new EventID(new byte[] {1}, 1, 2); // violation
-      final EventID ignore = new EventID(new byte[] {1}, 1, 1); //
-      final EventID id2 = new EventID(new byte[] {1}, 1, 3); //
-      Thread t1 = new Thread(() -> {
+      final var id1 = new EventID(new byte[] {1}, 1, 2); // violation
+      final var ignore = new EventID(new byte[] {1}, 1, 1); //
+      final var id2 = new EventID(new byte[] {1}, 1, 3); //
+      var t1 = new Thread(() -> {
         try {
           hrq.put(new ConflatableObject("key1", "value1", id1, false, "region1"));
           hrq.take();
@@ -333,7 +333,7 @@ public class BlockingHARegionJUnitTest {
 
     @Override
     public void run() {
-      for (int i = 0; i < numberOfPuts; i++) {
+      for (var i = 0; i < numberOfPuts; i++) {
         try {
           regionQueue.put(new ConflatableObject("" + i, "" + i,
               new EventID(new byte[regionId], i, i), false, "BlockingHARegionJUnitTest_Region"));
@@ -367,7 +367,7 @@ public class BlockingHARegionJUnitTest {
 
     @Override
     public void run() {
-      for (int i = 0; i < numberOfTakes; i++) {
+      for (var i = 0; i < numberOfTakes; i++) {
         try {
           assertNotNull(regionQueue.take());
           if (Thread.currentThread().isInterrupted()) {

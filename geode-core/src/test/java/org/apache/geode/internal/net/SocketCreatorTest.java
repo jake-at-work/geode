@@ -49,7 +49,7 @@ public class SocketCreatorTest {
 
   @Test
   public void testCreateSocketCreatorWithKeystoreUnset() {
-    SSLConfig.Builder sslConfigBuilder = new SSLConfig.Builder();
+    var sslConfigBuilder = new SSLConfig.Builder();
     sslConfigBuilder.setEnabled(true);
     sslConfigBuilder.setKeystore(null);
     sslConfigBuilder.setKeystorePassword("");
@@ -61,19 +61,19 @@ public class SocketCreatorTest {
 
   @Test
   public void testConfigureServerSSLSocketSetsSoTimeout() throws Exception {
-    final SocketCreator socketCreator = new SocketCreator(mock(SSLConfig.class));
-    final SSLSocket socket = mock(SSLSocket.class);
+    final var socketCreator = new SocketCreator(mock(SSLConfig.class));
+    final var socket = mock(SSLSocket.class);
 
-    final int timeout = 1938236;
+    final var timeout = 1938236;
     socketCreator.forCluster().handshakeIfSocketIsSSL(socket, timeout);
     verify(socket).setSoTimeout(timeout);
   }
 
   @Test
   public void testConfigureServerPlainSocketDoesntSetSoTimeout() throws Exception {
-    final SocketCreator socketCreator = new SocketCreator(mock(SSLConfig.class));
-    final Socket socket = mock(Socket.class);
-    final int timeout = 1938236;
+    final var socketCreator = new SocketCreator(mock(SSLConfig.class));
+    final var socket = mock(Socket.class);
+    final var timeout = 1938236;
 
     socketCreator.forCluster().handshakeIfSocketIsSSL(socket, timeout);
     verify(socket, never()).setSoTimeout(timeout);
@@ -81,8 +81,8 @@ public class SocketCreatorTest {
 
   @Test
   public void configureSSLEngineSetsClientModeTrue() {
-    final SSLConfig config = new SSLConfig.Builder().build();
-    final SocketCreator socketCreator = new SocketCreator(config, context);
+    final var config = new SSLConfig.Builder().build();
+    final var socketCreator = new SocketCreator(config, context);
 
     socketCreator.configureSSLEngine(engine, "localhost", 12345, true);
 
@@ -94,8 +94,8 @@ public class SocketCreatorTest {
 
   @Test
   public void configureSSLEngineSetsClientModeFalse() {
-    final SSLConfig config = new SSLConfig.Builder().build();
-    final SocketCreator socketCreator = new SocketCreator(config, context);
+    final var config = new SSLConfig.Builder().build();
+    final var socketCreator = new SocketCreator(config, context);
 
     socketCreator.configureSSLEngine(engine, "localhost", 12345, false);
 
@@ -108,8 +108,8 @@ public class SocketCreatorTest {
 
   @Test
   public void configureSSLParametersSetsProtocolsWhenSetProtocolsAndWhenClientSocket() {
-    final SSLConfig config = new SSLConfig.Builder().setProtocols("protocol1,protocol2").build();
-    final SocketCreator socketCreator = new SocketCreator(config, context);
+    final var config = new SSLConfig.Builder().setProtocols("protocol1,protocol2").build();
+    final var socketCreator = new SocketCreator(config, context);
 
     socketCreator.configureSSLParameters(parameters, "localhost", 123, true);
 
@@ -119,8 +119,8 @@ public class SocketCreatorTest {
 
   @Test
   public void configureSSLParametersSetsProtocolsWhenSetProtocolsAndServerSocket() {
-    final SSLConfig config = new SSLConfig.Builder().setProtocols("protocol1,protocol2").build();
-    final SocketCreator socketCreator = new SocketCreator(config, context);
+    final var config = new SSLConfig.Builder().setProtocols("protocol1,protocol2").build();
+    final var socketCreator = new SocketCreator(config, context);
 
     socketCreator.configureSSLParameters(parameters, "localhost", 123, false);
 
@@ -131,9 +131,9 @@ public class SocketCreatorTest {
 
   @Test
   public void configureSSLParametersSetsProtocolsWhenSetClientProtocols() {
-    final SSLConfig config =
+    final var config =
         new SSLConfig.Builder().setClientProtocols("protocol1,protocol2").build();
-    final SocketCreator socketCreator = new SocketCreator(config, context);
+    final var socketCreator = new SocketCreator(config, context);
 
     socketCreator.configureSSLParameters(parameters, "localhost", 123, true);
 
@@ -143,9 +143,9 @@ public class SocketCreatorTest {
 
   @Test
   public void configureSSLParametersSetsProtocolsWhenSetServerProtocols() {
-    final SSLConfig config =
+    final var config =
         new SSLConfig.Builder().setServerProtocols("protocol1,protocol2").build();
-    final SocketCreator socketCreator = new SocketCreator(config, context);
+    final var socketCreator = new SocketCreator(config, context);
 
     socketCreator.configureSSLParameters(parameters, "localhost", 123, false);
 
@@ -156,8 +156,8 @@ public class SocketCreatorTest {
 
   @Test
   public void configureSSLParametersDoesNotSetProtocolsWhenSetProtocolsIsAnyAndClientSocket() {
-    final SSLConfig config = new SSLConfig.Builder().setProtocols("any").build();
-    final SocketCreator socketCreator = new SocketCreator(config, context);
+    final var config = new SSLConfig.Builder().setProtocols("any").build();
+    final var socketCreator = new SocketCreator(config, context);
 
     socketCreator.configureSSLParameters(parameters, "localhost", 123, true);
 
@@ -166,8 +166,8 @@ public class SocketCreatorTest {
 
   @Test
   public void configureSSLParametersDoesNotSetProtocolsWhenSetProtocolsIsAnyAndServerSocket() {
-    final SSLConfig config = new SSLConfig.Builder().setProtocols("any").build();
-    final SocketCreator socketCreator = new SocketCreator(config, context);
+    final var config = new SSLConfig.Builder().setProtocols("any").build();
+    final var socketCreator = new SocketCreator(config, context);
 
     socketCreator.configureSSLParameters(parameters, "localhost", 123, true);
 
@@ -176,8 +176,8 @@ public class SocketCreatorTest {
 
   @Test
   public void configureSSLParametersDoesNotSetProtocolsWhenSetClientProtocolsIsAny() {
-    final SSLConfig config = new SSLConfig.Builder().setClientProtocols("any").build();
-    final SocketCreator socketCreator = new SocketCreator(config, context);
+    final var config = new SSLConfig.Builder().setClientProtocols("any").build();
+    final var socketCreator = new SocketCreator(config, context);
 
     socketCreator.configureSSLParameters(parameters, "localhost", 123, true);
 
@@ -186,8 +186,8 @@ public class SocketCreatorTest {
 
   @Test
   public void configureSSLParametersDoesNotSetProtocolsWhenSetServerProtocolsIsAny() {
-    final SSLConfig config = new SSLConfig.Builder().setProtocols("any").build();
-    final SocketCreator socketCreator = new SocketCreator(config, context);
+    final var config = new SSLConfig.Builder().setProtocols("any").build();
+    final var socketCreator = new SocketCreator(config, context);
 
     socketCreator.configureSSLParameters(parameters, "localhost", 123, false);
 
@@ -197,8 +197,8 @@ public class SocketCreatorTest {
 
   @Test
   public void configureSSLParametersSetsCipherSuites() {
-    final SSLConfig config = new SSLConfig.Builder().setCiphers("cipher1,cipher2").build();
-    final SocketCreator socketCreator = new SocketCreator(config, context);
+    final var config = new SSLConfig.Builder().setCiphers("cipher1,cipher2").build();
+    final var socketCreator = new SocketCreator(config, context);
 
     socketCreator.configureSSLParameters(parameters, "localhost", 123, true);
 
@@ -208,8 +208,8 @@ public class SocketCreatorTest {
 
   @Test
   public void configureSSLParametersDoesNotSetCipherSuites() {
-    final SSLConfig config = new SSLConfig.Builder().setCiphers("any").build();
-    final SocketCreator socketCreator = new SocketCreator(config, context);
+    final var config = new SSLConfig.Builder().setCiphers("any").build();
+    final var socketCreator = new SocketCreator(config, context);
 
     socketCreator.configureSSLParameters(parameters, "localhost", 123, true);
 
@@ -218,8 +218,8 @@ public class SocketCreatorTest {
 
   @Test
   public void configureSSLParametersSetsNeedClientAuthTrue() {
-    final SSLConfig config = new SSLConfig.Builder().setRequireAuth(true).build();
-    final SocketCreator socketCreator = new SocketCreator(config, context);
+    final var config = new SSLConfig.Builder().setRequireAuth(true).build();
+    final var socketCreator = new SocketCreator(config, context);
 
     socketCreator.configureSSLParameters(parameters, "localhost", 123, false);
 
@@ -229,8 +229,8 @@ public class SocketCreatorTest {
 
   @Test
   public void configureSSLParametersSetsNeedClientAuthFalse() {
-    final SSLConfig config = new SSLConfig.Builder().setRequireAuth(false).build();
-    final SocketCreator socketCreator = new SocketCreator(config, context);
+    final var config = new SSLConfig.Builder().setRequireAuth(false).build();
+    final var socketCreator = new SocketCreator(config, context);
 
     socketCreator.configureSSLParameters(parameters, "localhost", 123, false);
 
@@ -240,8 +240,8 @@ public class SocketCreatorTest {
 
   @Test
   public void configureSSLParametersSetsEndpointIdentificationAlgorithmToHttpsAndServerNames() {
-    final SSLConfig config = new SSLConfig.Builder().setEndpointIdentificationEnabled(true).build();
-    final SocketCreator socketCreator = new SocketCreator(config, context);
+    final var config = new SSLConfig.Builder().setEndpointIdentificationEnabled(true).build();
+    final var socketCreator = new SocketCreator(config, context);
 
     socketCreator.configureSSLParameters(parameters, "localhost", 123, true);
 
@@ -254,9 +254,9 @@ public class SocketCreatorTest {
 
   @Test
   public void configureSSLParameterDoesNotSetEndpointIdentificationAlgorithm() {
-    final SSLConfig config =
+    final var config =
         new SSLConfig.Builder().setEndpointIdentificationEnabled(false).build();
-    final SocketCreator socketCreator = new SocketCreator(config, context);
+    final var socketCreator = new SocketCreator(config, context);
 
     socketCreator.configureSSLParameters(parameters, "localhost", 123, true);
 

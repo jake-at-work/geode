@@ -48,14 +48,12 @@ import org.apache.geode.cache.TimeoutException;
 import org.apache.geode.cache.query.FunctionDomainException;
 import org.apache.geode.cache.query.NameResolutionException;
 import org.apache.geode.cache.query.QueryInvocationTargetException;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.query.TypeMismatchException;
 import org.apache.geode.cache.query.internal.DefaultQuery;
 import org.apache.geode.cache.query.internal.ExecutionContext;
 import org.apache.geode.cache.query.internal.QueryExecutionContext;
 import org.apache.geode.cache.query.internal.QueryExecutor;
-import org.apache.geode.cache.query.internal.QueryObserver;
 import org.apache.geode.cache.snapshot.RegionSnapshotService;
 import org.apache.geode.internal.NanoTimer;
 import org.apache.geode.internal.cache.LocalRegion.IteratorType;
@@ -142,8 +140,8 @@ public class LocalDataSet implements Region, QueryExecutor {
   @Override
   public SelectResults query(String queryPredicate) throws FunctionDomainException,
       TypeMismatchException, NameResolutionException, QueryInvocationTargetException {
-    QueryService qs = getCache().getLocalQueryService();
-    DefaultQuery query = (DefaultQuery) qs
+    var qs = getCache().getLocalQueryService();
+    var query = (DefaultQuery) qs
         .newQuery("select * from " + getFullPath() + " this where " + queryPredicate);
     final ExecutionContext executionContext = new QueryExecutionContext(null, getCache(), query);
     Object[] params = null;
@@ -153,7 +151,7 @@ public class LocalDataSet implements Region, QueryExecutor {
   @Override
   public Object selectValue(String queryPredicate) throws FunctionDomainException,
       TypeMismatchException, NameResolutionException, QueryInvocationTargetException {
-    SelectResults result = query(queryPredicate);
+    var result = query(queryPredicate);
     if (result.isEmpty()) {
       return null;
     }
@@ -180,14 +178,14 @@ public class LocalDataSet implements Region, QueryExecutor {
       Object[] parameters, Set buckets)
       throws FunctionDomainException, TypeMismatchException, NameResolutionException,
       QueryInvocationTargetException {
-    long startTime = 0L;
+    var startTime = 0L;
     Object result = null;
-    boolean traceOn = DefaultQuery.QUERY_VERBOSE || query.isTraced();
+    var traceOn = DefaultQuery.QUERY_VERBOSE || query.isTraced();
     if (traceOn && proxy != null) {
       startTime = NanoTimer.getTime();
     }
 
-    QueryObserver indexObserver = query.startTrace();
+    var indexObserver = query.startTrace();
 
     try {
       result = proxy.executeQuery(query, executionContext, parameters, buckets);
@@ -485,8 +483,8 @@ public class LocalDataSet implements Region, QueryExecutor {
 
   @Override
   public Map getAll(Collection keys, Object callback) {
-    HashMap result = new HashMap();
-    for (Object key : keys) {
+    var result = new HashMap();
+    for (var key : keys) {
       try {
         result.put(key, get(key, callback));
       } catch (Exception e) {
@@ -738,7 +736,7 @@ public class LocalDataSet implements Region, QueryExecutor {
 
       @Override
       public Object next() {
-        Object result = next;
+        var result = next;
         if (result != null) {
           next = moveNext();
           return result;
@@ -762,7 +760,7 @@ public class LocalDataSet implements Region, QueryExecutor {
                 return null;
               }
               curBucketId = localBuckets.get(index++);
-              BucketRegion br = proxy.getDataStore().getLocalBucketById(curBucketId);
+              var br = proxy.getDataStore().getLocalBucketById(curBucketId);
               if (br == null) {
                 throw new BucketMovedException(
                     "The Bucket region with id " + curBucketId + " is moved/destroyed.");
@@ -773,7 +771,7 @@ public class LocalDataSet implements Region, QueryExecutor {
 
             // Check if there is a valid value.
             if (hasNext) {
-              Map.Entry e = (Map.Entry) curBucketIter.next();
+              var e = (Map.Entry) curBucketIter.next();
               try {
                 if (iterType == IteratorType.VALUES) {
                   if (isKeepSerialized()) {
@@ -817,9 +815,9 @@ public class LocalDataSet implements Region, QueryExecutor {
 
     @Override
     public int size() {
-      int size = 0;
-      for (Integer bId : buckets) {
-        BucketRegion br = proxy.getDataStore().getLocalBucketById(bId);
+      var size = 0;
+      for (var bId : buckets) {
+        var br = proxy.getDataStore().getLocalBucketById(bId);
         size += br.size();
       }
       return size;

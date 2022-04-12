@@ -88,7 +88,7 @@ public class LoggingUncaughtExceptionHandler {
             "Uncaught exception in thread {} this message can be disregarded if it occurred during an Application Server shutdown. The Exception message was: {}",
             t, e);
       } else {
-        String message = MessageFormat.format("Uncaught exception in thread {0}", t);
+        var message = MessageFormat.format("Uncaught exception in thread {0}", t);
         logger.fatal(message, e);
       }
       uncaughtExceptionsCount.incrementAndGet();

@@ -56,7 +56,7 @@ public class MyGatewayTransportFilter1 implements GatewayTransportFilter, Serial
     if (!(obj instanceof MyGatewayTransportFilter1)) {
       return false;
     }
-    MyGatewayTransportFilter1 filter = (MyGatewayTransportFilter1) obj;
+    var filter = (MyGatewayTransportFilter1) obj;
     return Id.equals(filter.Id);
   }
 

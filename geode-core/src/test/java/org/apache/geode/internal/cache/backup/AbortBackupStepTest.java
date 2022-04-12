@@ -29,7 +29,6 @@ import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InOrder;
 import org.mockito.stubbing.Answer;
 
 import org.apache.geode.cache.CacheClosedException;
@@ -56,13 +55,13 @@ public class AbortBackupStepTest {
   @Before
   public void setUp() throws Exception {
     dm = mock(DistributionManager.class);
-    InternalCache cache = mock(InternalCache.class);
+    var cache = mock(InternalCache.class);
 
     backupReplyProcessor = mock(BackupReplyProcessor.class);
     abortBackupRequest = mock(AbortBackupRequest.class);
     abortBackup = mock(AbortBackup.class);
 
-    AbortBackupFactory abortBackupFactory = mock(AbortBackupFactory.class);
+    var abortBackupFactory = mock(AbortBackupFactory.class);
 
     sender = mock(InternalDistributedMember.class, "sender");
     member1 = mock(InternalDistributedMember.class, "member1");
@@ -95,7 +94,7 @@ public class AbortBackupStepTest {
 
   @Test
   public void sendReturnsResultsForAllMembers() throws Exception {
-    MemberWithPersistentIds[] ids = new MemberWithPersistentIds[] {
+    var ids = new MemberWithPersistentIds[] {
         createMemberWithPersistentIds(member1), createMemberWithPersistentIds(member2)};
 
     doAnswer(invokeAddToResults(ids)).when(backupReplyProcessor).waitForReplies();
@@ -122,7 +121,7 @@ public class AbortBackupStepTest {
 
   @Test
   public void sendShouldHandleCancelExceptionFromWaitForReplies() throws Exception {
-    ReplyException replyException =
+    var replyException =
         new ReplyException("expected exception", new CacheClosedException("expected exception"));
     doThrow(replyException).when(backupReplyProcessor).waitForReplies();
     abortBackupStep.send();
@@ -151,7 +150,7 @@ public class AbortBackupStepTest {
 
   @Test
   public void sendShouldAbortBackupInLocalMemberBeforeWaitingForReplies() throws Exception {
-    InOrder inOrder = inOrder(abortBackup, backupReplyProcessor);
+    var inOrder = inOrder(abortBackup, backupReplyProcessor);
     abortBackupStep.send();
 
     inOrder.verify(abortBackup, times(1)).run();
@@ -160,7 +159,7 @@ public class AbortBackupStepTest {
 
   private Answer<Object> invokeAddToResults(MemberWithPersistentIds... memberWithPersistentIds) {
     return invocation -> {
-      for (MemberWithPersistentIds ids : memberWithPersistentIds) {
+      for (var ids : memberWithPersistentIds) {
         abortBackupStep.addToResults(ids.member, ids.persistentIds);
       }
       return null;
@@ -172,7 +171,7 @@ public class AbortBackupStepTest {
   }
 
   private HashSet<PersistentID> createPersistentIds() {
-    HashSet<PersistentID> persistentIds = new HashSet<>();
+    var persistentIds = new HashSet<PersistentID>();
     persistentIds.add(mock(PersistentID.class));
     return persistentIds;
   }

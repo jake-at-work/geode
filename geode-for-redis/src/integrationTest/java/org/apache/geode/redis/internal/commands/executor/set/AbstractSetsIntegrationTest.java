@@ -59,9 +59,9 @@ public abstract class AbstractSetsIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void testSAdd_withExistingKey_ofWrongType_shouldReturnError() {
-    String key = "key";
-    String stringValue = "preexistingValue";
-    String[] setValue = new String[1];
+    var key = "key";
+    var stringValue = "preexistingValue";
+    var setValue = new String[1];
     setValue[0] = "set value that should never get added";
 
     jedis.set(key, stringValue);
@@ -70,16 +70,16 @@ public abstract class AbstractSetsIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void testSAdd_withExistingKey_ofWrongType_shouldNotOverWriteExistingKey() {
-    String key = "key";
-    String stringValue = "preexistingValue";
-    String[] setValue = new String[1];
+    var key = "key";
+    var stringValue = "preexistingValue";
+    var setValue = new String[1];
     setValue[0] = "set value that should never get added";
 
     jedis.set(key, stringValue);
 
     assertThatThrownBy(() -> jedis.sadd(key, setValue)).hasMessage(ERROR_WRONG_TYPE);
 
-    String result = jedis.get(key);
+    var result = jedis.get(key);
 
     assertThat(result).isEqualTo(stringValue);
   }
@@ -99,13 +99,13 @@ public abstract class AbstractSetsIntegrationTest implements RedisIntegrationTes
 
   @Test
   public void testSMembers() {
-    int elements = 10;
-    String key = generator.generate('x');
+    var elements = 10;
+    var key = generator.generate('x');
 
-    String[] strings = generateStrings(elements, 'y');
+    var strings = generateStrings(elements, 'y');
     jedis.sadd(key, strings);
 
-    Set<String> returnedSet = jedis.smembers(key);
+    var returnedSet = jedis.smembers(key);
 
     assertThat(returnedSet).containsExactlyInAnyOrder(strings);
   }
@@ -117,8 +117,8 @@ public abstract class AbstractSetsIntegrationTest implements RedisIntegrationTes
 
   private String[] generateStrings(int elements, char uniqueElement) {
     Set<String> strings = new HashSet<>();
-    for (int i = 0; i < elements; i++) {
-      String elem = generator.generate(uniqueElement);
+    for (var i = 0; i < elements; i++) {
+      var elem = generator.generate(uniqueElement);
       strings.add(elem);
     }
     return strings.toArray(new String[strings.size()]);

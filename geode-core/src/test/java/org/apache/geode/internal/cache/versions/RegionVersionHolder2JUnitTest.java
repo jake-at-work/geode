@@ -34,7 +34,7 @@ public class RegionVersionHolder2JUnitTest {
   }
 
   private void createHolderTest(boolean useBitSet) {
-    RegionVersionHolder h = createHolder(useBitSet);
+    var h = createHolder(useBitSet);
     assertEquals(0, h.getExceptionCount());
   }
 
@@ -49,7 +49,7 @@ public class RegionVersionHolder2JUnitTest {
   }
 
   private void recordZeroDoesNothing(boolean useBitSet) {
-    RegionVersionHolder h = createHolder(useBitSet);
+    var h = createHolder(useBitSet);
     h.recordVersion(0l);
     assertEquals(0, h.getExceptionCount());
     assertEquals(0l, h.getVersion());
@@ -66,7 +66,7 @@ public class RegionVersionHolder2JUnitTest {
   }
 
   private void recordSequentialVersions(boolean useBitSet) {
-    RegionVersionHolder h = createHolder(useBitSet);
+    var h = createHolder(useBitSet);
     h.recordVersion(1l);
     h.recordVersion(2l);
     h.recordVersion(3l);
@@ -85,7 +85,7 @@ public class RegionVersionHolder2JUnitTest {
   }
 
   private void skippedVersionCreatesException(boolean useBitSet) {
-    RegionVersionHolder h = createHolder(useBitSet);
+    var h = createHolder(useBitSet);
     h.recordVersion(2l);
     assertEquals(1, h.getExceptionCount());
     assertEquals(2l, h.getVersion());
@@ -102,7 +102,7 @@ public class RegionVersionHolder2JUnitTest {
   }
 
   private void fillException(boolean useBitSet) {
-    RegionVersionHolder h = createHolder(useBitSet);
+    var h = createHolder(useBitSet);
     h.recordVersion(3l);
     h.recordVersion(1l);
     h.recordVersion(2l);
@@ -122,10 +122,10 @@ public class RegionVersionHolder2JUnitTest {
   }
 
   private void fillLargeException(boolean useBitSet) {
-    RegionVersionHolder h = createHolder(useBitSet);
+    var h = createHolder(useBitSet);
     long bigVersion = BIT_SET_WIDTH + 1;
     h.recordVersion(bigVersion);
-    for (long i = 0l; i < bigVersion; i++) {
+    for (var i = 0l; i < bigVersion; i++) {
       h.recordVersion(i);
     }
     assertEquals("expected no exceptions in " + h, 0, h.getExceptionCount());
@@ -134,10 +134,10 @@ public class RegionVersionHolder2JUnitTest {
 
   @Test
   public void testReceiveDuplicateAfterBitSetFlushWithBitSet() {
-    RegionVersionHolder h = createHolder(true);
+    var h = createHolder(true);
     long bigVersion = BIT_SET_WIDTH + 1;
     h.recordVersion(bigVersion);
-    for (long i = 0l; i < bigVersion; i++) {
+    for (var i = 0l; i < bigVersion; i++) {
       h.recordVersion(i);
     }
     h.recordVersion(bigVersion);
@@ -147,11 +147,11 @@ public class RegionVersionHolder2JUnitTest {
 
   @Test
   public void testFillSpecialExceptionWithBitSet() {
-    RegionVersionHolder h = createHolder(true);
+    var h = createHolder(true);
     h.recordVersion(1l);
     createSpecialException(h);
     assertEquals(1, h.getExceptionCount());
-    RVVException e = (RVVException) h.getExceptionForTest().iterator().next();
+    var e = (RVVException) h.getExceptionForTest().iterator().next();
     assertTrue(h.isSpecialException(e, h));
     h.recordVersion(2l);
     // BUG: the exception is not removed

@@ -26,7 +26,6 @@ import java.util.Set;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 
-import org.apache.geode.cache.execute.Execution;
 import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.internal.cache.execute.AbstractExecution;
 import org.apache.geode.management.cli.CliMetaData;
@@ -35,7 +34,6 @@ import org.apache.geode.management.internal.cli.domain.IndexDetails;
 import org.apache.geode.management.internal.cli.domain.IndexDetails.IndexStatisticsDetails;
 import org.apache.geode.management.internal.cli.functions.ListIndexFunction;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.security.ResourceOperation;
 import org.apache.geode.security.ResourcePermission;
@@ -49,14 +47,14 @@ public class ListIndexCommand extends GfshCommand {
       specifiedDefaultValue = "true", unspecifiedDefaultValue = "false",
       help = CliStrings.LIST_INDEX__STATS__HELP) final boolean showStats) {
 
-    ResultModel result = new ResultModel();
-    TabularResultModel indexTable = result.addTable("indices");
-    final List<IndexDetails> indexDetailsList = getIndexListing();
+    var result = new ResultModel();
+    var indexTable = result.addTable("indices");
+    final var indexDetailsList = getIndexListing();
     if (indexDetailsList.isEmpty()) {
       return ResultModel.createInfo(CliStrings.LIST_INDEX__INDEXES_NOT_FOUND_MESSAGE);
     }
 
-    for (final IndexDetails indexDetails : indexDetailsList) {
+    for (final var indexDetails : indexDetailsList) {
       indexTable.accumulate("Member Name",
           defaultString(indexDetails.getMemberName()));
       indexTable.accumulate("Member ID", indexDetails.getMemberId());
@@ -72,7 +70,7 @@ public class ListIndexCommand extends GfshCommand {
       indexTable.accumulate("Valid Index", indexDetails.getIsValid() + "");
 
       if (showStats) {
-        final IndexStatisticsDetailsAdapter adapter =
+        final var adapter =
             new IndexStatisticsDetailsAdapter(indexDetails.getIndexStatisticsDetails());
 
         indexTable.accumulate("Uses", adapter.getTotalUses());
@@ -87,7 +85,7 @@ public class ListIndexCommand extends GfshCommand {
   }
 
   List<IndexDetails> getIndexListing() {
-    final Execution functionExecutor = getMembersFunctionExecutor(getAllMembers());
+    final var functionExecutor = getMembersFunctionExecutor(getAllMembers());
 
     if (functionExecutor instanceof AbstractExecution) {
       ((AbstractExecution) functionExecutor).setIgnoreDepartedMembers(true);
@@ -95,13 +93,13 @@ public class ListIndexCommand extends GfshCommand {
 
     final ResultCollector<?, ?> resultsCollector =
         functionExecutor.execute(new ListIndexFunction());
-    final List<?> results = (List<?>) resultsCollector.getResult();
+    final var results = (List<?>) resultsCollector.getResult();
     final List<IndexDetails> indexDetailsList = new ArrayList<>(results.size());
 
     for (Object result : results) {
       if (result instanceof Set) { // ignore FunctionInvocationTargetExceptions and other Exceptions
         @SuppressWarnings("unchecked")
-        Set<IndexDetails> set = (Set<IndexDetails>) result;
+        var set = (Set<IndexDetails>) result;
         indexDetailsList.addAll(set);
       }
     }

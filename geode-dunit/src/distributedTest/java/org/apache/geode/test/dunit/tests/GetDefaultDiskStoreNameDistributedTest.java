@@ -29,23 +29,23 @@ public class GetDefaultDiskStoreNameDistributedTest extends DistributedTestCase 
 
   @Test
   public void testGetTestMethodName() {
-    String expected = createDefaultDiskStoreName(0, -1, "testGetTestMethodName");
+    var expected = createDefaultDiskStoreName(0, -1, "testGetTestMethodName");
     assertGetDefaultDiskStoreName(expected);
   }
 
   @Test
   public void testGetTestMethodNameChanges() {
-    String expected = createDefaultDiskStoreName(0, -1, "testGetTestMethodNameChanges");
+    var expected = createDefaultDiskStoreName(0, -1, "testGetTestMethodNameChanges");
     assertGetDefaultDiskStoreName(expected);
   }
 
   @Test
   public void testGetTestMethodNameInAllVMs() {
-    String expected = createDefaultDiskStoreName(0, -1, "testGetTestMethodNameInAllVMs");
+    var expected = createDefaultDiskStoreName(0, -1, "testGetTestMethodNameInAllVMs");
     assertGetDefaultDiskStoreName(expected);
 
-    for (int vmIndex = 0; vmIndex < getVMCount(); vmIndex++) {
-      String expectedInVM = createDefaultDiskStoreName(0, vmIndex, "testGetTestMethodNameInAllVMs");
+    for (var vmIndex = 0; vmIndex < getVMCount(); vmIndex++) {
+      var expectedInVM = createDefaultDiskStoreName(0, vmIndex, "testGetTestMethodNameInAllVMs");
       getVM(vmIndex).invoke(() -> assertGetDefaultDiskStoreName(expectedInVM));
     }
   }

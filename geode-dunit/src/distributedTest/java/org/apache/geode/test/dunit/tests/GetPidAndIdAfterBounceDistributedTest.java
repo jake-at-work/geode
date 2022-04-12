@@ -37,7 +37,7 @@ public class GetPidAndIdAfterBounceDistributedTest {
     idsBefore = new int[getVMCount()];
     pidsBefore = new int[getVMCount()];
 
-    for (int i = 0; i < getVMCount(); i++) {
+    for (var i = 0; i < getVMCount(); i++) {
       idsBefore[i] = getVM(i).getId();
       pidsBefore[i] = getVM(i).getPid();
       getVM(i).bounce();
@@ -46,14 +46,14 @@ public class GetPidAndIdAfterBounceDistributedTest {
 
   @Test
   public void getIdShouldReturnSameValueAfterBounce() {
-    for (int i = 0; i < getVMCount(); i++) {
+    for (var i = 0; i < getVMCount(); i++) {
       assertThat(getVM(i).getId()).isEqualTo(idsBefore[i]);
     }
   }
 
   @Test
   public void getPidShouldReturnDifferentValueAfterBounce() {
-    for (int i = 0; i < getVMCount(); i++) {
+    for (var i = 0; i < getVMCount(); i++) {
       assertThat(getVM(i).getPid()).isNotEqualTo(pidsBefore[i]);
     }
   }

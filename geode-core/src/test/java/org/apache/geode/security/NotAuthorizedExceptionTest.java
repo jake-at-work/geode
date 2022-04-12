@@ -73,7 +73,7 @@ public class NotAuthorizedExceptionTest {
   }
 
   private void assertPreconditions() {
-    Throwable thrown =
+    var thrown =
         catchThrowable(() -> SerializationUtils.clone(nonSerializableNamingException));
     assertThat(thrown).isNotNull();
     assertThat(thrown.getCause()).isInstanceOf(NotSerializableException.class);
@@ -99,9 +99,9 @@ public class NotAuthorizedExceptionTest {
 
   @Test
   public void serializes() {
-    NotAuthorizedException instance = new NotAuthorizedException(message);
+    var instance = new NotAuthorizedException(message);
 
-    NotAuthorizedException cloned = SerializationUtils.clone(instance);
+    var cloned = SerializationUtils.clone(instance);
 
     assertThat(cloned).hasMessage(message);
   }
@@ -109,9 +109,9 @@ public class NotAuthorizedExceptionTest {
   @Test
   public void serializesWithThrowable() {
     Throwable cause = new Exception(causeMessage);
-    NotAuthorizedException instance = new NotAuthorizedException(message, cause);
+    var instance = new NotAuthorizedException(message, cause);
 
-    NotAuthorizedException cloned = SerializationUtils.clone(instance);
+    var cloned = SerializationUtils.clone(instance);
 
     assertThat(cloned).hasMessage(message);
     assertThat(cloned).hasCause(cause);
@@ -119,11 +119,11 @@ public class NotAuthorizedExceptionTest {
 
   @Test
   public void serializesWithNonSerializablePrincipal() {
-    NotAuthorizedException instance =
+    var instance =
         new NotAuthorizedException(message, nonSerializablePrincipal);
     assertThat(instance.getPrincipal()).isNotNull();
 
-    NotAuthorizedException cloned = SerializationUtils.clone(instance);
+    var cloned = SerializationUtils.clone(instance);
 
     assertThat(cloned).hasMessage(message);
     assertThat(cloned.getPrincipal()).isNull();
@@ -131,10 +131,10 @@ public class NotAuthorizedExceptionTest {
 
   @Test
   public void serializesWithSerializablePrincipal() {
-    NotAuthorizedException instance =
+    var instance =
         new NotAuthorizedException(message, serializablePrincipal);
 
-    NotAuthorizedException cloned = SerializationUtils.clone(instance);
+    var cloned = SerializationUtils.clone(instance);
 
     assertThat(cloned).hasMessage(message);
     assertThat(cloned.getPrincipal()).isNotNull().isEqualTo(serializablePrincipal);
@@ -157,7 +157,7 @@ public class NotAuthorizedExceptionTest {
         return false;
       }
 
-      SerializableObject that = (SerializableObject) o;
+      var that = (SerializableObject) o;
 
       return name != null ? name.equals(that.name) : that.name == null;
     }
@@ -190,7 +190,7 @@ public class NotAuthorizedExceptionTest {
         return false;
       }
 
-      SerializablePrincipal that = (SerializablePrincipal) o;
+      var that = (SerializablePrincipal) o;
 
       return name != null ? name.equals(that.name) : that.name == null;
     }

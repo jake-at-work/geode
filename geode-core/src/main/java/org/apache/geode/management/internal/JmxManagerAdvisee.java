@@ -20,12 +20,10 @@ import org.apache.geode.CancelCriterion;
 import org.apache.geode.distributed.internal.DistributionAdvisee;
 import org.apache.geode.distributed.internal.DistributionAdvisor;
 import org.apache.geode.distributed.internal.DistributionAdvisor.Profile;
-import org.apache.geode.distributed.internal.DistributionConfig;
 import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.cache.InternalCacheForClientAccess;
 import org.apache.geode.internal.inet.LocalHostUtil;
-import org.apache.geode.internal.net.SSLConfig;
 import org.apache.geode.internal.net.SSLConfigurationFactory;
 import org.apache.geode.internal.security.SecurableCommunicationChannel;
 import org.apache.geode.management.ManagementService;
@@ -88,14 +86,14 @@ public class JmxManagerAdvisee implements DistributionAdvisee {
   @Override
   public void fillInProfile(Profile profile) {
     assert profile instanceof JmxManagerProfile;
-    JmxManagerProfile jmxp = (JmxManagerProfile) profile;
-    DistributionConfig dc = getSystem().getConfig();
-    boolean jmxManager = dc.getJmxManager();
-    String host = "";
-    int port = 0;
-    boolean ssl = false;
-    boolean started = false;
-    SystemManagementService service =
+    var jmxp = (JmxManagerProfile) profile;
+    var dc = getSystem().getConfig();
+    var jmxManager = dc.getJmxManager();
+    var host = "";
+    var port = 0;
+    var ssl = false;
+    var started = false;
+    var service =
         (SystemManagementService) ManagementService.getExistingManagementService(cache);
     if (service != null) {
       jmxManager = service.isManagerCreated();
@@ -103,7 +101,7 @@ public class JmxManagerAdvisee implements DistributionAdvisee {
     }
     if (jmxManager) {
       port = dc.getJmxManagerPort();
-      boolean usingJdkConfig = false;
+      var usingJdkConfig = false;
       if (port == 0) {
         port = Integer.getInteger("com.sun.management.jmxremote.port", 0);
         if (port != 0) {
@@ -116,7 +114,7 @@ public class JmxManagerAdvisee implements DistributionAdvisee {
       }
       if (port != 0) {
         if (!usingJdkConfig) {
-          SSLConfig jmxSSL =
+          var jmxSSL =
               SSLConfigurationFactory.getSSLConfigForComponent(dc,
                   SecurableCommunicationChannel.JMX);
           ssl = jmxSSL.isEnabled();

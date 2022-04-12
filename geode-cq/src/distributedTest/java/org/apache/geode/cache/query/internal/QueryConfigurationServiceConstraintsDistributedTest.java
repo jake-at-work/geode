@@ -56,8 +56,6 @@ import org.apache.geode.cache.query.CqAttributesFactory;
 import org.apache.geode.cache.query.CqEvent;
 import org.apache.geode.cache.query.CqException;
 import org.apache.geode.cache.query.CqListener;
-import org.apache.geode.cache.query.CqQuery;
-import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.RegionNotFoundException;
 import org.apache.geode.cache.query.security.MethodInvocationAuthorizer;
 import org.apache.geode.cache.query.security.RestrictedMethodAuthorizer;
@@ -121,7 +119,7 @@ public class QueryConfigurationServiceConstraintsDistributedTest implements Seri
         "SELECT * FROM " + SEPARATOR + regionName + " object",
         "WHERE object." + GET_ID_METHOD + " > -1");
 
-    int serverPort = getRandomAvailableTCPPort();
+    var serverPort = getRandomAvailableTCPPort();
 
     serverVM.invoke(() -> {
       serverLauncher = new ServerLauncher.Builder()
@@ -136,7 +134,7 @@ public class QueryConfigurationServiceConstraintsDistributedTest implements Seri
 
       serverLauncher.start();
 
-      InternalCache internalCache = (InternalCache) serverLauncher.getCache();
+      var internalCache = (InternalCache) serverLauncher.getCache();
       assertThat(internalCache).isNotNull();
 
       internalCache
@@ -196,7 +194,7 @@ public class QueryConfigurationServiceConstraintsDistributedTest implements Seri
     clientVM.invoke(() -> createClientCq(queryString, executeWithInitialResults));
 
     serverVM.invoke(() -> {
-      InternalCache internalCache = (InternalCache) serverLauncher.getCache();
+      var internalCache = (InternalCache) serverLauncher.getCache();
       assertThat(internalCache.getCqService().getAllCqs()).hasSize(1);
 
       // Make Sure Cq is running before continuing.
@@ -221,7 +219,7 @@ public class QueryConfigurationServiceConstraintsDistributedTest implements Seri
     });
 
     // No errors logged on server side.
-    File logFile = new File(new File(temporaryFolder.getRoot(), "server"), "server.log");
+    var logFile = new File(new File(temporaryFolder.getRoot(), "server"), "server.log");
     LogFileAssert
         .assertThat(logFile)
         .doesNotContain(RestrictedMethodAuthorizer.UNAUTHORIZED_STRING);
@@ -246,7 +244,7 @@ public class QueryConfigurationServiceConstraintsDistributedTest implements Seri
     clientVM.invoke(() -> createClientCq(queryString, executeWithInitialResults));
 
     serverVM.invoke(() -> {
-      InternalCache internalCache = (InternalCache) serverLauncher.getCache();
+      var internalCache = (InternalCache) serverLauncher.getCache();
       assertThat(internalCache.getCqService().getAllCqs()).hasSize(1);
 
       // Make Sure Cq is running before continuing.
@@ -270,7 +268,7 @@ public class QueryConfigurationServiceConstraintsDistributedTest implements Seri
     });
 
     // No errors logged on server side.
-    File logFile = new File(new File(temporaryFolder.getRoot(), "server"), "server.log");
+    var logFile = new File(new File(temporaryFolder.getRoot(), "server"), "server.log");
     LogFileAssert
         .assertThat(logFile)
         .contains(RestrictedMethodAuthorizer.UNAUTHORIZED_STRING);
@@ -318,11 +316,11 @@ public class QueryConfigurationServiceConstraintsDistributedTest implements Seri
       throws CqException, RegionNotFoundException {
     cqListener = new CountingCqListener();
 
-    QueryService queryService = clientCache.getQueryService();
-    CqAttributesFactory cqAttributesFactory = new CqAttributesFactory();
+    var queryService = clientCache.getQueryService();
+    var cqAttributesFactory = new CqAttributesFactory();
     cqAttributesFactory.addCqListener(cqListener);
 
-    CqQuery cq = queryService.newCq(queryString, cqAttributesFactory.create());
+    var cq = queryService.newCq(queryString, cqAttributesFactory.create());
     if (executeWithInitialResults) {
       assertThat(cq.executeWithInitialResults()).hasSize(ENTRIES);
     } else {
@@ -376,7 +374,7 @@ public class QueryConfigurationServiceConstraintsDistributedTest implements Seri
       if (o == null || getClass() != o.getClass()) {
         return false;
       }
-      QueryObject that = (QueryObject) o;
+      var that = (QueryObject) o;
       if (getId() != that.getId()) {
         return false;
       }
@@ -386,7 +384,7 @@ public class QueryConfigurationServiceConstraintsDistributedTest implements Seri
 
     @Override
     public int hashCode() {
-      int result = getId();
+      var result = getId();
       result = 31 * result + (getName() != null ? getName().hashCode() : 0);
       return result;
     }

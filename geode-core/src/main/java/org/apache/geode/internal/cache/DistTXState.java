@@ -15,10 +15,6 @@
 package org.apache.geode.internal.cache;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.geode.InternalGemFireException;
@@ -30,18 +26,15 @@ import org.apache.geode.cache.CommitConflictException;
 import org.apache.geode.cache.DiskAccessException;
 import org.apache.geode.cache.EntryNotFoundException;
 import org.apache.geode.cache.TransactionDataRebalancedException;
-import org.apache.geode.cache.TransactionWriter;
 import org.apache.geode.cache.TransactionWriterException;
 import org.apache.geode.cache.UnsupportedOperationInTransactionException;
 import org.apache.geode.distributed.DistributedMember;
-import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.cache.TXEntryState.DistTxThinEntryState;
 import org.apache.geode.internal.cache.partitioned.PutAllPRMessage;
 import org.apache.geode.internal.cache.partitioned.RemoveAllPRMessage;
 import org.apache.geode.internal.cache.tier.sockets.VersionedObjectList;
 import org.apache.geode.internal.cache.tx.DistTxEntryEvent;
 import org.apache.geode.internal.cache.tx.DistTxKeyInfo;
-import org.apache.geode.internal.cache.versions.RegionVersionVector;
 import org.apache.geode.internal.offheap.annotations.Released;
 import org.apache.geode.internal.statistics.StatisticsClock;
 
@@ -76,20 +69,20 @@ public class DistTXState extends TXState {
    */
   public void updateRegionVersions() {
 
-    for (final Entry<InternalRegion, TXRegionState> me : regions.entrySet()) {
-      InternalRegion r = me.getKey();
-      TXRegionState txrs = me.getValue();
+    for (final var me : regions.entrySet()) {
+      var r = me.getKey();
+      var txrs = me.getValue();
 
       // Generate next region version only on the primary
       if (!txrs.isCreatedDuringCommit()) {
         try {
-          Set entries = txrs.getEntryKeys();
+          var entries = txrs.getEntryKeys();
           if (!entries.isEmpty()) {
-            for (final Object key : entries) {
-              TXEntryState txes = txrs.getTXEntryState(key);
-              RegionVersionVector rvv = r.getVersionVector();
+            for (final var key : entries) {
+              var txes = txrs.getTXEntryState(key);
+              var rvv = r.getVersionVector();
               if (rvv != null) {
-                long v = rvv.getNextVersion();
+                var v = rvv.getNextVersion();
                 // txes.setNextRegionVersion(v);
                 txes.getDistTxEntryStates().setRegionVersion(v);
                 if (logger.isDebugEnabled()) {
@@ -115,25 +108,25 @@ public class DistTXState extends TXState {
    */
   public void generateTailKeysForParallelDispatcherEvents() {
 
-    for (final Entry<InternalRegion, TXRegionState> me : regions.entrySet()) {
-      InternalRegion r = me.getKey();
-      TXRegionState txrs = me.getValue();
+    for (final var me : regions.entrySet()) {
+      var r = me.getKey();
+      var txrs = me.getValue();
 
-      InternalRegion region = txrs.getRegion();
+      var region = txrs.getRegion();
       // Check if it is a bucket region
       if (region.isUsedForPartitionedRegionBucket()) {
         // Check if it is a primary bucket
-        BucketRegion bRegion = (BucketRegion) region;
+        var bRegion = (BucketRegion) region;
         if (!(bRegion instanceof AbstractBucketRegionQueue)) {
           if (bRegion.getBucketAdvisor().isPrimary()) {
 
             // Generate a tail key for each entry
-            Set entries = txrs.getEntryKeys();
+            var entries = txrs.getEntryKeys();
             if (!entries.isEmpty()) {
-              for (final Object key : entries) {
-                TXEntryState txes = txrs.getTXEntryState(key);
+              for (final var key : entries) {
+                var txes = txrs.getTXEntryState(key);
 
-                long tailKey = ((BucketRegion) region).generateTailKey();
+                var tailKey = ((BucketRegion) region).generateTailKey();
                 txes.getDistTxEntryStates().setTailKey(tailKey);
               }
             }
@@ -203,7 +196,7 @@ public class DistTXState extends TXState {
      * If there is a TransactionWriter plugged in, we need to to give it an opportunity to abort the
      * transaction.
      */
-    TransactionWriter writer = proxy.getTxMgr().getWriter();
+    var writer = proxy.getTxMgr().getWriter();
     if (!firedWriter && writer != null) {
       try {
         firedWriter = true;
@@ -252,7 +245,7 @@ public class DistTXState extends TXState {
     }
 
     try {
-      List/* <TXEntryStateWithRegionAndKey> */ entries = generateEventOffsets();
+      var /* <TXEntryStateWithRegionAndKey> */ entries = generateEventOffsets();
       if (logger.isDebugEnabled()) {
         logger.debug("commit entries " + entries);
       }
@@ -313,9 +306,9 @@ public class DistTXState extends TXState {
   protected TXCommitMessage buildMessageForAdjunctReceivers() {
     TXCommitMessage msg =
         new DistTXAdjunctCommitMessage(proxy.getTxId(), proxy.getTxMgr().getDM(), this);
-    for (final Entry<InternalRegion, TXRegionState> me : regions.entrySet()) {
-      InternalRegion r = me.getKey();
-      TXRegionState txrs = me.getValue();
+    for (final var me : regions.entrySet()) {
+      var r = me.getKey();
+      var txrs = me.getValue();
 
       // only on the primary
       if (r.isUsedForPartitionedRegionBucket() && !txrs.isCreatedDuringCommit()) {
@@ -334,9 +327,9 @@ public class DistTXState extends TXState {
 
   protected boolean applyOpsOnRedundantCopy(DistributedMember sender,
       ArrayList<DistTxEntryEvent> secondaryTransactionalOperations) {
-    boolean returnValue = true;
+    var returnValue = true;
     try {
-      boolean result = true;
+      var result = true;
 
       // Start TxState Update During PreCommit phase
       setUpdatingTxStateDuringPreCommit(true);
@@ -353,7 +346,7 @@ public class DistTXState extends TXState {
        *
        * [DISTTX] TODO need to handle other operations
        */
-      for (DistTxEntryEvent dtop : secondaryTransactionalOperations) {
+      for (var dtop : secondaryTransactionalOperations) {
         if (logger.isDebugEnabled()) {
           logger.debug("DistTXState.applyOpOnRedundantCopy: processing dist " + "tx operation {}",
               dtop);
@@ -426,12 +419,12 @@ public class DistTXState extends TXState {
    *
    */
   protected boolean applyIndividualOp(DistTxEntryEvent dtop) throws DataLocationException {
-    boolean result = true;
+    var result = true;
     if (dtop.op.isUpdate() || dtop.op.isCreate()) {
       if (dtop.op.isPutAll()) {
         assert (dtop.getPutAllOperation() != null);
         // [DISTTX] TODO what do with versions next?
-        final VersionedObjectList versions =
+        final var versions =
             new VersionedObjectList(dtop.getPutAllOperation().putAllDataSize, true,
                 dtop.getRegion().getConcurrencyChecksEnabled());
         postPutAll(dtop.getPutAllOperation(), versions, dtop.getRegion());
@@ -446,7 +439,7 @@ public class DistTXState extends TXState {
       if (dtop.op.isRemoveAll()) {
         assert (dtop.getRemoveAllOperation() != null);
         // [DISTTX] TODO what do with versions next?
-        final VersionedObjectList versions =
+        final var versions =
             new VersionedObjectList(dtop.getRemoveAllOperation().removeAllDataSize, true,
                 dtop.getRegion().getConcurrencyChecksEnabled());
         postRemoveAll(dtop.getRemoveAllOperation(), versions, dtop.getRegion());
@@ -487,7 +480,7 @@ public class DistTXState extends TXState {
 
   @Override
   public TXRegionState writeRegion(InternalRegion r) {
-    TXRegionState result = readRegion(r);
+    var result = readRegion(r);
     if (result == null) {
       if (r instanceof BucketRegion) {
         result = new TXBucketRegionState((BucketRegion) r, this);
@@ -545,11 +538,11 @@ public class DistTXState extends TXState {
     theRegion.syncBulkOp(() -> {
       // final boolean requiresRegionContext =
       // theRegion.keyRequiresRegionContext();
-      InternalDistributedMember myId =
+      var myId =
           theRegion.getDistributionManager().getDistributionManagerId();
-      for (int i = 0; i < putallOp.putAllDataSize; ++i) {
+      for (var i = 0; i < putallOp.putAllDataSize; ++i) {
         @Released
-        EntryEventImpl ev = PutAllPRMessage.getEventFromEntry(theRegion, myId, myId, i,
+        var ev = PutAllPRMessage.getEventFromEntry(theRegion, myId, myId, i,
             putallOp.putAllData, false, putallOp.getBaseEvent().getContext(), false,
             !putallOp.getBaseEvent().isGenerateCallbacks());
         try {
@@ -560,8 +553,8 @@ public class DistTXState extends TXState {
           // In this case disable the primary check by calling
           // distKeyInfo.setCheckPrimary(false);
           if (isUpdatingTxStateDuringPreCommit()) {
-            KeyInfo keyInfo = ev.getKeyInfo();
-            DistTxKeyInfo distKeyInfo = new DistTxKeyInfo(keyInfo);
+            var keyInfo = ev.getKeyInfo();
+            var distKeyInfo = new DistTxKeyInfo(keyInfo);
             distKeyInfo.setCheckPrimary(false);
             ev.setKeyInfo(distKeyInfo);
           }
@@ -600,11 +593,11 @@ public class DistTXState extends TXState {
      * will push them out. We need to put this into the tx state.
      */
     theRegion.syncBulkOp(() -> {
-      InternalDistributedMember myId =
+      var myId =
           theRegion.getDistributionManager().getDistributionManagerId();
-      for (int i = 0; i < op.removeAllDataSize; ++i) {
+      for (var i = 0; i < op.removeAllDataSize; ++i) {
         @Released
-        EntryEventImpl ev = RemoveAllPRMessage.getEventFromEntry(theRegion, myId, myId, i,
+        var ev = RemoveAllPRMessage.getEventFromEntry(theRegion, myId, myId, i,
             op.removeAllData, false, op.getBaseEvent().getContext(), false,
             !op.getBaseEvent().isGenerateCallbacks());
         try {
@@ -614,8 +607,8 @@ public class DistTXState extends TXState {
           // In this case disable the primary check by calling
           // distKeyInfo.setCheckPrimary(false);
           if (isUpdatingTxStateDuringPreCommit()) {
-            KeyInfo keyInfo = ev.getKeyInfo();
-            DistTxKeyInfo distKeyInfo = new DistTxKeyInfo(keyInfo);
+            var keyInfo = ev.getKeyInfo();
+            var distKeyInfo = new DistTxKeyInfo(keyInfo);
             distKeyInfo.setCheckPrimary(false);
             ev.setKeyInfo(distKeyInfo);
           }
@@ -654,13 +647,13 @@ public class DistTXState extends TXState {
    */
   public boolean populateDistTxEntryStateList(
       TreeMap<String, ArrayList<DistTxThinEntryState>> entryStateSortedMap) {
-    for (Map.Entry<InternalRegion, TXRegionState> me : regions.entrySet()) {
-      InternalRegion r = me.getKey();
-      TXRegionState txrs = me.getValue();
-      String regionFullPath = r.getFullPath();
+    for (var me : regions.entrySet()) {
+      var r = me.getKey();
+      var txrs = me.getValue();
+      var regionFullPath = r.getFullPath();
       if (!txrs.isCreatedDuringCommit()) {
-        ArrayList<DistTxThinEntryState> entryStateList = new ArrayList<>();
-        boolean returnValue = txrs.populateDistTxEntryStateList(entryStateList);
+        var entryStateList = new ArrayList<DistTxThinEntryState>();
+        var returnValue = txrs.populateDistTxEntryStateList(entryStateList);
         if (returnValue) {
           if (logger.isDebugEnabled()) {
             logger.debug("DistTxState.populateDistTxEntryStateList Adding entries " + " with count="
@@ -689,18 +682,18 @@ public class DistTXState extends TXState {
    * Set list of entry states for each region while applying commit
    */
   public void setDistTxEntryStates(ArrayList<ArrayList<DistTxThinEntryState>> entryEventList) {
-    TreeMap<String, TXRegionState> regionSortedMap = new TreeMap<>();
-    for (TXRegionState txrs : regions.values()) {
+    var regionSortedMap = new TreeMap<String, TXRegionState>();
+    for (var txrs : regions.values()) {
       if (txrs.isCreatedDuringCommit()) {
         regionSortedMap.put(txrs.getRegion().getFullPath(), txrs);
       }
     }
 
-    int index = 0;
-    for (Entry<String, TXRegionState> me : regionSortedMap.entrySet()) {
-      String regionFullPath = me.getKey();
-      TXRegionState txrs = me.getValue();
-      ArrayList<DistTxThinEntryState> entryEvents = entryEventList.get(index++);
+    var index = 0;
+    for (var me : regionSortedMap.entrySet()) {
+      var regionFullPath = me.getKey();
+      var txrs = me.getValue();
+      var entryEvents = entryEventList.get(index++);
       if (logger.isDebugEnabled()) {
         logger.debug("DistTxState.setDistTxEntryStates For region=" + regionFullPath + " ,index="
             + index + " ,entryEvents=(" + entryEvents.size() + ")=" + entryEvents

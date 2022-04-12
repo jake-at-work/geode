@@ -91,7 +91,7 @@ public class SortedSetLexRangeOptions extends AbstractSortedSetRangeOptions<byte
   @Override
   public int getRangeIndex(RedisSortedSet.ScoreSet scoreSet, boolean isStartIndex) {
     int index;
-    RangeLimit<byte[]> rangeLimit = isStartIndex ? start : end;
+    var rangeLimit = isStartIndex ? start : end;
     RedisSortedSet.AbstractOrderedSetEntry entry =
         new RedisSortedSet.MemberDummyOrderedSetEntry(rangeLimit.value,
             rangeLimit.isExclusive, isStartIndex ^ isRev);
@@ -106,7 +106,7 @@ public class SortedSetLexRangeOptions extends AbstractSortedSetRangeOptions<byte
   }
 
   private int compareMemberNames(byte[] nameOne, byte[] nameTwo) {
-    int dummyNameComparison = checkDummyMemberNames(nameOne, nameTwo);
+    var dummyNameComparison = checkDummyMemberNames(nameOne, nameTwo);
     if (dummyNameComparison == 0) {
       return javaImplementationOfAnsiCMemCmp(nameOne, nameTwo);
     } else {

@@ -48,7 +48,7 @@ public class RegionInformation implements Serializable {
       isRoot = true;
 
       if (recursive) {
-        Set<Region<?, ?>> subRegions = region.subregions(recursive);
+        var subRegions = region.subregions(recursive);
         subRegionInformationSet = getSubRegions(subRegions);
       }
     } else {
@@ -60,8 +60,8 @@ public class RegionInformation implements Serializable {
   private Set<RegionInformation> getSubRegions(Set<Region<?, ?>> subRegions) {
     Set<RegionInformation> subRegionInformation = new HashSet<>();
 
-    for (Region<?, ?> region : subRegions) {
-      RegionInformation regionInformation = new RegionInformation(region, false);
+    for (var region : subRegions) {
+      var regionInformation = new RegionInformation(region, false);
       subRegionInformation.add(regionInformation);
     }
 
@@ -72,7 +72,7 @@ public class RegionInformation implements Serializable {
     Set<String> subRegionNames = new HashSet<>();
 
     if (subRegionInformationSet != null) {
-      for (RegionInformation regInfo : subRegionInformationSet) {
+      for (var regInfo : subRegionInformationSet) {
         subRegionNames.add(regInfo.getName());
       }
     }
@@ -103,7 +103,7 @@ public class RegionInformation implements Serializable {
   @Override
   public boolean equals(Object obj) {
     if (obj instanceof RegionInformation) {
-      RegionInformation regionInfoObj = (RegionInformation) obj;
+      var regionInfoObj = (RegionInformation) obj;
       return name.equals(regionInfoObj.getName()) && path.equals(regionInfoObj.getPath())
           && isRoot == regionInfoObj.isRoot
           && dataPolicy.equals(regionInfoObj.getDataPolicy())
@@ -120,7 +120,7 @@ public class RegionInformation implements Serializable {
   }
 
   public String toString() {
-    StringBuilder sb = new StringBuilder();
+    var sb = new StringBuilder();
     sb.append("\nName          :\t");
     sb.append(getName());
     sb.append("\nPath          :\t");
@@ -139,10 +139,10 @@ public class RegionInformation implements Serializable {
   }
 
   public String getSubRegionInfoAsString() {
-    StringBuilder sb = new StringBuilder();
+    var sb = new StringBuilder();
     if (isRoot) {
 
-      for (RegionInformation regionInfo : subRegionInformationSet) {
+      for (var regionInfo : subRegionInformationSet) {
         sb.append("\n");
         sb.append(regionInfo.getName());
       }

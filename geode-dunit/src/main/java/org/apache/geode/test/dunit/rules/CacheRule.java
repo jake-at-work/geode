@@ -25,7 +25,6 @@ import java.util.Properties;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.Region;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.cache.HARegion;
 import org.apache.geode.internal.cache.InternalCache;
@@ -132,7 +131,7 @@ public class CacheRule extends AbstractDistributedRule {
       if (createCache) {
         createCache(config(), systemProperties);
       }
-      for (VM vm : createCacheInVMs) {
+      for (var vm : createCacheInVMs) {
         vm.invoke(() -> createCache(config(), systemProperties));
       }
     }
@@ -223,7 +222,7 @@ public class CacheRule extends AbstractDistributedRule {
     if (replaceConfig) {
       return config;
     }
-    Properties allConfig = getDistributedSystemProperties();
+    var allConfig = getDistributedSystemProperties();
     allConfig.putAll(this.config);
     allConfig.putAll(config);
     return allConfig;
@@ -249,8 +248,8 @@ public class CacheRule extends AbstractDistributedRule {
   private static void destroyRegions(final Cache cache) {
     if (cache != null && !cache.isClosed()) {
       // try to destroy the root regions first so that we clean up any persistent files.
-      for (Region<?, ?> root : cache.rootRegions()) {
-        String regionFullPath = root == null ? null : root.getFullPath();
+      for (var root : cache.rootRegions()) {
+        var regionFullPath = root == null ? null : root.getFullPath();
         // for colocated regions you can't locally destroy a partitioned region.
         if (root.isDestroyed() || root instanceof HARegion || root instanceof PartitionedRegion) {
           continue;

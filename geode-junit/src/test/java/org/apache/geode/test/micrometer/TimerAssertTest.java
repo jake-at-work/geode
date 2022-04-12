@@ -21,8 +21,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.concurrent.TimeUnit;
-
 import io.micrometer.core.instrument.Timer;
 import org.assertj.core.api.Condition;
 import org.junit.Test;
@@ -36,7 +34,7 @@ public class TimerAssertTest {
 
   @Test
   public void hasCount_doesNotThrow_ifConditionAcceptsCount() {
-    long acceptableCount = 92L;
+    var acceptableCount = 92L;
 
     when(timer.count()).thenReturn(acceptableCount);
     when(countCondition.matches(acceptableCount)).thenReturn(true);
@@ -47,7 +45,7 @@ public class TimerAssertTest {
 
   @Test
   public void hasCount_failsDescriptively_ifConditionRejectsCount() {
-    long unacceptableCount = 92L;
+    var unacceptableCount = 92L;
 
     when(timer.count()).thenReturn(unacceptableCount);
     when(countCondition.matches(unacceptableCount)).thenReturn(false);
@@ -60,8 +58,8 @@ public class TimerAssertTest {
 
   @Test
   public void hasTotalTime_doesNotThrow_ifConditionAcceptsTotalTime() {
-    double acceptableCount = 92.0;
-    TimeUnit timeUnit = SECONDS;
+    var acceptableCount = 92.0;
+    var timeUnit = SECONDS;
 
     when(timer.totalTime(timeUnit)).thenReturn(acceptableCount);
     when(totalTimeCondition.matches(acceptableCount)).thenReturn(true);
@@ -72,8 +70,8 @@ public class TimerAssertTest {
 
   @Test
   public void hasTotalTime_failsDescriptively_ifConditionRejectsTotalTime() {
-    double unacceptableCount = 92.0;
-    TimeUnit timeUnit = SECONDS;
+    var unacceptableCount = 92.0;
+    var timeUnit = SECONDS;
 
     when(timer.totalTime(timeUnit)).thenReturn(unacceptableCount);
     when(totalTimeCondition.matches(unacceptableCount)).thenReturn(false);

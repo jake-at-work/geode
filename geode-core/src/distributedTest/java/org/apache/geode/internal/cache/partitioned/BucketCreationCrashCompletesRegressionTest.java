@@ -26,7 +26,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.Serializable;
 import java.util.Properties;
-import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -44,7 +43,6 @@ import org.apache.geode.distributed.internal.membership.InternalDistributedMembe
 import org.apache.geode.internal.cache.ForceReattemptException;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.PartitionedRegion;
-import org.apache.geode.internal.cache.PartitionedRegionDataStore;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.CacheRule;
 import org.apache.geode.test.dunit.rules.DistributedRule;
@@ -95,7 +93,7 @@ public class BucketCreationCrashCompletesRegressionTest implements Serializable 
    */
   @Test
   public void testCrashWhileCreatingABucket() {
-    for (VM vm : toArray(vm1, vm2)) {
+    for (var vm : toArray(vm1, vm2)) {
       vm.invoke(() -> {
         DistributionMessageObserver.setInstance(new CrashMemberBeforeManageBucketMessage(vm0));
 
@@ -120,18 +118,18 @@ public class BucketCreationCrashCompletesRegressionTest implements Serializable 
       RegionFactory<String, String> regionFactory = getCache().createRegionFactory(PARTITION);
       regionFactory.setPartitionAttributes(partitionAttributesFactory.create());
 
-      Region<String, String> region = regionFactory.create(regionName);
+      var region = regionFactory.create(regionName);
 
       // trigger the creation of a bucket, which should trigger the destruction of this VM.
       assertThatThrownBy(() -> region.put("ping", "pong")).isInstanceOf(CancelException.class);
     });
 
-    for (VM vm : toArray(vm1, vm2)) {
+    for (var vm : toArray(vm1, vm2)) {
       vm.invoke(() -> {
-        PartitionedRegion pr = (PartitionedRegion) getCache().getRegion(regionName);
-        int totalNumBuckets = pr.getAttributes().getPartitionAttributes().getTotalNumBuckets();
-        for (int i = 0; i < totalNumBuckets; i++) {
-          int bucketId = i;
+        var pr = (PartitionedRegion) getCache().getRegion(regionName);
+        var totalNumBuckets = pr.getAttributes().getPartitionAttributes().getTotalNumBuckets();
+        for (var i = 0; i < totalNumBuckets; i++) {
+          var bucketId = i;
 
           await().until(() -> {
             try {
@@ -168,7 +166,7 @@ public class BucketCreationCrashCompletesRegressionTest implements Serializable 
       region.put(0, "A");
     });
 
-    InternalDistributedMember member1 = vm1.invoke(() -> getCache().getMyId());
+    var member1 = vm1.invoke(() -> getCache().getMyId());
 
     // Move the bucket
     vm0.invoke(() -> {
@@ -189,13 +187,13 @@ public class BucketCreationCrashCompletesRegressionTest implements Serializable 
   }
 
   private void verifyCannotMoveBucketToExistingHost(InternalDistributedMember member1) {
-    PartitionedRegion partitionedRegion = (PartitionedRegion) getCache().getRegion(regionName);
-    Set<InternalDistributedMember> bucketOwners =
+    var partitionedRegion = (PartitionedRegion) getCache().getRegion(regionName);
+    var bucketOwners =
         partitionedRegion.getRegionAdvisor().getBucketOwners(0);
 
     assertThat(bucketOwners).hasSize(2);
 
-    PartitionedRegionDataStore dataStore = partitionedRegion.getDataStore();
+    var dataStore = partitionedRegion.getDataStore();
 
     assertThat(dataStore.isManagingBucket(0)).isTrue();
     // try to move the bucket from the other member to this one. This should
@@ -213,7 +211,7 @@ public class BucketCreationCrashCompletesRegressionTest implements Serializable 
   }
 
   public Properties getDistributedSystemProperties() {
-    Properties config = new Properties();
+    var config = new Properties();
     config.setProperty(ENABLE_NETWORK_PARTITION_DETECTION, "false");
     return getAllDistributedSystemProperties(config);
   }

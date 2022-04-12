@@ -18,7 +18,6 @@ package org.apache.geode.management.internal.cli.commands;
 import static org.apache.geode.logging.internal.executors.LoggingExecutors.newCachedThreadPool;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -37,7 +36,6 @@ import org.apache.geode.management.cli.ConverterHint;
 import org.apache.geode.management.cli.GfshCommand;
 import org.apache.geode.management.internal.SystemManagementService;
 import org.apache.geode.management.internal.cli.result.model.ResultModel;
-import org.apache.geode.management.internal.cli.result.model.TabularResultModel;
 import org.apache.geode.management.internal.i18n.CliStrings;
 import org.apache.geode.management.internal.security.ResourceOperation;
 import org.apache.geode.security.ResourcePermission;
@@ -77,7 +75,7 @@ public class StopGatewaySenderCommand extends GfshCommand {
           optionContext = ConverterHint.MEMBERIDNAME,
           help = CliStrings.STOP_GATEWAYSENDER__MEMBER__HELP) String[] onMember) {
 
-    Set<DistributedMember> dsMembers = findMembers(onGroup, onMember);
+    var dsMembers = findMembers(onGroup, onMember);
 
     if (dsMembers.isEmpty()) {
       return ResultModel.createError(CliStrings.NO_MEMBERS_FOUND_MESSAGE);
@@ -91,7 +89,7 @@ public class StopGatewaySenderCommand extends GfshCommand {
     List<DistributedMember> dsMembersList = new ArrayList<>(dsMembers);
     List<Callable<List<String>>> callables = new ArrayList<>();
 
-    for (final DistributedMember member : dsMembersList) {
+    for (final var member : dsMembersList) {
       callables.add(() -> stopperOnMember
           .executeStopGatewaySenderOnMember(id,
               cache, getManagementService(), member));
@@ -112,11 +110,11 @@ public class StopGatewaySenderCommand extends GfshCommand {
 
   private ResultModel buildResultModelFromMembersResponses(String id,
       List<DistributedMember> dsMembers, List<Future<List<String>>> futures) {
-    ResultModel resultModel = new ResultModel();
-    TabularResultModel resultData = resultModel.addTable(CliStrings.STOP_GATEWAYSENDER);
-    Iterator<DistributedMember> memberIterator = dsMembers.iterator();
-    for (Future<List<String>> future : futures) {
-      DistributedMember member = memberIterator.next();
+    var resultModel = new ResultModel();
+    var resultData = resultModel.addTable(CliStrings.STOP_GATEWAYSENDER);
+    var memberIterator = dsMembers.iterator();
+    for (var future : futures) {
+      var member = memberIterator.next();
       List<String> memberStatus;
       try {
         memberStatus = future.get();

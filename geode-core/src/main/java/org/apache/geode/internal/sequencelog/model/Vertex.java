@@ -14,7 +14,6 @@
  */
 package org.apache.geode.internal.sequencelog.model;
 
-import java.util.SortedMap;
 
 public class Vertex implements Comparable<Vertex> {
 
@@ -52,8 +51,8 @@ public class Vertex implements Comparable<Vertex> {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
+    final var prime = 31;
+    var result = 1;
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result = prime * result + ((state == null) ? 0 : state.hashCode());
     result = prime * result + (int) (timestamp ^ (timestamp >>> 32));
@@ -71,7 +70,7 @@ public class Vertex implements Comparable<Vertex> {
     if (!(obj instanceof Vertex)) {
       return false;
     }
-    Vertex other = (Vertex) obj;
+    var other = (Vertex) obj;
     if (name == null) {
       if (other.name != null) {
         return false;
@@ -91,7 +90,7 @@ public class Vertex implements Comparable<Vertex> {
 
   @Override
   public int compareTo(Vertex o) {
-    int difference = o.name == null ? (name == null ? 0 : -1) : (name == null ? 1 : 0);
+    var difference = o.name == null ? (name == null ? 0 : -1) : (name == null ? 1 : 0);
     if (difference != 0) {
       return difference;
     }
@@ -111,8 +110,8 @@ public class Vertex implements Comparable<Vertex> {
 
 
   public Vertex getNextVertexOnDest() {
-    SortedMap<Long, Vertex> map = graph.getIndexedVertices().get(name);
-    SortedMap<Long, Vertex> tailMap = map.tailMap(timestamp + 1);
+    var map = graph.getIndexedVertices().get(name);
+    var tailMap = map.tailMap(timestamp + 1);
     if (tailMap.isEmpty()) {
       return null;
     } else {

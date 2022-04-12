@@ -51,7 +51,7 @@ public class CommandJUnitTest {
     List<byte[]> list3 = new ArrayList<>();
     list3.add(stringToBytes("Garbage"));
 
-    Command cmd = new Command(list3);
+    var cmd = new Command(list3);
     assertThat(cmd.getCommandType()).isNotNull();
 
     assertThat(cmd.getCommandType()).isEqualTo(RedisCommandType.UNKNOWN);
@@ -71,7 +71,7 @@ public class CommandJUnitTest {
 
   @Test
   public void verifyGetCommandArguments() {
-    Command cmd = new Command(Collections.singletonList(stringToBytes("cmd")));
+    var cmd = new Command(Collections.singletonList(stringToBytes("cmd")));
     assertThat(cmd.getCommandArguments()).isEmpty();
 
     cmd = new Command(Arrays.asList(stringToBytes("cmd"), stringToBytes("arg1")));
@@ -86,28 +86,28 @@ public class CommandJUnitTest {
 
   @Test
   public void toStringForAUTHCommandDoesNotReturnArguments() {
-    String password = "password";
-    byte[] authBytes = stringToBytes(RedisCommandType.AUTH.name());
-    byte[] passwordBytes = stringToBytes(password);
+    var password = "password";
+    var authBytes = stringToBytes(RedisCommandType.AUTH.name());
+    var passwordBytes = stringToBytes(password);
 
-    Command authCommandWithOneArgument = new Command(Arrays.asList(authBytes, passwordBytes));
+    var authCommandWithOneArgument = new Command(Arrays.asList(authBytes, passwordBytes));
     assertThat(authCommandWithOneArgument.toString()).doesNotContain(password);
 
-    Command authCommandWithTwoArguments =
+    var authCommandWithTwoArguments =
         new Command(Arrays.asList(authBytes, passwordBytes, passwordBytes));
     assertThat(authCommandWithTwoArguments.toString()).doesNotContain(password);
   }
 
   @Test
   public void toStringForAUTHCommandReturnsNumberOfArguments() {
-    String password = "password";
-    byte[] authBytes = stringToBytes(RedisCommandType.AUTH.name());
-    byte[] passwordBytes = stringToBytes(password);
+    var password = "password";
+    var authBytes = stringToBytes(RedisCommandType.AUTH.name());
+    var passwordBytes = stringToBytes(password);
 
-    Command authCommandWithOneArgument = new Command(Arrays.asList(authBytes, passwordBytes));
+    var authCommandWithOneArgument = new Command(Arrays.asList(authBytes, passwordBytes));
     assertThat(authCommandWithOneArgument.toString()).contains("AUTH command with 1 argument(s)");
 
-    Command authCommandWithTwoArguments =
+    var authCommandWithTwoArguments =
         new Command(Arrays.asList(authBytes, passwordBytes, passwordBytes));
     assertThat(authCommandWithTwoArguments.toString()).contains("AUTH command with 2 argument(s)");
   }

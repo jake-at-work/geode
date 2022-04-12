@@ -151,13 +151,13 @@ public class CliFunctionResult implements Comparable<CliFunctionResult>, DataSer
   }
 
   public String getStatusMessage() {
-    String message = getMessage();
+    var message = getMessage();
 
     if (isSuccessful()) {
       return message;
     }
 
-    String errorMessage = "";
+    var errorMessage = "";
     if (message != null
         && (resultObject == null || !((Throwable) resultObject).getMessage().contains(message))) {
       errorMessage = message;
@@ -176,13 +176,13 @@ public class CliFunctionResult implements Comparable<CliFunctionResult>, DataSer
    */
   @Deprecated
   public String getLegacyStatus() {
-    String message = getMessage();
+    var message = getMessage();
 
     if (isSuccessful()) {
       return message;
     }
 
-    String errorMessage = "ERROR: ";
+    var errorMessage = "ERROR: ";
     if (message != null
         && (resultObject == null || !((Throwable) resultObject).getMessage().contains(message))) {
       errorMessage += message;
@@ -287,8 +287,8 @@ public class CliFunctionResult implements Comparable<CliFunctionResult>, DataSer
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
+    final var prime = 31;
+    var result = 1;
     result = prime * result + ((memberIdOrName == null) ? 0 : memberIdOrName.hashCode());
     return result;
   }
@@ -304,7 +304,7 @@ public class CliFunctionResult implements Comparable<CliFunctionResult>, DataSer
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CliFunctionResult other = (CliFunctionResult) obj;
+    var other = (CliFunctionResult) obj;
     if (memberIdOrName == null) {
       return other.memberIdOrName == null;
     } else {

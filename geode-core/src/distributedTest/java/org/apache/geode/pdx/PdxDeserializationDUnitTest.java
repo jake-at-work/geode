@@ -32,7 +32,6 @@ import org.apache.geode.cache.InterestResultPolicy;
 import org.apache.geode.cache.LoaderHelper;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.query.SelectResults;
@@ -67,10 +66,10 @@ public class PdxDeserializationDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testP2P() {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
 
     doTest(vm0, vm1);
   }
@@ -80,9 +79,9 @@ public class PdxDeserializationDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testClientToDataStore() {
-    Host host = Host.getHost(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
+    var host = Host.getHost(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
 
     doTest(vm2, vm1);
   }
@@ -92,9 +91,9 @@ public class PdxDeserializationDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testClientToAccessor() {
-    Host host = Host.getHost(0);
-    VM vm1 = host.getVM(1);
-    VM vm3 = host.getVM(3);
+    var host = Host.getHost(0);
+    var vm1 = host.getVM(1);
+    var vm3 = host.getVM(3);
 
     doTest(vm3, vm1);
   }
@@ -104,9 +103,9 @@ public class PdxDeserializationDUnitTest extends JUnit4CacheTestCase {
    */
   @Test
   public void testAccessorToClient() {
-    Host host = Host.getHost(0);
-    VM vm1 = host.getVM(1);
-    VM vm3 = host.getVM(2);
+    var host = Host.getHost(0);
+    var vm1 = host.getVM(1);
+    var vm3 = host.getVM(2);
 
     doTest(vm1, vm3);
   }
@@ -125,11 +124,11 @@ public class PdxDeserializationDUnitTest extends JUnit4CacheTestCase {
    *
    */
   private void doTest(VM operationVM, VM disallowDeserializationVM) {
-    Host host = Host.getHost(0);
-    VM vm0 = host.getVM(0);
-    VM vm1 = host.getVM(1);
-    VM vm2 = host.getVM(2);
-    VM vm3 = host.getVM(3);
+    var host = Host.getHost(0);
+    var vm0 = host.getVM(0);
+    var vm1 = host.getVM(1);
+    var vm2 = host.getVM(2);
+    var vm3 = host.getVM(3);
 
 
     // Create an accessor
@@ -137,7 +136,7 @@ public class PdxDeserializationDUnitTest extends JUnit4CacheTestCase {
       @Override
       public Object call() {
         Cache cache = getCache();
-        CacheServer server = createCacheServer(cache);
+        var server = createCacheServer(cache);
         cache.createRegionFactory(RegionShortcut.REPLICATE_PROXY).create("replicate");
         cache.createRegionFactory(RegionShortcut.PARTITION_PROXY).create("pr");
         cache.createRegionFactory(RegionShortcut.REPLICATE_PROXY).create("overflow_replicate");
@@ -152,7 +151,7 @@ public class PdxDeserializationDUnitTest extends JUnit4CacheTestCase {
       @Override
       public Object call() {
         Cache cache = getCache();
-        CacheServer server = createCacheServer(cache);
+        var server = createCacheServer(cache);
 
         cache.createRegionFactory(RegionShortcut.REPLICATE).setCacheLoader(new TestCacheLoader())
             .create("replicate");
@@ -308,9 +307,9 @@ public class PdxDeserializationDUnitTest extends JUnit4CacheTestCase {
 
     // Do a query
     try {
-      SelectResults queryResults = (SelectResults) getCache().getQueryService()
+      var queryResults = (SelectResults) getCache().getQueryService()
           .newQuery("select * from " + region.getFullPath()).execute();
-      for (Object result : queryResults.asList()) {
+      for (var result : queryResults.asList()) {
         assertEquals(TestSerializable.class, result.getClass());
       }
 
@@ -352,7 +351,7 @@ public class PdxDeserializationDUnitTest extends JUnit4CacheTestCase {
 
 
   private CacheServer createCacheServer(Cache cache) {
-    CacheServer server = cache.addCacheServer();
+    var server = cache.addCacheServer();
     server.setPort(AvailablePortHelper.getRandomAvailableTCPPort());
     try {
       server.start();
@@ -363,10 +362,10 @@ public class PdxDeserializationDUnitTest extends JUnit4CacheTestCase {
   }
 
   private void createClient(final int port0) {
-    ClientCacheFactory cf = new ClientCacheFactory();
+    var cf = new ClientCacheFactory();
     cf.addPoolServer("localhost", port0);
     cf.setPoolSubscriptionEnabled(true);
-    ClientCache cache = getClientCache(cf);
+    var cache = getClientCache(cf);
     Region replicate =
         cache.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY).create("replicate");
     Region pr = cache.createClientRegionFactory(ClientRegionShortcut.CACHING_PROXY).create("pr");

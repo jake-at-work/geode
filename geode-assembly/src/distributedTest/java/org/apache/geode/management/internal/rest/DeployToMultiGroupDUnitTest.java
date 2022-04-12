@@ -26,9 +26,6 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import org.apache.geode.management.api.ClusterManagementGetResult;
-import org.apache.geode.management.api.ClusterManagementListResult;
-import org.apache.geode.management.api.ClusterManagementRealizationResult;
 import org.apache.geode.management.api.ClusterManagementService;
 import org.apache.geode.management.cluster.client.ClusterManagementServiceBuilder;
 import org.apache.geode.management.configuration.Deployment;
@@ -36,7 +33,6 @@ import org.apache.geode.management.runtime.DeploymentInfo;
 import org.apache.geode.test.compiler.JarBuilder;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.MemberVM;
-import org.apache.geode.test.junit.assertions.ClusterManagementListResultAssert;
 import org.apache.geode.test.junit.rules.GfshCommandRule;
 import org.apache.geode.test.junit.rules.MemberStarterRule;
 
@@ -60,7 +56,7 @@ public class DeployToMultiGroupDUnitTest {
     // prepare the jars to be deployed
     stagingDir = stagingTempDir.newFolder("staging");
     jar = new File(stagingDir, "lib.jar");
-    JarBuilder jarBuilder = new JarBuilder();
+    var jarBuilder = new JarBuilder();
     jarBuilder.buildJarFromClassNames(jar, "Class1");
     locator = cluster.startLocatorVM(0, MemberStarterRule::withHttpService);
     server1 = cluster.startServerVM(1, "group1", locator.getPort());
@@ -70,23 +66,23 @@ public class DeployToMultiGroupDUnitTest {
         .setPort(locator.getHttpPort())
         .build();
 
-    Deployment deployment = new Deployment();
+    var deployment = new Deployment();
     deployment.setFile(jar);
     deployment.setGroup("group1");
 
-    ClusterManagementRealizationResult deploymentGroup1 = client.create(deployment);
+    var deploymentGroup1 = client.create(deployment);
     assertThat(deploymentGroup1.isSuccessful()).isTrue();
 
     deployment.setGroup("group2");
 
-    ClusterManagementRealizationResult deploymentGroup2 = client.create(deployment);
+    var deploymentGroup2 = client.create(deployment);
     assertThat(deploymentGroup2.isSuccessful()).isTrue();
   }
 
   @Test
   public void listAll() {
-    ClusterManagementListResult<Deployment, DeploymentInfo> list = client.list(new Deployment());
-    ClusterManagementListResultAssert<Deployment, DeploymentInfo> resultAssert =
+    var list = client.list(new Deployment());
+    var resultAssert =
         assertManagementListResult(list).isSuccessful();
     resultAssert.hasConfigurations().extracting(Deployment::getFileName)
         .containsExactlyInAnyOrder("lib.jar", "lib.jar");
@@ -97,10 +93,10 @@ public class DeployToMultiGroupDUnitTest {
 
   @Test
   public void listByGroup() throws Exception {
-    Deployment filter = new Deployment();
+    var filter = new Deployment();
     filter.setGroup("group1");
-    ClusterManagementListResult<Deployment, DeploymentInfo> list = client.list(filter);
-    ClusterManagementListResultAssert<Deployment, DeploymentInfo> resultAssert =
+    var list = client.list(filter);
+    var resultAssert =
         assertManagementListResult(list).isSuccessful();
     resultAssert.hasConfigurations().extracting(Deployment::getFileName)
         .containsExactlyInAnyOrder("lib.jar");
@@ -110,10 +106,10 @@ public class DeployToMultiGroupDUnitTest {
 
   @Test
   public void listById() throws Exception {
-    Deployment filter = new Deployment();
+    var filter = new Deployment();
     filter.setFileName("lib.jar");
-    ClusterManagementListResult<Deployment, DeploymentInfo> list = client.list(filter);
-    ClusterManagementListResultAssert<Deployment, DeploymentInfo> resultAssert =
+    var list = client.list(filter);
+    var resultAssert =
         assertManagementListResult(list).isSuccessful();
     resultAssert.hasConfigurations().extracting(Deployment::getFileName)
         .containsExactlyInAnyOrder("lib.jar", "lib.jar");
@@ -125,9 +121,9 @@ public class DeployToMultiGroupDUnitTest {
 
   @Test
   public void getById() throws Exception {
-    Deployment filter = new Deployment();
+    var filter = new Deployment();
     filter.setFileName("lib.jar");
-    ClusterManagementGetResult<Deployment, DeploymentInfo> getResult = client.get(filter);
+    var getResult = client.get(filter);
     assertThat(getResult.getResult().getConfigurations()).extracting(Deployment::getGroup)
         .containsExactlyInAnyOrder("group1", "group2");
   }

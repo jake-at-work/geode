@@ -52,8 +52,8 @@ public abstract class AbstractSortedSetRangeOptions<T> {
 
     // Start parsing at index = 4, since 0 is the command name, 1 is the key, and 2 and 3 are the
     // start or end of the range
-    for (int index = 4; index < commandElements.size(); ++index) {
-      byte[] option = commandElements.get(index);
+    for (var index = 4; index < commandElements.size(); ++index) {
+      var option = commandElements.get(index);
       if (equalsIgnoreCaseBytes(option, LIMIT)) {
         handleLimitArguments(commandElements, index);
         index += 2;
@@ -75,7 +75,7 @@ public abstract class AbstractSortedSetRangeOptions<T> {
       throw new RedisException(ERROR_SYNTAX);
     }
 
-    byte[] offsetBytes = commandElements.get(commandIndex + 1);
+    var offsetBytes = commandElements.get(commandIndex + 1);
     if (Arrays.equals(offsetBytes, NEGATIVE_ZERO)) {
       throw new RedisException(ERROR_NOT_INTEGER);
     }
@@ -108,7 +108,7 @@ public abstract class AbstractSortedSetRangeOptions<T> {
   // the start is greater than the end (or vice versa for some reverse ranges)
   // start == end and either are exclusive
   boolean containsNoEntries() {
-    int startVsEnd = compareStartToEnd();
+    var startVsEnd = compareStartToEnd();
     return (hasLimit() && (count == 0 || offset < 0)) || startVsEnd == 1
         || (startVsEnd == 0 && (isStartExclusive() || isEndExclusive()));
   }
