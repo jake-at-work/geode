@@ -54,8 +54,6 @@ import org.apache.geode.internal.cache.tier.sockets.ClientProxyMembershipID;
 import org.apache.geode.internal.cache.versions.DiskVersionTag;
 import org.apache.geode.internal.cache.versions.VersionTag;
 import org.apache.geode.internal.logging.log4j.LogMarker;
-import org.apache.geode.internal.offheap.annotations.Released;
-import org.apache.geode.internal.offheap.annotations.Retained;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -234,77 +232,62 @@ public class DestroyMessage extends PartitionMessageWithDirectReply {
     if (eventSender == null) {
       eventSender = getSender();
     }
-    @Released
     EntryEventImpl event = null;
-    try {
-      if (bridgeContext != null) {
-        event = EntryEventImpl.create(r, getOperation(), key, null/* newValue */,
-            getCallbackArg(), false/* originRemote */, eventSender, true/* generateCallbacks */);
-        event.setContext(bridgeContext);
-      } // bridgeContext != null
-      else {
-        event = EntryEventImpl.create(r, getOperation(), key, null, /* newValue */
-            getCallbackArg(), false/* originRemote - false to force distribution in buckets */,
-            eventSender, true/* generateCallbacks */, false/* initializeId */);
-      }
-      if (versionTag != null) {
-        versionTag.replaceNullIDs(getSender());
-        event.setVersionTag(versionTag);
-      }
-      event.setInvokePRCallbacks(!notificationOnly);
-      Assert.assertTrue(eventId != null);
-      event.setEventId(eventId);
-      event.setPossibleDuplicate(posDup);
-
-      PartitionedRegionDataStore ds = r.getDataStore();
-      boolean sendReply = true;
-
-      if (!notificationOnly) {
-        Assert.assertTrue(ds != null,
-            "This process should have storage for an item in " + this);
-        try {
-          Integer bucket = PartitionedRegionHelper.getHashKey(r, null, key, null, cbArg);
-          event.setCausedByMessage(this);
-          r.getDataView().destroyOnRemote(event, true/* cacheWrite */, expectedOldValue);
-          if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
-            logger.trace(LogMarker.DM_VERBOSE, "{} updated bucket: {} with key: {}",
-                getClass().getName(), bucket, key);
-          }
-        } catch (CacheWriterException cwe) {
-          sendReply(getSender(), processorId, dm, new ReplyException(cwe), r, startTime);
-          return false;
-        } catch (EntryNotFoundException eee) {
-          logger.trace(LogMarker.DM_VERBOSE, "{}: operateOnRegion caught EntryNotFoundException",
-              getClass().getName());
-          ReplyMessage.send(getSender(), getProcessorId(), new ReplyException(eee),
-              getReplySender(dm), r.isInternalRegion());
-          sendReply = false; // this prevents us from acking later
-        } catch (PrimaryBucketException pbe) {
-          sendReply(getSender(), getProcessorId(), dm, new ReplyException(pbe), r, startTime);
-          sendReply = false;
-
-        } finally {
-          versionTag = event.getVersionTag();
-        }
-      } else {
-        @Released
-        EntryEventImpl e2 = createListenerEvent(event, r, dm.getDistributionManagerId());
-        try {
-          r.invokeDestroyCallbacks(EnumListenerEvent.AFTER_DESTROY, e2, r.isInitialized(), true);
-        } finally {
-          // if e2 == ev then no need to free it here. The outer finally block will get it.
-          if (e2 != event) {
-            e2.release();
-          }
-        }
-      }
-
-      return sendReply;
-    } finally {
-      if (event != null) {
-        event.release();
-      }
+    if (bridgeContext != null) {
+      event = EntryEventImpl.create(r, getOperation(), key, null/* newValue */,
+          getCallbackArg(), false/* originRemote */, eventSender, true/* generateCallbacks */);
+      event.setContext(bridgeContext);
+    } // bridgeContext != null
+    else {
+      event = EntryEventImpl.create(r, getOperation(), key, null, /* newValue */
+          getCallbackArg(), false/* originRemote - false to force distribution in buckets */,
+          eventSender, true/* generateCallbacks */, false/* initializeId */);
     }
+    if (versionTag != null) {
+      versionTag.replaceNullIDs(getSender());
+      event.setVersionTag(versionTag);
+    }
+    event.setInvokePRCallbacks(!notificationOnly);
+    Assert.assertTrue(eventId != null);
+    event.setEventId(eventId);
+    event.setPossibleDuplicate(posDup);
+
+    PartitionedRegionDataStore ds = r.getDataStore();
+    boolean sendReply = true;
+
+    if (!notificationOnly) {
+      Assert.assertTrue(ds != null,
+          "This process should have storage for an item in " + this);
+      try {
+        Integer bucket = PartitionedRegionHelper.getHashKey(r, null, key, null, cbArg);
+        event.setCausedByMessage(this);
+        r.getDataView().destroyOnRemote(event, true/* cacheWrite */, expectedOldValue);
+        if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
+          logger.trace(LogMarker.DM_VERBOSE, "{} updated bucket: {} with key: {}",
+              getClass().getName(), bucket, key);
+        }
+      } catch (CacheWriterException cwe) {
+        sendReply(getSender(), processorId, dm, new ReplyException(cwe), r, startTime);
+        return false;
+      } catch (EntryNotFoundException eee) {
+        logger.trace(LogMarker.DM_VERBOSE, "{}: operateOnRegion caught EntryNotFoundException",
+            getClass().getName());
+        ReplyMessage.send(getSender(), getProcessorId(), new ReplyException(eee),
+            getReplySender(dm), r.isInternalRegion());
+        sendReply = false; // this prevents us from acking later
+      } catch (PrimaryBucketException pbe) {
+        sendReply(getSender(), getProcessorId(), dm, new ReplyException(pbe), r, startTime);
+        sendReply = false;
+
+      } finally {
+        versionTag = event.getVersionTag();
+      }
+    } else {
+      EntryEventImpl e2 = createListenerEvent(event, r, dm.getDistributionManagerId());
+      r.invokeDestroyCallbacks(EnumListenerEvent.AFTER_DESTROY, e2, r.isInitialized(), true);
+    }
+
+    return sendReply;
   }
 
   @Override
@@ -386,7 +369,6 @@ public class DestroyMessage extends PartitionMessageWithDirectReply {
    * create a new EntryEvent to be used in notifying listeners, cache servers, etc. Caller must
    * release result if it is != to sourceEvent
    */
-  @Retained
   EntryEventImpl createListenerEvent(EntryEventImpl sourceEvent, PartitionedRegion r,
       InternalDistributedMember member) {
     final EntryEventImpl e2;

@@ -47,7 +47,6 @@ import org.apache.geode.internal.cache.partitioned.PutAllPRMessage;
 import org.apache.geode.internal.cache.partitioned.RemoveAllPRMessage;
 import org.apache.geode.internal.cache.tier.sockets.ClientProxyMembershipID;
 import org.apache.geode.internal.cache.tier.sockets.VersionedObjectList;
-import org.apache.geode.internal.offheap.annotations.Released;
 
 public class PartitionedTXRegionStub extends AbstractPeerTXRegionStub {
 
@@ -391,13 +390,8 @@ public class PartitionedTXRegionStub extends AbstractPeerTXRegionStub {
         partialKeys.consolidate(pre.getResult());
       } catch (Exception ex) {
         // If failed at other exception
-        @Released
         EntryEventImpl firstEvent = prMsg.getFirstEvent(pr);
-        try {
-          partialKeys.saveFailedKey(firstEvent.getKey(), ex);
-        } finally {
-          firstEvent.release();
-        }
+        partialKeys.saveFailedKey(firstEvent.getKey(), ex);
       }
     }
     pr.prStats.endPutAll(startTime);
@@ -449,13 +443,8 @@ public class PartitionedTXRegionStub extends AbstractPeerTXRegionStub {
         partialKeys.consolidate(pre.getResult());
       } catch (Exception ex) {
         // If failed at other exception
-        @Released
         EntryEventImpl firstEvent = prMsg.getFirstEvent(pr);
-        try {
-          partialKeys.saveFailedKey(firstEvent.getKey(), ex);
-        } finally {
-          firstEvent.release();
-        }
+        partialKeys.saveFailedKey(firstEvent.getKey(), ex);
       }
     }
     pr.prStats.endRemoveAll(startTime);
@@ -491,15 +480,10 @@ public class PartitionedTXRegionStub extends AbstractPeerTXRegionStub {
     InternalDistributedMember currentTarget =
         pr.getOrCreateNodeForBucketWrite(bucketId, null);
     if (!currentTarget.equals(state.getTarget())) {
-      @Released
       EntryEventImpl firstEvent = prMsg.getFirstEvent(pr);
-      try {
-        throw new TransactionDataNotColocatedException(
-            String.format("Key %s is not colocated with transaction",
-                firstEvent.getKey()));
-      } finally {
-        firstEvent.release();
-      }
+      throw new TransactionDataNotColocatedException(
+          String.format("Key %s is not colocated with transaction",
+              firstEvent.getKey()));
     }
     try {
       return pr.tryToSendOnePutAllMessage(prMsg, currentTarget);
@@ -525,15 +509,10 @@ public class PartitionedTXRegionStub extends AbstractPeerTXRegionStub {
     InternalDistributedMember currentTarget =
         pr.getOrCreateNodeForBucketWrite(bucketId, null);
     if (!currentTarget.equals(state.getTarget())) {
-      @Released
       EntryEventImpl firstEvent = prMsg.getFirstEvent(pr);
-      try {
-        throw new TransactionDataNotColocatedException(
-            String.format("Key %s is not colocated with transaction",
-                firstEvent.getKey()));
-      } finally {
-        firstEvent.release();
-      }
+      throw new TransactionDataNotColocatedException(
+          String.format("Key %s is not colocated with transaction",
+              firstEvent.getKey()));
     }
     try {
       return pr.tryToSendOneRemoveAllMessage(prMsg, currentTarget);

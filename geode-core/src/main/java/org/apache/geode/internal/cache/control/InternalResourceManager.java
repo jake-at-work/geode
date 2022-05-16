@@ -72,7 +72,9 @@ public class InternalResourceManager implements ResourceManager {
   private final Collection<CompletableFuture<Void>> startupTasks = new ArrayList<>();
 
   public enum ResourceType {
-    HEAP_MEMORY(0x1), OFFHEAP_MEMORY(0x2), MEMORY(0x3), ALL(0xFFFFFFFF);
+    HEAP_MEMORY(0x1),
+    MEMORY(0x3),
+    ALL(0xFFFFFFFF);
 
     final int id;
 
@@ -151,13 +153,10 @@ public class InternalResourceManager implements ResourceManager {
     Map<ResourceType, ResourceMonitor> tempMonitors = new HashMap<>();
     tempMonitors.put(ResourceType.HEAP_MEMORY,
         new HeapMemoryMonitor(this, cache, stats, new TenuredHeapConsumptionMonitor()));
-    tempMonitors.put(ResourceType.OFFHEAP_MEMORY,
-        new OffHeapMemoryMonitor(this, cache, cache.getOffHeapStore(), stats));
     resourceMonitors = Collections.unmodifiableMap(tempMonitors);
 
     // Initialize the listener sets so that it only needs to be done once
-    for (ResourceType resourceType : new ResourceType[] {ResourceType.HEAP_MEMORY,
-        ResourceType.OFFHEAP_MEMORY}) {
+    for (ResourceType resourceType : new ResourceType[] {ResourceType.HEAP_MEMORY}) {
       Set<ResourceListener<?>> emptySet = new CopyOnWriteArraySet<>();
       listeners.put(resourceType, emptySet);
     }
@@ -246,16 +245,8 @@ public class InternalResourceManager implements ResourceManager {
     return (HeapMemoryMonitor) resourceMonitors.get(ResourceType.HEAP_MEMORY);
   }
 
-  public OffHeapMemoryMonitor getOffHeapMonitor() {
-    return (OffHeapMemoryMonitor) resourceMonitors.get(ResourceType.OFFHEAP_MEMORY);
-  }
-
-  public MemoryMonitor getMemoryMonitor(boolean offheap) {
-    if (offheap) {
-      return getOffHeapMonitor();
-    } else {
-      return getHeapMonitor();
-    }
+  public MemoryMonitor getMemoryMonitor() {
+    return getHeapMonitor();
   }
 
   /**
@@ -532,67 +523,42 @@ public class InternalResourceManager implements ResourceManager {
     return old;
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.geode.cache.control.ResourceManager#setEvictionHeapPercentage(int)
-   */
   @Override
   public void setCriticalOffHeapPercentage(float offHeapPercentage) {
-    getOffHeapMonitor().setCriticalThreshold(offHeapPercentage);
+
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public float getCriticalOffHeapPercentage() {
-    return getOffHeapMonitor().getCriticalThreshold();
+    return 0.0F;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+
   @Override
   public void setEvictionOffHeapPercentage(float offHeapPercentage) {
-    getOffHeapMonitor().setEvictionThreshold(offHeapPercentage);
+
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public float getEvictionOffHeapPercentage() {
-    return getOffHeapMonitor().getEvictionThreshold();
+    return 0.0F;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void setCriticalHeapPercentage(float heapPercentage) {
     getHeapMonitor().setCriticalThreshold(heapPercentage);
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public float getCriticalHeapPercentage() {
     return getHeapMonitor().getCriticalThreshold();
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void setEvictionHeapPercentage(float heapPercentage) {
     getHeapMonitor().setEvictionThreshold(heapPercentage);
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public float getEvictionHeapPercentage() {
     return getHeapMonitor().getEvictionThreshold();

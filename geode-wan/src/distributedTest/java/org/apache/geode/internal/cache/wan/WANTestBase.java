@@ -408,7 +408,7 @@ public class WANTestBase extends DistributedTestCase {
     return port;
   }
 
-  public static void createReplicatedRegion(String regionName, String senderIds, Boolean offHeap) {
+  public static void createReplicatedRegion(String regionName, String senderIds) {
     IgnoredException exp =
         addIgnoredException(ForceReattemptException.class.getName());
     IgnoredException exp1 =
@@ -425,7 +425,6 @@ public class WANTestBase extends DistributedTestCase {
         }
       }
 
-      fact.setOffHeap(offHeap);
       fact.create(regionName);
     } finally {
       exp.remove();
@@ -434,8 +433,7 @@ public class WANTestBase extends DistributedTestCase {
     }
   }
 
-  public static void createReplicatedProxyRegion(String regionName, String senderIds,
-      Boolean offHeap) {
+  public static void createReplicatedProxyRegion(String regionName, String senderIds) {
     IgnoredException exp =
         addIgnoredException(ForceReattemptException.class.getName());
     IgnoredException exp1 =
@@ -452,7 +450,6 @@ public class WANTestBase extends DistributedTestCase {
         }
       }
 
-      fact.setOffHeap(offHeap);
       fact.create(regionName);
     } finally {
       exp.remove();
@@ -474,8 +471,7 @@ public class WANTestBase extends DistributedTestCase {
     fact.create(regionName);
   }
 
-  public static void createPersistentReplicatedRegion(String regionName, String senderIds,
-      Boolean offHeap) {
+  public static void createPersistentReplicatedRegion(String regionName, String senderIds) {
     RegionFactory<?, ?> fact = cache.createRegionFactory(RegionShortcut.REPLICATE_PERSISTENT);
     if (senderIds != null) {
       StringTokenizer tokenizer = new StringTokenizer(senderIds, ",");
@@ -485,12 +481,11 @@ public class WANTestBase extends DistributedTestCase {
       }
     }
 
-    fact.setOffHeap(offHeap);
     fact.create(regionName);
   }
 
   public static void createReplicatedRegionWithAsyncEventQueue(String regionName,
-      String asyncQueueIds, Boolean offHeap) {
+      String asyncQueueIds) {
     IgnoredException exp1 =
         addIgnoredException(ForceReattemptException.class.getName());
     try {
@@ -503,7 +498,6 @@ public class WANTestBase extends DistributedTestCase {
         }
       }
 
-      fact.setOffHeap(offHeap);
       fact.create(regionName);
     } finally {
       exp1.remove();
@@ -511,7 +505,7 @@ public class WANTestBase extends DistributedTestCase {
   }
 
   public static void createReplicatedRegionWithSenderAndAsyncEventQueue(String regionName,
-      String senderIds, String asyncChannelId, Boolean offHeap) {
+      String senderIds, String asyncChannelId) {
     IgnoredException exp =
         addIgnoredException(ForceReattemptException.class.getName());
     try {
@@ -524,7 +518,6 @@ public class WANTestBase extends DistributedTestCase {
         }
       }
 
-      fact.setOffHeap(offHeap);
       fact.addAsyncEventQueueId(asyncChannelId);
       fact.create(regionName);
     } finally {
@@ -533,12 +526,12 @@ public class WANTestBase extends DistributedTestCase {
   }
 
   public static void createReplicatedRegion(String regionName, String senderIds, Scope scope,
-      DataPolicy policy, Boolean offHeap) {
-    createReplicatedRegion(regionName, senderIds, scope, policy, offHeap, false, true);
+      DataPolicy policy) {
+    createReplicatedRegion(regionName, senderIds, scope, policy, false, true);
   }
 
   public static void createReplicatedRegion(String regionName, String senderIds, Scope scope,
-      DataPolicy policy, Boolean offHeap, boolean statisticsEnabled,
+      DataPolicy policy, boolean statisticsEnabled,
       boolean concurrencyChecksEnabled) {
     RegionFactory<?, ?> fact = cache.createRegionFactory();
     if (senderIds != null) {
@@ -551,7 +544,6 @@ public class WANTestBase extends DistributedTestCase {
 
     fact.setDataPolicy(policy);
     fact.setScope(scope);
-    fact.setOffHeap(offHeap);
     fact.setStatisticsEnabled(statisticsEnabled);
     fact.setConcurrencyChecksEnabled(concurrencyChecksEnabled);
     fact.create(regionName);
@@ -587,19 +579,19 @@ public class WANTestBase extends DistributedTestCase {
   }
 
   public static void createPartitionedRegion(String regionName, String senderIds,
-      Integer redundantCopies, Integer totalNumBuckets, Boolean offHeap) {
-    createPartitionedRegion(regionName, senderIds, redundantCopies, totalNumBuckets, offHeap,
+      Integer redundantCopies, Integer totalNumBuckets) {
+    createPartitionedRegion(regionName, senderIds, redundantCopies, totalNumBuckets,
         RegionShortcut.PARTITION);
   }
 
   public static void createPartitionedRegion(String regionName, String senderIds,
-      Integer redundantCopies, Integer totalNumBuckets, Boolean offHeap, RegionShortcut shortcut) {
-    createPartitionedRegion(regionName, senderIds, redundantCopies, totalNumBuckets, offHeap,
+      Integer redundantCopies, Integer totalNumBuckets, RegionShortcut shortcut) {
+    createPartitionedRegion(regionName, senderIds, redundantCopies, totalNumBuckets,
         shortcut, false, true);
   }
 
   public static void createPartitionedRegion(String regionName, String senderIds,
-      Integer redundantCopies, Integer totalNumBuckets, Boolean offHeap, RegionShortcut shortcut,
+      Integer redundantCopies, Integer totalNumBuckets, RegionShortcut shortcut,
       boolean statisticsEnabled, boolean concurrencyChecksEnabled) {
     IgnoredException exp =
         addIgnoredException(ForceReattemptException.class.getName());
@@ -619,7 +611,6 @@ public class WANTestBase extends DistributedTestCase {
       pfact.setRedundantCopies(redundantCopies);
       pfact.setRecoveryDelay(0);
       fact.setPartitionAttributes(pfact.create());
-      fact.setOffHeap(offHeap);
       fact.setStatisticsEnabled(statisticsEnabled);
       fact.setConcurrencyChecksEnabled(concurrencyChecksEnabled);
       fact.create(regionName);
@@ -629,7 +620,6 @@ public class WANTestBase extends DistributedTestCase {
     }
   }
 
-  // TODO:OFFHEAP: add offheap flavor
   public static void createPartitionedRegionWithPersistence(String regionName, String senderIds,
       Integer redundantCopies, Integer totalNumBuckets) {
     IgnoredException exp =
@@ -716,7 +706,7 @@ public class WANTestBase extends DistributedTestCase {
   }
 
   public static void createPartitionedRegionWithSerialParallelSenderIds(String regionName,
-      String serialSenderIds, String parallelSenderIds, String colocatedWith, Boolean offHeap) {
+      String serialSenderIds, String parallelSenderIds, String colocatedWith) {
     RegionFactory<?, ?> fact = cache.createRegionFactory(RegionShortcut.PARTITION);
     if (serialSenderIds != null) {
       StringTokenizer tokenizer = new StringTokenizer(serialSenderIds, ",");
@@ -735,12 +725,11 @@ public class WANTestBase extends DistributedTestCase {
     PartitionAttributesFactory<?, ?> pfact = new PartitionAttributesFactory<>();
     pfact.setColocatedWith(colocatedWith);
     fact.setPartitionAttributes(pfact.create());
-    fact.setOffHeap(offHeap);
     fact.create(regionName);
   }
 
   public static void createPersistentPartitionedRegion(String regionName, String senderIds,
-      Integer redundantCopies, Integer totalNumBuckets, Boolean offHeap) {
+      Integer redundantCopies, Integer totalNumBuckets) {
 
     IgnoredException exp =
         addIgnoredException(ForceReattemptException.class.getName());
@@ -760,7 +749,6 @@ public class WANTestBase extends DistributedTestCase {
       pfact.setTotalNumBuckets(totalNumBuckets);
       pfact.setRedundantCopies(redundantCopies);
       fact.setPartitionAttributes(pfact.create());
-      fact.setOffHeap(offHeap);
       fact.create(regionName);
     } finally {
       exp.remove();
@@ -769,13 +757,13 @@ public class WANTestBase extends DistributedTestCase {
   }
 
   public static void createCustomerOrderShipmentPartitionedRegion(String senderIds,
-      Integer redundantCopies, Integer totalNumBuckets, Boolean offHeap) {
+      Integer redundantCopies, Integer totalNumBuckets) {
     createCustomerOrderShipmentPartitionedRegion(senderIds, redundantCopies, totalNumBuckets,
-        offHeap, RegionShortcut.PARTITION);
+        RegionShortcut.PARTITION);
   }
 
   public static void createCustomerOrderShipmentPartitionedRegion(String senderIds,
-      Integer redundantCopies, Integer totalNumBuckets, Boolean offHeap,
+      Integer redundantCopies, Integer totalNumBuckets,
       RegionShortcut regionShortcut) {
     IgnoredException exp =
         addIgnoredException(ForceReattemptException.class.getName());
@@ -793,7 +781,6 @@ public class WANTestBase extends DistributedTestCase {
       paf.setRedundantCopies(redundantCopies).setTotalNumBuckets(totalNumBuckets)
           .setPartitionResolver(new CustomerIDPartitionResolver("CustomerIDPartitionResolver"));
       fact.setPartitionAttributes(paf.create());
-      fact.setOffHeap(offHeap);
       customerRegion =
           (PartitionedRegion) fact.create(customerRegionName);
       logger.info("Partitioned Region CUSTOMER created Successfully :" + customerRegion.toString());
@@ -811,7 +798,6 @@ public class WANTestBase extends DistributedTestCase {
         }
       }
       fact.setPartitionAttributes(paf.create());
-      fact.setOffHeap(offHeap);
       orderRegion =
           (PartitionedRegion) fact.create(orderRegionName);
       logger.info("Partitioned Region ORDER created Successfully :" + orderRegion.toString());
@@ -829,7 +815,6 @@ public class WANTestBase extends DistributedTestCase {
         }
       }
       fact.setPartitionAttributes(paf.create());
-      fact.setOffHeap(offHeap);
       shipmentRegion =
           (PartitionedRegion) fact.create(shipmentRegionName);
       logger.info("Partitioned Region SHIPMENT created Successfully :" + shipmentRegion.toString());
@@ -839,7 +824,7 @@ public class WANTestBase extends DistributedTestCase {
   }
 
   public static void createColocatedPartitionedRegions(String regionName, String senderIds,
-      Integer redundantCopies, Integer totalNumBuckets, Boolean offHeap) {
+      Integer redundantCopies, Integer totalNumBuckets) {
     RegionFactory<?, ?> fact = cache.createRegionFactory(RegionShortcut.PARTITION);
     if (senderIds != null) {
       StringTokenizer tokenizer = new StringTokenizer(senderIds, ",");
@@ -852,19 +837,17 @@ public class WANTestBase extends DistributedTestCase {
     pfact.setTotalNumBuckets(totalNumBuckets);
     pfact.setRedundantCopies(redundantCopies);
     fact.setPartitionAttributes(pfact.create());
-    fact.setOffHeap(offHeap);
     Region<?, ?> r = fact.create(regionName);
 
     pfact.setColocatedWith(r.getName());
     fact.setPartitionAttributes(pfact.create());
-    fact.setOffHeap(offHeap);
     fact.create(regionName + "_child1");
 
     fact.create(regionName + "_child2");
   }
 
   public static void createColocatedPartitionedRegions2(String regionName, String senderIds,
-      Integer redundantCopies, Integer totalNumBuckets, Boolean offHeap) {
+      Integer redundantCopies, Integer totalNumBuckets) {
     RegionFactory<?, ?> fact = cache.createRegionFactory(RegionShortcut.PARTITION);
     if (senderIds != null) {
       StringTokenizer tokenizer = new StringTokenizer(senderIds, ",");
@@ -877,13 +860,11 @@ public class WANTestBase extends DistributedTestCase {
     pfact.setTotalNumBuckets(totalNumBuckets);
     pfact.setRedundantCopies(redundantCopies);
     fact.setPartitionAttributes(pfact.create());
-    fact.setOffHeap(offHeap);
     Region<?, ?> r = fact.create(regionName);
 
     fact = cache.createRegionFactory(RegionShortcut.PARTITION);
     pfact.setColocatedWith(r.getName());
     fact.setPartitionAttributes(pfact.create());
-    fact.setOffHeap(offHeap);
     fact.create(regionName + "_child1");
 
     fact.create(regionName + "_child2");
@@ -3929,14 +3910,6 @@ public class WANTestBase extends DistributedTestCase {
     props.setProperty(OFF_HEAP_MEMORY_SIZE, "200m");
 
     return props;
-  }
-
-  /**
-   * Returns true if the test should create off-heap regions. OffHeap tests should over-ride this
-   * method and return false.
-   */
-  public boolean isOffHeap() {
-    return false;
   }
 
   /**

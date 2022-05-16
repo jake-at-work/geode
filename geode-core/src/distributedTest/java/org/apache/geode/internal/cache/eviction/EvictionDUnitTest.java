@@ -14,12 +14,9 @@
  */
 package org.apache.geode.internal.cache.eviction;
 
-import static org.apache.geode.distributed.ConfigurationProperties.OFF_HEAP_MEMORY_SIZE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -29,8 +26,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.DataPolicy;
@@ -56,22 +51,11 @@ import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.categories.EvictionTest;
 import org.apache.geode.test.junit.rules.ServerStarterRule;
 import org.apache.geode.test.junit.rules.VMProvider;
-import org.apache.geode.test.junit.runners.CategoryWithParameterizedRunnerFactory;
 
-@RunWith(Parameterized.class)
-@Parameterized.UseParametersRunnerFactory(CategoryWithParameterizedRunnerFactory.class)
 @Category({EvictionTest.class})
 public class EvictionDUnitTest {
 
   private static final int ENTRY_SIZE = 1024 * 1024;
-
-  @Parameterized.Parameters(name = "offHeap={0}")
-  public static Collection booleans() {
-    return Arrays.asList(true, false);
-  }
-
-  @Parameterized.Parameter
-  public static boolean offHeap;
 
   @Rule
   public ClusterStartupRule cluster = new ClusterStartupRule(2);
@@ -82,9 +66,6 @@ public class EvictionDUnitTest {
   public void before() {
     locator = cluster.startLocatorVM(0);
     Properties properties = new Properties();
-    if (offHeap) {
-      properties.setProperty(OFF_HEAP_MEMORY_SIZE, "200m");
-    }
 
     int locatorPort = locator.getPort();
     server0 = cluster.startServerVM(1, s -> s.withNoCacheServer()
@@ -96,12 +77,7 @@ public class EvictionDUnitTest {
       HeapMemoryMonitor.setTestDisableMemoryUpdates(true);
       System.setProperty("gemfire.memoryEventTolerance", "0");
       InternalCache cache = ClusterStartupRule.getCache();
-      if (offHeap) {
-        cache.getResourceManager().setEvictionOffHeapPercentage(85);
-        cache.getInternalResourceManager().getOffHeapMonitor().stopMonitoring(true);
-      } else {
-        cache.getResourceManager().setEvictionHeapPercentage(85);
-      }
+      cache.getResourceManager().setEvictionHeapPercentage(85);
     }, server0, server1);
   }
 
@@ -118,7 +94,7 @@ public class EvictionDUnitTest {
     VMProvider.invokeInEveryMember("create region", () -> {
       ServerStarterRule server = (ServerStarterRule) ClusterStartupRule.memberStarter;
       server.createPartitionRegion("PR1",
-          f -> f.setOffHeap(offHeap).setEvictionAttributes(
+          f -> f.setEvictionAttributes(
               EvictionAttributes.createLRUHeapAttributes(null, EvictionAction.LOCAL_DESTROY)),
           f -> f.setTotalNumBuckets(4).setRedundantCopies(0));
 
@@ -154,7 +130,7 @@ public class EvictionDUnitTest {
     VMProvider.invokeInEveryMember(() -> {
       ServerStarterRule server = (ServerStarterRule) ClusterStartupRule.memberStarter;
       server.createPartitionRegion("PR1",
-          f -> f.setOffHeap(offHeap).setEvictionAttributes(
+          f -> f.setEvictionAttributes(
               EvictionAttributes.createLRUHeapAttributes(null, EvictionAction.LOCAL_DESTROY)),
           f -> f.setTotalNumBuckets(4).setRedundantCopies(0));
 
@@ -169,7 +145,7 @@ public class EvictionDUnitTest {
 
       sendEventAndWaitForExpectedEviction("PR1");
 
-      ExecutorService evictorThreadPool = getEvictor(cache).getEvictorThreadPool();
+      ExecutorService evictorThreadPool = cache.getHeapEvictor().getEvictorThreadPool();
       if (evictorThreadPool != null) {
         long taskCount = ((ThreadPoolExecutor) evictorThreadPool).getTaskCount();
         assertThat(taskCount).isLessThanOrEqualTo(HeapEvictor.MAX_EVICTOR_THREADS);
@@ -184,10 +160,9 @@ public class EvictionDUnitTest {
     VMProvider.invokeInEveryMember(() -> {
       ServerStarterRule server = (ServerStarterRule) ClusterStartupRule.memberStarter;
       server.createPartitionRegion("PR1",
-          f -> f.setOffHeap(offHeap)
-              .setEvictionAttributes(
-                  EvictionAttributes.createLRUEntryAttributes(maxEntries,
-                      EvictionAction.LOCAL_DESTROY)),
+          f -> f.setEvictionAttributes(
+              EvictionAttributes.createLRUEntryAttributes(maxEntries,
+                  EvictionAction.LOCAL_DESTROY)),
           f -> f.setTotalNumBuckets(4).setRedundantCopies(0));
 
     }, server0, server1);
@@ -212,7 +187,7 @@ public class EvictionDUnitTest {
       ServerStarterRule server = (ServerStarterRule) ClusterStartupRule.memberStarter;
       LocalRegion dr1 =
           (LocalRegion) server.createRegion(RegionShortcut.LOCAL, "DR1",
-              f -> f.setOffHeap(offHeap).setDataPolicy(DataPolicy.NORMAL).setEvictionAttributes(
+              f -> f.setDataPolicy(DataPolicy.NORMAL).setEvictionAttributes(
                   EvictionAttributes.createLRUHeapAttributes(null, EvictionAction.LOCAL_DESTROY)));
       for (int counter = 1; counter <= 50; counter++) {
         dr1.put(counter, new byte[ENTRY_SIZE]);
@@ -231,17 +206,12 @@ public class EvictionDUnitTest {
   private static int sendEventAndWaitForExpectedEviction(String regionName) {
     GemFireCacheImpl cache = (GemFireCacheImpl) ClusterStartupRule.getCache();
     LocalRegion region = (LocalRegion) cache.getRegion(regionName);
-    HeapEvictor evictor = getEvictor(cache);
+    HeapEvictor evictor = cache.getHeapEvictor();
     evictor.setTestAbortAfterLoopCount(1);
 
-    if (offHeap) {
-      cache.getInternalResourceManager().getOffHeapMonitor()
-          .updateStateAndSendEvent(188743680);
-    } else {
-      HeapMemoryMonitor hmm = cache.getInternalResourceManager().getHeapMonitor();
-      hmm.setTestMaxMemoryBytes(100);
-      hmm.updateStateAndSendEvent(90, "test");
-    }
+    HeapMemoryMonitor hmm = cache.getInternalResourceManager().getHeapMonitor();
+    hmm.setTestMaxMemoryBytes(100);
+    hmm.updateStateAndSendEvent(90, "test");
 
     int entrySize = ENTRY_SIZE + 100;
     long totalBytesToEvict = evictor.getTotalBytesToEvict();
@@ -271,7 +241,7 @@ public class EvictionDUnitTest {
 
       ServerStarterRule server = (ServerStarterRule) ClusterStartupRule.memberStarter;
       server.createPartitionRegion("PR1",
-          f -> f.setOffHeap(offHeap).setEvictionAttributes(
+          f -> f.setEvictionAttributes(
               EvictionAttributes.createLRUHeapAttributes(null, EvictionAction.OVERFLOW_TO_DISK))
               .setDiskSynchronous(true)
               .setDiskStoreName(cache.createDiskStoreFactory().setDiskDirs(diskDirs)
@@ -279,7 +249,7 @@ public class EvictionDUnitTest {
           f -> f.setTotalNumBuckets(2).setRedundantCopies(1));
 
       server.createPartitionRegion("PR2",
-          f -> f.setOffHeap(offHeap).setEvictionAttributes(
+          f -> f.setEvictionAttributes(
               EvictionAttributes.createLRUHeapAttributes(null, EvictionAction.OVERFLOW_TO_DISK))
               .setDiskSynchronous(true)
               .setDiskStoreName(cache.createDiskStoreFactory().setDiskDirs(diskDirs)
@@ -299,11 +269,11 @@ public class EvictionDUnitTest {
     // raise fake event
     VMProvider.invokeInEveryMember(() -> {
       GemFireCacheImpl cache = (GemFireCacheImpl) ClusterStartupRule.getCache();
-      HeapEvictor evictor = getEvictor(cache);
+      HeapEvictor evictor = cache.getHeapEvictor();
       HeapMemoryMonitor hmm =
           ((InternalResourceManager) cache.getResourceManager()).getHeapMonitor();
       MemoryEvent event =
-          new MemoryEvent(offHeap ? ResourceType.OFFHEAP_MEMORY : ResourceType.HEAP_MEMORY,
+          new MemoryEvent(ResourceType.HEAP_MEMORY,
               MemoryThresholds.MemoryState.NORMAL, MemoryThresholds.MemoryState.EVICTION,
               cache.getDistributedSystem().getDistributedMember(), 90, true, hmm.getThresholds());
       evictor.onEvent(event);
@@ -326,11 +296,4 @@ public class EvictionDUnitTest {
 
   }
 
-  private static HeapEvictor getEvictor(GemFireCacheImpl cache) {
-    if (offHeap) {
-      return cache.getOffHeapEvictor();
-    } else {
-      return cache.getHeapEvictor();
-    }
-  }
 }

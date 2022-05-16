@@ -103,10 +103,6 @@ public class ElidedPutAllDUnitTest extends JUnit4CacheTestCase {
             region.postPutAllSend(dpao, successfulPuts);
           } catch (ConcurrentCacheModificationException e) {
             Assert.fail("Should not have received an exception for an elided operation", e);
-          } finally {
-            event.release();
-            dpao.getBaseEvent().release();
-            dpao.freeOffHeapResources();
           }
         } catch (Exception e) {
           Assert.fail("caught unexpected exception", e);

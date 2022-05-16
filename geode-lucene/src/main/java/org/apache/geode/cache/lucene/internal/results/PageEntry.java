@@ -20,7 +20,6 @@ import java.io.IOException;
 
 import org.apache.geode.DataSerializer;
 import org.apache.geode.internal.cache.CachedDeserializable;
-import org.apache.geode.internal.offheap.StoredObject;
 
 public class PageEntry {
 
@@ -49,10 +48,6 @@ public class PageEntry {
   public void toData(final DataOutput out) throws IOException {
 
     DataSerializer.writeObject(key, out);
-    if (value instanceof StoredObject) {
-      ((StoredObject) value).sendTo(out);
-      return;
-    }
 
     if (value instanceof CachedDeserializable) {
       value = ((CachedDeserializable) value).getValue();

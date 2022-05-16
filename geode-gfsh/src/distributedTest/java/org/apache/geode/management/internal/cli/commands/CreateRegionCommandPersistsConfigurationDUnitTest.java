@@ -344,9 +344,6 @@ public class CreateRegionCommandPersistsConfigurationDUnitTest {
             .describedAs("Expected key constraint to be " + Object.class.getName() +
                 " for region " + name)
             .isEqualTo(Object.class.getName());
-        assertThat(attr.isOffHeap())
-            .describedAs("Expected off heap to be false for region " + name)
-            .isFalse();
         assertThat(attr.getRegionIdleTime().getTimeout())
             .describedAs("Expecting region idle time expiration to be 100 for region "
                 + name)

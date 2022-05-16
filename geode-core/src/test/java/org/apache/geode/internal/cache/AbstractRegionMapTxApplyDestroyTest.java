@@ -183,18 +183,6 @@ public class AbstractRegionMapTxApplyDestroyTest {
     });
   }
 
-  @Test
-  public void txApplyDestroyCallReleaseEvent_givenNoRegionEntryNotInTokenModeNoConcurrencyChecksAndBucket_whenHandleWANEventThrows() {
-    givenBucketRegion();
-    givenNoRegionEntry();
-    givenNotInTokenMode();
-    givenNoConcurrencyChecks();
-    doThrow(RuntimeException.class).when(owner).txHandleWANEvent(any());
-
-    assertThatThrownBy(this::doTxApplyDestroy).isInstanceOf(RuntimeException.class);
-
-    verify(regionMap, times(1)).releaseEvent(any());
-  }
 
   // tests for "existingRegionEntry"
 
@@ -459,15 +447,6 @@ public class AbstractRegionMapTxApplyDestroyTest {
     verify(owner, times(1)).updateSizeOnRemove(eq(key), eq(oldSize));
   }
 
-  @Test
-  public void txApplyDestroyCallsReleaseEvent_givenExistingRegionEntry() {
-    givenLocalRegion();
-    givenExistingRegionEntry();
-
-    doTxApplyDestroy();
-
-    verify(regionMap, times(1)).releaseEvent(any());
-  }
 
   @Test
   public void txApplyDestroyHasPendingCallback_givenExistingRegionEntryWithoutInTokenModeAndNotInRI() {
@@ -1050,18 +1029,6 @@ public class AbstractRegionMapTxApplyDestroyTest {
   }
 
   @Test
-  public void txApplyDestroyCallsReleaseEvent_givenFactoryRegionEntryWithoutConcurrencyChecksInTokenMode() {
-    givenLocalRegion();
-    givenFactoryRegionEntry();
-    givenNoConcurrencyChecks();
-    inTokenMode = true;
-
-    doTxApplyDestroy();
-
-    verify(regionMap, times(1)).releaseEvent(any());
-  }
-
-  @Test
   public void txApplyDestroyCallsSetValueWithDestroyedToken_givenFactoryRegionEntryWithoutConcurrencyChecksInTokenMode()
       throws RegionClearedException {
     givenLocalRegion();
@@ -1485,18 +1452,6 @@ public class AbstractRegionMapTxApplyDestroyTest {
   }
 
   @Test
-  public void txApplyDestroyCallsReleaseEvent_givenOldRegionEntryWithoutConcurrencyChecksInTokenMode() {
-    givenLocalRegion();
-    givenOldRegionEntry();
-    givenNoConcurrencyChecks();
-    inTokenMode = true;
-
-    doTxApplyDestroy();
-
-    verify(regionMap, times(1)).releaseEvent(any());
-  }
-
-  @Test
   public void txApplyDestroyDoesCallTxApplyDestroyPart2_givenOldRegionEntryWithMakeTombstoneThrowingRegionDestroyedException()
       throws Exception {
     givenLocalRegion();
@@ -1635,7 +1590,6 @@ public class AbstractRegionMapTxApplyDestroyTest {
     when(owner.getMyId()).thenReturn(myId);
     when(owner.getKeyInfo(any(), any(), any())).thenReturn(keyInfo);
     when(cache.getDistributedSystem()).thenReturn(ids);
-    when(ids.getOffHeapStore()).thenReturn(null);
   }
 
   private void doTxApplyDestroy() {

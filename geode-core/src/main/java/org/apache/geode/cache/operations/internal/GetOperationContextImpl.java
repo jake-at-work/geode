@@ -16,9 +16,6 @@ package org.apache.geode.cache.operations.internal;
 
 import org.apache.geode.SerializationException;
 import org.apache.geode.cache.operations.GetOperationContext;
-import org.apache.geode.internal.offheap.Releasable;
-import org.apache.geode.internal.offheap.StoredObject;
-import org.apache.geode.internal.offheap.annotations.Unretained;
 
 /**
  * This subclass's job is to keep customers from getting a reference to a value that is off-heap.
@@ -27,9 +24,7 @@ import org.apache.geode.internal.offheap.annotations.Unretained;
  * @deprecated since Geode1.0, use {@link org.apache.geode.security.ResourcePermission} instead
  */
 @Deprecated
-public class GetOperationContextImpl extends GetOperationContext implements Releasable {
-
-  private boolean released;
+public class GetOperationContextImpl extends GetOperationContext {
 
   public GetOperationContextImpl(Object key, boolean postOperation) {
     super(key, postOperation);
@@ -38,89 +33,37 @@ public class GetOperationContextImpl extends GetOperationContext implements Rele
   /**
    * This method is for internal use and should not be on the public apis.
    */
-  public @Unretained Object getRawValue() {
+  public Object getRawValue() {
     return super.getValue();
   }
 
   @Override
   public Object getObject() {
-    Object result = super.getObject();
-    if (result instanceof StoredObject) {
-      // For off-heap object act as if they are serialized forcing them to call getSerializedValue
-      // or getValue
-      result = null;
-    }
-    return result;
+    return super.getObject();
   }
 
   @Override
   public void setObject(Object value, boolean isObject) {
-    released = false;
     super.setObject(value, isObject);
   }
 
   @Override
   public void setValue(Object value, boolean isObject) {
-    released = false;
     super.setValue(value, isObject);
-  }
-
-  private void checkForReleasedOffHeapValue(StoredObject so) {
-    // Note that we only care about stored objects with a ref count
-    if (released && so.hasRefCount()) {
-      throw new IllegalStateException(
-          "Attempt to access off-heap value after the OperationContext callback returned.");
-    }
   }
 
   @Override
   public byte[] getSerializedValue() {
-    byte[] result = super.getSerializedValue();
-    if (result == null) {
-      Object v = super.getValue();
-      if (v instanceof StoredObject) {
-        StoredObject so = (StoredObject) v;
-        checkForReleasedOffHeapValue(so);
-        result = so.getValueAsHeapByteArray();
-      }
-    }
-    return result;
+    return super.getSerializedValue();
   }
 
   @Override
   public Object getDeserializedValue() throws SerializationException {
-    Object result = super.getDeserializedValue();
-    if (result instanceof StoredObject) {
-      StoredObject so = (StoredObject) result;
-      checkForReleasedOffHeapValue(so);
-      result = so.getValueAsDeserializedHeapObject();
-    }
-    return result;
+    return super.getDeserializedValue();
   }
 
   @Override
   public Object getValue() {
-    Object result = super.getValue();
-    if (result instanceof StoredObject) {
-      StoredObject so = (StoredObject) result;
-      checkForReleasedOffHeapValue(so);
-      // since they called getValue they don't care if it is serialized or deserialized so return it
-      // as serialized
-      result = so.getValueAsHeapByteArray();
-    }
-    return result;
+    return super.getValue();
   }
-
-  @Override
-  public void release() {
-    // Note that if the context's value is stored off-heap
-    // and release has been called then we do not release
-    // our value (since this context did not retain it)
-    // but we do make sure that any future attempt to access
-    // the off-heap value fails.
-    if (super.getValue() instanceof StoredObject) {
-      released = true;
-    }
-  }
-
 }

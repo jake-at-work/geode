@@ -59,7 +59,6 @@ import org.apache.geode.internal.cache.tier.sockets.ClientProxyMembershipID;
 import org.apache.geode.internal.cache.tier.sockets.VersionedObjectList;
 import org.apache.geode.internal.cache.versions.VersionTag;
 import org.apache.geode.internal.logging.log4j.LogMarker;
-import org.apache.geode.internal.offheap.annotations.Released;
 import org.apache.geode.internal.serialization.ByteArrayDataInput;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.KnownVersion;
@@ -345,63 +344,52 @@ public class RemotePutAllMessage extends RemoteOperationMessageWithDirectReply {
       long lastModified) throws EntryExistsException, RemoteOperationException {
     final DistributedRegion dr = (DistributedRegion) r;
 
-    @Released
     EntryEventImpl baseEvent = EntryEventImpl.create(r, Operation.PUTALL_CREATE, null, null,
         callbackArg, false, eventSender, !skipCallbacks);
+
+    baseEvent.setCausedByMessage(this);
+
+    // set baseEventId to the first entry's event id. We need the thread id for DACE
+    baseEvent.setEventId(eventId);
+    if (bridgeContext != null) {
+      baseEvent.setContext(bridgeContext);
+    }
+    baseEvent.setPossibleDuplicate(posDup);
+    if (logger.isDebugEnabled()) {
+      logger.debug(
+          "RemotePutAllMessage.doLocalPutAll: eventSender is {}, baseEvent is {}, msg is {}",
+          eventSender, baseEvent, this);
+    }
+    final DistributedPutAllOperation dpao =
+        new DistributedPutAllOperation(baseEvent, putAllDataCount, false);
     try {
-
-      baseEvent.setCausedByMessage(this);
-
-      // set baseEventId to the first entry's event id. We need the thread id for DACE
-      baseEvent.setEventId(eventId);
-      if (bridgeContext != null) {
-        baseEvent.setContext(bridgeContext);
-      }
-      baseEvent.setPossibleDuplicate(posDup);
-      if (logger.isDebugEnabled()) {
-        logger.debug(
-            "RemotePutAllMessage.doLocalPutAll: eventSender is {}, baseEvent is {}, msg is {}",
-            eventSender, baseEvent, this);
-      }
-      final DistributedPutAllOperation dpao =
-          new DistributedPutAllOperation(baseEvent, putAllDataCount, false);
-      try {
-        r.lockRVVForBulkOp();
-        final VersionedObjectList versions =
-            new VersionedObjectList(putAllDataCount, true, dr.getConcurrencyChecksEnabled());
-        dr.syncBulkOp(() -> {
-          InternalDistributedMember myId = r.getDistributionManager().getDistributionManagerId();
-          for (int i = 0; i < putAllDataCount; ++i) {
-            @Released
-            EntryEventImpl ev = PutAllPRMessage.getEventFromEntry(r, myId, eventSender, i,
-                putAllData, false, bridgeContext, posDup, !skipCallbacks);
-            try {
-              ev.setPutAllOperation(dpao);
-              if (logger.isDebugEnabled()) {
-                logger.debug("invoking basicPut with {}", ev);
-              }
-              if (dr.basicPut(ev, false, false, null, false)) {
-                putAllData[i].versionTag = ev.getVersionTag();
-                versions.addKeyAndVersion(putAllData[i].getKey(), ev.getVersionTag());
-              }
-            } finally {
-              ev.release();
-            }
+      r.lockRVVForBulkOp();
+      final VersionedObjectList versions =
+          new VersionedObjectList(putAllDataCount, true, dr.getConcurrencyChecksEnabled());
+      dr.syncBulkOp(() -> {
+        InternalDistributedMember myId = r.getDistributionManager().getDistributionManagerId();
+        for (int i = 0; i < putAllDataCount; ++i) {
+          EntryEventImpl ev = PutAllPRMessage.getEventFromEntry(r, myId, eventSender, i,
+              putAllData, false, bridgeContext, posDup, !skipCallbacks);
+          ev.setPutAllOperation(dpao);
+          if (logger.isDebugEnabled()) {
+            logger.debug("invoking basicPut with {}", ev);
           }
-        }, baseEvent.getEventId());
-        if (getTXUniqId() != TXManagerImpl.NOTX || dr.getConcurrencyChecksEnabled()) {
-          dr.getDataView().postPutAll(dpao, versions, dr);
+          if (dr.basicPut(ev, false, false, null, false)) {
+            putAllData[i].versionTag = ev.getVersionTag();
+            versions.addKeyAndVersion(putAllData[i].getKey(), ev.getVersionTag());
+          }
         }
-        PutAllReplyMessage.send(getSender(), processorId,
-            getReplySender(r.getDistributionManager()), versions, putAllData,
-            putAllDataCount);
-        return false;
-      } finally {
-        r.unlockRVVForBulkOp();
-        dpao.freeOffHeapResources();
+      }, baseEvent.getEventId());
+      if (getTXUniqId() != TXManagerImpl.NOTX || dr.getConcurrencyChecksEnabled()) {
+        dr.getDataView().postPutAll(dpao, versions, dr);
       }
+      PutAllReplyMessage.send(getSender(), processorId,
+          getReplySender(r.getDistributionManager()), versions, putAllData,
+          putAllDataCount);
+      return false;
     } finally {
-      baseEvent.release();
+      r.unlockRVVForBulkOp();
     }
   }
 

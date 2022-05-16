@@ -140,7 +140,7 @@ public class ParallelWANStatsDistributedTest extends WANTestBase {
 
     vm7.invoke(() -> WANTestBase.createCache(lnPort));
     vm7.invoke(() -> WANTestBase.createSender("ln", 2, true, 100, 10, true, false, null, true));
-    vm7.invoke(() -> WANTestBase.createPartitionedRegion(testName, "ln", 1, 10, isOffHeap()));
+    vm7.invoke(() -> WANTestBase.createPartitionedRegion(testName, "ln", 1, 10));
     startSenderInVMs("ln", vm7);
     vm7.invoke(() -> pauseSender("ln"));
 
@@ -875,9 +875,9 @@ public class ParallelWANStatsDistributedTest extends WANTestBase {
     vm4.invoke(() -> WANTestBase.createSender("ln2", 3, true, 100, 10, false, false, null, true));
 
     createReceiverPR(vm2, 0);
-    vm3.invoke(() -> WANTestBase.createPartitionedRegion(testName, null, 0, 10, isOffHeap()));
+    vm3.invoke(() -> WANTestBase.createPartitionedRegion(testName, null, 0, 10));
 
-    vm4.invoke(() -> WANTestBase.createPartitionedRegion(testName, "ln1,ln2", 0, 10, isOffHeap()));
+    vm4.invoke(() -> WANTestBase.createPartitionedRegion(testName, "ln1,ln2", 0, 10));
 
     vm4.invoke(() -> WANTestBase.startSender("ln1"));
 
@@ -1236,7 +1236,7 @@ public class ParallelWANStatsDistributedTest extends WANTestBase {
     String regionName = testName + "_PR";
     vm1.invoke(() -> createCache(lnPort));
     vm1.invoke(() -> createSender(senderId, 2, true, 100, 10, true, true, null, false));
-    vm1.invoke(() -> createPartitionedRegion(regionName, senderId, 0, 10, isOffHeap()));
+    vm1.invoke(() -> createPartitionedRegion(regionName, senderId, 0, 10));
 
     // Do puts of the same key
     int numIterations = 100;
@@ -1251,7 +1251,7 @@ public class ParallelWANStatsDistributedTest extends WANTestBase {
     // Configure receiving site member
     vm3.invoke(() -> createCache(nyPort));
     vm3.invoke(WANTestBase::createReceiver);
-    vm3.invoke(() -> createPartitionedRegion(regionName, null, 0, 10, isOffHeap()));
+    vm3.invoke(() -> createPartitionedRegion(regionName, null, 0, 10));
 
     // Wait for queue to drain
     vm1.invoke(() -> checkQueueSize(senderId, 0));
@@ -1364,35 +1364,33 @@ public class ParallelWANStatsDistributedTest extends WANTestBase {
 
   protected void createReceiverPR(VM vm, int redundancy) {
     vm.invoke(
-        () -> WANTestBase.createPartitionedRegion(testName, null, redundancy, 10, isOffHeap()));
+        () -> WANTestBase.createPartitionedRegion(testName, null, redundancy, 10));
   }
 
   protected void createReceiverCustomerOrderShipmentPR(VM vm) {
     vm.invoke(
-        () -> WANTestBase.createCustomerOrderShipmentPartitionedRegion(null, 0, 10,
-            isOffHeap()));
+        () -> WANTestBase.createCustomerOrderShipmentPartitionedRegion(null, 0, 10));
   }
 
   protected void createSenderCustomerOrderShipmentPRs(VM vm) {
     vm.invoke(
-        () -> WANTestBase.createCustomerOrderShipmentPartitionedRegion("ln", 0, 10,
-            isOffHeap()));
+        () -> WANTestBase.createCustomerOrderShipmentPartitionedRegion("ln", 0, 10));
   }
 
   protected void createSenderPRs(int redundancy) {
     vm4.invoke(
-        () -> WANTestBase.createPartitionedRegion(testName, "ln", redundancy, 10, isOffHeap()));
+        () -> WANTestBase.createPartitionedRegion(testName, "ln", redundancy, 10));
     vm5.invoke(
-        () -> WANTestBase.createPartitionedRegion(testName, "ln", redundancy, 10, isOffHeap()));
+        () -> WANTestBase.createPartitionedRegion(testName, "ln", redundancy, 10));
     vm6.invoke(
-        () -> WANTestBase.createPartitionedRegion(testName, "ln", redundancy, 10, isOffHeap()));
+        () -> WANTestBase.createPartitionedRegion(testName, "ln", redundancy, 10));
     vm7.invoke(
-        () -> WANTestBase.createPartitionedRegion(testName, "ln", redundancy, 10, isOffHeap()));
+        () -> WANTestBase.createPartitionedRegion(testName, "ln", redundancy, 10));
   }
 
   protected void createSenderPRInVM(int redundancy, VM vm) {
     vm.invoke(
-        () -> WANTestBase.createPartitionedRegion(testName, "ln", redundancy, 10, isOffHeap()));
+        () -> WANTestBase.createPartitionedRegion(testName, "ln", redundancy, 10));
   }
 
   protected void startPausedSenders() {

@@ -25,8 +25,6 @@ import java.util.List;
 import org.apache.geode.DataSerializer;
 import org.apache.geode.annotations.VisibleForTesting;
 import org.apache.geode.internal.cache.versions.VersionTag;
-import org.apache.geode.internal.offheap.OffHeapHelper;
-import org.apache.geode.internal.offheap.Releasable;
 import org.apache.geode.internal.serialization.DataSerializableFixedID;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.KnownVersion;
@@ -39,7 +37,7 @@ import org.apache.geode.internal.serialization.SerializationContext;
  *
  * @since GemFire 5.7
  */
-public class ObjectPartList implements DataSerializableFixedID, Releasable {
+public class ObjectPartList implements DataSerializableFixedID {
   protected static final byte BYTES = 0;
 
   protected static final byte OBJECT = 1;
@@ -174,7 +172,6 @@ public class ObjectPartList implements DataSerializableFixedID, Releasable {
   }
 
   public void clear() {
-    release();
     objects.clear();
     if (keys != null) {
       keys.clear();
@@ -248,12 +245,5 @@ public class ObjectPartList implements DataSerializableFixedID, Releasable {
   @Override
   public KnownVersion[] getSerializationVersions() {
     return null;
-  }
-
-  @Override
-  public void release() {
-    for (Object v : objects) {
-      OffHeapHelper.release(v);
-    }
   }
 }

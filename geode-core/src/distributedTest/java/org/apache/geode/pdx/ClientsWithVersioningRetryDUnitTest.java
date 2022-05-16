@@ -145,7 +145,6 @@ public class ClientsWithVersioningRetryDUnitTest extends JUnit4CacheTestCase {
         event.setVersionTag(tag);
         event.setContext(new ClientProxyMembershipID(memberID));
         dr.recordEvent(event);
-        event.release();
         return memberID;
       }
     });
@@ -156,17 +155,13 @@ public class ClientsWithVersioningRetryDUnitTest extends JUnit4CacheTestCase {
         EventID eventID = new EventID(new byte[0], 1, 0);
         EntryEventImpl event = EntryEventImpl.create(dr, Operation.CREATE, "TestObject",
             "TestValue", null, false, memberID, true, eventID);
-        try {
-          event.setContext(new ClientProxyMembershipID(memberID));
-          boolean recovered =
-              ((BaseCommand) Put70.getCommand()).recoverVersionTagForRetriedOperation(event);
-          assertTrue("Expected to recover the version for this event ID",
-              recovered);
-          assertEquals("Expected the region version to be 123", 123,
-              event.getVersionTag().getRegionVersion());
-        } finally {
-          event.release();
-        }
+        event.setContext(new ClientProxyMembershipID(memberID));
+        boolean recovered =
+            ((BaseCommand) Put70.getCommand()).recoverVersionTagForRetriedOperation(event);
+        assertTrue("Expected to recover the version for this event ID",
+            recovered);
+        assertEquals("Expected the region version to be 123", 123,
+            event.getVersionTag().getRegionVersion());
       }
     });
     // bug #48205 - a retried op in PR nodes not owning the primary bucket
@@ -181,13 +176,9 @@ public class ClientsWithVersioningRetryDUnitTest extends JUnit4CacheTestCase {
             .create(dr, Operation.CREATE, "TestObject",
                 "TestValue", null, false, memberID, true, eventID);
         event.setPossibleDuplicate(true);
-        try {
-          dr.hasSeenEvent(event);
-          assertTrue("Expected to recover the version for the event ID",
-              event.getVersionTag() != null);
-        } finally {
-          event.release();
-        }
+        dr.hasSeenEvent(event);
+        assertTrue("Expected to recover the version for the event ID",
+            event.getVersionTag() != null);
       }
     });
   }

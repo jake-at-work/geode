@@ -82,10 +82,10 @@ public class CommonAsyncEventQueueDUnitTest extends AsyncEventQueueTestBase {
     vm1.invoke(() -> AsyncEventQueueTestBase.createAsyncEventQueue("ln", true, 100, 100, false,
         false, null, false));
     vm1.invoke(() -> AsyncEventQueueTestBase.createPartitionedRegionWithAsyncEventQueue(
-        getTestMethodName() + "_PR1", "ln", isOffHeap()));
+        getTestMethodName() + "_PR1", "ln"));
     try {
       vm1.invoke(() -> AsyncEventQueueTestBase.createPartitionedRegionWithAsyncEventQueue(
-          getTestMethodName() + "_PR2", "ln", isOffHeap()));
+          getTestMethodName() + "_PR2", "ln"));
       fail("Expected IllegateStateException : cannot have the same parallel gateway sender");
     } catch (Exception e) {
       if (!(e.getCause() instanceof IllegalStateException) || !(e.getCause().getMessage()
@@ -118,7 +118,7 @@ public class CommonAsyncEventQueueDUnitTest extends AsyncEventQueueTestBase {
     });
 
     vm1.invoke(() -> AsyncEventQueueTestBase.createPartitionedRegionWithAsyncEventQueue(
-        regionName, "ln", isOffHeap()));
+        regionName, "ln"));
     // do puts
     vm1.invoke(() -> {
       Region r = cache.getRegion(SEPARATOR + regionName);

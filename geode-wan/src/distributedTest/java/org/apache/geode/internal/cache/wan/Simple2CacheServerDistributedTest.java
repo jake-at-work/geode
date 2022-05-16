@@ -58,7 +58,7 @@ public class Simple2CacheServerDistributedTest extends WANTestBase {
     Integer lnPort = vm1.invoke(() -> WANTestBase.createFirstLocatorWithDSId(1));
     vm2.invoke(() -> WANTestBase.createCache(lnPort));
     vm2.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName() + "_PR",
-        null, 1, 100, isOffHeap()));
+        null, 1, 100));
     int serverPort = vm2.invoke(WANTestBase::createCacheServer);
     int serverPort2 = vm2.invoke(WANTestBase::createCacheServer);
 
@@ -72,7 +72,7 @@ public class Simple2CacheServerDistributedTest extends WANTestBase {
 
     vm0.invoke(() -> WANTestBase.createCache(lnPort));
     vm0.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName() + "_PR",
-        null, 1, 100, isOffHeap()));
+        null, 1, 100));
     int serverPort3 = vm0.invoke(WANTestBase::createCacheServer);
 
     if (durable) {

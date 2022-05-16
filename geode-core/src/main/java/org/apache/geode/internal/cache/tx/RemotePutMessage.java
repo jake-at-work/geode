@@ -14,8 +14,6 @@
  */
 package org.apache.geode.internal.cache.tx;
 
-import static org.apache.geode.internal.offheap.annotations.OffHeapIdentifier.ENTRY_EVENT_NEW_VALUE;
-import static org.apache.geode.internal.offheap.annotations.OffHeapIdentifier.ENTRY_EVENT_OLD_VALUE;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -64,9 +62,6 @@ import org.apache.geode.internal.cache.tier.sockets.ClientProxyMembershipID;
 import org.apache.geode.internal.cache.versions.DiskVersionTag;
 import org.apache.geode.internal.cache.versions.VersionTag;
 import org.apache.geode.internal.logging.log4j.LogMarker;
-import org.apache.geode.internal.offheap.StoredObject;
-import org.apache.geode.internal.offheap.annotations.Released;
-import org.apache.geode.internal.offheap.annotations.Unretained;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -93,10 +88,8 @@ public class RemotePutMessage extends RemoteOperationMessageWithDirectReply
   /**
    * Used on sender side only to defer serialization until toData is called.
    */
-  @Unretained(ENTRY_EVENT_NEW_VALUE)
   private transient Object valObj;
 
-  @Unretained(ENTRY_EVENT_OLD_VALUE)
   private transient Object oldValObj;
 
   /** The callback arg of the operation */
@@ -416,11 +409,11 @@ public class RemotePutMessage extends RemoteOperationMessageWithDirectReply
     return oldValObj;
   }
 
-  private void setValObj(@Unretained(ENTRY_EVENT_NEW_VALUE) Object o) {
+  private void setValObj(Object o) {
     valObj = o;
   }
 
-  private void setOldValObj(@Unretained(ENTRY_EVENT_OLD_VALUE) Object o) {
+  private void setOldValObj(Object o) {
     oldValObj = o;
   }
 
@@ -601,80 +594,75 @@ public class RemotePutMessage extends RemoteOperationMessageWithDirectReply
     if (eventSender == null) {
       eventSender = getSender();
     }
-    @Released
     EntryEventImpl eei = EntryEventImpl.create(r, getOperation(), getKey(), null, /* newValue */
         getCallbackArg(),
         useOriginRemote, /* originRemote - false to force distribution in buckets */
         eventSender, true/* generateCallbacks */, false/* initializeId */);
     event = eei;
-    try {
-      if (versionTag != null) {
-        versionTag.replaceNullIDs(getSender());
-        event.setVersionTag(versionTag);
-      }
-      event.setCausedByMessage(this);
-
-      event.setPossibleDuplicate(possibleDuplicate);
-      if (bridgeContext != null) {
-        event.setContext(bridgeContext);
-      }
-
-      Assert.assertTrue(eventId != null);
-      event.setEventId(eventId);
-
-      // added for cq procesing
-      if (hasOldValue) {
-        if (oldValueIsSerialized) {
-          event.setSerializedOldValue(getOldValueBytes());
-        } else {
-          event.setOldValue(getOldValueBytes());
-        }
-      }
-
-      if (applyDeltaBytes) {
-        event.setNewValue(valObj);
-        event.setDeltaBytes(deltaBytes);
-      } else {
-        switch (deserializationPolicy) {
-          case DistributedCacheOperation.DESERIALIZATION_POLICY_LAZY:
-            event.setSerializedNewValue(getValBytes());
-            break;
-          case DistributedCacheOperation.DESERIALIZATION_POLICY_NONE:
-            event.setNewValue(getValBytes());
-            break;
-          default:
-            throw new AssertionError("unknown deserialization policy: " + deserializationPolicy);
-        }
-      }
-
-      try {
-        result = r.getDataView().putEntry(event, ifNew, ifOld, expectedOldValue,
-            requireOldValue, lastModified, true);
-
-        if (!result) { // make sure the region hasn't gone away
-          r.checkReadiness();
-          if (!ifNew && !ifOld) {
-            // no reason to be throwing an exception, so let's retry
-            RemoteOperationException ex = new RemoteOperationException(
-                "unable to perform put, but operation should not fail");
-            sendReply(getSender(), getProcessorId(), dm, new ReplyException(ex), r, startTime);
-            return false;
-          }
-        }
-      } catch (CacheWriterException cwe) {
-        sendReply(getSender(), getProcessorId(), dm, new ReplyException(cwe), r, startTime);
-        return false;
-      }
-
-      setOperation(event.getOperation()); // set operation for reply message
-
-      if (sendReply) {
-        sendReply(getSender(), getProcessorId(), dm, null, r, startTime, event);
-      }
-      return false;
-    } finally {
-      event.release(); // OFFHEAP this may be too soon to make this call
+    if (versionTag != null) {
+      versionTag.replaceNullIDs(getSender());
+      event.setVersionTag(versionTag);
     }
+    event.setCausedByMessage(this);
+
+    event.setPossibleDuplicate(possibleDuplicate);
+    if (bridgeContext != null) {
+      event.setContext(bridgeContext);
+    }
+
+    Assert.assertTrue(eventId != null);
+    event.setEventId(eventId);
+
+    // added for cq procesing
+    if (hasOldValue) {
+      if (oldValueIsSerialized) {
+        event.setSerializedOldValue(getOldValueBytes());
+      } else {
+        event.setOldValue(getOldValueBytes());
+      }
+    }
+
+    if (applyDeltaBytes) {
+      event.setNewValue(valObj);
+      event.setDeltaBytes(deltaBytes);
+    } else {
+      switch (deserializationPolicy) {
+        case DistributedCacheOperation.DESERIALIZATION_POLICY_LAZY:
+          event.setSerializedNewValue(getValBytes());
+          break;
+        case DistributedCacheOperation.DESERIALIZATION_POLICY_NONE:
+          event.setNewValue(getValBytes());
+          break;
+        default:
+          throw new AssertionError("unknown deserialization policy: " + deserializationPolicy);
+      }
+    }
+
+    try {
+      result = r.getDataView().putEntry(event, ifNew, ifOld, expectedOldValue,
+          requireOldValue, lastModified, true);
+
+      if (!result) { // make sure the region hasn't gone away
+        r.checkReadiness();
+        if (!ifNew && !ifOld) {
+          // no reason to be throwing an exception, so let's retry
+          RemoteOperationException ex = new RemoteOperationException(
+              "unable to perform put, but operation should not fail");
+          sendReply(getSender(), getProcessorId(), dm, new ReplyException(ex), r, startTime);
+          return false;
+        }
+      }
+    } catch (CacheWriterException cwe) {
+      sendReply(getSender(), getProcessorId(), dm, new ReplyException(cwe), r, startTime);
+      return false;
+    }
+
+    setOperation(event.getOperation()); // set operation for reply message
+
+    if (sendReply) {
+      sendReply(getSender(), getProcessorId(), dm, null, r, startTime, event);
+    }
+    return false;
   }
 
 
@@ -756,7 +744,6 @@ public class RemotePutMessage extends RemoteOperationMessageWithDirectReply
     /**
      * Old value in serialized form: either a byte[] or CachedDeserializable, or null if not set.
      */
-    @Unretained(ENTRY_EVENT_OLD_VALUE)
     private Object oldValue;
 
     /**
@@ -873,11 +860,7 @@ public class RemotePutMessage extends RemoteOperationMessageWithDirectReply
           oldValueBytes = (byte[]) ov;
           DataSerializer.writeObject(new VMCachedDeserializable(oldValueBytes), out);
         } else if (ov instanceof CachedDeserializable) {
-          if (ov instanceof StoredObject) {
-            ((StoredObject) ov).sendAsCachedDeserializable(out);
-          } else {
-            DataSerializer.writeObject(ov, out);
-          }
+          DataSerializer.writeObject(ov, out);
         } else {
           oldValueBytes = EntryEventImpl.serialize(ov);
           DataSerializer.writeObject(new VMCachedDeserializable(oldValueBytes), out);
@@ -938,7 +921,7 @@ public class RemotePutMessage extends RemoteOperationMessageWithDirectReply
     }
 
     @Override
-    public void importOldObject(@Unretained(ENTRY_EVENT_OLD_VALUE) Object ov,
+    public void importOldObject(Object ov,
         boolean isSerialized) {
       oldValueIsSerialized = isSerialized;
       oldValue = ov;
@@ -1041,7 +1024,7 @@ public class RemotePutMessage extends RemoteOperationMessageWithDirectReply
   }
 
   @Override
-  public void importNewObject(@Unretained(ENTRY_EVENT_NEW_VALUE) Object nv, boolean isSerialized) {
+  public void importNewObject(Object nv, boolean isSerialized) {
     setDeserializationPolicy(isSerialized);
     setValObj(nv);
   }
@@ -1074,7 +1057,7 @@ public class RemotePutMessage extends RemoteOperationMessageWithDirectReply
   }
 
   @Override
-  public void importOldObject(@Unretained(ENTRY_EVENT_OLD_VALUE) Object ov, boolean isSerialized) {
+  public void importOldObject(Object ov, boolean isSerialized) {
     setOldValueIsSerialized(isSerialized);
     // Defer serialization until toData is called.
     setOldValObj(ov);

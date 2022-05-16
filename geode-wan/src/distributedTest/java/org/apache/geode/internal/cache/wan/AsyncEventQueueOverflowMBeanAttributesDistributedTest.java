@@ -61,14 +61,12 @@ public class AsyncEventQueueOverflowMBeanAttributesDistributedTest extends Async
           new WaitingAsyncEventListener()));
 
       // Create a partitioned region attached to the async event queue
-      vm1.invoke(() -> createPartitionedRegionWithAsyncEventQueue(getTestMethodName(), aeqId,
-          isOffHeap()));
+      vm1.invoke(() -> createPartitionedRegionWithAsyncEventQueue(getTestMethodName(), aeqId));
     } else {
       // Create a region then an async event queue
 
       // Create a partitioned region attached to the async event queue
-      vm1.invoke(() -> createPartitionedRegionWithAsyncEventQueue(getTestMethodName(), aeqId,
-          isOffHeap()));
+      vm1.invoke(() -> createPartitionedRegionWithAsyncEventQueue(getTestMethodName(), aeqId));
 
       // Create a async event queue
       vm1.invoke(() -> createAsyncEventQueue(aeqId, true, 1, 10, false, false, null, true,
@@ -111,14 +109,12 @@ public class AsyncEventQueueOverflowMBeanAttributesDistributedTest extends Async
           new WaitingAsyncEventListener()));
 
       // Create a partitioned region attached to the async event queue
-      vm1.invoke(() -> createPartitionedRegionWithAsyncEventQueue(getTestMethodName(), aeqId,
-          isOffHeap()));
+      vm1.invoke(() -> createPartitionedRegionWithAsyncEventQueue(getTestMethodName(), aeqId));
     } else {
       // Create a region then an async event queue
 
       // Create a partitioned region attached to the async event queue
-      vm1.invoke(() -> createPartitionedRegionWithAsyncEventQueue(getTestMethodName(), aeqId,
-          isOffHeap()));
+      vm1.invoke(() -> createPartitionedRegionWithAsyncEventQueue(getTestMethodName(), aeqId));
 
       // Create a async event queue
       vm1.invoke(() -> createAsyncEventQueue(aeqId, false, 1, 10, false, false, null, true,

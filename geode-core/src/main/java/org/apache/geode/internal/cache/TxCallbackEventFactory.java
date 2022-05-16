@@ -18,13 +18,11 @@ import org.apache.geode.cache.Operation;
 import org.apache.geode.cache.TransactionId;
 import org.apache.geode.internal.cache.tier.sockets.ClientProxyMembershipID;
 import org.apache.geode.internal.cache.versions.VersionTag;
-import org.apache.geode.internal.offheap.annotations.Retained;
 
 /**
  * Factory for creating instances of transaction callback event
  */
 public interface TxCallbackEventFactory {
-  @Retained
   EntryEventImpl createCallbackEvent(InternalRegion internalRegion,
       Operation op, Object key, Object newValue,
       TransactionId txId, TXRmtEvent txEvent,

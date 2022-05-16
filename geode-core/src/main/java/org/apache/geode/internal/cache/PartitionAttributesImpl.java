@@ -29,7 +29,6 @@ import org.apache.geode.DataSerializable;
 import org.apache.geode.DataSerializer;
 import org.apache.geode.InternalGemFireError;
 import org.apache.geode.annotations.Immutable;
-import org.apache.geode.annotations.internal.MutableForTesting;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.FixedPartitionAttributes;
 import org.apache.geode.cache.PartitionAttributes;
@@ -37,9 +36,7 @@ import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.PartitionResolver;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.partition.PartitionListener;
-import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.InternalDataSerializer;
-import org.apache.geode.internal.offheap.OffHeapStorage;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 
 /**
@@ -81,26 +78,10 @@ public class PartitionAttributesImpl implements PartitionAttributes, Cloneable, 
    */
   private Properties globalProperties = new Properties();
 
-  /*
-   * This is used to artificially set the amount of available off-heap memory when no distributed
-   * system is available. This value works the same way as specifying off-heap as a GemFire
-   * property, so "100m" = 100 megabytes, "100g" = 100 gigabytes, etc.
-   */
-  @MutableForTesting
-  private static String testAvailableOffHeapMemory = null;
-
   /** the amount of local memory to use, in megabytes */
   private int localMaxMemory = PartitionAttributesFactory.LOCAL_MAX_MEMORY_DEFAULT;
   private transient boolean hasLocalMaxMemory;
   private transient boolean localMaxMemoryExists;
-
-  /**
-   * Used to determine how to calculate the default local max memory. This was made transient since
-   * we do not support p2p backwards compat changes to values stored in a region and our PR
-   * implementation stores this object in the internal PRRoot internal region.
-   */
-  private transient boolean offHeap = false;
-  private transient boolean hasOffHeap;
 
   /** placeholder for javadoc for this variable */
   private int totalNumBuckets = PartitionAttributesFactory.GLOBAL_MAX_BUCKETS_DEFAULT;
@@ -153,14 +134,6 @@ public class PartitionAttributesImpl implements PartitionAttributes, Cloneable, 
         String.valueOf(localMaxMemory));
     hasLocalMaxMemory = true;
     localMaxMemoryExists = true;
-  }
-
-  public void setOffHeap(final boolean offHeap) {
-    this.offHeap = offHeap;
-    hasOffHeap = true;
-    if (this.offHeap && !hasLocalMaxMemory) {
-      localMaxMemory = computeOffHeapLocalMaxMemory();
-    }
   }
 
   public void setColocatedWith(String colocatedRegionFullPath) {
@@ -230,10 +203,6 @@ public class PartitionAttributesImpl implements PartitionAttributes, Cloneable, 
     return totalMaxMemory;
   }
 
-  public boolean getOffHeap() {
-    return offHeap;
-  }
-
   /**
    * Returns localMaxMemory that must not be a temporary placeholder for offHeapLocalMaxMemory if
    * off-heap. This must return the true final value of localMaxMemory which requires the
@@ -245,45 +214,18 @@ public class PartitionAttributesImpl implements PartitionAttributes, Cloneable, 
    */
   @Override
   public int getLocalMaxMemory() {
-    if (offHeap && !localMaxMemoryExists) {
-      int value = computeOffHeapLocalMaxMemory();
-      if (localMaxMemoryExists) {
-        // real value now exists so set it and return
-        localMaxMemory = value;
-      }
-    }
-    checkLocalMaxMemoryExists();
     return localMaxMemory;
-  }
-
-  /**
-   * @throws IllegalStateException if off-heap and the actual value is not yet known (because the
-   *         DistributedSystem has not yet been created)
-   */
-  private void checkLocalMaxMemoryExists() {
-    if (offHeap && !localMaxMemoryExists) {
-      // real value does NOT yet exist so throw IllegalStateException
-      throw new IllegalStateException(
-          "Attempting to use localMaxMemory for off-heap but value is not yet known (default value is equal to off-heap-memory-size)");
-    }
   }
 
   /**
    * Returns localMaxMemory for validation of attributes before Region is created (possibly before
    * DistributedSystem is created). Returned value may be the temporary placeholder representing
-   * offHeapLocalMaxMemory which cannot be calculated until the DistributedSystem is created. See
-   * bug #52003.
+   * offHeapLocalMaxMemory which cannot be calculated until the DistributedSystem is created.
    *
    * @see #OFF_HEAP_LOCAL_MAX_MEMORY_PLACEHOLDER
    * @see #getLocalMaxMemory()
    */
   public int getLocalMaxMemoryForValidation() {
-    if (offHeap && !hasLocalMaxMemory && !localMaxMemoryExists) {
-      int value = computeOffHeapLocalMaxMemory();
-      if (localMaxMemoryExists) { // real value now exists so set it and return
-        localMaxMemory = value;
-      }
-    }
     return localMaxMemory;
   }
 
@@ -378,7 +320,6 @@ public class PartitionAttributesImpl implements PartitionAttributes, Cloneable, 
    */
   @Override
   public void toData(DataOutput out) throws IOException {
-    checkLocalMaxMemoryExists();
     out.writeInt(redundancy);
     out.writeLong(totalMaxMemory);
     out.writeInt(getLocalMaxMemory()); // call the gettor to force it to be computed in the offheap
@@ -431,7 +372,7 @@ public class PartitionAttributesImpl implements PartitionAttributes, Cloneable, 
     PartitionAttributesImpl other = (PartitionAttributesImpl) obj;
 
     if (redundancy != other.getRedundantCopies()
-        || getLocalMaxMemory() != other.getLocalMaxMemory() || offHeap != other.getOffHeap()
+        || getLocalMaxMemory() != other.getLocalMaxMemory()
         || totalNumBuckets != other.getTotalNumBuckets()
         || totalMaxMemory != other.getTotalMaxMemory()
         || startupRecoveryDelay != other.getStartupRecoveryDelay()
@@ -688,9 +629,6 @@ public class PartitionAttributesImpl implements PartitionAttributes, Cloneable, 
     if (pa.hasLocalMaxMemory) {
       setLocalMaxMemory(pa.getLocalMaxMemory());
     }
-    if (pa.hasOffHeap) {
-      setOffHeap(pa.getOffHeap());
-    }
     if (pa.hasTotalMaxMemory) {
       setTotalMaxMemory(pa.getTotalMaxMemory());
     }
@@ -729,57 +667,10 @@ public class PartitionAttributesImpl implements PartitionAttributes, Cloneable, 
     setColocatedWith(pa.getColocatedWith());
     setRecoveryDelay(pa.getRecoveryDelay());
     setStartupRecoveryDelay(pa.getStartupRecoveryDelay());
-    setOffHeap(((PartitionAttributesImpl) pa).getOffHeap());
     addFixedPartitionAttributes(pa.getFixedPartitionAttributes());
   }
 
-  /**
-   * Only used for testing. Sets the amount of available off-heap memory when no distributed system
-   * is available. This method must be called before any instances of PartitionAttributesImpl are
-   * created. Specify the value the same way the off-heap memory property is specified. So, "100m" =
-   * 100 megabytes, etc.
-   *
-   * @param newTestAvailableOffHeapMemory The new test value for available off-heap memory.
-   */
-  public static void setTestAvailableOffHeapMemory(final String newTestAvailableOffHeapMemory) {
-    testAvailableOffHeapMemory = newTestAvailableOffHeapMemory;
-  }
-
-  /**
-   * By default the partition can use up to 100% of the allocated off-heap memory.
-   */
-  private int computeOffHeapLocalMaxMemory() {
-
-    long availableOffHeapMemoryInMB = 0;
-    if (testAvailableOffHeapMemory != null) {
-      availableOffHeapMemoryInMB =
-          OffHeapStorage.parseOffHeapMemorySize(testAvailableOffHeapMemory) / (1024 * 1024);
-    } else if (InternalDistributedSystem.getAnyInstance() == null) {
-      localMaxMemoryExists = false;
-      // fix 52033: return non-negative, non-zero temporary placeholder for offHeapLocalMaxMemory
-      return OFF_HEAP_LOCAL_MAX_MEMORY_PLACEHOLDER;
-    } else {
-      String offHeapSizeConfigValue =
-          InternalDistributedSystem.getAnyInstance().getOriginalConfig().getOffHeapMemorySize();
-      availableOffHeapMemoryInMB =
-          OffHeapStorage.parseOffHeapMemorySize(offHeapSizeConfigValue) / (1024 * 1024);
-    }
-
-    if (availableOffHeapMemoryInMB > Integer.MAX_VALUE) {
-      logger.warn(
-          "Reduced local max memory for partition attribute when setting from available off-heap memory size");
-      return Integer.MAX_VALUE;
-    }
-
-    localMaxMemoryExists = true;
-    return (int) availableOffHeapMemoryInMB;
-  }
-
   public int getLocalMaxMemoryDefault() {
-    if (!offHeap) {
-      return PartitionAttributesFactory.LOCAL_MAX_MEMORY_DEFAULT;
-    }
-
-    return computeOffHeapLocalMaxMemory();
+    return PartitionAttributesFactory.LOCAL_MAX_MEMORY_DEFAULT;
   }
 }

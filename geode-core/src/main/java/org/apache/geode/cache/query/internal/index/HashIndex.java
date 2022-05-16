@@ -72,7 +72,6 @@ import org.apache.geode.internal.cache.NonTXEntry;
 import org.apache.geode.internal.cache.RegionEntry;
 import org.apache.geode.internal.cache.Token;
 import org.apache.geode.internal.cache.persistence.query.CloseableIterator;
-import org.apache.geode.internal.offheap.StoredObject;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 
 /**
@@ -765,14 +764,7 @@ public class HashIndex extends AbstractIndex {
     if (indexOnValues) {
       Object o = entry.getValueOffHeapOrDiskWithoutFaultIn((LocalRegion) getRegion());
       try {
-        if (o instanceof StoredObject) {
-          StoredObject ohval = (StoredObject) o;
-          try {
-            o = ohval.getDeserializedForReading();
-          } finally {
-            ohval.release();
-          }
-        } else if (o instanceof CachedDeserializable) {
+        if (o instanceof CachedDeserializable) {
           o = ((CachedDeserializable) o).getDeserializedForReading();
         }
       } catch (EntryDestroyedException ignored) {

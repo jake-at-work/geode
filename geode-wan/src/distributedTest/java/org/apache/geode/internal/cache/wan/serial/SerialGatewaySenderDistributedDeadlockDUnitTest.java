@@ -215,15 +215,15 @@ public class SerialGatewaySenderDistributedDeadlockDUnitTest extends WANTestBase
   private void createReplicatedRegions(Integer nyPort) throws Exception {
     // create receiver
     vm2.invoke("createReplicatedRegion",
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null, false));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null));
     vm2.invoke("createReceiver", WANTestBase::createReceiver);
 
     // create senders
     vm4.invoke("createReplicatedRegion",
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln1,ln2", false));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln1,ln2"));
 
     vm5.invoke("createReplicatedRegion",
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln1,ln2", false));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln1,ln2"));
   }
 
   private void createCachesWith(Boolean socketPolicy, Integer nyPort, Integer lnPort) {
@@ -260,18 +260,18 @@ public class SerialGatewaySenderDistributedDeadlockDUnitTest extends WANTestBase
   private void createPartitionedRegions(Integer nyPort) throws Exception {
     // create remote receiver
     vm2.invoke("createPartitionedRegion",
-        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_RR", "", 0, 113, false));
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_RR", "", 0, 113));
 
     vm2.invoke("createReceiver", WANTestBase::createReceiver);
 
     // create sender vms
     vm4.invoke("createPartitionedRegion",
         () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_RR", "ln1,ln2", 1,
-            113, false));
+            113));
 
     vm5.invoke("createPartitionedRegion",
         () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_RR", "ln1,ln2", 1,
-            113, false));
+            113));
   }
 
   private void exerciseWANOperations() throws Exception {

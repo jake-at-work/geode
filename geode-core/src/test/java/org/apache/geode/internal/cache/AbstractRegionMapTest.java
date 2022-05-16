@@ -1212,7 +1212,6 @@ public class AbstractRegionMapTest {
       InternalDistributedSystem ids = mock(InternalDistributedSystem.class);
       when(owner.getCache()).thenReturn(cache);
       when(cache.getDistributedSystem()).thenReturn(ids);
-      when(ids.getOffHeapStore()).thenReturn(null);
 
       doThrow(EntryNotFoundException.class).when(owner).checkEntryNotFound(any());
       initialize(owner, new Attributes(), null, false);
@@ -1253,7 +1252,6 @@ public class AbstractRegionMapTest {
       InternalDistributedSystem ids = mock(InternalDistributedSystem.class);
       when(owner.getCache()).thenReturn(cache);
       when(cache.getDistributedSystem()).thenReturn(ids);
-      when(ids.getOffHeapStore()).thenReturn(null);
 
       CachePerfStats cachePerfStats = mock(CachePerfStats.class);
       when(owner.getCachePerfStats()).thenReturn(cachePerfStats);
@@ -1312,7 +1310,6 @@ public class AbstractRegionMapTest {
       when(owner.lockWhenRegionIsInitializing()).thenCallRealMethod();
 
       when(cache.getDistributedSystem()).thenReturn(ids);
-      when(ids.getOffHeapStore()).thenReturn(null);
       initialize(owner, new Attributes(), null, false);
     }
 
@@ -1335,7 +1332,6 @@ public class AbstractRegionMapTest {
     InternalDistributedSystem ids = mock(InternalDistributedSystem.class);
     when(arm._getOwner().getCache()).thenReturn(cache);
     when(cache.getDistributedSystem()).thenReturn(ids);
-    when(ids.getOffHeapStore()).thenReturn(null);
 
     arm.txApplyPut(Operation.UPDATE, KEY, newValue, false, txId, txRmtEvent, eventId, null,
         pendingCallbacks, null, null, null, null, 1);
@@ -1361,7 +1357,6 @@ public class AbstractRegionMapTest {
     InternalDistributedSystem ids = mock(InternalDistributedSystem.class);
     when(arm._getOwner().getCache()).thenReturn(cache);
     when(cache.getDistributedSystem()).thenReturn(ids);
-    when(ids.getOffHeapStore()).thenReturn(null);
 
     arm.txApplyPut(Operation.UPDATE, KEY, newValue, false, txId, null, eventId, null,
         pendingCallbacks, null, null, txEntryState, null, 1);
@@ -1422,7 +1417,6 @@ public class AbstractRegionMapTest {
     InternalDistributedSystem ids = mock(InternalDistributedSystem.class);
     when(arm._getOwner().getCache()).thenReturn(cache);
     when(cache.getDistributedSystem()).thenReturn(ids);
-    when(ids.getOffHeapStore()).thenReturn(null);
 
     arm.txApplyPut(Operation.UPDATE, KEY, "", false, txId, txRmtEvent, eventId, null,
         new ArrayList<>(), null, null, null, null, 1);

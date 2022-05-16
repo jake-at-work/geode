@@ -56,7 +56,6 @@ import org.apache.geode.internal.cache.VersionTagHolder;
 import org.apache.geode.internal.cache.tier.sockets.ClientProxyMembershipID;
 import org.apache.geode.internal.cache.versions.VersionTag;
 import org.apache.geode.internal.logging.log4j.LogMarker;
-import org.apache.geode.internal.offheap.OffHeapHelper;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.KnownVersion;
 import org.apache.geode.internal.serialization.SerializationContext;
@@ -168,56 +167,52 @@ public class GetMessage extends PartitionMessageWithDirectReply {
 
     RawValue valueBytes;
     Object val = null;
-    try {
-      if (ds != null) {
-        VersionTagHolder event = new VersionTagHolder();
-        try {
-          KeyInfo keyInfo = r.getKeyInfo(key, cbArg);
-          boolean lockEntry = forceUseOfPRExecutor || isDirectAck();
+    if (ds != null) {
+      VersionTagHolder event = new VersionTagHolder();
+      try {
+        KeyInfo keyInfo = r.getKeyInfo(key, cbArg);
+        boolean lockEntry = forceUseOfPRExecutor || isDirectAck();
 
-          val = r.getDataView().getSerializedValue(r, keyInfo, !lockEntry, context, event,
-              returnTombstones);
+        val = r.getDataView().getSerializedValue(r, keyInfo, !lockEntry, context, event,
+            returnTombstones);
 
-          if (val == BucketRegion.REQUIRES_ENTRY_LOCK) {
-            Assert.assertTrue(!lockEntry);
-            forceUseOfPRExecutor = true;
-            if (logger.isDebugEnabled()) {
-              logger.debug("Rescheduling GetMessage due to possible cache-miss");
-            }
-            schedule(dm);
-            return false;
+        if (val == BucketRegion.REQUIRES_ENTRY_LOCK) {
+          Assert.assertTrue(!lockEntry);
+          forceUseOfPRExecutor = true;
+          if (logger.isDebugEnabled()) {
+            logger.debug("Rescheduling GetMessage due to possible cache-miss");
           }
-          valueBytes = val instanceof RawValue ? (RawValue) val : new RawValue(val);
-        } catch (DistributedSystemDisconnectedException sde) {
-          sendReply(getSender(), processorId, dm,
-              new ReplyException(new ForceReattemptException(
-                  "Operation got interrupted due to shutdown in progress on remote VM.",
-                  sde)),
-              r, startTime);
-          return false;
-        } catch (PrimaryBucketException | DataLocationException pbe) {
-          sendReply(getSender(), getProcessorId(), dm, new ReplyException(pbe), r, startTime);
+          schedule(dm);
           return false;
         }
-
-        if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
-          logger.debug(LogMarker.DM_VERBOSE,
-              "GetMessage sending serialized value {} back via GetReplyMessage using processorId: {}",
-              valueBytes, getProcessorId());
-        }
-
-        r.getPrStats().endPartitionMessagesProcessing(startTime);
-        GetReplyMessage.send(getSender(), getProcessorId(), valueBytes, getReplySender(dm),
-            event.getVersionTag());
-        // Unless there was an exception thrown, this message handles sending the
-        // response
+        valueBytes = val instanceof RawValue ? (RawValue) val : new RawValue(val);
+      } catch (DistributedSystemDisconnectedException sde) {
+        sendReply(getSender(), processorId, dm,
+            new ReplyException(new ForceReattemptException(
+                "Operation got interrupted due to shutdown in progress on remote VM.",
+                sde)),
+            r, startTime);
         return false;
-      } else {
-        throw new InternalGemFireError(
-            "Get message sent to wrong member");
+      } catch (PrimaryBucketException | DataLocationException pbe) {
+        sendReply(getSender(), getProcessorId(), dm, new ReplyException(pbe), r, startTime);
+        return false;
       }
-    } finally {
-      OffHeapHelper.release(val);
+
+      if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
+        logger.debug(LogMarker.DM_VERBOSE,
+            "GetMessage sending serialized value {} back via GetReplyMessage using processorId: {}",
+            valueBytes, getProcessorId());
+      }
+
+      r.getPrStats().endPartitionMessagesProcessing(startTime);
+      GetReplyMessage.send(getSender(), getProcessorId(), valueBytes, getReplySender(dm),
+          event.getVersionTag());
+      // Unless there was an exception thrown, this message handles sending the
+      // response
+      return false;
+    } else {
+      throw new InternalGemFireError(
+          "Get message sent to wrong member");
     }
 
 

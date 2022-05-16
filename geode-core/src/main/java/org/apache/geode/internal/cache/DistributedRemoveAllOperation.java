@@ -50,9 +50,6 @@ import org.apache.geode.internal.cache.versions.ConcurrentCacheModificationExcep
 import org.apache.geode.internal.cache.versions.DiskVersionTag;
 import org.apache.geode.internal.cache.versions.VersionSource;
 import org.apache.geode.internal.cache.versions.VersionTag;
-import org.apache.geode.internal.offheap.annotations.Released;
-import org.apache.geode.internal.offheap.annotations.Retained;
-import org.apache.geode.internal.offheap.annotations.Unretained;
 import org.apache.geode.internal.serialization.DataSerializableFixedID;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
@@ -71,7 +68,6 @@ public class DistributedRemoveAllOperation extends AbstractUpdateOperation {
   /**
    * Release is called by freeOffHeapResources.
    */
-  @Retained
   protected final RemoveAllEntryData[] removeAllData;
 
   public int removeAllDataSize;
@@ -177,9 +173,7 @@ public class DistributedRemoveAllOperation extends AbstractUpdateOperation {
       }
 
       @Override
-      @Unretained
       public Object next() {
-        @Unretained
         EntryEventImpl ev = getEventForPosition(position);
         position++;
         return ev;
@@ -192,18 +186,6 @@ public class DistributedRemoveAllOperation extends AbstractUpdateOperation {
     };
   }
 
-  public void freeOffHeapResources() {
-    // I do not use eventIterator here because it forces the lazy creation of EntryEventImpl by
-    // calling getEventForPosition.
-    for (int i = 0; i < removeAllDataSize; i++) {
-      RemoveAllEntryData entry = removeAllData[i];
-      if (entry != null && entry.event != null) {
-        entry.event.release();
-      }
-    }
-  }
-
-  @Unretained
   public EntryEventImpl getEventForPosition(int position) {
     RemoveAllEntryData entry = removeAllData[position];
     if (entry == null) {
@@ -214,41 +196,34 @@ public class DistributedRemoveAllOperation extends AbstractUpdateOperation {
     }
     LocalRegion region = (LocalRegion) event.getRegion();
     // owned by this.removeAllData once entry.event = ev is done
-    @Retained
     EntryEventImpl ev = EntryEventImpl.create(region, entry.getOp(), entry.getKey(),
         null/* value */, event.getCallbackArgument(), false /* originRemote */,
         event.getDistributedMember(), event.isGenerateCallbacks(), entry.getEventID());
     boolean returnedEv = false;
-    try {
-      ev.setPossibleDuplicate(entry.isPossibleDuplicate());
-      ev.setIsRedestroyedEntry(entry.getRedestroyedEntry());
-      if (entry.versionTag != null && region.getConcurrencyChecksEnabled()) {
-        VersionSource id = entry.versionTag.getMemberID();
-        if (id != null) {
-          entry.versionTag.setMemberID(ev.getRegion().getVersionVector().getCanonicalId(id));
-        }
-        ev.setVersionTag(entry.versionTag);
+    ev.setPossibleDuplicate(entry.isPossibleDuplicate());
+    ev.setIsRedestroyedEntry(entry.getRedestroyedEntry());
+    if (entry.versionTag != null && region.getConcurrencyChecksEnabled()) {
+      VersionSource id = entry.versionTag.getMemberID();
+      if (id != null) {
+        entry.versionTag.setMemberID(ev.getRegion().getVersionVector().getCanonicalId(id));
       }
-
-      entry.event = ev;
-      returnedEv = true;
-      ev.setOldValue(entry.getOldValue());
-      CqService cqService = region.getCache().getCqService();
-      if (cqService.isRunning() && !entry.getOp().isCreate() && !ev.hasOldValue()) {
-        ev.setOldValueForQueryProcessing();
-      }
-      ev.setInvokePRCallbacks(!entry.isNotifyOnly());
-      if (getBaseEvent().getContext() != null) {
-        ev.setContext(getBaseEvent().getContext());
-      }
-      ev.callbacksInvoked(entry.isCallbacksInvoked());
-      ev.setTailKey(entry.getTailKey());
-      return ev;
-    } finally {
-      if (!returnedEv) {
-        ev.release();
-      }
+      ev.setVersionTag(entry.versionTag);
     }
+
+    entry.event = ev;
+    returnedEv = true;
+    ev.setOldValue(entry.getOldValue());
+    CqService cqService = region.getCache().getCqService();
+    if (cqService.isRunning() && !entry.getOp().isCreate() && !ev.hasOldValue()) {
+      ev.setOldValueForQueryProcessing();
+    }
+    ev.setInvokePRCallbacks(!entry.isNotifyOnly());
+    if (getBaseEvent().getContext() != null) {
+      ev.setContext(getBaseEvent().getContext());
+    }
+    ev.callbacksInvoked(entry.isCallbacksInvoked());
+    ev.setTailKey(entry.getTailKey());
+    return ev;
   }
 
   public EntryEventImpl getBaseEvent() {
@@ -574,7 +549,6 @@ public class DistributedRemoveAllOperation extends AbstractUpdateOperation {
     }
     FilterRoutingInfo consolidated = new FilterRoutingInfo();
     for (int i = 0; i < removeAllData.length; i++) {
-      @Unretained
       EntryEventImpl ev = getEventForPosition(i);
       if (ev != null) {
         FilterRoutingInfo eventRouting = advisor.adviseFilterRouting(ev, cacheOpRecipients);
@@ -595,7 +569,6 @@ public class DistributedRemoveAllOperation extends AbstractUpdateOperation {
       // For the CQs satisfying the event with destroy CQEvent, remove
       // the entry from CQ cache.
       for (int i = 0; i < removeAllData.length; i++) {
-        @Unretained
         EntryEventImpl entryEvent = getEventForPosition(i);
         if (entryEvent != null && entryEvent.getKey() != null && cq != null
             && cq.getFilterID() != null && cq.getFilterID().equals(cqID)
@@ -856,10 +829,8 @@ public class DistributedRemoveAllOperation extends AbstractUpdateOperation {
      * that gets passed to basicOperateOnRegion
      */
     @Override
-    @Retained
     protected InternalCacheEvent createEvent(DistributedRegion rgn) throws EntryNotFoundException {
       // Gester: We have to specify eventId for the message of MAP
-      @Retained
       EntryEventImpl event = EntryEventImpl.create(rgn, Operation.REMOVEALL_DESTROY, null /* key */,
           null/* value */, callbackArg, true /* originRemote */, getSender());
       if (context != null) {
@@ -891,7 +862,6 @@ public class DistributedRemoveAllOperation extends AbstractUpdateOperation {
      * @param rgn the region the entry is removed from
      */
     public void doEntryRemove(RemoveAllEntryData entry, DistributedRegion rgn) {
-      @Released
       EntryEventImpl ev = RemoveAllMessage.createEntryEvent(entry, getSender(), context, rgn,
           possibleDuplicate, needsRouting, callbackArg, true, skipCallbacks);
       // rgn.getLogWriterI18n().info(String.format("%s", "RemoveAllMessage.doEntryRemove
@@ -917,7 +887,6 @@ public class DistributedRemoveAllOperation extends AbstractUpdateOperation {
             rgn.getVersionVector().recordVersion(getSender(), ev.getVersionTag());
           }
         }
-        ev.release();
       }
     }
 
@@ -926,45 +895,35 @@ public class DistributedRemoveAllOperation extends AbstractUpdateOperation {
      *
      * @return the event to be used in applying the element
      */
-    @Retained
     public static EntryEventImpl createEntryEvent(RemoveAllEntryData entry,
         InternalDistributedMember sender, ClientProxyMembershipID context, DistributedRegion rgn,
         boolean possibleDuplicate, boolean needsRouting, Object callbackArg, boolean originRemote,
         boolean skipCallbacks) {
       final Object key = entry.getKey();
       EventID evId = entry.getEventID();
-      @Retained
       EntryEventImpl ev = EntryEventImpl.create(rgn, entry.getOp(), key, null/* value */,
           callbackArg, originRemote, sender, !skipCallbacks, evId);
-      boolean returnedEv = false;
-      try {
-        if (context != null) {
-          ev.context = context;
-        }
-        ev.setPossibleDuplicate(possibleDuplicate);
-        ev.setVersionTag(entry.versionTag);
-        // if (needsRouting) {
-        // FilterProfile fp = rgn.getFilterProfile();
-        // if (fp != null) {
-        // FilterInfo fi = fp.getLocalFilterRouting(ev);
-        // ev.setLocalFilterInfo(fi);
-        // }
-        // }
-        if (entry.filterRouting != null) {
-          InternalDistributedMember id = rgn.getMyId();
-          ev.setLocalFilterInfo(entry.filterRouting.getFilterInfo(id));
-        }
-        /*
-         * Setting tailKey for the secondary bucket here. Tail key was update by the primary.
-         */
-        ev.setTailKey(entry.getTailKey());
-        returnedEv = true;
-        return ev;
-      } finally {
-        if (!returnedEv) {
-          ev.release();
-        }
+      if (context != null) {
+        ev.context = context;
       }
+      ev.setPossibleDuplicate(possibleDuplicate);
+      ev.setVersionTag(entry.versionTag);
+      // if (needsRouting) {
+      // FilterProfile fp = rgn.getFilterProfile();
+      // if (fp != null) {
+      // FilterInfo fi = fp.getLocalFilterRouting(ev);
+      // ev.setLocalFilterInfo(fi);
+      // }
+      // }
+      if (entry.filterRouting != null) {
+        InternalDistributedMember id = rgn.getMyId();
+        ev.setLocalFilterInfo(entry.filterRouting.getFilterInfo(id));
+      }
+      /*
+       * Setting tailKey for the secondary bucket here. Tail key was update by the primary.
+       */
+      ev.setTailKey(entry.getTailKey());
+      return ev;
     }
 
     @Override

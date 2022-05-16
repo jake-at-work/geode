@@ -35,8 +35,6 @@ import org.apache.geode.internal.Assert;
 import org.apache.geode.internal.HeapDataOutputStream;
 import org.apache.geode.internal.cache.TXManagerImpl;
 import org.apache.geode.internal.cache.tier.MessageType;
-import org.apache.geode.internal.offheap.StoredObject;
-import org.apache.geode.internal.offheap.annotations.Unretained;
 import org.apache.geode.internal.serialization.KnownVersion;
 import org.apache.geode.internal.util.BlobHelper;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -354,17 +352,11 @@ public class Message {
   /**
    * Object o is always null
    */
-  public void addPartInAnyForm(@Unretained Object o, boolean isObject) {
+  public void addPartInAnyForm(Object o, boolean isObject) {
     if (o == null) {
       addRawPart((byte[]) o, false);
     } else if (o instanceof byte[]) {
       addRawPart((byte[]) o, isObject);
-    } else if (o instanceof StoredObject) {
-      // It is possible it is an off-heap StoredObject that contains a simple non-object byte[].
-      messageModified = true;
-      Part part = partsList[currentPart];
-      part.setPartState((StoredObject) o, isObject);
-      currentPart++;
     } else {
       serializeAndAddPart(o, false);
     }

@@ -134,11 +134,11 @@ public class WanValidationsDUnitTest extends WANTestBase {
       createSender("ln3", 2, false, 10, 100, false, false, null, true);
     });
 
-    vm4.invoke(() -> createReplicatedRegion(getTestMethodName() + "_RR", "ln1,ln2", isOffHeap()));
+    vm4.invoke(() -> createReplicatedRegion(getTestMethodName() + "_RR", "ln1,ln2"));
 
     vm5.invoke(() -> {
       assertThatThrownBy(
-          () -> createReplicatedRegion(getTestMethodName() + "_RR", "ln2,ln3", isOffHeap()))
+          () -> createReplicatedRegion(getTestMethodName() + "_RR", "ln2,ln3"))
               .isInstanceOf(IllegalStateException.class)
               .hasMessageContaining("Cannot create Region");
     });
@@ -149,11 +149,10 @@ public class WanValidationsDUnitTest extends WANTestBase {
     Integer lnPort = vm0.invoke(() -> createFirstLocatorWithDSId(1));
     createCacheInVMs(lnPort, vm4, vm5);
 
-    vm4.invoke(() -> createReplicatedRegionWithAsyncEventQueue(getTestMethodName() + "_RR", "ln1",
-        isOffHeap()));
+    vm4.invoke(() -> createReplicatedRegionWithAsyncEventQueue(getTestMethodName() + "_RR", "ln1"));
     vm5.invoke(() -> {
       assertThatThrownBy(() -> createReplicatedRegionWithAsyncEventQueue(
-          getTestMethodName() + "_RR", "ln2", isOffHeap()))
+          getTestMethodName() + "_RR", "ln2"))
               .isInstanceOf(IllegalStateException.class)
               .hasMessageContaining("Cannot create Region");
     });
@@ -179,11 +178,11 @@ public class WanValidationsDUnitTest extends WANTestBase {
     });
 
     vm4.invoke(
-        () -> createPartitionedRegion(getTestMethodName() + "_PR", "ln1,ln2", 1, 100, isOffHeap()));
+        () -> createPartitionedRegion(getTestMethodName() + "_PR", "ln1,ln2", 1, 100));
 
     vm5.invoke(() -> {
       assertThatThrownBy(() -> createPartitionedRegion(getTestMethodName() + "_PR", "ln2,ln3", 1,
-          100, isOffHeap()))
+          100))
               .isInstanceOf(IllegalStateException.class)
               .hasMessageContaining("Cannot create Region");
     });
@@ -209,10 +208,10 @@ public class WanValidationsDUnitTest extends WANTestBase {
     });
 
     vm4.invoke(
-        () -> createPartitionedRegion(getTestMethodName() + "_PR", "ln1,ln2", 1, 100, isOffHeap()));
+        () -> createPartitionedRegion(getTestMethodName() + "_PR", "ln1,ln2", 1, 100));
     vm5.invoke(() -> {
       assertThatThrownBy(() -> createPartitionedRegion(getTestMethodName() + "_PR", "ln2,ln3", 1,
-          100, isOffHeap()))
+          100))
               .isInstanceOf(IllegalStateException.class)
               .hasMessageContaining("Cannot create Region");
     });
@@ -230,9 +229,9 @@ public class WanValidationsDUnitTest extends WANTestBase {
       createSender("ln1_Parallel", 2, true, 10, 100, false, false, null, true);
       createSender("ln2_Parallel", 2, true, 10, 100, false, false, null, true);
       createPartitionedRegionWithSerialParallelSenderIds(getTestMethodName() + "_PR1", null,
-          "ln1_Parallel,ln2_Parallel", null, isOffHeap());
+          "ln1_Parallel,ln2_Parallel", null);
       assertThatThrownBy(() -> createPartitionedRegionWithSerialParallelSenderIds(
-          getTestMethodName() + "_PR2", null, "ln1_Parallel,ln2_Parallel", null, isOffHeap()))
+          getTestMethodName() + "_PR2", null, "ln1_Parallel,ln2_Parallel", null))
               .isInstanceOf(IllegalStateException.class)
               .hasMessageContaining("cannot have the same parallel gateway sender id");
     });
@@ -247,9 +246,9 @@ public class WanValidationsDUnitTest extends WANTestBase {
       createSender("ln1_Parallel", 2, true, 10, 100, false, false, null, true);
       createSender("ln2_Parallel", 2, true, 10, 100, false, false, null, true);
       createPartitionedRegionWithSerialParallelSenderIds(getTestMethodName() + "_PR1", null,
-          "ln1_Parallel", null, isOffHeap());
+          "ln1_Parallel", null);
       createPartitionedRegionWithSerialParallelSenderIds(getTestMethodName() + "_PR2", null,
-          "ln1_Parallel,ln2_Parallel", getTestMethodName() + "_PR1", isOffHeap());
+          "ln1_Parallel,ln2_Parallel", getTestMethodName() + "_PR1");
     });
   }
 
@@ -266,9 +265,9 @@ public class WanValidationsDUnitTest extends WANTestBase {
       createSender("ln1_Parallel", 2, true, 10, 100, false, false, null, true);
       createSender("ln2_Parallel", 2, true, 10, 100, false, false, null, true);
       createPartitionedRegionWithSerialParallelSenderIds(getTestMethodName() + "_PR1", null,
-          "ln1_Parallel", null, isOffHeap());
+          "ln1_Parallel", null);
       createPartitionedRegionWithSerialParallelSenderIds(getTestMethodName() + "_PR2", null, null,
-          getTestMethodName() + "_PR1", isOffHeap());
+          getTestMethodName() + "_PR1");
     });
   }
 
@@ -284,9 +283,9 @@ public class WanValidationsDUnitTest extends WANTestBase {
       createSender("ln1_Parallel", 2, true, 10, 100, false, false, null, true);
       createSender("ln2_Parallel", 2, true, 10, 100, false, false, null, true);
       createPartitionedRegionWithSerialParallelSenderIds(getTestMethodName() + "_PR1", null,
-          "ln1_Parallel,ln2_Parallel", null, isOffHeap());
+          "ln1_Parallel,ln2_Parallel", null);
       createPartitionedRegionWithSerialParallelSenderIds(getTestMethodName() + "_PR2", null,
-          "ln1_Parallel", getTestMethodName() + "_PR1", isOffHeap());
+          "ln1_Parallel", getTestMethodName() + "_PR1");
     });
   }
 
@@ -303,9 +302,9 @@ public class WanValidationsDUnitTest extends WANTestBase {
       createSender("ln2_Parallel", 2, true, 10, 100, false, false, null, true);
       createSender("ln3_Parallel", 2, true, 10, 100, false, false, null, true);
       createPartitionedRegionWithSerialParallelSenderIds(getTestMethodName() + "_PR1", null,
-          "ln1_Parallel,ln2_Parallel", null, isOffHeap());
+          "ln1_Parallel,ln2_Parallel", null);
       createPartitionedRegionWithSerialParallelSenderIds(getTestMethodName() + "_PR2", null,
-          "ln1_Parallel,ln2_Parallel,ln3_Parallel", getTestMethodName() + "_PR1", isOffHeap());
+          "ln1_Parallel,ln2_Parallel,ln3_Parallel", getTestMethodName() + "_PR1");
     });
   }
 
@@ -656,7 +655,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
 
     createCacheInVMs(nyPort, vm2);
     vm2.invoke(() -> {
-      createReplicatedRegion(getTestMethodName() + "_RR", null, isOffHeap());
+      createReplicatedRegion(getTestMethodName() + "_RR", null);
       createReceiver();
     });
 
@@ -667,7 +666,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
     });
 
     asList(vm4, vm5, vm6, vm7).forEach(vm -> vm
-        .invoke(() -> createReplicatedRegion(getTestMethodName() + "_RR", null, isOffHeap())));
+        .invoke(() -> createReplicatedRegion(getTestMethodName() + "_RR", null)));
 
     String regionName = getTestMethodName() + "_RR";
     vm4.invoke(() -> addSenderThroughAttributesMutator(regionName, "ln"));
@@ -691,7 +690,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
 
     asList(vm4, vm5, vm6, vm7).forEach(vm -> vm.invoke(() -> {
       createAsyncEventQueue("ln", false, 100, 100, false, false, null, false);
-      createReplicatedRegion(getTestMethodName() + "_RR", null, isOffHeap());
+      createReplicatedRegion(getTestMethodName() + "_RR", null);
     }));
 
     String regionName = getTestMethodName() + "_RR";
@@ -719,7 +718,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
     createCacheInVMs(nyPort, vm2);
     vm2.invoke(() -> {
       createReceiver();
-      createPartitionedRegion(getTestMethodName() + "_RR", null, 1, 100, isOffHeap());
+      createPartitionedRegion(getTestMethodName() + "_RR", null, 1, 100);
     });
 
     createCacheInVMs(lnPort, vm4, vm5, vm6, vm7);
@@ -730,7 +729,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
 
     String regionName = getTestMethodName() + "_PR";
     asList(vm4, vm5, vm6, vm7).forEach(vm -> vm.invoke(() -> {
-      createPartitionedRegion(regionName, null, 3, 100, isOffHeap());
+      createPartitionedRegion(regionName, null, 3, 100);
     }));
     asList(vm4, vm5).forEach(vm -> vm.invoke(() -> {
       addSenderThroughAttributesMutator(regionName, "ln");
@@ -760,7 +759,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
 
     String regionName = getTestMethodName() + "_PR";
     asList(vm4, vm5, vm6, vm7).forEach(vm -> vm.invoke(() -> {
-      createPartitionedRegion(regionName, null, 3, 100, isOffHeap());
+      createPartitionedRegion(regionName, null, 3, 100);
     }));
     asList(vm4, vm5).forEach(vm -> vm.invoke(() -> {
       addAsyncEventQueueThroughAttributesMutator(regionName, "ln");
@@ -784,7 +783,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
 
     createCacheInVMs(nyPort, vm2);
     vm2.invoke(() -> {
-      createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 10, isOffHeap());
+      createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 10);
       createReceiver();
     });
 
@@ -796,7 +795,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
 
     String regionName = getTestMethodName() + "_PR";
     asList(vm4, vm5, vm6, vm7).forEach(vm -> vm.invoke(() -> {
-      createPartitionedRegion(regionName, null, 3, 10, isOffHeap());
+      createPartitionedRegion(regionName, null, 3, 10);
     }));
     asList(vm4, vm5).forEach(vm -> vm.invoke(() -> {
       addSenderThroughAttributesMutator(regionName, "ln");
@@ -824,7 +823,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
     String regionName = getTestMethodName() + "_PR";
     asList(vm4, vm5, vm6, vm7).forEach(vm -> vm.invoke(() -> {
       createAsyncEventQueue("ln", true, 100, 100, false, false, null, false);
-      createPartitionedRegion(regionName, null, 3, 10, isOffHeap());
+      createPartitionedRegion(regionName, null, 3, 10);
     }));
 
     asList(vm4, vm5).forEach(vm -> vm.invoke(() -> {
@@ -843,7 +842,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
 
     createCacheInVMs(nyPort, vm2);
     vm2.invoke(() -> {
-      createReplicatedRegion(getTestMethodName() + "_RR", null, isOffHeap());
+      createReplicatedRegion(getTestMethodName() + "_RR", null);
       createReceiver();
     });
 
@@ -854,7 +853,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
     });
 
     asList(vm4, vm5, vm6, vm7).forEach(vm -> vm.invoke(() -> {
-      createReplicatedRegion(getTestMethodName() + "_RR", null, isOffHeap());
+      createReplicatedRegion(getTestMethodName() + "_RR", null);
     }));
 
     asList(vm4, vm5, vm6, vm7).forEach(vm -> vm.invoke(() -> {
@@ -876,7 +875,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
 
     asList(vm4, vm5, vm6, vm7).forEach(vm -> vm.invoke(() -> {
       createAsyncEventQueue("ln", false, 100, 100, false, false, null, false);
-      createReplicatedRegion(getTestMethodName() + "_RR", null, isOffHeap());
+      createReplicatedRegion(getTestMethodName() + "_RR", null);
     }));
 
     asList(vm4, vm5, vm6, vm7).forEach(vm -> vm.invoke(() -> {
@@ -905,7 +904,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
     createCacheInVMs(nyPort, vm2);
     vm2.invoke(() -> {
       createReceiver();
-      createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100, isOffHeap());
+      createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100);
     });
 
     createCacheInVMs(lnPort, vm4, vm5, vm6, vm7);
@@ -915,7 +914,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
     startSenderInVMs("ln", vm4, vm5, vm6, vm7);
 
     asList(vm4, vm5, vm6, vm7).forEach(vm -> vm.invoke(() -> {
-      createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100, isOffHeap());
+      createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100);
     }));
     asList(vm4, vm5, vm6, vm7).forEach(vm -> vm.invoke(() -> {
       addSenderThroughAttributesMutator(getTestMethodName() + "_PR", "ln");
@@ -937,7 +936,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
     createCacheInVMs(lnPort, vm4, vm5, vm6, vm7);
     asList(vm4, vm5, vm6, vm7).forEach(vm -> vm.invoke(() -> {
       createAsyncEventQueue("ln", false, 100, 100, false, false, null, false);
-      createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100, isOffHeap());
+      createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100);
     }));
     asList(vm4, vm5, vm6, vm7).forEach(vm -> vm.invoke(() -> {
       addAsyncEventQueueThroughAttributesMutator(getTestMethodName() + "_PR", "ln");
@@ -961,7 +960,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
     createCacheInVMs(lnPort, vm4, vm5, vm6, vm7);
     asList(vm4, vm5, vm6, vm7).forEach(vm -> vm.invoke(() -> {
       createAsyncEventQueue("ln", true, 100, 100, false, false, null, false);
-      createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 10, isOffHeap());
+      createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 10);
     }));
     asList(vm4, vm5, vm6, vm7).forEach(vm -> vm.invoke(() -> {
       addAsyncEventQueueThroughAttributesMutator(getTestMethodName() + "_PR", "ln");
@@ -989,7 +988,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
     String regionName = getTestMethodName() + "_RR";
     String gatewaySenderId = getTestMethodName() + "_gateway";
     vm1.invoke(() -> {
-      createReplicatedRegion(regionName, null, isOffHeap());
+      createReplicatedRegion(regionName, null);
       createSender(gatewaySenderId, 2, true, 100, 10, false, false, null, false);
 
       assertThatThrownBy(() -> addSenderThroughAttributesMutator(regionName, gatewaySenderId))
@@ -1007,7 +1006,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
     String regionName = getTestMethodName() + "_RR";
     String asyncEventQueueId = getTestMethodName() + "_asyncEventQueue";
     vm1.invoke(() -> {
-      createReplicatedRegion(regionName, null, isOffHeap());
+      createReplicatedRegion(regionName, null);
       createAsyncEventQueue(asyncEventQueueId, true, 100, 100, false, false, null, false);
 
       assertThatThrownBy(
@@ -1025,14 +1024,14 @@ public class WanValidationsDUnitTest extends WANTestBase {
 
     createCacheInVMs(nyPort, vm2);
     vm2.invoke(() -> {
-      createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 10, isOffHeap());
+      createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 10);
       createReceiver();
     });
 
     createCacheInVMs(lnPort, vm4, vm5, vm6, vm7);
     asList(vm4, vm5, vm6, vm7).forEach(vm -> vm.invoke(() -> {
       createSender("ln", 2, true, 100, 10, false, false, null, true);
-      createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 10, isOffHeap());
+      createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 10);
     }));
     startSenderInVMs("ln", vm4, vm5, vm6, vm7);
 
@@ -1115,7 +1114,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
     startSenderInVMs("ln", vm4, vm5);
     asList(vm4, vm5, vm6, vm7).forEach(vm -> vm.invoke(() -> {
       createReplicatedRegionWithSenderAndAsyncEventQueue(getTestMethodName() + "_RR", "ln",
-          "lnAsync", isOffHeap());
+          "lnAsync");
     }));
     // ------------- END - CREATE CACHE, REGION ON LOCAL SITE -------------//
 
@@ -1130,7 +1129,7 @@ public class WanValidationsDUnitTest extends WANTestBase {
     startSenderInVMs("ny", vm2, vm3);
     asList(vm2, vm3).forEach(vm -> vm.invoke(() -> {
       createReplicatedRegionWithSenderAndAsyncEventQueue(getTestMethodName() + "_RR", "ny",
-          "nyAsync", isOffHeap());
+          "nyAsync");
     }));
     // ------------- END - CREATE CACHE, REGION ON REMOTE SITE -------------//
 

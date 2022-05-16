@@ -133,7 +133,7 @@ public class ProxyBucketRegion implements Bucket {
               overflowEnabled, partitionedRegion.isDiskSynchronous(),
               partitionedRegion.getDiskRegionStats(), partitionedRegion.getCancelCriterion(),
               partitionedRegion, partitionedRegion.getAttributes(), diskFlags, partitionName,
-              startingBucketID, partitionedRegion.getCompressor(), partitionedRegion.getOffHeap());
+              startingBucketID, partitionedRegion.getCompressor());
 
       if (fpaList != null) {
         for (FixedPartitionAttributesImpl fpa : fpaList) {

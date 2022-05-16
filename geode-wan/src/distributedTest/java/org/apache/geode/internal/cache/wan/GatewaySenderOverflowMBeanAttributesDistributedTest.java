@@ -61,12 +61,12 @@ public class GatewaySenderOverflowMBeanAttributesDistributedTest extends WANTest
       vm4.invoke(() -> pauseSender(senderId));
 
       // Create a partitioned region attached to the gateway sender
-      vm4.invoke(() -> createPartitionedRegion(getTestMethodName(), senderId, 1, 100, isOffHeap()));
+      vm4.invoke(() -> createPartitionedRegion(getTestMethodName(), senderId, 1, 100));
     } else {
       // Create a partitioned region then a gateway sender
 
       // Create a partitioned region attached to the gateway sender
-      vm4.invoke(() -> createPartitionedRegion(getTestMethodName(), senderId, 1, 100, isOffHeap()));
+      vm4.invoke(() -> createPartitionedRegion(getTestMethodName(), senderId, 1, 100));
 
       // Create a gateway sender in paused state so it creates the queue, but doesn't read any
       // events from disk
@@ -84,7 +84,7 @@ public class GatewaySenderOverflowMBeanAttributesDistributedTest extends WANTest
     // Start a gateway receiver with partitioned region
     vm2.invoke(() -> createCache(nyPort));
     vm2.invoke(WANTestBase::createReceiver);
-    vm2.invoke(() -> createPartitionedRegion(getTestMethodName(), null, 1, 100, isOffHeap()));
+    vm2.invoke(() -> createPartitionedRegion(getTestMethodName(), null, 1, 100));
 
     // Resume gateway sender
     vm4.invoke(() -> resumeSender(senderId));
@@ -118,12 +118,12 @@ public class GatewaySenderOverflowMBeanAttributesDistributedTest extends WANTest
       vm4.invoke(() -> pauseSender(senderId));
 
       // Create a partitioned region attached to the gateway sender
-      vm4.invoke(() -> createPartitionedRegion(getTestMethodName(), senderId, 1, 100, isOffHeap()));
+      vm4.invoke(() -> createPartitionedRegion(getTestMethodName(), senderId, 1, 100));
     } else {
       // Create a partitioned region then a gateway sender
 
       // Create a partitioned region attached to the gateway sender
-      vm4.invoke(() -> createPartitionedRegion(getTestMethodName(), senderId, 1, 100, isOffHeap()));
+      vm4.invoke(() -> createPartitionedRegion(getTestMethodName(), senderId, 1, 100));
 
       // Create a gateway sender in paused state so it creates the queue, but doesn't read any
       // events from disk
@@ -142,7 +142,7 @@ public class GatewaySenderOverflowMBeanAttributesDistributedTest extends WANTest
     // Start a gateway receiver with partitioned region
     vm2.invoke(() -> createCache(nyPort));
     vm2.invoke(WANTestBase::createReceiver);
-    vm2.invoke(() -> createPartitionedRegion(getTestMethodName(), null, 1, 100, isOffHeap()));
+    vm2.invoke(() -> createPartitionedRegion(getTestMethodName(), null, 1, 100));
 
     // Resume the gateway sender
     vm4.invoke(() -> resumeSender(senderId));
@@ -175,12 +175,12 @@ public class GatewaySenderOverflowMBeanAttributesDistributedTest extends WANTest
       vm4.invoke(() -> pauseSender(senderId));
 
       // Create a partitioned region attached to the gateway sender
-      vm4.invoke(() -> createPartitionedRegion(getTestMethodName(), senderId, 1, 100, isOffHeap()));
+      vm4.invoke(() -> createPartitionedRegion(getTestMethodName(), senderId, 1, 100));
     } else {
       // Create a partitioned region then a gateway sender
 
       // Create a partitioned region attached to the gateway sender
-      vm4.invoke(() -> createPartitionedRegion(getTestMethodName(), senderId, 1, 100, isOffHeap()));
+      vm4.invoke(() -> createPartitionedRegion(getTestMethodName(), senderId, 1, 100));
 
       // Create a gateway sender in paused state so it creates the queue, but doesn't read any
       // events from disk

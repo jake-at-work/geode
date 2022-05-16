@@ -15,19 +15,15 @@
 package org.apache.geode.internal.cache;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import org.junit.Test;
 
-import org.apache.geode.internal.offheap.StoredObject;
 import org.apache.geode.pdx.PdxInstance;
 
 public class ValueComparisonHelperTest {
@@ -243,179 +239,6 @@ public class ValueComparisonHelperTest {
     assertThat(
         ValueComparisonHelper.checkEquals(pdxInstance1, object, false, mock(InternalCache.class)))
             .isTrue();
-  }
-
-  @Test
-  public void checkEqualsReturnsFalseWhenComparingTwoNonEqualStoredObject() {
-    StoredObject object1 = mock(StoredObject.class);
-    StoredObject object2 = mock(StoredObject.class);
-
-    when(object1.checkDataEquals(object2)).thenReturn(false);
-
-    assertThat(
-        ValueComparisonHelper.checkEquals(object1, object2, false, mock(InternalCache.class)))
-            .isFalse();
-  }
-
-  @Test
-  public void checkEqualsReturnsTrueWhenComparingTwoEqualStoredObject() {
-    StoredObject object1 = mock(StoredObject.class);
-    StoredObject object2 = mock(StoredObject.class);
-
-    when(object1.checkDataEquals(object2)).thenReturn(true);
-
-    assertThat(
-        ValueComparisonHelper.checkEquals(object1, object2, false, mock(InternalCache.class)))
-            .isTrue();
-  }
-
-  @Test
-  public void checkEqualsReturnsFalseWhenComparingStoredObjectWithByteArrayAsCacheDeserializable() {
-    StoredObject storedObject = mock(StoredObject.class);
-    when(storedObject.isSerialized()).thenReturn(false);
-    CachedDeserializable cachedDeserializable = mock(CachedDeserializable.class);
-    when(cachedDeserializable.isSerialized()).thenReturn(true);
-
-    assertThat(
-        ValueComparisonHelper.checkEquals(storedObject, cachedDeserializable, false,
-            mock(InternalCache.class)))
-                .isFalse();
-  }
-
-  @Test
-  public void checkEqualsReturnsFalseWhenComparingNonSerializedStoredObjectWithCacheDeserializable() {
-    StoredObject storedObject = mock(StoredObject.class);
-    when(storedObject.isSerialized()).thenReturn(false);
-    CachedDeserializable cachedDeserializable = mock(CachedDeserializable.class);
-    when(cachedDeserializable.isSerialized()).thenReturn(true);
-
-    assertThat(
-        ValueComparisonHelper.checkEquals(storedObject, cachedDeserializable, false,
-            mock(InternalCache.class)))
-                .isFalse();
-  }
-
-  @Test
-  public void checkEqualsCanCompareStoredObjectWithCacheDeserializable() {
-    StoredObject storedObject = mock(StoredObject.class);
-    when(storedObject.isSerialized()).thenReturn(true);
-    CachedDeserializable cachedDeserializable = mock(CachedDeserializable.class);
-    byte[] serializedObj = new byte[1];
-    when(cachedDeserializable.getSerializedValue()).thenReturn(serializedObj);
-
-    ValueComparisonHelper.checkEquals(storedObject, cachedDeserializable, false,
-        mock(InternalCache.class));
-
-    verify(storedObject).checkDataEquals(serializedObj);
-  }
-
-  @Test
-  public void checkEqualsReturnsFalseWhenComparingSerializedStoredObjectWithByteArray() {
-    StoredObject storedObject = mock(StoredObject.class);
-    when(storedObject.isSerialized()).thenReturn(true);
-    byte[] object = new byte[1];
-
-    assertThat(
-        ValueComparisonHelper.checkEquals(storedObject, object, false, mock(InternalCache.class)))
-            .isFalse();
-  }
-
-  @Test
-  public void checkEqualsCanCompareNonSerializedStoredObjectWithByteArray() {
-    StoredObject storedObject = mock(StoredObject.class);
-    when(storedObject.isSerialized()).thenReturn(false);
-    byte[] object = new byte[1];
-
-    ValueComparisonHelper.checkEquals(storedObject, object, false, mock(InternalCache.class));
-
-    verify(storedObject).checkDataEquals(object);
-  }
-
-  @Test
-  public void checkEqualsReturnsFalseWhenComparingNonSerializedStoredObjectWithAnObject() {
-    StoredObject storedObject = mock(StoredObject.class);
-    // storeObject is a byte[]
-    when(storedObject.isSerialized()).thenReturn(false);
-    Object object = new Object();
-
-    assertThat(
-        ValueComparisonHelper.checkEquals(storedObject, object, false, mock(InternalCache.class)))
-            .isFalse();
-    verify(storedObject, never()).checkDataEquals(any(byte[].class));
-  }
-
-  @Test
-  public void checkEqualsReturnsFalseWhenComparingSerializedStoredObjectWithANullObject() {
-    StoredObject storedObject = mock(StoredObject.class);
-    when(storedObject.isSerialized()).thenReturn(true);
-
-    assertThat(
-        ValueComparisonHelper.checkEquals(storedObject, null, false, mock(InternalCache.class)))
-            .isFalse();
-    verify(storedObject, never()).checkDataEquals(any(byte[].class));
-  }
-
-  @Test
-  public void checkEqualsReturnsFalseWhenComparingSerializedStoredObjectWithNotAvailableToken() {
-    StoredObject storedObject = mock(StoredObject.class);
-    when(storedObject.isSerialized()).thenReturn(true);
-
-    assertThat(
-        ValueComparisonHelper.checkEquals(storedObject, Token.NOT_AVAILABLE, false,
-            mock(InternalCache.class)))
-                .isFalse();
-    verify(storedObject, never()).checkDataEquals(any(byte[].class));
-  }
-
-  @Test
-  public void checkEqualsReturnsFalseWhenComparingSerializedStoredObjectWithInvalidToken() {
-    StoredObject storedObject = mock(StoredObject.class);
-    when(storedObject.isSerialized()).thenReturn(true);
-
-    assertThat(
-        ValueComparisonHelper.checkEquals(storedObject, Token.INVALID, false,
-            mock(InternalCache.class)))
-                .isFalse();
-    assertThat(
-        ValueComparisonHelper.checkEquals(storedObject, Token.LOCAL_INVALID, false,
-            mock(InternalCache.class)))
-                .isFalse();
-    verify(storedObject, never()).checkDataEquals(any(byte[].class));
-  }
-
-  @Test
-  public void checkEqualsReturnsFalseWhenComparingSerializedStoredObjectWithRemovedToken() {
-    StoredObject storedObject = mock(StoredObject.class);
-    when(storedObject.isSerialized()).thenReturn(true);
-
-    assertThat(
-        ValueComparisonHelper.checkEquals(storedObject, Token.DESTROYED, false,
-            mock(InternalCache.class)))
-                .isFalse();
-    assertThat(
-        ValueComparisonHelper.checkEquals(storedObject, Token.REMOVED_PHASE1, false,
-            mock(InternalCache.class)))
-                .isFalse();
-    assertThat(
-        ValueComparisonHelper.checkEquals(storedObject, Token.REMOVED_PHASE2, false,
-            mock(InternalCache.class)))
-                .isFalse();
-    assertThat(
-        ValueComparisonHelper.checkEquals(storedObject, Token.TOMBSTONE, false,
-            mock(InternalCache.class)))
-                .isFalse();
-    verify(storedObject, never()).checkDataEquals(any(byte[].class));
-  }
-
-  @Test
-  public void checkEqualsCanCompareSerializedStoredObjectWithAnObject() {
-    StoredObject storedObject = mock(StoredObject.class);
-    when(storedObject.isSerialized()).thenReturn(true);
-    Object object = mock(Serializable.class);
-
-    ValueComparisonHelper.checkEquals(object, storedObject, false, mock(InternalCache.class));
-
-    verify(storedObject).checkDataEquals(any(byte[].class));
   }
 
   @Test

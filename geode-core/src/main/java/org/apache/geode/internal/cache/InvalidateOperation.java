@@ -29,7 +29,6 @@ import org.apache.geode.distributed.internal.ConflationKey;
 import org.apache.geode.distributed.internal.DirectReplyProcessor;
 import org.apache.geode.internal.cache.tier.sockets.ClientProxyMembershipID;
 import org.apache.geode.internal.cache.versions.ConcurrentCacheModificationException;
-import org.apache.geode.internal.offheap.annotations.Retained;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -100,9 +99,7 @@ public class InvalidateOperation extends DistributedCacheOperation {
     }
 
     @Override
-    @Retained
     protected InternalCacheEvent createEvent(DistributedRegion rgn) throws EntryNotFoundException {
-      @Retained
       EntryEventImpl ev = EntryEventImpl.create(rgn, getOperation(), key, null,
           callbackArg, true, getSender());
       ev.setEventId(eventId);
@@ -166,7 +163,6 @@ public class InvalidateOperation extends DistributedCacheOperation {
     transient ClientProxyMembershipID context;
 
     @Override
-    @Retained
     protected InternalCacheEvent createEvent(DistributedRegion rgn) throws EntryNotFoundException {
       EntryEventImpl event = (EntryEventImpl) super.createEvent(rgn);
       event.setContext(context);

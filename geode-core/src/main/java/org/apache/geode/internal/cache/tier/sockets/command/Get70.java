@@ -40,9 +40,6 @@ import org.apache.geode.internal.cache.tier.sockets.Message;
 import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
 import org.apache.geode.internal.cache.versions.VersionTag;
-import org.apache.geode.internal.offheap.OffHeapHelper;
-import org.apache.geode.internal.offheap.annotations.Retained;
-import org.apache.geode.internal.offheap.annotations.Unretained;
 import org.apache.geode.internal.security.AuthorizeRequest;
 import org.apache.geode.internal.security.AuthorizeRequestPP;
 import org.apache.geode.internal.security.SecurityService;
@@ -157,61 +154,50 @@ public class Get70 extends BaseCommand {
       return;
     }
 
-    @Retained
     final Object originalData = entry.value;
     Object data = originalData;
+    boolean isObject = entry.isObject;
+    final VersionTag<?> versionTag = entry.versionTag;
+    final boolean keyNotPresent = entry.keyNotPresent;
+
     try {
-      boolean isObject = entry.isObject;
-      final VersionTag<?> versionTag = entry.versionTag;
-      final boolean keyNotPresent = entry.keyNotPresent;
-
-      try {
-        AuthorizeRequestPP postAuthzRequest = serverConnection.getPostAuthzRequest();
-        if (postAuthzRequest != null) {
-          try {
-            getContext = postAuthzRequest.getAuthorize(regionName, key, data, isObject, getContext);
-            GetOperationContextImpl gci = (GetOperationContextImpl) getContext;
-            Object newData = gci.getRawValue();
-            if (newData != data) {
-              // user changed the value
-              isObject = getContext.isObject();
-              data = newData;
-            }
-          } finally {
-            if (getContext != null) {
-              ((GetOperationContextImpl) getContext).release();
-            }
-          }
+      AuthorizeRequestPP postAuthzRequest = serverConnection.getPostAuthzRequest();
+      if (postAuthzRequest != null) {
+        getContext = postAuthzRequest.getAuthorize(regionName, key, data, isObject, getContext);
+        GetOperationContextImpl gci = (GetOperationContextImpl) getContext;
+        Object newData = gci.getRawValue();
+        if (newData != data) {
+          // user changed the value
+          isObject = getContext.isObject();
+          data = newData;
         }
-      } catch (NotAuthorizedException ex) {
-        writeException(clientMessage, ex, false, serverConnection);
-        serverConnection.setAsTrue(RESPONDED);
-        return;
       }
+    } catch (NotAuthorizedException ex) {
+      writeException(clientMessage, ex, false, serverConnection);
+      serverConnection.setAsTrue(RESPONDED);
+      return;
+    }
 
-      // post process
-      data = securityService.postProcess(regionName, key, data, entry.isObject);
+    // post process
+    data = securityService.postProcess(regionName, key, data, entry.isObject);
 
-      long oldStart = start;
-      start = DistributionStats.getStatTime();
-      stats.incProcessGetTime(start - oldStart);
+    long oldStart = start;
+    start = DistributionStats.getStatTime();
+    stats.incProcessGetTime(start - oldStart);
 
-      if (region instanceof PartitionedRegion) {
-        PartitionedRegion pr = (PartitionedRegion) region;
-        if (pr.getNetworkHopType() != PartitionedRegion.NETWORK_HOP_NONE) {
-          writeResponseWithRefreshMetadata(data, callbackArg, clientMessage, isObject,
-              serverConnection, pr, pr.getNetworkHopType(), versionTag, keyNotPresent);
-          pr.clearNetworkHopData();
-        } else {
-          writeResponse(data, callbackArg, clientMessage, isObject, versionTag, keyNotPresent,
-              serverConnection);
-        }
+    if (region instanceof PartitionedRegion) {
+      PartitionedRegion pr = (PartitionedRegion) region;
+      if (pr.getNetworkHopType() != PartitionedRegion.NETWORK_HOP_NONE) {
+        writeResponseWithRefreshMetadata(data, callbackArg, clientMessage, isObject,
+            serverConnection, pr, pr.getNetworkHopType(), versionTag, keyNotPresent);
+        pr.clearNetworkHopData();
       } else {
         writeResponse(data, callbackArg, clientMessage, isObject, versionTag, keyNotPresent,
             serverConnection);
       }
-    } finally {
-      OffHeapHelper.release(originalData);
+    } else {
+      writeResponse(data, callbackArg, clientMessage, isObject, versionTag, keyNotPresent,
+          serverConnection);
     }
 
     serverConnection.setAsTrue(RESPONDED);
@@ -232,7 +218,6 @@ public class Get70 extends BaseCommand {
    * GetEntry70 could override it and call getValueAndIsObject. If we ever get to the point that no
    * code needs to call getValueAndIsObject then this method can go away.
    */
-  @Retained
   protected Entry getEntry(Region<?, ?> region, Object key, Object callbackArg,
       ServerConnection servConn) {
     return getEntryRetained(region, key, callbackArg, servConn);
@@ -289,7 +274,6 @@ public class Get70 extends BaseCommand {
   /**
    * Same as getValueAndIsObject but the returned value can be a retained off-heap reference.
    */
-  @Retained
   public Entry getEntryRetained(Region<?, ?> region, Object key, Object callbackArg,
       ServerConnection servConn) {
 
@@ -302,7 +286,6 @@ public class Get70 extends BaseCommand {
     ClientProxyMembershipID id = servConn == null ? null : servConn.getProxyID();
     VersionTagHolder versionHolder = new VersionTagHolder();
 
-    @Retained
     Object data =
         ((LocalRegion) region).getRetained(key, callbackArg, true, true, id, versionHolder, true);
     final VersionTag<?> versionTag = versionHolder.getVersionTag();
@@ -358,7 +341,7 @@ public class Get70 extends BaseCommand {
     throw new UnsupportedOperationException();
   }
 
-  private void writeResponse(@Unretained Object data, Object callbackArg, Message origMsg,
+  private void writeResponse(Object data, Object callbackArg, Message origMsg,
       boolean isObject, VersionTag<?> versionTag, boolean keyNotPresent, ServerConnection servConn)
       throws IOException {
     Message responseMsg = servConn.getResponseMessage();
@@ -401,7 +384,7 @@ public class Get70 extends BaseCommand {
     origMsg.clearParts();
   }
 
-  private void writeResponseWithRefreshMetadata(@Unretained Object data, Object callbackArg,
+  private void writeResponseWithRefreshMetadata(Object data, Object callbackArg,
       Message origMsg, boolean isObject, ServerConnection servConn, PartitionedRegion pr,
       byte nwHop, VersionTag<?> versionTag, boolean keyNotPresent) throws IOException {
     Message responseMsg = servConn.getResponseMessage();

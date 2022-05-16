@@ -29,7 +29,6 @@ import org.apache.geode.internal.cache.DistributedRemoveAllOperation;
 import org.apache.geode.internal.cache.DistributedRemoveAllOperation.RemoveAllEntryData;
 import org.apache.geode.internal.cache.EntryEventImpl;
 import org.apache.geode.internal.cache.versions.VersionTag;
-import org.apache.geode.internal.offheap.annotations.Retained;
 import org.apache.geode.internal.serialization.ByteArrayDataInput;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.KnownVersion;
@@ -47,7 +46,6 @@ public class DistTxEntryEvent extends EntryEventImpl {
    * TODO DISTTX: callers of this constructor need to make sure that release is called. In general
    * the distributed tx code needs to be reviewed to see if it correctly handles off-heap.
    */
-  @Retained
   public DistTxEntryEvent(EntryEventImpl entry) {
     super(entry);
   }

@@ -14,7 +14,6 @@
  */
 package org.apache.geode.internal.cache.wan.parallel;
 
-import static org.apache.geode.distributed.internal.DistributionConfig.OFF_HEAP_MEMORY_SIZE_NAME;
 import static org.apache.geode.internal.AvailablePortHelper.getRandomAvailableTCPPorts;
 import static org.apache.geode.internal.cache.tier.sockets.Message.MAX_MESSAGE_SIZE_PROPERTY;
 import static org.apache.geode.internal.util.ArrayUtils.asList;
@@ -22,9 +21,6 @@ import static org.apache.geode.test.awaitility.GeodeAwaitility.await;
 import static org.apache.geode.test.dunit.IgnoredException.addIgnoredException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -32,13 +28,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -50,34 +40,27 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import util.TestException;
 
 import org.apache.geode.GemFireIOException;
-import org.apache.geode.cache.CacheWriter;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.wan.GatewayEventFilter;
 import org.apache.geode.cache.wan.GatewaySender;
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
 import org.apache.geode.distributed.internal.DistributionMessage;
 import org.apache.geode.distributed.internal.DistributionMessageObserver;
 import org.apache.geode.internal.cache.BucketRegion;
-import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.PartitionedRegionDataStore;
 import org.apache.geode.internal.cache.tier.sockets.MessageTooLargeException;
 import org.apache.geode.internal.cache.wan.AbstractGatewaySender;
 import org.apache.geode.internal.cache.wan.GatewaySenderException;
 import org.apache.geode.internal.cache.wan.WANTestBase;
-import org.apache.geode.internal.offheap.MemoryAllocatorImpl;
-import org.apache.geode.internal.offheap.OffHeapClearRequired;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
 import org.apache.geode.test.dunit.AsyncInvocation;
 import org.apache.geode.test.dunit.RMIException;
 import org.apache.geode.test.dunit.VM;
 import org.apache.geode.test.dunit.rules.ClusterStartupRule;
 import org.apache.geode.test.dunit.rules.DistributedRestoreSystemProperties;
-import org.apache.geode.test.dunit.rules.MemberVM;
 import org.apache.geode.test.junit.categories.WanTest;
 import org.apache.geode.test.junit.rules.serializable.SerializableTestName;
 
@@ -130,11 +113,11 @@ public class ParallelGatewaySenderOperationsDistributedTest extends WANTestBase 
         GatewaySender.OrderPolicy.KEY));
 
     String regionName = getUniqueName() + "_PR";
-    vm4.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 100, isOffHeap()));
-    vm5.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 100, isOffHeap()));
+    vm4.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 100));
+    vm5.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 100));
 
-    vm2.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 100, isOffHeap()));
-    vm3.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 100, isOffHeap()));
+    vm2.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 100));
+    vm3.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 100));
 
     startSenderInVMs("ln", vm4, vm5);
 
@@ -280,14 +263,14 @@ public class ParallelGatewaySenderOperationsDistributedTest extends WANTestBase 
     vm5.invoke(() -> createSender("ln", 2, true, 100, 10, false, false, null, true));
 
     vm4.invoke(
-        () -> createPartitionedRegion(getUniqueName() + "_PR", "ln", 1, 100, isOffHeap()));
+        () -> createPartitionedRegion(getUniqueName() + "_PR", "ln", 1, 100));
     vm5.invoke(
-        () -> createPartitionedRegion(getUniqueName() + "_PR", "ln", 1, 100, isOffHeap()));
+        () -> createPartitionedRegion(getUniqueName() + "_PR", "ln", 1, 100));
 
     vm2.invoke(
-        () -> createPartitionedRegion(getUniqueName() + "_PR", null, 1, 100, isOffHeap()));
+        () -> createPartitionedRegion(getUniqueName() + "_PR", null, 1, 100));
     vm3.invoke(
-        () -> createPartitionedRegion(getUniqueName() + "_PR", null, 1, 100, isOffHeap()));
+        () -> createPartitionedRegion(getUniqueName() + "_PR", null, 1, 100));
 
     startSenderInVMs("ln", vm4, vm5);
 
@@ -360,15 +343,15 @@ public class ParallelGatewaySenderOperationsDistributedTest extends WANTestBase 
     createCacheInVMs(nyPort, vm2, vm3);
     createCacheInVMs(lnPort, vm4, vm5, vm6, vm7);
 
-    vm2.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 100, isOffHeap()));
-    vm3.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 100, isOffHeap()));
+    vm2.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 100));
+    vm3.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 100));
 
     createReceiverInVMs(vm2, vm3);
 
-    vm4.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 100, isOffHeap()));
-    vm5.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 100, isOffHeap()));
-    vm6.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 100, isOffHeap()));
-    vm7.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 100, isOffHeap()));
+    vm4.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 100));
+    vm5.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 100));
+    vm6.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 100));
+    vm7.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 100));
 
     vm4.invoke(() -> createSender("ln", 2, true, 100, 10, false, false, null, true));
     vm5.invoke(() -> createSender("ln", 2, true, 100, 10, false, false, null, true));
@@ -697,7 +680,7 @@ public class ParallelGatewaySenderOperationsDistributedTest extends WANTestBase 
     // Create receiver and region on sites 2 and 3.
     asList(vm4, vm5).forEach(vm -> vm.invoke(() -> {
       createReceiver();
-      createPartitionedRegion(regionName, null, 1, 113, isOffHeap());
+      createPartitionedRegion(regionName, null, 1, 113);
     }));
 
     // Create senders and partitioned region on site 1.
@@ -707,8 +690,7 @@ public class ParallelGatewaySenderOperationsDistributedTest extends WANTestBase 
       waitForSenderRunningState(site2SenderId);
       waitForSenderRunningState(site3SenderId);
 
-      createPartitionedRegion(regionName, String.join(",", site2SenderId, site3SenderId), 1, 113,
-          isOffHeap());
+      createPartitionedRegion(regionName, String.join(",", site2SenderId, site3SenderId), 1, 113);
     });
 
     // #################################################################################### //
@@ -778,7 +760,7 @@ public class ParallelGatewaySenderOperationsDistributedTest extends WANTestBase 
     vm4.invoke(() -> createCache(lnPort));
     vm4.invoke(() -> setNumDispatcherThreadsForTheRun(1));
     vm4.invoke(() -> createSender("ln", 2, true, 100, 100, false, false, null, false));
-    vm4.invoke(() -> createPartitionedRegion(regionName, "ln", 0, 100, isOffHeap()));
+    vm4.invoke(() -> createPartitionedRegion(regionName, "ln", 0, 100));
 
     // Do puts
     int numPuts = 200;
@@ -790,7 +772,7 @@ public class ParallelGatewaySenderOperationsDistributedTest extends WANTestBase 
     addIgnoredException(GemFireIOException.class.getName(), vm4);
 
     vm2.invoke(() -> createCache(nyPort));
-    vm2.invoke(() -> createPartitionedRegion(regionName, null, 0, 100, isOffHeap()));
+    vm2.invoke(() -> createPartitionedRegion(regionName, null, 0, 100));
     vm2.invoke(WANTestBase::createReceiver);
 
     validateRegionSizes(regionName, numPuts, vm2);
@@ -846,8 +828,7 @@ public class ParallelGatewaySenderOperationsDistributedTest extends WANTestBase 
       waitForSenderRunningState(site1to3SenderId);
 
       createPartitionedRegion(regionName, String.join(",", site1to2SenderId, site1to3SenderId), 1,
-          113,
-          isOffHeap());
+          113);
     });
 
     // Create receiver, sender and partitioned region on site 2.
@@ -856,14 +837,13 @@ public class ParallelGatewaySenderOperationsDistributedTest extends WANTestBase 
       createSender(site2to3SenderId, 3, true, 100, 20, false, false, null, false);
       waitForSenderRunningState(site2to3SenderId);
 
-      createPartitionedRegion(regionName, String.join(",", site2to3SenderId), 1, 113,
-          isOffHeap());
+      createPartitionedRegion(regionName, String.join(",", site2to3SenderId), 1, 113);
     });
 
     // Create receiver and partitioned region on site 3.
     vm5.invoke(() -> {
       createReceiver();
-      createPartitionedRegion(regionName, null, 1, 113, isOffHeap());
+      createPartitionedRegion(regionName, null, 1, 113);
     });
 
     // Do puts
@@ -876,103 +856,6 @@ public class ParallelGatewaySenderOperationsDistributedTest extends WANTestBase 
     // Do puts again
     vm3.invoke(() -> doPuts(regionName, 1000));
     validateRegionSizes(regionName, 1000, vm3, vm4, vm5);
-  }
-
-  @Test
-  public void testParallelGatewaySenderConcurrentPutClearNoOffheapOrphans() {
-    MemberVM locator = clusterStartupRule.startLocatorVM(1, new Properties());
-    Properties properties = new Properties();
-    properties.put(OFF_HEAP_MEMORY_SIZE_NAME, "100");
-    MemberVM server = clusterStartupRule.startServerVM(2, properties, locator.getPort());
-    final String regionName = "portfolios";
-    final String gatewaySenderId = "ln";
-
-    server.invoke(() -> {
-      addIgnoredException("could not get remote locator");
-      InternalCache cache = ClusterStartupRule.getCache();
-      GatewaySender sender =
-          cache.createGatewaySenderFactory().setParallel(true).create(gatewaySenderId, 1);
-      Region<Object, Object> userRegion =
-          cache.createRegionFactory(RegionShortcut.PARTITION).setOffHeap(true)
-              .addGatewaySenderId("ln").create(regionName);
-      PartitionedRegion shadowRegion = (PartitionedRegion) ((AbstractGatewaySender) sender)
-          .getEventProcessor().getQueue().getRegion();
-      @SuppressWarnings("unchecked")
-      CacheWriter<Object, Object> mockCacheWriter = mock(CacheWriter.class);
-      CountDownLatch cacheWriterLatch = new CountDownLatch(1);
-      CountDownLatch shadowRegionClearLatch = new CountDownLatch(1);
-
-      doAnswer(invocation -> {
-        // The cache writer is invoked between when the region entry is created with value of
-        // Token.REMOVED_PHASE_1 and when it is replaced with the actual GatewaySenderEvent.
-        // We use this hook to trigger the clear logic when the token is still in the
-        // region entry.
-        cacheWriterLatch.countDown();
-        // Wait until the clear is complete before putting the actual GatewaySenderEvent in the
-        // region entry.
-        shadowRegionClearLatch.await();
-        return null;
-      }).when(mockCacheWriter).beforeCreate(any());
-
-      shadowRegion.setCacheWriter(mockCacheWriter);
-
-      ExecutorService service = Executors.newFixedThreadPool(2);
-
-      List<Callable<Object>> callables = new ArrayList<>();
-
-      // In one thread, we are going to put some test data in the user region,
-      // which will eventually put the GatewaySenderEvent into the shadow region
-      callables.add(Executors.callable(() -> {
-        try {
-          userRegion.put("testKey", "testValue");
-        } catch (Exception ex) {
-          throw new RuntimeException(ex);
-        }
-      }));
-
-      // In another thread, we are clear the shadow region's buckets. If the region entry is a
-      // Token.REMOVED_PHASE_1 at this time, a leak is possible. We can guarantee that the
-      // Token.REMOVED_PHASE_1 is present by using the mocked cache writer defined
-      // above.
-      callables.add(Executors.callable(() -> {
-        try {
-          OffHeapClearRequired.doWithOffHeapClear(() -> {
-            // Wait for the cache writer to be invoked to release this countdown latch.
-            // This guarantees that the region entry will contain a Token.REMOVED_PHASE_1.
-            try {
-              cacheWriterLatch.await();
-            } catch (InterruptedException e) {
-              throw new TestException(
-                  "Thread was interrupted while waiting for mocked cache writer to be invoked");
-            }
-
-            clearShadowBucketRegions(shadowRegion);
-
-            // Signal to the cache writer that the clear is complete and the put can continue.
-            shadowRegionClearLatch.countDown();
-          });
-        } catch (Exception ex) {
-          throw new RuntimeException(ex);
-        }
-      }));
-
-      List<Future<Object>> futures = service.invokeAll(callables, 10, TimeUnit.SECONDS);
-
-      for (Future<Object> future : futures) {
-        try {
-          future.get();
-        } catch (Exception ex) {
-          throw new TestException(
-              "Exception thrown while executing put and clear concurrently",
-              ex);
-        }
-      }
-
-      userRegion.close();
-
-      await("Waiting for off-heap to be freed").until(
-          () -> 0 == ((MemoryAllocatorImpl) cache.getOffHeapStore()).getOrphans(cache).size());
-    });
   }
 
   @Test
@@ -1294,19 +1177,19 @@ public class ParallelGatewaySenderOperationsDistributedTest extends WANTestBase 
 
   private void createPartitionedRegions(boolean createAccessors) {
     String regionName = getUniqueName() + "_PR";
-    vm4.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 100, isOffHeap()));
-    vm5.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 100, isOffHeap()));
+    vm4.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 100));
+    vm5.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 100));
 
     if (createAccessors) {
       vm6.invoke(() -> createPartitionedRegionAsAccessor(regionName, "ln", 1, 100));
       vm7.invoke(() -> createPartitionedRegionAsAccessor(regionName, "ln", 1, 100));
     } else {
-      vm6.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 100, isOffHeap()));
-      vm7.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 100, isOffHeap()));
+      vm6.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 100));
+      vm7.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 100));
     }
 
-    vm2.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 100, isOffHeap()));
-    vm3.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 100, isOffHeap()));
+    vm2.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 100));
+    vm3.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 100));
   }
 
   private void updateBatchSize(int batchsize) {

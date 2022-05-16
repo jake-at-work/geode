@@ -70,13 +70,13 @@ public class SerialGatewaySenderEventListenerDUnitTest extends WANTestBase {
     startSenderInVMs("ln", vm4, vm5);
 
     vm4.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln"));
     vm5.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln"));
     vm6.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln"));
     vm7.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln"));
 
     final Map keyValues = new HashMap();
     for (int i = 0; i < 1000; i++) {
@@ -118,20 +118,20 @@ public class SerialGatewaySenderEventListenerDUnitTest extends WANTestBase {
         null, false, true));
 
     vm2.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null));
     vm3.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null));
 
     startSenderInVMs("ln", vm4, vm5);
 
     vm4.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln"));
     vm5.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln"));
     vm6.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln"));
     vm7.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln"));
 
     final Map keyValues = new HashMap();
     for (int i = 0; i < 1000; i++) {
@@ -163,9 +163,9 @@ public class SerialGatewaySenderEventListenerDUnitTest extends WANTestBase {
     createCacheInVMs(nyPort, vm2, vm3);
 
     vm2.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null));
     vm3.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null));
 
     createReceiverInVMs(vm2, vm3);
 
@@ -179,9 +179,9 @@ public class SerialGatewaySenderEventListenerDUnitTest extends WANTestBase {
     startSenderInVMs("ln", vm4, vm5);
 
     vm4.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln"));
     vm5.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln"));
 
     final Map keyValues = new HashMap();
     for (int i = 0; i < 1000; i++) {
@@ -238,13 +238,13 @@ public class SerialGatewaySenderEventListenerDUnitTest extends WANTestBase {
     vm4.invoke(() -> WANTestBase.startSender("ln"));
 
     vm4.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln"));
     vm5.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln"));
     vm6.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln"));
     vm7.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln"));
 
     final Map initialKeyValues = new HashMap();
     for (int i = 0; i < 1000; i++) {

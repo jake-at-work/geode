@@ -16,47 +16,30 @@ package org.apache.geode.internal.cache.region.entry;
 
 import org.apache.geode.internal.cache.RegionEntryFactory;
 import org.apache.geode.internal.cache.entries.VMStatsDiskLRURegionEntryHeap;
-import org.apache.geode.internal.cache.entries.VMStatsDiskLRURegionEntryOffHeap;
 import org.apache.geode.internal.cache.entries.VMStatsDiskRegionEntryHeap;
-import org.apache.geode.internal.cache.entries.VMStatsDiskRegionEntryOffHeap;
 import org.apache.geode.internal.cache.entries.VMStatsLRURegionEntryHeap;
-import org.apache.geode.internal.cache.entries.VMStatsLRURegionEntryOffHeap;
 import org.apache.geode.internal.cache.entries.VMStatsRegionEntryHeap;
-import org.apache.geode.internal.cache.entries.VMStatsRegionEntryOffHeap;
 import org.apache.geode.internal.cache.entries.VMThinDiskLRURegionEntryHeap;
-import org.apache.geode.internal.cache.entries.VMThinDiskLRURegionEntryOffHeap;
 import org.apache.geode.internal.cache.entries.VMThinDiskRegionEntryHeap;
-import org.apache.geode.internal.cache.entries.VMThinDiskRegionEntryOffHeap;
 import org.apache.geode.internal.cache.entries.VMThinLRURegionEntryHeap;
-import org.apache.geode.internal.cache.entries.VMThinLRURegionEntryOffHeap;
 import org.apache.geode.internal.cache.entries.VMThinRegionEntryHeap;
-import org.apache.geode.internal.cache.entries.VMThinRegionEntryOffHeap;
 import org.apache.geode.internal.cache.entries.VersionedStatsDiskLRURegionEntryHeap;
-import org.apache.geode.internal.cache.entries.VersionedStatsDiskLRURegionEntryOffHeap;
 import org.apache.geode.internal.cache.entries.VersionedStatsDiskRegionEntryHeap;
-import org.apache.geode.internal.cache.entries.VersionedStatsDiskRegionEntryOffHeap;
 import org.apache.geode.internal.cache.entries.VersionedStatsLRURegionEntryHeap;
-import org.apache.geode.internal.cache.entries.VersionedStatsLRURegionEntryOffHeap;
 import org.apache.geode.internal.cache.entries.VersionedStatsRegionEntryHeap;
-import org.apache.geode.internal.cache.entries.VersionedStatsRegionEntryOffHeap;
 import org.apache.geode.internal.cache.entries.VersionedThinDiskLRURegionEntryHeap;
-import org.apache.geode.internal.cache.entries.VersionedThinDiskLRURegionEntryOffHeap;
 import org.apache.geode.internal.cache.entries.VersionedThinDiskRegionEntryHeap;
-import org.apache.geode.internal.cache.entries.VersionedThinDiskRegionEntryOffHeap;
 import org.apache.geode.internal.cache.entries.VersionedThinLRURegionEntryHeap;
-import org.apache.geode.internal.cache.entries.VersionedThinLRURegionEntryOffHeap;
 import org.apache.geode.internal.cache.entries.VersionedThinRegionEntryHeap;
-import org.apache.geode.internal.cache.entries.VersionedThinRegionEntryOffHeap;
 
 public class RegionEntryFactoryBuilder {
   public RegionEntryFactory create(boolean statsEnabled, boolean isLRU, boolean isDisk,
-      boolean withVersioning, boolean offHeap) {
+      boolean withVersioning) {
     int bitRepresentation = 0;
     bitRepresentation |= statsEnabled ? 1 : 0;
     bitRepresentation |= isLRU ? 2 : 0;
     bitRepresentation |= isDisk ? 4 : 0;
     bitRepresentation |= withVersioning ? 8 : 0;
-    bitRepresentation |= offHeap ? 16 : 0;
 
     /*
      * The bits represent all options |offHeap|versioning|disk|lru|stats|
@@ -94,38 +77,6 @@ public class RegionEntryFactoryBuilder {
         return VersionedThinDiskLRURegionEntryHeap.getEntryFactory(); // Bits: 01110
       case (15):
         return VersionedStatsDiskLRURegionEntryHeap.getEntryFactory(); // Bits: 01111
-      case (16):
-        return VMThinRegionEntryOffHeap.getEntryFactory(); // Bits: 10000
-      case (17):
-        return VMStatsRegionEntryOffHeap.getEntryFactory(); // Bits: 10001
-      case (18):
-        return VMThinLRURegionEntryOffHeap.getEntryFactory(); // Bits: 10010
-      case (19):
-        return VMStatsLRURegionEntryOffHeap.getEntryFactory(); // Bits: 10011
-      case (20):
-        return VMThinDiskRegionEntryOffHeap.getEntryFactory(); // Bits: 10100
-      case (21):
-        return VMStatsDiskRegionEntryOffHeap.getEntryFactory(); // Bits: 10101
-      case (22):
-        return VMThinDiskLRURegionEntryOffHeap.getEntryFactory(); // Bits: 10110
-      case (23):
-        return VMStatsDiskLRURegionEntryOffHeap.getEntryFactory(); // Bits: 10111
-      case (24):
-        return VersionedThinRegionEntryOffHeap.getEntryFactory(); // Bits: 11000
-      case (25):
-        return VersionedStatsRegionEntryOffHeap.getEntryFactory(); // Bits: 11001
-      case (26):
-        return VersionedThinLRURegionEntryOffHeap.getEntryFactory(); // Bits: 11010
-      case (27):
-        return VersionedStatsLRURegionEntryOffHeap.getEntryFactory(); // Bits: 11011
-      case (28):
-        return VersionedThinDiskRegionEntryOffHeap.getEntryFactory(); // Bits: 11100
-      case (29):
-        return VersionedStatsDiskRegionEntryOffHeap.getEntryFactory(); // Bits: 11101
-      case (30):
-        return VersionedThinDiskLRURegionEntryOffHeap.getEntryFactory(); // Bits: 11110
-      case (31):
-        return VersionedStatsDiskLRURegionEntryOffHeap.getEntryFactory(); // Bits: 11111
       default:
         throw new IllegalStateException("unexpected bitRepresentation " + bitRepresentation);
     }

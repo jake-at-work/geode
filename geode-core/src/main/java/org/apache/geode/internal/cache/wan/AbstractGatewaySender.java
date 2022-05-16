@@ -73,10 +73,6 @@ import org.apache.geode.internal.cache.wan.parallel.ConcurrentParallelGatewaySen
 import org.apache.geode.internal.cache.wan.parallel.WaitUntilParallelGatewaySenderFlushedCoordinator;
 import org.apache.geode.internal.cache.wan.serial.ConcurrentSerialGatewaySenderEventProcessor;
 import org.apache.geode.internal.cache.xmlcache.CacheCreation;
-import org.apache.geode.internal.offheap.Releasable;
-import org.apache.geode.internal.offheap.annotations.Released;
-import org.apache.geode.internal.offheap.annotations.Retained;
-import org.apache.geode.internal.offheap.annotations.Unretained;
 import org.apache.geode.internal.statistics.StatisticsClock;
 import org.apache.geode.logging.internal.executors.LoggingThread;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -1037,171 +1033,162 @@ public abstract class AbstractGatewaySender implements InternalGatewaySender, Di
     final boolean isDebugEnabled = logger.isDebugEnabled();
 
     // released by this method or transfers ownership to TmpQueueEvent
-    @Released
     EntryEventImpl clonedEvent = new EntryEventImpl(event, false);
-    boolean freeClonedEvent = true;
-    try {
 
-      final GatewaySenderStats stats = getStatistics();
-      stats.incEventsReceived();
+    final GatewaySenderStats stats = getStatistics();
+    stats.incEventsReceived();
 
-      if (!checkForDistribution(event, stats)) {
-        stats.incEventsNotQueued();
-        return;
-      }
+    if (!checkForDistribution(event, stats)) {
+      stats.incEventsNotQueued();
+      return;
+    }
 
-      // this filter is defined by Asif which exist in old wan too. new wan has
-      // other GatewaEventFilter. Do we need to get rid of this filter. Cheetah is
-      // not considering this filter
-      if (!filter.enqueueEvent(event)) {
-        stats.incEventsFiltered();
-        return;
-      }
+    // this filter is defined by Asif which exist in old wan too. new wan has
+    // other GatewaEventFilter. Do we need to get rid of this filter. Cheetah is
+    // not considering this filter
+    if (!filter.enqueueEvent(event)) {
+      stats.incEventsFiltered();
+      return;
+    }
 
-      // start to distribute
-      setModifiedEventId(clonedEvent);
-      Object callbackArg = clonedEvent.getRawCallbackArgument();
+    // start to distribute
+    setModifiedEventId(clonedEvent);
+    Object callbackArg = clonedEvent.getRawCallbackArgument();
 
+    if (isDebugEnabled) {
+      // We can't deserialize here for logging purposes so don't
+      // call getNewValue.
+      // event.getNewValue(); // to deserialize the value if necessary
+      logger.debug("{} : About to notify {} to perform operation {} for {} callback arg {}",
+          isPrimary(), getId(), operation, clonedEvent, callbackArg);
+    }
+
+    if (callbackArg instanceof GatewaySenderEventCallbackArgument) {
+      GatewaySenderEventCallbackArgument seca = (GatewaySenderEventCallbackArgument) callbackArg;
       if (isDebugEnabled) {
-        // We can't deserialize here for logging purposes so don't
-        // call getNewValue.
-        // event.getNewValue(); // to deserialize the value if necessary
-        logger.debug("{} : About to notify {} to perform operation {} for {} callback arg {}",
-            isPrimary(), getId(), operation, clonedEvent, callbackArg);
+        logger.debug(
+            "{}: Event originated in {}. My DS id is {}. The remote DS id is {}. The recipients are: {}",
+            this, seca.getOriginatingDSId(), getMyDSId(), getRemoteDSId(),
+            seca.getRecipientDSIds());
       }
-
-      if (callbackArg instanceof GatewaySenderEventCallbackArgument) {
-        GatewaySenderEventCallbackArgument seca = (GatewaySenderEventCallbackArgument) callbackArg;
+      if (seca.getOriginatingDSId() == DEFAULT_DISTRIBUTED_SYSTEM_ID) {
         if (isDebugEnabled) {
           logger.debug(
               "{}: Event originated in {}. My DS id is {}. The remote DS id is {}. The recipients are: {}",
               this, seca.getOriginatingDSId(), getMyDSId(), getRemoteDSId(),
               seca.getRecipientDSIds());
         }
-        if (seca.getOriginatingDSId() == DEFAULT_DISTRIBUTED_SYSTEM_ID) {
-          if (isDebugEnabled) {
-            logger.debug(
-                "{}: Event originated in {}. My DS id is {}. The remote DS id is {}. The recipients are: {}",
-                this, seca.getOriginatingDSId(), getMyDSId(), getRemoteDSId(),
-                seca.getRecipientDSIds());
-          }
 
-          seca.setOriginatingDSId(getMyDSId());
-          seca.initializeReceipientDSIds(allRemoteDSIds);
+        seca.setOriginatingDSId(getMyDSId());
+        seca.initializeReceipientDSIds(allRemoteDSIds);
 
-        } else {
-          // if the dispatcher is GatewaySenderEventCallbackDispatcher (which is the case of WBCL),
-          // skip the below check of remoteDSId.
-          // Fix for #46517
-          AbstractGatewaySenderEventProcessor ep = getEventProcessor();
-          // if manual-start is true, ep is null
-          if (ep == null || !(ep.getDispatcher() instanceof GatewaySenderEventCallbackDispatcher)) {
-            if (seca.getOriginatingDSId() == getRemoteDSId()) {
-              if (isDebugEnabled) {
-                logger.debug(
-                    "{}: Event originated in {}. My DS id is {}. It is being dropped as remote is originator.",
-                    this, seca.getOriginatingDSId(), getMyDSId());
-              }
-              return;
-            } else if (seca.getRecipientDSIds().contains(getRemoteDSId())) {
-              if (isDebugEnabled) {
-                logger.debug(
-                    "{}: Event originated in {}. My DS id is {}. The remote DS id is {}.. It is being dropped as remote ds is already a recipient. Recipients are: {}",
-                    this, seca.getOriginatingDSId(), getMyDSId(), getRemoteDSId(),
-                    seca.getRecipientDSIds());
-              }
-              return;
-            }
-          }
-          seca.getRecipientDSIds().addAll(allRemoteDSIds);
-        }
       } else {
-        GatewaySenderEventCallbackArgument geCallbackArg =
-            new GatewaySenderEventCallbackArgument(callbackArg, getMyDSId(), allRemoteDSIds);
-        clonedEvent.setCallbackArgument(geCallbackArg);
-      }
-
-      // If this gateway is not running, return
-      if (!isRunning()) {
-        if (isPrimary()) {
-          recordDroppedEvent(clonedEvent);
+        // if the dispatcher is GatewaySenderEventCallbackDispatcher (which is the case of WBCL),
+        // skip the below check of remoteDSId.
+        // Fix for #46517
+        AbstractGatewaySenderEventProcessor ep = getEventProcessor();
+        // if manual-start is true, ep is null
+        if (ep == null || !(ep.getDispatcher() instanceof GatewaySenderEventCallbackDispatcher)) {
+          if (seca.getOriginatingDSId() == getRemoteDSId()) {
+            if (isDebugEnabled) {
+              logger.debug(
+                  "{}: Event originated in {}. My DS id is {}. It is being dropped as remote is originator.",
+                  this, seca.getOriginatingDSId(), getMyDSId());
+            }
+            return;
+          } else if (seca.getRecipientDSIds().contains(getRemoteDSId())) {
+            if (isDebugEnabled) {
+              logger.debug(
+                  "{}: Event originated in {}. My DS id is {}. The remote DS id is {}.. It is being dropped as remote ds is already a recipient. Recipients are: {}",
+                  this, seca.getOriginatingDSId(), getMyDSId(), getRemoteDSId(),
+                  seca.getRecipientDSIds());
+            }
+            return;
+          }
         }
+        seca.getRecipientDSIds().addAll(allRemoteDSIds);
+      }
+    } else {
+      GatewaySenderEventCallbackArgument geCallbackArg =
+          new GatewaySenderEventCallbackArgument(callbackArg, getMyDSId(), allRemoteDSIds);
+      clonedEvent.setCallbackArgument(geCallbackArg);
+    }
+
+    // If this gateway is not running, return
+    if (!isRunning()) {
+      if (isPrimary()) {
+        recordDroppedEvent(clonedEvent);
+      }
+      if (isDebugEnabled) {
+        logger.debug("Returning back without putting into the gateway sender queue:" + event);
+      }
+      return;
+    }
+
+    if (!getLifeCycleLock().readLock().tryLock()) {
+      synchronized (queuedEventsSync) {
+        if (!enqueuedAllTempQueueEvents) {
+          if (!getLifeCycleLock().readLock().tryLock()) {
+            Object substituteValue = getSubstituteValue(clonedEvent, operation);
+            tmpQueuedEvents.add(new TmpQueueEvent(operation, clonedEvent, substituteValue));
+            stats.incTempQueueSize();
+            if (isDebugEnabled) {
+              logger.debug("Event : {} is added to TempQueue", clonedEvent);
+            }
+            return;
+          }
+        }
+      }
+      if (enqueuedAllTempQueueEvents) {
+        getLifeCycleLock().readLock().lock();
+      }
+    }
+    try {
+      // If this gateway is not running, return
+      // The sender may have stopped, after we have checked the status in the beginning.
+      if (!isRunning()) {
         if (isDebugEnabled) {
           logger.debug("Returning back without putting into the gateway sender queue:" + event);
+        }
+        if (isPrimary()) {
+          recordDroppedEvent(clonedEvent);
         }
         return;
       }
 
-      if (!getLifeCycleLock().readLock().tryLock()) {
-        synchronized (queuedEventsSync) {
-          if (!enqueuedAllTempQueueEvents) {
-            if (!getLifeCycleLock().readLock().tryLock()) {
-              Object substituteValue = getSubstituteValue(clonedEvent, operation);
-              tmpQueuedEvents.add(new TmpQueueEvent(operation, clonedEvent, substituteValue));
-              freeClonedEvent = false;
-              stats.incTempQueueSize();
-              if (isDebugEnabled) {
-                logger.debug("Event : {} is added to TempQueue", clonedEvent);
-              }
-              return;
-            }
-          }
-        }
-        if (enqueuedAllTempQueueEvents) {
-          getLifeCycleLock().readLock().lock();
-        }
-      }
       try {
-        // If this gateway is not running, return
-        // The sender may have stopped, after we have checked the status in the beginning.
-        if (!isRunning()) {
-          if (isDebugEnabled) {
-            logger.debug("Returning back without putting into the gateway sender queue:" + event);
-          }
-          if (isPrimary()) {
-            recordDroppedEvent(clonedEvent);
-          }
-          return;
-        }
-
-        try {
-          AbstractGatewaySenderEventProcessor ev = eventProcessor;
+        AbstractGatewaySenderEventProcessor ev = eventProcessor;
+        if (ev == null) {
+          getStopper().checkCancelInProgress(null);
+          getCache().getDistributedSystem().getCancelCriterion().checkCancelInProgress(null);
+          // event processor will be null if there was an authorization
+          // problem
+          // connecting to the other site (bug #40681)
           if (ev == null) {
-            getStopper().checkCancelInProgress(null);
-            getCache().getDistributedSystem().getCancelCriterion().checkCancelInProgress(null);
-            // event processor will be null if there was an authorization
-            // problem
-            // connecting to the other site (bug #40681)
-            if (ev == null) {
-              throw new GatewayCancelledException("Event processor thread is gone");
-            }
+            throw new GatewayCancelledException("Event processor thread is gone");
           }
-
-          // Get substitution value to enqueue if necessary
-          Object substituteValue = getSubstituteValue(clonedEvent, operation);
-
-          ev.enqueueEvent(operation, clonedEvent, substituteValue, isLastEventInTransaction);
-        } catch (CancelException e) {
-          logger.debug("caught cancel exception", e);
-          throw e;
-        } catch (RegionDestroyedException e) {
-          logger.warn(String.format(
-              "%s: An Exception occurred while queueing %s to perform operation %s for %s",
-              this, getId(), operation, clonedEvent),
-              e);
-        } catch (Exception e) {
-          logger.fatal(String.format(
-              "%s: An Exception occurred while queueing %s to perform operation %s for %s",
-              this, getId(), operation, clonedEvent),
-              e);
         }
-      } finally {
-        getLifeCycleLock().readLock().unlock();
+
+        // Get substitution value to enqueue if necessary
+        Object substituteValue = getSubstituteValue(clonedEvent, operation);
+
+        ev.enqueueEvent(operation, clonedEvent, substituteValue, isLastEventInTransaction);
+      } catch (CancelException e) {
+        logger.debug("caught cancel exception", e);
+        throw e;
+      } catch (RegionDestroyedException e) {
+        logger.warn(String.format(
+            "%s: An Exception occurred while queueing %s to perform operation %s for %s",
+            this, getId(), operation, clonedEvent),
+            e);
+      } catch (Exception e) {
+        logger.fatal(String.format(
+            "%s: An Exception occurred while queueing %s to perform operation %s for %s",
+            this, getId(), operation, clonedEvent),
+            e);
       }
     } finally {
-      if (freeClonedEvent) {
-        clonedEvent.release(); // fix for bug 48035
-      }
+      getLifeCycleLock().readLock().unlock();
     }
   }
 
@@ -1248,17 +1235,13 @@ public abstract class AbstractGatewaySender implements InternalGatewaySender, Di
         // sure we don't miss any events.
         synchronized (queuedEventsSync) {
           while ((nextEvent = tmpQueuedEvents.poll()) != null) {
-            try {
-              if (logger.isDebugEnabled()) {
-                logger.debug("Event :{} is enqueued to GatewaySenderQueue from TempQueue",
-                    nextEvent);
-              }
-              stats.decTempQueueSize();
-              eventProcessor.enqueueEvent(nextEvent.getOperation(), nextEvent.getEvent(),
-                  nextEvent.getSubstituteValue());
-            } finally {
-              nextEvent.release();
+            if (logger.isDebugEnabled()) {
+              logger.debug("Event :{} is enqueued to GatewaySenderQueue from TempQueue",
+                  nextEvent);
             }
+            stats.decTempQueueSize();
+            eventProcessor.enqueueEvent(nextEvent.getOperation(), nextEvent.getEvent(),
+                nextEvent.getSubstituteValue());
           }
           enqueuedAllTempQueueEvents = true;
         }
@@ -1289,7 +1272,6 @@ public abstract class AbstractGatewaySender implements InternalGatewaySender, Di
                 "shadowKey {} is found in tmpQueueEvents at AbstractGatewaySender level. Removing from there..",
                 tailKey);
           }
-          event.release();
           itr.remove();
           return true;
         }
@@ -1304,14 +1286,7 @@ public abstract class AbstractGatewaySender implements InternalGatewaySender, Di
    * cleared.
    */
   public void clearTempEventsAfterSenderStopped() {
-    TmpQueueEvent nextEvent = null;
-    while ((nextEvent = tmpQueuedEvents.poll()) != null) {
-      nextEvent.release();
-    }
     synchronized (queuedEventsSync) {
-      while ((nextEvent = tmpQueuedEvents.poll()) != null) {
-        nextEvent.release();
-      }
       enqueuedAllTempQueueEvents = false;
     }
 
@@ -1549,12 +1524,12 @@ public abstract class AbstractGatewaySender implements InternalGatewaySender, Di
    * enqueue it. The caller is responsible for giving us an EntryEventImpl that we own and that we
    * will release. This is done by making a copy/clone of the original event. This fixes bug 52029.
    */
-  public static class TmpQueueEvent implements Releasable {
+  public static class TmpQueueEvent {
     private final EnumListenerEvent operation;
-    private final @Retained EntryEventImpl event;
+    private final EntryEventImpl event;
     private final Object substituteValue;
 
-    public TmpQueueEvent(EnumListenerEvent op, @Retained EntryEventImpl e, Object subValue) {
+    public TmpQueueEvent(EnumListenerEvent op, EntryEventImpl e, Object subValue) {
       operation = op;
       event = e;
       substituteValue = subValue;
@@ -1564,17 +1539,12 @@ public abstract class AbstractGatewaySender implements InternalGatewaySender, Di
       return operation;
     }
 
-    public @Unretained EntryEventImpl getEvent() {
+    public EntryEventImpl getEvent() {
       return event;
     }
 
     public Object getSubstituteValue() {
       return substituteValue;
-    }
-
-    @Override
-    public void release() {
-      event.release();
     }
   }
 

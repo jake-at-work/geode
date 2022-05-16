@@ -70,7 +70,6 @@ import org.apache.geode.internal.cache.persistence.PersistentMemberID;
 import org.apache.geode.internal.cache.tier.sockets.ClientProxyMembershipID;
 import org.apache.geode.internal.cache.versions.VersionSource;
 import org.apache.geode.internal.cache.versions.VersionTag;
-import org.apache.geode.internal.offheap.annotations.Released;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.KnownVersion;
 import org.apache.geode.internal.serialization.SerializationContext;
@@ -671,10 +670,6 @@ public class TXCommitMessage extends PooledDistributionMessage
         }
       } catch (CancelException e) {
         processCacheRuntimeException(e);
-      } finally {
-        if (txEvent != null) {
-          txEvent.freeOffHeapResources();
-        }
       }
     } finally {
       LocalRegion.setThreadInitLevelRequirement(oldLevel);
@@ -720,27 +715,23 @@ public class TXCommitMessage extends PooledDistributionMessage
     for (EntryEventImpl ee : callbacks) {
       boolean isLastTransactionEvent = TXLastEventInTransactionUtils
           .isLastTransactionEvent(isConfigError, lastTransactionEvent, ee);
-      try {
-        if (ee.getOperation().isDestroy()) {
-          ee.getRegion().invokeTXCallbacks(EnumListenerEvent.AFTER_DESTROY, ee, true,
-              isLastTransactionEvent);
-        } else if (ee.getOperation().isInvalidate()) {
-          ee.getRegion().invokeTXCallbacks(EnumListenerEvent.AFTER_INVALIDATE, ee, true,
-              isLastTransactionEvent);
-        } else if (ee.getOperation().isCreate()) {
-          ee.getRegion().invokeTXCallbacks(EnumListenerEvent.AFTER_CREATE, ee, true,
-              isLastTransactionEvent);
+      if (ee.getOperation().isDestroy()) {
+        ee.getRegion().invokeTXCallbacks(EnumListenerEvent.AFTER_DESTROY, ee, true,
+            isLastTransactionEvent);
+      } else if (ee.getOperation().isInvalidate()) {
+        ee.getRegion().invokeTXCallbacks(EnumListenerEvent.AFTER_INVALIDATE, ee, true,
+            isLastTransactionEvent);
+      } else if (ee.getOperation().isCreate()) {
+        ee.getRegion().invokeTXCallbacks(EnumListenerEvent.AFTER_CREATE, ee, true,
+            isLastTransactionEvent);
+      } else {
+        if (!ee.hasNewValue()) { // GEODE-8964, fixes GII and TX create conflict that
+          ee.getRegion(). // produces an Update with null value
+              invokeTXCallbacks(EnumListenerEvent.AFTER_CREATE, ee, true, isLastTransactionEvent);
         } else {
-          if (!ee.hasNewValue()) { // GEODE-8964, fixes GII and TX create conflict that
-            ee.getRegion(). // produces an Update with null value
-                invokeTXCallbacks(EnumListenerEvent.AFTER_CREATE, ee, true, isLastTransactionEvent);
-          } else {
-            ee.getRegion().invokeTXCallbacks(EnumListenerEvent.AFTER_UPDATE, ee, true,
-                isLastTransactionEvent);
-          }
+          ee.getRegion().invokeTXCallbacks(EnumListenerEvent.AFTER_UPDATE, ee, true,
+              isLastTransactionEvent);
         }
-      } finally {
-        ee.release();
       }
     }
   }
@@ -1330,34 +1321,29 @@ public class TXCommitMessage extends PooledDistributionMessage
         /*
          * This happens when we don't have the bucket and are getting adjunct notification
          */
-        @Released
         EntryEventImpl eei =
             txCallbackEventFactory.createCallbackEvent(internalRegion, entryOp.op,
                 entryOp.key,
                 entryOp.value, msg.txIdent, txEvent, getEventId(entryOp), entryOp.callbackArg,
                 entryOp.filterRoutingInfo, msg.bridgeContext, null, entryOp.versionTag,
                 entryOp.tailKey);
-        try {
-          if (entryOp.filterRoutingInfo != null) {
-            eei.setLocalFilterInfo(
-                entryOp.filterRoutingInfo.getFilterInfo(internalRegion.getCache().getMyId()));
-          }
-          if (isDuplicate) {
-            eei.setPossibleDuplicate(true);
-          }
-          if (logger.isDebugEnabled()) {
-            logger.debug("invoking transactional callbacks for {} key={} needsUnlock={} event={}",
-                entryOp.op, entryOp.key, needsUnlock, eei);
-          }
-          // we reach this spot because the event is either delivered to this member
-          // as an "adjunct" message or because the bucket was being created when
-          // the message was sent and already reflects the change caused by this event.
-          // In the latter case we need to invoke listeners
-          final boolean skipListeners = !isDuplicate;
-          eei.invokeCallbacks(internalRegion, skipListeners, true);
-        } finally {
-          eei.release();
+        if (entryOp.filterRoutingInfo != null) {
+          eei.setLocalFilterInfo(
+              entryOp.filterRoutingInfo.getFilterInfo(internalRegion.getCache().getMyId()));
         }
+        if (isDuplicate) {
+          eei.setPossibleDuplicate(true);
+        }
+        if (logger.isDebugEnabled()) {
+          logger.debug("invoking transactional callbacks for {} key={} needsUnlock={} event={}",
+              entryOp.op, entryOp.key, needsUnlock, eei);
+        }
+        // we reach this spot because the event is either delivered to this member
+        // as an "adjunct" message or because the bucket was being created when
+        // the message was sent and already reflects the change caused by this event.
+        // In the latter case we need to invoke listeners
+        final boolean skipListeners = !isDuplicate;
+        eei.invokeCallbacks(internalRegion, skipListeners, true);
       }
     }
 

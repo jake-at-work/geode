@@ -106,7 +106,7 @@ public class AlterOfflineDiskStoreCommand extends GfshCommand {
                   concurrencyLevelString,
                   initialCapacityString, loadFactorString, compressorClassName,
                   statisticsEnabledString,
-                  offHeapString, false);
+                  false);
 
           return ResultModel.createInfo(resultMessage);
         } else {

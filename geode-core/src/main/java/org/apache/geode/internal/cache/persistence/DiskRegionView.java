@@ -77,7 +77,7 @@ public interface DiskRegionView extends PersistentMemberView, RegionEntryContext
   void setConfig(byte lruAlgorithm, byte lruAction, int lruLimit, int concurrencyLevel,
       int initialCapacity, float loadFactor, boolean statisticsEnabled, boolean isBucket,
       EnumSet<DiskRegionFlag> flags, String partitionName, int startingBucketId,
-      String compressorClassName, boolean offHeap);
+      String compressorClassName);
 
   byte getLruAlgorithm();
 

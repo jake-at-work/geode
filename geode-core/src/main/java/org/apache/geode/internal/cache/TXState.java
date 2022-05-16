@@ -64,8 +64,6 @@ import org.apache.geode.internal.cache.partitioned.RemoveAllPRMessage;
 import org.apache.geode.internal.cache.tier.sockets.ClientProxyMembershipID;
 import org.apache.geode.internal.cache.tier.sockets.VersionedObjectList;
 import org.apache.geode.internal.cache.tx.TransactionalOperation.ServerRegionOperation;
-import org.apache.geode.internal.offheap.annotations.Released;
-import org.apache.geode.internal.offheap.annotations.Retained;
 import org.apache.geode.internal.statistics.StatisticsClock;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 
@@ -266,12 +264,6 @@ public class TXState implements TXStateInterface {
         ee.getRegion().invokeTXCallbacks(EnumListenerEvent.AFTER_UPDATE, ee, true,
             isLastTransactionEvent);
       }
-    }
-  }
-
-  public void freePendingCallbacks() {
-    for (EntryEventImpl ee : getPendingCallbacks()) {
-      ee.release();
     }
   }
 
@@ -584,36 +576,31 @@ public class TXState implements TXStateInterface {
             /*
              * The event must contain the bucket region
              */
-            @Released
             EntryEventImpl ev =
                 (EntryEventImpl) o.es.getEvent(o.r, o.key, o.es.getTXRegionState().getTXState());
             if (ev.getOperation() == null) {
               // A read op with detect read conflicts does not need filter routing.
               continue;
             }
-            try {
-              /*
-               * The routing information is derived from the PR advisor, not the bucket advisor.
-               */
-              FilterRoutingInfo fri = bucket.getPartitionedRegion().getRegionAdvisor()
-                  .adviseFilterRouting(ev, Collections.EMPTY_SET);
-              o.es.setFilterRoutingInfo(fri);
-              Set set = bucket.getAdjunctReceivers(ev, Collections.EMPTY_SET, new HashSet(), fri);
-              o.es.setAdjunctRecipients(set);
+            /*
+             * The routing information is derived from the PR advisor, not the bucket advisor.
+             */
+            FilterRoutingInfo fri = bucket.getPartitionedRegion().getRegionAdvisor()
+                .adviseFilterRouting(ev, Collections.EMPTY_SET);
+            o.es.setFilterRoutingInfo(fri);
+            Set set = bucket.getAdjunctReceivers(ev, Collections.EMPTY_SET, new HashSet(), fri);
+            o.es.setAdjunctRecipients(set);
 
-              if (o.es.getPendingCallback() != null) {
-                if (fri != null) {
-                  // For tx host, local filter info was also calculated.
-                  // Set this local filter info in corresponding pending callback so that
-                  // notifyBridgeClient has correct routing info.
-                  FilterRoutingInfo.FilterInfo localRouting = fri.getLocalFilterInfo();
-                  o.es.getPendingCallback().setLocalFilterInfo(localRouting);
-                }
-                // Do not hold pending callback reference in TXEntryState as it is no longer used.
-                o.es.setPendingCallback(null);
+            if (o.es.getPendingCallback() != null) {
+              if (fri != null) {
+                // For tx host, local filter info was also calculated.
+                // Set this local filter info in corresponding pending callback so that
+                // notifyBridgeClient has correct routing info.
+                FilterRoutingInfo.FilterInfo localRouting = fri.getLocalFilterInfo();
+                o.es.getPendingCallback().setLocalFilterInfo(localRouting);
               }
-            } finally {
-              ev.release();
+              // Do not hold pending callback reference in TXEntryState as it is no longer used.
+              o.es.setPendingCallback(null);
             }
           }
         } catch (RegionDestroyedException ex) {
@@ -920,7 +907,6 @@ public class TXState implements TXStateInterface {
       closed = true;
       seenEvents.clear();
       seenResults.clear();
-      freePendingCallbacks();
       if (locks != null) {
         final long conflictStart = statisticsClock.getTime();
         try {
@@ -1653,7 +1639,6 @@ public class TXState implements TXStateInterface {
    * cache.LocalRegion, java.lang.Object, java.lang.Object)
    */
   @Override
-  @Retained
   public Object getSerializedValue(LocalRegion localRegion, KeyInfo keyInfo, boolean doNotLockEntry,
       ClientProxyMembershipID requestingClient, EntryEventImpl clientEvent,
       boolean returnTombstones) throws DataLocationException {
@@ -1723,7 +1708,6 @@ public class TXState implements TXStateInterface {
    * org.apache.geode.internal.cache.LocalRegion, boolean)
    */
   @Override
-  @Retained
   public Object getValueInVM(KeyInfo keyInfo, LocalRegion localRegion, boolean rememberRead) {
     TXEntryState tx =
         txReadEntry(keyInfo, localRegion, rememberRead, true/* create txEntry is absent */);
@@ -2080,17 +2064,12 @@ public class TXState implements TXStateInterface {
       InternalDistributedMember myId =
           theRegion.getDistributionManager().getDistributionManagerId();
       for (int i = 0; i < putallOp.putAllDataSize; ++i) {
-        @Released
         EntryEventImpl ev = PutAllPRMessage.getEventFromEntry(theRegion, myId, myId, i,
             putallOp.putAllData, false, putallOp.getBaseEvent().getContext(), false,
             !putallOp.getBaseEvent().isGenerateCallbacks());
-        try {
-          ev.setPutAllOperation(putallOp);
-          if (theRegion.basicPut(ev, false, false, null, false)) {
-            successfulPuts.addKeyAndVersion(putallOp.putAllData[i].key, null);
-          }
-        } finally {
-          ev.release();
+        ev.setPutAllOperation(putallOp);
+        if (theRegion.basicPut(ev, false, false, null, false)) {
+          successfulPuts.addKeyAndVersion(putallOp.putAllData[i].key, null);
         }
       }
     }, putallOp.getBaseEvent().getEventId());
@@ -2114,7 +2093,6 @@ public class TXState implements TXStateInterface {
       InternalDistributedMember myId =
           theRegion.getDistributionManager().getDistributionManagerId();
       for (int i = 0; i < op.removeAllDataSize; ++i) {
-        @Released
         EntryEventImpl ev = RemoveAllPRMessage.getEventFromEntry(theRegion, myId, myId, i,
             op.removeAllData, false, op.getBaseEvent().getContext(), false,
             !op.getBaseEvent().isGenerateCallbacks());
@@ -2122,8 +2100,6 @@ public class TXState implements TXStateInterface {
         try {
           theRegion.basicDestroy(ev, true/* should we invoke cacheWriter? */, null);
         } catch (EntryNotFoundException ignore) {
-        } finally {
-          ev.release();
         }
         successfulOps.addKeyAndVersion(op.removeAllData[i].key, null);
       }

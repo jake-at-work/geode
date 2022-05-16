@@ -56,7 +56,7 @@ public abstract class AbstractEvictionController implements EvictionController {
   /**
    * Create and return the appropriate eviction controller using the attributes provided.
    */
-  public static EvictionController create(EvictionAttributes evictionAttributes, boolean isOffHeap,
+  public static EvictionController create(EvictionAttributes evictionAttributes,
       StatisticsFactory statsFactory, String statsName) {
     EvictionAlgorithm algorithm = evictionAttributes.getAlgorithm();
     EvictionAction action = evictionAttributes.getAction();
@@ -72,7 +72,7 @@ public abstract class AbstractEvictionController implements EvictionController {
     if (algorithm == EvictionAlgorithm.LRU_MEMORY || algorithm == EvictionAlgorithm.LIFO_MEMORY) {
       evictionStats = new MemoryLRUStatistics(statsFactory, statsName);
       evictionCounters = new EvictionCountersImpl(evictionStats);
-      return new MemoryLRUController(evictionCounters, maximum, sizer, action, isOffHeap,
+      return new MemoryLRUController(evictionCounters, maximum, sizer, action,
           algorithm);
     }
     if (algorithm == EvictionAlgorithm.LRU_ENTRY || algorithm == EvictionAlgorithm.LIFO_ENTRY) {

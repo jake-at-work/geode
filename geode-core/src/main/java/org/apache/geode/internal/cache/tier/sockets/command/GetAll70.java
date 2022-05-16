@@ -35,8 +35,6 @@ import org.apache.geode.internal.cache.tier.sockets.Part;
 import org.apache.geode.internal.cache.tier.sockets.ServerConnection;
 import org.apache.geode.internal.cache.tier.sockets.VersionedObjectList;
 import org.apache.geode.internal.cache.versions.VersionTag;
-import org.apache.geode.internal.offheap.OffHeapHelper;
-import org.apache.geode.internal.offheap.annotations.Retained;
 import org.apache.geode.internal.security.AuthorizeRequest;
 import org.apache.geode.internal.security.AuthorizeRequestPP;
 import org.apache.geode.internal.security.SecurityService;
@@ -166,116 +164,99 @@ public class GetAll70 extends BaseCommand {
     // to get and return all the keys and values. I think this was used for register interest.
     VersionedObjectList values = new VersionedObjectList(MAXIMUM_CHUNK_SIZE, keys == null,
         region.getAttributes().getConcurrencyChecksEnabled(), requestSerializedValues);
-    try {
-      AuthorizeRequest authzRequest = servConn.getAuthzRequest();
-      AuthorizeRequestPP postAuthzRequest = servConn.getPostAuthzRequest();
-      Get70 request = (Get70) Get70.getCommand();
-      final boolean isDebugEnabled = logger.isDebugEnabled();
-      for (int i = 0; i < numKeys; i++) {
-        // Send the intermediate chunk if necessary
-        if (values.size() == MAXIMUM_CHUNK_SIZE) {
-          // Send the chunk and clear the list
-          values.setKeys(null);
-          sendGetAllResponseChunk(region, values, false, servConn);
-          values.clear();
-        }
+    AuthorizeRequest authzRequest = servConn.getAuthzRequest();
+    AuthorizeRequestPP postAuthzRequest = servConn.getPostAuthzRequest();
+    Get70 request = (Get70) Get70.getCommand();
+    final boolean isDebugEnabled = logger.isDebugEnabled();
+    for (int i = 0; i < numKeys; i++) {
+      // Send the intermediate chunk if necessary
+      if (values.size() == MAXIMUM_CHUNK_SIZE) {
+        // Send the chunk and clear the list
+        values.setKeys(null);
+        sendGetAllResponseChunk(region, values, false, servConn);
+        values.clear();
+      }
 
-        final Object key;
-        if (keys != null) {
-          key = keys[i];
-        } else {
-          key = allKeysIter.next();
-        }
-        if (isDebugEnabled) {
-          logger.debug("{}: Getting value for key={}", servConn.getName(), key);
-        }
-        // Determine if the user authorized to get this key
-        GetOperationContext getContext = null;
-        if (authzRequest != null) {
-          try {
-            getContext = authzRequest.getAuthorize(regionName, key, null);
-            if (isDebugEnabled) {
-              logger.debug("{}: Passed GET pre-authorization for key={}", servConn.getName(), key);
-            }
-          } catch (NotAuthorizedException ex) {
-            logger.warn("{}: Caught the following exception attempting to get value for key={}",
-                servConn.getName(), key, ex);
-            values.addExceptionPart(key, ex);
-            continue;
-          }
-        }
-
+      final Object key;
+      if (keys != null) {
+        key = keys[i];
+      } else {
+        key = allKeysIter.next();
+      }
+      if (isDebugEnabled) {
+        logger.debug("{}: Getting value for key={}", servConn.getName(), key);
+      }
+      // Determine if the user authorized to get this key
+      GetOperationContext getContext = null;
+      if (authzRequest != null) {
         try {
-          securityService.authorize(Resource.DATA, Operation.READ, regionName, key);
+          getContext = authzRequest.getAuthorize(regionName, key, null);
+          if (isDebugEnabled) {
+            logger.debug("{}: Passed GET pre-authorization for key={}", servConn.getName(), key);
+          }
         } catch (NotAuthorizedException ex) {
           logger.warn("{}: Caught the following exception attempting to get value for key={}",
               servConn.getName(), key, ex);
           values.addExceptionPart(key, ex);
           continue;
         }
+      }
 
-        // Get the value and update the statistics. Do not deserialize
-        // the value if it is a byte[].
-        // Getting a value in serialized form is pretty nasty. I split this out
-        // so the logic can be re-used by the CacheClientProxy.
-        Get70.Entry entry = request.getEntry(region, key, null, servConn);
-        @Retained
-        final Object originalData = entry.value;
-        Object data = originalData;
-        if (logger.isDebugEnabled()) {
-          logger.debug("retrieved key={} {}", key, entry);
-        }
-        boolean addedToValues = false;
+      try {
+        securityService.authorize(Resource.DATA, Operation.READ, regionName, key);
+      } catch (NotAuthorizedException ex) {
+        logger.warn("{}: Caught the following exception attempting to get value for key={}",
+            servConn.getName(), key, ex);
+        values.addExceptionPart(key, ex);
+        continue;
+      }
+
+      // Get the value and update the statistics. Do not deserialize
+      // the value if it is a byte[].
+      // Getting a value in serialized form is pretty nasty. I split this out
+      // so the logic can be re-used by the CacheClientProxy.
+      Get70.Entry entry = request.getEntry(region, key, null, servConn);
+      final Object originalData = entry.value;
+      Object data = originalData;
+      if (logger.isDebugEnabled()) {
+        logger.debug("retrieved key={} {}", key, entry);
+      }
+      boolean isObject = entry.isObject;
+      VersionTag versionTag = entry.versionTag;
+      boolean keyNotPresent = entry.keyNotPresent;
+
+      if (postAuthzRequest != null) {
         try {
-          boolean isObject = entry.isObject;
-          VersionTag versionTag = entry.versionTag;
-          boolean keyNotPresent = entry.keyNotPresent;
-
-          if (postAuthzRequest != null) {
-            try {
-              getContext =
-                  postAuthzRequest.getAuthorize(regionName, key, data, isObject, getContext);
-              GetOperationContextImpl gci = (GetOperationContextImpl) getContext;
-              Object newData = gci.getRawValue();
-              if (newData != data) {
-                // user changed the value
-                isObject = getContext.isObject();
-                data = newData;
-              }
-            } catch (NotAuthorizedException ex) {
-              logger.warn("{}: Caught the following exception attempting to get value for key={}",
-                  servConn.getName(), key, ex);
-              values.addExceptionPart(key, ex);
-              continue;
-            } finally {
-              if (getContext != null) {
-                ((GetOperationContextImpl) getContext).release();
-              }
-            }
+          getContext =
+              postAuthzRequest.getAuthorize(regionName, key, data, isObject, getContext);
+          GetOperationContextImpl gci = (GetOperationContextImpl) getContext;
+          Object newData = gci.getRawValue();
+          if (newData != data) {
+            // user changed the value
+            isObject = getContext.isObject();
+            data = newData;
           }
-
-          data = securityService.postProcess(regionName, key, data, entry.isObject);
-
-          // Add the entry to the list that will be returned to the client
-          if (keyNotPresent) {
-            values.addObjectPartForAbsentKey(key, data, versionTag);
-          } else {
-            values.addObjectPart(key, data, isObject, versionTag);
-          }
-          addedToValues = true;
-        } finally {
-          if (!addedToValues || data != originalData) {
-            OffHeapHelper.release(originalData);
-          }
+        } catch (NotAuthorizedException ex) {
+          logger.warn("{}: Caught the following exception attempting to get value for key={}",
+              servConn.getName(), key, ex);
+          values.addExceptionPart(key, ex);
+          continue;
         }
       }
 
-      values.setKeys(null);
-      sendGetAllResponseChunk(region, values, true, servConn);
-      servConn.setAsTrue(RESPONDED);
-    } finally {
-      values.release();
+      data = securityService.postProcess(regionName, key, data, entry.isObject);
+
+      // Add the entry to the list that will be returned to the client
+      if (keyNotPresent) {
+        values.addObjectPartForAbsentKey(key, data, versionTag);
+      } else {
+        values.addObjectPart(key, data, isObject, versionTag);
+      }
     }
+
+    values.setKeys(null);
+    sendGetAllResponseChunk(region, values, true, servConn);
+    servConn.setAsTrue(RESPONDED);
   }
 
 

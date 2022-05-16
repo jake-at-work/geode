@@ -20,7 +20,6 @@ import org.apache.geode.annotations.VisibleForTesting;
 import org.apache.geode.cache.asyncqueue.AsyncEventQueue;
 import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.internal.cache.eviction.HeapEvictor;
-import org.apache.geode.internal.cache.eviction.OffHeapEvictor;
 import org.apache.geode.management.internal.RestAgent;
 
 /**
@@ -62,6 +61,4 @@ public interface InternalCacheForTesting {
   @VisibleForTesting
   HeapEvictor getHeapEvictor();
 
-  @VisibleForTesting
-  OffHeapEvictor getOffHeapEvictor();
 }

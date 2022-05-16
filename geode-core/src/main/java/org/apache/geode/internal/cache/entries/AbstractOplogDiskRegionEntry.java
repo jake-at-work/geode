@@ -27,7 +27,6 @@ import org.apache.geode.internal.cache.RegionEntry;
 import org.apache.geode.internal.cache.RegionEntryContext;
 import org.apache.geode.internal.cache.Token;
 import org.apache.geode.internal.cache.versions.VersionTag;
-import org.apache.geode.internal.offheap.annotations.Retained;
 import org.apache.geode.internal.serialization.ByteArrayDataInput;
 import org.apache.geode.internal.serialization.KnownVersion;
 
@@ -81,7 +80,6 @@ public abstract class AbstractOplogDiskRegionEntry extends AbstractDiskRegionEnt
   }
 
   @Override
-  @Retained
   public Object getValueRetain(RegionEntryContext context) {
     return Helper.faultInValueRetain(this, (InternalRegion) context);
   }
@@ -91,7 +89,6 @@ public abstract class AbstractOplogDiskRegionEntry extends AbstractDiskRegionEnt
     return Helper.getValueInVMOrDiskWithoutFaultIn(this, region);
   }
 
-  @Retained
   @Override
   public Object getValueOffHeapOrDiskWithoutFaultIn(InternalRegion region) {
     return Helper.getValueOffHeapOrDiskWithoutFaultIn(this, region);

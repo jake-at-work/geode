@@ -49,7 +49,6 @@ import org.apache.geode.internal.cache.PartitionedRegionHelper;
 import org.apache.geode.internal.cache.PrimaryBucketException;
 import org.apache.geode.internal.cache.versions.VersionTag;
 import org.apache.geode.internal.logging.log4j.LogMarker;
-import org.apache.geode.internal.offheap.annotations.Released;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -158,73 +157,68 @@ public class InvalidateMessage extends DestroyMessage {
       eventSender = getSender();
     }
     final Object key = getKey();
-    @Released
     final EntryEventImpl event = EntryEventImpl.create(r, getOperation(), key, null, /* newValue */
         getCallbackArg(), false/* originRemote - false to force distribution in buckets */,
         eventSender, true/* generateCallbacks */, false/* initializeId */);
-    try {
+    if (versionTag != null) {
+      versionTag.replaceNullIDs(getSender());
+      event.setVersionTag(versionTag);
+    }
+    if (bridgeContext != null) {
+      event.setContext(bridgeContext);
+    }
+    // Assert.assertTrue(eventId != null); bug #47235: region invalidation doesn't send event ids
+    event.setEventId(eventId);
+    event.setPossibleDuplicate(posDup);
+
+    PartitionedRegionDataStore ds = r.getDataStore();
+    boolean sendReply = true;
+    // boolean failed = false;
+    event.setInvokePRCallbacks(!notificationOnly);
+    if (!notificationOnly) {
+      Assert.assertTrue(ds != null,
+          "This process should have storage for an item in " + this);
+      try {
+        Integer bucket = PartitionedRegionHelper.getHashKey(event);
+        event.setCausedByMessage(this);
+        r.getDataView().invalidateOnRemote(event, true/* invokeCallbacks */,
+            false/* forceNewEntry */);
+        versionTag = event.getVersionTag();
+        if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
+          logger.trace(LogMarker.DM_VERBOSE, "{} invalidateLocally in bucket: {}, key: {}",
+              getClass().getName(), bucket, key);
+        }
+      } catch (DataLocationException e) {
+        ((ForceReattemptException) e).checkKey(event.getKey());
+        throw e;
+      } catch (EntryNotFoundException eee) {
+        // failed = true;
+        if (logger.isDebugEnabled()) {
+          logger.debug("{}: operateOnRegion caught EntryNotFoundException {}",
+              getClass().getName(), eee.getMessage(), eee);
+        }
+        sendReply(getSender(), getProcessorId(), dm, new ReplyException(eee), r, startTime);
+        sendReply = false; // this prevents us from acking later
+      } catch (PrimaryBucketException pbe) {
+        sendReply(getSender(), getProcessorId(), dm, new ReplyException(pbe), r, startTime);
+        return false;
+      }
+
+    } else {
+      event.setRegion(r);
+      event.setOriginRemote(true);
       if (versionTag != null) {
         versionTag.replaceNullIDs(getSender());
         event.setVersionTag(versionTag);
       }
-      if (bridgeContext != null) {
-        event.setContext(bridgeContext);
+      if (filterInfo != null) {
+        event.setLocalFilterInfo(filterInfo.getFilterInfo(dm.getDistributionManagerId()));
       }
-      // Assert.assertTrue(eventId != null); bug #47235: region invalidation doesn't send event ids
-      event.setEventId(eventId);
-      event.setPossibleDuplicate(posDup);
-
-      PartitionedRegionDataStore ds = r.getDataStore();
-      boolean sendReply = true;
-      // boolean failed = false;
-      event.setInvokePRCallbacks(!notificationOnly);
-      if (!notificationOnly) {
-        Assert.assertTrue(ds != null,
-            "This process should have storage for an item in " + this);
-        try {
-          Integer bucket = PartitionedRegionHelper.getHashKey(event);
-          event.setCausedByMessage(this);
-          r.getDataView().invalidateOnRemote(event, true/* invokeCallbacks */,
-              false/* forceNewEntry */);
-          versionTag = event.getVersionTag();
-          if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
-            logger.trace(LogMarker.DM_VERBOSE, "{} invalidateLocally in bucket: {}, key: {}",
-                getClass().getName(), bucket, key);
-          }
-        } catch (DataLocationException e) {
-          ((ForceReattemptException) e).checkKey(event.getKey());
-          throw e;
-        } catch (EntryNotFoundException eee) {
-          // failed = true;
-          if (logger.isDebugEnabled()) {
-            logger.debug("{}: operateOnRegion caught EntryNotFoundException {}",
-                getClass().getName(), eee.getMessage(), eee);
-          }
-          sendReply(getSender(), getProcessorId(), dm, new ReplyException(eee), r, startTime);
-          sendReply = false; // this prevents us from acking later
-        } catch (PrimaryBucketException pbe) {
-          sendReply(getSender(), getProcessorId(), dm, new ReplyException(pbe), r, startTime);
-          return false;
-        }
-
-      } else {
-        event.setRegion(r);
-        event.setOriginRemote(true);
-        if (versionTag != null) {
-          versionTag.replaceNullIDs(getSender());
-          event.setVersionTag(versionTag);
-        }
-        if (filterInfo != null) {
-          event.setLocalFilterInfo(filterInfo.getFilterInfo(dm.getDistributionManagerId()));
-        }
-        r.invokeInvalidateCallbacks(EnumListenerEvent.AFTER_INVALIDATE, event, r.isInitialized());
-      }
-
-      return sendReply;
-
-    } finally {
-      event.release();
+      r.invokeInvalidateCallbacks(EnumListenerEvent.AFTER_INVALIDATE, event, r.isInitialized());
     }
+
+    return sendReply;
+
   }
 
 

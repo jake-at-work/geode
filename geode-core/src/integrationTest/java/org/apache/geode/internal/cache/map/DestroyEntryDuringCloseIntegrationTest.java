@@ -16,12 +16,10 @@ package org.apache.geode.internal.cache.map;
 
 import static org.apache.geode.distributed.ConfigurationProperties.LOCATORS;
 import static org.apache.geode.distributed.ConfigurationProperties.MCAST_PORT;
-import static org.apache.geode.distributed.ConfigurationProperties.OFF_HEAP_MEMORY_SIZE;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.Properties;
 
-import junitparams.Parameters;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,7 +51,6 @@ public class DestroyEntryDuringCloseIntegrationTest {
     Properties props = new Properties();
     props.setProperty(LOCATORS, "");
     props.setProperty(MCAST_PORT, "0");
-    props.setProperty(OFF_HEAP_MEMORY_SIZE, "2m");
     cache = new CacheFactory(props).create();
   }
 
@@ -63,29 +60,27 @@ public class DestroyEntryDuringCloseIntegrationTest {
     cache.close();
   }
 
-  private Region<Object, Object> createRegion(boolean isOffHeap) {
-    return cache.createRegionFactory(RegionShortcut.REPLICATE).setOffHeap(isOffHeap)
+  private Region<Object, Object> createRegion() {
+    return cache.createRegionFactory(RegionShortcut.REPLICATE)
         .setConcurrencyChecksEnabled(true).create(REGION);
   }
 
   @Test
-  @Parameters({"true", "false"})
-  public void testEntryDestroyWithCacheClose(boolean offheap) throws Exception {
+  public void testEntryDestroyWithCacheClose() {
     RegionMapDestroy.testHookRunnableForConcurrentOperation = () -> cache.close();
 
-    Region<Object, Object> region = createRegion(offheap);
+    Region<Object, Object> region = createRegion();
     region.put(KEY, VALUE);
 
     assertThatThrownBy(() -> region.destroy(KEY)).isInstanceOf(CacheClosedException.class);
   }
 
   @Test
-  @Parameters({"true", "false"})
-  public void testEntryDestroyWithRegionDestroy(boolean offheap) throws Exception {
+  public void testEntryDestroyWithRegionDestroy() {
     RegionMapDestroy.testHookRunnableForConcurrentOperation =
         () -> cache.getRegion(REGION).destroyRegion();
 
-    Region<Object, Object> region = createRegion(offheap);
+    Region<Object, Object> region = createRegion();
     region.put(KEY, VALUE);
 
     assertThatThrownBy(() -> region.destroy(KEY)).isInstanceOf(RegionDestroyedException.class);

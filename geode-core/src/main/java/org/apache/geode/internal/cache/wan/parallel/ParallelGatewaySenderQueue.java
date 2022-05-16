@@ -905,10 +905,9 @@ public class ParallelGatewaySenderQueue implements RegionQueue {
 
   void putIntoBucketRegionQueue(AbstractBucketRegionQueue brq, Object key,
       GatewaySenderEventImpl value) {
-    boolean addedValueToQueue = false;
     try {
       if (brq != null) {
-        addedValueToQueue = brq.addToQueue(key, value);
+        brq.addToQueue(key, value);
         // TODO: During merge, ParallelWANstats test failed. On
         // comment below code test passed. cheetha does not have below code.
         // need to find out from hcih revision this code came
@@ -924,10 +923,6 @@ public class ParallelGatewaySenderQueue implements RegionQueue {
         logger.debug(
             "getInitializedBucketForId: Got ForceReattemptException for {} for bucket = {}", this,
             brq.getId());
-      }
-    } finally {
-      if (!addedValueToQueue) {
-        value.release();
       }
     }
   }
@@ -1053,49 +1048,41 @@ public class ParallelGatewaySenderQueue implements RegionQueue {
     if (!peekedEvents.isEmpty()) {
 
       GatewaySenderEventImpl event = peekedEvents.remove();
-      try {
-        PartitionedRegion prQ = null;
-        int bucketId = -1;
-        Object key = null;
-        if (event.getRegion() != null) {
-          if (isDREvent(sender.getCache(), event)) {
-            prQ = userRegionNameToShadowPRMap.get(event.getRegion().getFullPath());
-            bucketId = event.getEventId().getBucketID();
+      PartitionedRegion prQ = null;
+      int bucketId = -1;
+      Object key = null;
+      if (event.getRegion() != null) {
+        if (isDREvent(sender.getCache(), event)) {
+          prQ = userRegionNameToShadowPRMap.get(event.getRegion().getFullPath());
+          bucketId = event.getEventId().getBucketID();
+          key = event.getEventId();
+        } else {
+          prQ = userRegionNameToShadowPRMap.get(ColocationHelper
+              .getLeaderRegion((PartitionedRegion) event.getRegion()).getFullPath());
+          bucketId = event.getBucketId();
+          key = event.getShadowKey();
+        }
+      } else {
+        String regionPath = event.getRegionPath();
+        InternalCache cache = sender.getCache();
+        Region region = cache.getRegion(regionPath);
+        if (region != null && !region.isDestroyed()) {
+          // TODO: We have to get colocated parent region for this region
+          if (region instanceof DistributedRegion) {
+            prQ = userRegionNameToShadowPRMap.get(region.getFullPath());
+            event.getBucketId();
             key = event.getEventId();
           } else {
-            prQ = userRegionNameToShadowPRMap.get(ColocationHelper
-                .getLeaderRegion((PartitionedRegion) event.getRegion()).getFullPath());
-            bucketId = event.getBucketId();
+            prQ = userRegionNameToShadowPRMap
+                .get(ColocationHelper.getLeaderRegion((PartitionedRegion) region).getFullPath());
+            event.getBucketId();
             key = event.getShadowKey();
           }
-        } else {
-          String regionPath = event.getRegionPath();
-          InternalCache cache = sender.getCache();
-          Region region = cache.getRegion(regionPath);
-          if (region != null && !region.isDestroyed()) {
-            // TODO: We have to get colocated parent region for this region
-            if (region instanceof DistributedRegion) {
-              prQ = userRegionNameToShadowPRMap.get(region.getFullPath());
-              event.getBucketId();
-              key = event.getEventId();
-            } else {
-              prQ = userRegionNameToShadowPRMap
-                  .get(ColocationHelper.getLeaderRegion((PartitionedRegion) region).getFullPath());
-              event.getBucketId();
-              key = event.getShadowKey();
-            }
-          }
         }
+      }
 
-        if (prQ != null) {
-          destroyEventFromQueue(prQ, bucketId, key);
-        }
-      } finally {
-        try {
-          event.release();
-        } catch (IllegalStateException e) {
-          logger.error("Exception caught and logged.  The thread will continue running", e);
-        }
+      if (prQ != null) {
+        destroyEventFromQueue(prQ, bucketId, key);
       }
     }
   }
@@ -1297,7 +1284,7 @@ public class ParallelGatewaySenderQueue implements RegionQueue {
       if (areLocalBucketQueueRegionsPresent() && ((bId = getRandomPrimaryBucket(prQ)) != -1)) {
         GatewaySenderEventImpl object = (GatewaySenderEventImpl) peekAhead(prQ, bId);
         if (object != null) {
-          GatewaySenderEventImpl copy = object.makeHeapCopyIfOffHeap();
+          GatewaySenderEventImpl copy = object;
           if (copy == null) {
             if (stats != null) {
               stats.incEventsNotQueuedConflated();

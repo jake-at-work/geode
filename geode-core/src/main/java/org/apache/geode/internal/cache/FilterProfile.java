@@ -74,7 +74,6 @@ import org.apache.geode.internal.cache.tier.sockets.CacheClientNotifier;
 import org.apache.geode.internal.cache.tier.sockets.ClientProxyMembershipID;
 import org.apache.geode.internal.cache.tier.sockets.UnregisterAllInterest;
 import org.apache.geode.internal.logging.log4j.LogMarker;
-import org.apache.geode.internal.offheap.annotations.Unretained;
 import org.apache.geode.internal.serialization.DataSerializableFixedID;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.KnownVersion;
@@ -1181,7 +1180,6 @@ public class FilterProfile implements DataSerializableFixedID {
       for (int idx = 0; idx < size; idx++) {
         PutAllEntryData pEntry = putAllData[idx];
         if (pEntry != null) {
-          @Unretained
           final EntryEventImpl ev = dpao.getEventForPosition(idx);
           FilterRoutingInfo fri = pEntry.filterRouting;
           FilterInfo fi = null;
@@ -1230,7 +1228,6 @@ public class FilterProfile implements DataSerializableFixedID {
       for (int idx = 0; idx < size; idx++) {
         RemoveAllEntryData pEntry = removeAllData[idx];
         if (pEntry != null) {
-          @Unretained
           final EntryEventImpl ev = op.getEventForPosition(idx);
           FilterRoutingInfo fri = pEntry.filterRouting;
           FilterInfo fi = null;

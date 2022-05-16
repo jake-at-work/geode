@@ -16,7 +16,6 @@ package org.apache.geode.internal.tcp;
 
 import java.nio.ByteBuffer;
 
-import org.apache.geode.internal.offheap.StoredObject;
 
 /**
  * You should only create an instance of this class if the bytes this buffer reads will never
@@ -73,10 +72,6 @@ public class ImmutableByteBufferInputStream extends ByteBufferInputStream {
 
   public ImmutableByteBufferInputStream() {
     // for serialization
-  }
-
-  public ImmutableByteBufferInputStream(StoredObject blob) {
-    super(blob);
   }
 
   @Override

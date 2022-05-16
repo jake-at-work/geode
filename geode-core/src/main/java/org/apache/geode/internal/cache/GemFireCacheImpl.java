@@ -42,7 +42,6 @@ import static org.apache.geode.internal.cache.PartitionedRegion.OFFLINE_EQUAL_PE
 import static org.apache.geode.internal.cache.PartitionedRegion.PRIMARY_BUCKETS_LOCKED;
 import static org.apache.geode.internal.cache.PartitionedRegionHelper.PARTITION_LOCK_SERVICE_NAME;
 import static org.apache.geode.internal.cache.control.InternalResourceManager.ResourceType.HEAP_MEMORY;
-import static org.apache.geode.internal.cache.control.InternalResourceManager.ResourceType.OFFHEAP_MEMORY;
 import static org.apache.geode.internal.logging.CoreLoggingExecutors.newThreadPoolWithFixedFeed;
 import static org.apache.geode.internal.tcp.ConnectionTable.threadWantsSharedResources;
 import static org.apache.geode.logging.internal.executors.LoggingExecutors.newFixedThreadPool;
@@ -213,7 +212,6 @@ import org.apache.geode.internal.cache.control.InternalResourceManager;
 import org.apache.geode.internal.cache.control.ResourceAdvisor;
 import org.apache.geode.internal.cache.event.EventTrackerExpiryTask;
 import org.apache.geode.internal.cache.eviction.HeapEvictor;
-import org.apache.geode.internal.cache.eviction.OffHeapEvictor;
 import org.apache.geode.internal.cache.execute.util.FindRestEnabledServersFunction;
 import org.apache.geode.internal.cache.extension.ExtensionPoint;
 import org.apache.geode.internal.cache.extension.SimpleExtensionPoint;
@@ -248,7 +246,6 @@ import org.apache.geode.internal.jta.TransactionManagerImpl;
 import org.apache.geode.internal.lang.ThrowableUtils;
 import org.apache.geode.internal.logging.InternalLogWriter;
 import org.apache.geode.internal.monitoring.ThreadsMonitoring;
-import org.apache.geode.internal.offheap.MemoryAllocator;
 import org.apache.geode.internal.security.SecurityService;
 import org.apache.geode.internal.security.SecurityServiceFactory;
 import org.apache.geode.internal.sequencelog.SequenceLoggerImpl;
@@ -511,8 +508,6 @@ public class GemFireCacheImpl implements InternalCache, InternalClientCache, Has
 
   private final Object heapEvictorLock = new Object();
 
-  private final Object offHeapEvictorLock = new Object();
-
   private final Object queryMonitorLock = new Object();
 
   private final PersistentMemberManager persistentMemberManager;
@@ -690,8 +685,6 @@ public class GemFireCacheImpl implements InternalCache, InternalClientCache, Has
   private DistributedLockService prLockService;
 
   private HeapEvictor heapEvictor;
-
-  private OffHeapEvictor offHeapEvictor;
 
   private ResourceEventsListener resourceEventsListener;
 
@@ -1037,11 +1030,6 @@ public class GemFireCacheImpl implements InternalCache, InternalClientCache, Has
       serialNumber = serialNumberSupplier.get();
 
       getInternalResourceManager().addResourceListener(HEAP_MEMORY, getHeapEvictor());
-
-      // Only bother creating an off-heap evictor if we have off-heap memory enabled.
-      if (null != getOffHeapStore()) {
-        getInternalResourceManager().addResourceListener(OFFHEAP_MEMORY, getOffHeapEvictor());
-      }
 
       recordedEventSweeper = createEventTrackerExpiryTask();
       tombstoneService = tombstoneServiceFactory.apply(this);
@@ -2103,26 +2091,6 @@ public class GemFireCacheImpl implements InternalCache, InternalClientCache, Has
     }
   }
 
-  @Override
-  @VisibleForTesting
-  public OffHeapEvictor getOffHeapEvictor() {
-    synchronized (offHeapEvictorLock) {
-      stopper.checkCancelInProgress(null);
-      if (offHeapEvictor == null) {
-        offHeapEvictor = new OffHeapEvictor(this, statisticsClock);
-      }
-      return offHeapEvictor;
-    }
-  }
-
-  /**
-   * Used by test to inject an evictor.
-   */
-  @VisibleForTesting
-  void setOffHeapEvictor(OffHeapEvictor evictor) {
-    offHeapEvictor = evictor;
-  }
-
   /**
    * Used by test to inject an evictor.
    */
@@ -2397,7 +2365,6 @@ public class GemFireCacheImpl implements InternalCache, InternalClientCache, Has
               cms.close();
             }
             closeHeapEvictor();
-            closeOffHeapEvictor();
           } catch (CancelException ignore) {
             // make sure the disk stores get closed
             closeDiskStores();
@@ -2498,13 +2465,6 @@ public class GemFireCacheImpl implements InternalCache, InternalClientCache, Has
       } catch (Throwable t) {
         logger.warn("Error stopping service " + service, t);
       }
-    }
-  }
-
-  private void closeOffHeapEvictor() {
-    OffHeapEvictor evictor = offHeapEvictor;
-    if (evictor != null) {
-      evictor.close();
     }
   }
 
@@ -5057,11 +5017,6 @@ public class GemFireCacheImpl implements InternalCache, InternalClientCache, Has
     if (loc != null) {
       loc.startJmxManagerLocationService(this);
     }
-  }
-
-  @Override
-  public MemoryAllocator getOffHeapStore() {
-    return getSystem().getOffHeapStore();
   }
 
   @Override

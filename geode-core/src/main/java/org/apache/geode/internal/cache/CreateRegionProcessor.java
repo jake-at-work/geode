@@ -592,18 +592,8 @@ public class CreateRegionProcessor implements ProfileExchangeProcessor {
         }
       }
 
-      final boolean otherIsOffHeap = rgn.getAttributes().getOffHeap();
-
       boolean thisIsRemoteAccessor = !rgn.getAttributes().getDataPolicy().withStorage()
           || (pa != null && pa.getLocalMaxMemory() == 0);
-
-      if (!isRemoteAccessor(profile) && !thisIsRemoteAccessor
-          && profile.isOffHeap != otherIsOffHeap) {
-        result =
-            String.format(
-                "Cannot create region %s with off-heap=%s because another cache (%s) has the same region with off-heap=%s.",
-                regionPath, profile.isOffHeap, myId, otherIsOffHeap);
-      }
 
       String cspResult = null;
       Map<String, CacheServiceProfile> myProfiles = ((LocalRegion) rgn).getCacheServiceProfiles();

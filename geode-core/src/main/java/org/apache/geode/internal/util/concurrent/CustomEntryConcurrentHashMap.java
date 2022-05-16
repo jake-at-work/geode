@@ -54,17 +54,10 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.concurrent.Executor;
-import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.apache.geode.CancelException;
-import org.apache.geode.internal.cache.RegionEntry;
-import org.apache.geode.internal.cache.entries.OffHeapRegionEntry;
-import org.apache.geode.internal.cache.wan.GatewaySenderEventImpl;
-import org.apache.geode.internal.offheap.OffHeapClearRequired;
 import org.apache.geode.internal.size.SingleObjectSizer;
 import org.apache.geode.internal.util.ArrayUtils;
-import org.apache.geode.logging.internal.executors.LoggingThread;
 
 /**
  * A hash table supporting full concurrency of retrievals and adjustable expected concurrency for
@@ -1019,24 +1012,6 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
           final HashEntry<K, V>[] tab = table;
           // Geode changes BEGIN
           if (clearedEntries == null) {
-            final boolean checkForGatewaySenderEvent =
-                OffHeapClearRequired.doesClearNeedToCheckForOffHeap();
-            if (checkForGatewaySenderEvent) {
-              clearedEntries = new ArrayList<>();
-            } else {
-              // see if we have a map with off-heap region entries
-              for (HashEntry<K, V> he : tab) {
-                if (he != null) {
-                  if (he instanceof OffHeapRegionEntry) {
-                    clearedEntries = new ArrayList<>();
-                  }
-                  // after the first non-null entry we are done
-                  break;
-                }
-              }
-            }
-          }
-          if (clearedEntries == null) {
             Arrays.fill(tab, null);
           } else {
             for (int i = 0; i < tab.length; i++) {
@@ -1798,56 +1773,8 @@ public class CustomEntryConcurrentHashMap<K, V> extends AbstractMap<K, V>
   @Override
   public void clearWithExecutor(Executor executor) {
     ArrayList<HashEntry<?, ?>> entries = null;
-    try {
-      for (final Segment<K, V> segment : segments) {
-        entries = segment.clear(entries);
-      }
-    } finally {
-      if (entries != null) {
-        final ArrayList<HashEntry<?, ?>> clearedEntries = entries;
-        Runnable runnable;
-        if (OffHeapClearRequired.doesClearNeedToCheckForOffHeap()) {
-          runnable = () -> {
-            for (HashEntry<?, ?> he : clearedEntries) {
-              for (HashEntry<?, ?> p = he; p != null; p = p.getNextEntry()) {
-                if (p instanceof RegionEntry) {
-                  synchronized (p) {
-                    GatewaySenderEventImpl.release(((RegionEntry) p).getValue()); // OFFHEAP
-                  }
-                }
-              }
-            }
-          };
-        } else {
-          runnable = () -> {
-            for (HashEntry<?, ?> he : clearedEntries) {
-              for (HashEntry<?, ?> p = he; p != null; p = p.getNextEntry()) {
-                synchronized (p) {
-                  ((OffHeapRegionEntry) p).release();
-                }
-              }
-            }
-          };
-        }
-        boolean submitted = false;
-        if (executor != null) {
-          try {
-            executor.execute(runnable);
-            submitted = true;
-          } catch (RejectedExecutionException e) {
-            // fall through with submitted false
-          } catch (CancelException e) {
-            // fall through with submitted false
-          } catch (NullPointerException e) {
-            // fall through with submitted false
-          }
-        }
-        if (!submitted) {
-          String name = getClass().getSimpleName() + "@" + hashCode() + " Clear Thread";
-          Thread thread = new LoggingThread(name, runnable);
-          thread.start();
-        }
-      }
+    for (final Segment<K, V> segment : segments) {
+      entries = segment.clear(entries);
     }
   }
 

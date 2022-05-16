@@ -59,7 +59,6 @@ import org.apache.geode.internal.cache.versions.VersionSource;
 import org.apache.geode.internal.cache.versions.VersionStamp;
 import org.apache.geode.internal.cache.versions.VersionTag;
 import org.apache.geode.internal.logging.log4j.LogMarker;
-import org.apache.geode.internal.offheap.OffHeapHelper;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.KnownVersion;
 import org.apache.geode.internal.serialization.SerializationContext;
@@ -307,34 +306,30 @@ public class FetchEntriesMessage extends PartitionMessage {
             RegionEntry re = entry.getRegionEntry();
             synchronized (re) {
               Object value = re.getValueRetain(map, true);
-              try {
-                if (value == null) {
-                  // only possible for disk entry
-                  value = re.getSerializedValueOnDisk((LocalRegion) entry.getRegion());
+              if (value == null) {
+                // only possible for disk entry
+                value = re.getSerializedValueOnDisk((LocalRegion) entry.getRegion());
+              }
+              if (!Token.isRemoved(value)) {
+                DataSerializer.writeObject(re.getKey(), mos);
+                if (Token.isInvalid(value)) {
+                  value = null;
                 }
-                if (!Token.isRemoved(value)) {
-                  DataSerializer.writeObject(re.getKey(), mos);
-                  if (Token.isInvalid(value)) {
-                    value = null;
-                  }
-                  VersionStamp stamp = re.getVersionStamp();
-                  VersionTag versionTag = stamp != null ? stamp.asVersionTag() : null;
-                  if (versionTag != null) {
-                    versionTag.replaceNullIDs(map.getVersionMember());
-                  }
-                  DataSerializer.writeObject(value, mos);
-                  DataSerializer.writeObject(versionTag, mos);
+                VersionStamp stamp = re.getVersionStamp();
+                VersionTag versionTag = stamp != null ? stamp.asVersionTag() : null;
+                if (versionTag != null) {
+                  versionTag.replaceNullIDs(map.getVersionMember());
+                }
+                DataSerializer.writeObject(value, mos);
+                DataSerializer.writeObject(versionTag, mos);
 
-                  // Note we track the itemCount so we can compute avgItemSize
-                  itemCount++;
-                  // Note we track avgItemSize to help us not to always go one item
-                  // past the max chunk size. When we go past it causes us to grow
-                  // the ByteBuffer that the chunk is stored in resulting in a copy
-                  // of the data.
-                  avgItemSize = mos.size() / itemCount;
-                }
-              } finally {
-                OffHeapHelper.release(value);
+                // Note we track the itemCount so we can compute avgItemSize
+                itemCount++;
+                // Note we track avgItemSize to help us not to always go one item
+                // past the max chunk size. When we go past it causes us to grow
+                // the ByteBuffer that the chunk is stored in resulting in a copy
+                // of the data.
+                avgItemSize = mos.size() / itemCount;
               }
             }
           }

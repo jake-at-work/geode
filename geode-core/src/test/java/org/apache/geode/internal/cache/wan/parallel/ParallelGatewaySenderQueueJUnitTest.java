@@ -41,7 +41,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
-import org.mockito.Mockito;
 
 import org.apache.geode.CancelCriterion;
 import org.apache.geode.cache.DataPolicy;
@@ -93,11 +92,9 @@ public class ParallelGatewaySenderQueueJUnitTest {
   @Test
   public void whenReplicatedDataRegionNotReadyShouldNotThrowException() throws Exception {
     GatewaySenderEventImpl event = mock(GatewaySenderEventImpl.class);
-    when(event.makeHeapCopyIfOffHeap()).thenReturn(event);
     when(event.getRegion()).thenReturn(null);
     String regionPath = "/testRegion";
     when(event.getRegionPath()).thenReturn(regionPath);
-    Mockito.doThrow(new IllegalStateException()).when(event).release();
 
     queue = spy(queue);
     doReturn(true).when(queue).isDREvent(any(), any());
@@ -108,7 +105,6 @@ public class ParallelGatewaySenderQueueJUnitTest {
   @Test
   public void whenPartitionedDataRegionNotReadyShouldNotThrowException() throws Exception {
     GatewaySenderEventImpl event = mock(GatewaySenderEventImpl.class);
-    when(event.makeHeapCopyIfOffHeap()).thenReturn(event);
     when(event.getRegion()).thenReturn(null);
     String regionPath = "/testRegion";
     when(event.getRegionPath()).thenReturn(regionPath);
@@ -119,7 +115,6 @@ public class ParallelGatewaySenderQueueJUnitTest {
     when(region.getPartitionAttributes()).thenReturn(pa);
     when(pa.getColocatedWith()).thenReturn(null);
 
-    Mockito.doThrow(new IllegalStateException()).when(event).release();
     Queue<GatewaySenderEventImpl> backingList = new LinkedList<>();
     backingList.add(event);
 
@@ -139,7 +134,6 @@ public class ParallelGatewaySenderQueueJUnitTest {
     GatewaySenderEventImpl event = mock(GatewaySenderEventImpl.class);
     String regionPath = "/userPR";
     when(event.getRegionPath()).thenReturn(regionPath);
-    when(event.makeHeapCopyIfOffHeap()).thenReturn(event);
     when(event.getRegion()).thenReturn(null);
     when(event.getBucketId()).thenReturn(1);
     when(event.getShadowKey()).thenReturn(100L);
@@ -178,7 +172,6 @@ public class ParallelGatewaySenderQueueJUnitTest {
 
     prepareBrq(brq, isTmpQueue);
 
-    Mockito.doThrow(new IllegalStateException()).when(event).release();
     Queue<GatewaySenderEventImpl> backingList = new LinkedList<>();
     backingList.add(event);
 
@@ -220,76 +213,10 @@ public class ParallelGatewaySenderQueueJUnitTest {
     testEnqueueToBrqAfterLockFailedInitialImageReadLock(true);
   }
 
-  @Test
-  public void whenEventReleaseFromOffHeapFailsExceptionShouldNotBeThrownToAckReaderThread()
-      throws Exception {
-    GatewaySenderEventImpl event = mock(GatewaySenderEventImpl.class);
-    when(event.makeHeapCopyIfOffHeap()).thenReturn(event);
-    Mockito.doThrow(new IllegalStateException()).when(event).release();
-    Queue<GatewaySenderEventImpl> backingList = new LinkedList<>();
-    backingList.add(event);
-
-    BucketRegionQueue bucketRegionQueue = mockBucketRegionQueue(backingList);
-
-    TestableParallelGatewaySenderQueue queue = new TestableParallelGatewaySenderQueue(sender,
-        Collections.emptySet(), 0, 1, metaRegionFactory);
-    queue.setMockedAbstractBucketRegionQueue(bucketRegionQueue);
-
-    List<?> peeked = queue.peek(1, 100);
-    assertEquals(1, peeked.size());
-    queue.remove();
-  }
-
-  @Test
-  public void whenGatewayEventUnableToResolveFromOffHeapTheStatForNotQueuedConflatedShouldBeIncremented()
-      throws Exception {
-    GatewaySenderStats stats = mockGatewaySenderStats();
-
-    GatewaySenderEventImpl event = mock(GatewaySenderEventImpl.class);
-    when(event.makeHeapCopyIfOffHeap()).thenReturn(null);
-    GatewaySenderEventImpl eventResolvesFromOffHeap = mock(GatewaySenderEventImpl.class);
-    when(eventResolvesFromOffHeap.makeHeapCopyIfOffHeap()).thenReturn(eventResolvesFromOffHeap);
-    Queue<GatewaySenderEventImpl> backingList = new LinkedList<>();
-    backingList.add(event);
-    backingList.add(eventResolvesFromOffHeap);
-
-    BucketRegionQueue bucketRegionQueue = mockBucketRegionQueue(backingList);
-
-    TestableParallelGatewaySenderQueue queue = new TestableParallelGatewaySenderQueue(sender,
-        Collections.emptySet(), 0, 1, metaRegionFactory);
-    queue.setMockedAbstractBucketRegionQueue(bucketRegionQueue);
-
-    List<?> peeked = queue.peek(1, 100);
-    assertEquals(1, peeked.size());
-    verify(stats, times(1)).incEventsNotQueuedConflated();
-  }
-
   private GatewaySenderStats mockGatewaySenderStats() {
     GatewaySenderStats stats = mock(GatewaySenderStats.class);
     when(sender.getStatistics()).thenReturn(stats);
     return stats;
-  }
-
-  @Test
-  public void whenNullPeekedEventFromBucketRegionQueueTheStatForNotQueuedConflatedShouldBeIncremented()
-      throws Exception {
-    GatewaySenderStats stats = mockGatewaySenderStats();
-
-    GatewaySenderEventImpl eventResolvesFromOffHeap = mock(GatewaySenderEventImpl.class);
-    when(eventResolvesFromOffHeap.makeHeapCopyIfOffHeap()).thenReturn(eventResolvesFromOffHeap);
-    Queue<GatewaySenderEventImpl> backingList = new LinkedList<>();
-    backingList.add(null);
-    backingList.add(eventResolvesFromOffHeap);
-
-    BucketRegionQueue bucketRegionQueue = mockBucketRegionQueue(backingList);
-
-    TestableParallelGatewaySenderQueue queue = new TestableParallelGatewaySenderQueue(sender,
-        Collections.emptySet(), 0, 1, metaRegionFactory);
-    queue.setMockedAbstractBucketRegionQueue(bucketRegionQueue);
-
-    List<?> peeked = queue.peek(1, 100);
-    assertEquals(1, peeked.size());
-    verify(stats, times(1)).incEventsNotQueuedConflated();
   }
 
   @Test
@@ -642,7 +569,6 @@ public class ParallelGatewaySenderQueueJUnitTest {
       boolean isLastEventInTransaction) {
     GatewaySenderEventImpl event = mock(GatewaySenderEventImpl.class);
     when(event.getTransactionId()).thenReturn(new TXId(null, transactionId));
-    when(event.makeHeapCopyIfOffHeap()).thenReturn(event);
     when(event.isLastEventInTransaction()).thenReturn(isLastEventInTransaction);
     return event;
   }

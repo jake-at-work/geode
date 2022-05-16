@@ -120,9 +120,9 @@ public class NewWanAuthenticationDUnitTest extends WANTestBase {
     receiver.invoke(WANTestBase::createReceiverInSecuredCache);
 
     sender.invoke(
-        () -> createReplicatedRegion(regionName, "ln", isOffHeap()));
+        () -> createReplicatedRegion(regionName, "ln"));
     receiver.invoke(
-        () -> createReplicatedRegion(regionName, null, isOffHeap()));
+        () -> createReplicatedRegion(regionName, null));
 
     // this tests verifies that even though the receiver has invalid credentials, the sender can
     // still send data to
@@ -151,9 +151,9 @@ public class NewWanAuthenticationDUnitTest extends WANTestBase {
     receiver.invoke(WANTestBase::createReceiverInSecuredCache);
 
     sender.invoke(
-        () -> createReplicatedRegion(regionName, "ln", isOffHeap()));
+        () -> createReplicatedRegion(regionName, "ln"));
     receiver.invoke(
-        () -> createReplicatedRegion(regionName, null, isOffHeap()));
+        () -> createReplicatedRegion(regionName, null));
 
     sender.invoke(() -> startSender("ln"));
     sender.invoke(() -> waitForSenderRunningState("ln"));
@@ -200,7 +200,7 @@ public class NewWanAuthenticationDUnitTest extends WANTestBase {
 
     sender.invoke(() -> {
       createSecuredCache(senderSecurityProps, senderJavaProperties, lnPort);
-      createReplicatedRegion(regionName, senderId, isOffHeap());
+      createReplicatedRegion(regionName, senderId);
       createSender(senderId, 2, false, 100, 10, false, false, null, true);
     });
 
@@ -236,7 +236,7 @@ public class NewWanAuthenticationDUnitTest extends WANTestBase {
 
     sender.invoke(() -> {
       createSecuredCache(senderSecurityProps, null, lnPort);
-      createReplicatedRegion(regionName, senderId, isOffHeap());
+      createReplicatedRegion(regionName, senderId);
       createSender(senderId, 2, false, 100, 10, false, false, null, true);
     });
 
@@ -283,7 +283,7 @@ public class NewWanAuthenticationDUnitTest extends WANTestBase {
 
     sender.invoke(() -> {
       createSecuredCache(senderSecurityProps, null, lnPort);
-      createReplicatedRegion(regionName, senderId, isOffHeap());
+      createReplicatedRegion(regionName, senderId);
       createSender(senderId, 2, false, 100, 10, false, false, null, true);
     });
 
@@ -461,7 +461,7 @@ public class NewWanAuthenticationDUnitTest extends WANTestBase {
       Properties receiverSecurityPropsWithCorrectSenderCreds,
       Object javaProps) {
     createSecuredCache(receiverSecurityPropsWithCorrectSenderCreds, javaProps, nyPort);
-    createReplicatedRegion(regionName, null, isOffHeap());
+    createReplicatedRegion(regionName, null);
     createReceiverInSecuredCache();
   }
 

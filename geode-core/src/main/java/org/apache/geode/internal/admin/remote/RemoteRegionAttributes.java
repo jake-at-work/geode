@@ -102,7 +102,6 @@ public class RemoteRegionAttributes implements RegionAttributes, DataSerializabl
   private boolean isGatewaySenderEnabled = false;
   private String[] asyncEventQueueDescs;
   private String compressorDesc;
-  private boolean offHeap;
 
   /**
    * constructs a new default RemoteRegionAttributes.
@@ -153,7 +152,6 @@ public class RemoteRegionAttributes implements RegionAttributes, DataSerializabl
     gatewaySendersDescs = getDescs(attr.getGatewaySenderIds().toArray());
     asyncEventQueueDescs = getDescs(attr.getAsyncEventQueueIds().toArray());
     compressorDesc = getDesc(attr.getCompressor());
-    offHeap = attr.getOffHeap();
   }
 
   /**
@@ -400,11 +398,6 @@ public class RemoteRegionAttributes implements RegionAttributes, DataSerializabl
   }
 
   @Override
-  public boolean getOffHeap() {
-    return offHeap;
-  }
-
-  @Override
   public void toData(DataOutput out) throws IOException {
     DataSerializer.writeString(cacheLoaderDesc, out);
     DataSerializer.writeString(cacheWriterDesc, out);
@@ -448,7 +441,7 @@ public class RemoteRegionAttributes implements RegionAttributes, DataSerializabl
     out.writeBoolean(concurrencyChecksEnabled);
 
     DataSerializer.writeString(compressorDesc, out);
-    out.writeBoolean(offHeap);
+    out.writeBoolean(false);
   }
 
   @Override
@@ -494,7 +487,7 @@ public class RemoteRegionAttributes implements RegionAttributes, DataSerializabl
     concurrencyChecksEnabled = in.readBoolean();
 
     compressorDesc = DataSerializer.readString(in);
-    offHeap = in.readBoolean();
+    in.readBoolean(); // ignore off-heap
   }
 
   private String[] getDescs(Object[] l) {

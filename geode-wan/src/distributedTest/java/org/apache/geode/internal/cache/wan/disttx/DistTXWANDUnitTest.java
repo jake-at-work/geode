@@ -60,21 +60,21 @@ public class DistTXWANDUnitTest extends WANTestBase {
     vm4.invoke(() -> WANTestBase.createSender("ln", 2, false, 100, 10, false, false, null, true));
     vm5.invoke(() -> WANTestBase.createSender("ln", 2, false, 100, 10, false, false, null, true));
 
-    vm4.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100,
-        isOffHeap()));
-    vm5.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100,
-        isOffHeap()));
-    vm6.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100,
-        isOffHeap()));
-    vm7.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100,
-        isOffHeap()));
+    vm4.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100));
+    vm5.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100));
+    vm6.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100));
+    vm7.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100));
 
     startSenderInVMs("ln", vm4, vm5);
 
-    vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100,
-        isOffHeap()));
-    vm3.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100,
-        isOffHeap()));
+    vm2.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100));
+    vm3.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100));
 
     vm4.invoke(() -> WANTestBase.doDistTXPuts(getTestMethodName() + "_PR", 50));
 
@@ -96,21 +96,21 @@ public class DistTXWANDUnitTest extends WANTestBase {
     vm6.invoke(() -> WANTestBase.createSender("ln", 2, false, 100, 10, false, false, null, true));
     vm7.invoke(() -> WANTestBase.createSender("ln", 2, false, 100, 10, false, false, null, true));
 
-    vm4.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100,
-        isOffHeap()));
-    vm5.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100,
-        isOffHeap()));
-    vm6.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100,
-        isOffHeap()));
-    vm7.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100,
-        isOffHeap()));
+    vm4.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100));
+    vm5.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100));
+    vm6.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100));
+    vm7.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100));
 
     startSenderInVMs("ln", vm4, vm5);
 
-    vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100,
-        isOffHeap()));
-    vm3.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100,
-        isOffHeap()));
+    vm2.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100));
+    vm3.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100));
 
     vm6.invoke(() -> WANTestBase.doDistTXPuts(getTestMethodName() + "_PR", 50));
 
@@ -132,21 +132,21 @@ public class DistTXWANDUnitTest extends WANTestBase {
     vm6.invoke(() -> WANTestBase.createSender("ln", 2, true, 100, 10, false, false, null, true));
     vm7.invoke(() -> WANTestBase.createSender("ln", 2, true, 100, 10, false, false, null, true));
 
-    vm4.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100,
-        isOffHeap()));
-    vm5.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100,
-        isOffHeap()));
-    vm6.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100,
-        isOffHeap()));
-    vm7.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100,
-        isOffHeap()));
+    vm4.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100));
+    vm5.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100));
+    vm6.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100));
+    vm7.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100));
 
     startSenderInVMs("ln", vm4, vm5, vm6, vm7);
 
-    vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100,
-        isOffHeap()));
-    vm3.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100,
-        isOffHeap()));
+    vm2.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100));
+    vm3.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100));
 
     // before doing any puts, let the senders be running in order to ensure that
     // not a single event will be lost

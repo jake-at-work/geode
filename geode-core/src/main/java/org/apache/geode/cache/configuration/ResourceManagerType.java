@@ -120,7 +120,9 @@ public class ResourceManagerType {
    * {@link String }
    *
    * @return the value of the criticalOffHeapPercentage property
+   * @deprecated No replacement.
    */
+  @Deprecated
   public String getCriticalOffHeapPercentage() {
     return criticalOffHeapPercentage;
   }
@@ -132,7 +134,9 @@ public class ResourceManagerType {
    * {@link String }
    *
    * @param value the value of the criticalOffHeapPercentage property
+   * @deprecated No replacement.
    */
+  @Deprecated
   public void setCriticalOffHeapPercentage(String value) {
     criticalOffHeapPercentage = value;
   }
@@ -144,7 +148,9 @@ public class ResourceManagerType {
    * {@link String }
    *
    * @return the value of the evictionOffHeapPercentage property
+   * @deprecated No replacement.
    */
+  @Deprecated
   public String getEvictionOffHeapPercentage() {
     return evictionOffHeapPercentage;
   }
@@ -156,7 +162,9 @@ public class ResourceManagerType {
    * {@link String }
    *
    * @param value the value of the evictionOffHeapPercentage property
+   * @deprecated No replacement.
    */
+  @Deprecated
   public void setEvictionOffHeapPercentage(String value) {
     evictionOffHeapPercentage = value;
   }

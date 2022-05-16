@@ -514,8 +514,6 @@ public class CacheDistributionAdvisor extends DistributionAdvisor {
     public boolean isGatewayEnabled = false;
     public boolean isPersistent = false;
 
-    public boolean isOffHeap = false;
-
     // moved initialMembershipVersion to DistributionAdvisor.Profile
     // moved serialNumber to DistributionAdvisor.Profile
 
@@ -645,9 +643,6 @@ public class CacheDistributionAdvisor extends DistributionAdvisor {
       if (!asyncEventQueueIds.isEmpty()) {
         s |= ASYNC_EVENT_QUEUE_IDS_MASK;
       }
-      if (isOffHeap) {
-        s |= IS_OFF_HEAP_MASK;
-      }
       if (!cacheServiceProfiles.isEmpty()) {
         s |= CACHE_SERVICE_PROFILES_MASK;
       }
@@ -728,7 +723,6 @@ public class CacheDistributionAdvisor extends DistributionAdvisor {
       hasCacheServer = ((s & HAS_CACHE_SERVER_MASK) != 0);
       requiresOldValueInEvents = ((s & REQUIRES_OLD_VALUE_MASK) != 0);
       persistenceInitialized = (s & PERSISTENCE_INITIALIZED_MASK) != 0;
-      isOffHeap = (s & IS_OFF_HEAP_MASK) != 0;
     }
 
     /**
@@ -927,7 +921,6 @@ public class CacheDistributionAdvisor extends DistributionAdvisor {
       }
       sb.append("; gatewaySenderIds =").append(gatewaySenderIds);
       sb.append("; asyncEventQueueIds =").append(asyncEventQueueIds);
-      sb.append("; IsOffHeap=").append(isOffHeap);
       sb.append("; cacheServiceProfiles=").append(cacheServiceProfiles);
     }
   }

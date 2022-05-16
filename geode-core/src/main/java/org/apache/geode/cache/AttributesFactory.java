@@ -431,7 +431,6 @@ public class AttributesFactory<K, V> {
     }
 
     this.regionAttributes.compressor = regionAttributes.getCompressor();
-    this.regionAttributes.offHeap = regionAttributes.getOffHeap();
   }
 
   // CALLBACKS
@@ -1123,9 +1122,6 @@ public class AttributesFactory<K, V> {
         regionAttributes.partitionAttributes = partition;
         regionAttributes.setHasPartitionAttributes(true);
       }
-
-      ((PartitionAttributesImpl) regionAttributes.partitionAttributes)
-          .setOffHeap(regionAttributes.offHeap);
     } else {
       regionAttributes.partitionAttributes = null;
       regionAttributes.setHasPartitionAttributes(false);
@@ -1287,15 +1283,10 @@ public class AttributesFactory<K, V> {
    *
    * @since Geode 1.0
    * @param offHeap boolean flag to enable off-heap memory
+   * @deprecated No replacement.
    */
-  public void setOffHeap(boolean offHeap) {
-    regionAttributes.offHeap = offHeap;
-    regionAttributes.setHasOffHeap(true);
-
-    if (regionAttributes.partitionAttributes != null) {
-      ((PartitionAttributesImpl) regionAttributes.partitionAttributes).setOffHeap(offHeap);
-    }
-  }
+  @Deprecated
+  public void setOffHeap(boolean offHeap) {}
 
   // FACTORY METHOD
 
@@ -1325,10 +1316,6 @@ public class AttributesFactory<K, V> {
     if (regionAttributes.hasDataPolicy() && regionAttributes.dataPolicy.withPartitioning()
         && regionAttributes.partitionAttributes == null) {
       regionAttributes.partitionAttributes = (new PartitionAttributesFactory()).create();
-      // fix bug #52033 by invoking setOffHeap now (localMaxMemory may now be the temporary
-      // placeholder for off-heap until DistributedSystem is created
-      ((PartitionAttributesImpl) regionAttributes.partitionAttributes)
-          .setOffHeap(regionAttributes.getOffHeap());
     }
     // As of 6.5 we automatically enable stats if expiration is used.
     {
@@ -1592,8 +1579,6 @@ public class AttributesFactory<K, V> {
     private boolean isCloningEnabled = false;
     Compressor compressor = null;
 
-    boolean offHeap = false;
-
     /**
      * Constructs an instance of {@code RegionAttributes} with default settings.
      *
@@ -1639,7 +1624,6 @@ public class AttributesFactory<K, V> {
       buf.append("; AsyncEventQueueIds=").append(asyncEventQueueIds);
       buf.append("; compressor=")
           .append(compressor == null ? null : compressor.getClass().getName());
-      buf.append("; offHeap=").append(offHeap);
       return buf.toString();
     }
 
@@ -2028,11 +2012,6 @@ public class AttributesFactory<K, V> {
     @Override
     public Compressor getCompressor() {
       return compressor;
-    }
-
-    @Override
-    public boolean getOffHeap() {
-      return offHeap;
     }
   }
 }

@@ -305,7 +305,6 @@ public class RegionMapCommitPutTest {
     assertThat(pendingCallbacks).doesNotContain(event);
     verify(event, never()).changeRegionToBucketsOwner();
     verify(event, never()).setOriginRemote(anyBoolean());
-    verify(event, times(1)).release();
   }
 
   @Test
@@ -319,7 +318,6 @@ public class RegionMapCommitPutTest {
     RegionEntry result = instance.put();
 
     assertThat(result).isNotNull();
-    verify(event, never()).release();
   }
 
   @Test

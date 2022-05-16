@@ -54,7 +54,6 @@ import org.apache.geode.internal.cache.GemFireCacheImpl.ReplyProcessor21Factory;
 import org.apache.geode.internal.cache.control.InternalResourceManager;
 import org.apache.geode.internal.cache.control.ResourceAdvisor;
 import org.apache.geode.internal.cache.eviction.HeapEvictor;
-import org.apache.geode.internal.cache.eviction.OffHeapEvictor;
 import org.apache.geode.internal.security.SecurityService;
 import org.apache.geode.management.internal.JmxManagerAdvisor;
 import org.apache.geode.pdx.internal.TypeRegistry;
@@ -142,18 +141,6 @@ public class GemFireCacheImplCloseTest {
     gemFireCacheImpl.close();
 
     verify(heapEvictor)
-        .close();
-  }
-
-  @Test
-  public void close_closesOffHeapEvictor() {
-    gemFireCacheImpl = gemFireCacheImpl(false);
-    OffHeapEvictor offHeapEvictor = mock(OffHeapEvictor.class);
-    gemFireCacheImpl.setOffHeapEvictor(offHeapEvictor);
-
-    gemFireCacheImpl.close();
-
-    verify(offHeapEvictor)
         .close();
   }
 

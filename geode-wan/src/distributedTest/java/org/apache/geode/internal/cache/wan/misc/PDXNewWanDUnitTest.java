@@ -74,12 +74,12 @@ public class PDXNewWanDUnitTest extends WANTestBase {
     vm3.invoke(() -> WANTestBase.createSender("ln", 2, false, 100, 10, false, false, null, true));
 
     vm2.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null));
 
     vm3.invoke(() -> WANTestBase.startSender("ln"));
 
     vm3.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln"));
 
     vm3.invoke(() -> WANTestBase.doPutsPDXSerializable(getTestMethodName() + "_RR", 1));
 
@@ -105,12 +105,12 @@ public class PDXNewWanDUnitTest extends WANTestBase {
     vm3.invoke(() -> WANTestBase.createSender("ln", 2, false, 100, 10, false, false, null, true));
 
     vm2.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null));
 
     vm3.invoke(() -> WANTestBase.startSender("ln"));
 
     vm3.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln"));
 
     vm3.invoke(() -> WANTestBase.doPutsPDXSerializable(getTestMethodName() + "_RR", 1));
 
@@ -125,7 +125,7 @@ public class PDXNewWanDUnitTest extends WANTestBase {
     vm2.invoke(() -> WANTestBase.createReceiver_PDX(nyPort));
 
     vm2.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null));
 
     vm3.invoke(() -> WANTestBase.doPutsPDXSerializable(getTestMethodName() + "_RR", 2));
 
@@ -147,12 +147,12 @@ public class PDXNewWanDUnitTest extends WANTestBase {
     vm3.invoke(() -> WANTestBase.createSender("ln", 2, false, 100, 10, false, false, null, true));
 
     vm2.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null));
 
     vm3.invoke(() -> WANTestBase.startSender("ln"));
 
     vm3.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln"));
 
     vm3.invoke(() -> WANTestBase.doPutsPDXSerializable(getTestMethodName() + "_RR", 1));
 
@@ -168,7 +168,7 @@ public class PDXNewWanDUnitTest extends WANTestBase {
     vm2.invoke(() -> WANTestBase.createReceiver_PDX(nyPort));
 
     vm2.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null));
 
 
     try {
@@ -213,12 +213,12 @@ public class PDXNewWanDUnitTest extends WANTestBase {
     vm3.invoke(() -> WANTestBase.createSender("ln", 2, false, 100, 10, false, false, null, true));
 
     vm2.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null));
 
     vm3.invoke(() -> WANTestBase.startSender("ln"));
 
     vm3.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln"));
 
     vm3.invoke(() -> WANTestBase.doPutsPDXSerializable(getTestMethodName() + "_RR", 1));
 
@@ -245,7 +245,7 @@ public class PDXNewWanDUnitTest extends WANTestBase {
       vm3.invoke(() -> WANTestBase.startSender("ln"));
 
       vm3.invoke(
-          () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln", isOffHeap()));
+          () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln"));
 
       // Define a different type from vm3
       vm3.invoke(() -> WANTestBase.doPutsPDXSerializable2(getTestMethodName() + "_RR", 2));
@@ -293,12 +293,9 @@ public class PDXNewWanDUnitTest extends WANTestBase {
     vm4.invoke(() -> WANTestBase.createSender("tk", 3, false, 100, 10, false, false, null, true));
     vm5.invoke(() -> WANTestBase.createSender("ln", 1, false, 100, 10, false, false, null, true));
     vm5.invoke(() -> WANTestBase.createSender("ny", 2, false, 100, 10, false, false, null, true));
-    vm3.invoke(() -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ny,tk",
-        isOffHeap()));
-    vm4.invoke(() -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln,tk",
-        isOffHeap()));
-    vm5.invoke(() -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln,ny",
-        isOffHeap()));
+    vm3.invoke(() -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ny,tk"));
+    vm4.invoke(() -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln,tk"));
+    vm5.invoke(() -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln,ny"));
 
     // Start all of the senders
     vm3.invoke(() -> WANTestBase.startSender("ny"));
@@ -347,10 +344,10 @@ public class PDXNewWanDUnitTest extends WANTestBase {
     vm3.invoke(() -> WANTestBase.createSender("ln", 2, false, 100, 10, false, false, null, true));
 
     vm2.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null));
 
     vm3.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln"));
 
     vm3.invoke(() -> WANTestBase.doPutsPDXSerializable(getTestMethodName() + "_RR", 10));
 
@@ -374,8 +371,7 @@ public class PDXNewWanDUnitTest extends WANTestBase {
     Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2);
-    vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 0, 2,
-        isOffHeap()));
+    vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 0, 2));
     vm2.invoke(WANTestBase::createReceiver);
 
     createCacheInVMs(lnPort, vm3);
@@ -385,8 +381,7 @@ public class PDXNewWanDUnitTest extends WANTestBase {
 
     vm3.invoke(() -> WANTestBase.startSender("ln"));
 
-    vm3.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 0, 2,
-        isOffHeap()));
+    vm3.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 0, 2));
 
     vm3.invoke(() -> WANTestBase.doPutsPDXSerializable(getTestMethodName() + "_PR", 1));
 
@@ -404,11 +399,9 @@ public class PDXNewWanDUnitTest extends WANTestBase {
 
     vm3.invoke(() -> WANTestBase.createSender("ln", 2, false, 100, 10, false, false, null, true));
 
-    vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 0, 2,
-        isOffHeap()));
+    vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 0, 2));
 
-    vm3.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 0, 2,
-        isOffHeap()));
+    vm3.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 0, 2));
 
     vm3.invoke(() -> WANTestBase.doPutsPDXSerializable(getTestMethodName() + "_PR", 20));
 
@@ -432,8 +425,7 @@ public class PDXNewWanDUnitTest extends WANTestBase {
     Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2);
-    vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 5,
-        isOffHeap()));
+    vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 5));
     vm2.invoke(WANTestBase::createReceiver);
 
     createCacheInVMs(lnPort, vm3, vm4);
@@ -442,10 +434,8 @@ public class PDXNewWanDUnitTest extends WANTestBase {
 
     vm3.invoke(() -> WANTestBase.startSender("ln"));
 
-    vm3.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 5,
-        isOffHeap()));
-    vm4.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 5,
-        isOffHeap()));
+    vm3.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 5));
+    vm4.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 5));
 
     vm3.invoke(() -> WANTestBase.doPutsPDXSerializable(getTestMethodName() + "_PR", 10));
 
@@ -464,13 +454,10 @@ public class PDXNewWanDUnitTest extends WANTestBase {
 
     vm3.invoke(() -> WANTestBase.createSender("ln", 2, false, 100, 10, false, false, null, true));
 
-    vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 5,
-        isOffHeap()));
+    vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 5));
 
-    vm3.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 5,
-        isOffHeap()));
-    vm4.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 5,
-        isOffHeap()));
+    vm3.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 5));
+    vm4.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 5));
 
     vm3.invoke(() -> WANTestBase.doPutsPDXSerializable(getTestMethodName() + "_PR", 10));
 
@@ -494,13 +481,11 @@ public class PDXNewWanDUnitTest extends WANTestBase {
     Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2);
-    vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 0, 1,
-        isOffHeap()));
+    vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 0, 1));
     vm2.invoke(WANTestBase::createReceiver);
 
     vm3.invoke(() -> WANTestBase.createCache(lnPort));
-    vm3.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 0, 1,
-        isOffHeap()));
+    vm3.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 0, 1));
     vm3.invoke(() -> WANTestBase.createSender("ln", 2, true, 100, 10, false, false, null, true));
 
     vm3.invoke(() -> WANTestBase.startSender("ln"));
@@ -522,10 +507,8 @@ public class PDXNewWanDUnitTest extends WANTestBase {
     // just a peer
     createCacheInVMs(nyPort, vm2, vm3);
     vm2.invoke(WANTestBase::createReceiver);
-    vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 0, 4,
-        isOffHeap()));
-    vm3.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 0, 4,
-        isOffHeap()));
+    vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 0, 4));
+    vm3.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 0, 4));
 
     AsyncInvocation deserializationFuture;
     try {
@@ -542,11 +525,11 @@ public class PDXNewWanDUnitTest extends WANTestBase {
       vm5.invoke(() -> WANTestBase.createSender("ln", 2, true, 100, 10, false, false, null, false));
 
       // Create the partitioned region in vm4
-      vm4.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 0, 4,
-          isOffHeap()));
+      vm4.invoke(
+          () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 0, 4));
 
-      vm5.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 0, 4,
-          isOffHeap()));
+      vm5.invoke(
+          () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 0, 4));
 
       vm5.invoke(() -> {
         Region region = cache.getRegion(getTestMethodName() + "_PR");
@@ -627,16 +610,14 @@ public class PDXNewWanDUnitTest extends WANTestBase {
     Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2);
-    vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 0, 1,
-        isOffHeap()));
+    vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 0, 1));
     vm2.invoke(WANTestBase::createReceiver);
 
     createCacheInVMs(lnPort, vm3);
 
     vm3.invoke(() -> WANTestBase.createSender("ln", 2, true, 100, 10, false, false, null, true));
 
-    vm3.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 0, 1,
-        isOffHeap()));
+    vm3.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 0, 1));
 
     vm3.invoke(() -> WANTestBase.startSender("ln"));
 
@@ -656,11 +637,9 @@ public class PDXNewWanDUnitTest extends WANTestBase {
 
     vm3.invoke(() -> WANTestBase.createSender("ln", 2, true, 100, 10, false, false, null, true));
 
-    vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 0, 2,
-        isOffHeap()));
+    vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 0, 2));
 
-    vm3.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 0, 2,
-        isOffHeap()));
+    vm3.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 0, 2));
 
     vm3.invoke(() -> WANTestBase.doPutsPDXSerializable(getTestMethodName() + "_PR", 10));
 
@@ -685,13 +664,10 @@ public class PDXNewWanDUnitTest extends WANTestBase {
     vm3.invoke(() -> WANTestBase.createSender("ln", 2, true, 100, 10, false, false, null, true));
     vm4.invoke(() -> WANTestBase.createSender("ln", 2, true, 100, 10, false, false, null, true));
 
-    vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 0, 2,
-        isOffHeap()));
+    vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 0, 2));
 
-    vm3.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 0, 2,
-        isOffHeap()));
-    vm4.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 0, 2,
-        isOffHeap()));
+    vm3.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 0, 2));
+    vm4.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 0, 2));
 
     startSenderInVMs("ln", vm3, vm4);
 
@@ -713,13 +689,10 @@ public class PDXNewWanDUnitTest extends WANTestBase {
     vm3.invoke(() -> WANTestBase.createSender("ln", 2, true, 100, 10, false, false, null, true));
     vm4.invoke(() -> WANTestBase.createSender("ln", 2, true, 100, 10, false, false, null, true));
 
-    vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 0, 2,
-        isOffHeap()));
+    vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 0, 2));
 
-    vm3.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 0, 2,
-        isOffHeap()));
-    vm4.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 0, 2,
-        isOffHeap()));
+    vm3.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 0, 2));
+    vm4.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 0, 2));
 
     vm3.invoke(() -> WANTestBase.doPutsPDXSerializable(getTestMethodName() + "_PR", 10));
 
@@ -745,12 +718,12 @@ public class PDXNewWanDUnitTest extends WANTestBase {
         new PDXGatewayEventFilter(), true));
 
     vm2.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null));
 
     vm3.invoke(() -> WANTestBase.startSender("ln"));
 
     vm3.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln"));
 
     vm3.invoke(() -> WANTestBase.doPutsPDXSerializable(getTestMethodName() + "_RR", 1));
 
@@ -775,13 +748,10 @@ public class PDXNewWanDUnitTest extends WANTestBase {
     vm4.invoke(() -> WANTestBase.createSender("ln", 2, true, 100, 10, false, false,
         new PDXGatewayEventFilter(), true));
 
-    vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 0, 2,
-        isOffHeap()));
+    vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 0, 2));
 
-    vm3.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 0, 2,
-        isOffHeap()));
-    vm4.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 0, 2,
-        isOffHeap()));
+    vm3.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 0, 2));
+    vm4.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 0, 2));
 
     startSenderInVMs("ln", vm3, vm4);
 
@@ -810,13 +780,11 @@ public class PDXNewWanDUnitTest extends WANTestBase {
 
     vm3.invoke(() -> WANTestBase.createSender("ln", 2, false, 100, 10, false, false, null, true));
 
-    vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 0, 2,
-        isOffHeap()));
+    vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 0, 2));
 
     vm3.invoke(() -> WANTestBase.startSender("ln"));
 
-    vm3.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 0, 2,
-        isOffHeap()));
+    vm3.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 0, 2));
 
     vm3.invoke(() -> WANTestBase.doPutsPDXSerializable(getTestMethodName() + "_PR", 1));
 
@@ -826,10 +794,8 @@ public class PDXNewWanDUnitTest extends WANTestBase {
 
     createReceiverInVMs(vm2, vm4);
 
-    vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 2,
-        isOffHeap()));
-    vm4.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 2,
-        isOffHeap()));
+    vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 2));
+    vm4.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 2));
 
     vm3.invoke(() -> WANTestBase.doPutsPDXSerializable(getTestMethodName() + "_PR", 1));
 

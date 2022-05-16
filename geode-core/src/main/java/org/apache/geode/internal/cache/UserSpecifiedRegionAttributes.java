@@ -118,13 +118,6 @@ public abstract class UserSpecifiedRegionAttributes<K, V> implements RegionAttri
    */
   private boolean hasCompressor = false;
 
-  /**
-   * Whether this region has enable off-heap memory set.
-   *
-   * @since Geode 1.0
-   */
-  private boolean hasOffHeap = false;
-
   public boolean hasCacheLoader() {
     return hasCacheLoader;
   }
@@ -279,10 +272,6 @@ public abstract class UserSpecifiedRegionAttributes<K, V> implements RegionAttri
 
   public boolean hasCompressor() {
     return hasCompressor;
-  }
-
-  public boolean hasOffHeap() {
-    return hasOffHeap;
   }
 
   public boolean hasCloningEnabled() {
@@ -458,10 +447,6 @@ public abstract class UserSpecifiedRegionAttributes<K, V> implements RegionAttri
     this.hasCompressor = hasCompressor;
   }
 
-  public void setHasOffHeap(boolean hasOffHeap) {
-    this.hasOffHeap = hasOffHeap;
-  }
-
   public void setAllHasFields(boolean b) {
     int hasCounter = 0;
     Field[] thisFields = UserSpecifiedRegionAttributes.class.getDeclaredFields();
@@ -521,7 +506,7 @@ public abstract class UserSpecifiedRegionAttributes<K, V> implements RegionAttri
     hasDiskSynchronous = val;
   }
 
-  private static final int HAS_COUNT = 41;
+  private static final int HAS_COUNT = 40;
 
   public void initHasFields(UserSpecifiedRegionAttributes<K, V> other) {
     Field[] thisFields = UserSpecifiedRegionAttributes.class.getDeclaredFields();

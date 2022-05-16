@@ -603,8 +603,8 @@ fromData,27
 toData,27
 
 org/apache/geode/internal/admin/remote/RemoteRegionAttributes,2
-fromData,398
-toData,353
+fromData,395
+toData,350
 
 org/apache/geode/internal/admin/remote/RemoteRegionSnapshot,2
 fromData,59
@@ -1059,7 +1059,7 @@ toData,11
 
 org/apache/geode/internal/cache/PartitionAttributesImpl,2
 fromData,102
-toData,97
+toData,93
 
 org/apache/geode/internal/cache/PartitionRegionConfig,2
 fromData,207
@@ -1267,8 +1267,8 @@ org/apache/geode/internal/cache/control/MemoryThresholds$MemoryState,1
 toData,12
 
 org/apache/geode/internal/cache/control/ResourceAdvisor$ResourceManagerProfile,2
-fromData,67
-toData,100
+fromData,56
+toData,83
 
 org/apache/geode/internal/cache/control/ResourceAdvisor$ResourceProfileMessage,2
 fromData,88

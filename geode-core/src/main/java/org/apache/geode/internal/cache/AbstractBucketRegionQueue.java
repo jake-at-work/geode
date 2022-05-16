@@ -38,7 +38,6 @@ import org.apache.geode.internal.cache.wan.AbstractGatewaySenderEventProcessor;
 import org.apache.geode.internal.cache.wan.GatewaySenderEventImpl;
 import org.apache.geode.internal.cache.wan.GatewaySenderStats;
 import org.apache.geode.internal.cache.wan.parallel.ConcurrentParallelGatewaySenderQueue;
-import org.apache.geode.internal.offheap.OffHeapClearRequired;
 import org.apache.geode.internal.statistics.StatisticsClock;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.util.internal.GeodeGlossary;
@@ -242,17 +241,10 @@ public abstract class AbstractBucketRegionQueue extends BucketRegion {
                   logger.debug("For bucket {} , enqueing event {} caused exception", getId(), event,
                       e);
                 }
-              } finally {
-                if (event != null) {
-                  event.release();
-                }
               }
             }
           } finally {
             if (!tempQueue.isEmpty()) {
-              for (GatewaySenderEventImpl e : tempQueue) {
-                e.release();
-              }
               tempQueue.clear();
             }
             getInitializationLock().writeLock().unlock();
@@ -274,20 +266,14 @@ public abstract class AbstractBucketRegionQueue extends BucketRegion {
       Object expectedOldValue, boolean requireOldValue, long lastModified,
       boolean overwriteDestroyed, boolean invokeCallbacks, boolean throwConcurrentModification)
       throws TimeoutException, CacheWriterException {
-    try {
-      boolean success = super.virtualPut(event, ifNew, ifOld, expectedOldValue, requireOldValue,
-          lastModified, overwriteDestroyed, invokeCallbacks, throwConcurrentModification);
-      if (success) {
-        if (logger.isDebugEnabled()) {
-          logger.debug("Key : ----> {}", event.getKey());
-        }
-      } else {
-        GatewaySenderEventImpl.release(event.getRawNewValue());
+    boolean success = super.virtualPut(event, ifNew, ifOld, expectedOldValue, requireOldValue,
+        lastModified, overwriteDestroyed, invokeCallbacks, throwConcurrentModification);
+    if (success) {
+      if (logger.isDebugEnabled()) {
+        logger.debug("Key : ----> {}", event.getKey());
       }
-      return success;
-    } finally {
-      GatewaySenderEventImpl.release(event.getRawOldValue());
     }
+    return success;
 
   }
 
@@ -342,7 +328,6 @@ public abstract class AbstractBucketRegionQueue extends BucketRegion {
     // entry everytime
     // EntryEventImpl event = getPartitionedRegion().newUpdateEntryEvent(key,
     // value, null);
-    event.copyOffHeapToHeap();
 
     if (logger.isDebugEnabled()) {
       logger.debug("Value : {}", event.getRawNewValue());
@@ -360,10 +345,6 @@ public abstract class AbstractBucketRegionQueue extends BucketRegion {
       if (isBucketDestroyed()) {
         throw new ForceReattemptException("Bucket moved", rde);
       }
-    } finally {
-      if (!didPut) {
-        GatewaySenderEventImpl.release(value);
-      }
     }
 
     // check again if the key exists in failedBatchRemovalMessageKeys,
@@ -380,16 +361,14 @@ public abstract class AbstractBucketRegionQueue extends BucketRegion {
 
   @Override
   public void closeEntries() {
-    OffHeapClearRequired.doWithOffHeapClear(AbstractBucketRegionQueue.super::closeEntries);
+    super.closeEntries();
     clearQueues();
-
   }
 
   @Override
   public Set<VersionSource> clearEntries(final RegionVersionVector rvv) {
     final AtomicReference<Set<VersionSource>> result = new AtomicReference<>();
-    OffHeapClearRequired.doWithOffHeapClear(
-        () -> result.set(AbstractBucketRegionQueue.super.clearEntries(rvv)));
+    result.set(AbstractBucketRegionQueue.super.clearEntries(rvv));
     clearQueues();
     return result.get();
   }

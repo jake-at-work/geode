@@ -289,7 +289,6 @@ public class SerialGatewaySenderEventProcessor extends AbstractGatewaySenderEven
               GatewaySenderEventImpl ge = (GatewaySenderEventImpl) o;
               EventWrapper unprocessedEvent = unprocessedEvents.remove(ge.getEventId());
               if (unprocessedEvent != null) {
-                unprocessedEvent.event.release();
                 if (unprocessedEvents.isEmpty()) {
                   break;
                 }
@@ -325,16 +324,11 @@ public class SerialGatewaySenderEventProcessor extends AbstractGatewaySenderEven
               seca.initializeReceipientDSIds(Collections.singletonList(sender.getRemoteDSId()));
             }
             it.remove();
-            boolean queuedEvent = false;
             try {
-              queuedEvent = queuePrimaryEvent(gatewayEvent);
+              queuePrimaryEvent(gatewayEvent);
             } catch (IOException | CacheException ex) {
               if (!stopped()) {
                 logger.warn(String.format("Event dropped during failover: %s", gatewayEvent), ex);
-              }
-            } finally {
-              if (!queuedEvent) {
-                gatewayEvent.release();
               }
             }
           }
@@ -362,13 +356,6 @@ public class SerialGatewaySenderEventProcessor extends AbstractGatewaySenderEven
     synchronized (unprocessedEventsLock) {
       Map<EventID, EventWrapper> m = unprocessedEvents;
       if (m != null) {
-        for (EventWrapper ew : m.values()) {
-          GatewaySenderEventImpl gatewayEvent = ew.event;
-          if (logger.isDebugEnabled()) {
-            logger.debug("releaseUnprocessedEvents:" + gatewayEvent);
-          }
-          gatewayEvent.release();
-        }
         unprocessedEvents = null;
       }
     }
@@ -436,19 +423,7 @@ public class SerialGatewaySenderEventProcessor extends AbstractGatewaySenderEven
       senderEvent = new GatewaySenderEventImpl(operation, event, substituteValue,
           getTransactionMetadataDisposition(isLastEventInTransaction));
 
-      boolean queuedEvent = false;
-      try {
-        queuedEvent = queuePrimaryEvent(senderEvent);
-      } finally {
-        // When queuePrimaryEvent() failed with some exception, it could
-        // occur after the GatewaySenderEventImpl is put onto the queue.
-        // In that case, the GatewaySenderEventImpl could be released here,
-        // and IllegalStateException could be thrown if getDeserializedValue is called
-        // when the event is accessed through the region queue.
-        if (!queuedEvent) {
-          GatewaySenderEventImpl.release(senderEvent);
-        }
-      }
+      queuePrimaryEvent(senderEvent);
     }
   }
 
@@ -624,7 +599,6 @@ public class SerialGatewaySenderEventProcessor extends AbstractGatewaySenderEven
       // now we can safely use the unprocessedEvents field
       EventWrapper ew = unprocessedEvents.remove(eventId);
       if (ew != null) {
-        ew.event.release();
         statistics.incUnprocessedEventsRemovedByPrimary();
         return true;
       } else if (addToUnprocessedTokens) {
@@ -694,7 +668,6 @@ public class SerialGatewaySenderEventProcessor extends AbstractGatewaySenderEven
               sender.getId(), gatewayEvent.getEventId(), gatewayEvent.getKey(),
               gatewayEvent.getValueAsString(true));
         }
-        ew.event.release();
         statistics.incUnprocessedEventsRemovedByPrimary();
       }
       reapOld(false);
@@ -702,66 +675,58 @@ public class SerialGatewaySenderEventProcessor extends AbstractGatewaySenderEven
   }
 
   private void basicHandleSecondaryEvent(final GatewaySenderEventImpl gatewayEvent) {
-    boolean freeGatewayEvent = true;
-    try {
-      GatewaySenderStats statistics = sender.getStatistics();
-      // Get the event from the map
+    GatewaySenderStats statistics = sender.getStatistics();
+    // Get the event from the map
 
-      if (!getSender().getGatewayEventFilters().isEmpty()) {
-        try {
-          gatewayEvent.initialize();
-        } catch (Exception e) {
-          logger.warn(
-              String.format("Event failed to be initialized: %s", gatewayEvent), e);
-        }
-        if (!sender.beforeEnqueue(gatewayEvent)) {
-          statistics.incEventsFiltered();
-          return;
-        }
+    if (!getSender().getGatewayEventFilters().isEmpty()) {
+      try {
+        gatewayEvent.initialize();
+      } catch (Exception e) {
+        logger.warn(
+            String.format("Event failed to be initialized: %s", gatewayEvent), e);
       }
-      Assert.assertHoldsLock(unprocessedEventsLock, true);
-      Assert.assertTrue(unprocessedEvents != null);
-      // @todo add an assertion that !getPrimary()
-      // now we can safely use the unprocessedEvents field
-      Long v = unprocessedTokens.remove(gatewayEvent.getEventId());
-
-      if (v == null) {
-        // first time for the event
-        if (logger.isTraceEnabled()) {
-          logger.trace("{}: fromSecondary event {}:{}->{} added from unprocessed events map",
-              sender.getId(), gatewayEvent.getEventId(), gatewayEvent.getKey(),
-              gatewayEvent.getValueAsString(true));
-        }
-        {
-          EventWrapper mapValue = new EventWrapper(gatewayEvent);
-          EventWrapper oldv = unprocessedEvents.put(gatewayEvent.getEventId(), mapValue);
-          if (oldv == null) {
-            freeGatewayEvent = false;
-            statistics.incUnprocessedEventsAddedBySecondary();
-          } else {
-            // put old one back in
-            unprocessedEvents.put(gatewayEvent.getEventId(), oldv);
-            // already added by secondary (i.e. hub)
-            logger.warn(
-                "{}: The secondary map already contained an event from hub {} so ignoring new event {}.",
-                sender.getId(), v, gatewayEvent);
-          }
-        }
-      } else {
-        // token already added by primary already removed
-        if (logger.isTraceEnabled()) {
-          logger.trace("{}: Secondary created event {}:{}->{} removed from unprocessed events map",
-              sender.getId(), gatewayEvent.getEventId(), gatewayEvent.getKey(),
-              gatewayEvent.getValueAsString(true));
-        }
-        statistics.incUnprocessedTokensRemovedBySecondary();
-      }
-      reapOld(false);
-    } finally {
-      if (freeGatewayEvent) {
-        gatewayEvent.release();
+      if (!sender.beforeEnqueue(gatewayEvent)) {
+        statistics.incEventsFiltered();
+        return;
       }
     }
+    Assert.assertHoldsLock(unprocessedEventsLock, true);
+    Assert.assertTrue(unprocessedEvents != null);
+    // @todo add an assertion that !getPrimary()
+    // now we can safely use the unprocessedEvents field
+    Long v = unprocessedTokens.remove(gatewayEvent.getEventId());
+
+    if (v == null) {
+      // first time for the event
+      if (logger.isTraceEnabled()) {
+        logger.trace("{}: fromSecondary event {}:{}->{} added from unprocessed events map",
+            sender.getId(), gatewayEvent.getEventId(), gatewayEvent.getKey(),
+            gatewayEvent.getValueAsString(true));
+      }
+      {
+        EventWrapper mapValue = new EventWrapper(gatewayEvent);
+        EventWrapper oldv = unprocessedEvents.put(gatewayEvent.getEventId(), mapValue);
+        if (oldv == null) {
+          statistics.incUnprocessedEventsAddedBySecondary();
+        } else {
+          // put old one back in
+          unprocessedEvents.put(gatewayEvent.getEventId(), oldv);
+          // already added by secondary (i.e. hub)
+          logger.warn(
+              "{}: The secondary map already contained an event from hub {} so ignoring new event {}.",
+              sender.getId(), v, gatewayEvent);
+        }
+      }
+    } else {
+      // token already added by primary already removed
+      if (logger.isTraceEnabled()) {
+        logger.trace("{}: Secondary created event {}:{}->{} removed from unprocessed events map",
+            sender.getId(), gatewayEvent.getEventId(), gatewayEvent.getKey(),
+            gatewayEvent.getValueAsString(true));
+      }
+      statistics.incUnprocessedTokensRemovedBySecondary();
+    }
+    reapOld(false);
   }
 
   /**
@@ -793,7 +758,6 @@ public class SerialGatewaySenderEventProcessor extends AbstractGatewaySenderEven
             EventWrapper ew = me.getValue();
             if (ew.timeout <= now) {
               it.remove();
-              ew.event.release();
             } else {
               // all done try again
               break;
@@ -857,7 +821,6 @@ public class SerialGatewaySenderEventProcessor extends AbstractGatewaySenderEven
         EntryEventImpl.create((LocalRegion) queue.getRegion(), Operation.DESTROY, (long) index,
             null/* newValue */, null, false, sender.getCache().getMyId());
     destroyEvent.setEventId(dropEvent.getEventId());
-    destroyEvent.disallowOffHeapValues();
     destroyEvent.setTailKey(-1L);
     if (logger.isDebugEnabled()) {
       logger.debug(

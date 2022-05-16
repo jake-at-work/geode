@@ -66,8 +66,6 @@ import org.apache.geode.internal.cache.tier.sockets.VersionedObjectList;
 import org.apache.geode.internal.cache.versions.ConcurrentCacheModificationException;
 import org.apache.geode.internal.cache.versions.VersionTag;
 import org.apache.geode.internal.logging.log4j.LogMarker;
-import org.apache.geode.internal.offheap.annotations.Released;
-import org.apache.geode.internal.offheap.annotations.Retained;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -330,13 +328,11 @@ public class RemoveAllPRMessage extends PartitionMessageWithDirectReply {
   }
 
   /* we need a event with content for waitForNodeOrCreateBucket() */
-  @Retained
   public EntryEventImpl getFirstEvent(PartitionedRegion r) {
     if (removeAllPRDataSize == 0) {
       return null;
     }
 
-    @Retained
     EntryEventImpl ev = EntryEventImpl.create(r, removeAllPRData[0].getOp(),
         removeAllPRData[0].getKey(), null /* value */, callbackArg, false /* originRemote */,
         getSender(), true/* generate Callbacks */, removeAllPRData[0].getEventID());
@@ -374,183 +370,164 @@ public class RemoveAllPRMessage extends PartitionMessageWithDirectReply {
     }
 
     DistributedRemoveAllOperation op = null;
-    @Released
     EntryEventImpl baseEvent = null;
     BucketRegion bucketRegion = null;
     PartitionedRegionDataStore ds = r.getDataStore();
     InternalDistributedMember myId = r.getDistributionManager().getDistributionManagerId();
-    try {
 
-      if (!notificationOnly) {
-        // bucketRegion is not null only when !notificationOnly
-        bucketRegion = ds.getInitializedBucketForId(null, bucketId);
+    if (!notificationOnly) {
+      // bucketRegion is not null only when !notificationOnly
+      bucketRegion = ds.getInitializedBucketForId(null, bucketId);
 
-        versions = new VersionedObjectList(removeAllPRDataSize, true,
-            bucketRegion.getAttributes().getConcurrencyChecksEnabled());
+      versions = new VersionedObjectList(removeAllPRDataSize, true,
+          bucketRegion.getAttributes().getConcurrencyChecksEnabled());
 
-        // create a base event and a DPAO for RemoveAllMessage distributed btw redundant buckets
-        baseEvent = EntryEventImpl.create(bucketRegion, Operation.REMOVEALL_DESTROY, null, null,
-            callbackArg, true, eventSender, !skipCallbacks, true);
-        // set baseEventId to the first entry's event id. We need the thread id for DACE
-        baseEvent.setEventId(removeAllPRData[0].getEventID());
-        if (bridgeContext != null) {
-          baseEvent.setContext(bridgeContext);
-        }
-        baseEvent.setPossibleDuplicate(posDup);
-        if (logger.isDebugEnabled()) {
-          logger.debug(
-              "RemoveAllPRMessage.doLocalRemoveAll: eventSender is {}, baseEvent is {}, msg is {}",
-              eventSender, baseEvent, this);
-        }
-        op = new DistributedRemoveAllOperation(baseEvent, removeAllPRDataSize, false);
+      // create a base event and a DPAO for RemoveAllMessage distributed btw redundant buckets
+      baseEvent = EntryEventImpl.create(bucketRegion, Operation.REMOVEALL_DESTROY, null, null,
+          callbackArg, true, eventSender, !skipCallbacks, true);
+      // set baseEventId to the first entry's event id. We need the thread id for DACE
+      baseEvent.setEventId(removeAllPRData[0].getEventID());
+      if (bridgeContext != null) {
+        baseEvent.setContext(bridgeContext);
       }
-      Object[] keys = getKeysToBeLocked();
+      baseEvent.setPossibleDuplicate(posDup);
+      if (logger.isDebugEnabled()) {
+        logger.debug(
+            "RemoveAllPRMessage.doLocalRemoveAll: eventSender is {}, baseEvent is {}, msg is {}",
+            eventSender, baseEvent, this);
+      }
+      op = new DistributedRemoveAllOperation(baseEvent, removeAllPRDataSize, false);
+    }
+    Object[] keys = getKeysToBeLocked();
 
-      if (!notificationOnly) {
-        boolean locked = false;
-        try {
-          if (removeAllPRData.length > 0) {
-            if (posDup && bucketRegion.getConcurrencyChecksEnabled()) {
-              if (logger.isDebugEnabled()) {
-                logger.debug("attempting to locate version tags for retried event");
-              }
-              // bug #48205 - versions may have already been generated for a posdup event
-              // so try to recover them before wiping out the eventTracker's record
-              // of the previous attempt
-              for (int i = 0; i < removeAllPRDataSize; i++) {
-                if (removeAllPRData[i].versionTag == null) {
-                  removeAllPRData[i].versionTag =
-                      bucketRegion.findVersionTagForClientBulkOp(removeAllPRData[i].getEventID());
-                  if (removeAllPRData[i].versionTag != null) {
-                    removeAllPRData[i].versionTag.replaceNullIDs(bucketRegion.getVersionMember());
-                  }
-                }
-              }
-            }
-            EventID eventID = removeAllPRData[0].getEventID();
-            ThreadIdentifier membershipID =
-                new ThreadIdentifier(eventID.getMembershipID(), eventID.getThreadID());
-            bucketRegion.recordBulkOpStart(membershipID, eventID);
-          }
-          locked = bucketRegion.waitUntilLocked(keys);
-          boolean lockedForPrimary = false;
-          final ArrayList<Object> succeeded = new ArrayList<>();
-          PutAllPartialResult partialKeys = new PutAllPartialResult(removeAllPRDataSize);
-          Object key = keys[0];
-          try {
-            bucketRegion.doLockForPrimary(false);
-            lockedForPrimary = true;
-
-            /*
-             * The real work to be synchronized, it will take long time. We don't worry about
-             * another thread to send any msg which has the same key in this request, because these
-             * request will be blocked by foundKey
-             */
-            for (int i = 0; i < removeAllPRDataSize; i++) {
-              @Released
-              EntryEventImpl ev = getEventFromEntry(r, myId, eventSender, i, removeAllPRData,
-                  notificationOnly, bridgeContext, posDup, skipCallbacks);
-              try {
-                key = ev.getKey();
-
-                ev.setRemoveAllOperation(op);
-
-                // ev will be added into the op in removeLocally()
-                // real operation will be modified into ev in removeLocally()
-                // then in basicPutPart3(), the ev is added into op
-                try {
-                  r.getDataView().destroyOnRemote(ev, cacheWrite, null);
-                  didRemove = true;
-                  if (logger.isDebugEnabled()) {
-                    logger.debug(
-                        "RemoveAllPRMessage.doLocalRemoveAll:removeLocally success for " + ev);
-                  }
-                } catch (EntryNotFoundException ignore) {
-                  didRemove = true;
-                  if (ev.isPossibleDuplicate() && ev.hasValidVersionTag()) {
-                    op.addEntry(ev);
-                    if (logger.isDebugEnabled()) {
-                      logger.debug(
-                          "RemoveAllPRMessage.doLocalRemoveAll:notify client and gateway for not-found-entry:"
-                              + ev);
-                    }
-                  }
-                  if (ev.getVersionTag() == null) {
-                    if (logger.isDebugEnabled()) {
-                      logger.debug(
-                          "doLocalRemoveAll:RemoveAll encoutered EntryNotFoundException: event={}",
-                          ev);
-                    }
-                  }
-                } catch (ConcurrentCacheModificationException e) {
-                  didRemove = true;
-                  if (logger.isDebugEnabled()) {
-                    logger.debug(
-                        "RemoveAllPRMessage.doLocalRemoveAll:removeLocally encountered concurrent cache modification for "
-                            + ev);
-                  }
-                }
-                removeAllPRData[i].setTailKey(ev.getTailKey());
-                if (!didRemove) { // make sure the region hasn't gone away
-                  r.checkReadiness();
-                  ForceReattemptException fre = new ForceReattemptException(
-                      "unable to perform remove in RemoveAllPR, but operation should not fail");
-                  fre.setHash(ev.getKey().hashCode());
-                  throw fre;
-                } else {
-                  succeeded.add(removeAllPRData[i].getKey());
-                  versions.addKeyAndVersion(removeAllPRData[i].getKey(), ev.getVersionTag());
-                }
-              } finally {
-                ev.release();
-              }
-            } // for
-
-          } catch (IllegalMonitorStateException ex) {
-            throw new ForceReattemptException("unable to get lock for primary, retrying... ");
-          } catch (CacheWriterException cwe) {
-            // encounter cacheWriter exception
-            partialKeys.saveFailedKey(key, cwe);
-          } finally {
-            doPostRemoveAll(r, op, bucketRegion, lockedForPrimary);
-          }
-          if (partialKeys.hasFailure()) {
-            partialKeys.addKeysAndVersions(versions);
+    if (!notificationOnly) {
+      boolean locked = false;
+      try {
+        if (removeAllPRData.length > 0) {
+          if (posDup && bucketRegion.getConcurrencyChecksEnabled()) {
             if (logger.isDebugEnabled()) {
-              logger.debug(
-                  "RemoveAllPRMessage: partial keys applied, map to bucket {}'s keys:{}. Applied {}",
-                  bucketId, Arrays.toString(keys), succeeded);
+              logger.debug("attempting to locate version tags for retried event");
             }
-            throw new PutAllPartialResultException(partialKeys);
+            // bug #48205 - versions may have already been generated for a posdup event
+            // so try to recover them before wiping out the eventTracker's record
+            // of the previous attempt
+            for (int i = 0; i < removeAllPRDataSize; i++) {
+              if (removeAllPRData[i].versionTag == null) {
+                removeAllPRData[i].versionTag =
+                    bucketRegion.findVersionTagForClientBulkOp(removeAllPRData[i].getEventID());
+                if (removeAllPRData[i].versionTag != null) {
+                  removeAllPRData[i].versionTag.replaceNullIDs(bucketRegion.getVersionMember());
+                }
+              }
+            }
           }
-        } catch (RegionDestroyedException e) {
-          ds.checkRegionDestroyedOnBucket(bucketRegion, true, e);
+          EventID eventID = removeAllPRData[0].getEventID();
+          ThreadIdentifier membershipID =
+              new ThreadIdentifier(eventID.getMembershipID(), eventID.getThreadID());
+          bucketRegion.recordBulkOpStart(membershipID, eventID);
+        }
+        locked = bucketRegion.waitUntilLocked(keys);
+        boolean lockedForPrimary = false;
+        final ArrayList<Object> succeeded = new ArrayList<>();
+        PutAllPartialResult partialKeys = new PutAllPartialResult(removeAllPRDataSize);
+        Object key = keys[0];
+        try {
+          bucketRegion.doLockForPrimary(false);
+          lockedForPrimary = true;
+
+          /*
+           * The real work to be synchronized, it will take long time. We don't worry about
+           * another thread to send any msg which has the same key in this request, because these
+           * request will be blocked by foundKey
+           */
+          for (int i = 0; i < removeAllPRDataSize; i++) {
+            EntryEventImpl ev = getEventFromEntry(r, myId, eventSender, i, removeAllPRData,
+                notificationOnly, bridgeContext, posDup, skipCallbacks);
+            key = ev.getKey();
+
+            ev.setRemoveAllOperation(op);
+
+            // ev will be added into the op in removeLocally()
+            // real operation will be modified into ev in removeLocally()
+            // then in basicPutPart3(), the ev is added into op
+            try {
+              r.getDataView().destroyOnRemote(ev, cacheWrite, null);
+              didRemove = true;
+              if (logger.isDebugEnabled()) {
+                logger.debug(
+                    "RemoveAllPRMessage.doLocalRemoveAll:removeLocally success for " + ev);
+              }
+            } catch (EntryNotFoundException ignore) {
+              didRemove = true;
+              if (ev.isPossibleDuplicate() && ev.hasValidVersionTag()) {
+                op.addEntry(ev);
+                if (logger.isDebugEnabled()) {
+                  logger.debug(
+                      "RemoveAllPRMessage.doLocalRemoveAll:notify client and gateway for not-found-entry:"
+                          + ev);
+                }
+              }
+              if (ev.getVersionTag() == null) {
+                if (logger.isDebugEnabled()) {
+                  logger.debug(
+                      "doLocalRemoveAll:RemoveAll encoutered EntryNotFoundException: event={}",
+                      ev);
+                }
+              }
+            } catch (ConcurrentCacheModificationException e) {
+              didRemove = true;
+              if (logger.isDebugEnabled()) {
+                logger.debug(
+                    "RemoveAllPRMessage.doLocalRemoveAll:removeLocally encountered concurrent cache modification for "
+                        + ev);
+              }
+            }
+            removeAllPRData[i].setTailKey(ev.getTailKey());
+            if (!didRemove) { // make sure the region hasn't gone away
+              r.checkReadiness();
+              ForceReattemptException fre = new ForceReattemptException(
+                  "unable to perform remove in RemoveAllPR, but operation should not fail");
+              fre.setHash(ev.getKey().hashCode());
+              throw fre;
+            } else {
+              succeeded.add(removeAllPRData[i].getKey());
+              versions.addKeyAndVersion(removeAllPRData[i].getKey(), ev.getVersionTag());
+            }
+          } // for
+
+        } catch (IllegalMonitorStateException ex) {
+          throw new ForceReattemptException("unable to get lock for primary, retrying... ");
+        } catch (CacheWriterException cwe) {
+          // encounter cacheWriter exception
+          partialKeys.saveFailedKey(key, cwe);
         } finally {
-          if (locked) {
-            bucketRegion.removeAndNotifyKeys(keys);
-          }
+          doPostRemoveAll(r, op, bucketRegion, lockedForPrimary);
         }
-      } else {
-        for (int i = 0; i < removeAllPRDataSize; i++) {
-          EntryEventImpl ev = getEventFromEntry(r, myId, eventSender, i, removeAllPRData,
-              notificationOnly, bridgeContext, posDup, skipCallbacks);
-          try {
-            ev.setOriginRemote(true);
-            if (callbackArg != null) {
-              ev.setCallbackArgument(callbackArg);
-            }
-            r.invokeDestroyCallbacks(EnumListenerEvent.AFTER_DESTROY, ev, r.isInitialized(), true);
-          } finally {
-            ev.release();
+        if (partialKeys.hasFailure()) {
+          partialKeys.addKeysAndVersions(versions);
+          if (logger.isDebugEnabled()) {
+            logger.debug(
+                "RemoveAllPRMessage: partial keys applied, map to bucket {}'s keys:{}. Applied {}",
+                bucketId, Arrays.toString(keys), succeeded);
           }
+          throw new PutAllPartialResultException(partialKeys);
+        }
+      } catch (RegionDestroyedException e) {
+        ds.checkRegionDestroyedOnBucket(bucketRegion, true, e);
+      } finally {
+        if (locked) {
+          bucketRegion.removeAndNotifyKeys(keys);
         }
       }
-    } finally {
-      if (baseEvent != null) {
-        baseEvent.release();
-      }
-      if (op != null) {
-        op.freeOffHeapResources();
+    } else {
+      for (int i = 0; i < removeAllPRDataSize; i++) {
+        EntryEventImpl ev = getEventFromEntry(r, myId, eventSender, i, removeAllPRData,
+            notificationOnly, bridgeContext, posDup, skipCallbacks);
+        ev.setOriginRemote(true);
+        if (callbackArg != null) {
+          ev.setCallbackArgument(callbackArg);
+        }
+        r.invokeDestroyCallbacks(EnumListenerEvent.AFTER_DESTROY, ev, r.isInitialized(), true);
       }
     }
 
@@ -593,43 +570,33 @@ public class RemoveAllPRMessage extends PartitionMessageWithDirectReply {
     return true;
   }
 
-  @Retained
   public static EntryEventImpl getEventFromEntry(InternalRegion r, InternalDistributedMember myId,
       InternalDistributedMember eventSender, int idx, RemoveAllEntryData[] data,
       boolean notificationOnly, ClientProxyMembershipID bridgeContext, boolean posDup,
       boolean skipCallbacks) {
     RemoveAllEntryData dataItem = data[idx];
-    @Retained
     EntryEventImpl ev = EntryEventImpl.create(r, dataItem.getOp(), dataItem.getKey(), null, null,
         false, eventSender, !skipCallbacks, dataItem.getEventID());
-    boolean evReturned = false;
-    try {
 
-      ev.setOldValue(dataItem.getOldValue());
-      if (bridgeContext != null) {
-        ev.setContext(bridgeContext);
-      }
-      ev.setInvokePRCallbacks(!notificationOnly);
-      ev.setPossibleDuplicate(posDup);
-      if (dataItem.filterRouting != null) {
-        ev.setLocalFilterInfo(dataItem.filterRouting.getFilterInfo(myId));
-      }
-      if (dataItem.versionTag != null) {
-        dataItem.versionTag.replaceNullIDs(eventSender);
-        ev.setVersionTag(dataItem.versionTag);
-      }
-      if (notificationOnly) {
-        ev.setTailKey(-1L);
-      } else {
-        ev.setTailKey(dataItem.getTailKey());
-      }
-      evReturned = true;
-      return ev;
-    } finally {
-      if (!evReturned) {
-        ev.release();
-      }
+    ev.setOldValue(dataItem.getOldValue());
+    if (bridgeContext != null) {
+      ev.setContext(bridgeContext);
     }
+    ev.setInvokePRCallbacks(!notificationOnly);
+    ev.setPossibleDuplicate(posDup);
+    if (dataItem.filterRouting != null) {
+      ev.setLocalFilterInfo(dataItem.filterRouting.getFilterInfo(myId));
+    }
+    if (dataItem.versionTag != null) {
+      dataItem.versionTag.replaceNullIDs(eventSender);
+      ev.setVersionTag(dataItem.versionTag);
+    }
+    if (notificationOnly) {
+      ev.setTailKey(-1L);
+    } else {
+      ev.setTailKey(dataItem.getTailKey());
+    }
+    return ev;
   }
 
   // override reply processor type from PartitionMessage

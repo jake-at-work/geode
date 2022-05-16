@@ -38,7 +38,6 @@ import org.apache.geode.internal.cache.persistence.DiskRegionView;
 import org.apache.geode.internal.cache.versions.RegionVersionVector;
 import org.apache.geode.internal.cache.versions.VersionSource;
 import org.apache.geode.internal.logging.log4j.LogMarker;
-import org.apache.geode.internal.offheap.StoredObject;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 
 /**
@@ -103,7 +102,7 @@ public class VMLRURegionMap extends AbstractRegionMap {
     EvictionController controller = owner.getExistingController(internalRegionArgs);
     if (controller == null) {
       controller = AbstractEvictionController.create(owner.getEvictionAttributes(),
-          owner.getOffHeap(), owner.getStatisticsFactory(), owner.getNameForStats());
+          owner.getStatisticsFactory(), owner.getNameForStats());
     }
     return controller;
   }
@@ -163,13 +162,7 @@ public class VMLRURegionMap extends AbstractRegionMap {
       }
       Object curVal = le.getValue(); // OFFHEAP: _getValue ok
       if (curVal != cd) {
-        if (cd instanceof StoredObject) {
-          if (!cd.equals(curVal)) {
-            return false;
-          }
-        } else {
-          return false;
-        }
+        return false;
       }
     }
     boolean result = false;
@@ -515,8 +508,7 @@ public class VMLRURegionMap extends AbstractRegionMap {
   private boolean mustEvict() {
     LocalRegion owner = _getOwner();
     InternalResourceManager resourceManager = owner.getCache().getInternalResourceManager();
-    boolean offheap = owner.getAttributes().getOffHeap();
-    return resourceManager.getMemoryMonitor(offheap).getState().isEviction() && sizeInVM() > 0;
+    return resourceManager.getMemoryMonitor().getState().isEviction() && sizeInVM() > 0;
   }
 
   @Override

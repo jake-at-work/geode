@@ -71,14 +71,14 @@ public class WANManagementDUnitTest extends ManagementTestBase {
 
 
     puneSender.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "pn",
-        1, 100, false));
+        1, 100));
     managing.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "pn", 1,
-        100, false));
+        100));
 
 
     nyReceiver.invoke(() -> WANTestBase.createCache(nyPort));
     nyReceiver.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null,
-        1, 100, false));
+        1, 100));
     nyReceiver.invoke(WANTestBase::createReceiver);
 
     WANTestBase.startSenderInVMs("pn", puneSender, managing);
@@ -128,11 +128,11 @@ public class WANManagementDUnitTest extends ManagementTestBase {
 
 
     puneSender.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "pn",
-        1, 100, false));
+        1, 100));
 
     nyReceiver.invoke(() -> WANTestBase.createCache(nyPort));
     nyReceiver.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null,
-        1, 100, false));
+        1, 100));
 
     nyReceiver.invoke(WANTestBase::createReceiver);
 
@@ -179,7 +179,7 @@ public class WANManagementDUnitTest extends ManagementTestBase {
 
     nyReceiver.invoke(() -> WANTestBase.createCache(nyPort));
     nyReceiver.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null,
-        1, 100, false));
+        1, 100));
     nyReceiver.invoke(WANTestBase::createReceiver);
 
     // keep a larger batch to minimize number of exception occurrences in the
@@ -188,7 +188,7 @@ public class WANManagementDUnitTest extends ManagementTestBase {
         .invoke(() -> WANTestBase.createSender("pn", 12, true, 100, 300, false, false, null, true));
 
     puneSender.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "pn",
-        1, 100, false));
+        1, 100));
 
     puneSender.invoke(() -> WANTestBase.startSender("pn"));
 
@@ -231,13 +231,13 @@ public class WANManagementDUnitTest extends ManagementTestBase {
         "managing", false));
 
     puneSender.invoke(() -> WANTestBase
-        .createReplicatedRegionWithAsyncEventQueue(getTestMethodName() + "_RR", "pn", false));
+        .createReplicatedRegionWithAsyncEventQueue(getTestMethodName() + "_RR", "pn"));
     managing.invoke(() -> WANTestBase
-        .createReplicatedRegionWithAsyncEventQueue(getTestMethodName() + "_RR", "pn", false));
+        .createReplicatedRegionWithAsyncEventQueue(getTestMethodName() + "_RR", "pn"));
 
     WANTestBase.createCacheInVMs(nyPort, nyReceiver);
     nyReceiver.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null,
-        1, 100, false));
+        1, 100));
     nyReceiver.invoke(WANTestBase::createReceiver);
 
     WANTestBase.checkAsyncQueueMBean(puneSender, true);
@@ -300,7 +300,7 @@ public class WANManagementDUnitTest extends ManagementTestBase {
         .invoke(() -> WANTestBase.createSender("pn", 12, true, 100, 300, false, false, null, true));
 
     String regionName = getTestMethodName() + "_PR";
-    sender.invoke(() -> WANTestBase.createPartitionedRegion(regionName, "pn", 0, 13, false));
+    sender.invoke(() -> WANTestBase.createPartitionedRegion(regionName, "pn", 0, 13));
 
     String regionPath = SEPARATOR + regionName;
     managing.invoke(() -> {
@@ -337,14 +337,14 @@ public class WANManagementDUnitTest extends ManagementTestBase {
         .invoke(() -> WANTestBase.createSender("pn", 12, true, 100, 300, false, false, null, true));
 
     puneSender.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "pn",
-        1, 100, false));
+        1, 100));
     managing.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "pn", 1,
-        100, false));
+        100));
 
     WANTestBase.createCacheInVMs(nyPort, nyReceiver);
     nyReceiver.invoke(WANTestBase::createReceiver);
     nyReceiver.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null,
-        1, 100, false));
+        1, 100));
 
     WANTestBase.startSenderInVMs("pn", puneSender, managing);
 

@@ -2135,15 +2135,6 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
       }
     }
 
-    if (version.compareTo(CacheXmlVersion.GEODE_1_0) >= 0) {
-      if ((!(attrs instanceof RegionAttributesCreation)
-          || ((RegionAttributesCreation) attrs).hasOffHeap())) {
-        if (generateDefaults() || attrs.getOffHeap()) {
-          atts.addAttribute("", "", OFF_HEAP, "", String.valueOf(attrs.getOffHeap()));
-        }
-      }
-    }
-
     handler.startElement("", REGION_ATTRIBUTES, REGION_ATTRIBUTES, atts);
 
     if ((!(attrs instanceof RegionAttributesCreation)

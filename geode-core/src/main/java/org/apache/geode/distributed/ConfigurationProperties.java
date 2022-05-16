@@ -1953,7 +1953,10 @@ public interface ConfigurationProperties {
    * <U>Default</U>: <code>""</code>
    * <p>
    * <U>Since</U>: Geode 1.0
+   *
+   * @deprecated No replacement.
    */
+  @Deprecated
   String OFF_HEAP_MEMORY_SIZE = "off-heap-memory-size";
   /**
    * The static String definition of the <i>"lock-memory"</i> property

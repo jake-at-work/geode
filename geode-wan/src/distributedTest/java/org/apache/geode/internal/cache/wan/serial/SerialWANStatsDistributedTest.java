@@ -66,14 +66,14 @@ public class SerialWANStatsDistributedTest extends WANTestBase {
     vm4.invoke(() -> WANTestBase.createSender("ln", 2, false, 100, 10, false, false, null, true));
     vm5.invoke(() -> WANTestBase.createSender("ln", 2, false, 100, 10, false, false, null, true));
 
-    vm2.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", null, isOffHeap()));
+    vm2.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", null));
 
     startSenderInVMs("ln", vm4, vm5);
 
-    vm4.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln", isOffHeap()));
-    vm5.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln", isOffHeap()));
-    vm6.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln", isOffHeap()));
-    vm7.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln", isOffHeap()));
+    vm4.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln"));
+    vm5.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln"));
+    vm6.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln"));
+    vm7.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln"));
 
     vm5.invoke(() -> WANTestBase.doPuts(testName + "_RR", 1000));
 
@@ -114,14 +114,14 @@ public class SerialWANStatsDistributedTest extends WANTestBase {
         () -> WANTestBase.createSender("ln", 2, false, 100, 10, false, false, null, true,
             groupTransactionEvents));
 
-    vm2.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", null, isOffHeap()));
+    vm2.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", null));
 
     startSenderInVMs("ln", vm4, vm5);
 
-    vm4.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln", isOffHeap()));
-    vm5.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln", isOffHeap()));
-    vm6.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln", isOffHeap()));
-    vm7.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln", isOffHeap()));
+    vm4.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln"));
+    vm5.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln"));
+    vm6.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln"));
+    vm7.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln"));
 
     final Map<Integer, String> keyValues = new HashMap<>();
     int entries = 12;
@@ -171,14 +171,14 @@ public class SerialWANStatsDistributedTest extends WANTestBase {
         () -> WANTestBase.createSender("ln", 2, false, 100, 10, false, false, null, true,
             groupTransactionEvents));
 
-    vm2.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", null, isOffHeap()));
+    vm2.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", null));
 
     startSenderInVMs("ln", vm4, vm5, vm6, vm7);
 
-    vm4.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln", isOffHeap()));
-    vm5.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln", isOffHeap()));
-    vm6.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln", isOffHeap()));
-    vm7.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln", isOffHeap()));
+    vm4.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln"));
+    vm5.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln"));
+    vm6.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln"));
+    vm7.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln"));
 
     final Map<Integer, String> keyValues = new HashMap<>();
     int entries = 12;
@@ -255,14 +255,14 @@ public class SerialWANStatsDistributedTest extends WANTestBase {
 
     final String regionName = testName + "_RR";
 
-    vm2.invoke(() -> WANTestBase.createReplicatedRegion(regionName, null, isOffHeap()));
+    vm2.invoke(() -> WANTestBase.createReplicatedRegion(regionName, null));
 
     startSenderInVMs("ln", vm4, vm5, vm6, vm7);
 
-    vm4.invoke(() -> WANTestBase.createReplicatedRegion(regionName, "ln", isOffHeap()));
-    vm5.invoke(() -> WANTestBase.createReplicatedRegion(regionName, "ln", isOffHeap()));
-    vm6.invoke(() -> WANTestBase.createReplicatedRegion(regionName, "ln", isOffHeap()));
-    vm7.invoke(() -> WANTestBase.createReplicatedRegion(regionName, "ln", isOffHeap()));
+    vm4.invoke(() -> WANTestBase.createReplicatedRegion(regionName, "ln"));
+    vm5.invoke(() -> WANTestBase.createReplicatedRegion(regionName, "ln"));
+    vm6.invoke(() -> WANTestBase.createReplicatedRegion(regionName, "ln"));
+    vm7.invoke(() -> WANTestBase.createReplicatedRegion(regionName, "ln"));
 
     int clients = 2;
     int eventsPerTransaction = batchSize + 1;
@@ -332,14 +332,14 @@ public class SerialWANStatsDistributedTest extends WANTestBase {
         () -> WANTestBase.createSender("ln", 2, false, 100, 10, false, false, null, true,
             groupTransactionEvents));
 
-    vm2.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", null, isOffHeap()));
+    vm2.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", null));
 
     startSenderInVMs("ln", vm4, vm5);
 
-    vm4.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln", isOffHeap()));
-    vm5.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln", isOffHeap()));
-    vm6.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln", isOffHeap()));
-    vm7.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln", isOffHeap()));
+    vm4.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln"));
+    vm5.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln"));
+    vm6.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln"));
+    vm7.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln"));
 
     final Map<Integer, String> keyValues = new HashMap<>();
     int entries = 24;
@@ -395,14 +395,14 @@ public class SerialWANStatsDistributedTest extends WANTestBase {
         () -> WANTestBase.createSender("ln", 2, false, 100, batchSize, false, false, null, true,
             groupTransactionEvents));
 
-    vm2.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", null, isOffHeap()));
+    vm2.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", null));
 
     startSenderInVMs("ln", vm4, vm5, vm6, vm7);
 
-    vm4.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln", isOffHeap()));
-    vm5.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln", isOffHeap()));
-    vm6.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln", isOffHeap()));
-    vm7.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln", isOffHeap()));
+    vm4.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln"));
+    vm5.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln"));
+    vm6.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln"));
+    vm7.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln"));
 
     final Map<Integer, String> keyValues = new HashMap<>();
     int entries = 24;
@@ -459,14 +459,14 @@ public class SerialWANStatsDistributedTest extends WANTestBase {
     vm5.invoke(() -> WANTestBase.createSenderWithMultipleDispatchers("ln", 2, false, 100, 10, false,
         false, null, true, 2, OrderPolicy.KEY));
 
-    vm2.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", null, isOffHeap()));
+    vm2.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", null));
 
     startSenderInVMs("ln", vm4, vm5);
 
-    vm4.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln", isOffHeap()));
-    vm5.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln", isOffHeap()));
-    vm6.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln", isOffHeap()));
-    vm7.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln", isOffHeap()));
+    vm4.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln"));
+    vm5.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln"));
+    vm6.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln"));
+    vm7.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln"));
 
     vm5.invoke(() -> WANTestBase.doPuts(testName + "_RR", 1000));
 
@@ -507,20 +507,16 @@ public class SerialWANStatsDistributedTest extends WANTestBase {
     vm5.invoke(
         () -> WANTestBase.createSender("lnSerial2", 3, false, 100, 10, false, false, null, true));
 
-    vm2.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", null, isOffHeap()));
-    vm3.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", null, isOffHeap()));
+    vm2.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", null));
+    vm3.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", null));
 
     startSenderInVMs("lnSerial1", vm4, vm5);
     startSenderInVMs("lnSerial2", vm4, vm5);
 
-    vm4.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "lnSerial1,lnSerial2",
-        isOffHeap()));
-    vm5.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "lnSerial1,lnSerial2",
-        isOffHeap()));
-    vm6.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "lnSerial1,lnSerial2",
-        isOffHeap()));
-    vm7.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "lnSerial1,lnSerial2",
-        isOffHeap()));
+    vm4.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "lnSerial1,lnSerial2"));
+    vm5.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "lnSerial1,lnSerial2"));
+    vm6.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "lnSerial1,lnSerial2"));
+    vm7.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "lnSerial1,lnSerial2"));
 
     vm4.invoke(() -> WANTestBase.doPuts(testName + "_RR", 1000));
 
@@ -559,14 +555,14 @@ public class SerialWANStatsDistributedTest extends WANTestBase {
     vm4.invoke(() -> WANTestBase.createSender("ln", 2, false, 100, 10, false, false, null, true));
     vm5.invoke(() -> WANTestBase.createSender("ln", 2, false, 100, 10, false, false, null, true));
 
-    vm2.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", null, isOffHeap()));
+    vm2.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", null));
 
     startSenderInVMs("ln", vm4, vm5);
 
-    vm4.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln", isOffHeap()));
-    vm5.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln", isOffHeap()));
-    vm6.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln", isOffHeap()));
-    vm7.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln", isOffHeap()));
+    vm4.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln"));
+    vm5.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln"));
+    vm6.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln"));
+    vm7.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln"));
 
     AsyncInvocation<?> inv1 = vm5.invokeAsync(() -> WANTestBase.doPuts(testName + "_RR", 10000));
     pause(2000);
@@ -620,14 +616,14 @@ public class SerialWANStatsDistributedTest extends WANTestBase {
         () -> WANTestBase.createSender("ln", 2, false, 100, batchSize, false, false, null, true,
             groupTransactionEvents));
 
-    vm2.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", null, isOffHeap()));
+    vm2.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", null));
 
     startSenderInVMs("ln", vm4, vm5, vm6, vm7);
 
-    vm4.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln", isOffHeap()));
-    vm5.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln", isOffHeap()));
-    vm6.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln", isOffHeap()));
-    vm7.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln", isOffHeap()));
+    vm4.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln"));
+    vm5.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln"));
+    vm6.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln"));
+    vm7.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR", "ln"));
 
     AsyncInvocation<?> inv1 =
         vm6.invokeAsync(() -> WANTestBase.doTxPutsWithRetryIfError(testName + "_RR", 2, 5000, 0));
@@ -682,27 +678,27 @@ public class SerialWANStatsDistributedTest extends WANTestBase {
     vm5.invoke(() -> WANTestBase.createSender("ln", 2, false, 100, 20, false, false, null, true));
 
     // create one RR (RR_1) on remote site
-    vm2.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR_1", null, isOffHeap()));
-    vm3.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR_1", null, isOffHeap()));
+    vm2.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR_1", null));
+    vm3.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR_1", null));
 
     // create another RR (RR_2) on remote site
-    vm2.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR_2", null, isOffHeap()));
-    vm3.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR_2", null, isOffHeap()));
+    vm2.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR_2", null));
+    vm3.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR_2", null));
 
     // start the senders on local site
     startSenderInVMs("ln", vm4, vm5);
 
     // create one RR (RR_1) on local site
-    vm4.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR_1", "ln", isOffHeap()));
-    vm5.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR_1", "ln", isOffHeap()));
-    vm6.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR_1", "ln", isOffHeap()));
-    vm7.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR_1", "ln", isOffHeap()));
+    vm4.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR_1", "ln"));
+    vm5.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR_1", "ln"));
+    vm6.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR_1", "ln"));
+    vm7.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR_1", "ln"));
 
     // create another RR (RR_2) on local site
-    vm4.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR_2", "ln", isOffHeap()));
-    vm5.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR_2", "ln", isOffHeap()));
-    vm6.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR_2", "ln", isOffHeap()));
-    vm7.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR_2", "ln", isOffHeap()));
+    vm4.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR_2", "ln"));
+    vm5.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR_2", "ln"));
+    vm6.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR_2", "ln"));
+    vm7.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR_2", "ln"));
 
     // start puts in RR_1 in another thread
     vm4.invoke(() -> WANTestBase.doPuts(testName + "_RR_1", 1000));
@@ -754,7 +750,7 @@ public class SerialWANStatsDistributedTest extends WANTestBase {
     vm2.invoke(() -> WANTestBase.createCache(nyPort));
 
     // create one RR (RR_1) on remote site
-    vm2.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR_1", null, isOffHeap()));
+    vm2.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR_1", null));
 
 
     vm2.invoke(WANTestBase::createReceiver);
@@ -770,10 +766,10 @@ public class SerialWANStatsDistributedTest extends WANTestBase {
     vm7.invoke(() -> WANTestBase.createCache(lnPort));
 
     // create one RR (RR_1) on local site
-    vm4.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR_1", "ln", isOffHeap()));
-    vm5.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR_1", "ln", isOffHeap()));
-    vm6.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR_1", "ln", isOffHeap()));
-    vm7.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR_1", "ln", isOffHeap()));
+    vm4.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR_1", "ln"));
+    vm5.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR_1", "ln"));
+    vm6.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR_1", "ln"));
+    vm7.invoke(() -> WANTestBase.createReplicatedRegion(testName + "_RR_1", "ln"));
 
     // senders are created on local site
     vm4.invoke(() -> WANTestBase.createSender("ln", 2, false, 100, 100, false, false, null, true));
@@ -832,15 +828,15 @@ public class SerialWANStatsDistributedTest extends WANTestBase {
     vm5.invoke(() -> WANTestBase.createSender("ln", 2, false, 100, 10, false, false,
         new MyGatewayEventFilter(), true));
 
-    vm4.invoke(() -> WANTestBase.createPartitionedRegion(testName, "ln", 1, 100, isOffHeap()));
-    vm5.invoke(() -> WANTestBase.createPartitionedRegion(testName, "ln", 1, 100, isOffHeap()));
-    vm6.invoke(() -> WANTestBase.createPartitionedRegion(testName, "ln", 1, 100, isOffHeap()));
-    vm7.invoke(() -> WANTestBase.createPartitionedRegion(testName, "ln", 1, 100, isOffHeap()));
+    vm4.invoke(() -> WANTestBase.createPartitionedRegion(testName, "ln", 1, 100));
+    vm5.invoke(() -> WANTestBase.createPartitionedRegion(testName, "ln", 1, 100));
+    vm6.invoke(() -> WANTestBase.createPartitionedRegion(testName, "ln", 1, 100));
+    vm7.invoke(() -> WANTestBase.createPartitionedRegion(testName, "ln", 1, 100));
 
     startSenderInVMs("ln", vm4, vm5);
 
-    vm2.invoke(() -> WANTestBase.createPartitionedRegion(testName, null, 1, 100, isOffHeap()));
-    vm3.invoke(() -> WANTestBase.createPartitionedRegion(testName, null, 1, 100, isOffHeap()));
+    vm2.invoke(() -> WANTestBase.createPartitionedRegion(testName, null, 1, 100));
+    vm3.invoke(() -> WANTestBase.createPartitionedRegion(testName, null, 1, 100));
 
     vm4.invoke(() -> WANTestBase.doPuts(testName, 1000));
 
@@ -870,17 +866,17 @@ public class SerialWANStatsDistributedTest extends WANTestBase {
 
     vm4.invoke(() -> WANTestBase.createSender("ln", 2, false, 100, 10, true, false, null, true));
 
-    vm4.invoke(() -> WANTestBase.createPartitionedRegion(testName, "ln", 0, 100, isOffHeap()));
-    vm5.invoke(() -> WANTestBase.createPartitionedRegion(testName, "ln", 0, 100, isOffHeap()));
-    vm6.invoke(() -> WANTestBase.createPartitionedRegion(testName, "ln", 0, 100, isOffHeap()));
-    vm7.invoke(() -> WANTestBase.createPartitionedRegion(testName, "ln", 0, 100, isOffHeap()));
+    vm4.invoke(() -> WANTestBase.createPartitionedRegion(testName, "ln", 0, 100));
+    vm5.invoke(() -> WANTestBase.createPartitionedRegion(testName, "ln", 0, 100));
+    vm6.invoke(() -> WANTestBase.createPartitionedRegion(testName, "ln", 0, 100));
+    vm7.invoke(() -> WANTestBase.createPartitionedRegion(testName, "ln", 0, 100));
 
     vm4.invoke(() -> WANTestBase.startSender("ln"));
 
     vm4.invoke(() -> WANTestBase.pauseSender("ln"));
 
-    vm2.invoke(() -> WANTestBase.createPartitionedRegion(testName, null, 1, 100, isOffHeap()));
-    vm3.invoke(() -> WANTestBase.createPartitionedRegion(testName, null, 1, 100, isOffHeap()));
+    vm2.invoke(() -> WANTestBase.createPartitionedRegion(testName, null, 1, 100));
+    vm3.invoke(() -> WANTestBase.createPartitionedRegion(testName, null, 1, 100));
 
     final Map<Integer, Object> keyValues = new HashMap<>();
     final Map<Integer, String> updateKeyValues = new HashMap<>();

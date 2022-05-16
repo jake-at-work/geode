@@ -135,11 +135,6 @@ public class ClientRegistrationEventQueueManagerTest {
     // this test requires mock of EntryEventImpl instead of InternalCacheEvent
     EntryEventImpl entryEventImpl = mock(EntryEventImpl.class);
 
-    when(entryEventImpl.getOperation())
-        .thenReturn(operation);
-    when(operation.isEntry())
-        .thenReturn(true);
-
     ClientRegistrationEventQueueManager clientRegistrationEventQueueManager =
         new ClientRegistrationEventQueueManager();
 
@@ -233,28 +228,6 @@ public class ClientRegistrationEventQueueManagerTest {
         .get();
 
     assertThat(clientRegistrationEventQueue.isEmpty()).isTrue();
-  }
-
-  @Test
-  public void addEventWithOffheapValueCopiedToHeap() {
-    // this test requires mock of EntryEventImpl instead of InternalCacheEvent
-    EntryEventImpl entryEventImpl = mock(EntryEventImpl.class);
-
-    when(entryEventImpl.getOperation())
-        .thenReturn(operation);
-    when(operation.isEntry())
-        .thenReturn(true);
-
-    ClientRegistrationEventQueueManager clientRegistrationEventQueueManager =
-        new ClientRegistrationEventQueueManager();
-
-    clientRegistrationEventQueueManager.create(mock(ClientProxyMembershipID.class),
-        new ConcurrentLinkedQueue<>(), new ReentrantReadWriteLock());
-
-    clientRegistrationEventQueueManager.add(entryEventImpl, mock(ClientUpdateMessageImpl.class),
-        mock(Conflatable.class), emptySet(), mock(CacheClientNotifier.class));
-
-    verify(entryEventImpl).copyOffHeapToHeap();
   }
 
   @Test

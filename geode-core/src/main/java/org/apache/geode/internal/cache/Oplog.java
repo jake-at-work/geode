@@ -97,11 +97,6 @@ import org.apache.geode.internal.cache.versions.VersionSource;
 import org.apache.geode.internal.cache.versions.VersionStamp;
 import org.apache.geode.internal.cache.versions.VersionTag;
 import org.apache.geode.internal.logging.log4j.LogMarker;
-import org.apache.geode.internal.offheap.OffHeapHelper;
-import org.apache.geode.internal.offheap.ReferenceCountHelper;
-import org.apache.geode.internal.offheap.StoredObject;
-import org.apache.geode.internal.offheap.annotations.Released;
-import org.apache.geode.internal.offheap.annotations.Retained;
 import org.apache.geode.internal.sequencelog.EntryLogger;
 import org.apache.geode.internal.serialization.ByteArrayDataInput;
 import org.apache.geode.internal.serialization.KnownVersion;
@@ -4108,11 +4103,7 @@ public class Oplog implements CompactableOplog, Flushable {
     DiskId did = entry.getDiskId();
     byte userBits;
     long oplogOffset = did.getOffsetInOplog();
-    ReferenceCountHelper.skipRefCountTracking();
-    @Retained
-    @Released
     Object value = entry.getValueRetain(dr, true);
-    ReferenceCountHelper.unskipRefCountTracking();
     boolean foundData;
     if (value == null) {
       // If the mode is synch it is guaranteed to be present in the disk
@@ -4174,18 +4165,8 @@ public class Oplog implements CompactableOplog, Flushable {
             false);
       } else if (value instanceof CachedDeserializable) {
         CachedDeserializable proxy = (CachedDeserializable) value;
-        if (proxy instanceof StoredObject) {
-          @Released
-          StoredObject ohproxy = (StoredObject) proxy;
-          try {
-            ohproxy.fillSerializedValue(wrapper, userBits);
-          } finally {
-            OffHeapHelper.releaseWithNoTracking(ohproxy);
-          }
-        } else {
-          userBits = EntryBits.setSerialized(userBits, true);
-          proxy.fillSerializedValue(wrapper, userBits);
-        }
+        userBits = EntryBits.setSerialized(userBits, true);
+        proxy.fillSerializedValue(wrapper, userBits);
       } else if (value instanceof byte[]) {
         byte[] valueBytes = (byte[]) value;
         // If the value is already a byte array then the user bit
@@ -4372,13 +4353,8 @@ public class Oplog implements CompactableOplog, Flushable {
       try {
         // TODO: compaction needs to get version?
         byte userBits = wrapper.getBits();
-        ValueWrapper vw;
-        if (wrapper.getOffHeapData() != null) {
-          vw = new DiskEntry.Helper.OffHeapValueWrapper(wrapper.getOffHeapData());
-        } else {
-          vw = new DiskEntry.Helper.CompactorValueWrapper(wrapper.getBytes(),
-              wrapper.getValidLength());
-        }
+        ValueWrapper vw = new DiskEntry.Helper.CompactorValueWrapper(wrapper.getBytes(),
+            wrapper.getValidLength());
         // Compactor always says to do an async basicModify so that its writes
         // will be grouped. This is not a true async write; just a grouped one.
         basicModify(dr, entry, vw, userBits, true, true);
@@ -4397,9 +4373,6 @@ public class Oplog implements CompactableOplog, Flushable {
                 diskFile.getPath()),
             ie, getParent());
       } finally {
-        if (wrapper.getOffHeapData() != null) {
-          wrapper.setOffHeapData(null, (byte) 0);
-        }
         if (exceptionOccurred) {
           did.setValueLength(len);
         }
@@ -5902,8 +5875,6 @@ public class Oplog implements CompactableOplog, Flushable {
                     // skip this one, its oplogId changed
                     if (!wrapper.isReusable()) {
                       wrapper = new BytesAndBitsForCompactor();
-                    } else if (wrapper.getOffHeapData() != null) {
-                      wrapper.setOffHeapData(null, (byte) 0);
                     }
                     continue;
                   }

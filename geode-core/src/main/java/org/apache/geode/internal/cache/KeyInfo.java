@@ -14,11 +14,8 @@
  */
 package org.apache.geode.internal.cache;
 
-import static org.apache.geode.internal.offheap.annotations.OffHeapIdentifier.ENTRY_EVENT_NEW_VALUE;
 
 import org.apache.geode.cache.UnsupportedOperationInTransactionException;
-import org.apache.geode.internal.offheap.annotations.Retained;
-import org.apache.geode.internal.offheap.annotations.Unretained;
 
 public class KeyInfo {
 
@@ -33,7 +30,6 @@ public class KeyInfo {
 
   // The value field is added since a Partition resolver could also rely on the value
   // part to calculate the routing object
-  @Retained(ENTRY_EVENT_NEW_VALUE)
   private final Object value;
 
   public KeyInfo(Object key, Object value, Object callbackArg) {
@@ -65,7 +61,6 @@ public class KeyInfo {
     return callbackArg;
   }
 
-  @Unretained(ENTRY_EVENT_NEW_VALUE)
   public Object getValue() {
     return value;
   }
@@ -95,9 +90,6 @@ public class KeyInfo {
    */
   public boolean isCheckPrimary() throws UnsupportedOperationInTransactionException {
     return true;
-    // throw new UnsupportedOperationInTransactionException(
-    // String.format("precommit() operation %s meant for Dist Tx is not supported",
-    // "isCheckPrimary"));
   }
 
   /*

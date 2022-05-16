@@ -865,10 +865,6 @@ public class SerialGatewaySenderOperationsDistributedTest extends CacheTestCase 
     vm4.invoke(() -> DataSerializer.register(TestObjectDataSerializer.class));
   }
 
-  protected boolean isOffHeap() {
-    return false;
-  }
-
   protected void createSenderInVm4() throws IOException {
     createSender("ln", 2, true, true, numDispatchers, DEFAULT_ORDER_POLICY);
   }
@@ -941,7 +937,6 @@ public class SerialGatewaySenderOperationsDistributedTest extends CacheTestCase 
 
       regionFactory.setDataPolicy(DataPolicy.REPLICATE);
       regionFactory.setScope(Scope.DISTRIBUTED_ACK);
-      regionFactory.setOffHeap(isOffHeap());
 
       regionFactory.create(regionName);
     }

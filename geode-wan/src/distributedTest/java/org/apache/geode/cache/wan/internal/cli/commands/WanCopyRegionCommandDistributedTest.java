@@ -1105,29 +1105,29 @@ public class WanCopyRegionCommandDistributedTest extends WANTestBase {
       for (VM server : serversInA) {
         server
             .invoke(() -> createPartitionedRegion(regionName, sendersIdInA, 1, 100,
-                isOffHeap(), RegionShortcut.PARTITION, true, concurrencyChecksEnabled));
+                RegionShortcut.PARTITION, true, concurrencyChecksEnabled));
       }
       for (VM serverInB : serversInB) {
         serverInB.invoke(
             () -> createPartitionedRegion(regionName, sendersIdInB, 0, 100,
-                isOffHeap(), RegionShortcut.PARTITION, true, concurrencyChecksEnabled));
+                RegionShortcut.PARTITION, true, concurrencyChecksEnabled));
       }
       serverInC.invoke(() -> createPartitionedRegion(regionName, null, 0, 100,
-          isOffHeap(), RegionShortcut.PARTITION, true, concurrencyChecksEnabled));
+          RegionShortcut.PARTITION, true, concurrencyChecksEnabled));
     } else {
       for (VM server : serversInA) {
         server.invoke(() -> createReplicatedRegion(regionName, sendersIdInA,
             Scope.GLOBAL, DataPolicy.REPLICATE,
-            isOffHeap(), true, concurrencyChecksEnabled));
+            true, concurrencyChecksEnabled));
       }
       for (VM serverInB : serversInB) {
         serverInB
             .invoke(() -> createReplicatedRegion(regionName, sendersIdInB,
                 Scope.GLOBAL, DataPolicy.REPLICATE,
-                isOffHeap(), true, concurrencyChecksEnabled));
+                true, concurrencyChecksEnabled));
       }
       serverInC.invoke(() -> createReplicatedRegion(regionName, null,
-          Scope.GLOBAL, DataPolicy.REPLICATE, isOffHeap(), true, concurrencyChecksEnabled));
+          Scope.GLOBAL, DataPolicy.REPLICATE, true, concurrencyChecksEnabled));
     }
 
     // Create client
@@ -1479,11 +1479,11 @@ public class WanCopyRegionCommandDistributedTest extends WANTestBase {
       if (usePartitionedRegion) {
         server
             .invoke(() -> createPartitionedRegion(regionName, senderId, 1, 100,
-                isOffHeap(), RegionShortcut.PARTITION, true, true));
+                RegionShortcut.PARTITION, true, true));
       } else {
         server.invoke(() -> createReplicatedRegion(regionName, senderId,
             Scope.GLOBAL, DataPolicy.REPLICATE,
-            isOffHeap(), true, true));
+            true, true));
       }
     }
   }

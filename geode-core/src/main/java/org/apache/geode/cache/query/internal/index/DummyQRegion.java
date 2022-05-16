@@ -32,9 +32,6 @@ import org.apache.geode.internal.cache.HasCachePerfStats;
 import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.cache.NonTXEntry;
 import org.apache.geode.internal.cache.RegionEntry;
-import org.apache.geode.internal.offheap.StoredObject;
-import org.apache.geode.internal.offheap.annotations.Released;
-import org.apache.geode.internal.offheap.annotations.Retained;
 
 public class DummyQRegion extends QRegion {
 
@@ -124,16 +121,7 @@ public class DummyQRegion extends QRegion {
     }
     valueInList.clear();
     Object val = entry.getValueOffHeapOrDiskWithoutFaultIn((LocalRegion) getRegion());
-    if (val instanceof StoredObject) {
-      @Retained
-      @Released
-      StoredObject ohval = (StoredObject) val;
-      try {
-        val = ohval.getDeserializedValue(getRegion(), entry);
-      } finally {
-        ohval.release();
-      }
-    } else if (val instanceof CachedDeserializable) {
+    if (val instanceof CachedDeserializable) {
       val = ((CachedDeserializable) val).getDeserializedValue(getRegion(), entry);
     }
     valueInList.add(val);
@@ -146,16 +134,7 @@ public class DummyQRegion extends QRegion {
       valueInArray = new Object[1];
     }
     Object val = entry.getValueOffHeapOrDiskWithoutFaultIn((LocalRegion) getRegion());
-    if (val instanceof StoredObject) {
-      @Retained
-      @Released
-      StoredObject ohval = (StoredObject) val;
-      try {
-        val = ohval.getDeserializedValue(getRegion(), entry);
-      } finally {
-        ohval.release();
-      }
-    } else if (val instanceof CachedDeserializable) {
+    if (val instanceof CachedDeserializable) {
       val = ((CachedDeserializable) val).getDeserializedValue(getRegion(), entry);
     }
     valueInArray[0] = val;
@@ -170,16 +149,7 @@ public class DummyQRegion extends QRegion {
     }
     values.clear();
     Object val = entry.getValueOffHeapOrDiskWithoutFaultIn((LocalRegion) getRegion());
-    if (val instanceof StoredObject) {
-      @Retained
-      @Released
-      StoredObject ohval = (StoredObject) val;
-      try {
-        val = ohval.getDeserializedValue(getRegion(), entry);
-      } finally {
-        ohval.release();
-      }
-    } else if (val instanceof CachedDeserializable) {
+    if (val instanceof CachedDeserializable) {
       val = ((CachedDeserializable) val).getDeserializedValue(getRegion(), entry);
     }
     values.add(val);

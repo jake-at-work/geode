@@ -15,7 +15,6 @@
 package org.apache.geode.internal.cache.entries;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -27,10 +26,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-
 import org.assertj.core.api.Assertions;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -38,7 +33,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
-import org.apache.geode.DataSerializer;
 import org.apache.geode.cache.query.QueryException;
 import org.apache.geode.cache.query.internal.index.IndexManager;
 import org.apache.geode.cache.query.internal.index.IndexProtocol;
@@ -57,12 +51,6 @@ import org.apache.geode.internal.cache.versions.RegionVersionVector;
 import org.apache.geode.internal.cache.versions.VersionSource;
 import org.apache.geode.internal.cache.versions.VersionStamp;
 import org.apache.geode.internal.cache.versions.VersionTag;
-import org.apache.geode.internal.offheap.MemoryAllocatorImpl;
-import org.apache.geode.internal.offheap.OffHeapMemoryStats;
-import org.apache.geode.internal.offheap.OutOfOffHeapMemoryListener;
-import org.apache.geode.internal.offheap.SlabImpl;
-import org.apache.geode.internal.offheap.StoredObject;
-import org.apache.geode.internal.offheap.annotations.Unretained;
 import org.apache.geode.internal.util.concurrent.CustomEntryConcurrentHashMap.HashEntry;
 
 public class AbstractRegionEntryTest {
@@ -97,37 +85,6 @@ public class AbstractRegionEntryTest {
     verify(indexManager, never()).updateIndexes(any(AbstractRegionEntry.class),
         eq(IndexManager.REMOVE_ENTRY), eq(IndexProtocol.OTHER_OP));
 
-  }
-
-
-  @Test
-  public void whenPrepareValueForCacheCalledWithOffHeapEntryHasNewCachedSerializedValue()
-      throws RegionClearedException, IOException, ClassNotFoundException {
-    LocalRegion lr = mock(LocalRegion.class);
-    RegionEntryContext regionEntryContext = mock(RegionEntryContext.class);
-    OutOfOffHeapMemoryListener ooohml = mock(OutOfOffHeapMemoryListener.class);
-    OffHeapMemoryStats stats = mock(OffHeapMemoryStats.class);
-    SlabImpl slab = new SlabImpl(1024); // 1k
-    MemoryAllocatorImpl ma =
-        MemoryAllocatorImpl.createForUnitTest(ooohml, stats, new SlabImpl[] {slab});
-    try {
-      when(regionEntryContext.getOffHeap()).thenReturn(true);
-      String value = "value";
-      AbstractRegionEntry re = new TestableRegionEntry(lr, value);
-      assertEquals(value, re.getValueField());
-      EntryEventImpl entryEvent = new EntryEventImpl();
-      StoredObject valueForCache =
-          (StoredObject) re.prepareValueForCache(regionEntryContext, value, entryEvent, true);
-      final byte[] cachedSerializedNewValue = entryEvent.getCachedSerializedNewValue();
-      assertNotNull(cachedSerializedNewValue);
-      valueForCache.checkDataEquals(cachedSerializedNewValue);
-      DataInputStream dataInputStream =
-          new DataInputStream(new ByteArrayInputStream(cachedSerializedNewValue));
-      Object o = DataSerializer.readObject(dataInputStream);
-      assertEquals(o, value);
-    } finally {
-      MemoryAllocatorImpl.freeOffHeapMemory();
-    }
   }
 
   @Test
@@ -353,7 +310,7 @@ public class AbstractRegionEntryTest {
   }
 
   public static class TestableRegionEntry extends AbstractRegionEntry
-      implements OffHeapRegionEntry, VersionStamp {
+      implements VersionStamp {
 
     private Object value;
     private VersionTag tag;
@@ -409,7 +366,7 @@ public class AbstractRegionEntryTest {
     }
 
     @Override
-    public void setValue(RegionEntryContext context, @Unretained Object value)
+    public void setValue(RegionEntryContext context, Object value)
         throws RegionClearedException {
       super.setValue(context, value);
       if (value == Token.TOMBSTONE) {
@@ -447,21 +404,6 @@ public class AbstractRegionEntryTest {
 
     @Override
     protected void setEntryHash(int v) {}
-
-    @Override
-    public void release() {
-
-    }
-
-    @Override
-    public long getAddress() {
-      return 0;
-    }
-
-    @Override
-    public boolean setAddress(long expectedAddr, long newAddr) {
-      return false;
-    }
 
     @Override
     public int getEntryVersion() {

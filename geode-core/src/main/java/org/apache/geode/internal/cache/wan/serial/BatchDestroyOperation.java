@@ -36,7 +36,6 @@ import org.apache.geode.internal.cache.EntryEventImpl;
 import org.apache.geode.internal.cache.EventID;
 import org.apache.geode.internal.cache.InternalCacheEvent;
 import org.apache.geode.internal.cache.RegionQueue;
-import org.apache.geode.internal.offheap.annotations.Retained;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -165,29 +164,18 @@ public class BatchDestroyOperation extends DistributedCacheOperation {
     }
 
     @Override
-    @Retained
     protected InternalCacheEvent createEvent(DistributedRegion rgn) throws EntryNotFoundException {
       EntryEventImpl ev = createEntryEvent(rgn);
-      boolean evReturned = false;
-      try {
-        ev.setEventId(eventId);
-        ev.setOldValueFromRegion();
-        if (filterRouting != null) {
-          ev.setLocalFilterInfo(filterRouting.getFilterInfo(rgn.getCache().getMyId()));
-        }
-        ev.setTailKey(tailKey);
-        evReturned = true;
-        return ev;
-      } finally {
-        if (!evReturned) {
-          ev.release();
-        }
+      ev.setEventId(eventId);
+      ev.setOldValueFromRegion();
+      if (filterRouting != null) {
+        ev.setLocalFilterInfo(filterRouting.getFilterInfo(rgn.getCache().getMyId()));
       }
+      ev.setTailKey(tailKey);
+      return ev;
     }
 
-    @Retained
     EntryEventImpl createEntryEvent(DistributedRegion rgn) {
-      @Retained
       EntryEventImpl event = EntryEventImpl.create(rgn, getOperation(), key, null,
           callbackArg, true, getSender());
       // event.setNewEventId(); Don't set the event here...

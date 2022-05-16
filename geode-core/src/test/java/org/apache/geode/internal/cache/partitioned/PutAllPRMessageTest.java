@@ -91,7 +91,6 @@ public class PutAllPRMessageTest {
     InternalDistributedSystem ids = mock(InternalDistributedSystem.class);
     when(bucketRegion.getCache()).thenReturn(cache);
     when(cache.getDistributedSystem()).thenReturn(ids);
-    when(ids.getOffHeapStore()).thenReturn(null);
 
     message.doLocalPutAll(partitionedRegion, mock(InternalDistributedMember.class), 1);
 
@@ -110,7 +109,6 @@ public class PutAllPRMessageTest {
     InternalDistributedSystem ids = mock(InternalDistributedSystem.class);
     when(bucketRegion.getCache()).thenReturn(cache);
     when(cache.getDistributedSystem()).thenReturn(ids);
-    when(ids.getOffHeapStore()).thenReturn(null);
 
     message.doLocalPutAll(partitionedRegion, mock(InternalDistributedMember.class), 1);
 

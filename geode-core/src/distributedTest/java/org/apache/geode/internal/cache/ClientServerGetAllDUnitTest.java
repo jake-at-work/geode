@@ -15,7 +15,6 @@
 package org.apache.geode.internal.cache;
 
 import static org.apache.geode.distributed.ConfigurationProperties.LOCATORS;
-import static org.apache.geode.distributed.ConfigurationProperties.OFF_HEAP_MEMORY_SIZE;
 import static org.apache.geode.distributed.ConfigurationProperties.SERIALIZABLE_OBJECT_FILTER;
 import static org.apache.geode.internal.AvailablePortHelper.getRandomAvailableTCPPort;
 import static org.apache.geode.test.dunit.Assert.assertEquals;
@@ -50,7 +49,6 @@ import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache30.CacheSerializableRunnable;
 import org.apache.geode.cache30.ClientServerTestCase;
 import org.apache.geode.internal.AvailablePortHelper;
-import org.apache.geode.internal.offheap.MemoryAllocatorImpl;
 import org.apache.geode.test.dunit.Assert;
 import org.apache.geode.test.dunit.AsyncInvocation;
 import org.apache.geode.test.dunit.DistributedTestUtils;
@@ -122,179 +120,6 @@ public class ClientServerGetAllDUnitTest extends ClientServerTestCase {
         assertEquals(null, region.get(ClientServerTestCase.NON_EXISTENT_KEY));
       }
     });
-
-    stopBridgeServer(server);
-  }
-
-  @Test
-  public void testOffHeapGetAllFromServer() throws Exception {
-    final Host host = Host.getHost(0);
-    final VM server = host.getVM(0);
-    final VM client = host.getVM(1);
-    final String regionName = getUniqueName();
-    final int serverPort = AvailablePortHelper.getRandomAvailableTCPPort();
-    final String serverHost = NetworkUtils.getServerHostName(server.getHost());
-
-    createBridgeServer(server, regionName, serverPort, false, false, true/* offheap */);
-
-    createBridgeClient(client, regionName, serverHost, new int[] {serverPort});
-
-    // Run getAll
-    client.invoke(new CacheSerializableRunnable("Get all entries from server") {
-      @Override
-      public void run2() throws CacheException {
-        // Build collection of keys
-        Collection keys = new ArrayList();
-        for (int i = 0; i < 5; i++) {
-          keys.add("key-" + i);
-        }
-
-        keys.add(ClientServerTestCase.NON_EXISTENT_KEY); // this will not be load CacheLoader
-
-        // Invoke getAll
-        Region region = getRootRegion(regionName);
-        Map result = region.getAll(keys);
-
-        // Verify result size is correct
-        assertEquals(6, result.size());
-
-        // Verify the result contains each key,
-        // and the value for each key is correct
-        // (the server has a loader that returns the key as the value)
-        for (final Object o : keys) {
-          String key = (String) o;
-          assertTrue(result.containsKey(key));
-          Object value = result.get(key);
-          if (!key.equals(ClientServerTestCase.NON_EXISTENT_KEY)) {
-            assertEquals(key, value);
-          } else {
-            assertEquals(null, value);
-          }
-        }
-
-        assertEquals(null, region.get(ClientServerTestCase.NON_EXISTENT_KEY));
-      }
-    });
-    checkServerForOrphans(server, regionName);
-
-    stopBridgeServer(server);
-  }
-
-  @Test
-  public void testLargeOffHeapGetAllFromServer() throws Throwable {
-    final Host host = Host.getHost(0);
-    final VM server = host.getVM(0);
-    final VM client = host.getVM(1);
-    final String regionName = getUniqueName();
-    final int serverPort = AvailablePortHelper.getRandomAvailableTCPPort();
-    final String serverHost = NetworkUtils.getServerHostName(server.getHost());
-
-    createBridgeServer(server, regionName, serverPort, false, false, true/* offheap */);
-
-    createBridgeClient(client, regionName, serverHost, new int[] {serverPort}, true);
-
-    final int VALUE_SIZE = 1024 * 2/* *1024 */;
-
-    final int VALUE_COUNT = 100;
-
-    client.invoke(new CacheSerializableRunnable("put entries on server") {
-      @Override
-      public void run2() throws CacheException {
-        final byte[] VALUE = new byte[VALUE_SIZE];
-        for (int i = 0; i < VALUE_SIZE; i++) {
-          VALUE[i] = (byte) i;
-        }
-        Region region = getRootRegion(regionName);
-        for (int i = 0; i < VALUE_COUNT; i++) {
-          region.put("k" + i, new UnitTestValueHolder(VALUE));
-        }
-      }
-    });
-
-    CacheSerializableRunnable clientGetAll =
-        new CacheSerializableRunnable("Get all entries from server") {
-          @Override
-          public void run2() throws CacheException {
-            // Build collection of keys
-            Collection keys = new ArrayList();
-            for (int i = 0; i < VALUE_COUNT; i++) {
-              keys.add("k" + i);
-            }
-
-            // Invoke getAll
-            Region region = getRootRegion(regionName);
-            final int GET_COUNT = 10/* 0 */;
-            long start = System.currentTimeMillis();
-            Map result = null;
-            for (int i = 0; i < GET_COUNT; i++) {
-              result = null; // allow gc to get rid of previous map before deserializing the next
-                             // one
-              result = region.getAll(keys);
-            }
-            long end = System.currentTimeMillis();
-            long totalBytesRead = ((long) GET_COUNT * VALUE_COUNT * VALUE_SIZE);
-            long elapsedMillis = (end - start);
-            System.out.println("PERF: read " + totalBytesRead + " bytes in " + elapsedMillis
-                + " millis. bps=" + (((double) totalBytesRead / elapsedMillis) * 1000));
-
-            // Verify result size is correct
-            assertEquals(VALUE_COUNT, result.size());
-
-            final byte[] EXPECTED = new byte[VALUE_SIZE];
-            for (int i = 0; i < VALUE_SIZE; i++) {
-              EXPECTED[i] = (byte) i;
-            }
-            // Verify the result contains each key,
-            // and the value for each key is correct
-            // (the server has a loader that returns the key as the value)
-            for (final Object o : keys) {
-              String key = (String) o;
-              assertTrue(result.containsKey(key));
-              Object value = result.get(key);
-              if (value instanceof UnitTestValueHolder) {
-                Object v = ((UnitTestValueHolder) value).getValue();
-                if (v instanceof byte[]) {
-                  byte[] bytes = (byte[]) v;
-                  if (bytes.length != VALUE_SIZE) {
-                    fail("expected value for key " + key + " to be an array of size " + (VALUE_SIZE)
-                        + " but it was: " + bytes.length);
-                  }
-                  if (!Arrays.equals(EXPECTED, bytes)) {
-                    fail("expected bytes=" + Arrays.toString(bytes) + " to be expected="
-                        + Arrays.toString(EXPECTED));
-                  }
-                } else {
-                  fail("expected v for key " + key + " to be a byte array but it was: " + v);
-                }
-              } else {
-                fail("expected value for key " + key + " to be a UnitTestValueHolder but it was: "
-                    + value);
-              }
-            }
-          }
-        };
-    // Run getAll
-    {
-      final int THREAD_COUNT = 4;
-      AsyncInvocation[] ais = new AsyncInvocation[THREAD_COUNT];
-      for (int i = 0; i < THREAD_COUNT; i++) {
-        ais[i] = client.invokeAsync(clientGetAll);
-      }
-      for (int i = 0; i < THREAD_COUNT; i++) {
-        ais[i].getResult();
-      }
-    }
-
-    server.invoke(new CacheSerializableRunnable("Dump OffHeap Stats") {
-      @Override
-      public void run2() throws CacheException {
-        MemoryAllocatorImpl ma = MemoryAllocatorImpl.getAllocator();
-        System.out.println("STATS: objects=" + ma.getStats().getObjects() + " usedMemory="
-            + ma.getStats().getUsedMemory() + " reads=" + ma.getStats().getReads());
-      }
-    });
-
-    checkServerForOrphans(server, regionName);
 
     stopBridgeServer(server);
   }
@@ -704,27 +529,15 @@ public class ClientServerGetAllDUnitTest extends ClientServerTestCase {
 
   private void createBridgeServer(VM server, final String regionName, final int serverPort,
       final boolean createPR, final boolean expectCallback) {
-    createBridgeServer(server, regionName, serverPort, createPR, expectCallback, false);
-  }
-
-
-  private void createBridgeServer(VM server, final String regionName, final int serverPort,
-      final boolean createPR, final boolean expectCallback, final boolean offheap) {
     server.invoke(new CacheSerializableRunnable("Create server") {
       @Override
       public void run2() throws CacheException {
         // Create DS
         Properties config = getDistributedSystemProperties();
-        if (offheap) {
-          config.setProperty(OFF_HEAP_MEMORY_SIZE, "350m");
-        }
         getSystem(config);
 
         // Create Region
         AttributesFactory factory = new AttributesFactory();
-        if (offheap) {
-          factory.setOffHeap(true);
-        }
         if (expectCallback) {
           factory.setCacheLoader(new CallbackCacheServerCacheLoader());
         } else {
@@ -745,8 +558,7 @@ public class ClientServerGetAllDUnitTest extends ClientServerTestCase {
           Cache cache = getCache();
           CacheServer bridge = cache.addCacheServer();
           bridge.setPort(serverPort);
-          // for off-heap I want the server to use a selector
-          bridge.setMaxThreads(offheap ? 16 : getMaxThreads());
+          bridge.setMaxThreads(getMaxThreads());
           bridge.start();
         } catch (Exception e) {
           Assert.fail("While starting CacheServer", e);
@@ -855,7 +667,6 @@ public class ClientServerGetAllDUnitTest extends ClientServerTestCase {
       public void run2() throws CacheException {
         Region region = getRootRegion(regionName);
         region.close();
-        OffHeapTestUtil.checkOrphans(getCache());
       }
     });
 

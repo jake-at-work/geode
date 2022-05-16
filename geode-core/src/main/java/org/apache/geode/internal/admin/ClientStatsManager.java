@@ -33,7 +33,6 @@ import org.apache.geode.internal.cache.EntryEventImpl;
 import org.apache.geode.internal.cache.EventID;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.internal.cache.InternalCache;
-import org.apache.geode.internal.offheap.annotations.Released;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 
 /**
@@ -85,17 +84,10 @@ public class ClientStatsManager {
       ServerRegionProxy regionProxy =
           new ServerRegionProxy(ClientHealthMonitoringRegion.ADMIN_REGION_NAME, pool);
 
-      boolean isOffHeap;
-      isOffHeap = ds.getOffHeapStore() != null;
       EventID eventId = new EventID(ds);
-      @Released
-      EntryEventImpl event = new EntryEventImpl((Object) null, isOffHeap);
-      try {
-        event.setEventId(eventId);
-        regionProxy.putForMetaRegion(ds.getDistributedMember(), stats, null, event, null);
-      } finally {
-        event.release();
-      }
+      EntryEventImpl event = new EntryEventImpl((Object) null);
+      event.setEventId(eventId);
+      regionProxy.putForMetaRegion(ds.getDistributedMember(), stats, null, event, null);
     } catch (DistributedSystemDisconnectedException e) {
       throw e;
     } catch (CacheWriterException cwx) {

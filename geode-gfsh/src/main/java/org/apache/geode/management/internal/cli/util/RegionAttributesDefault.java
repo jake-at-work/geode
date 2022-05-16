@@ -71,6 +71,4 @@ public class RegionAttributesDefault {
   public static final String EVICTION_ALGORITHM = EvictionAction.NONE.toString();
   public static final long EVICTION_MAX_VALUE = 0;
 
-  public static final boolean OFF_HEAP = false;
-
 }

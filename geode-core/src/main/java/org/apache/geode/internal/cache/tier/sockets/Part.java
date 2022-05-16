@@ -26,8 +26,6 @@ import org.apache.geode.annotations.Immutable;
 import org.apache.geode.annotations.internal.MakeNotStatic;
 import org.apache.geode.internal.Assert;
 import org.apache.geode.internal.HeapDataOutputStream;
-import org.apache.geode.internal.offheap.AddressableMemoryManager;
-import org.apache.geode.internal.offheap.StoredObject;
 import org.apache.geode.internal.serialization.DSCODE;
 import org.apache.geode.internal.serialization.KnownVersion;
 
@@ -127,23 +125,6 @@ public class Part {
     }
   }
 
-  public void setPartState(StoredObject so, boolean isObject) {
-    if (isObject) {
-      typeCode = OBJECT_CODE;
-    } else if (so.getDataSize() == 0) {
-      typeCode = EMPTY_BYTEARRAY_CODE;
-      part = EMPTY_BYTE_ARRAY;
-      return;
-    } else {
-      typeCode = BYTE_CODE;
-    }
-    if (so.hasRefCount()) {
-      part = so;
-    } else {
-      part = so.getValueAsHeapByteArray();
-    }
-  }
-
   public byte getTypeCode() {
     return typeCode;
   }
@@ -157,8 +138,6 @@ public class Part {
       return 0;
     } else if (part instanceof byte[]) {
       return ((byte[]) part).length;
-    } else if (part instanceof StoredObject) {
-      return ((StoredObject) part).getDataSize();
     } else {
       return ((HeapDataOutputStream) part).size();
     }
@@ -380,23 +359,6 @@ public class Part {
       if (part instanceof byte[]) {
         byte[] bytes = (byte[]) part;
         out.write(bytes, 0, bytes.length);
-      } else if (part instanceof StoredObject) {
-        StoredObject so = (StoredObject) part;
-        ByteBuffer sobb = so.createDirectByteBuffer();
-        if (sobb != null) {
-          HeapDataOutputStream.writeByteBufferToStream(out, buf, sobb);
-        } else {
-          int bytesToSend = so.getDataSize();
-          long addr = so.getAddressForReadingData(0, bytesToSend);
-          while (bytesToSend > 0) {
-            if (buf.remaining() == 0) {
-              HeapDataOutputStream.flushStream(out, buf);
-            }
-            buf.put(AddressableMemoryManager.readByte(addr));
-            addr++;
-            bytesToSend--;
-          }
-        }
       } else {
         HeapDataOutputStream hdos = (HeapDataOutputStream) part;
         try {
@@ -416,20 +378,6 @@ public class Part {
     if (getLength() > 0) {
       if (part instanceof byte[]) {
         buf.put((byte[]) part);
-      } else if (part instanceof StoredObject) {
-        StoredObject c = (StoredObject) part;
-        ByteBuffer bb = c.createDirectByteBuffer();
-        if (bb != null) {
-          buf.put(bb);
-        } else {
-          int bytesToSend = c.getDataSize();
-          long addr = c.getAddressForReadingData(0, bytesToSend);
-          while (bytesToSend > 0) {
-            buf.put(AddressableMemoryManager.readByte(addr));
-            addr++;
-            bytesToSend--;
-          }
-        }
       } else {
         HeapDataOutputStream hdos = (HeapDataOutputStream) part;
         try {
@@ -467,37 +415,6 @@ public class Part {
             sc.write(buf);
           }
           buf.clear();
-        }
-      } else if (part instanceof StoredObject) {
-        // instead of copying the StoredObject to buf try to create a direct ByteBuffer and
-        // just write it directly to the socket channel.
-        StoredObject c = (StoredObject) part;
-        ByteBuffer bb = c.createDirectByteBuffer();
-        if (bb != null) {
-          while (bb.remaining() > 0) {
-            sc.write(bb);
-          }
-        } else {
-          int len = c.getDataSize();
-          long addr = c.getAddressForReadingData(0, len);
-          buf.clear();
-          while (len > 0) {
-            int bytesThisTime = len;
-            if (bytesThisTime > BUF_MAX) {
-              bytesThisTime = BUF_MAX;
-            }
-            len -= bytesThisTime;
-            while (bytesThisTime > 0) {
-              buf.put(AddressableMemoryManager.readByte(addr));
-              addr++;
-              bytesThisTime--;
-            }
-            buf.flip();
-            while (buf.remaining() > 0) {
-              sc.write(buf);
-            }
-            buf.clear();
-          }
         }
       } else {
         HeapDataOutputStream hdos = (HeapDataOutputStream) part;

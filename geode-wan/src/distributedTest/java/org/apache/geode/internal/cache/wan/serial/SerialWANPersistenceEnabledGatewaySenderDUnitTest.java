@@ -55,20 +55,20 @@ public class SerialWANPersistenceEnabledGatewaySenderDUnitTest extends WANTestBa
     vm5.invoke(() -> WANTestBase.createSender("ln", 2, false, 100, 10, false, true, null, true));
 
     vm2.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null));
     vm3.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null));
 
     startSenderInVMs("ln", vm4, vm5);
 
     vm4.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln"));
     vm5.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln"));
     vm6.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln"));
     vm7.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln"));
 
     vm4.invoke(() -> WANTestBase.doPuts(getTestMethodName() + "_RR", 1000));
 
@@ -94,21 +94,21 @@ public class SerialWANPersistenceEnabledGatewaySenderDUnitTest extends WANTestBa
     vm4.invoke(() -> WANTestBase.createSender("ln", 2, false, 100, 10, false, false, null, true));
     vm5.invoke(() -> WANTestBase.createSender("ln", 2, false, 100, 10, false, false, null, true));
 
-    vm2.invoke(() -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", null,
-        isOffHeap()));
-    vm3.invoke(() -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", null,
-        isOffHeap()));
+    vm2.invoke(
+        () -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", null));
+    vm3.invoke(
+        () -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", null));
 
     startSenderInVMs("ln", vm4, vm5);
 
-    vm4.invoke(() -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln",
-        isOffHeap()));
-    vm5.invoke(() -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln",
-        isOffHeap()));
-    vm6.invoke(() -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln",
-        isOffHeap()));
-    vm7.invoke(() -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln",
-        isOffHeap()));
+    vm4.invoke(
+        () -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln"));
+    vm5.invoke(
+        () -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln"));
+    vm6.invoke(
+        () -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln"));
+    vm7.invoke(
+        () -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln"));
 
     vm4.invoke(() -> WANTestBase.doPuts(getTestMethodName() + "_RR", 1000));
 
@@ -135,21 +135,21 @@ public class SerialWANPersistenceEnabledGatewaySenderDUnitTest extends WANTestBa
     vm4.invoke(() -> WANTestBase.createSender("ln", 2, false, 100, 10, false, true, null, true));
     vm5.invoke(() -> WANTestBase.createSender("ln", 2, false, 100, 10, false, true, null, true));
 
-    vm2.invoke(() -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", null,
-        isOffHeap()));
-    vm3.invoke(() -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", null,
-        isOffHeap()));
+    vm2.invoke(
+        () -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", null));
+    vm3.invoke(
+        () -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", null));
 
     startSenderInVMs("ln", vm4, vm5);
 
-    vm4.invoke(() -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln",
-        isOffHeap()));
-    vm5.invoke(() -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln",
-        isOffHeap()));
-    vm6.invoke(() -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln",
-        isOffHeap()));
-    vm7.invoke(() -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln",
-        isOffHeap()));
+    vm4.invoke(
+        () -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln"));
+    vm5.invoke(
+        () -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln"));
+    vm6.invoke(
+        () -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln"));
+    vm7.invoke(
+        () -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln"));
 
     vm4.invoke(() -> WANTestBase.doPuts(getTestMethodName() + "_RR", 1000));
 
@@ -181,20 +181,20 @@ public class SerialWANPersistenceEnabledGatewaySenderDUnitTest extends WANTestBa
     logger.info("The second ds is " + secondDStore);
 
     vm2.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null));
     vm3.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null));
 
     startSenderInVMs("ln", vm4, vm5);
 
-    vm4.invoke(() -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln",
-        isOffHeap()));
-    vm5.invoke(() -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln",
-        isOffHeap()));
-    vm6.invoke(() -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln",
-        isOffHeap()));
-    vm7.invoke(() -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln",
-        isOffHeap()));
+    vm4.invoke(
+        () -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln"));
+    vm5.invoke(
+        () -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln"));
+    vm6.invoke(
+        () -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln"));
+    vm7.invoke(
+        () -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln"));
 
     vm4.invoke(() -> WANTestBase.pauseSender("ln"));
     vm5.invoke(() -> WANTestBase.pauseSender("ln"));
@@ -270,20 +270,20 @@ public class SerialWANPersistenceEnabledGatewaySenderDUnitTest extends WANTestBa
     logger.info("The second ds is " + secondDStore);
 
     vm2.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null));
     vm3.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null));
 
     startSenderInVMs("ln", vm4, vm5);
 
-    vm4.invoke(() -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln",
-        isOffHeap()));
-    vm5.invoke(() -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln",
-        isOffHeap()));
-    vm6.invoke(() -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln",
-        isOffHeap()));
-    vm7.invoke(() -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln",
-        isOffHeap()));
+    vm4.invoke(
+        () -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln"));
+    vm5.invoke(
+        () -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln"));
+    vm6.invoke(
+        () -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln"));
+    vm7.invoke(
+        () -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln"));
 
     vm4.invoke(() -> WANTestBase.pauseSender("ln"));
     vm5.invoke(() -> WANTestBase.pauseSender("ln"));
@@ -308,11 +308,11 @@ public class SerialWANPersistenceEnabledGatewaySenderDUnitTest extends WANTestBa
         null, secondDStore, true));
     logger.info("Created the sender.... in vm5 ");
 
-    vm4.invoke(() -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln",
-        isOffHeap()));
+    vm4.invoke(
+        () -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln"));
 
-    vm5.invoke(() -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln",
-        isOffHeap()));
+    vm5.invoke(
+        () -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln"));
 
     AsyncInvocation inv1 = vm4.invokeAsync(() -> WANTestBase.startSender("ln"));
     logger.info("Started the sender in vm 4");
@@ -349,20 +349,20 @@ public class SerialWANPersistenceEnabledGatewaySenderDUnitTest extends WANTestBa
     vm5.invoke(() -> WANTestBase.createSender("ln", 2, false, 100, 10, false, false, null, true));
 
     vm2.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null));
     vm3.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null));
 
     startSenderInVMs("ln", vm4, vm5);
 
-    vm4.invoke(() -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln",
-        isOffHeap()));
-    vm5.invoke(() -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln",
-        isOffHeap()));
-    vm6.invoke(() -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln",
-        isOffHeap()));
-    vm7.invoke(() -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln",
-        isOffHeap()));
+    vm4.invoke(
+        () -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln"));
+    vm5.invoke(
+        () -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln"));
+    vm6.invoke(
+        () -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln"));
+    vm7.invoke(
+        () -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln"));
 
     vm4.invoke(() -> WANTestBase.pauseSender("ln"));
     vm5.invoke(() -> WANTestBase.pauseSender("ln"));
@@ -391,9 +391,9 @@ public class SerialWANPersistenceEnabledGatewaySenderDUnitTest extends WANTestBa
     logger.info("Started the sender in vm 5");
 
     AsyncInvocation inv1 = vm4.invokeAsync(() -> WANTestBase
-        .createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln", isOffHeap()));
-    vm5.invoke(() -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln",
-        isOffHeap()));
+        .createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln"));
+    vm5.invoke(
+        () -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln"));
 
     try {
       inv1.await();
@@ -433,20 +433,20 @@ public class SerialWANPersistenceEnabledGatewaySenderDUnitTest extends WANTestBa
     logger.info("The second ds is " + secondDStore);
 
     vm2.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null));
     vm3.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null));
 
     startSenderInVMs("ln", vm4, vm5);
 
-    vm4.invoke(() -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln",
-        isOffHeap()));
-    vm5.invoke(() -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln",
-        isOffHeap()));
-    vm6.invoke(() -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln",
-        isOffHeap()));
-    vm7.invoke(() -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln",
-        isOffHeap()));
+    vm4.invoke(
+        () -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln"));
+    vm5.invoke(
+        () -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln"));
+    vm6.invoke(
+        () -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln"));
+    vm7.invoke(
+        () -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln"));
 
     vm4.invoke(() -> WANTestBase.pauseSender("ln"));
     vm5.invoke(() -> WANTestBase.pauseSender("ln"));
@@ -471,11 +471,11 @@ public class SerialWANPersistenceEnabledGatewaySenderDUnitTest extends WANTestBa
         null, secondDStore, true));
     logger.info("Created the sender.... in vm5 ");
 
-    vm4.invoke(() -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln",
-        isOffHeap()));
+    vm4.invoke(
+        () -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln"));
 
-    vm5.invoke(() -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln",
-        isOffHeap()));
+    vm5.invoke(
+        () -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln"));
 
     AsyncInvocation inv1 = vm4.invokeAsync(() -> WANTestBase.startSender("ln"));
     logger.info("Started the sender in vm 4");
@@ -516,20 +516,20 @@ public class SerialWANPersistenceEnabledGatewaySenderDUnitTest extends WANTestBa
     logger.info("The second ds is " + secondDStore);
 
     vm2.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null));
     vm3.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null));
 
     startSenderInVMs("ln", vm4, vm5);
 
-    vm4.invoke(() -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln",
-        isOffHeap()));
-    vm5.invoke(() -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln",
-        isOffHeap()));
-    vm6.invoke(() -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln",
-        isOffHeap()));
-    vm7.invoke(() -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln",
-        isOffHeap()));
+    vm4.invoke(
+        () -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln"));
+    vm5.invoke(
+        () -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln"));
+    vm6.invoke(
+        () -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln"));
+    vm7.invoke(
+        () -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln"));
 
     vm4.invoke(() -> WANTestBase.pauseSender("ln"));
     vm5.invoke(() -> WANTestBase.pauseSender("ln"));
@@ -586,20 +586,20 @@ public class SerialWANPersistenceEnabledGatewaySenderDUnitTest extends WANTestBa
         false, 100, 10, false, true, null, null, true));
 
     vm2.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null));
     vm3.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null));
 
     startSenderInVMs("ln", vm4, vm5);
 
-    vm4.invoke(() -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln",
-        isOffHeap()));
-    vm5.invoke(() -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln",
-        isOffHeap()));
-    vm6.invoke(() -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln",
-        isOffHeap()));
-    vm7.invoke(() -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln",
-        isOffHeap()));
+    vm4.invoke(
+        () -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln"));
+    vm5.invoke(
+        () -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln"));
+    vm6.invoke(
+        () -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln"));
+    vm7.invoke(
+        () -> WANTestBase.createPersistentReplicatedRegion(getTestMethodName() + "_RR", "ln"));
 
     vm4.invoke("Puts in the region" + getTestMethodName() + "_RR",
         () -> WANTestBase.doPuts(getTestMethodName() + "_RR", 1000));

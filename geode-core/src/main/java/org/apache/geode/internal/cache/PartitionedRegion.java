@@ -245,8 +245,6 @@ import org.apache.geode.internal.cache.wan.GatewaySenderException;
 import org.apache.geode.internal.cache.wan.parallel.ConcurrentParallelGatewaySenderQueue;
 import org.apache.geode.internal.cache.wan.parallel.ParallelGatewaySenderQueue;
 import org.apache.geode.internal.logging.log4j.LogMarker;
-import org.apache.geode.internal.offheap.annotations.Released;
-import org.apache.geode.internal.offheap.annotations.Unretained;
 import org.apache.geode.internal.sequencelog.RegionLogger;
 import org.apache.geode.internal.size.Sizeable;
 import org.apache.geode.internal.statistics.StatisticsClock;
@@ -2438,13 +2436,8 @@ public class PartitionedRegion extends LocalRegion
         if (isDebugEnabled) {
           logger.debug("PR.postPutAll encountered exception at sendMsgByBucket, ", ex);
         }
-        @Released
         EntryEventImpl firstEvent = prMsg.getFirstEvent(this);
-        try {
-          partialKeys.saveFailedKey(firstEvent.getKey(), ex);
-        } finally {
-          firstEvent.release();
-        }
+        partialKeys.saveFailedKey(firstEvent.getKey(), ex);
       }
       if (isDebugEnabled) {
         long now = System.currentTimeMillis();
@@ -2527,13 +2520,8 @@ public class PartitionedRegion extends LocalRegion
         if (isDebugEnabled) {
           logger.debug("PR.postRemoveAll encountered exception at sendMsgByBucket, ", ex);
         }
-        @Released
         EntryEventImpl firstEvent = prMsg.getFirstEvent(this);
-        try {
-          partialKeys.saveFailedKey(firstEvent.getKey(), ex);
-        } finally {
-          firstEvent.release();
-        }
+        partialKeys.saveFailedKey(firstEvent.getKey(), ex);
       }
       if (isDebugEnabled) {
         long now = System.currentTimeMillis();
@@ -2578,136 +2566,129 @@ public class PartitionedRegion extends LocalRegion
     final boolean isDebugEnabled = logger.isDebugEnabled();
 
     // retry the put remotely until it finds the right node managing the bucket
-    @Released
     EntryEventImpl event = prMsg.getFirstEvent(this);
-    try {
-      RetryTimeKeeper retryTime = null;
-      InternalDistributedMember currentTarget = getNodeForBucketWrite(bucketId, null);
-      if (isDebugEnabled) {
-        logger.debug("PR.sendMsgByBucket:bucket {}'s currentTarget is {}", bucketId, currentTarget);
-      }
+    RetryTimeKeeper retryTime = null;
+    InternalDistributedMember currentTarget = getNodeForBucketWrite(bucketId, null);
+    if (isDebugEnabled) {
+      logger.debug("PR.sendMsgByBucket:bucket {}'s currentTarget is {}", bucketId, currentTarget);
+    }
 
-      long timeOut = 0;
-      int count = 0;
-      for (;;) {
-        switch (count) {
-          case 0:
-            // Note we don't check for DM cancellation in common case.
-            // First time. Assume success, keep going.
-            break;
-          case 1:
-            cache.getCancelCriterion().checkCancelInProgress(null);
-            // Second time (first failure). Calculate timeout and keep going.
-            timeOut = System.currentTimeMillis() + retryTimeout;
-            break;
-          default:
-            cache.getCancelCriterion().checkCancelInProgress(null);
-            // test for timeout
-            long timeLeft = timeOut - System.currentTimeMillis();
-            if (timeLeft < 0) {
-              PRHARedundancyProvider.timedOut(this, null, null, "update an entry",
-                  retryTimeout);
-              // NOTREACHED
+    long timeOut = 0;
+    int count = 0;
+    for (;;) {
+      switch (count) {
+        case 0:
+          // Note we don't check for DM cancellation in common case.
+          // First time. Assume success, keep going.
+          break;
+        case 1:
+          cache.getCancelCriterion().checkCancelInProgress(null);
+          // Second time (first failure). Calculate timeout and keep going.
+          timeOut = System.currentTimeMillis() + retryTimeout;
+          break;
+        default:
+          cache.getCancelCriterion().checkCancelInProgress(null);
+          // test for timeout
+          long timeLeft = timeOut - System.currentTimeMillis();
+          if (timeLeft < 0) {
+            PRHARedundancyProvider.timedOut(this, null, null, "update an entry",
+                retryTimeout);
+            // NOTREACHED
+          }
+
+          // Didn't time out. Sleep a bit and then continue
+          boolean interrupted = Thread.interrupted();
+          try {
+            Thread.sleep(PartitionedRegionHelper.DEFAULT_WAIT_PER_RETRY_ITERATION);
+          } catch (InterruptedException ignore) {
+            interrupted = true;
+          } finally {
+            if (interrupted) {
+              Thread.currentThread().interrupt();
             }
+          }
+          break;
+      } // switch
+      count++;
 
-            // Didn't time out. Sleep a bit and then continue
-            boolean interrupted = Thread.interrupted();
-            try {
-              Thread.sleep(PartitionedRegionHelper.DEFAULT_WAIT_PER_RETRY_ITERATION);
-            } catch (InterruptedException ignore) {
-              interrupted = true;
-            } finally {
-              if (interrupted) {
-                Thread.currentThread().interrupt();
-              }
-            }
-            break;
-        } // switch
-        count++;
+      if (currentTarget == null) { // pick target
+        checkReadiness();
+        if (retryTime == null) {
+          retryTime = new RetryTimeKeeper(retryTimeout);
+        }
 
-        if (currentTarget == null) { // pick target
-          checkReadiness();
-          if (retryTime == null) {
-            retryTime = new RetryTimeKeeper(retryTimeout);
-          }
-
-          currentTarget = waitForNodeOrCreateBucket(retryTime, event, bucketId);
-          if (isDebugEnabled) {
-            logger.debug("PR.sendMsgByBucket: event size is {}, new currentTarget is {}",
-                getEntrySize(event), currentTarget);
-          }
-
-          // It's possible this is a GemFire thread e.g. ServerConnection
-          // which got to this point because of a distributed system shutdown or
-          // region closure which uses interrupt to break any sleep() or wait() calls
-          // e.g. waitForPrimary or waitForBucketRecovery in which case throw exception
-          checkShutdown();
-          continue;
-        } // pick target
-
-        try {
-          return tryToSendOnePutAllMessage(prMsg, currentTarget);
-        } catch (ForceReattemptException prce) {
-          checkReadiness();
-          InternalDistributedMember lastTarget = currentTarget;
-          if (retryTime == null) {
-            retryTime = new RetryTimeKeeper(retryTimeout);
-          }
-          currentTarget = getNodeForBucketWrite(bucketId, retryTime);
-          if (isDebugEnabled) {
-            logger.debug("PR.sendMsgByBucket: Old target was {}, Retrying {}", lastTarget,
-                currentTarget);
-          }
-          if (lastTarget.equals(currentTarget)) {
-            if (isDebugEnabled) {
-              logger.debug("PR.sendMsgByBucket: Retrying at the same node:{} due to {}",
-                  currentTarget, prce.getMessage());
-            }
-            if (retryTime.overMaximum()) {
-              PRHARedundancyProvider.timedOut(this, null, null, "update an entry",
-                  retryTimeout);
-              // NOTREACHED
-            }
-            retryTime.waitToRetryNode();
-          }
-          event.setPossibleDuplicate(true);
-          prMsg.setPossibleDuplicate(true);
-        } catch (PrimaryBucketException notPrimary) {
-          if (isDebugEnabled) {
-            logger.debug("Bucket {} on Node {} not primnary", notPrimary.getLocalizedMessage(),
-                currentTarget);
-          }
-          getRegionAdvisor().notPrimary(bucketId, currentTarget);
-          if (retryTime == null) {
-            retryTime = new RetryTimeKeeper(retryTimeout);
-          }
-          currentTarget = getNodeForBucketWrite(bucketId, retryTime);
-        } catch (DataLocationException dle) {
-          if (isDebugEnabled) {
-            logger.debug("DataLocationException processing putAll", dle);
-          }
-          throw new TransactionException(dle);
+        currentTarget = waitForNodeOrCreateBucket(retryTime, event, bucketId);
+        if (isDebugEnabled) {
+          logger.debug("PR.sendMsgByBucket: event size is {}, new currentTarget is {}",
+              getEntrySize(event), currentTarget);
         }
 
         // It's possible this is a GemFire thread e.g. ServerConnection
         // which got to this point because of a distributed system shutdown or
-        // region closure which uses interrupt to break any sleep() or wait()
-        // calls
-        // e.g. waitForPrimary or waitForBucketRecovery in which case throw
-        // exception
+        // region closure which uses interrupt to break any sleep() or wait() calls
+        // e.g. waitForPrimary or waitForBucketRecovery in which case throw exception
         checkShutdown();
+        continue;
+      } // pick target
 
-        // If we get here, the attempt failed...
-        if (count == 1) {
-          prStats.incPutAllMsgsRetried();
+      try {
+        return tryToSendOnePutAllMessage(prMsg, currentTarget);
+      } catch (ForceReattemptException prce) {
+        checkReadiness();
+        InternalDistributedMember lastTarget = currentTarget;
+        if (retryTime == null) {
+          retryTime = new RetryTimeKeeper(retryTimeout);
         }
-        prStats.incPutAllRetries();
-      } // for
-    } finally {
-      if (event != null) {
-        event.release();
+        currentTarget = getNodeForBucketWrite(bucketId, retryTime);
+        if (isDebugEnabled) {
+          logger.debug("PR.sendMsgByBucket: Old target was {}, Retrying {}", lastTarget,
+              currentTarget);
+        }
+        if (lastTarget.equals(currentTarget)) {
+          if (isDebugEnabled) {
+            logger.debug("PR.sendMsgByBucket: Retrying at the same node:{} due to {}",
+                currentTarget, prce.getMessage());
+          }
+          if (retryTime.overMaximum()) {
+            PRHARedundancyProvider.timedOut(this, null, null, "update an entry",
+                retryTimeout);
+            // NOTREACHED
+          }
+          retryTime.waitToRetryNode();
+        }
+        event.setPossibleDuplicate(true);
+        prMsg.setPossibleDuplicate(true);
+      } catch (PrimaryBucketException notPrimary) {
+        if (isDebugEnabled) {
+          logger.debug("Bucket {} on Node {} not primnary", notPrimary.getLocalizedMessage(),
+              currentTarget);
+        }
+        getRegionAdvisor().notPrimary(bucketId, currentTarget);
+        if (retryTime == null) {
+          retryTime = new RetryTimeKeeper(retryTimeout);
+        }
+        currentTarget = getNodeForBucketWrite(bucketId, retryTime);
+      } catch (DataLocationException dle) {
+        if (isDebugEnabled) {
+          logger.debug("DataLocationException processing putAll", dle);
+        }
+        throw new TransactionException(dle);
       }
-    }
+
+      // It's possible this is a GemFire thread e.g. ServerConnection
+      // which got to this point because of a distributed system shutdown or
+      // region closure which uses interrupt to break any sleep() or wait()
+      // calls
+      // e.g. waitForPrimary or waitForBucketRecovery in which case throw
+      // exception
+      checkShutdown();
+
+      // If we get here, the attempt failed...
+      if (count == 1) {
+        prStats.incPutAllMsgsRetried();
+      }
+      prStats.incPutAllRetries();
+    } // for
     // NOTREACHED
   }
 
@@ -2717,137 +2698,132 @@ public class PartitionedRegion extends LocalRegion
    */
   private VersionedObjectList sendMsgByBucket(final Integer bucketId, RemoveAllPRMessage prMsg) {
     // retry the put remotely until it finds the right node managing the bucket
-    @Released
     EntryEventImpl event = prMsg.getFirstEvent(this);
-    try {
-      RetryTimeKeeper retryTime = null;
-      InternalDistributedMember currentTarget = getNodeForBucketWrite(bucketId, null);
-      if (logger.isDebugEnabled()) {
-        logger.debug("PR.sendMsgByBucket:bucket {}'s currentTarget is {}", bucketId, currentTarget);
-      }
+    RetryTimeKeeper retryTime = null;
+    InternalDistributedMember currentTarget = getNodeForBucketWrite(bucketId, null);
+    if (logger.isDebugEnabled()) {
+      logger.debug("PR.sendMsgByBucket:bucket {}'s currentTarget is {}", bucketId, currentTarget);
+    }
 
-      long timeOut = 0;
-      int count = 0;
-      for (;;) {
-        switch (count) {
-          case 0:
-            // Note we don't check for DM cancellation in common case.
-            // First time. Assume success, keep going.
-            break;
-          case 1:
-            cache.getCancelCriterion().checkCancelInProgress(null);
-            // Second time (first failure). Calculate timeout and keep going.
-            timeOut = System.currentTimeMillis() + retryTimeout;
-            break;
-          default:
-            cache.getCancelCriterion().checkCancelInProgress(null);
-            // test for timeout
-            long timeLeft = timeOut - System.currentTimeMillis();
-            if (timeLeft < 0) {
-              PRHARedundancyProvider.timedOut(this, null, null, "update an entry",
-                  retryTimeout);
-              // NOTREACHED
+    long timeOut = 0;
+    int count = 0;
+    for (;;) {
+      switch (count) {
+        case 0:
+          // Note we don't check for DM cancellation in common case.
+          // First time. Assume success, keep going.
+          break;
+        case 1:
+          cache.getCancelCriterion().checkCancelInProgress(null);
+          // Second time (first failure). Calculate timeout and keep going.
+          timeOut = System.currentTimeMillis() + retryTimeout;
+          break;
+        default:
+          cache.getCancelCriterion().checkCancelInProgress(null);
+          // test for timeout
+          long timeLeft = timeOut - System.currentTimeMillis();
+          if (timeLeft < 0) {
+            PRHARedundancyProvider.timedOut(this, null, null, "update an entry",
+                retryTimeout);
+            // NOTREACHED
+          }
+
+          // Didn't time out. Sleep a bit and then continue
+          boolean interrupted = Thread.interrupted();
+          try {
+            Thread.sleep(PartitionedRegionHelper.DEFAULT_WAIT_PER_RETRY_ITERATION);
+          } catch (InterruptedException ignore) {
+            interrupted = true;
+          } finally {
+            if (interrupted) {
+              Thread.currentThread().interrupt();
             }
+          }
+          break;
+      } // switch
+      count++;
 
-            // Didn't time out. Sleep a bit and then continue
-            boolean interrupted = Thread.interrupted();
-            try {
-              Thread.sleep(PartitionedRegionHelper.DEFAULT_WAIT_PER_RETRY_ITERATION);
-            } catch (InterruptedException ignore) {
-              interrupted = true;
-            } finally {
-              if (interrupted) {
-                Thread.currentThread().interrupt();
-              }
-            }
-            break;
-        } // switch
-        count++;
+      if (currentTarget == null) { // pick target
+        checkReadiness();
+        if (retryTime == null) {
+          retryTime = new RetryTimeKeeper(retryTimeout);
+        }
 
-        if (currentTarget == null) { // pick target
-          checkReadiness();
-          if (retryTime == null) {
-            retryTime = new RetryTimeKeeper(retryTimeout);
-          }
-
-          currentTarget = waitForNodeOrCreateBucket(retryTime, event, bucketId);
-          if (logger.isDebugEnabled()) {
-            logger.debug("PR.sendMsgByBucket: event size is {}, new currentTarget is {}",
-                getEntrySize(event), currentTarget);
-          }
-
-          // It's possible this is a GemFire thread e.g. ServerConnection
-          // which got to this point because of a distributed system shutdown or
-          // region closure which uses interrupt to break any sleep() or wait() calls
-          // e.g. waitForPrimary or waitForBucketRecovery in which case throw exception
-          checkShutdown();
-          continue;
-        } // pick target
-
-        try {
-          return tryToSendOneRemoveAllMessage(prMsg, currentTarget);
-        } catch (ForceReattemptException prce) {
-          checkReadiness();
-          InternalDistributedMember lastTarget = currentTarget;
-          if (retryTime == null) {
-            retryTime = new RetryTimeKeeper(retryTimeout);
-          }
-          currentTarget = getNodeForBucketWrite(bucketId, retryTime);
-          if (logger.isTraceEnabled()) {
-            logger.trace("PR.sendMsgByBucket: Old target was {}, Retrying {}", lastTarget,
-                currentTarget);
-          }
-          if (lastTarget.equals(currentTarget)) {
-            if (logger.isDebugEnabled()) {
-              logger.debug("PR.sendMsgByBucket: Retrying at the same node:{} due to {}",
-                  currentTarget, prce.getMessage());
-            }
-            if (retryTime.overMaximum()) {
-              PRHARedundancyProvider.timedOut(this, null, null, "update an entry",
-                  retryTimeout);
-              // NOTREACHED
-            }
-            retryTime.waitToRetryNode();
-          }
-          event.setPossibleDuplicate(true);
-          if (prMsg != null) {
-            prMsg.setPossibleDuplicate(true);
-          }
-        } catch (PrimaryBucketException notPrimary) {
-          if (logger.isDebugEnabled()) {
-            logger.debug("Bucket {} on Node {} not primary", notPrimary.getLocalizedMessage(),
-                currentTarget);
-          }
-          getRegionAdvisor().notPrimary(bucketId, currentTarget);
-          if (retryTime == null) {
-            retryTime = new RetryTimeKeeper(retryTimeout);
-          }
-          currentTarget = getNodeForBucketWrite(bucketId, retryTime);
-        } catch (DataLocationException dle) {
-          if (logger.isDebugEnabled()) {
-            logger.debug("DataLocationException processing putAll", dle);
-          }
-          throw new TransactionException(dle);
+        currentTarget = waitForNodeOrCreateBucket(retryTime, event, bucketId);
+        if (logger.isDebugEnabled()) {
+          logger.debug("PR.sendMsgByBucket: event size is {}, new currentTarget is {}",
+              getEntrySize(event), currentTarget);
         }
 
         // It's possible this is a GemFire thread e.g. ServerConnection
         // which got to this point because of a distributed system shutdown or
-        // region closure which uses interrupt to break any sleep() or wait()
-        // calls
-        // e.g. waitForPrimary or waitForBucketRecovery in which case throw
-        // exception
+        // region closure which uses interrupt to break any sleep() or wait() calls
+        // e.g. waitForPrimary or waitForBucketRecovery in which case throw exception
         checkShutdown();
+        continue;
+      } // pick target
 
-        // If we get here, the attempt failed...
-        if (count == 1) {
-          prStats.incRemoveAllMsgsRetried();
+      try {
+        return tryToSendOneRemoveAllMessage(prMsg, currentTarget);
+      } catch (ForceReattemptException prce) {
+        checkReadiness();
+        InternalDistributedMember lastTarget = currentTarget;
+        if (retryTime == null) {
+          retryTime = new RetryTimeKeeper(retryTimeout);
         }
-        prStats.incRemoveAllRetries();
-      } // for
-      // NOTREACHED
-    } finally {
-      event.release();
-    }
+        currentTarget = getNodeForBucketWrite(bucketId, retryTime);
+        if (logger.isTraceEnabled()) {
+          logger.trace("PR.sendMsgByBucket: Old target was {}, Retrying {}", lastTarget,
+              currentTarget);
+        }
+        if (lastTarget.equals(currentTarget)) {
+          if (logger.isDebugEnabled()) {
+            logger.debug("PR.sendMsgByBucket: Retrying at the same node:{} due to {}",
+                currentTarget, prce.getMessage());
+          }
+          if (retryTime.overMaximum()) {
+            PRHARedundancyProvider.timedOut(this, null, null, "update an entry",
+                retryTimeout);
+            // NOTREACHED
+          }
+          retryTime.waitToRetryNode();
+        }
+        event.setPossibleDuplicate(true);
+        if (prMsg != null) {
+          prMsg.setPossibleDuplicate(true);
+        }
+      } catch (PrimaryBucketException notPrimary) {
+        if (logger.isDebugEnabled()) {
+          logger.debug("Bucket {} on Node {} not primary", notPrimary.getLocalizedMessage(),
+              currentTarget);
+        }
+        getRegionAdvisor().notPrimary(bucketId, currentTarget);
+        if (retryTime == null) {
+          retryTime = new RetryTimeKeeper(retryTimeout);
+        }
+        currentTarget = getNodeForBucketWrite(bucketId, retryTime);
+      } catch (DataLocationException dle) {
+        if (logger.isDebugEnabled()) {
+          logger.debug("DataLocationException processing putAll", dle);
+        }
+        throw new TransactionException(dle);
+      }
+
+      // It's possible this is a GemFire thread e.g. ServerConnection
+      // which got to this point because of a distributed system shutdown or
+      // region closure which uses interrupt to break any sleep() or wait()
+      // calls
+      // e.g. waitForPrimary or waitForBucketRecovery in which case throw
+      // exception
+      checkShutdown();
+
+      // If we get here, the attempt failed...
+      if (count == 1) {
+        prStats.incRemoveAllMsgsRetried();
+      }
+      prStats.incRemoveAllRetries();
+    } // for
+    // NOTREACHED
   }
 
   public VersionedObjectList tryToSendOnePutAllMessage(PutAllPRMessage prMsg,
@@ -3201,7 +3177,6 @@ public class PartitionedRegion extends LocalRegion
    * @return the size of the serialized entry
    */
   private static int getEntrySize(EntryEventImpl eei) {
-    @Unretained
     final Object v = eei.getRawNewValue();
     if (v instanceof CachedDeserializable) {
       return ((Sizeable) v).getSizeInBytes();
@@ -5048,7 +5023,6 @@ public class PartitionedRegion extends LocalRegion
       profile.addCacheServiceProfile(csp);
     }
 
-    profile.isOffHeap = getOffHeap();
   }
 
   /** set fields that are only in PartitionProfile... */
@@ -9365,13 +9339,11 @@ public class PartitionedRegion extends LocalRegion
   @Override
   void setMemoryThresholdFlag(MemoryEvent event) {
     if (event.getState().isCritical() && !event.getPreviousState().isCritical()
-        && (event.getType() == ResourceType.HEAP_MEMORY
-            || (event.getType() == ResourceType.OFFHEAP_MEMORY && getOffHeap()))) {
+        && (event.getType() == ResourceType.HEAP_MEMORY)) {
       // update proxy bucket, so that we can reject operations on those buckets.
       getRegionAdvisor().markBucketsOnMember(event.getMember(), true/* sick */);
     } else if (!event.getState().isCritical() && event.getPreviousState().isCritical()
-        && (event.getType() == ResourceType.HEAP_MEMORY
-            || (event.getType() == ResourceType.OFFHEAP_MEMORY && getOffHeap()))) {
+        && (event.getType() == ResourceType.HEAP_MEMORY)) {
       getRegionAdvisor().markBucketsOnMember(event.getMember(), false/* not sick */);
     }
   }

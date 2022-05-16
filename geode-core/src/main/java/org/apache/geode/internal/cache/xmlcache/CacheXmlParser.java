@@ -1234,10 +1234,6 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
         attrs.addAsyncEventQueueId(st.nextToken());
       }
     }
-    String offHeapStr = atts.getValue(OFF_HEAP);
-    if (offHeapStr != null) {
-      attrs.setOffHeap(Boolean.parseBoolean(offHeapStr));
-    }
 
     stack.push(attrs);
   }

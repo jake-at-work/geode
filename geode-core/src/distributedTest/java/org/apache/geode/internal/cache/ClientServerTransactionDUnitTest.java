@@ -315,16 +315,13 @@ public class ClientServerTransactionDUnitTest extends RemoteTransactionDUnitTest
     getSystem(p);
   }
 
-  private void createSubscriptionRegion(boolean isOffHeap, String regionName, int copies,
+  private void createSubscriptionRegion(String regionName, int copies,
       int totalBuckets) {
     PartitionAttributesFactory paf = new PartitionAttributesFactory();
     paf.setRedundantCopies(copies).setTotalNumBuckets(totalBuckets);
     AttributesFactory attr = new AttributesFactory();
     attr.setPartitionAttributes(paf.create());
     attr.setConcurrencyChecksEnabled(true);
-    if (isOffHeap) {
-      attr.setOffHeap(isOffHeap);
-    }
     Region offheapRegion = getCache().createRegion(regionName, attr.create());
     assertNotNull(offheapRegion);
   }
@@ -3705,7 +3702,6 @@ public class ClientServerTransactionDUnitTest extends RemoteTransactionDUnitTest
         Customer cust = new Customer("name" + 1, "address" + 1);
         event = lr.newUpdateEntryEvent(custId, cust, null);
         assertNotNull(event);
-        event.copyOffHeapToHeap();
         lr.validatedPut(event, System.currentTimeMillis());
         lr.validatedPut(event, System.currentTimeMillis());
         lr.validatedPut(event, System.currentTimeMillis());
@@ -4086,7 +4082,7 @@ public class ClientServerTransactionDUnitTest extends RemoteTransactionDUnitTest
     final int port1 = createRegionsAndStartServer(server1, false);
     // Create PR
     server1.invoke(() -> {
-      createSubscriptionRegion(offheap, regionName, copies, totalBuckets);
+      createSubscriptionRegion(regionName, copies, totalBuckets);
       Region r = getCache().getRegion(regionName);
       r.put("KEY-1", "VALUE-1");
       r.put("KEY-2", "VALUE-2");
@@ -4096,7 +4092,7 @@ public class ClientServerTransactionDUnitTest extends RemoteTransactionDUnitTest
 
     // Create PR
     server2.invoke(() -> {
-      createSubscriptionRegion(offheap, regionName, copies, totalBuckets);
+      createSubscriptionRegion(regionName, copies, totalBuckets);
       Region r = getCache().getRegion(regionName);
 
       await().untilAsserted(() -> {
@@ -4199,13 +4195,13 @@ public class ClientServerTransactionDUnitTest extends RemoteTransactionDUnitTest
     final int port1 = createRegionsAndStartServer(server1, false);
     // Create PR
     server1.invoke(() -> {
-      createSubscriptionRegion(false, regionName, copies, totalBuckets);
+      createSubscriptionRegion(regionName, copies, totalBuckets);
       Region r = getCache().getRegion(regionName);
       r.put(key1, v1);
     });
 
     createRegionsAndStartServer(server2, false);
-    server2.invoke(() -> createSubscriptionRegion(false, regionName, copies, totalBuckets));
+    server2.invoke(() -> createSubscriptionRegion(regionName, copies, totalBuckets));
 
     // Create client 1
     client1.invoke(() -> createClient(port1, regionName));
@@ -4437,7 +4433,7 @@ public class ClientServerTransactionDUnitTest extends RemoteTransactionDUnitTest
       VM server2) {
     createRegionOnServer(server2);
     server2.invoke(() -> {
-      createSubscriptionRegion(false, regionName, 0, totalBuckets);
+      createSubscriptionRegion(regionName, 0, totalBuckets);
       Region<Integer, String> region = getCache().getRegion(regionName);
       for (int i = totalBuckets; i > 1; i--) {
         region.put(i, "VALUE-" + i);
@@ -4447,7 +4443,7 @@ public class ClientServerTransactionDUnitTest extends RemoteTransactionDUnitTest
 
   private void createPRAndInitABucketOnServer1(int totalBuckets, String regionName, VM server1) {
     server1.invoke(() -> {
-      createSubscriptionRegion(false, regionName, 0, totalBuckets);
+      createSubscriptionRegion(regionName, 0, totalBuckets);
       Region<Integer, String> region = getCache().getRegion(regionName);
       // should create first bucket on server1
       region.put(1, "VALUE-1");

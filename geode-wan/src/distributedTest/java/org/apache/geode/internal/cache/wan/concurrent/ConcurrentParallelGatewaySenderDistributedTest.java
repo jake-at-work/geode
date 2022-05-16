@@ -67,21 +67,21 @@ public class ConcurrentParallelGatewaySenderDistributedTest extends WANTestBase 
     vm7.invoke(() -> WANTestBase.createConcurrentSender("ln", 2, true, 100, 10, false, false, null,
         true, 5, OrderPolicy.PARTITION));
 
-    vm4.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100,
-        isOffHeap()));
-    vm5.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100,
-        isOffHeap()));
-    vm6.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100,
-        isOffHeap()));
-    vm7.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100,
-        isOffHeap()));
+    vm4.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100));
+    vm5.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100));
+    vm6.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100));
+    vm7.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100));
 
     startSenderInVMs("ln", vm4, vm5, vm6, vm7);
 
-    vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100,
-        isOffHeap()));
-    vm3.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100,
-        isOffHeap()));
+    vm2.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100));
+    vm3.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100));
 
     // before doing any puts, let the senders be running in order to ensure that
     // not a single event will be lost
@@ -135,21 +135,21 @@ public class ConcurrentParallelGatewaySenderDistributedTest extends WANTestBase 
     vm7.invoke(() -> WANTestBase.createConcurrentSender("ln", 2, true, 100, 10, false, false, null,
         true, 5, OrderPolicy.PARTITION));
 
-    vm4.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100,
-        isOffHeap()));
-    vm5.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100,
-        isOffHeap()));
-    vm6.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100,
-        isOffHeap()));
-    vm7.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100,
-        isOffHeap()));
+    vm4.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100));
+    vm5.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100));
+    vm6.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100));
+    vm7.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100));
 
     startSenderInVMs("ln", vm4, vm5, vm6, vm7);
 
-    vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100,
-        isOffHeap()));
-    vm3.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100,
-        isOffHeap()));
+    vm2.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100));
+    vm3.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100));
 
     // before doing any puts, let the senders be running in order to ensure that
     // not a single event will be lost
@@ -180,10 +180,10 @@ public class ConcurrentParallelGatewaySenderDistributedTest extends WANTestBase 
     Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     createCacheInVMs(nyPort, vm2, vm3);
-    vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100,
-        isOffHeap()));
-    vm3.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100,
-        isOffHeap()));
+    vm2.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100));
+    vm3.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100));
     createReceiverInVMs(vm2, vm3);
 
     createCacheInVMs(lnPort, vm4, vm5, vm6, vm7);
@@ -197,14 +197,14 @@ public class ConcurrentParallelGatewaySenderDistributedTest extends WANTestBase 
     vm7.invoke(() -> WANTestBase.createConcurrentSender("ln", 2, true, 100, 10, false, false, null,
         true, 7, OrderPolicy.PARTITION));
 
-    vm4.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100,
-        isOffHeap()));
-    vm5.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100,
-        isOffHeap()));
-    vm6.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100,
-        isOffHeap()));
-    vm7.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100,
-        isOffHeap()));
+    vm4.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100));
+    vm5.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100));
+    vm6.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100));
+    vm7.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100));
 
     startSenderInVMs("ln", vm4, vm5, vm6, vm7);
 
@@ -248,14 +248,14 @@ public class ConcurrentParallelGatewaySenderDistributedTest extends WANTestBase 
     vm7.invoke(() -> WANTestBase.createConcurrentSender("ln", 2, true, 100, 300, false, false, null,
         true, 6, OrderPolicy.PARTITION));
 
-    vm4.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100,
-        isOffHeap()));
-    vm5.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100,
-        isOffHeap()));
-    vm6.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100,
-        isOffHeap()));
-    vm7.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100,
-        isOffHeap()));
+    vm4.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100));
+    vm5.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100));
+    vm6.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100));
+    vm7.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100));
 
     startSenderInVMs("ln", vm4, vm5, vm6, vm7);
 
@@ -268,10 +268,10 @@ public class ConcurrentParallelGatewaySenderDistributedTest extends WANTestBase 
     vm4.invoke(() -> WANTestBase.doPuts(getTestMethodName() + "_PR", 1000));
 
     createCacheInVMs(nyPort, vm2, vm3);
-    vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100,
-        isOffHeap()));
-    vm3.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100,
-        isOffHeap()));
+    vm2.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100));
+    vm3.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100));
 
     createReceiverInVMs(vm2, vm3);
 
@@ -312,21 +312,21 @@ public class ConcurrentParallelGatewaySenderDistributedTest extends WANTestBase 
 
 
     vm4.invoke(
-        () -> WANTestBase.createCustomerOrderShipmentPartitionedRegion("ln", 1, 100, isOffHeap()));
+        () -> WANTestBase.createCustomerOrderShipmentPartitionedRegion("ln", 1, 100));
     vm5.invoke(
-        () -> WANTestBase.createCustomerOrderShipmentPartitionedRegion("ln", 1, 100, isOffHeap()));
+        () -> WANTestBase.createCustomerOrderShipmentPartitionedRegion("ln", 1, 100));
     vm6.invoke(
-        () -> WANTestBase.createCustomerOrderShipmentPartitionedRegion("ln", 1, 100, isOffHeap()));
+        () -> WANTestBase.createCustomerOrderShipmentPartitionedRegion("ln", 1, 100));
     vm7.invoke(
-        () -> WANTestBase.createCustomerOrderShipmentPartitionedRegion("ln", 1, 100, isOffHeap()));
+        () -> WANTestBase.createCustomerOrderShipmentPartitionedRegion("ln", 1, 100));
 
 
     startSenderInVMs("ln", vm4, vm5, vm6, vm7);
 
     vm2.invoke(
-        () -> WANTestBase.createCustomerOrderShipmentPartitionedRegion("ln", 1, 100, isOffHeap()));
+        () -> WANTestBase.createCustomerOrderShipmentPartitionedRegion("ln", 1, 100));
     vm3.invoke(
-        () -> WANTestBase.createCustomerOrderShipmentPartitionedRegion("ln", 1, 100, isOffHeap()));
+        () -> WANTestBase.createCustomerOrderShipmentPartitionedRegion("ln", 1, 100));
 
     // before doing any puts, let the senders be running in order to ensure that
     // not a single event will be lost
@@ -373,21 +373,21 @@ public class ConcurrentParallelGatewaySenderDistributedTest extends WANTestBase 
     vm7.invoke(() -> WANTestBase.createConcurrentSender("ln", 2, true, 100, 10, false, false, null,
         true, 6, OrderPolicy.PARTITION));
 
-    vm4.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100,
-        isOffHeap()));
-    vm5.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100,
-        isOffHeap()));
-    vm6.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100,
-        isOffHeap()));
-    vm7.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100,
-        isOffHeap()));
+    vm4.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100));
+    vm5.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100));
+    vm6.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100));
+    vm7.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100));
 
     startSenderInVMs("ln", vm4, vm5, vm6, vm7);
 
-    vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100,
-        isOffHeap()));
-    vm3.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100,
-        isOffHeap()));
+    vm2.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100));
+    vm3.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100));
 
     // before doing any puts, let the senders be running in order to ensure that
     // not a single event will be lost
@@ -423,14 +423,14 @@ public class ConcurrentParallelGatewaySenderDistributedTest extends WANTestBase 
     vm7.invoke(() -> WANTestBase.createConcurrentSender("ln", 2, true, 100, 10, false, false, null,
         true, 6, OrderPolicy.PARTITION));
 
-    vm4.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100,
-        isOffHeap()));
-    vm5.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100,
-        isOffHeap()));
-    vm6.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100,
-        isOffHeap()));
-    vm7.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100,
-        isOffHeap()));
+    vm4.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100));
+    vm5.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100));
+    vm6.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100));
+    vm7.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100));
 
     startSenderInVMs("ln", vm4, vm5, vm6, vm7);
 
@@ -480,20 +480,20 @@ public class ConcurrentParallelGatewaySenderDistributedTest extends WANTestBase 
         true, 7, OrderPolicy.KEY));
 
     vm4.invoke(() -> WANTestBase.createColocatedPartitionedRegions(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
     vm5.invoke(() -> WANTestBase.createColocatedPartitionedRegions(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
     vm6.invoke(() -> WANTestBase.createColocatedPartitionedRegions(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
     vm7.invoke(() -> WANTestBase.createColocatedPartitionedRegions(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
 
     startSenderInVMs("ln", vm4, vm5, vm6, vm7);
 
     vm2.invoke(() -> WANTestBase.createColocatedPartitionedRegions(getTestMethodName(), null, 1,
-        100, isOffHeap()));
+        100));
     vm3.invoke(() -> WANTestBase.createColocatedPartitionedRegions(getTestMethodName(), null, 1,
-        100, isOffHeap()));
+        100));
 
     vm4.invoke(() -> WANTestBase.doPuts(getTestMethodName(), 1000));
 
@@ -531,20 +531,20 @@ public class ConcurrentParallelGatewaySenderDistributedTest extends WANTestBase 
         true, 7, OrderPolicy.PARTITION));
 
     vm4.invoke(() -> WANTestBase.createColocatedPartitionedRegions(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
     vm5.invoke(() -> WANTestBase.createColocatedPartitionedRegions(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
     vm6.invoke(() -> WANTestBase.createColocatedPartitionedRegions(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
     vm7.invoke(() -> WANTestBase.createColocatedPartitionedRegions(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
 
     startSenderInVMs("ln", vm4, vm5, vm6, vm7);
 
     vm2.invoke(() -> WANTestBase.createColocatedPartitionedRegions(getTestMethodName(), null, 1,
-        100, isOffHeap()));
+        100));
     vm3.invoke(() -> WANTestBase.createColocatedPartitionedRegions(getTestMethodName(), null, 1,
-        100, isOffHeap()));
+        100));
 
     vm4.invoke(() -> WANTestBase.doPuts(getTestMethodName(), 1000));
 
@@ -591,10 +591,8 @@ public class ConcurrentParallelGatewaySenderDistributedTest extends WANTestBase 
 
     createCacheInVMs(nyPort, vm2, vm3);
 
-    vm2.invoke(() -> WANTestBase.createPartitionedRegion(regionName, null, 1, 100,
-        isOffHeap()));
-    vm3.invoke(() -> WANTestBase.createPartitionedRegion(regionName, null, 1, 100,
-        isOffHeap()));
+    vm2.invoke(() -> WANTestBase.createPartitionedRegion(regionName, null, 1, 100));
+    vm3.invoke(() -> WANTestBase.createPartitionedRegion(regionName, null, 1, 100));
 
     createReceiverInVMs(vm2, vm3);
 
@@ -609,14 +607,10 @@ public class ConcurrentParallelGatewaySenderDistributedTest extends WANTestBase 
     vm7.invoke(() -> WANTestBase.createConcurrentSender("ln", 2, true, 100, 10, false, false, null,
         true, 6, OrderPolicy.KEY));
 
-    vm4.invoke(() -> WANTestBase.createPartitionedRegion(regionName, "ln", 2, 100,
-        isOffHeap()));
-    vm5.invoke(() -> WANTestBase.createPartitionedRegion(regionName, "ln", 2, 100,
-        isOffHeap()));
-    vm6.invoke(() -> WANTestBase.createPartitionedRegion(regionName, "ln", 2, 100,
-        isOffHeap()));
-    vm7.invoke(() -> WANTestBase.createPartitionedRegion(regionName, "ln", 2, 100,
-        isOffHeap()));
+    vm4.invoke(() -> WANTestBase.createPartitionedRegion(regionName, "ln", 2, 100));
+    vm5.invoke(() -> WANTestBase.createPartitionedRegion(regionName, "ln", 2, 100));
+    vm6.invoke(() -> WANTestBase.createPartitionedRegion(regionName, "ln", 2, 100));
+    vm7.invoke(() -> WANTestBase.createPartitionedRegion(regionName, "ln", 2, 100));
 
     startSenderInVMs("ln", vm4, vm5, vm6, vm7);
 
@@ -672,13 +666,10 @@ public class ConcurrentParallelGatewaySenderDistributedTest extends WANTestBase 
     vm4.invoke(() -> WANTestBase.createConcurrentSender("ln", 2, true, 100, 10, false, false, null,
         true, 5, OrderPolicy.KEY));
 
-    vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 0, 2,
-        isOffHeap()));
+    vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 0, 2));
 
-    vm3.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 0, 2,
-        isOffHeap()));
-    vm4.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 0, 2,
-        isOffHeap()));
+    vm3.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 0, 2));
+    vm4.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 0, 2));
 
     startSenderInVMs("ln", vm3, vm4);
 
@@ -702,13 +693,10 @@ public class ConcurrentParallelGatewaySenderDistributedTest extends WANTestBase 
     vm4.invoke(() -> WANTestBase.createConcurrentSender("ln", 2, true, 100, 10, false, false, null,
         true, 5, OrderPolicy.KEY));
 
-    vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 0, 2,
-        isOffHeap()));
+    vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 0, 2));
 
-    vm3.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 0, 2,
-        isOffHeap()));
-    vm4.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 0, 2,
-        isOffHeap()));
+    vm3.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 0, 2));
+    vm4.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 0, 2));
 
     vm3.invoke(() -> WANTestBase.doPutsPDXSerializable(getTestMethodName() + "_PR", 10));
 

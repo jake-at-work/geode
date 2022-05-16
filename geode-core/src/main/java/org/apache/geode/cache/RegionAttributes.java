@@ -492,6 +492,10 @@ public interface RegionAttributes<K, V> {
    * @return True if a usage of off-heap memory is enabled; false if usage of off-heap memory is
    *         disabled (default).
    * @since Geode 1.0
+   * @deprecated No replacement.
    */
-  boolean getOffHeap();
+  @Deprecated
+  default boolean getOffHeap() {
+    return false;
+  };
 }

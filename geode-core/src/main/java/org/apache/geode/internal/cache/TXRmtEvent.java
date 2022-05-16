@@ -25,8 +25,6 @@ import org.apache.geode.cache.Operation;
 import org.apache.geode.cache.TransactionEvent;
 import org.apache.geode.cache.TransactionId;
 import org.apache.geode.distributed.DistributedMember;
-import org.apache.geode.internal.offheap.annotations.Released;
-import org.apache.geode.internal.offheap.annotations.Retained;
 
 /**
  * <p>
@@ -43,7 +41,6 @@ public class TXRmtEvent implements TransactionEvent {
   private final Cache cache;
 
   // This list of EntryEventImpls are released by calling freeOffHeapResources
-  @Released
   private List events;
 
   TXRmtEvent(TransactionId txId, Cache cache) {
@@ -107,7 +104,6 @@ public class TXRmtEvent implements TransactionEvent {
     return (events == null) || events.isEmpty();
   }
 
-  @Retained
   private EntryEventImpl createEvent(InternalRegion r, Operation op, RegionEntry re, Object key,
       Object newValue, Object aCallbackArgument) {
     DistributedMember originator = ((TXId) txId).getMemberId();
@@ -117,7 +113,6 @@ public class TXRmtEvent implements TransactionEvent {
     if (r.isUsedForPartitionedRegionBucket()) {
       eventRegion = r.getPartitionedRegion();
     }
-    @Retained
     EntryEventImpl event = EntryEventImpl.create(eventRegion, op, key, newValue, aCallbackArgument, // callbackArg
         true, // originRemote
         originator);
@@ -157,11 +152,4 @@ public class TXRmtEvent implements TransactionEvent {
     return cache;
   }
 
-  public void freeOffHeapResources() {
-    if (events != null) {
-      for (EntryEventImpl e : (List<EntryEventImpl>) events) {
-        e.release();
-      }
-    }
-  }
 }

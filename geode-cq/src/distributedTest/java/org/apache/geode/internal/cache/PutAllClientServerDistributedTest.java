@@ -3292,7 +3292,6 @@ public class PutAllClientServerDistributedTest implements Serializable {
     InternalEntryEvent event =
         EntryEventImpl.create(internalRegion, Operation.REMOVEALL_DESTROY, null, null,
             null, false, internalRegion.getMyId());
-    event.disallowOffHeapValues();
 
     Collection<Object> keys = new ArrayList<>();
     for (int i = 0; i < entryCount; i++) {

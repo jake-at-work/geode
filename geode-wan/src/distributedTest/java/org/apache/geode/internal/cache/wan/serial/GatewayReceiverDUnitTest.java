@@ -44,7 +44,7 @@ public class GatewayReceiverDUnitTest extends WANTestBase {
   public void removingGatewayReceiverUsingReplicatedRegionShouldRemoveCacheServerFlagFromProfile()
       throws Exception {
     testRemoveGatewayReceiver(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName(), null, isOffHeap()),
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName(), null),
         () -> ((DistributedRegion) WANTestBase.cache.getRegion(getTestMethodName()))
             .getDistributionAdvisor());
   }
@@ -53,7 +53,7 @@ public class GatewayReceiverDUnitTest extends WANTestBase {
   public void removingGatewayReceiverUsingPartitionedRegionShouldRemoveCacheServerFlagFromProfile()
       throws Exception {
     testRemoveGatewayReceiver(
-        () -> WANTestBase.createPartitionedRegion(getTestMethodName(), null, 1, 10, isOffHeap()),
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName(), null, 1, 10),
         () -> ((PartitionedRegion) WANTestBase.cache.getRegion(getTestMethodName()))
             .getDistributionAdvisor());
   }
@@ -61,7 +61,7 @@ public class GatewayReceiverDUnitTest extends WANTestBase {
   @Test
   public void canAddReceiverAfterRemovingFromReplicatedRegion() throws Exception {
     testCanAddGatewayReceiverAfterOneHasBeenRemoved(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName(), null, isOffHeap()),
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName(), null),
         () -> ((DistributedRegion) WANTestBase.cache.getRegion(getTestMethodName()))
             .getDistributionAdvisor());
   }
@@ -69,7 +69,7 @@ public class GatewayReceiverDUnitTest extends WANTestBase {
   @Test
   public void canAddReceiverAfterRemovingFromPartitionedRegion() throws Exception {
     testCanAddGatewayReceiverAfterOneHasBeenRemoved(
-        () -> WANTestBase.createPartitionedRegion(getTestMethodName(), null, 1, 10, isOffHeap()),
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName(), null, 1, 10),
         () -> ((PartitionedRegion) WANTestBase.cache.getRegion(getTestMethodName()))
             .getDistributionAdvisor());
   }
@@ -77,13 +77,13 @@ public class GatewayReceiverDUnitTest extends WANTestBase {
   @Test
   public void canDestroyUnstartedGatewayReceiverFromReplicated() throws Exception {
     testCanDestroyUnstartedGatewayReceiver(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName(), null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName(), null));
   }
 
   @Test
   public void canDestroyUnstartedReceiverFromPartitionedRegion() throws Exception {
     testCanDestroyUnstartedGatewayReceiver(
-        () -> WANTestBase.createPartitionedRegion(getTestMethodName(), null, 1, 10, isOffHeap()));
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName(), null, 1, 10));
   }
 
   public <T> void testRemoveGatewayReceiver(SerializableRunnableIF createRegionLambda,

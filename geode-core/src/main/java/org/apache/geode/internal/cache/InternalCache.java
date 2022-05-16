@@ -64,7 +64,6 @@ import org.apache.geode.internal.cache.persistence.PersistentMemberManager;
 import org.apache.geode.internal.cache.tier.sockets.CacheClientNotifier;
 import org.apache.geode.internal.cache.tier.sockets.ClientProxyMembershipID;
 import org.apache.geode.internal.logging.InternalLogWriter;
-import org.apache.geode.internal.offheap.MemoryAllocator;
 import org.apache.geode.internal.security.SecurityService;
 import org.apache.geode.internal.statistics.StatisticsClockSupplier;
 import org.apache.geode.management.internal.JmxManagerAdvisor;
@@ -133,8 +132,6 @@ public interface InternalCache extends Cache, Extensible<Cache>, CacheTime, Inte
    * @param returnDestroyedRegion if true, okay to return a destroyed region
    */
   <K, V> Region<K, V> getRegion(String path, boolean returnDestroyedRegion);
-
-  MemoryAllocator getOffHeapStore();
 
   <K, V> Region<K, V> createVMRegion(String name, RegionAttributes<K, V> p_attrs,
       InternalRegionArguments internalRegionArgs)

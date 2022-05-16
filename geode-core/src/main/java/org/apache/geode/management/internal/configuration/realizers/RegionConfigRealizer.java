@@ -201,10 +201,6 @@ public class RegionConfigRealizer
       factory.setDiskSynchronous(regionAttributes.isDiskSynchronous());
     }
 
-    if (regionAttributes.isOffHeap() != null) {
-      factory.setOffHeap(regionAttributes.isOffHeap());
-    }
-
     if (regionAttributes.isStatisticsEnabled() != null) {
       factory.setStatisticsEnabled(regionAttributes.isStatisticsEnabled());
     }

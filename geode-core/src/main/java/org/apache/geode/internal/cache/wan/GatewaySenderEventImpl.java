@@ -44,14 +44,6 @@ import org.apache.geode.internal.cache.Token;
 import org.apache.geode.internal.cache.WrappedCallbackArgument;
 import org.apache.geode.internal.cache.tier.sockets.Message;
 import org.apache.geode.internal.lang.ObjectUtils;
-import org.apache.geode.internal.offheap.OffHeapHelper;
-import org.apache.geode.internal.offheap.ReferenceCountHelper;
-import org.apache.geode.internal.offheap.Releasable;
-import org.apache.geode.internal.offheap.StoredObject;
-import org.apache.geode.internal.offheap.annotations.OffHeapIdentifier;
-import org.apache.geode.internal.offheap.annotations.Released;
-import org.apache.geode.internal.offheap.annotations.Retained;
-import org.apache.geode.internal.offheap.annotations.Unretained;
 import org.apache.geode.internal.serialization.DataSerializableFixedID;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.KnownVersion;
@@ -67,7 +59,7 @@ import org.apache.geode.internal.size.Sizeable;
  *
  */
 public class GatewaySenderEventImpl
-    implements AsyncEvent, DataSerializableFixedID, Conflatable, Sizeable, Releasable {
+    implements AsyncEvent, DataSerializableFixedID, Conflatable, Sizeable {
   private static final long serialVersionUID = -5690172020872255422L;
   protected static final Object TOKEN_NULL = new Object();
 
@@ -124,9 +116,7 @@ public class GatewaySenderEventImpl
   /**
    * The "object" form of the value. Will be null after this object is deserialized.
    */
-  @Retained(OffHeapIdentifier.GATEWAY_SENDER_EVENT_IMPL_VALUE)
   protected transient Object valueObj;
-  protected transient boolean valueObjReleased;
 
   private transient boolean serializedValueNotAvailable;
 
@@ -236,20 +226,17 @@ public class GatewaySenderEventImpl
    * @param transactionMetadataDisposition indicating the inclusion of transaction metadata.
    *
    */
-  @Retained
   public GatewaySenderEventImpl(EnumListenerEvent operation, CacheEvent<?, ?> event,
       Object substituteValue, final TransactionMetadataDisposition transactionMetadataDisposition)
       throws IOException {
     this(operation, event, substituteValue, true, transactionMetadataDisposition);
   }
 
-  @Retained
   public GatewaySenderEventImpl(EnumListenerEvent operation, CacheEvent<?, ?> event,
       Object substituteValue) throws IOException {
     this(operation, event, substituteValue, true, EXCLUDE);
   }
 
-  @Retained
   public GatewaySenderEventImpl(EnumListenerEvent operation, CacheEvent<?, ?> event,
       Object substituteValue, boolean initialize, int bucketId,
       final TransactionMetadataDisposition transactionMetadataDisposition) throws IOException {
@@ -264,7 +251,6 @@ public class GatewaySenderEventImpl
    * @param initialize Whether to initialize this instance
    * @param transactionMetadataDisposition indicating the inclusion of transaction metadata.
    */
-  @Retained
   public GatewaySenderEventImpl(EnumListenerEvent operation, CacheEvent<?, ?> ce,
       Object substituteValue, boolean initialize,
       final TransactionMetadataDisposition transactionMetadataDisposition) throws IOException {
@@ -328,36 +314,6 @@ public class GatewaySenderEventImpl
       isLastEventInTransaction =
           transactionMetadataDisposition == INCLUDE_LAST_EVENT && null != transactionId;
     }
-  }
-
-  /**
-   * Used to create a heap copy of an offHeap event. Note that this constructor produces an instance
-   * that does not need to be released.
-   */
-  protected GatewaySenderEventImpl(GatewaySenderEventImpl offHeapEvent) {
-    operation = offHeapEvent.operation;
-    action = offHeapEvent.action;
-    numberOfParts = offHeapEvent.numberOfParts;
-    id = offHeapEvent.id;
-    region = offHeapEvent.region;
-    regionPath = offHeapEvent.regionPath;
-    key = offHeapEvent.key;
-    callbackArgument = offHeapEvent.callbackArgument;
-    versionTimeStamp = offHeapEvent.versionTimeStamp;
-    possibleDuplicate = offHeapEvent.possibleDuplicate;
-    isAcked = offHeapEvent.isAcked;
-    isDispatched = offHeapEvent.isDispatched;
-    creationTime = offHeapEvent.creationTime;
-    bucketId = offHeapEvent.bucketId;
-    shadowKey = offHeapEvent.shadowKey;
-    isInitialized = offHeapEvent.isInitialized;
-
-    valueObj = null;
-    valueObjReleased = false;
-    valueIsObject = offHeapEvent.valueIsObject;
-    value = offHeapEvent.getSerializedValue();
-    transactionId = offHeapEvent.transactionId;
-    isLastEventInTransaction = offHeapEvent.isLastEventInTransaction;
   }
 
   /**
@@ -510,27 +466,12 @@ public class GatewaySenderEventImpl
   /**
    * Return the currently held form of the object. May return a retained OFF_HEAP_REFERENCE.
    */
-  @Retained
   public Object getRawValue() {
-    @Retained(OffHeapIdentifier.GATEWAY_SENDER_EVENT_IMPL_VALUE)
     Object result = value;
     if (result == null) {
       result = substituteValue;
       if (result == null) {
         result = valueObj;
-        if (result instanceof StoredObject && ((StoredObject) result).hasRefCount()) {
-          if (valueObjReleased) {
-            result = null;
-          } else {
-            StoredObject ohref = (StoredObject) result;
-            if (!ohref.retain()) {
-              result = null;
-            } else if (valueObjReleased) {
-              ohref.release();
-              result = null;
-            }
-          }
-        }
       }
     }
     return result;
@@ -546,30 +487,15 @@ public class GatewaySenderEventImpl
     if (valueIsObject == 0x00) {
       Object result = value;
       if (result == null) {
-        @Unretained(OffHeapIdentifier.GATEWAY_SENDER_EVENT_IMPL_VALUE)
         Object so = valueObj;
-        if (valueObjReleased) {
-          throw new IllegalStateException(
-              "Value is no longer available. getDeserializedValue must be called before processEvents returns.");
-        }
-        if (so instanceof StoredObject) {
-          return ((StoredObject) so).getValueAsDeserializedHeapObject();
-        } else {
-          throw new IllegalStateException(
-              "expected valueObj field to be an instance of StoredObject but it was " + so);
-        }
+        throw new IllegalStateException(
+            "expected valueObj field to be an instance of StoredObject but it was " + so);
       }
       return result;
     } else {
       Object vo = valueObj;
       if (vo != null) {
-        if (vo instanceof StoredObject) {
-          @Unretained(OffHeapIdentifier.GATEWAY_SENDER_EVENT_IMPL_VALUE)
-          StoredObject so = (StoredObject) vo;
-          return so.getValueAsDeserializedHeapObject();
-        } else {
-          return vo; // it is already deserialized
-        }
+        return vo; // it is already deserialized
       } else {
         if (value != null) {
           Object result = EntryEventImpl.deserialize(value);
@@ -579,11 +505,6 @@ public class GatewaySenderEventImpl
           // If the substitute value is set, return it.
           return substituteValue;
         } else {
-          if (valueObjReleased) {
-            throw new IllegalStateException(
-                "Value is no longer available. getDeserializedValue must be called before processEvents returns.");
-          }
-          // both value and valueObj are null but we did not free it.
           return null;
         }
       }
@@ -607,7 +528,6 @@ public class GatewaySenderEventImpl
       }
     }
     if (v == null) {
-      @Unretained(OffHeapIdentifier.GATEWAY_SENDER_EVENT_IMPL_VALUE)
       Object ov = valueObj;
       if (ov instanceof CachedDeserializable) {
         return ((CachedDeserializable) ov).getStringForm();
@@ -652,32 +572,14 @@ public class GatewaySenderEventImpl
         isSerializingValue.set(Boolean.FALSE);
         return result;
       }
-      @Unretained(OffHeapIdentifier.GATEWAY_SENDER_EVENT_IMPL_VALUE)
       Object vo = valueObj;
-      if (vo instanceof StoredObject) {
-        synchronized (this) {
-          result = value;
-          if (result == null) {
-            StoredObject so = (StoredObject) vo;
-            result = so.getValueAsHeapByteArray();
-            value = result;
-          }
-        }
-      } else {
-        synchronized (this) {
-          result = value;
-          if (result == null && vo != null && !(vo instanceof Token)) {
-            isSerializingValue.set(Boolean.TRUE);
-            result = EntryEventImpl.serialize(vo);
-            isSerializingValue.set(Boolean.FALSE);
-            value = result;
-          } else if (result == null) {
-            if (valueObjReleased) {
-              serializedValueNotAvailable = true;
-              throw new IllegalStateException(
-                  "Value is no longer available. getSerializedValue must be called before processEvents returns.");
-            }
-          }
+      synchronized (this) {
+        result = value;
+        if (result == null && vo != null && !(vo instanceof Token)) {
+          isSerializingValue.set(Boolean.TRUE);
+          result = EntryEventImpl.serialize(vo);
+          isSerializingValue.set(Boolean.FALSE);
+          value = result;
         }
       }
     }
@@ -953,40 +855,18 @@ public class GatewaySenderEventImpl
 
   // Initializes the value object. This function need a relook because the
   // serialization of the value looks unnecessary.
-  @Retained(OffHeapIdentifier.GATEWAY_SENDER_EVENT_IMPL_VALUE)
   protected void initializeValue(EntryEventImpl event) {
     // Set the value to be a byte[] representation of either the value or
     // substituteValue (if set).
     if (substituteValue == null) {
       // If the value is already serialized, use it.
       valueIsObject = 0x01;
-      /*
-       * so ends up being stored in this.valueObj
-       */
-      @Retained(OffHeapIdentifier.GATEWAY_SENDER_EVENT_IMPL_VALUE)
-      StoredObject so;
-      {
-        ReferenceCountHelper.setReferenceCountOwner(this);
-        so = event.getOffHeapNewValue();
-        ReferenceCountHelper.setReferenceCountOwner(null);
-      }
-
-      if (so != null) {
-        // Since GatewaySenderEventImpl instances can live for a long time in the gateway region
-        // queue we do not want the StoredObject to be one that keeps the heap form cached.
-        so = so.getStoredObjectWithoutHeapForm();
-        valueObj = so;
-        if (!so.isSerialized()) {
-          valueIsObject = 0x00;
-        }
-      } else if (event.getCachedSerializedNewValue() != null) {
+      if (event.getCachedSerializedNewValue() != null) {
         // We want this to have lower precedence than StoredObject so that the gateway
         // can share a reference to the off-heap value.
         value = event.getCachedSerializedNewValue();
       } else {
         final Object newValue = event.getRawNewValue();
-        assert !(newValue instanceof StoredObject); // since we already called getOffHeapNewValue()
-                                                    // and it returned null
         if (newValue instanceof CachedDeserializable) {
           value = ((CachedDeserializable) newValue).getSerializedValue();
         } else if (newValue instanceof byte[]) {
@@ -1291,74 +1171,14 @@ public class GatewaySenderEventImpl
     if (localSerializedValueSize != DEFAULT_SERIALIZED_VALUE_SIZE) {
       return localSerializedValueSize;
     }
-    @Unretained(OffHeapIdentifier.GATEWAY_SENDER_EVENT_IMPL_VALUE)
     Object vo = valueObj;
-    if (vo instanceof StoredObject) {
-      localSerializedValueSize = ((StoredObject) vo).getSizeInBytes();
+    if (substituteValue != null) {
+      localSerializedValueSize = sizeOf(substituteValue);
     } else {
-      if (substituteValue != null) {
-        localSerializedValueSize = sizeOf(substituteValue);
-      } else {
-        localSerializedValueSize = CachedDeserializableFactory.calcMemSize(getSerializedValue());
-      }
+      localSerializedValueSize = CachedDeserializableFactory.calcMemSize(getSerializedValue());
     }
     serializedValueSize = localSerializedValueSize;
     return localSerializedValueSize;
-  }
-
-  @Override
-  @Released(OffHeapIdentifier.GATEWAY_SENDER_EVENT_IMPL_VALUE)
-  public synchronized void release() {
-    @Released(OffHeapIdentifier.GATEWAY_SENDER_EVENT_IMPL_VALUE)
-    Object vo = valueObj;
-    if (OffHeapHelper.releaseAndTrackOwner(vo, this)) {
-      valueObj = null;
-      valueObjReleased = true;
-    }
-  }
-
-  public static void release(
-      @Released(OffHeapIdentifier.GATEWAY_SENDER_EVENT_IMPL_VALUE) Object o) {
-    if (o instanceof GatewaySenderEventImpl) {
-      ((GatewaySenderEventImpl) o).release();
-    }
-  }
-
-  /**
-   * Make a heap copy of this off-heap event and return it. A copy only needs to be made if the
-   * event's value is stored off-heap. If it is already on the java heap then just return "this". If
-   * it was stored off-heap and is no longer available (because it was released) then return null.
-   */
-  public GatewaySenderEventImpl makeHeapCopyIfOffHeap() {
-    if (value != null || substituteValue != null) {
-      // we have the value stored on the heap so return this
-      return this;
-    } else {
-      Object v = valueObj;
-      if (v == null) {
-        if (valueObjReleased) {
-          // this means that the original off heap value was freed
-          return null;
-        } else {
-          return this;
-        }
-      }
-      if (v instanceof StoredObject && ((StoredObject) v).hasRefCount()) {
-        try {
-          return makeCopy();
-        } catch (IllegalStateException ex) {
-          // this means that the original off heap value was freed
-          return null;
-        }
-      } else {
-        // the valueObj does not use refCounts so just return this.
-        return this;
-      }
-    }
-  }
-
-  protected GatewaySenderEventImpl makeCopy() {
-    return new GatewaySenderEventImpl(this);
   }
 
   public void setAcked(boolean acked) {

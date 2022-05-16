@@ -26,6 +26,7 @@ import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.CancelException;
 import org.apache.geode.SystemFailure;
+import org.apache.geode.annotations.Immutable;
 import org.apache.geode.cache.control.ResourceManager;
 import org.apache.geode.distributed.internal.ClusterDistributionManager;
 import org.apache.geode.distributed.internal.DistributionAdvisee;
@@ -239,10 +240,6 @@ public class ResourceAdvisor extends DistributionAdvisor {
       eventsToDeliver.add(new MemoryEvent(ResourceType.HEAP_MEMORY, MemoryState.DISABLED,
           newRMProfile.heapState, newRMProfile.getDistributedMember(), newRMProfile.heapBytesUsed,
           false, newRMProfile.heapThresholds));
-      eventsToDeliver.add(new MemoryEvent(ResourceType.OFFHEAP_MEMORY, MemoryState.DISABLED,
-          newRMProfile.offHeapState, newRMProfile.getDistributedMember(),
-          newRMProfile.offHeapBytesUsed, false, newRMProfile.offHeapThresholds));
-
     } else {
       if (oldRMProfile.heapState != newRMProfile.heapState) {
         eventsToDeliver.add(new MemoryEvent(ResourceType.HEAP_MEMORY, oldRMProfile.heapState,
@@ -253,17 +250,6 @@ public class ResourceAdvisor extends DistributionAdvisor {
       if (newRMProfile.heapState == MemoryState.DISABLED) {
         newRMProfile.setHeapData(oldRMProfile.heapBytesUsed, oldRMProfile.heapState,
             oldRMProfile.heapThresholds);
-      }
-
-      if (oldRMProfile.offHeapState != newRMProfile.offHeapState) {
-        eventsToDeliver.add(new MemoryEvent(ResourceType.OFFHEAP_MEMORY, oldRMProfile.offHeapState,
-            newRMProfile.offHeapState, newRMProfile.getDistributedMember(),
-            newRMProfile.offHeapBytesUsed, false, newRMProfile.offHeapThresholds));
-      }
-
-      if (newRMProfile.offHeapState == MemoryState.DISABLED) {
-        newRMProfile.setOffHeapData(oldRMProfile.offHeapBytesUsed, oldRMProfile.offHeapState,
-            oldRMProfile.offHeapThresholds);
       }
     }
 
@@ -291,9 +277,11 @@ public class ResourceAdvisor extends DistributionAdvisor {
     private MemoryState heapState;
     private MemoryThresholds heapThresholds;
 
-    private long offHeapBytesUsed;
-    private MemoryState offHeapState;
-    private MemoryThresholds offHeapThresholds;
+    @Immutable
+    private static final MemoryState offHeapState = MemoryState.DISABLED;
+
+    @Immutable
+    private static final MemoryThresholds offHeapThresholds = new MemoryThresholds(0);
 
     // Constructor for de-serialization
     public ResourceManagerProfile() {}
@@ -311,22 +299,12 @@ public class ResourceAdvisor extends DistributionAdvisor {
       return this;
     }
 
-    public synchronized ResourceManagerProfile setOffHeapData(final long offHeapBytesUsed,
-        final MemoryState offHeapState, final MemoryThresholds offHeapThresholds) {
-      this.offHeapBytesUsed = offHeapBytesUsed;
-      this.offHeapState = offHeapState;
-      this.offHeapThresholds = offHeapThresholds;
-      return this;
-    }
-
     public synchronized MemoryEvent createDisabledMemoryEvent(ResourceType resourceType) {
       if (resourceType == ResourceType.HEAP_MEMORY) {
         return new MemoryEvent(ResourceType.HEAP_MEMORY, heapState, MemoryState.DISABLED,
             getDistributedMember(), heapBytesUsed, false, heapThresholds);
       }
-
-      return new MemoryEvent(ResourceType.OFFHEAP_MEMORY, offHeapState, MemoryState.DISABLED,
-          getDistributedMember(), offHeapBytesUsed, false, offHeapThresholds);
+      throw new IllegalArgumentException();
     }
 
     /**
@@ -355,10 +333,7 @@ public class ResourceAdvisor extends DistributionAdvisor {
       super.fillInToString(sb);
       synchronized (this) {
         sb.append("; heapState=").append(heapState).append("; heapBytesUsed=")
-            .append(heapBytesUsed).append("; heapThresholds=").append(heapThresholds)
-            .append("; offHeapState=").append(offHeapState).append("; offHeapBytesUsed=")
-            .append(offHeapBytesUsed).append("; offHeapThresholds=")
-            .append(offHeapThresholds);
+            .append(heapBytesUsed).append("; heapThresholds=").append(heapThresholds);
       }
     }
 
@@ -372,10 +347,12 @@ public class ResourceAdvisor extends DistributionAdvisor {
       MemoryThresholds heapThresholds = MemoryThresholds.fromData(in);
       setHeapData(heapBytesUsed, heapState, heapThresholds);
 
+      @SuppressWarnings("unused")
       final long offHeapBytesUsed = in.readLong();
+      @SuppressWarnings("unused")
       MemoryState offHeapState = MemoryState.fromData(in);
+      @SuppressWarnings("unused")
       MemoryThresholds offHeapThresholds = MemoryThresholds.fromData(in);
-      setOffHeapData(offHeapBytesUsed, offHeapState, offHeapThresholds);
     }
 
     @Override
@@ -384,17 +361,10 @@ public class ResourceAdvisor extends DistributionAdvisor {
       final long heapBytesUsed;
       final MemoryState heapState;
       final MemoryThresholds heapThresholds;
-      final long offHeapBytesUsed;
-      final MemoryState offHeapState;
-      final MemoryThresholds offHeapThresholds;
       synchronized (this) {
         heapBytesUsed = this.heapBytesUsed;
         heapState = this.heapState;
         heapThresholds = this.heapThresholds;
-
-        offHeapBytesUsed = this.offHeapBytesUsed;
-        offHeapState = this.offHeapState;
-        offHeapThresholds = this.offHeapThresholds;
       }
       super.toData(out, context);
 
@@ -402,7 +372,7 @@ public class ResourceAdvisor extends DistributionAdvisor {
       heapState.toData(out);
       heapThresholds.toData(out);
 
-      out.writeLong(offHeapBytesUsed);
+      out.writeLong(0L);
       offHeapState.toData(out);
       offHeapThresholds.toData(out);
     }
@@ -414,10 +384,6 @@ public class ResourceAdvisor extends DistributionAdvisor {
 
     public synchronized MemoryState getHeapState() {
       return heapState;
-    }
-
-    public synchronized MemoryState getoffHeapState() {
-      return offHeapState;
     }
   }
 
@@ -453,8 +419,6 @@ public class ResourceAdvisor extends DistributionAdvisor {
     ResourceManagerProfile oldp = (ResourceManagerProfile) profile;
     getResourceManager()
         .deliverEventFromRemote(oldp.createDisabledMemoryEvent(ResourceType.HEAP_MEMORY));
-    getResourceManager()
-        .deliverEventFromRemote(oldp.createDisabledMemoryEvent(ResourceType.OFFHEAP_MEMORY));
   }
 
   @Override

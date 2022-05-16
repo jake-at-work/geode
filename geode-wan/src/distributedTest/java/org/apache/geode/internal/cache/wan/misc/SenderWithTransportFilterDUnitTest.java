@@ -56,7 +56,7 @@ public class SenderWithTransportFilterDUnitTest extends WANTestBase {
 
     vm2.invoke(() -> SenderWithTransportFilterDUnitTest.createReceiverWithTransportFilters(nyPort));
     vm2.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null));
 
     vm3.invoke(() -> WANTestBase.createCache(lnPort));
 
@@ -64,7 +64,7 @@ public class SenderWithTransportFilterDUnitTest extends WANTestBase {
         false, 100, 1, false, false, true));
 
     vm3.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln"));
 
     vm3.invoke(() -> WANTestBase.startSender("ln"));
 
@@ -80,16 +80,14 @@ public class SenderWithTransportFilterDUnitTest extends WANTestBase {
     Integer nyPort = vm1.invoke(() -> WANTestBase.createFirstRemoteLocator(2, lnPort));
 
     vm2.invoke(() -> SenderWithTransportFilterDUnitTest.createReceiverWithTransportFilters(nyPort));
-    vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 0, 10,
-        isOffHeap()));
+    vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 0, 10));
 
     vm3.invoke(() -> WANTestBase.createCache(lnPort));
 
     vm3.invoke(() -> SenderWithTransportFilterDUnitTest.createSenderWithTransportFilter("ln", 2,
         true, 100, 1, false, false, true));
 
-    vm3.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 0, 10,
-        isOffHeap()));
+    vm3.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 0, 10));
 
     vm3.invoke(() -> WANTestBase.startSender("ln"));
 

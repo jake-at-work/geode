@@ -316,7 +316,7 @@ public class WanAutoDiscoveryDUnitTest extends WANTestBase {
       // batch
       // so that proxy will be initialized
       vm2.invoke(
-          () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln", isOffHeap()));
+          () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln"));
 
       vm2.invoke(() -> WANTestBase.doPuts(getTestMethodName() + "_RR", 10));
 

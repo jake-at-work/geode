@@ -14,9 +14,6 @@
  */
 package org.apache.geode.internal.cache;
 
-import static org.apache.geode.internal.offheap.annotations.OffHeapIdentifier.ENTRY_EVENT_NEW_VALUE;
-import static org.apache.geode.internal.offheap.annotations.OffHeapIdentifier.ENTRY_EVENT_OLD_VALUE;
-
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -55,7 +52,6 @@ import org.apache.geode.internal.HeapDataOutputStream;
 import org.apache.geode.internal.InternalDataSerializer;
 import org.apache.geode.internal.Sendable;
 import org.apache.geode.internal.cache.FilterRoutingInfo.FilterInfo;
-import org.apache.geode.internal.cache.entries.OffHeapRegionEntry;
 import org.apache.geode.internal.cache.partitioned.PartitionMessage;
 import org.apache.geode.internal.cache.partitioned.PutMessage;
 import org.apache.geode.internal.cache.tier.sockets.CacheServerHelper;
@@ -67,14 +63,6 @@ import org.apache.geode.internal.cache.versions.VersionTag;
 import org.apache.geode.internal.cache.wan.GatewaySenderEventCallbackArgument;
 import org.apache.geode.internal.lang.StringUtils;
 import org.apache.geode.internal.logging.log4j.LogMarker;
-import org.apache.geode.internal.offheap.OffHeapHelper;
-import org.apache.geode.internal.offheap.OffHeapRegionEntryHelper;
-import org.apache.geode.internal.offheap.ReferenceCountHelper;
-import org.apache.geode.internal.offheap.Releasable;
-import org.apache.geode.internal.offheap.StoredObject;
-import org.apache.geode.internal.offheap.annotations.Released;
-import org.apache.geode.internal.offheap.annotations.Retained;
-import org.apache.geode.internal.offheap.annotations.Unretained;
 import org.apache.geode.internal.serialization.ByteArrayDataInput;
 import org.apache.geode.internal.serialization.DataSerializableFixedID;
 import org.apache.geode.internal.serialization.DeserializationContext;
@@ -93,7 +81,7 @@ import org.apache.geode.util.internal.GeodeGlossary;
  * must be public for DataSerializableFixedID
  */
 public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
-    DataSerializableFixedID, EntryOperation, Releasable {
+    DataSerializableFixedID, EntryOperation {
   private static final Logger logger = LogService.getLogger();
 
   // PACKAGE FIELDS //
@@ -115,7 +103,6 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
    */
   private byte[] cachedSerializedNewValue = null;
 
-  @Retained(ENTRY_EVENT_OLD_VALUE)
   private Object oldValue = null;
 
   protected short eventFlags = 0x0000;
@@ -187,9 +174,7 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
 
   public static final Object SUSPECT_TOKEN = new Object();
 
-  public EntryEventImpl() {
-    offHeapLock = null;
-  }
+  public EntryEventImpl() {}
 
   /**
    * Reads the contents of this message from the given input.
@@ -236,17 +221,11 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
     tailKey = DataSerializer.readLong(in);
   }
 
-  @Retained
   protected EntryEventImpl(InternalRegion region, Operation op, Object key, boolean originRemote,
       DistributedMember distributedMember, boolean generateCallbacks, boolean fromRILocalDestroy) {
     this.region = region;
     InternalDistributedSystem ds =
         (InternalDistributedSystem) region.getCache().getDistributedSystem();
-    if (ds.getOffHeapStore() != null) {
-      offHeapLock = new Object();
-    } else {
-      offHeapLock = null;
-    }
     this.op = op;
     keyInfo = region.getKeyInfo(key);
     setOriginRemote(originRemote);
@@ -259,18 +238,12 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
    * Doesn't specify oldValue as this will be filled in later as part of an operation on the region,
    * or lets it default to null.
    */
-  @Retained
   protected EntryEventImpl(final InternalRegion region, Operation op, Object key,
-      @Retained(ENTRY_EVENT_NEW_VALUE) Object newVal, Object callbackArgument, boolean originRemote,
+      Object newVal, Object callbackArgument, boolean originRemote,
       DistributedMember distributedMember, boolean generateCallbacks, boolean initializeId) {
     this.region = region;
     InternalDistributedSystem ds =
         (InternalDistributedSystem) region.getCache().getDistributedSystem();
-    if (ds.getOffHeapStore() != null) {
-      offHeapLock = new Object();
-    } else {
-      offHeapLock = null;
-    }
     this.op = op;
     keyInfo = region.getKeyInfo(key, newVal, callbackArgument);
 
@@ -294,9 +267,8 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
   /**
    * Called by BridgeEntryEventImpl to use existing EventID
    */
-  @Retained
   protected EntryEventImpl(InternalRegion region, Operation op, Object key,
-      @Retained(ENTRY_EVENT_NEW_VALUE) Object newValue, Object callbackArgument,
+      Object newValue, Object callbackArgument,
       boolean originRemote, DistributedMember distributedMember, boolean generateCallbacks,
       EventID eventID) {
     this(region, op, key, newValue, callbackArgument, originRemote, distributedMember,
@@ -308,23 +280,12 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
   /**
    * create an entry event from another entry event
    */
-  @Retained
-  public EntryEventImpl(
-      @Retained({ENTRY_EVENT_NEW_VALUE, ENTRY_EVENT_OLD_VALUE}) EntryEventImpl other) {
+  public EntryEventImpl(EntryEventImpl other) {
     this(other, true);
   }
 
-  @Retained
-  public EntryEventImpl(
-      @Retained({ENTRY_EVENT_NEW_VALUE, ENTRY_EVENT_OLD_VALUE}) EntryEventImpl other,
-      boolean setOldValue) {
+  public EntryEventImpl(EntryEventImpl other, boolean setOldValue) {
     setRegion(other.getRegion());
-    if (other.offHeapLock != null) {
-      offHeapLock = new Object();
-    } else {
-      offHeapLock = null;
-    }
-
     eventID = other.eventID;
     basicSetNewValue(other.basicGetNewValue(), false);
     newValueBytes = other.newValueBytes;
@@ -354,23 +315,16 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
     setPossibleDuplicate(other.isPossibleDuplicate());
   }
 
-  @Retained
-  public EntryEventImpl(Object key2, boolean isOffHeap) {
-    keyInfo = new KeyInfo(key2, null, null);
-    if (isOffHeap) {
-      offHeapLock = new Object();
-    } else {
-      offHeapLock = null;
-    }
+  public EntryEventImpl(Object key) {
+    keyInfo = new KeyInfo(key, null, null);
   }
 
   /**
    * Creates and returns an EntryEventImpl. Generates and assigns a bucket id to the EntryEventImpl
    * if the region parameter is a PartitionedRegion.
    */
-  @Retained
   public static EntryEventImpl create(InternalRegion region, Operation op, Object key,
-      @Retained(ENTRY_EVENT_NEW_VALUE) Object newValue, Object callbackArgument,
+      Object newValue, Object callbackArgument,
       boolean originRemote, DistributedMember distributedMember) {
     return create(region, op, key, newValue, callbackArgument, originRemote, distributedMember,
         true, true);
@@ -380,9 +334,8 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
    * Creates and returns an EntryEventImpl. Generates and assigns a bucket id to the EntryEventImpl
    * if the region parameter is a PartitionedRegion.
    */
-  @Retained
   public static EntryEventImpl create(InternalRegion region, Operation op, Object key,
-      @Retained(ENTRY_EVENT_NEW_VALUE) Object newValue, Object callbackArgument,
+      Object newValue, Object callbackArgument,
       boolean originRemote, DistributedMember distributedMember, boolean generateCallbacks) {
     return create(region, op, key, newValue, callbackArgument, originRemote, distributedMember,
         generateCallbacks, true);
@@ -394,9 +347,8 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
    *
    * Called by BridgeEntryEventImpl to use existing EventID
    */
-  @Retained
   public static EntryEventImpl create(InternalRegion region, Operation op, Object key,
-      @Retained(ENTRY_EVENT_NEW_VALUE) Object newValue, Object callbackArgument,
+      Object newValue, Object callbackArgument,
       boolean originRemote, DistributedMember distributedMember, boolean generateCallbacks,
       EventID eventID) {
     return new EntryEventImpl(region, op, key, newValue, callbackArgument, originRemote,
@@ -407,7 +359,6 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
    * Creates and returns an EntryEventImpl. Generates and assigns a bucket id to the EntryEventImpl
    * if the region parameter is a PartitionedRegion.
    */
-  @Retained
   public static EntryEventImpl create(InternalRegion region, Operation op, Object key,
       boolean originRemote, DistributedMember distributedMember, boolean generateCallbacks,
       boolean fromRILocalDestroy) {
@@ -422,9 +373,8 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
    * This creator does not specify the oldValue as this will be filled in later as part of an
    * operation on the region, or lets it default to null.
    */
-  @Retained
   public static EntryEventImpl create(final InternalRegion region, Operation op, Object key,
-      @Retained(ENTRY_EVENT_NEW_VALUE) Object newVal, Object callbackArgument, boolean originRemote,
+      Object newVal, Object callbackArgument, boolean originRemote,
       DistributedMember distributedMember, boolean generateCallbacks, boolean initializeId) {
     return new EntryEventImpl(region, op, key, newVal, callbackArgument, originRemote,
         distributedMember, generateCallbacks, initializeId);
@@ -435,11 +385,9 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
    *
    * @since GemFire 5.0
    */
-  @Retained
   static EntryEventImpl createPutAllEvent(DistributedPutAllOperation putAllOp,
       InternalRegion region, Operation entryOp, Object entryKey,
-      @Retained(ENTRY_EVENT_NEW_VALUE) Object entryNewValue) {
-    @Retained
+      Object entryNewValue) {
     EntryEventImpl e;
     if (putAllOp != null) {
       EntryEventImpl event = putAllOp.getBaseEvent();
@@ -463,10 +411,8 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
     return e;
   }
 
-  @Retained
   protected static EntryEventImpl createRemoveAllEvent(DistributedRemoveAllOperation op,
       InternalRegion region, Object entryKey) {
-    @Retained
     EntryEventImpl e;
     final Operation entryOp = Operation.REMOVEALL_DESTROY;
     if (op != null) {
@@ -771,7 +717,6 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
       if (isOriginRemote() && getRegion().isProxy()) {
         return null;
       }
-      @Unretained
       Object ov = handleNotAvailableOldValue();
       if (ov != null) {
         boolean doCopyOnRead = getRegion().isCopyOnRead();
@@ -804,9 +749,7 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
    * NOT_AVAILABLE then it may try to read it from disk. If it can't read an unavailable old value
    * from disk then it will return null instead of NOT_AVAILABLE.
    */
-  @Unretained(ENTRY_EVENT_OLD_VALUE)
   private Object handleNotAvailableOldValue() {
-    @Unretained
     Object result = basicGetOldValue();
     if (result != Token.NOT_AVAILABLE) {
       return result;
@@ -842,11 +785,7 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
    * heap. Note: to prevent the heap copy use getRawNewValue instead
    */
   public Object getRawNewValueAsHeapObject() {
-    Object result = basicGetNewValue();
-    if (mayHaveOffHeapReferences()) {
-      result = OffHeapHelper.copyIfNeeded(result, getRegion().getCache());
-    }
-    return result;
+    return basicGetNewValue();
   }
 
   /**
@@ -854,35 +793,18 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
    * refcount is not inced by this call and the returned object can only be safely used for the
    * lifetime of the EntryEventImpl instance that returned the value. Else return the raw form.
    */
-  @Unretained(ENTRY_EVENT_NEW_VALUE)
   public Object getRawNewValue() {
     return basicGetNewValue();
   }
 
-  @Unretained(ENTRY_EVENT_NEW_VALUE)
   public Object getValue() {
     return basicGetNewValue();
   }
 
-  @Released(ENTRY_EVENT_NEW_VALUE)
-  protected void basicSetNewValue(@Retained(ENTRY_EVENT_NEW_VALUE) Object v,
+  protected void basicSetNewValue(Object v,
       boolean clearCachedSerializedAndBytes) {
     if (v == newValue) {
       return;
-    }
-    if (mayHaveOffHeapReferences()) {
-      if (offHeapOk) {
-        OffHeapHelper.releaseAndTrackOwner(newValue, this);
-      }
-      if (StoredObject.isOffHeapReference(v)) {
-        ReferenceCountHelper.setReferenceCountOwner(this);
-        if (!((StoredObject) v).retain()) {
-          ReferenceCountHelper.setReferenceCountOwner(null);
-          newValue = null;
-          return;
-        }
-        ReferenceCountHelper.setReferenceCountOwner(null);
-      }
     }
     newValue = v;
     if (clearCachedSerializedAndBytes) {
@@ -903,21 +825,9 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
   }
 
   @Override
-  @Unretained
   public Object basicGetNewValue() {
     generateNewValueFromBytesIfNeeded();
-    Object result = newValue;
-    if (!offHeapOk && isOffHeapReference(result)) {
-      // this.region.getCache().getLogger().info("DEBUG new value already freed " +
-      // System.identityHashCode(result));
-      throw new IllegalStateException(
-          "Attempt to access off heap value after the EntryEvent was released.");
-    }
-    return result;
-  }
-
-  private boolean isOffHeapReference(Object ref) {
-    return mayHaveOffHeapReferences() && StoredObject.isOffHeapReference(ref);
+    return newValue;
   }
 
   private class OldValueOwner {
@@ -951,55 +861,24 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
    *
    * @param v the caller should have already retained this off-heap reference.
    */
-  @Released(ENTRY_EVENT_OLD_VALUE)
-  void basicSetOldValue(@Unretained(ENTRY_EVENT_OLD_VALUE) Object v) {
-    @Released
+  void basicSetOldValue(Object v) {
     final Object curOldValue = oldValue;
     if (v == curOldValue) {
       return;
-    }
-    if (offHeapOk && mayHaveOffHeapReferences()) {
-      if (ReferenceCountHelper.trackReferenceCounts()) {
-        OffHeapHelper.releaseAndTrackOwner(curOldValue, new OldValueOwner());
-      } else {
-        OffHeapHelper.release(curOldValue);
-      }
     }
 
     oldValue = v;
     oldValueBytes = null;
   }
 
-  @Released(ENTRY_EVENT_OLD_VALUE)
-  private void retainAndSetOldValue(@Retained(ENTRY_EVENT_OLD_VALUE) Object v) {
+  private void retainAndSetOldValue(Object v) {
     if (v == oldValue) {
       return;
-    }
-    if (isOffHeapReference(v)) {
-      StoredObject so = (StoredObject) v;
-      if (ReferenceCountHelper.trackReferenceCounts()) {
-        ReferenceCountHelper.setReferenceCountOwner(new OldValueOwner());
-        boolean couldNotRetain = (!so.retain());
-        ReferenceCountHelper.setReferenceCountOwner(null);
-        if (couldNotRetain) {
-          oldValue = null;
-          oldValueBytes = null;
-          return;
-        }
-      } else {
-        if (!so.retain()) {
-          oldValue = null;
-          oldValueBytes = null;
-          return;
-        }
-      }
     }
     basicSetOldValue(v);
   }
 
-  @Unretained(ENTRY_EVENT_OLD_VALUE)
   Object basicGetOldValue() {
-    @Unretained(ENTRY_EVENT_OLD_VALUE)
     Object result = oldValue;
     if (result == null) {
       byte[] bytes = oldValueBytes;
@@ -1007,12 +886,6 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
         result = CachedDeserializableFactory.create(bytes, getRegion().getCache());
         oldValue = result;
       }
-    }
-    if (!offHeapOk && isOffHeapReference(result)) {
-      // this.region.getCache().getLogger().info("DEBUG old value already freed " +
-      // System.identityHashCode(result));
-      throw new IllegalStateException(
-          "Attempt to access off heap value after the EntryEvent was released.");
     }
     return result;
   }
@@ -1022,11 +895,7 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
    * heap. To avoid the heap copy use getRawOldValue instead.
    */
   public Object getRawOldValueAsHeapObject() {
-    Object result = basicGetOldValue();
-    if (mayHaveOffHeapReferences()) {
-      result = OffHeapHelper.copyIfNeeded(result, getRegion().getCache());
-    }
-    return result;
+    return basicGetOldValue();
   }
 
   /*
@@ -1034,7 +903,6 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
    * refcount is not inced by this call and the returned object can only be safely used for the
    * lifetime of the EntryEventImpl instance that returned the value. Else return the raw form.
    */
-  @Unretained
   public Object getRawOldValue() {
     return basicGetOldValue();
   }
@@ -1042,13 +910,9 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
   /**
    * Just like getRawOldValue except if the raw old value is off-heap deserialize it.
    */
-  @Unretained(ENTRY_EVENT_OLD_VALUE)
   public Object getOldValueAsOffHeapDeserializedOrRaw() {
     Object result = basicGetOldValue();
-    if (mayHaveOffHeapReferences() && result instanceof StoredObject) {
-      result = ((CachedDeserializable) result).getDeserializedForReading();
-    }
-    return AbstractRegion.handleNotAvailable(result); // fixes 49499
+    return AbstractRegion.handleNotAvailable(result);
   }
 
   /**
@@ -1075,17 +939,15 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
         return AbstractRegion.handleNotAvailable(nv);
       }
       if (nv instanceof CachedDeserializable) {
-        return callWithOffHeapLock((CachedDeserializable) nv, newValueCD -> {
-          Object v = null;
-          if (doCopyOnRead) {
-            v = newValueCD.getDeserializedWritableCopy(getRegion(), re);
-          } else {
-            v = newValueCD.getDeserializedValue(getRegion(), re);
-          }
-          assert !(v instanceof CachedDeserializable) : "for key " + getKey()
-              + " found nested CachedDeserializable";
-          return v;
-        });
+        Object v;
+        if (doCopyOnRead) {
+          v = ((CachedDeserializable) nv).getDeserializedWritableCopy(getRegion(), re);
+        } else {
+          v = ((CachedDeserializable) nv).getDeserializedValue(getRegion(), re);
+        }
+        assert !(v instanceof CachedDeserializable) : "for key " + getKey()
+            + " found nested CachedDeserializable";
+        return v;
       } else {
         if (doCopyOnRead) {
           return CopyHelper.copy(nv);
@@ -1103,20 +965,8 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
    * @return the value returned from invoking the function
    */
   private <T, R> R callWithOffHeapLock(T value, Function<T, R> function) {
-    if (isOffHeapReference(value)) {
-      synchronized (offHeapLock) {
-        if (!offHeapOk) {
-          throw new IllegalStateException(
-              "Attempt to access off heap value after the EntryEvent was released.");
-        }
-        return function.apply(value);
-      }
-    } else {
-      return function.apply(value);
-    }
+    return function.apply(value);
   }
-
-  private final Object offHeapLock;
 
   public String getNewValueStringForm() {
     return StringUtils.forceToString(basicGetNewValue());
@@ -1127,7 +977,7 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
   }
 
   /** Set a deserialized value */
-  public void setNewValue(@Retained(ENTRY_EVENT_NEW_VALUE) Object obj) {
+  public void setNewValue(Object obj) {
     basicSetNewValue(obj, true);
   }
 
@@ -1231,7 +1081,6 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
     // do not apply it here since it would not produce a serialized new
     // value (return null instead to indicate the new value is not
     // in serialized form).
-    @Unretained(ENTRY_EVENT_NEW_VALUE)
     final Object tmp = basicGetNewValue();
     if (tmp instanceof CachedDeserializable) {
       CachedDeserializable cd = (CachedDeserializable) tmp;
@@ -1278,7 +1127,7 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
      * @param isSerialized true if the imported new value represents data that needs to be
      *        serialized; false if the imported new value is a simple sequence of bytes.
      */
-    void importNewObject(@Unretained(ENTRY_EVENT_NEW_VALUE) Object nv, boolean isSerialized);
+    void importNewObject(Object nv, boolean isSerialized);
 
     /**
      * Import a new value that is currently in byte array form.
@@ -1305,24 +1154,8 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
         return;
       }
     }
-    @Unretained(ENTRY_EVENT_NEW_VALUE)
     final Object nv = getRawNewValue();
-    if (nv instanceof StoredObject) {
-      @Unretained(ENTRY_EVENT_NEW_VALUE)
-      final StoredObject so = (StoredObject) nv;
-      final boolean isSerialized = so.isSerialized();
-      if (importer.isUnretainedNewReferenceOk()) {
-        importer.importNewObject(nv, isSerialized);
-      } else if (!isSerialized || prefersSerialized) {
-        byte[] bytes = so.getValueAsHeapByteArray();
-        importer.importNewBytes(bytes, isSerialized);
-        if (isSerialized) {
-          setCachedSerializedNewValue(bytes);
-        }
-      } else {
-        importer.importNewObject(so.getValueAsDeserializedHeapObject(), true);
-      }
-    } else if (nv instanceof byte[]) {
+    if (nv instanceof byte[]) {
       importer.importNewBytes((byte[]) nv, false);
     } else if (nv instanceof CachedDeserializable) {
       CachedDeserializable cd = (CachedDeserializable) nv;
@@ -1371,7 +1204,7 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
      * @param isSerialized true if the imported old value represents data that needs to be
      *        serialized; false if the imported old value is a simple sequence of bytes.
      */
-    void importOldObject(@Unretained(ENTRY_EVENT_OLD_VALUE) Object ov, boolean isSerialized);
+    void importOldObject(Object ov, boolean isSerialized);
 
     /**
      * Import an old value that is currently in byte array form.
@@ -1394,19 +1227,8 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
         return;
       }
     }
-    @Unretained(ENTRY_EVENT_OLD_VALUE)
     final Object ov = getRawOldValue();
-    if (ov instanceof StoredObject) {
-      final StoredObject so = (StoredObject) ov;
-      final boolean isSerialized = so.isSerialized();
-      if (importer.isUnretainedOldReferenceOk()) {
-        importer.importOldObject(ov, isSerialized);
-      } else if (!isSerialized || prefersSerialized) {
-        importer.importOldBytes(so.getValueAsHeapByteArray(), isSerialized);
-      } else {
-        importer.importOldObject(so.getValueAsDeserializedHeapObject(), true);
-      }
-    } else if (ov instanceof byte[]) {
+    if (ov instanceof byte[]) {
       importer.importOldBytes((byte[]) ov, false);
     } else if (!importer.isCachedDeserializableValueOk() && ov instanceof CachedDeserializable) {
       CachedDeserializable cd = (CachedDeserializable) ov;
@@ -1419,52 +1241,6 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
     } else {
       importer.importOldObject(AbstractRegion.handleNotAvailable(ov), true);
     }
-  }
-
-  /**
-   * Just like getRawNewValue(true) except if the raw new value is off-heap deserialize it.
-   */
-  @Unretained(ENTRY_EVENT_NEW_VALUE)
-  public Object getNewValueAsOffHeapDeserializedOrRaw() {
-    Object result = getRawNewValue();
-    if (mayHaveOffHeapReferences() && result instanceof StoredObject) {
-      result = ((CachedDeserializable) result).getDeserializedForReading();
-    }
-    return AbstractRegion.handleNotAvailable(result); // fixes 49499
-  }
-
-  /**
-   * If the new value is stored off-heap return a retained OFF_HEAP_REFERENCE (caller must release).
-   *
-   * @return a retained OFF_HEAP_REFERENCE if the new value is off-heap; otherwise returns null
-   */
-  @Retained(ENTRY_EVENT_NEW_VALUE)
-  public StoredObject getOffHeapNewValue() {
-    return convertToStoredObject(basicGetNewValue());
-  }
-
-  /**
-   * If the old value is stored off-heap return a retained OFF_HEAP_REFERENCE (caller must release).
-   *
-   * @return a retained OFF_HEAP_REFERENCE if the old value is off-heap; otherwise returns null
-   */
-  @Retained(ENTRY_EVENT_OLD_VALUE)
-  public StoredObject getOffHeapOldValue() {
-    return convertToStoredObject(basicGetOldValue());
-  }
-
-  private StoredObject convertToStoredObject(final Object tmp) {
-    if (!mayHaveOffHeapReferences()) {
-      return null;
-    }
-    if (!(tmp instanceof StoredObject)) {
-      return null;
-    }
-    StoredObject result = (StoredObject) tmp;
-    if (!result.retain()) {
-      return null;
-    }
-    return result;
   }
 
   public Object getDeserializedValue() {
@@ -1611,15 +1387,7 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
     if (oldValue == null && oldValueBytes == null) {
       if (!reentry.isInvalidOrRemoved()) {
         if (requireOldValue || areOldValuesEnabled() || getRegion() instanceof HARegion) {
-          @Retained
-          Object ov;
-          if (ReferenceCountHelper.trackReferenceCounts()) {
-            ReferenceCountHelper.setReferenceCountOwner(new OldValueOwner());
-            ov = reentry.getValueRetain(owner, true);
-            ReferenceCountHelper.setReferenceCountOwner(null);
-          } else {
-            ov = reentry.getValueRetain(owner, true);
-          }
+          Object ov = reentry.getValueRetain(owner, true);
           if (ov == null) {
             ov = Token.NOT_AVAILABLE;
           }
@@ -1681,7 +1449,6 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
     return re;
   }
 
-  @Retained(ENTRY_EVENT_NEW_VALUE)
   private void setNewValueInRegion(final InternalRegion owner, final RegionEntry reentry,
       Object oldValueForDelta) throws RegionClearedException {
 
@@ -1711,7 +1478,6 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
 
     reentry.setValueResultOfSearch(op.isNetSearch());
 
-    // dsmith:20090524
     // This is a horrible hack, but we need to get the size of the object
     // When we store an entry. This code is only used when we do a put
     // in the primary.
@@ -1730,53 +1496,35 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
     Object preparedV = reentry.prepareValueForCache(getRegion(), v, this, false);
     if (preparedV != v) {
       v = preparedV;
-      if (v instanceof StoredObject) {
-        if (!((StoredObject) v).isCompressed()) { // fix bug 52109
-          // If we put it off heap and it is not compressed then remember that value.
-          // Otherwise we want to remember the decompressed value in the event.
-          basicSetNewValue(v, false);
-        }
-      }
     }
     boolean isTombstone = (v == Token.TOMBSTONE);
     boolean success = false;
     boolean calledSetValue = false;
-    try {
-      setNewValueBucketSize(owner, v);
+    setNewValueBucketSize(owner, v);
 
-      // ezoerner:20081030
-      // last possible moment to do index maintenance with old value in
-      // RegionEntry before new value is set.
-      // As part of an update, this is a remove operation as prelude to an add that
-      // will come after the new value is set.
-      // If this is an "update" from INVALID state, treat this as a create instead
-      // for the purpose of index maintenance since invalid entries are not
-      // indexed.
+    // last possible moment to do index maintenance with old value in
+    // RegionEntry before new value is set.
+    // As part of an update, this is a remove operation as prelude to an add that
+    // will come after the new value is set.
+    // If this is an "update" from INVALID state, treat this as a create instead
+    // for the purpose of index maintenance since invalid entries are not
+    // indexed.
 
-      if ((op.isUpdate() && !reentry.isInvalid()) || op.isInvalidate()) {
-        IndexManager idxManager =
-            IndexUtils.getIndexManager(getRegion().getCache(), getRegion(), false);
-        if (idxManager != null) {
-          try {
-            idxManager.updateIndexes(reentry, IndexManager.REMOVE_ENTRY,
-                op.isUpdate() ? IndexProtocol.BEFORE_UPDATE_OP : IndexProtocol.OTHER_OP);
-          } catch (QueryException e) {
-            throw new IndexMaintenanceException(e);
-          }
-        }
-      }
-      calledSetValue = true;
-      reentry.setValueWithTombstoneCheck(v, this); // already called prepareValueForCache
-      success = true;
-    } finally {
-      if (!success && reentry instanceof OffHeapRegionEntry && v instanceof StoredObject) {
-        if (!calledSetValue) {
-          OffHeapHelper.release(v);
-        } else {
-          OffHeapRegionEntryHelper.releaseEntry((OffHeapRegionEntry) reentry, (StoredObject) v);
+    if ((op.isUpdate() && !reentry.isInvalid()) || op.isInvalidate()) {
+      IndexManager idxManager =
+          IndexUtils.getIndexManager(getRegion().getCache(), getRegion(), false);
+      if (idxManager != null) {
+        try {
+          idxManager.updateIndexes(reentry, IndexManager.REMOVE_ENTRY,
+              op.isUpdate() ? IndexProtocol.BEFORE_UPDATE_OP : IndexProtocol.OTHER_OP);
+        } catch (QueryException e) {
+          throw new IndexMaintenanceException(e);
         }
       }
     }
+    calledSetValue = true;
+    reentry.setValueWithTombstoneCheck(v, this); // already called prepareValueForCache
+    success = true;
     if (logger.isTraceEnabled()) {
       if (v instanceof CachedDeserializable) {
         logger.trace("EntryEventImpl.setNewValueInRegion: put CachedDeserializable({},{})",
@@ -1913,12 +1661,7 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
     }
 
     if (op != Operation.LOCAL_INVALIDATE && op != Operation.LOCAL_DESTROY) {
-      // fix for bug 34387
-      Object pv = v;
-      if (mayHaveOffHeapReferences()) {
-        pv = OffHeapHelper.copyIfNeeded(v, getRegion().getCache());
-      }
-      tx.setPendingValue(pv);
+      tx.setPendingValue(v);
     }
     tx.setCallbackArgument(getCallbackArgument());
   }
@@ -1929,19 +1672,11 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
       if (re == null) {
         return;
       }
-      ReferenceCountHelper.skipRefCountTracking();
       Object v = re.getValueRetain(getRegion(), true);
       if (v == null) {
         v = Token.NOT_AVAILABLE;
       }
-      ReferenceCountHelper.unskipRefCountTracking();
-      try {
-        setOldValue(v);
-      } finally {
-        if (mayHaveOffHeapReferences()) {
-          OffHeapHelper.releaseWithNoTracking(v);
-        }
-      }
+      setOldValue(v);
     } catch (EntryNotFoundException ignore) {
     }
   }
@@ -2055,28 +1790,6 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
   }
 
   /**
-   * If a PdxInstance is returned then it will have an unretained reference to the StoredObject's
-   * off-heap address.
-   */
-  public static @Unretained Object deserializeOffHeap(StoredObject bytes) {
-    if (bytes == null) {
-      return null;
-    }
-    try {
-      return BlobHelper.deserializeOffHeapBlob(bytes);
-    } catch (IOException e) {
-      throw new SerializationException(
-          "An IOException was thrown while deserializing",
-          e);
-    } catch (ClassNotFoundException e) {
-      // fix for bug 43602
-      throw new SerializationException(
-          "A ClassNotFoundException was thrown while trying to deserialize cached value.",
-          e);
-    }
-  }
-
-  /**
    * Serialize an object into a <code>byte[]</code>
    *
    * @throws IllegalArgumentException If <code>obj</code> should not be serialized
@@ -2162,30 +1875,9 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
     buf.append(getKey());
     if (Boolean.getBoolean("gemfire.insecure-logvalues")) {
       buf.append(";oldValue=");
-      if (mayHaveOffHeapReferences()) {
-        synchronized (offHeapLock) {
-          try {
-            ArrayUtils.objectStringNonRecursive(basicGetOldValue(), buf);
-          } catch (IllegalStateException ignore) {
-            buf.append("OFFHEAP_VALUE_FREED");
-          }
-        }
-      } else {
-        ArrayUtils.objectStringNonRecursive(basicGetOldValue(), buf);
-      }
-
+      ArrayUtils.objectStringNonRecursive(basicGetOldValue(), buf);
       buf.append(";newValue=");
-      if (mayHaveOffHeapReferences()) {
-        synchronized (offHeapLock) {
-          try {
-            ArrayUtils.objectStringNonRecursive(basicGetNewValue(), buf);
-          } catch (IllegalStateException ignore) {
-            buf.append("OFFHEAP_VALUE_FREED");
-          }
-        }
-      } else {
-        ArrayUtils.objectStringNonRecursive(basicGetNewValue(), buf);
-      }
+      ArrayUtils.objectStringNonRecursive(basicGetNewValue(), buf);
     }
     buf.append(";callbackArg=");
     buf.append(getRawCallbackArgument());
@@ -2340,7 +2032,6 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
    */
   @Override
   public SerializedCacheValue<?> getSerializedOldValue() {
-    @Unretained(ENTRY_EVENT_OLD_VALUE)
     final Object tmp = basicGetOldValue();
     if (tmp instanceof CachedDeserializable) {
       CachedDeserializable cd = (CachedDeserializable) tmp;
@@ -2610,7 +2301,6 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
   public void setOldValueForQueryProcessing() {
     RegionEntry reentry = getRegion().getRegionMap().getEntry(getKey());
     if (reentry != null) {
-      @Retained
       Object v = reentry.getValueOffHeapOrDiskWithoutFaultIn(getRegion());
       if (!(v instanceof Token)) {
         // v has already been retained.
@@ -2676,19 +2366,14 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
   public static class SerializedCacheValueImpl
       implements SerializedCacheValue, CachedDeserializable, Sendable {
     private final EntryEventImpl event;
-    @Unretained
     private final CachedDeserializable cd;
     private final Region r;
     private final RegionEntry re;
     private final byte[] serializedValue;
 
     SerializedCacheValueImpl(EntryEventImpl event, Region r, RegionEntry re,
-        @Unretained CachedDeserializable cd, byte[] serializedBytes) {
-      if (event.isOffHeapReference(cd)) {
-        this.event = event;
-      } else {
-        this.event = null;
-      }
+        CachedDeserializable cd, byte[] serializedBytes) {
+      this.event = null;
       this.r = r;
       this.re = re;
       this.cd = cd;
@@ -2703,14 +2388,6 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
       return callWithOffHeapLock(CachedDeserializable::getSerializedValue);
     }
 
-    private CachedDeserializable getCd() {
-      if (event != null && !event.offHeapOk) {
-        throw new IllegalStateException(
-            "Attempt to access off heap value after the EntryEvent was released.");
-      }
-      return cd;
-    }
-
     /**
      * The only methods that need to use this method are those on the external SerializedCacheValue
      * interface and any other method that a customer could call that may access the off-heap
@@ -2723,7 +2400,7 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
         // because the check for offHeapOk is done by event.callWithOffHeapLock
         return event.callWithOffHeapLock(cd, function);
       } else {
-        return function.apply(getCd());
+        return function.apply(cd);
       }
     }
 
@@ -2734,12 +2411,12 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
 
     @Override
     public Object getDeserializedForReading() {
-      return getCd().getDeserializedForReading();
+      return cd.getDeserializedForReading();
     }
 
     @Override
     public Object getDeserializedWritableCopy(Region rgn, RegionEntry entry) {
-      return getCd().getDeserializedWritableCopy(rgn, entry);
+      return cd.getDeserializedWritableCopy(rgn, entry);
     }
 
     @Override
@@ -2754,7 +2431,7 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
       if (serializedValue != null) {
         return serializedValue;
       }
-      return getCd().getValue();
+      return cd.getValue();
     }
 
     @Override
@@ -2762,7 +2439,7 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
       if (serializedValue != null) {
         DataSerializer.writeByteArray(serializedValue, out);
       } else {
-        getCd().writeValueAsByteArray(out);
+        cd.writeValueAsByteArray(out);
       }
     }
 
@@ -2772,38 +2449,38 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
         wrapper.setData(serializedValue, userBits, serializedValue.length,
             false /* Not Reusable as it refers to underlying value */);
       } else {
-        getCd().fillSerializedValue(wrapper, userBits);
+        cd.fillSerializedValue(wrapper, userBits);
       }
     }
 
     @Override
     public int getValueSizeInBytes() {
-      return getCd().getValueSizeInBytes();
+      return cd.getValueSizeInBytes();
     }
 
     @Override
     public int getSizeInBytes() {
-      return getCd().getSizeInBytes();
+      return cd.getSizeInBytes();
     }
 
     @Override
     public String getStringForm() {
-      return getCd().getStringForm();
+      return cd.getStringForm();
     }
 
     @Override
     public void sendTo(DataOutput out) throws IOException {
-      DataSerializer.writeObject(getCd(), out);
+      DataSerializer.writeObject(cd, out);
     }
 
     @Override
     public boolean isSerialized() {
-      return getCd().isSerialized();
+      return cd.isSerialized();
     }
 
     @Override
     public boolean usesHeapForStorage() {
-      return getCd().usesHeapForStorage();
+      return cd.usesHeapForStorage();
     }
   }
   //////////////////////////////////////////////////////////////////////////////////////////
@@ -2854,7 +2531,6 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
   }
 
   /** returns a copy of this event with the additional fields for WAN conflict resolution */
-  @Retained
   public TimestampedEntryEvent getTimestampedEvent(final int newDSID, final int oldDSID,
       final long newTimestamp, final long oldTimestamp) {
     return new TimestampedEntryEventImpl(this, newDSID, oldDSID, newTimestamp, oldTimestamp);
@@ -2874,125 +2550,6 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
 
   public boolean isSingleHopPutOp() {
     return (causedByMessage != null && causedByMessage instanceof RemotePutMessage);
-  }
-
-  /**
-   * True if it is ok to use old/new values that are stored off heap. False if an exception should
-   * be thrown if an attempt is made to access old/new offheap values.
-   */
-  transient boolean offHeapOk = true;
-
-  @Override
-  @Released({ENTRY_EVENT_NEW_VALUE, ENTRY_EVENT_OLD_VALUE})
-  public void release() {
-    // noop if already freed or values can not be off-heap
-    if (!offHeapOk) {
-      return;
-    }
-    if (!mayHaveOffHeapReferences()) {
-      return;
-    }
-    synchronized (offHeapLock) {
-      // Note that this method does not set the old/new values to null but
-      // leaves them set to the off-heap value so that future calls to getOld/NewValue
-      // will fail with an exception.
-      testHookReleaseInProgress();
-      Object ov = basicGetOldValue();
-      Object nv = basicGetNewValue();
-      offHeapOk = false;
-
-      if (ov instanceof StoredObject) {
-        // this.region.getCache().getLogger().info("DEBUG freeing ref to old value on " +
-        // System.identityHashCode(ov));
-        if (ReferenceCountHelper.trackReferenceCounts()) {
-          ReferenceCountHelper.setReferenceCountOwner(new OldValueOwner());
-          ((Releasable) ov).release();
-          ReferenceCountHelper.setReferenceCountOwner(null);
-        } else {
-          ((Releasable) ov).release();
-        }
-      }
-      OffHeapHelper.releaseAndTrackOwner(nv, this);
-    }
-  }
-
-  /**
-   * Return true if this EntryEvent may have off-heap references.
-   */
-  private boolean mayHaveOffHeapReferences() {
-    if (offHeapLock == null) {
-      return false;
-    }
-
-    InternalRegion lr = getRegion();
-    if (lr != null) {
-      return lr.getOffHeap();
-    }
-    // if region field is null it is possible that we have off-heap values
-    return true;
-  }
-
-  void testHookReleaseInProgress() {
-    // unit test can mock or override this method
-  }
-
-  /**
-   * Make sure that this event will never own an off-heap value. Once this is called on an event it
-   * does not need to have release called.
-   */
-  @Override
-  public void disallowOffHeapValues() {
-    if (isOffHeapReference(newValue) || isOffHeapReference(oldValue)) {
-      throw new IllegalStateException("This event already has off-heap values");
-    }
-    if (mayHaveOffHeapReferences()) {
-      synchronized (offHeapLock) {
-        offHeapOk = false;
-      }
-    } else {
-      offHeapOk = false;
-    }
-
-  }
-
-  /**
-   * This copies the off-heap new and/or old value to the heap. As a result the current off-heap
-   * new/old will be released.
-   */
-  @Released({ENTRY_EVENT_NEW_VALUE, ENTRY_EVENT_OLD_VALUE})
-  public void copyOffHeapToHeap() {
-    if (!mayHaveOffHeapReferences()) {
-      offHeapOk = false;
-      return;
-    }
-    synchronized (offHeapLock) {
-      Object ov = basicGetOldValue();
-      if (StoredObject.isOffHeapReference(ov)) {
-        if (ReferenceCountHelper.trackReferenceCounts()) {
-          ReferenceCountHelper.setReferenceCountOwner(new OldValueOwner());
-          oldValue = OffHeapHelper.copyAndReleaseIfNeeded(ov, getRegion().getCache());
-          ReferenceCountHelper.setReferenceCountOwner(null);
-        } else {
-          oldValue = OffHeapHelper.copyAndReleaseIfNeeded(ov, getRegion().getCache());
-        }
-      }
-      Object nv = basicGetNewValue();
-      if (StoredObject.isOffHeapReference(nv)) {
-        ReferenceCountHelper.setReferenceCountOwner(this);
-        newValue = OffHeapHelper.copyAndReleaseIfNeeded(nv, getRegion().getCache());
-        ReferenceCountHelper.setReferenceCountOwner(null);
-      }
-      if (StoredObject.isOffHeapReference(newValue)
-          || StoredObject.isOffHeapReference(oldValue)) {
-        throw new IllegalStateException(
-            "event's old/new value still off-heap after calling copyOffHeapToHeap");
-      }
-      offHeapOk = false;
-    }
-  }
-
-  public boolean isOldValueOffHeap() {
-    return isOffHeapReference(oldValue);
   }
 
   /**

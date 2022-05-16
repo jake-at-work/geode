@@ -184,7 +184,6 @@ public class PRBucketSynchronizationDUnitTest extends CacheTestCase {
       event.setVersionTag(tag);
       bucket.getRegionMap().basicPut(event, System.currentTimeMillis(), true, false, null, false,
           false);
-      event.release();
 
       // now create a tombstone so we can be sure these are transferred in delta-GII
       tag = new VMVersionTag();
@@ -198,7 +197,6 @@ public class PRBucketSynchronizationDUnitTest extends CacheTestCase {
       event.setVersionTag(tag);
       bucket.getRegionMap().basicPut(event, System.currentTimeMillis(), true, false, null, false,
           false);
-      event.release();
 
       bucket.dumpBackingMap();
       assertTrue("bucket should hold entry Object3 now", bucket.containsKey("Object3"));

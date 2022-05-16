@@ -247,7 +247,6 @@ public class ParallelQueueRemovalMessage extends PooledDistributionMessage {
           afterAckForSecondary_EventInTempQueue(qPR.getParallelGatewaySender(), eventForFilter);
           if (eventForFilter.getShadowKey().equals(key)) {
             itr.remove();
-            eventForFilter.release(); // GEODE-1282
             isDestroyed = true;
           }
         }

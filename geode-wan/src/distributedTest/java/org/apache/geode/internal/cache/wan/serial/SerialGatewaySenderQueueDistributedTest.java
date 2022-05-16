@@ -66,9 +66,9 @@ public class SerialGatewaySenderQueueDistributedTest extends WANTestBase {
     vm3.invoke(() -> WANTestBase.createCache(nyPort));
 
     vm2.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null));
     vm3.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null));
 
     vm2.invoke(WANTestBase::createReceiver);
     vm3.invoke(WANTestBase::createReceiver);
@@ -86,15 +86,13 @@ public class SerialGatewaySenderQueueDistributedTest extends WANTestBase {
     startSenderInVMs("ln", vm4, vm5);
 
     vm4.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln"));
     vm5.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln"));
     vm6.invoke(
-        () -> WANTestBase.createReplicatedProxyRegion(getTestMethodName() + "_RR", "ln",
-            isOffHeap()));
+        () -> WANTestBase.createReplicatedProxyRegion(getTestMethodName() + "_RR", "ln"));
     vm7.invoke(
-        () -> WANTestBase.createReplicatedProxyRegion(getTestMethodName() + "_RR", "ln",
-            isOffHeap()));
+        () -> WANTestBase.createReplicatedProxyRegion(getTestMethodName() + "_RR", "ln"));
 
     AsyncInvocation<Void> a1 =
         vm6.invokeAsync(() -> WANTestBase.doPutsSameKey(getTestMethodName() + "_RR", 2000, "DA"));
@@ -139,9 +137,9 @@ public class SerialGatewaySenderQueueDistributedTest extends WANTestBase {
     vm3.invoke(() -> WANTestBase.createCache(nyPort));
 
     vm2.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null));
     vm3.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null));
 
     vm2.invoke(WANTestBase::createReceiver);
     vm3.invoke(WANTestBase::createReceiver);
@@ -159,13 +157,13 @@ public class SerialGatewaySenderQueueDistributedTest extends WANTestBase {
     startSenderInVMs("ln", vm4, vm5);
 
     vm4.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln"));
     vm5.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln"));
     vm6.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln"));
     vm7.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln"));
 
     vm4.invoke(() -> WANTestBase.addQueueListener("ln", false));
     vm5.invoke(() -> WANTestBase.addQueueListener("ln", false));
@@ -237,10 +235,10 @@ public class SerialGatewaySenderQueueDistributedTest extends WANTestBase {
     createReceiverInVMs(vm2, vm3);
 
 
-    vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100,
-        isOffHeap()));
-    vm3.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100,
-        isOffHeap()));
+    vm2.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100));
+    vm3.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100));
 
     vm2.invoke(() -> WANTestBase.addListenerOnRegion(getTestMethodName() + "_PR"));
     vm3.invoke(() -> WANTestBase.addListenerOnRegion(getTestMethodName() + "_PR"));
@@ -252,14 +250,14 @@ public class SerialGatewaySenderQueueDistributedTest extends WANTestBase {
     vm5.invoke(() -> WANTestBase.createSenderWithMultipleDispatchers("ln", 2, false, 100, 10, false,
         false, null, true, 1, OrderPolicy.KEY));
 
-    vm4.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100,
-        isOffHeap()));
-    vm5.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100,
-        isOffHeap()));
-    vm6.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100,
-        isOffHeap()));
-    vm7.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100,
-        isOffHeap()));
+    vm4.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100));
+    vm5.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100));
+    vm6.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100));
+    vm7.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100));
 
     startSenderInVMs("ln", vm4, vm5);
 
@@ -408,7 +406,7 @@ public class SerialGatewaySenderQueueDistributedTest extends WANTestBase {
     // Create receiver and region
     vm2.invoke(() -> WANTestBase.createCache(nyPort));
     vm2.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null));
     vm2.invoke(WANTestBase::createReceiver);
     vm2.invoke(() -> WANTestBase.addListenerOnRegion(getTestMethodName() + "_RR"));
 
@@ -428,7 +426,7 @@ public class SerialGatewaySenderQueueDistributedTest extends WANTestBase {
 
     // Create region with the sender ids
     vm4.invoke(() -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR",
-        builder.toString(), isOffHeap()));
+        builder.toString()));
 
     // Do puts
     int numPuts = 100;
@@ -448,7 +446,7 @@ public class SerialGatewaySenderQueueDistributedTest extends WANTestBase {
     // Create receiver and region
     vm2.invoke(() -> WANTestBase.createCache(nyPort));
     vm2.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null));
     vm2.invoke(WANTestBase::createReceiver);
     vm2.invoke(() -> WANTestBase.addListenerOnRegion(getTestMethodName() + "_RR"));
 
@@ -470,7 +468,7 @@ public class SerialGatewaySenderQueueDistributedTest extends WANTestBase {
 
     // Create region with the sender ids
     vm4.invoke(() -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR",
-        senderId, isOffHeap()));
+        senderId));
 
     // Do puts
     int numPuts = 100;
@@ -504,7 +502,7 @@ public class SerialGatewaySenderQueueDistributedTest extends WANTestBase {
     // Create receiver
     vm2.invoke(() -> WANTestBase.createCache(nyPort));
     vm2.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null));
     vm2.invoke(WANTestBase::createReceiver);
 
     // Create maximum number of senders

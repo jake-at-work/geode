@@ -849,7 +849,6 @@ public abstract class AbstractGatewaySenderEventProcessor extends LoggingThread
           // event should never be off-heap so it does not need to be released
           EntryEventImpl event = EntryEventImpl.create((LocalRegion) pdxRegion, Operation.UPDATE,
               typeEntry.getKey(), typeEntry.getValue(), null, false, cache.getMyId());
-          event.disallowOffHeapValues();
           event.setEventId(new EventID(cache.getInternalDistributedSystem()));
           List<Integer> allRemoteDSIds = new ArrayList<>();
           for (GatewaySender sender : cache.getGatewaySenders()) {

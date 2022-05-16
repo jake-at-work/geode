@@ -421,23 +421,23 @@ public class ParallelWANConflationDistributedTest extends WANTestBase {
         .forEach(server -> server.invoke(this::addDistributionMessageObserver));
 
     vm4.invoke(
-        () -> createCustomerOrderShipmentPartitionedRegion("ln", 1, numberOfBuckets, isOffHeap(),
+        () -> createCustomerOrderShipmentPartitionedRegion("ln", 1, numberOfBuckets,
             RegionShortcut.PARTITION_PROXY));
     vm5.invoke(
-        () -> createCustomerOrderShipmentPartitionedRegion("ln", 1, numberOfBuckets, isOffHeap()));
+        () -> createCustomerOrderShipmentPartitionedRegion("ln", 1, numberOfBuckets));
 
     startSenderInVMs("ln", vm4, vm5, vm6);
     vm2.invoke(
-        () -> createCustomerOrderShipmentPartitionedRegion(null, 0, numberOfBuckets, isOffHeap()));
+        () -> createCustomerOrderShipmentPartitionedRegion(null, 0, numberOfBuckets));
     vm3.invoke(
-        () -> createCustomerOrderShipmentPartitionedRegion(null, 0, numberOfBuckets, isOffHeap()));
+        () -> createCustomerOrderShipmentPartitionedRegion(null, 0, numberOfBuckets));
 
     vm4.invoke(() -> putCustomerPartitionedRegion(numberOfPuts));
     vm4.invoke(() -> putOrderPartitionedRegion(numberOfPuts));
     vm4.invoke(() -> putShipmentPartitionedRegion(numberOfPuts));
 
     vm6.invoke(
-        () -> createCustomerOrderShipmentPartitionedRegion("ln", 1, numberOfBuckets, isOffHeap()));
+        () -> createCustomerOrderShipmentPartitionedRegion("ln", 1, numberOfBuckets));
 
     AsyncInvocation<?> asyncInvocation = vm4.invokeAsync(this::doRebalance);
 
@@ -523,15 +523,15 @@ public class ParallelWANConflationDistributedTest extends WANTestBase {
   }
 
   protected void createOrderShipmentOnReceivers() {
-    vm2.invoke(() -> createCustomerOrderShipmentPartitionedRegion(null, 1, 8, isOffHeap()));
-    vm3.invoke(() -> createCustomerOrderShipmentPartitionedRegion(null, 1, 8, isOffHeap()));
+    vm2.invoke(() -> createCustomerOrderShipmentPartitionedRegion(null, 1, 8));
+    vm3.invoke(() -> createCustomerOrderShipmentPartitionedRegion(null, 1, 8));
   }
 
   protected void createOrderShipmentOnSenders() {
-    vm4.invoke(() -> createCustomerOrderShipmentPartitionedRegion("ln", 0, 8, isOffHeap()));
-    vm5.invoke(() -> createCustomerOrderShipmentPartitionedRegion("ln", 0, 8, isOffHeap()));
-    vm6.invoke(() -> createCustomerOrderShipmentPartitionedRegion("ln", 0, 8, isOffHeap()));
-    vm7.invoke(() -> createCustomerOrderShipmentPartitionedRegion("ln", 0, 8, isOffHeap()));
+    vm4.invoke(() -> createCustomerOrderShipmentPartitionedRegion("ln", 0, 8));
+    vm5.invoke(() -> createCustomerOrderShipmentPartitionedRegion("ln", 0, 8));
+    vm6.invoke(() -> createCustomerOrderShipmentPartitionedRegion("ln", 0, 8));
+    vm7.invoke(() -> createCustomerOrderShipmentPartitionedRegion("ln", 0, 8));
   }
 
   protected Map<Integer, Object> updateKeyValues() {
@@ -571,8 +571,8 @@ public class ParallelWANConflationDistributedTest extends WANTestBase {
   }
 
   protected void createReceiverPrs() {
-    vm2.invoke(() -> createPartitionedRegion(getTestMethodName(), null, 1, 8, isOffHeap()));
-    vm3.invoke(() -> createPartitionedRegion(getTestMethodName(), null, 1, 8, isOffHeap()));
+    vm2.invoke(() -> createPartitionedRegion(getTestMethodName(), null, 1, 8));
+    vm3.invoke(() -> createPartitionedRegion(getTestMethodName(), null, 1, 8));
   }
 
   protected void startPausedSenders() {
@@ -594,13 +594,13 @@ public class ParallelWANConflationDistributedTest extends WANTestBase {
 
   protected void createSenderPRs(int redundancy) {
     vm4.invoke(
-        () -> createPartitionedRegion(getTestMethodName(), "ln", redundancy, 8, isOffHeap()));
+        () -> createPartitionedRegion(getTestMethodName(), "ln", redundancy, 8));
     vm5.invoke(
-        () -> createPartitionedRegion(getTestMethodName(), "ln", redundancy, 8, isOffHeap()));
+        () -> createPartitionedRegion(getTestMethodName(), "ln", redundancy, 8));
     vm6.invoke(
-        () -> createPartitionedRegion(getTestMethodName(), "ln", redundancy, 8, isOffHeap()));
+        () -> createPartitionedRegion(getTestMethodName(), "ln", redundancy, 8));
     vm7.invoke(
-        () -> createPartitionedRegion(getTestMethodName(), "ln", redundancy, 8, isOffHeap()));
+        () -> createPartitionedRegion(getTestMethodName(), "ln", redundancy, 8));
   }
 
   protected void initialSetUp() {

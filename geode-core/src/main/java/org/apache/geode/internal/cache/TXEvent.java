@@ -20,14 +20,13 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheEvent;
 import org.apache.geode.cache.TransactionEvent;
 import org.apache.geode.cache.TransactionId;
-import org.apache.geode.internal.offheap.Releasable;
 
 /**
  * The internal implementation of the {@link TransactionEvent} interface
  *
  * @since GemFire 4.0
  */
-public class TXEvent implements TransactionEvent, Releasable {
+public class TXEvent implements TransactionEvent {
 
   private final TXStateInterface localTxState;
   private List events;
@@ -74,16 +73,5 @@ public class TXEvent implements TransactionEvent, Releasable {
   @Override
   public Cache getCache() {
     return cache;
-  }
-
-  @Override
-  public synchronized void release() {
-    if (events != null) {
-      for (final Object o : getEvents()) {
-        if (o instanceof EntryEventImpl) {
-          ((EntryEventImpl) o).release();
-        }
-      }
-    }
   }
 }

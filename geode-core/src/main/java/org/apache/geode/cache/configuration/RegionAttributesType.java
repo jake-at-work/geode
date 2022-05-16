@@ -431,8 +431,10 @@ public class RegionAttributesType implements Serializable {
   protected Boolean cloningEnabled;
   @XmlAttribute(name = "concurrency-checks-enabled")
   protected Boolean concurrencyChecksEnabled;
+
+  @Deprecated
   @XmlAttribute(name = "off-heap")
-  protected Boolean offHeap;
+  protected final Boolean offHeap = false;
 
   /**
    * Gets the value of the keyConstraint property.
@@ -1570,9 +1572,11 @@ public class RegionAttributesType implements Serializable {
    * {@link Boolean }
    *
    * @return the value of the offHeap property
+   * @deprecated No replacement.
    */
+  @Deprecated
   public Boolean isOffHeap() {
-    return offHeap;
+    return false;
   }
 
   /**
@@ -1582,10 +1586,10 @@ public class RegionAttributesType implements Serializable {
    * {@link Boolean }
    *
    * @param value the value of the offHeap property
+   * @deprecated No replacement.
    */
-  public void setOffHeap(Boolean value) {
-    offHeap = value;
-  }
+  @Deprecated
+  public void setOffHeap(Boolean value) {}
 
   public void setLruHeapPercentageEvictionAction(EnumActionDestroyOverflow action) {
     if (evictionAttributes == null) {

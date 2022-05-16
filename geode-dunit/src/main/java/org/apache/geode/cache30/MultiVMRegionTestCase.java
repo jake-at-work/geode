@@ -23,7 +23,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.api.Assumptions.assumeThat;
-import static org.hamcrest.Matchers.equalTo;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInput;
@@ -102,7 +101,6 @@ import org.apache.geode.internal.cache.ExpiryTask;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.internal.cache.InitialImageOperation;
 import org.apache.geode.internal.cache.LocalRegion;
-import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.RegionEntry;
 import org.apache.geode.internal.cache.TXManagerImpl;
 import org.apache.geode.internal.cache.TXStateProxy;
@@ -112,8 +110,6 @@ import org.apache.geode.internal.cache.persistence.DiskRecoveryStore;
 import org.apache.geode.internal.cache.versions.RegionVersionVector;
 import org.apache.geode.internal.cache.versions.VersionSource;
 import org.apache.geode.internal.cache.versions.VersionTag;
-import org.apache.geode.internal.offheap.MemoryAllocatorImpl;
-import org.apache.geode.internal.offheap.StoredObject;
 import org.apache.geode.internal.serialization.KnownVersion;
 import org.apache.geode.test.dunit.AsyncInvocation;
 import org.apache.geode.test.dunit.DistributedTestUtils;
@@ -999,13 +995,8 @@ public abstract class MultiVMRegionTestCase extends RegionTestCase {
           assertThat(event.getOperation().isLocalLoad()).isFalse();
           assertThat(event.getOperation().isNetLoad()).isFalse();
           assertThat(event.getOperation().isNetSearch()).isFalse();
-          if (event.getRegion().getAttributes().getOffHeap()) {
-            // since off heap always serializes the old value is serialized and available
-            assertThat(event.getSerializedOldValue().getDeserializedValue()).isEqualTo(oldValue);
-          } else {
-            assertThat(event.getSerializedOldValue()).isNull(); // since it was put originally in
-            // this VM
-          }
+          assertThat(event.getSerializedOldValue()).isNull(); // since it was put originally in
+          // this VM
           DataInputStream dis = new DataInputStream(
               new ByteArrayInputStream(event.getSerializedNewValue().getSerializedValue()));
           try {
@@ -1626,16 +1617,6 @@ public abstract class MultiVMRegionTestCase extends RegionTestCase {
         // registered, so it can be destroyed later
         region.put(key2, value2);
         assertThat(region.size()).isEqualTo(1);
-        if (region.getAttributes().getOffHeap() && !(region instanceof PartitionedRegion)) {
-          GemFireCacheImpl gfc = (GemFireCacheImpl) getCache();
-          MemoryAllocatorImpl ma = (MemoryAllocatorImpl) gfc.getOffHeapStore();
-          LocalRegion reRegion;
-          reRegion = (LocalRegion) region;
-          RegionEntry re = reRegion.getRegionEntry(key2);
-          StoredObject so = (StoredObject) re.getValue();
-          assertThat(so.getRefCount()).isEqualTo(1);
-          assertThat(ma.getStats().getObjects()).isEqualTo(1);
-        }
       }
     };
 
@@ -1683,11 +1664,6 @@ public abstract class MultiVMRegionTestCase extends RegionTestCase {
       } catch (CacheWriterException ex) {
         assertThat(region.getEntry(key)).isNull();
         assertThat(region.size()).isEqualTo(1);
-        if (region.getAttributes().getOffHeap() && !(region instanceof PartitionedRegion)) {
-          GemFireCacheImpl gfc = (GemFireCacheImpl) getCache();
-          MemoryAllocatorImpl ma = (MemoryAllocatorImpl) gfc.getOffHeapStore();
-          assertThat(ma.getStats().getObjects()).isEqualTo(1);
-        }
       }
     });
 
@@ -1699,15 +1675,6 @@ public abstract class MultiVMRegionTestCase extends RegionTestCase {
       Region<Object, Object> region = getRootRegion().getSubregion(name);
       region.put(key, oldValue, arg);
       assertThat(region.size()).isEqualTo(2);
-      if (region.getAttributes().getOffHeap() && !(region instanceof PartitionedRegion)) {
-        GemFireCacheImpl gfc = (GemFireCacheImpl) getCache();
-        MemoryAllocatorImpl ma = (MemoryAllocatorImpl) gfc.getOffHeapStore();
-        assertThat(ma.getStats().getObjects()).isEqualTo(2);
-        LocalRegion reRegion;
-        reRegion = (LocalRegion) region;
-        StoredObject so = (StoredObject) reRegion.getRegionEntry(key).getValue();
-        assertThat(so.getRefCount()).isEqualTo(1);
-      }
     });
     vm1.invoke("Verify callback", () -> {
       assertThat(writer().wasInvoked()).isTrue();
@@ -1757,15 +1724,6 @@ public abstract class MultiVMRegionTestCase extends RegionTestCase {
         Region.Entry entry = region.getEntry(key);
         assertThat(entry.getValue()).isEqualTo(oldValue);
         assertThat(region.size()).isEqualTo(2);
-        if (region.getAttributes().getOffHeap() && !(region instanceof PartitionedRegion)) {
-          GemFireCacheImpl gfc = (GemFireCacheImpl) getCache();
-          MemoryAllocatorImpl ma = (MemoryAllocatorImpl) gfc.getOffHeapStore();
-          assertThat(ma.getStats().getObjects()).isEqualTo(2);
-          LocalRegion reRegion;
-          reRegion = (LocalRegion) region;
-          StoredObject so = (StoredObject) reRegion.getRegionEntry(key).getValue();
-          assertThat(so.getRefCount()).isEqualTo(1);
-        }
       }
     });
     vm1.invoke("Verify callback", () -> {
@@ -1776,11 +1734,6 @@ public abstract class MultiVMRegionTestCase extends RegionTestCase {
       Region<Object, Object> region = getRootRegion().getSubregion(name);
       region.put(key, newValue, arg);
       assertThat(region.size()).isEqualTo(2);
-      if (region.getAttributes().getOffHeap() && !(region instanceof PartitionedRegion)) {
-        GemFireCacheImpl gfc = (GemFireCacheImpl) getCache();
-        MemoryAllocatorImpl ma = (MemoryAllocatorImpl) gfc.getOffHeapStore();
-        assertThat(ma.getStats().getObjects()).isEqualTo(2);
-      }
     });
     vm1.invoke("Verify callback", () -> {
       assertThat(writer().wasInvoked()).isTrue();
@@ -1828,11 +1781,6 @@ public abstract class MultiVMRegionTestCase extends RegionTestCase {
       } catch (CacheWriterException ex) {
         assertThat(region.getEntry(key)).isNotNull();
         assertThat(region.size()).isEqualTo(2);
-        if (region.getAttributes().getOffHeap() && !(region instanceof PartitionedRegion)) {
-          GemFireCacheImpl gfc = (GemFireCacheImpl) getCache();
-          MemoryAllocatorImpl ma = (MemoryAllocatorImpl) gfc.getOffHeapStore();
-          assertThat(ma.getStats().getObjects()).isEqualTo(2);
-        }
       }
     });
     vm1.invoke("Verify callback", () -> {
@@ -1843,11 +1791,6 @@ public abstract class MultiVMRegionTestCase extends RegionTestCase {
       Region<Object, Object> region = getRootRegion().getSubregion(name);
       region.destroy(key, arg);
       assertThat(region.size()).isEqualTo(1);
-      if (region.getAttributes().getOffHeap() && !(region instanceof PartitionedRegion)) {
-        GemFireCacheImpl gfc = (GemFireCacheImpl) getCache();
-        MemoryAllocatorImpl ma = (MemoryAllocatorImpl) gfc.getOffHeapStore();
-        assertThat(ma.getStats().getObjects()).isEqualTo(1);
-      }
     });
     vm1.invoke("Verify callback", () -> {
       assertThat(writer().wasInvoked()).isTrue();
@@ -1891,11 +1834,6 @@ public abstract class MultiVMRegionTestCase extends RegionTestCase {
           fail("should not have an exception if region is destroyed", ex);
         }
         assertThat(region.size()).isEqualTo(1);
-        if (region.getAttributes().getOffHeap() && !(region instanceof PartitionedRegion)) {
-          GemFireCacheImpl gfc = (GemFireCacheImpl) getCache();
-          MemoryAllocatorImpl ma = (MemoryAllocatorImpl) gfc.getOffHeapStore();
-          assertThat(ma.getStats().getObjects()).isEqualTo(1);
-        }
       }
     });
     vm1.invoke("Verify callback", () -> {
@@ -1905,19 +1843,7 @@ public abstract class MultiVMRegionTestCase extends RegionTestCase {
     vm0.invoke("Destroy with Argument", () -> {
       Region<Object, Object> region = getRootRegion().getSubregion(name);
       assertThat(region.size()).isEqualTo(1);
-      if (region.getAttributes().getOffHeap() && !(region instanceof PartitionedRegion)) {
-        GemFireCacheImpl gfc = (GemFireCacheImpl) getCache();
-        MemoryAllocatorImpl ma = (MemoryAllocatorImpl) gfc.getOffHeapStore();
-        assertThat(ma.getStats().getObjects()).isEqualTo(1);
-      }
       region.destroyRegion(arg);
-      if (region.getAttributes().getOffHeap() && !(region instanceof PartitionedRegion)) {
-        GemFireCacheImpl gfc = (GemFireCacheImpl) getCache();
-        final MemoryAllocatorImpl ma = (MemoryAllocatorImpl) gfc.getOffHeapStore();
-        await("waiting for off-heap object count go to zero")
-            .until(() -> ma.getStats().getObjects(), equalTo(0));
-
-      }
     });
     vm1.invoke("Verify callback", () -> {
       assertThat(writer().wasInvoked()).isTrue();

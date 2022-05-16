@@ -45,7 +45,7 @@ public class DiskRegionTest {
         false, true, false, false,
         mock(DiskRegionStats.class), mock(CancelCriterion.class), mock(DiskExceptionHandler.class),
         null, mock(EnumSet.class), null, 0,
-        null, false));
+        null));
   }
 
   @Test

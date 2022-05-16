@@ -68,8 +68,6 @@ import org.apache.geode.internal.cache.control.ResourceManagerStats;
 import org.apache.geode.internal.cache.execute.metrics.FunctionServiceStats;
 import org.apache.geode.internal.inet.LocalHostUtil;
 import org.apache.geode.internal.logging.log4j.LogMarker;
-import org.apache.geode.internal.offheap.MemoryAllocator;
-import org.apache.geode.internal.offheap.OffHeapMemoryStats;
 import org.apache.geode.internal.process.PidUnavailableException;
 import org.apache.geode.internal.process.ProcessUtils;
 import org.apache.geode.internal.serialization.KnownVersion;
@@ -279,15 +277,6 @@ public class MemberMBeanBridge {
 
     systemStat = fetchSystemStats();
 
-    MemoryAllocator allocator = cache.getOffHeapStore();
-    if (null != allocator) {
-      OffHeapMemoryStats offHeapStats = allocator.getStats();
-
-      if (null != offHeapStats) {
-        addOffHeapStats(offHeapStats);
-      }
-    }
-
     addProcessStats(fetchProcessStats());
     addStatSamplerStats(fetchStatSamplerStats());
     addVMStats(fetchVMStats());
@@ -305,11 +294,6 @@ public class MemberMBeanBridge {
       }
     }
     return null;
-  }
-
-  private void addOffHeapStats(OffHeapMemoryStats offHeapStats) {
-    Statistics offHeapMemoryStatistics = offHeapStats.getStats();
-    monitor.addStatisticsToMonitor(offHeapMemoryStatistics);
   }
 
   @VisibleForTesting
@@ -1289,117 +1273,6 @@ public class MemberMBeanBridge {
       return -1;
     }
     return getVMStatistic(StatsKey.VM_STATS_OPEN_FDS).longValue();
-  }
-
-  int getOffHeapObjects() {
-    int objects = 0;
-    OffHeapMemoryStats stats = getOffHeapStats();
-
-    if (null != stats) {
-      objects = stats.getObjects();
-    }
-
-    return objects;
-  }
-
-  @Deprecated
-  public long getOffHeapFreeSize() {
-    return getOffHeapFreeMemory();
-  }
-
-  @Deprecated
-  public long getOffHeapUsedSize() {
-    return getOffHeapUsedMemory();
-  }
-
-  long getOffHeapMaxMemory() {
-    OffHeapMemoryStats stats = getOffHeapStats();
-
-    if (null != stats) {
-      return stats.getMaxMemory();
-    }
-
-    return 0;
-  }
-
-  long getOffHeapFreeMemory() {
-    OffHeapMemoryStats stats = getOffHeapStats();
-
-    if (null != stats) {
-      return stats.getFreeMemory();
-    }
-
-    return 0;
-  }
-
-  long getOffHeapUsedMemory() {
-    OffHeapMemoryStats stats = getOffHeapStats();
-
-    if (null != stats) {
-      return stats.getUsedMemory();
-    }
-
-    return 0;
-  }
-
-  int getOffHeapFragmentation() {
-    OffHeapMemoryStats stats = getOffHeapStats();
-
-    if (null != stats) {
-      return stats.getFragmentation();
-    }
-
-    return 0;
-  }
-
-  long getOffHeapFragments() {
-    OffHeapMemoryStats stats = getOffHeapStats();
-
-    if (null != stats) {
-      return stats.getFragments();
-    }
-
-    return 0;
-  }
-
-  long getOffHeapFreedChunks() {
-    OffHeapMemoryStats stats = getOffHeapStats();
-
-    if (null != stats) {
-      return stats.getFreedChunks();
-    }
-
-    return 0;
-  }
-
-  int getOffHeapLargestFragment() {
-    OffHeapMemoryStats stats = getOffHeapStats();
-
-    if (null != stats) {
-      return stats.getLargestFragment();
-    }
-
-    return 0;
-  }
-
-  long getOffHeapCompactionTime() {
-    OffHeapMemoryStats stats = getOffHeapStats();
-
-    if (null != stats) {
-      return stats.getDefragmentationTime();
-    }
-
-    return 0;
-  }
-
-  private OffHeapMemoryStats getOffHeapStats() {
-    MemoryAllocator offHeap = cache.getOffHeapStore();
-
-    if (null != offHeap) {
-      return offHeap.getStats();
-    }
-
-    return null;
   }
 
   int getHostCpuUsage() {

@@ -89,7 +89,7 @@ public class NewWANConcurrencyCheckForDestroyDUnitTest extends WANTestBase {
     vm1.invoke(() -> WANTestBase.createSender("ln2", 3, true, 10, 1, false, false, null, true));
 
     vm1.invoke(
-        () -> WANTestBase.createPartitionedRegion("repRegion", "ln1,ln2", 0, 1, isOffHeap()));
+        () -> WANTestBase.createPartitionedRegion("repRegion", "ln1,ln2", 0, 1));
     vm1.invoke(() -> WANTestBase.startSender("ln1"));
     vm1.invoke(() -> WANTestBase.startSender("ln2"));
     vm1.invoke(() -> WANTestBase.waitForSenderRunningState("ln1"));
@@ -98,14 +98,14 @@ public class NewWANConcurrencyCheckForDestroyDUnitTest extends WANTestBase {
     // Site 2
     vm3.invoke(() -> WANTestBase.createSender("ny1", 1, true, 10, 1, false, false, null, true));
 
-    vm3.invoke(() -> WANTestBase.createPartitionedRegion("repRegion", "ny1", 0, 1, isOffHeap()));
+    vm3.invoke(() -> WANTestBase.createPartitionedRegion("repRegion", "ny1", 0, 1));
     vm3.invoke(() -> WANTestBase.startSender("ny1"));
     vm3.invoke(() -> WANTestBase.waitForSenderRunningState("ny1"));
 
     // Site 3 which only knows about Site 1.
     vm5.invoke(() -> WANTestBase.createSender("tk1", 1, true, 10, 1, false, false, null, true));
 
-    vm5.invoke(() -> WANTestBase.createPartitionedRegion("repRegion", "tk1", 0, 1, isOffHeap()));
+    vm5.invoke(() -> WANTestBase.createPartitionedRegion("repRegion", "tk1", 0, 1));
     vm5.invoke(() -> WANTestBase.startSender("tk1"));
     vm5.invoke(() -> WANTestBase.waitForSenderRunningState("tk1"));
 
@@ -165,14 +165,14 @@ public class NewWANConcurrencyCheckForDestroyDUnitTest extends WANTestBase {
     // Site 1
     vm1.invoke(() -> WANTestBase.createSender("ln1", 2, false, 10, 1, false, false, null, true));
 
-    vm1.invoke(() -> WANTestBase.createReplicatedRegion("repRegion", "ln1", isOffHeap()));
+    vm1.invoke(() -> WANTestBase.createReplicatedRegion("repRegion", "ln1"));
     vm1.invoke(() -> WANTestBase.startSender("ln1"));
     vm1.invoke(() -> WANTestBase.waitForSenderRunningState("ln1"));
 
     // Site 2
     vm3.invoke(() -> WANTestBase.createSender("ny1", 1, false, 10, 1, false, false, null, true));
 
-    vm3.invoke(() -> WANTestBase.createReplicatedRegion("repRegion", "ny1", isOffHeap()));
+    vm3.invoke(() -> WANTestBase.createReplicatedRegion("repRegion", "ny1"));
     vm3.invoke(() -> WANTestBase.startSender("ny1"));
     vm3.invoke(() -> WANTestBase.waitForSenderRunningState("ny1"));
 
@@ -275,14 +275,14 @@ public class NewWANConcurrencyCheckForDestroyDUnitTest extends WANTestBase {
     // Site 1
     vm1.invoke(() -> WANTestBase.createSender("ln1", 2, false, 10, 1, false, false, null, true));
 
-    vm1.invoke(() -> WANTestBase.createPartitionedRegion("repRegion", "ln1", 0, 1, isOffHeap()));
+    vm1.invoke(() -> WANTestBase.createPartitionedRegion("repRegion", "ln1", 0, 1));
     vm1.invoke(() -> WANTestBase.startSender("ln1"));
     vm1.invoke(() -> WANTestBase.waitForSenderRunningState("ln1"));
 
     // Site 2
     vm3.invoke(() -> WANTestBase.createSender("ny1", 1, false, 10, 1, false, false, null, true));
 
-    vm3.invoke(() -> WANTestBase.createPartitionedRegion("repRegion", "ny1", 0, 1, isOffHeap()));
+    vm3.invoke(() -> WANTestBase.createPartitionedRegion("repRegion", "ny1", 0, 1));
     vm3.invoke(() -> WANTestBase.startSender("ny1"));
     vm3.invoke(() -> WANTestBase.waitForSenderRunningState("ny1"));
 
@@ -387,17 +387,17 @@ public class NewWANConcurrencyCheckForDestroyDUnitTest extends WANTestBase {
     // Site 1
     vm1.invoke(() -> WANTestBase.createSender("ln1", 2, false, 10, 1, false, false, null, true));
 
-    vm1.invoke(() -> WANTestBase.createReplicatedRegion("repRegion", "ln1", isOffHeap()));
+    vm1.invoke(() -> WANTestBase.createReplicatedRegion("repRegion", "ln1"));
     vm1.invoke(() -> WANTestBase.startSender("ln1"));
     vm1.invoke(() -> WANTestBase.waitForSenderRunningState("ln1"));
 
     // Site 2
-    vm3.invoke(() -> WANTestBase.createReplicatedRegion("repRegion", "ny1", isOffHeap()));
+    vm3.invoke(() -> WANTestBase.createReplicatedRegion("repRegion", "ny1"));
 
     vm4.invoke(() -> WANTestBase.createCache(nyPort));
     vm4.invoke(() -> WANTestBase.createSender("ny1", 1, false, 10, 1, false, false, null, true));
 
-    vm4.invoke(() -> WANTestBase.createReplicatedRegion("repRegion", "ny1", isOffHeap()));
+    vm4.invoke(() -> WANTestBase.createReplicatedRegion("repRegion", "ny1"));
     vm4.invoke(() -> WANTestBase.startSender("ny1"));
     vm4.invoke(() -> WANTestBase.waitForSenderRunningState("ny1"));
 

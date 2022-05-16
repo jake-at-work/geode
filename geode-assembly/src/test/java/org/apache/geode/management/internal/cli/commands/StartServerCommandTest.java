@@ -316,11 +316,6 @@ class StartServerCommandTest {
       serverLauncherBuilder.setCriticalHeapPercentage(criticalHeapPercentage);
       expectedStartCommandOptions.add("--critical-heap-percentage=" + criticalHeapPercentage);
 
-      final float criticalOffHeapPercentage = 95.5f;
-      serverLauncherBuilder.setCriticalOffHeapPercentage(criticalOffHeapPercentage);
-      expectedStartCommandOptions.add(
-          "--critical-off-heap-percentage=" + criticalOffHeapPercentage);
-
       serverLauncherBuilder.setDebug(true);
       expectedStartCommandOptions.add("--debug");
 
@@ -330,11 +325,6 @@ class StartServerCommandTest {
       final float evictionHeapPercentage = 85.0f;
       serverLauncherBuilder.setEvictionHeapPercentage(evictionHeapPercentage);
       expectedStartCommandOptions.add("--eviction-heap-percentage=" + evictionHeapPercentage);
-
-      final float evictionOffHeapPercentage = 85.0f;
-      serverLauncherBuilder.setEvictionOffHeapPercentage(evictionOffHeapPercentage);
-      expectedStartCommandOptions.add(
-          "--eviction-off-heap-percentage=" + evictionOffHeapPercentage);
 
       serverLauncherBuilder.setForce(true);
       expectedStartCommandOptions.add("--force");

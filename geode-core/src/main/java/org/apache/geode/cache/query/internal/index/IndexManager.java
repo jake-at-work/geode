@@ -90,7 +90,6 @@ public class IndexManager {
       System.getProperty(GeodeGlossary.GEMFIRE_PREFIX + "Query.INDEX_THRESHOLD_SIZE");
 
   private final boolean isOverFlowToDisk;
-  private final boolean offHeap;
   private final boolean indexMaintenanceSynchronous;
   private int numCreators = 0;
   private int numUpdatersInProgress = 0;
@@ -172,7 +171,6 @@ public class IndexManager {
     indexMaintenanceSynchronous = region.getAttributes().getIndexMaintenanceSynchronous();
     isOverFlowToDisk =
         region.getAttributes().getEvictionAttributes().getAction().isOverflowToDisk();
-    offHeap = region.getAttributes().getOffHeap();
     if (!indexMaintenanceSynchronous) {
       updater = new IndexUpdaterThread(INDEX_MAINTENANCE_BUFFER,
           "OqlIndexUpdater:" + region.getFullPath());
@@ -325,19 +323,6 @@ public class IndexManager {
           throw new UnsupportedOperationException(
               String.format(
                   "The specified index conditions are not supported for regions which overflow to disk. The region involved is %s",
-                  region.getFullPath()));
-        }
-        // OffHeap is not supported with range index.
-        if (isOffHeap()) {
-          if (!isIndexMaintenanceTypeSynchronous()) {
-            throw new UnsupportedOperationException(
-                String.format(
-                    "Asynchronous index maintenance is currently not supported for off-heap regions. The off-heap region is %s",
-                    region.getFullPath()));
-          }
-          throw new UnsupportedOperationException(
-              String.format(
-                  "From clauses having multiple iterators(collections) are not supported for off-heap regions. The off-heap region is %s",
                   region.getFullPath()));
         }
       }
@@ -1342,10 +1327,6 @@ public class IndexManager {
 
   public boolean isOverFlowRegion() {
     return isOverFlowToDisk;
-  }
-
-  public boolean isOffHeap() {
-    return offHeap;
   }
 
   public static boolean isObjectModificationInplace() {

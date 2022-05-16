@@ -20,8 +20,6 @@ import org.apache.geode.DataSerializer;
 import org.apache.geode.distributed.internal.DMStats;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.HeapDataOutputStream;
-import org.apache.geode.internal.offheap.StoredObject;
-import org.apache.geode.internal.offheap.annotations.Unretained;
 import org.apache.geode.internal.serialization.ByteArrayDataInput;
 import org.apache.geode.internal.serialization.DSCODE;
 import org.apache.geode.internal.serialization.KnownVersion;
@@ -102,24 +100,6 @@ public class BlobHelper {
       result = DataSerializer.readObject(in);
     }
     endDeserialization(start, blob.length);
-    return result;
-  }
-
-  /**
-   * A blob is a serialized Object. This method returns the deserialized object. If a PdxInstance is
-   * returned then it will refer to Chunk's off-heap memory with an unretained reference.
-   */
-  public static @Unretained Object deserializeOffHeapBlob(StoredObject blob)
-      throws IOException, ClassNotFoundException {
-    Object result;
-    final long start = startDeserialization();
-    // For both top level and nested pdxs we just want a reference to this off-heap blob.
-    // No copies.
-    // For non-pdx we want a stream that will read directly from the chunk.
-    try (PdxInputStream is = new PdxInputStream(blob)) {
-      result = DataSerializer.readObject(is);
-    }
-    endDeserialization(start, blob.getDataSize());
     return result;
   }
 

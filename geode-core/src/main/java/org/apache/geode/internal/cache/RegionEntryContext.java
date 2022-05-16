@@ -33,11 +33,6 @@ public interface RegionEntryContext extends HasCachePerfStats {
    */
   Compressor getCompressor();
 
-  /**
-   * Returns true if region entries are stored off heap.
-   */
-  boolean getOffHeap();
-
   void incRecentlyUsed();
 
   InternalCache getCache();

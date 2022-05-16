@@ -576,9 +576,6 @@ public class PartitionedRegionDataStore implements HasCachePerfStats {
         BlockingQueue<GatewaySenderEventImpl> tempQueue = queue.getBucketTmpQueue(bucketId);
         if (tempQueue != null) {
           synchronized (tempQueue) {
-            for (GatewaySenderEventImpl event : tempQueue) {
-              event.release();
-            }
             tempQueue.clear();
           }
         }
@@ -757,7 +754,6 @@ public class PartitionedRegionDataStore implements HasCachePerfStats {
     }
 
     factory.setCompressor(partitionedRegion.getCompressor());
-    factory.setOffHeap(partitionedRegion.getOffHeap());
 
     factory.setBucketRegion(true); // prevent validation problems
     RegionAttributes attributes = factory.create();

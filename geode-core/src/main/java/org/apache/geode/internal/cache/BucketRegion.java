@@ -92,9 +92,6 @@ import org.apache.geode.internal.cache.wan.GatewaySenderEventImpl;
 import org.apache.geode.internal.concurrent.AtomicLong5;
 import org.apache.geode.internal.concurrent.Atomics;
 import org.apache.geode.internal.logging.log4j.LogMarker;
-import org.apache.geode.internal.offheap.annotations.Released;
-import org.apache.geode.internal.offheap.annotations.Retained;
-import org.apache.geode.internal.offheap.annotations.Unretained;
 import org.apache.geode.internal.serialization.KnownVersion;
 import org.apache.geode.internal.statistics.StatisticsClock;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -1151,7 +1148,6 @@ public class BucketRegion extends DistributedRegion implements Bucket {
    * @return an event for EVICT_DESTROY
    */
   @Override
-  @Retained
   EntryEventImpl generateEvictDestroyEvent(Object key) {
     EntryEventImpl event = super.generateEvictDestroyEvent(key);
     event.setInvokePRCallbacks(true); // see bug 40797
@@ -1622,26 +1618,17 @@ public class BucketRegion extends DistributedRegion implements Bucket {
     // we already distributed this info.
   }
 
-  @Retained
   EntryEventImpl createEventForPR(EntryEventImpl sourceEvent) {
     EntryEventImpl e2 = new EntryEventImpl(sourceEvent);
-    boolean returned = false;
-    try {
-      e2.setRegion(partitionedRegion);
-      if (FORCE_LOCAL_LISTENERS_INVOCATION) {
-        e2.setInvokePRCallbacks(true);
-      } else {
-        e2.setInvokePRCallbacks(sourceEvent.getInvokePRCallbacks());
-      }
-      DistributedMember dm = getDistributionManager().getDistributionManagerId();
-      e2.setOriginRemote(!e2.getDistributedMember().equals(dm));
-      returned = true;
-      return e2;
-    } finally {
-      if (!returned) {
-        e2.release();
-      }
+    e2.setRegion(partitionedRegion);
+    if (FORCE_LOCAL_LISTENERS_INVOCATION) {
+      e2.setInvokePRCallbacks(true);
+    } else {
+      e2.setInvokePRCallbacks(sourceEvent.getInvokePRCallbacks());
     }
+    DistributedMember dm = getDistributionManager().getDistributionManagerId();
+    e2.setOriginRemote(!e2.getDistributedMember().equals(dm));
+    return e2;
   }
 
   private boolean skipPrEvent(final EntryEventImpl event, final boolean callDispatchListenerEvent) {
@@ -1676,14 +1663,9 @@ public class BucketRegion extends DistributedRegion implements Bucket {
       return;
     }
 
-    @Released
     final EntryEventImpl prEvent = createEventForPR(event);
-    try {
-      partitionedRegion.invokeTXCallbacks(eventType, prEvent,
-          partitionedRegion.isInitialized() && callDispatchListenerEvent);
-    } finally {
-      prEvent.release();
-    }
+    partitionedRegion.invokeTXCallbacks(eventType, prEvent,
+        partitionedRegion.isInitialized() && callDispatchListenerEvent);
   }
 
 
@@ -1713,14 +1695,9 @@ public class BucketRegion extends DistributedRegion implements Bucket {
       return;
     }
 
-    @Released
     final EntryEventImpl prEvent = createEventForPR(event);
-    try {
-      partitionedRegion.invokeDestroyCallbacks(eventType, prEvent,
-          partitionedRegion.isInitialized() && callDispatchListenerEvent, false);
-    } finally {
-      prEvent.release();
-    }
+    partitionedRegion.invokeDestroyCallbacks(eventType, prEvent,
+        partitionedRegion.isInitialized() && callDispatchListenerEvent, false);
   }
 
   /*
@@ -1749,14 +1726,9 @@ public class BucketRegion extends DistributedRegion implements Bucket {
       return;
     }
 
-    @Released
     final EntryEventImpl prEvent = createEventForPR(event);
-    try {
-      partitionedRegion.invokeInvalidateCallbacks(eventType, prEvent,
-          partitionedRegion.isInitialized() && callDispatchListenerEvent);
-    } finally {
-      prEvent.release();
-    }
+    partitionedRegion.invokeInvalidateCallbacks(eventType, prEvent,
+        partitionedRegion.isInitialized() && callDispatchListenerEvent);
   }
 
   /*
@@ -1788,14 +1760,9 @@ public class BucketRegion extends DistributedRegion implements Bucket {
       return;
     }
 
-    @Released
     final EntryEventImpl prEvent = createEventForPR(event);
-    try {
-      partitionedRegion.invokePutCallbacks(eventType, prEvent,
-          partitionedRegion.isInitialized() && callDispatchListenerEvent, false);
-    } finally {
-      prEvent.release();
-    }
+    partitionedRegion.invokePutCallbacks(eventType, prEvent,
+        partitionedRegion.isInitialized() && callDispatchListenerEvent, false);
   }
 
   /**
@@ -1847,7 +1814,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
   private void setDeltaIfNeeded(EntryEventImpl event) {
     if (partitionedRegion.getSystem().getConfig().getDeltaPropagation()
         && event.getOperation().isUpdate() && event.getDeltaBytes() == null) {
-      @Unretained
+
       Object rawNewValue = event.getRawNewValue();
       if (!(rawNewValue instanceof CachedDeserializable)) {
         return;

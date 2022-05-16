@@ -33,10 +33,10 @@ public class ParallelWANPropagationClientServerDUnitTest extends WANTestBase {
 
     vm2.invoke(() -> WANTestBase.createReceiverAndServer(nyPort));
     vm3.invoke(() -> WANTestBase.createReceiverAndServer(nyPort));
-    vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100,
-        isOffHeap()));
-    vm3.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100,
-        isOffHeap()));
+    vm2.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100));
+    vm3.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100));
 
     vm4.invoke(() -> WANTestBase.createClientWithLocatorAndRegion(nyPort, "localhost",
         getTestMethodName() + "_PR"));
@@ -46,10 +46,10 @@ public class ParallelWANPropagationClientServerDUnitTest extends WANTestBase {
     vm6.invoke(() -> WANTestBase.createServer(lnPort));
     vm5.invoke(() -> WANTestBase.createSender("ln", 2, true, 100, 10, false, false, null, true));
     vm6.invoke(() -> WANTestBase.createSender("ln", 2, true, 100, 10, false, false, null, true));
-    vm5.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100,
-        isOffHeap()));
-    vm6.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100,
-        isOffHeap()));
+    vm5.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100));
+    vm6.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100));
 
     vm7.invoke(() -> WANTestBase.createClientWithLocatorAndRegion(lnPort, "localhost",
         getTestMethodName() + "_PR"));

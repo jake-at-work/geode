@@ -25,7 +25,6 @@ import org.apache.geode.cache.Operation;
 import org.apache.geode.cache.TimeoutException;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.internal.cache.versions.ConcurrentCacheModificationException;
-import org.apache.geode.internal.offheap.annotations.Released;
 
 /**
  * Represents a single operation that can be queued for reliable delivery. Instances are owned in
@@ -81,56 +80,51 @@ public class QueuedOperation {
     } else {
       // it is an entry operation
       // TODO :EventID should be passed from the sender & should be reused here
-      @Released
       EntryEventImpl ee = EntryEventImpl.create(lr, op, key, null, cbArg, true, src);
-      try {
-        // ee.setQueued(true);
-        if (op.isCreate() || op.isUpdate()) {
-          UpdateOperation.UpdateMessage.setNewValueInEvent(value, valueObj, ee,
-              deserializationPolicy);
-          try {
-            long time = lastMod;
-            if (ee.getVersionTag() != null) {
-              time = ee.getVersionTag().getVersionTimeStamp();
-            }
-            if (AbstractUpdateOperation.doPutOrCreate(lr, ee, time)) {
-              // am I done?
-            }
-          } catch (ConcurrentCacheModificationException e) {
-            // operation was rejected by the cache's concurrency control mechanism as being old
+      // ee.setQueued(true);
+      if (op.isCreate() || op.isUpdate()) {
+        UpdateOperation.UpdateMessage.setNewValueInEvent(value, valueObj, ee,
+            deserializationPolicy);
+        try {
+          long time = lastMod;
+          if (ee.getVersionTag() != null) {
+            time = ee.getVersionTag().getVersionTimeStamp();
           }
-        } else if (op.isDestroy()) {
-          ee.setOldValueFromRegion();
-          try {
-            lr.basicDestroy(ee, false, null); // expectedOldValue
-                                              // ???:ezoerner:20080815
-                                              // can a remove(key, value) operation be
-                                              // queued?
-          } catch (ConcurrentCacheModificationException e) {
-            // operation was rejected by the cache's concurrency control mechanism as being old
-          } catch (EntryNotFoundException ignore) {
-          } catch (CacheWriterException e) {
-            throw new Error("CacheWriter should not be called", e);
-          } catch (TimeoutException e) {
-            throw new Error("DistributedLock should not be acquired", e);
+          if (AbstractUpdateOperation.doPutOrCreate(lr, ee, time)) {
+            // am I done?
           }
-        } else if (op.isInvalidate()) {
-          ee.setOldValueFromRegion();
-          boolean forceNewEntry = lr.getDataPolicy().withReplication() && !lr.isInitialized();
-          boolean invokeCallbacks = lr.isInitialized();
-          try {
-            lr.basicInvalidate(ee, invokeCallbacks, forceNewEntry);
-          } catch (ConcurrentCacheModificationException e) {
-            // operation was rejected by the cache's concurrency control mechanism as being old
-          } catch (EntryNotFoundException ignore) {
-          }
-        } else {
-          throw new IllegalStateException(
-              String.format("The %s should not have been queued.",
-                  op));
+        } catch (ConcurrentCacheModificationException e) {
+          // operation was rejected by the cache's concurrency control mechanism as being old
         }
-      } finally {
-        ee.release();
+      } else if (op.isDestroy()) {
+        ee.setOldValueFromRegion();
+        try {
+          lr.basicDestroy(ee, false, null); // expectedOldValue
+                                            // ???:ezoerner:20080815
+                                            // can a remove(key, value) operation be
+                                            // queued?
+        } catch (ConcurrentCacheModificationException e) {
+          // operation was rejected by the cache's concurrency control mechanism as being old
+        } catch (EntryNotFoundException ignore) {
+        } catch (CacheWriterException e) {
+          throw new Error("CacheWriter should not be called", e);
+        } catch (TimeoutException e) {
+          throw new Error("DistributedLock should not be acquired", e);
+        }
+      } else if (op.isInvalidate()) {
+        ee.setOldValueFromRegion();
+        boolean forceNewEntry = lr.getDataPolicy().withReplication() && !lr.isInitialized();
+        boolean invokeCallbacks = lr.isInitialized();
+        try {
+          lr.basicInvalidate(ee, invokeCallbacks, forceNewEntry);
+        } catch (ConcurrentCacheModificationException e) {
+          // operation was rejected by the cache's concurrency control mechanism as being old
+        } catch (EntryNotFoundException ignore) {
+        }
+      } else {
+        throw new IllegalStateException(
+            String.format("The %s should not have been queued.",
+                op));
       }
     }
   }

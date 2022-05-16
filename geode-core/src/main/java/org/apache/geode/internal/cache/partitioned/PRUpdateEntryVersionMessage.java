@@ -97,13 +97,6 @@ public class PRUpdateEntryVersionMessage extends PartitionMessageWithDirectReply
     return PR_UPDATE_ENTRY_VERSION_MESSAGE;
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.geode.internal.cache.partitioned.PartitionMessage# operateOnPartitionedRegion
-   * (org.apache.geode.distributed.internal.DistributionManager,
-   * org.apache.geode.internal.cache.PartitionedRegion, long)
-   */
   @Override
   protected boolean operateOnPartitionedRegion(ClusterDistributionManager dm, PartitionedRegion pr,
       long startTime) throws CacheException, QueryException, DataLocationException,
@@ -114,7 +107,6 @@ public class PRUpdateEntryVersionMessage extends PartitionMessageWithDirectReply
             null, /* callbackargs */
             false /* originRemote - false to force distribution in buckets */,
             getSender() /* eventSender */, false /* generateCallbacks */, false /* initializeId */);
-    event.disallowOffHeapValues();
 
     Assert.assertTrue(eventId != null);
     if (versionTag != null) {

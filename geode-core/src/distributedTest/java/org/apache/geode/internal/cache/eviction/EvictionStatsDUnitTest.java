@@ -419,7 +419,6 @@ public class EvictionStatsDUnitTest extends CacheTestCase {
       String regionName, int totalNoOfBuckets, int evictionAction, int evictorInterval) {
 
     final AttributesFactory factory = new AttributesFactory();
-    factory.setOffHeap(isOffHeapEnabled());
     PartitionAttributesFactory partitionAttributesFactory = new PartitionAttributesFactory()
         .setRedundantCopies(0).setTotalNumBuckets(totalNoOfBuckets).setLocalMaxMemory(50);
 
@@ -508,7 +507,4 @@ public class EvictionStatsDUnitTest extends CacheTestCase {
     return bucketSize;
   }
 
-  public boolean isOffHeapEnabled() {
-    return false;
-  }
 }

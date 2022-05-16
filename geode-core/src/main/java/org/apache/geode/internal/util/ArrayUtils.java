@@ -21,7 +21,6 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
-import org.apache.geode.internal.offheap.annotations.Unretained;
 
 /**
  *
@@ -225,7 +224,7 @@ public abstract class ArrayUtils {
   /**
    * Get proper string for an an object including arrays with upto one dimension of arrays.
    */
-  public static String objectStringNonRecursive(@Unretained Object obj) {
+  public static String objectStringNonRecursive(Object obj) {
     StringBuilder sb = new StringBuilder();
     objectStringNonRecursive(obj, sb);
     return sb.toString();
@@ -248,7 +247,7 @@ public abstract class ArrayUtils {
   /**
    * Get proper string for an an object including arrays with upto one dimension of arrays.
    */
-  public static void objectStringNonRecursive(@Unretained Object obj, StringBuilder sb) {
+  public static void objectStringNonRecursive(Object obj, StringBuilder sb) {
     if (obj instanceof Object[]) {
       sb.append('(');
       boolean first = true;
@@ -268,7 +267,7 @@ public abstract class ArrayUtils {
     }
   }
 
-  private static void objectStringWithBytes(@Unretained Object obj, StringBuilder sb) {
+  private static void objectStringWithBytes(Object obj, StringBuilder sb) {
     if (obj instanceof byte[]) {
       sb.append('(');
       boolean first = true;

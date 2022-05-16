@@ -60,7 +60,6 @@ import org.apache.geode.internal.cache.tier.sockets.ClientProxyMembershipID;
 import org.apache.geode.internal.cache.tier.sockets.VersionedObjectList;
 import org.apache.geode.internal.cache.versions.VersionTag;
 import org.apache.geode.internal.logging.log4j.LogMarker;
-import org.apache.geode.internal.offheap.annotations.Released;
 import org.apache.geode.internal.serialization.ByteArrayDataInput;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.KnownVersion;
@@ -336,65 +335,54 @@ public class RemoteRemoveAllMessage extends RemoteOperationMessageWithDirectRepl
       throws EntryExistsException, RemoteOperationException {
     final DistributedRegion dr = (DistributedRegion) r;
 
-    @Released
     EntryEventImpl baseEvent = EntryEventImpl.create(r, Operation.REMOVEALL_DESTROY, null, null,
         callbackArg, false, eventSender, true);
+
+    baseEvent.setCausedByMessage(this);
+
+    // set baseEventId to the first entry's event id. We need the thread id for DACE
+    baseEvent.setEventId(eventId);
+    if (bridgeContext != null) {
+      baseEvent.setContext(bridgeContext);
+    }
+    baseEvent.setPossibleDuplicate(posDup);
+    if (logger.isDebugEnabled()) {
+      logger.debug(
+          "RemoteRemoveAllMessage.doLocalRemoveAll: eventSender is {}, baseEvent is {}, msg is {}",
+          eventSender, baseEvent, this);
+    }
+    final DistributedRemoveAllOperation op =
+        new DistributedRemoveAllOperation(baseEvent, removeAllDataCount, false);
     try {
-
-      baseEvent.setCausedByMessage(this);
-
-      // set baseEventId to the first entry's event id. We need the thread id for DACE
-      baseEvent.setEventId(eventId);
-      if (bridgeContext != null) {
-        baseEvent.setContext(bridgeContext);
-      }
-      baseEvent.setPossibleDuplicate(posDup);
-      if (logger.isDebugEnabled()) {
-        logger.debug(
-            "RemoteRemoveAllMessage.doLocalRemoveAll: eventSender is {}, baseEvent is {}, msg is {}",
-            eventSender, baseEvent, this);
-      }
-      final DistributedRemoveAllOperation op =
-          new DistributedRemoveAllOperation(baseEvent, removeAllDataCount, false);
-      try {
-        r.lockRVVForBulkOp();
-        final VersionedObjectList versions =
-            new VersionedObjectList(removeAllDataCount, true, dr.getConcurrencyChecksEnabled());
-        dr.syncBulkOp(() -> {
-          InternalDistributedMember myId = r.getDistributionManager().getDistributionManagerId();
-          for (int i = 0; i < removeAllDataCount; ++i) {
-            @Released
-            EntryEventImpl ev = RemoveAllPRMessage.getEventFromEntry(r, myId, eventSender, i,
-                removeAllData, false, bridgeContext, posDup, false);
-            try {
-              ev.setRemoveAllOperation(op);
-              if (logger.isDebugEnabled()) {
-                logger.debug("invoking basicDestroy with {}", ev);
-              }
-              try {
-                dr.basicDestroy(ev, true, null);
-              } catch (EntryNotFoundException ignore) {
-              }
-              removeAllData[i].versionTag = ev.getVersionTag();
-              versions.addKeyAndVersion(removeAllData[i].getKey(), ev.getVersionTag());
-            } finally {
-              ev.release();
-            }
+      r.lockRVVForBulkOp();
+      final VersionedObjectList versions =
+          new VersionedObjectList(removeAllDataCount, true, dr.getConcurrencyChecksEnabled());
+      dr.syncBulkOp(() -> {
+        InternalDistributedMember myId = r.getDistributionManager().getDistributionManagerId();
+        for (int i = 0; i < removeAllDataCount; ++i) {
+          EntryEventImpl ev = RemoveAllPRMessage.getEventFromEntry(r, myId, eventSender, i,
+              removeAllData, false, bridgeContext, posDup, false);
+          ev.setRemoveAllOperation(op);
+          if (logger.isDebugEnabled()) {
+            logger.debug("invoking basicDestroy with {}", ev);
           }
-        }, baseEvent.getEventId());
-        if (getTXUniqId() != TXManagerImpl.NOTX || dr.getConcurrencyChecksEnabled()) {
-          dr.getDataView().postRemoveAll(op, versions, dr);
+          try {
+            dr.basicDestroy(ev, true, null);
+          } catch (EntryNotFoundException ignore) {
+          }
+          removeAllData[i].versionTag = ev.getVersionTag();
+          versions.addKeyAndVersion(removeAllData[i].getKey(), ev.getVersionTag());
         }
-        RemoveAllReplyMessage.send(getSender(), processorId,
-            getReplySender(r.getDistributionManager()), versions, removeAllData,
-            removeAllDataCount);
-        return false;
-      } finally {
-        r.unlockRVVForBulkOp();
-        op.freeOffHeapResources();
+      }, baseEvent.getEventId());
+      if (getTXUniqId() != TXManagerImpl.NOTX || dr.getConcurrencyChecksEnabled()) {
+        dr.getDataView().postRemoveAll(op, versions, dr);
       }
+      RemoveAllReplyMessage.send(getSender(), processorId,
+          getReplySender(r.getDistributionManager()), versions, removeAllData,
+          removeAllDataCount);
+      return false;
     } finally {
-      baseEvent.release();
+      r.unlockRVVForBulkOp();
     }
   }
 

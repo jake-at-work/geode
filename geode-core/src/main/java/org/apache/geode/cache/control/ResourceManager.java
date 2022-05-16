@@ -194,7 +194,9 @@ public interface ResourceManager {
    * @see #getCriticalOffHeapPercentage()
    * @see #getEvictionOffHeapPercentage()
    * @since Geode 1.0
+   * @deprecated No replacement.
    */
+  @Deprecated
   void setCriticalOffHeapPercentage(float offHeapPercentage);
 
   /**
@@ -204,7 +206,9 @@ public interface ResourceManager {
    * @return either the current or recently used percentage of the maximum off-heap memory
    * @see #setCriticalOffHeapPercentage(float)
    * @since Geode 1.0
+   * @deprecated No replacement.
    */
+  @Deprecated
   float getCriticalOffHeapPercentage();
 
   /**
@@ -260,7 +264,9 @@ public interface ResourceManager {
    * @see #getEvictionOffHeapPercentage()
    * @see #getCriticalOffHeapPercentage()
    * @since Geode 1.0
+   * @deprecated No replacement.
    */
+  @Deprecated
   void setEvictionOffHeapPercentage(float offHeapPercentage);
 
   /**
@@ -270,6 +276,8 @@ public interface ResourceManager {
    * @return either the current or recently used percentage of the maximum off-heap memory
    * @see #setEvictionOffHeapPercentage(float)
    * @since Geode 1.0
+   * @deprecated No replacement.
    */
+  @Deprecated
   float getEvictionOffHeapPercentage();
 }

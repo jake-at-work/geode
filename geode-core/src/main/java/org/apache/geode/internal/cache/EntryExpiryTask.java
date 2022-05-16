@@ -34,7 +34,6 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.TimeoutException;
 import org.apache.geode.internal.InternalStatisticsDisabledException;
 import org.apache.geode.internal.lang.SystemPropertyHelper;
-import org.apache.geode.internal.offheap.annotations.Released;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.util.internal.GeodeGlossary;
 
@@ -119,19 +118,14 @@ public class EntryExpiryTask extends ExpiryTask {
     RegionEntry re = getCheckedRegionEntry();
     Object key = re.getKey();
     LocalRegion lr = getLocalRegion();
-    @Released
     EntryEventImpl event = EntryEventImpl.create(lr, Operation.EXPIRE_DESTROY, key, null,
         createExpireEntryCallback(lr, key), false, lr.getMyId());
-    try {
-      event.setPendingSecondaryExpireDestroy(isPending);
-      if (lr.generateEventID()) {
-        event.setNewEventId(lr.getCache().getDistributedSystem());
-      }
-      lr.expireDestroy(event, true); // expectedOldValue
-      return true;
-    } finally {
-      event.release();
+    event.setPendingSecondaryExpireDestroy(isPending);
+    if (lr.generateEventID()) {
+      event.setNewEventId(lr.getCache().getDistributedSystem());
     }
+    lr.expireDestroy(event, true); // expectedOldValue
+    return true;
   }
 
   @Override
@@ -139,17 +133,12 @@ public class EntryExpiryTask extends ExpiryTask {
     RegionEntry re = getCheckedRegionEntry();
     Object key = re.getKey();
     LocalRegion lr = getLocalRegion();
-    @Released
     EntryEventImpl event = EntryEventImpl.create(lr, Operation.EXPIRE_INVALIDATE, key, null,
         createExpireEntryCallback(lr, key), false, lr.getMyId());
-    try {
-      if (lr.generateEventID()) {
-        event.setNewEventId(lr.getCache().getDistributedSystem());
-      }
-      lr.expireInvalidate(event);
-    } finally {
-      event.release();
+    if (lr.generateEventID()) {
+      event.setNewEventId(lr.getCache().getDistributedSystem());
     }
+    lr.expireInvalidate(event);
     return true;
   }
 
@@ -158,17 +147,12 @@ public class EntryExpiryTask extends ExpiryTask {
     RegionEntry re = getCheckedRegionEntry();
     Object key = re.getKey();
     LocalRegion lr = getLocalRegion();
-    @Released
     EntryEventImpl event = EntryEventImpl.create(lr, Operation.EXPIRE_LOCAL_DESTROY, key, null,
         createExpireEntryCallback(lr, key), false, lr.getMyId());
-    try {
-      if (lr.generateEventID()) {
-        event.setNewEventId(lr.getCache().getDistributedSystem());
-      }
-      lr.expireDestroy(event, false); // expectedOldValue
-    } finally {
-      event.release();
+    if (lr.generateEventID()) {
+      event.setNewEventId(lr.getCache().getDistributedSystem());
     }
+    lr.expireDestroy(event, false); // expectedOldValue
     return true;
   }
 
@@ -177,17 +161,12 @@ public class EntryExpiryTask extends ExpiryTask {
     RegionEntry re = getCheckedRegionEntry();
     Object key = re.getKey();
     LocalRegion lr = getLocalRegion();
-    @Released
     EntryEventImpl event = EntryEventImpl.create(lr, Operation.EXPIRE_LOCAL_INVALIDATE, key, null,
         createExpireEntryCallback(lr, key), false, lr.getMyId());
-    try {
-      if (lr.generateEventID()) {
-        event.setNewEventId(lr.getCache().getDistributedSystem());
-      }
-      lr.expireInvalidate(event);
-    } finally {
-      event.release();
+    if (lr.generateEventID()) {
+      event.setNewEventId(lr.getCache().getDistributedSystem());
     }
+    lr.expireInvalidate(event);
     return true;
   }
 

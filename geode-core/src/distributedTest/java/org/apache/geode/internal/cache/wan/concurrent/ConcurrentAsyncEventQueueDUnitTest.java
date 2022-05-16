@@ -107,13 +107,13 @@ public class ConcurrentAsyncEventQueueDUnitTest extends AsyncEventQueueTestBase 
         true, false, null, false, 3, OrderPolicy.KEY));
 
     vm1.invoke(() -> AsyncEventQueueTestBase
-        .createReplicatedRegionWithAsyncEventQueue(getTestMethodName() + "_RR", "ln", isOffHeap()));
+        .createReplicatedRegionWithAsyncEventQueue(getTestMethodName() + "_RR", "ln"));
     vm2.invoke(() -> AsyncEventQueueTestBase
-        .createReplicatedRegionWithAsyncEventQueue(getTestMethodName() + "_RR", "ln", isOffHeap()));
+        .createReplicatedRegionWithAsyncEventQueue(getTestMethodName() + "_RR", "ln"));
     vm3.invoke(() -> AsyncEventQueueTestBase
-        .createReplicatedRegionWithAsyncEventQueue(getTestMethodName() + "_RR", "ln", isOffHeap()));
+        .createReplicatedRegionWithAsyncEventQueue(getTestMethodName() + "_RR", "ln"));
     vm4.invoke(() -> AsyncEventQueueTestBase
-        .createReplicatedRegionWithAsyncEventQueue(getTestMethodName() + "_RR", "ln", isOffHeap()));
+        .createReplicatedRegionWithAsyncEventQueue(getTestMethodName() + "_RR", "ln"));
 
     vm1.invoke(() -> AsyncEventQueueTestBase.doPuts(getTestMethodName() + "_RR", 100));
 
@@ -155,13 +155,13 @@ public class ConcurrentAsyncEventQueueDUnitTest extends AsyncEventQueueTestBase 
         true, false, null, false, 3, OrderPolicy.THREAD));
 
     vm1.invoke(() -> AsyncEventQueueTestBase
-        .createReplicatedRegionWithAsyncEventQueue(getTestMethodName() + "_RR", "ln", isOffHeap()));
+        .createReplicatedRegionWithAsyncEventQueue(getTestMethodName() + "_RR", "ln"));
     vm2.invoke(() -> AsyncEventQueueTestBase
-        .createReplicatedRegionWithAsyncEventQueue(getTestMethodName() + "_RR", "ln", isOffHeap()));
+        .createReplicatedRegionWithAsyncEventQueue(getTestMethodName() + "_RR", "ln"));
     vm3.invoke(() -> AsyncEventQueueTestBase
-        .createReplicatedRegionWithAsyncEventQueue(getTestMethodName() + "_RR", "ln", isOffHeap()));
+        .createReplicatedRegionWithAsyncEventQueue(getTestMethodName() + "_RR", "ln"));
     vm4.invoke(() -> AsyncEventQueueTestBase
-        .createReplicatedRegionWithAsyncEventQueue(getTestMethodName() + "_RR", "ln", isOffHeap()));
+        .createReplicatedRegionWithAsyncEventQueue(getTestMethodName() + "_RR", "ln"));
 
     AsyncInvocation inv1 =
         vm1.invokeAsync(() -> AsyncEventQueueTestBase.doPuts(getTestMethodName() + "_RR", 50));
@@ -217,13 +217,13 @@ public class ConcurrentAsyncEventQueueDUnitTest extends AsyncEventQueueTestBase 
         true, false, null, false, 3, OrderPolicy.KEY));
 
     vm1.invoke(() -> AsyncEventQueueTestBase.createPartitionedRegionWithAsyncEventQueue(
-        getTestMethodName() + "_PR", "ln", isOffHeap()));
+        getTestMethodName() + "_PR", "ln"));
     vm2.invoke(() -> AsyncEventQueueTestBase.createPartitionedRegionWithAsyncEventQueue(
-        getTestMethodName() + "_PR", "ln", isOffHeap()));
+        getTestMethodName() + "_PR", "ln"));
     vm3.invoke(() -> AsyncEventQueueTestBase.createPartitionedRegionWithAsyncEventQueue(
-        getTestMethodName() + "_PR", "ln", isOffHeap()));
+        getTestMethodName() + "_PR", "ln"));
     vm4.invoke(() -> AsyncEventQueueTestBase.createPartitionedRegionWithAsyncEventQueue(
-        getTestMethodName() + "_PR", "ln", isOffHeap()));
+        getTestMethodName() + "_PR", "ln"));
 
     vm1.invoke(() -> AsyncEventQueueTestBase.doPuts(getTestMethodName() + "_PR", 100));
 
@@ -273,13 +273,13 @@ public class ConcurrentAsyncEventQueueDUnitTest extends AsyncEventQueueTestBase 
         true, false, null, false, 3, OrderPolicy.PARTITION));
 
     vm1.invoke(() -> AsyncEventQueueTestBase.createPartitionedRegionWithAsyncEventQueue(
-        getTestMethodName() + "_PR", "ln", isOffHeap()));
+        getTestMethodName() + "_PR", "ln"));
     vm2.invoke(() -> AsyncEventQueueTestBase.createPartitionedRegionWithAsyncEventQueue(
-        getTestMethodName() + "_PR", "ln", isOffHeap()));
+        getTestMethodName() + "_PR", "ln"));
     vm3.invoke(() -> AsyncEventQueueTestBase.createPartitionedRegionWithAsyncEventQueue(
-        getTestMethodName() + "_PR", "ln", isOffHeap()));
+        getTestMethodName() + "_PR", "ln"));
     vm4.invoke(() -> AsyncEventQueueTestBase.createPartitionedRegionWithAsyncEventQueue(
-        getTestMethodName() + "_PR", "ln", isOffHeap()));
+        getTestMethodName() + "_PR", "ln"));
 
     vm1.invoke(() -> AsyncEventQueueTestBase.doPuts(getTestMethodName() + "_PR", 100));
 

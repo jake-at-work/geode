@@ -192,7 +192,6 @@ public class LRUEvictionControllerDUnitTest extends JUnit4CacheTestCase {
 
     final String name = getUniqueName();
     AttributesFactory factory = new AttributesFactory();
-    factory.setOffHeap(isOffHeapEnabled());
     factory.setScope(Scope.LOCAL);
     factory.setEvictionAttributes(EvictionAttributes.createLRUEntryAttributes(threshold));
 
@@ -259,7 +258,6 @@ public class LRUEvictionControllerDUnitTest extends JUnit4CacheTestCase {
     final Object value2 = "VALUE2";
 
     AttributesFactory factory = new AttributesFactory();
-    factory.setOffHeap(isOffHeapEnabled());
     factory.setScope(Scope.LOCAL);
     factory.setEvictionAttributes(EvictionAttributes.createLRUEntryAttributes(10));
     final Region region = createRegion(name, factory.create());
@@ -299,7 +297,6 @@ public class LRUEvictionControllerDUnitTest extends JUnit4CacheTestCase {
   public void testCCMirrored() throws Exception {
     final String name = getUniqueName();
     AttributesFactory factory = new AttributesFactory();
-    factory.setOffHeap(isOffHeapEnabled());
     factory.setEvictionAttributes(EvictionAttributes.createLRUEntryAttributes(10));
     factory.setDataPolicy(DataPolicy.REPLICATE);
 
@@ -334,7 +331,6 @@ public class LRUEvictionControllerDUnitTest extends JUnit4CacheTestCase {
           @Override
           public void run2() throws CacheException {
             AttributesFactory factory = new AttributesFactory();
-            factory.setOffHeap(isOffHeapEnabled());
             factory.setEvictionAttributes(EvictionAttributes.createLRUEntryAttributes(maxEntries,
                 EvictionAction.OVERFLOW_TO_DISK));
             factory.setDataPolicy(DataPolicy.REPLICATE);
@@ -429,10 +425,6 @@ public class LRUEvictionControllerDUnitTest extends JUnit4CacheTestCase {
 
       }
     });
-  }
-
-  protected boolean isOffHeapEnabled() {
-    return false;
   }
 
   protected HeapEvictor getEvictor() {

@@ -14,9 +14,6 @@
  */
 package org.apache.geode.internal.cache.entries;
 
-import static org.apache.geode.internal.offheap.annotations.OffHeapIdentifier.ABSTRACT_REGION_ENTRY_FILL_IN_VALUE;
-import static org.apache.geode.internal.offheap.annotations.OffHeapIdentifier.ABSTRACT_REGION_ENTRY_PREPARE_VALUE_FOR_CACHE;
-
 import java.io.IOException;
 
 import org.apache.logging.log4j.Logger;
@@ -68,15 +65,6 @@ import org.apache.geode.internal.cache.versions.VersionTag;
 import org.apache.geode.internal.cache.wan.GatewaySenderEventImpl;
 import org.apache.geode.internal.lang.StringUtils;
 import org.apache.geode.internal.logging.log4j.LogMarker;
-import org.apache.geode.internal.offheap.MemoryAllocator;
-import org.apache.geode.internal.offheap.MemoryAllocatorImpl;
-import org.apache.geode.internal.offheap.OffHeapHelper;
-import org.apache.geode.internal.offheap.ReferenceCountHelper;
-import org.apache.geode.internal.offheap.Releasable;
-import org.apache.geode.internal.offheap.StoredObject;
-import org.apache.geode.internal.offheap.annotations.Released;
-import org.apache.geode.internal.offheap.annotations.Retained;
-import org.apache.geode.internal.offheap.annotations.Unretained;
 import org.apache.geode.internal.serialization.ByteArrayDataInput;
 import org.apache.geode.internal.serialization.KnownVersion;
 import org.apache.geode.internal.util.BlobHelper;
@@ -84,7 +72,6 @@ import org.apache.geode.internal.util.Versionable;
 import org.apache.geode.internal.util.concurrent.CustomEntryConcurrentHashMap;
 import org.apache.geode.internal.util.concurrent.CustomEntryConcurrentHashMap.HashEntry;
 import org.apache.geode.logging.internal.log4j.api.LogService;
-import org.apache.geode.pdx.PdxInstance;
 import org.apache.geode.pdx.PdxSerializationException;
 import org.apache.geode.pdx.internal.ConvertableToBytes;
 import org.apache.geode.pdx.internal.PdxInstanceImpl;
@@ -129,8 +116,7 @@ public abstract class AbstractRegionEntry implements HashRegionEntry<Object, Obj
    */
   private static final long IN_USE_BY_TX = 0x40L << 56;
 
-  protected AbstractRegionEntry(RegionEntryContext context,
-      @Retained(ABSTRACT_REGION_ENTRY_PREPARE_VALUE_FOR_CACHE) Object value) {
+  protected AbstractRegionEntry(RegionEntryContext context, Object value) {
 
     setValue(context, prepareValueForCache(context, value, false), false);
 
@@ -281,7 +267,7 @@ public abstract class AbstractRegionEntry implements HashRegionEntry<Object, Obj
   }
 
   @Override
-  public void setValueWithTombstoneCheck(@Unretained Object v, EntryEvent e)
+  public void setValueWithTombstoneCheck(Object v, EntryEvent e)
       throws RegionClearedException {
     if (v == Token.TOMBSTONE) {
       makeTombstone((InternalRegion) e.getRegion(), ((InternalCacheEvent) e).getVersionTag());
@@ -327,18 +313,16 @@ public abstract class AbstractRegionEntry implements HashRegionEntry<Object, Obj
 
   @Override
   public boolean fillInValue(InternalRegion region,
-      @Retained(ABSTRACT_REGION_ENTRY_FILL_IN_VALUE) Entry entry, ByteArrayDataInput in,
+      Entry entry, ByteArrayDataInput in,
       DistributionManager mgr, final KnownVersion version) {
 
     // starting default value
     entry.setSerialized(false);
 
-    @Retained(ABSTRACT_REGION_ENTRY_FILL_IN_VALUE)
     final Object v;
     if (isTombstone()) {
       v = Token.TOMBSTONE;
     } else {
-      // OFFHEAP: need to incrc, copy bytes, decrc
       v = getValue(region);
       if (v == null) {
         return false;
@@ -408,7 +392,7 @@ public abstract class AbstractRegionEntry implements HashRegionEntry<Object, Obj
   static Object prepareValueForGII(Object v) {
     assert v != null;
     if (v instanceof GatewaySenderEventImpl) {
-      return ((GatewaySenderEventImpl) v).makeHeapCopyIfOffHeap();
+      return ((GatewaySenderEventImpl) v);
     } else {
       return v;
     }
@@ -422,8 +406,6 @@ public abstract class AbstractRegionEntry implements HashRegionEntry<Object, Obj
 
   @Override
   public Object getValue(RegionEntryContext context) {
-    ReferenceCountHelper.createReferenceCountOwner();
-    @Retained
     Object result = getValueRetain(context, true);
 
     // If the thread is an Index Creation Thread & the value obtained is
@@ -432,23 +414,17 @@ public abstract class AbstractRegionEntry implements HashRegionEntry<Object, Obj
     // lock of the Entry object. There should not be an issue if the Index creation thread
     // gets the temporary value of token.REMOVED as the correct value will get indexed
     // by the Index Update Thread , once the index creation thread has exited.
-    // Part of Bugfix # 33336
 
     if (Token.isRemoved(result)) {
-      ReferenceCountHelper.setReferenceCountOwner(null);
       return null;
     } else {
-      result = OffHeapHelper.copyAndReleaseIfNeeded(result, context.getCache());
-      ReferenceCountHelper.setReferenceCountOwner(null);
       setRecentlyUsed(context);
       return result;
     }
   }
 
   @Override
-  @Retained
   public Object getValueRetain(RegionEntryContext context) {
-    @Retained
     Object result = getValueRetain(context, true);
     if (Token.isRemoved(result)) {
       return null;
@@ -459,8 +435,7 @@ public abstract class AbstractRegionEntry implements HashRegionEntry<Object, Obj
   }
 
   @Override
-  @Released
-  public void setValue(RegionEntryContext context, @Unretained Object value)
+  public void setValue(RegionEntryContext context, Object value)
       throws RegionClearedException {
     // TODO: This will mark new entries as being recently used
     // It might be better to only mark them when they are modified.
@@ -474,30 +449,12 @@ public abstract class AbstractRegionEntry implements HashRegionEntry<Object, Obj
     setValue(context, value);
   }
 
-  @Released
-  protected void setValue(RegionEntryContext context, @Unretained Object value,
+  protected void setValue(RegionEntryContext context, Object value,
       boolean recentlyUsed) {
     _setValue(value);
-    releaseOffHeapRefIfRegionBeingClosedOrDestroyed(context, value);
     if (recentlyUsed) {
       setRecentlyUsed(context);
     }
-  }
-
-  void releaseOffHeapRefIfRegionBeingClosedOrDestroyed(RegionEntryContext context, Object ref) {
-    if (isOffHeapReference(ref) && isThisRegionBeingClosedOrDestroyed(context)) {
-      ((Releasable) this).release();
-    }
-  }
-
-  private boolean isThisRegionBeingClosedOrDestroyed(RegionEntryContext context) {
-    return context instanceof InternalRegion
-        && ((InternalRegion) context).isThisRegionBeingClosedOrDestroyed();
-  }
-
-  private boolean isOffHeapReference(Object ref) {
-    return ref != Token.REMOVED_PHASE1 && this instanceof OffHeapRegionEntry
-        && ref instanceof StoredObject && ((StoredObject) ref).hasRefCount();
   }
 
   /**
@@ -587,17 +544,13 @@ public abstract class AbstractRegionEntry implements HashRegionEntry<Object, Obj
 
   @Override
   public Object getValueInVM(RegionEntryContext context) {
-    ReferenceCountHelper.createReferenceCountOwner();
-    @Released
     Object v = getValueRetain(context, true);
 
     if (v == null) {
       // should only be possible if disk entry
       v = Token.NOT_AVAILABLE;
     }
-    Object result = OffHeapHelper.copyAndReleaseIfNeeded(v, context.getCache());
-    ReferenceCountHelper.setReferenceCountOwner(null);
-    return result;
+    return v;
   }
 
   @Override
@@ -606,11 +559,8 @@ public abstract class AbstractRegionEntry implements HashRegionEntry<Object, Obj
   }
 
   @Override
-  @Retained
   public Object getValueOffHeapOrDiskWithoutFaultIn(InternalRegion region) {
-    @Retained
-    Object result = getValueRetain(region, true);
-    return result;
+    return getValueRetain(region, true);
   }
 
   @Override
@@ -749,9 +699,8 @@ public abstract class AbstractRegionEntry implements HashRegionEntry<Object, Obj
    *         value
    */
   @Override
-  @Released
   public boolean destroy(InternalRegion region, EntryEventImpl event, boolean inTokenMode,
-      boolean cacheWrite, @Unretained Object expectedOldValue, boolean forceDestroy,
+      boolean cacheWrite, Object expectedOldValue, boolean forceDestroy,
       boolean removeRecoveredEntry) throws CacheWriterException, EntryNotFoundException,
       TimeoutException, RegionClearedException {
 
@@ -769,55 +718,47 @@ public abstract class AbstractRegionEntry implements HashRegionEntry<Object, Obj
     // We also read old value from disk or buffer
     // in the case where there is a non-null expectedOldValue
     // see PartitionedRegion#remove(Object key, Object value)
-    ReferenceCountHelper.skipRefCountTracking();
-    @Retained
-    @Released
     Object curValue = getValueRetain(region, true);
-    ReferenceCountHelper.unskipRefCountTracking();
     boolean proceed;
-    try {
-      if (curValue == null) {
-        curValue = Token.NOT_AVAILABLE;
-      }
+    if (curValue == null) {
+      curValue = Token.NOT_AVAILABLE;
+    }
 
-      if (curValue == Token.NOT_AVAILABLE) {
-        // In some cases we need to get the current value off of disk.
+    if (curValue == Token.NOT_AVAILABLE) {
+      // In some cases we need to get the current value off of disk.
 
-        // if the event is transmitted during GII and has an old value, it was
-        // the state of the transmitting cache's entry & should be used here
-        if (event.getCallbackArgument() != null
-            && event.getCallbackArgument().equals(RegionQueue.WAN_QUEUE_TOKEN)
-            && event.isOriginRemote()) { // check originRemote for bug 40508
-          // curValue = getValue(region); can cause deadlock if GII is occurring
-          curValue = getValueOnDiskOrBuffer(region);
-        } else {
-          FilterProfile fp = region.getFilterProfile();
-          if (fp != null && (fp.getCqCount() > 0 || expectedOldValue != null)) {
-            // curValue = getValue(region); can cause deadlock will fault in the value
-            // and will confuse LRU.
-            curValue = getValueOnDiskOrBuffer(region);
-          }
-        }
-      }
-
-      if (expectedOldValue != null) {
-        if (!checkExpectedOldValue(expectedOldValue, curValue, region)) {
-          throw new EntryNotFoundException(
-              "The current value was not equal to expected value.");
-        }
-      }
-
-      if (inTokenMode && event.hasOldValue()) {
-        proceed = true;
+      // if the event is transmitted during GII and has an old value, it was
+      // the state of the transmitting cache's entry & should be used here
+      if (event.getCallbackArgument() != null
+          && event.getCallbackArgument().equals(RegionQueue.WAN_QUEUE_TOKEN)
+          && event.isOriginRemote()) { // check originRemote for bug 40508
+        // curValue = getValue(region); can cause deadlock if GII is occurring
+        curValue = getValueOnDiskOrBuffer(region);
       } else {
-        event.setOldValue(curValue, curValue instanceof GatewaySenderEventImpl);
-        proceed = region.getConcurrencyChecksEnabled() || removeRecoveredEntry || forceDestroy
-            || destroyShouldProceedBasedOnCurrentValue(curValue)
-            || (event.getOperation() == Operation.REMOVE && (curValue == null
-                || curValue == Token.LOCAL_INVALID || curValue == Token.INVALID));
+        FilterProfile fp = region.getFilterProfile();
+        if (fp != null && (fp.getCqCount() > 0 || expectedOldValue != null)) {
+          // curValue = getValue(region); can cause deadlock will fault in the value
+          // and will confuse LRU.
+          curValue = getValueOnDiskOrBuffer(region);
+        }
       }
-    } finally {
-      OffHeapHelper.releaseWithNoTracking(curValue);
+    }
+
+    if (expectedOldValue != null) {
+      if (!checkExpectedOldValue(expectedOldValue, curValue, region)) {
+        throw new EntryNotFoundException(
+            "The current value was not equal to expected value.");
+      }
+    }
+
+    if (inTokenMode && event.hasOldValue()) {
+      proceed = true;
+    } else {
+      event.setOldValue(curValue, curValue instanceof GatewaySenderEventImpl);
+      proceed = region.getConcurrencyChecksEnabled() || removeRecoveredEntry || forceDestroy
+          || destroyShouldProceedBasedOnCurrentValue(curValue)
+          || (event.getOperation() == Operation.REMOVE && (curValue == null
+              || curValue == Token.LOCAL_INVALID || curValue == Token.INVALID));
     }
 
     if (proceed) {
@@ -890,15 +831,9 @@ public abstract class AbstractRegionEntry implements HashRegionEntry<Object, Obj
       if (indexManager != null) {
         try {
           if (isValueNull()) {
-            @Released
             Object value = getValueOffHeapOrDiskWithoutFaultIn(region);
-            try {
-              Object preparedValue = prepareValueForCache(region, value, false);
-              _setValue(preparedValue);
-              releaseOffHeapRefIfRegionBeingClosedOrDestroyed(region, preparedValue);
-            } finally {
-              OffHeapHelper.release(value);
-            }
+            Object preparedValue = prepareValueForCache(region, value, false);
+            _setValue(preparedValue);
           }
           indexManager.updateIndexes(this, IndexManager.REMOVE_ENTRY, IndexProtocol.OTHER_OP);
         } catch (QueryException e) {
@@ -915,8 +850,8 @@ public abstract class AbstractRegionEntry implements HashRegionEntry<Object, Obj
     return !Token.isRemoved(curValue);
   }
 
-  public static boolean checkExpectedOldValue(@Unretained Object expectedOldValue,
-      @Unretained Object actualValue, InternalRegion region) {
+  public static boolean checkExpectedOldValue(Object expectedOldValue,
+      Object actualValue, InternalRegion region) {
 
     if (Token.isInvalid(expectedOldValue)) {
       return actualValue == null || Token.isInvalid(actualValue);
@@ -959,24 +894,6 @@ public abstract class AbstractRegionEntry implements HashRegionEntry<Object, Obj
 
   @Override
   public abstract Object getKey();
-
-  private static boolean okToStoreOffHeap(Object v, AbstractRegionEntry e) {
-    if (v == null) {
-      return false;
-    }
-    if (Token.isInvalidOrRemoved(v)) {
-      return false;
-    }
-    if (v == Token.NOT_AVAILABLE) {
-      return false;
-    }
-    if (v instanceof DiskEntry.RecoveredEntry) {
-      return false; // The disk layer has special logic that ends up storing the nested value in the
-    }
-    // RecoveredEntry off heap
-    return e instanceof OffHeapRegionEntry;
-    // TODO should we check for deltas here or is that a user error?
-  }
 
   /**
    * Default implementation. Override in subclasses with primitive keys to prevent creating an
@@ -1047,86 +964,16 @@ public abstract class AbstractRegionEntry implements HashRegionEntry<Object, Obj
   }
 
   @Override
-  @Retained(ABSTRACT_REGION_ENTRY_PREPARE_VALUE_FOR_CACHE)
   public Object prepareValueForCache(RegionEntryContext r,
-      @Retained(ABSTRACT_REGION_ENTRY_PREPARE_VALUE_FOR_CACHE) Object val, boolean isEntryUpdate) {
+      Object val, boolean isEntryUpdate) {
     return prepareValueForCache(r, val, null, isEntryUpdate);
   }
 
   @Override
-  @Retained(ABSTRACT_REGION_ENTRY_PREPARE_VALUE_FOR_CACHE)
   public Object prepareValueForCache(RegionEntryContext r,
-      @Retained(ABSTRACT_REGION_ENTRY_PREPARE_VALUE_FOR_CACHE) Object val, EntryEventImpl event,
+      Object val, EntryEventImpl event,
       boolean isEntryUpdate) {
-    if (r != null && r.getOffHeap() && okToStoreOffHeap(val, this)) {
-      if (val instanceof StoredObject) {
-        // Check to see if val has the same compression settings as this region.
-        // The recursive calls in this section are safe because
-        // we only do it after copy the off-heap value to the heap.
-        // This is needed to fix bug 52057.
-        StoredObject soVal = (StoredObject) val;
-        assert !soVal.isCompressed();
-        if (r.getCompressor() != null) {
-          // val is uncompressed and we need a compressed value.
-          // So copy the off-heap value to the heap in a form that can be compressed.
-          byte[] valAsBytes = soVal.getValueAsHeapByteArray();
-          Object heapValue;
-          if (soVal.isSerialized()) {
-            heapValue = CachedDeserializableFactory.create(valAsBytes, r.getCache());
-          } else {
-            heapValue = valAsBytes;
-          }
-          return prepareValueForCache(r, heapValue, event, isEntryUpdate);
-        }
-        if (soVal.hasRefCount()) {
-          // if the reused StoredObject has a refcount then need to increment it
-          if (!soVal.retain()) {
-            throw new IllegalStateException("Could not use an off heap value because it was freed");
-          }
-        }
-        // else it is has no refCount so just return it as prepared.
-      } else {
-        byte[] data;
-        boolean isSerialized = !(val instanceof byte[]);
-        if (isSerialized) {
-          if (event != null && event.getCachedSerializedNewValue() != null) {
-            data = event.getCachedSerializedNewValue();
-          } else {
-            if (val instanceof CachedDeserializable) {
-              data = ((CachedDeserializable) val).getSerializedValue();
-            } else if (val instanceof PdxInstance) {
-              try {
-                data = ((ConvertableToBytes) val).toBytes();
-              } catch (IOException e) {
-                throw new PdxSerializationException("Could not convert " + val + " to bytes", e);
-              }
-            } else {
-              data = EntryEventImpl.serialize(val);
-            }
-            if (event != null) {
-              event.setCachedSerializedNewValue(data);
-            }
-          }
-        } else {
-          data = (byte[]) val;
-        }
-        byte[] compressedData = compressBytes(r, data);
-        // TODO: array comparison is broken
-        boolean isCompressed = compressedData != data;
-        ReferenceCountHelper.setReferenceCountOwner(this);
-        MemoryAllocator ma = MemoryAllocatorImpl.getAllocator(); // fix for bug 47875
-        val = ma.allocateAndInitialize(compressedData, isSerialized, isCompressed, data);
-        ReferenceCountHelper.setReferenceCountOwner(null);
-      }
-      return val;
-    }
-    @Unretained
     Object nv = val;
-    if (nv instanceof StoredObject) {
-      // This off heap value is being put into a on heap region.
-      byte[] data = ((StoredObject) nv).getSerializedValue();
-      nv = CachedDeserializableFactory.create(data, r.getCache());
-    }
     if (nv instanceof PdxInstanceImpl) {
       // We do not want to put PDXs in the cache as values.
       // So get the serialized bytes and use a CachedDeserializable.
@@ -1149,7 +996,6 @@ public abstract class AbstractRegionEntry implements HashRegionEntry<Object, Obj
   }
 
   @Override
-  @Unretained
   public Object getValue() {
     return getValueField();
   }
@@ -1247,7 +1093,6 @@ public abstract class AbstractRegionEntry implements HashRegionEntry<Object, Obj
    *
    * @return possible OFF_HEAP_OBJECT (caller uses region entry reference)
    */
-  @Unretained
   protected abstract Object getValueField();
 
   /**
@@ -1255,10 +1100,9 @@ public abstract class AbstractRegionEntry implements HashRegionEntry<Object, Obj
    *
    * @param v the new value to set
    */
-  protected abstract void setValueField(@Unretained Object v);
+  protected abstract void setValueField(Object v);
 
   @Override
-  @Retained
   public Object getTransformedValue() {
     return getValueRetain(null, false);
   }
@@ -1847,7 +1691,6 @@ public abstract class AbstractRegionEntry implements HashRegionEntry<Object, Obj
         }
       };
 
-      @Released
       TimestampedEntryEventImpl timestampedEvent = (TimestampedEntryEventImpl) event
           .getTimestampedEvent(tagDsid, stampDsid, tagTime, stampTime);
 
@@ -1876,8 +1719,6 @@ public abstract class AbstractRegionEntry implements HashRegionEntry<Object, Obj
         SystemFailure.checkFailure();
         logger.error("Exception occurred in GatewayConflictResolver", t);
         thr = t;
-      } finally {
-        timestampedEvent.release();
       }
 
       if (isDebugEnabled) {
@@ -1964,7 +1805,6 @@ public abstract class AbstractRegionEntry implements HashRegionEntry<Object, Obj
    * callers are aware that the value may be retained.
    */
   @Override
-  @Retained
   public Object getValueRetain(RegionEntryContext context, boolean decompress) {
     if (decompress) {
       return decompress(context, getValue());

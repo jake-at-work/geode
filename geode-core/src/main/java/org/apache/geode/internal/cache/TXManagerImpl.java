@@ -469,27 +469,23 @@ public class TXManagerImpl implements CacheTransactionManager, MembershipListene
     TransactionListener[] listeners = getListeners();
     if (tx.isFireCallbacks() && listeners.length > 0) {
       final TXEvent e = tx.getEvent();
-      try {
-        for (final TransactionListener listener : listeners) {
-          try {
-            listener.afterFailedCommit(e);
-          } catch (VirtualMachineError err) {
-            SystemFailure.initiateFailure(err);
-            // If this ever returns, rethrow the error. We're poisoned
-            // now, so don't let this thread continue.
-            throw err;
-          } catch (Throwable t) {
-            // Whenever you catch Error or Throwable, you must also
-            // catch VirtualMachineError (see above). However, there is
-            // _still_ a possibility that you are dealing with a cascading
-            // error condition, so you also need to check to see if the JVM
-            // is still usable:
-            SystemFailure.checkFailure();
-            logger.error("Exception occurred in TransactionListener", t);
-          }
+      for (final TransactionListener listener : listeners) {
+        try {
+          listener.afterFailedCommit(e);
+        } catch (VirtualMachineError err) {
+          SystemFailure.initiateFailure(err);
+          // If this ever returns, rethrow the error. We're poisoned
+          // now, so don't let this thread continue.
+          throw err;
+        } catch (Throwable t) {
+          // Whenever you catch Error or Throwable, you must also
+          // catch VirtualMachineError (see above). However, there is
+          // _still_ a possibility that you are dealing with a cascading
+          // error condition, so you also need to check to see if the JVM
+          // is still usable:
+          SystemFailure.checkFailure();
+          logger.error("Exception occurred in TransactionListener", t);
         }
-      } finally {
-        e.release();
       }
     }
   }
@@ -500,27 +496,23 @@ public class TXManagerImpl implements CacheTransactionManager, MembershipListene
     TransactionListener[] listeners = getListeners();
     if (tx.isFireCallbacks() && listeners.length > 0) {
       final TXEvent e = tx.getEvent();
-      try {
-        for (final TransactionListener listener : listeners) {
-          try {
-            listener.afterCommit(e);
-          } catch (VirtualMachineError err) {
-            SystemFailure.initiateFailure(err);
-            // If this ever returns, rethrow the error. We're poisoned
-            // now, so don't let this thread continue.
-            throw err;
-          } catch (Throwable t) {
-            // Whenever you catch Error or Throwable, you must also
-            // catch VirtualMachineError (see above). However, there is
-            // _still_ a possibility that you are dealing with a cascading
-            // error condition, so you also need to check to see if the JVM
-            // is still usable:
-            SystemFailure.checkFailure();
-            logger.error("Exception occurred in TransactionListener", t);
-          }
+      for (final TransactionListener listener : listeners) {
+        try {
+          listener.afterCommit(e);
+        } catch (VirtualMachineError err) {
+          SystemFailure.initiateFailure(err);
+          // If this ever returns, rethrow the error. We're poisoned
+          // now, so don't let this thread continue.
+          throw err;
+        } catch (Throwable t) {
+          // Whenever you catch Error or Throwable, you must also
+          // catch VirtualMachineError (see above). However, there is
+          // _still_ a possibility that you are dealing with a cascading
+          // error condition, so you also need to check to see if the JVM
+          // is still usable:
+          SystemFailure.checkFailure();
+          logger.error("Exception occurred in TransactionListener", t);
         }
-      } finally {
-        e.release();
       }
     }
   }
@@ -556,27 +548,23 @@ public class TXManagerImpl implements CacheTransactionManager, MembershipListene
     TransactionListener[] listeners = getListeners();
     if (tx.isFireCallbacks() && listeners.length > 0) {
       final TXEvent e = tx.getEvent();
-      try {
-        for (final TransactionListener listener : listeners) {
-          try {
-            listener.afterRollback(e);
-          } catch (VirtualMachineError err) {
-            SystemFailure.initiateFailure(err);
-            // If this ever returns, rethrow the error. We're poisoned
-            // now, so don't let this thread continue.
-            throw err;
-          } catch (Throwable t) {
-            // Whenever you catch Error or Throwable, you must also
-            // catch VirtualMachineError (see above). However, there is
-            // _still_ a possibility that you are dealing with a cascading
-            // error condition, so you also need to check to see if the JVM
-            // is still usable:
-            SystemFailure.checkFailure();
-            logger.error("Exception occurred in TransactionListener", t);
-          }
+      for (final TransactionListener listener : listeners) {
+        try {
+          listener.afterRollback(e);
+        } catch (VirtualMachineError err) {
+          SystemFailure.initiateFailure(err);
+          // If this ever returns, rethrow the error. We're poisoned
+          // now, so don't let this thread continue.
+          throw err;
+        } catch (Throwable t) {
+          // Whenever you catch Error or Throwable, you must also
+          // catch VirtualMachineError (see above). However, there is
+          // _still_ a possibility that you are dealing with a cascading
+          // error condition, so you also need to check to see if the JVM
+          // is still usable:
+          SystemFailure.checkFailure();
+          logger.error("Exception occurred in TransactionListener", t);
         }
-      } finally {
-        e.release();
       }
     }
   }

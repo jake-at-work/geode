@@ -15,8 +15,6 @@
 package org.apache.geode.internal.cache;
 
 import org.apache.geode.annotations.Immutable;
-import org.apache.geode.internal.offheap.StoredObject;
-import org.apache.geode.internal.offheap.annotations.Unretained;
 
 /**
  * Used to fetch a record's raw bytes and user bits. The actual data length in byte array may be
@@ -28,12 +26,6 @@ import org.apache.geode.internal.offheap.annotations.Unretained;
  * @since GemFire 5.5
  */
 public class BytesAndBitsForCompactor {
-  /**
-   * If offHeapData is set then ignore the "data" and "validLength" fields. The offHeapData field is
-   * unretained so it can only be used while the RegionEntry is still synced. When done with the
-   * offHeapData, null it out if you want to reuse the byte[] later.
-   */
-  private @Unretained StoredObject offHeapData;
   private byte[] data;
   private byte userBits = 0;
   // length of the data present in the byte array
@@ -51,11 +43,6 @@ public class BytesAndBitsForCompactor {
     // this.userBits = userBits;
     validLength = INIT_FOR_WRAPPER.length;
     isReusable = true;
-  }
-
-
-  public StoredObject getOffHeapData() {
-    return offHeapData;
   }
 
   public byte[] getBytes() {
@@ -86,10 +73,5 @@ public class BytesAndBitsForCompactor {
     this.userBits = userBits;
     this.validLength = validLength;
     this.isReusable = isReusable;
-  }
-
-  public void setOffHeapData(StoredObject so, byte userBits) {
-    offHeapData = so;
-    this.userBits = userBits;
   }
 }

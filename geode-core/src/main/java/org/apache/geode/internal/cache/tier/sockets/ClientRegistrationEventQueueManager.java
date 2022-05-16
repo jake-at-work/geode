@@ -23,7 +23,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.logging.log4j.Logger;
 
 import org.apache.geode.annotations.VisibleForTesting;
-import org.apache.geode.cache.CacheEvent;
 import org.apache.geode.internal.cache.Conflatable;
 import org.apache.geode.internal.cache.EntryEventImpl;
 import org.apache.geode.internal.cache.FilterProfile;
@@ -80,10 +79,6 @@ public class ClientRegistrationEventQueueManager {
         // registering since there is a small race where it may have finished registering
         // after we pulled the queue out of the registeringProxyEventQueues collection
         if (registeringProxyEventQueues.contains(registrationEventQueue)) {
-          // If the event value is off-heap, copy it to heap so we are guaranteed the value
-          // is available when we drain the registration queue
-          copyOffHeapToHeapForRegistrationQueue(event);
-
           registrationEventQueue.add(clientRegistrationEvent);
 
           // Because this event will be processed and sent when it is drained out of the temporary
@@ -230,20 +225,6 @@ public class ClientRegistrationEventQueueManager {
     return originalFilterClientIDs == null
         || !originalFilterClientIDs.contains(proxyID)
             && newFilterClientIDs.contains(proxyID);
-  }
-
-  /**
-   * For simplicity, we will copy off-heap registration queue values to heap to avoid
-   * complicated off-heap reference counting. Since the registration queue is only a
-   * temporary construct during client registration, the overhead should not be significant.
-   *
-   * @param event The InternalCacheEvent whose value will be copied to the heap if need be
-   */
-  private void copyOffHeapToHeapForRegistrationQueue(final CacheEvent event) {
-    if (event.getOperation().isEntry()) {
-      EntryEventImpl entryEvent = ((EntryEventImpl) event);
-      entryEvent.copyOffHeapToHeap();
-    }
   }
 
   private void drainEventsReceivedWhileRegisteringClient(

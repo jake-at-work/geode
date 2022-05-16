@@ -28,7 +28,6 @@ import org.apache.geode.distributed.internal.ConflationKey;
 import org.apache.geode.distributed.internal.DirectReplyProcessor;
 import org.apache.geode.internal.cache.tier.sockets.ClientProxyMembershipID;
 import org.apache.geode.internal.cache.versions.ConcurrentCacheModificationException;
-import org.apache.geode.internal.offheap.annotations.Retained;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
 
@@ -111,31 +110,20 @@ public class DestroyOperation extends DistributedCacheOperation {
     }
 
     @Override
-    @Retained
     protected InternalCacheEvent createEvent(DistributedRegion rgn) throws EntryNotFoundException {
       EntryEventImpl ev = createEntryEvent(rgn);
-      boolean evReturned = false;
-      try {
-        ev.setEventId(eventId);
-        ev.setOldValueFromRegion();
-        ev.setVersionTag(versionTag);
-        if (filterRouting != null) {
-          ev.setLocalFilterInfo(filterRouting.getFilterInfo(rgn.getMyId()));
-        }
-        ev.setTailKey(tailKey);
-        ev.setInhibitAllNotifications(inhibitAllNotifications);
-        evReturned = true;
-        return ev;
-      } finally {
-        if (!evReturned) {
-          ev.release();
-        }
+      ev.setEventId(eventId);
+      ev.setOldValueFromRegion();
+      ev.setVersionTag(versionTag);
+      if (filterRouting != null) {
+        ev.setLocalFilterInfo(filterRouting.getFilterInfo(rgn.getMyId()));
       }
+      ev.setTailKey(tailKey);
+      ev.setInhibitAllNotifications(inhibitAllNotifications);
+      return ev;
     }
 
-    @Retained
     EntryEventImpl createEntryEvent(DistributedRegion rgn) {
-      @Retained
       EntryEventImpl event = EntryEventImpl.create(rgn, getOperation(), key, null,
           callbackArg, true, getSender());
       // event.setNewEventId(); Don't set the event here...
@@ -225,7 +213,6 @@ public class DestroyOperation extends DistributedCacheOperation {
     }
 
     @Override
-    @Retained
     EntryEventImpl createEntryEvent(DistributedRegion rgn) {
       EntryEventImpl event =
           EntryEventImpl.create(rgn, getOperation(), key, null, /* newvalue */

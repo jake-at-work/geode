@@ -34,10 +34,6 @@ import org.apache.geode.internal.cache.entries.AbstractRegionEntry;
 import org.apache.geode.internal.cache.versions.ConcurrentCacheModificationException;
 import org.apache.geode.internal.cache.versions.VersionTag;
 import org.apache.geode.internal.cache.wan.GatewaySenderEventImpl;
-import org.apache.geode.internal.offheap.OffHeapHelper;
-import org.apache.geode.internal.offheap.ReferenceCountHelper;
-import org.apache.geode.internal.offheap.annotations.Released;
-import org.apache.geode.internal.offheap.annotations.Unretained;
 import org.apache.geode.internal.sequencelog.EntryLogger;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 
@@ -59,7 +55,6 @@ public class RegionMapPut extends AbstractRegionMapPut {
   private final Set netWriteRecipients;
   private final Object expectedOldValue;
 
-  @Released
   private Object oldValueForDelta;
 
   public RegionMapPut(FocusedRegionMap focusedRegionMap, InternalRegion owner,
@@ -183,7 +178,6 @@ public class RegionMapPut extends AbstractRegionMapPut {
     } else if (isCacheWrite() || isRequireOldValue()) {
       setOldValueIfNotFaultedOut();
     } else {
-      @Unretained
       Object existingValue = re.getValue();
       if (existingValue instanceof GatewaySenderEventImpl) {
         event.setOldValue(existingValue, true);
@@ -193,37 +187,22 @@ public class RegionMapPut extends AbstractRegionMapPut {
 
   private void setOldValueIfNotFaultedOut() {
     final EntryEventImpl event = getEvent();
-    ReferenceCountHelper.skipRefCountTracking();
-    @Released
     Object oldValueInVM = getRegionEntry().getValueRetain(event.getRegion(), true);
     if (oldValueInVM == null) {
       oldValueInVM = Token.NOT_AVAILABLE;
     }
-    ReferenceCountHelper.unskipRefCountTracking();
-    try {
-      event.setOldValue(oldValueInVM);
-    } finally {
-      OffHeapHelper.releaseWithNoTracking(oldValueInVM);
-    }
+    event.setOldValue(oldValueInVM);
   }
 
   private void setOldValueEvenIfFaultedOut() {
     final EntryEventImpl event = getEvent();
-    ReferenceCountHelper.skipRefCountTracking();
-    @Released
     Object oldValueInVMOrDisk =
         getRegionEntry().getValueOffHeapOrDiskWithoutFaultIn(event.getRegion());
-    ReferenceCountHelper.unskipRefCountTracking();
-    try {
-      event.setOldValue(oldValueInVMOrDisk, true);
-    } finally {
-      OffHeapHelper.releaseWithNoTracking(oldValueInVMOrDisk);
-    }
+    event.setOldValue(oldValueInVMOrDisk, true);
   }
 
   @Override
   protected void unsetOldValueForDelta() {
-    OffHeapHelper.release(getOldValueForDelta());
     setOldValueForDelta(null);
     if (isOverwritePutIfAbsent()) {
       getEvent().setOldValue(null);
@@ -408,20 +387,16 @@ public class RegionMapPut extends AbstractRegionMapPut {
             event.getOperation() == Operation.PUT_IF_ABSENT &&
             event.isPossibleDuplicate()) {
           Object retainedValue = getRegionEntry().getValueRetain(getOwner());
-          try {
-            if (ValueComparisonHelper.checkEquals(retainedValue,
+          if (ValueComparisonHelper.checkEquals(retainedValue,
                 getEvent().getRawNewValue(),
                 isCompressedOffHeap(event), getOwner().getCache())) {
-              if (logger.isDebugEnabled()) {
-                logger.debug("retried putIfAbsent found same value already in cache "
-                    + "- allowing the operation.  entry={}; event={}", getRegionEntry(),
-                    getEvent());
-              }
-              overwritePutIfAbsent = true;
-              return true;
+            if (logger.isDebugEnabled()) {
+              logger.debug("retried putIfAbsent found same value already in cache "
+                  + "- allowing the operation.  entry={}; event={}", getRegionEntry(),
+                  getEvent());
             }
-          } finally {
-            OffHeapHelper.release(retainedValue);
+            overwritePutIfAbsent = true;
+            return true;
           }
         }
         return false;
@@ -443,7 +418,6 @@ public class RegionMapPut extends AbstractRegionMapPut {
     if (getExpectedOldValue() != null && !isReplaceOnClient()) {
       assert event.getOperation().guaranteesOldValue();
       // We already called setOldValueInEvent so the event will have the old value.
-      @Unretained
       Object v = event.getRawOldValue();
       // Note that v will be null instead of INVALID because setOldValue`
       // converts INVALID to null.

@@ -129,8 +129,6 @@ import org.apache.geode.internal.cache.versions.VersionSource;
 import org.apache.geode.internal.cache.versions.VersionTag;
 import org.apache.geode.internal.cache.wan.AsyncEventQueueConfigurationException;
 import org.apache.geode.internal.cache.wan.GatewaySenderConfigurationException;
-import org.apache.geode.internal.offheap.annotations.Released;
-import org.apache.geode.internal.offheap.annotations.Retained;
 import org.apache.geode.internal.sequencelog.RegionLogger;
 import org.apache.geode.internal.statistics.StatisticsClock;
 import org.apache.geode.internal.util.concurrent.StoppableCountDownLatch;
@@ -2266,7 +2264,6 @@ public class DistributedRegion extends LocalRegion implements InternalDistribute
         && filterProfile != null && filterProfile.hasCQs();
     cacheProfile.gatewaySenderIds = getGatewaySenderIds();
     cacheProfile.asyncEventQueueIds = getVisibleAsyncEventQueueIds();
-    cacheProfile.isOffHeap = getOffHeap();
   }
 
   /**
@@ -2334,38 +2331,30 @@ public class DistributedRegion extends LocalRegion implements InternalDistribute
 
   /** @return the deserialized value */
   @Override
-  @Retained
   Object findObjectInSystem(KeyInfo keyInfo, boolean isCreate, TXStateInterface txState,
       boolean generateCallbacks, Object localValue, boolean disableCopyOnRead, boolean preferCD,
       ClientProxyMembershipID requestingClient, EntryEventImpl clientEvent,
       boolean returnTombstones) throws CacheLoaderException, TimeoutException {
 
-    @Released
     EntryEventImpl event = null;
 
     checkForLimitedOrNoAccess();
     final Operation op = isCreate ? Operation.CREATE : Operation.UPDATE;
     long lastModified = 0L;
 
-    try {
-      event = findOnServer(keyInfo, op, generateCallbacks, clientEvent);
-      if (event == null) {
-        event = createEventForLoad(keyInfo, generateCallbacks, requestingClient, op);
-        lastModified =
-            findUsingSearchLoad(txState, localValue, clientEvent, keyInfo, event, preferCD);
-      }
-      // Update region with new value.
-      if (event.hasNewValue() && !isMemoryThresholdReachedForLoad()) {
-        putNewValueInRegion(isCreate, clientEvent, lastModified, event);
-      } else if (isCreate) {
-        recordMiss(null, event.getKey());
-      }
-      return determineResult(preferCD, event);
-    } finally {
-      if (event != null) {
-        event.release();
-      }
+    event = findOnServer(keyInfo, op, generateCallbacks, clientEvent);
+    if (event == null) {
+      event = createEventForLoad(keyInfo, generateCallbacks, requestingClient, op);
+      lastModified =
+          findUsingSearchLoad(txState, localValue, clientEvent, keyInfo, event, preferCD);
     }
+    // Update region with new value.
+    if (event.hasNewValue() && !isMemoryThresholdReachedForLoad()) {
+      putNewValueInRegion(isCreate, clientEvent, lastModified, event);
+    } else if (isCreate) {
+      recordMiss(null, event.getKey());
+    }
+    return determineResult(preferCD, event);
   }
 
   private EntryEventImpl createEventForLoad(KeyInfo keyInfo, boolean generateCallbacks,
@@ -3874,12 +3863,10 @@ public class DistributedRegion extends LocalRegion implements InternalDistribute
 
     if (event.isLocal() || others.contains(event.getMember())) {
       if (event.getState().isCritical() && !event.getPreviousState().isCritical()
-          && (event.getType() == ResourceType.HEAP_MEMORY
-              || (event.getType() == ResourceType.OFFHEAP_MEMORY && getOffHeap()))) {
+          && (event.getType() == ResourceType.HEAP_MEMORY)) {
         addCriticalMember(event.getMember());
       } else if (!event.getState().isCritical() && event.getPreviousState().isCritical()
-          && (event.getType() == ResourceType.HEAP_MEMORY
-              || (event.getType() == ResourceType.OFFHEAP_MEMORY && getOffHeap()))) {
+          && (event.getType() == ResourceType.HEAP_MEMORY)) {
         removeCriticalMember(event.getMember());
       }
     }

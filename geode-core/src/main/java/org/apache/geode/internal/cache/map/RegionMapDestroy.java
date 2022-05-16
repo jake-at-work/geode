@@ -33,7 +33,6 @@ import org.apache.geode.internal.cache.versions.ConcurrentCacheModificationExcep
 import org.apache.geode.internal.cache.versions.VersionStamp;
 import org.apache.geode.internal.cache.versions.VersionTag;
 import org.apache.geode.internal.logging.log4j.LogMarker;
-import org.apache.geode.internal.offheap.annotations.Released;
 import org.apache.geode.internal.sequencelog.EntryLogger;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 
@@ -731,7 +730,7 @@ public class RegionMapDestroy {
   }
 
   private boolean destroyEntry(RegionEntry re, EntryEventImpl event, boolean inTokenMode,
-      boolean cacheWrite, @Released Object expectedOldValue, boolean forceDestroy,
+      boolean cacheWrite, Object expectedOldValue, boolean forceDestroy,
       boolean removeRecoveredEntry) throws CacheWriterException, TimeoutException,
       EntryNotFoundException, RegionClearedException {
     focusedRegionMap.processVersionTag(re, event);

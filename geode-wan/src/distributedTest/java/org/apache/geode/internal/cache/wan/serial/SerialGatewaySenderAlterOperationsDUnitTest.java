@@ -305,10 +305,6 @@ public class SerialGatewaySenderAlterOperationsDUnitTest extends CacheTestCase {
     vm3.invoke(() -> validateRegionSize(className + "_RR", 5000));
   }
 
-  protected boolean isOffHeap() {
-    return false;
-  }
-
   protected void createSenderInVm4() throws IOException {
     createSender("ln", 2, true, true, numDispatchers, DEFAULT_ORDER_POLICY);
   }
@@ -381,7 +377,6 @@ public class SerialGatewaySenderAlterOperationsDUnitTest extends CacheTestCase {
 
       regionFactory.setDataPolicy(DataPolicy.REPLICATE);
       regionFactory.setScope(Scope.DISTRIBUTED_ACK);
-      regionFactory.setOffHeap(isOffHeap());
 
       regionFactory.create(regionName);
     }

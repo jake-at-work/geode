@@ -15,7 +15,6 @@
 package org.apache.geode.internal.cache;
 
 import static java.util.Arrays.asList;
-import static org.apache.geode.distributed.ConfigurationProperties.OFF_HEAP_MEMORY_SIZE;
 import static org.apache.geode.test.awaitility.GeodeAwaitility.await;
 import static org.apache.geode.test.dunit.IgnoredException.addIgnoredException;
 import static org.apache.geode.test.dunit.VM.getVM;
@@ -145,61 +144,33 @@ public class DestroyRegionDuringGIIDistributedTest implements Serializable {
     return new Object[] {
         /* DistributedAckRegionDUnitTest */
         new Object[] {"HEAP", "DISTRIBUTED_ACK"},
-        /* DistributedAckRegionOffHeapDUnitTest */
-        new Object[] {"OFF_HEAP", "DISTRIBUTED_ACK"},
 
         /* DistributedAckRegionCCEDUnitTest CONSERVE_SOCKETS="false" */
         new Object[] {"HEAP", "DISTRIBUTED_ACK_CCE"},
-        /* DistributedAckRegionCCEOffHeapDUnitTest */
-        new Object[] {"OFF_HEAP", "DISTRIBUTED_ACK_CCE"},
 
         /* DistributedAckRegionCompressionDUnitTest */
         new Object[] {"HEAP", "DISTRIBUTED_ACK_COMPRESSION"},
 
         /* DistributedAckOverflowRegionCCEDUnitTest */
         new Object[] {"HEAP", "DISTRIBUTED_ACK_EVICTION_OVERFLOW_CCE"},
-        /* DistributedAckOverflowRegionCCEOffHeapDUnitTest */
-        new Object[] {"OFF_HEAP", "DISTRIBUTED_ACK_EVICTION_OVERFLOW_CCE"},
 
         /* DistributedNoAckRegionDUnitTest */
         new Object[] {"HEAP", "DISTRIBUTED_NO_ACK"},
-        /* DistributedNoAckRegionOffHeapDUnitTest */
-        new Object[] {"OFF_HEAP", "DISTRIBUTED_NO_ACK"},
 
         /* DistributedNoAckRegionCCEDUnitTest */
         new Object[] {"HEAP", "DISTRIBUTED_NO_ACK_CCE"},
-        /* DistributedNoAckRegionCCEOffHeapDUnitTest */
-        new Object[] {"OFF_HEAP", "DISTRIBUTED_NO_ACK_CCE"},
-
-        /* DiskDistributedNoAckAsyncRegionDUnitTest */
-        new Object[] {"OFF_HEAP", "DISTRIBUTED_NO_ACK_PERSISTENT_REPLICATE_ASYNC"},
 
         /* DistributedAckPersistentRegionCCEDUnitTest */
         new Object[] {"HEAP", "DISTRIBUTED_NO_ACK_PERSISTENT_REPLICATE_CCE"},
-        /* DistributedAckPersistentRegionCCEOffHeapDUnitTest */
-        new Object[] {"OFF_HEAP", "DISTRIBUTED_NO_ACK_PERSISTENT_REPLICATE_CCE"},
-
-        /* DiskDistributedNoAckAsyncOverflowRegionDUnitTest */
-        new Object[] {"OFF_HEAP",
-            "DISTRIBUTED_NO_ACK_PERSISTENT_REPLICATE_EVICTION_OVERFLOW_ASYNC"},
-
-        /* DiskDistributedNoAckSyncOverflowRegionDUnitTest */
-        new Object[] {"OFF_HEAP", "DISTRIBUTED_NO_ACK_PERSISTENT_REPLICATE_EVICTION_OVERFLOW_SYNC"},
 
         /* GlobalRegionDUnitTest */
         new Object[] {"HEAP", "GLOBAL"},
-        /* GlobalRegionOffHeapDUnitTest */
-        new Object[] {"OFF_HEAP", "GLOBAL"},
 
         /* GlobalRegionCCEDUnitTest CONSERVE_SOCKETS="false" */
         new Object[] {"HEAP", "GLOBAL_CCE"},
-        /* GlobalRegionCCEOffHeapDUnitTest */
-        new Object[] {"OFF_HEAP", "GLOBAL_CCE"},
 
         /* PartitionedRegionDUnitTest */
         new Object[] {"HEAP", "PARTITIONED_REGION"},
-        /* PartitionedRegionOffHeapDUnitTest */
-        new Object[] {"OFF_HEAP", "PARTITIONED_REGION"},
 
         /* PartitionedRegionCompressionDUnitTest */
         new Object[] {"HEAP", "PARTITIONED_REGION_COMPRESSION"},
@@ -225,7 +196,6 @@ public class DestroyRegionDuringGIIDistributedTest implements Serializable {
           .setScope(Scope.DISTRIBUTED_ACK));
 
       regionDefinition.createRegionFactory(getCache())
-          .setOffHeap(cacheDefinition.isOffHeap())
           .create(regionName);
 
       // reset slow
@@ -274,7 +244,6 @@ public class DestroyRegionDuringGIIDistributedTest implements Serializable {
 
       regionDefinition.createRegionFactory(cacheXmlRule.getCache())
           .setDataPolicy(DataPolicy.REPLICATE)
-          .setOffHeap(cacheDefinition.isOffHeap())
           .create(regionName);
 
       cacheXmlRule.finishCacheXml(regionName);
@@ -327,7 +296,6 @@ public class DestroyRegionDuringGIIDistributedTest implements Serializable {
 
       regionDefinition.createRegionFactory(getCache())
           .setDataPolicy(DataPolicy.REPLICATE)
-          .setOffHeap(cacheDefinition.isOffHeap())
           .create(regionName);
 
       // reset slow
@@ -375,7 +343,6 @@ public class DestroyRegionDuringGIIDistributedTest implements Serializable {
 
       regionDefinition.createRegionFactory(cacheXmlRule.getCache())
           .setDataPolicy(DataPolicy.REPLICATE)
-          .setOffHeap(cacheDefinition.isOffHeap())
           .create(regionName);
 
       cacheXmlRule.finishCacheXml(regionName);
@@ -622,14 +589,6 @@ public class DestroyRegionDuringGIIDistributedTest implements Serializable {
       return getDistributedSystemProperties();
     }, () -> {
       // nothing
-    }),
-
-    OFF_HEAP(() -> {
-      Properties properties = getDistributedSystemProperties();
-      properties.setProperty(OFF_HEAP_MEMORY_SIZE, "10m");
-      return properties;
-    }, () -> {
-      OffHeapTestUtil.checkOrphans(CACHE.get());
     });
 
     private final Supplier<Properties> configSupplier;
@@ -643,10 +602,6 @@ public class DestroyRegionDuringGIIDistributedTest implements Serializable {
     private void createCache() {
       TEAR_DOWN.set(tearDown);
       CACHE.set((InternalCache) new CacheFactory(configSupplier.get()).create());
-    }
-
-    private boolean isOffHeap() {
-      return OFF_HEAP == this;
     }
   }
 

@@ -77,7 +77,7 @@ public class DiskRegion extends AbstractDiskRegion {
   protected DiskRegion(DiskStoreImpl ds, String name, boolean isBucket, boolean isPersistBackup,
       boolean overflowEnabled, boolean isSynchronous, DiskRegionStats stats, CancelCriterion cancel,
       DiskExceptionHandler exceptionHandler, RegionAttributes ra, EnumSet<DiskRegionFlag> flags,
-      String partitionName, int startingBucketId, String compressorClassName, boolean offHeap) {
+      String partitionName, int startingBucketId, String compressorClassName) {
     super(ds, name);
     if (getPartitionName() != null) {
       // I think this code is saying to prefer the recovered partitionName and startingBucketId.
@@ -144,7 +144,7 @@ public class DiskRegion extends AbstractDiskRegion {
             || raLruLimit != getLruLimit() || ra.getConcurrencyLevel() != getConcurrencyLevel()
             || ra.getInitialCapacity() != getInitialCapacity()
             || ra.getLoadFactor() != getLoadFactor()
-            || ra.getStatisticsEnabled() != getStatisticsEnabled() || offHeap != getOffHeap()
+            || ra.getStatisticsEnabled() != getStatisticsEnabled()
             || !hasSameCompressor(ra)) {
           if (getRecoveredEntryMap() != null) {
             getRecoveredEntryMap().lruCloseStats();
@@ -156,7 +156,7 @@ public class DiskRegion extends AbstractDiskRegion {
       }
       setConfig(raLruAlgorithm, raLruAction, raLruLimit, ra.getConcurrencyLevel(),
           ra.getInitialCapacity(), ra.getLoadFactor(), ra.getStatisticsEnabled(), isBucket, flags,
-          partitionName, startingBucketId, compressorClassName, offHeap);
+          partitionName, startingBucketId, compressorClassName);
     }
 
     if (!isBucket) {
@@ -170,10 +170,10 @@ public class DiskRegion extends AbstractDiskRegion {
       boolean isPersistBackup, boolean overflowEnabled, boolean isSynchronous,
       DiskRegionStats stats, CancelCriterion cancel, DiskExceptionHandler exceptionHandler,
       RegionAttributes ra, EnumSet<DiskRegionFlag> flags, String partitionName,
-      int startingBucketId, Compressor compressor, boolean offHeap) {
+      int startingBucketId, Compressor compressor) {
     return dsi.getDiskInitFile().createDiskRegion(dsi, name, isBucket, isPersistBackup,
         overflowEnabled, isSynchronous, stats, cancel, exceptionHandler, ra, flags, partitionName,
-        startingBucketId, compressor, offHeap);
+        startingBucketId, compressor);
   }
 
   @Override

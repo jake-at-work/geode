@@ -70,9 +70,9 @@ public class ShutdownAllPersistentGatewaySenderDUnitTest extends WANTestBase {
     vm2.invoke(WANTestBase::createReceiver);
 
     vm2.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName() + "_PR",
-        "ln", 1, 100, isOffHeap()));
+        "ln", 1, 100));
     vm3.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName() + "_PR",
-        "ln", 1, 100, isOffHeap()));
+        "ln", 1, 100));
 
     vm4.invoke(() -> WANTestBase.createCache(lnPort));
 
@@ -81,7 +81,7 @@ public class ShutdownAllPersistentGatewaySenderDUnitTest extends WANTestBase {
     vm4.invoke(() -> WANTestBase.startSender("ln"));
 
     vm4.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName() + "_PR",
-        "ln", 1, 100, isOffHeap()));
+        "ln", 1, 100));
 
     // set the CacheObserver to block the ShutdownAll
     SerializableRunnable waitAtShutdownAll = new SerializableRunnable() {
@@ -122,9 +122,9 @@ public class ShutdownAllPersistentGatewaySenderDUnitTest extends WANTestBase {
     vm2.invoke(() -> WANTestBase.createCache(nyPort));
     vm3.invoke(() -> WANTestBase.createCache(nyPort));
     AsyncInvocation vm3_future = vm3.invokeAsync(() -> WANTestBase
-        .createPersistentPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100, isOffHeap()));
+        .createPersistentPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100));
     vm2.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName() + "_PR",
-        "ln", 1, 100, isOffHeap()));
+        "ln", 1, 100));
     vm3_future.join(MAX_WAIT);
 
     vm3.invoke(new SerializableRunnable() {

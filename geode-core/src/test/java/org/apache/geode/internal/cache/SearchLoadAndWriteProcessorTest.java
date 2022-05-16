@@ -16,10 +16,7 @@ package org.apache.geode.internal.cache;
 
 import static org.apache.geode.test.awaitility.GeodeAwaitility.await;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -38,53 +35,9 @@ import org.apache.geode.distributed.internal.DistributionManager;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.membership.InternalDistributedMember;
 import org.apache.geode.internal.cache.versions.VersionTag;
-import org.apache.geode.internal.offheap.MemoryAllocator;
-import org.apache.geode.internal.offheap.StoredObject;
 
 public class SearchLoadAndWriteProcessorTest {
 
-  /**
-   * This test verifies the fix for GEODE-1199. It verifies that when doNetWrite is called with an
-   * event that has a StoredObject value that it will have "release" called on it.
-   */
-  @Test
-  public void verifyThatOffHeapReleaseIsCalledAfterNetWrite() {
-    // setup
-    SearchLoadAndWriteProcessor processor = SearchLoadAndWriteProcessor.getProcessor();
-    LocalRegion lr = mock(LocalRegion.class);
-    when(lr.getOffHeap()).thenReturn(true);
-    when(lr.getScope()).thenReturn(Scope.DISTRIBUTED_ACK);
-    Object key = "key";
-    StoredObject value = mock(StoredObject.class);
-    when(value.hasRefCount()).thenReturn(true);
-    when(value.retain()).thenReturn(true);
-    Object cbArg = null;
-    KeyInfo keyInfo = new KeyInfo(key, value, cbArg);
-    when(lr.getKeyInfo(any(), any(), any())).thenReturn(keyInfo);
-    processor.region = lr;
-
-    InternalCache cache = mock(InternalCache.class);
-    InternalDistributedSystem ids = mock(InternalDistributedSystem.class);
-    MemoryAllocator mem = mock(MemoryAllocator.class);
-    when(lr.getCache()).thenReturn(cache);
-    when(cache.getDistributedSystem()).thenReturn(ids);
-    when(ids.getOffHeapStore()).thenReturn(mem);
-
-    EntryEventImpl event =
-        EntryEventImpl.create(lr, Operation.REPLACE, key, value, cbArg, false, null);
-
-    try {
-      // the test
-      processor.doNetWrite(event, null, null, 0);
-
-      // verification
-      verify(value, times(2)).retain();
-      verify(value, times(1)).release();
-
-    } finally {
-      processor.release();
-    }
-  }
 
   InternalDistributedMember departedMember;
 

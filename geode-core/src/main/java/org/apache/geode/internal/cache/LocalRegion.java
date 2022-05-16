@@ -18,7 +18,6 @@ import static java.lang.System.lineSeparator;
 import static org.apache.geode.internal.cache.LocalRegion.InitializationLevel.AFTER_INITIAL_IMAGE;
 import static org.apache.geode.internal.cache.LocalRegion.InitializationLevel.ANY_INIT;
 import static org.apache.geode.internal.cache.LocalRegion.InitializationLevel.BEFORE_INITIAL_IMAGE;
-import static org.apache.geode.internal.offheap.annotations.OffHeapIdentifier.ENTRY_EVENT_NEW_VALUE;
 import static org.apache.geode.util.internal.UncheckedUtils.uncheckedCast;
 
 import java.io.DataInputStream;
@@ -207,13 +206,6 @@ import org.apache.geode.internal.cache.versions.VersionTag;
 import org.apache.geode.internal.cache.wan.AbstractGatewaySender;
 import org.apache.geode.internal.lang.SystemPropertyHelper;
 import org.apache.geode.internal.logging.log4j.LogMarker;
-import org.apache.geode.internal.offheap.OffHeapHelper;
-import org.apache.geode.internal.offheap.ReferenceCountHelper;
-import org.apache.geode.internal.offheap.Releasable;
-import org.apache.geode.internal.offheap.StoredObject;
-import org.apache.geode.internal.offheap.annotations.Released;
-import org.apache.geode.internal.offheap.annotations.Retained;
-import org.apache.geode.internal.offheap.annotations.Unretained;
 import org.apache.geode.internal.sequencelog.EntryLogger;
 import org.apache.geode.internal.serialization.KnownVersion;
 import org.apache.geode.internal.statistics.StatisticsClock;
@@ -582,15 +574,6 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
     String myName = getFullPath();
     if (internalRegionArgs.getPartitionedRegion() != null) {
       myName = internalRegionArgs.getPartitionedRegion().getFullPath();
-    }
-    offHeap = attrs.getOffHeap() || Boolean.getBoolean(myName + ":OFF_HEAP");
-    if (getOffHeap()) {
-      if (cache.getOffHeapStore() == null) {
-        throw new IllegalStateException(
-            String.format(
-                "The region %s was configured to use off heap memory but no off heap memory was configured",
-                myName));
-      }
     }
 
     initializationLatchBeforeGetInitialImage = new StoppableCountDownLatch(stopper, 1);
@@ -991,17 +974,9 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
             cache.getInternalResourceManager().addResourceListener(ResourceType.MEMORY,
                 newRegion);
 
-            if (!newRegion.getOffHeap()) {
-              newRegion.initialCriticalMembers(
-                  cache.getInternalResourceManager().getHeapMonitor().getState().isCritical(),
-                  cache.getResourceAdvisor().adviseCriticalMembers());
-            } else {
-              newRegion.initialCriticalMembers(
-                  cache.getInternalResourceManager().getHeapMonitor().getState().isCritical()
-                      || cache.getInternalResourceManager().getOffHeapMonitor().getState()
-                          .isCritical(),
-                  cache.getResourceAdvisor().adviseCriticalMembers());
-            }
+            newRegion.initialCriticalMembers(
+                cache.getInternalResourceManager().getHeapMonitor().getState().isCritical(),
+                cache.getResourceAdvisor().adviseCriticalMembers());
 
             // synchronization would be done on ManagementAdapter.regionOpLock
             // instead of destroyLock in LocalRegion? ManagementAdapter is one
@@ -1049,13 +1024,8 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
   public void create(Object key, Object value, Object aCallbackArgument)
       throws TimeoutException, EntryExistsException, CacheWriterException {
     long startPut = getStatisticsClock().getTime();
-    @Released
     EntryEventImpl event = newCreateEntryEvent(key, value, aCallbackArgument);
-    try {
-      validatedCreate(event, startPut);
-    } finally {
-      event.release();
-    }
+    validatedCreate(event, startPut);
   }
 
   private void validatedCreate(EntryEventImpl event, long startPut)
@@ -1083,7 +1053,6 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
     }
   }
 
-  @Retained
   private EntryEventImpl newCreateEntryEvent(Object key, Object value, Object aCallbackArgument) {
 
     validateArguments(key, value, aCallbackArgument);
@@ -1111,13 +1080,8 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
   @Override
   public Object destroy(Object key, Object aCallbackArgument)
       throws TimeoutException, EntryNotFoundException, CacheWriterException {
-    @Released
     EntryEventImpl event = newDestroyEntryEvent(key, aCallbackArgument);
-    try {
-      return validatedDestroy(key, event);
-    } finally {
-      event.release();
-    }
+    return validatedDestroy(key, event);
   }
 
   /**
@@ -1131,13 +1095,9 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
     }
     basicDestroy(event, true, // cacheWrite
         null); // expectedOldValue
-    if (event.isOldValueOffHeap()) {
-      return null;
-    }
     return handleNotAvailable(event.getOldValue());
   }
 
-  @Retained
   EntryEventImpl newDestroyEntryEvent(Object key, Object aCallbackArgument) {
     validateKey(key);
     checkReadiness();
@@ -1248,13 +1208,11 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
    *         <li>Token.LOCAL_INVALID if the value of the region entry is local invalid
    *         </ul>
    */
-  @Retained
   Object getDeserialized(RegionEntry regionEntry, boolean updateStats, boolean disableCopyOnRead,
       boolean preferCachedDeserializable, boolean retainResult) {
     assert !retainResult || preferCachedDeserializable;
     boolean disabledLRUCallback = entries.disableLruUpdateCallback();
     try {
-      @Retained
       Object value;
       try {
         if (retainResult) {
@@ -1328,7 +1286,6 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
   /**
    * The result of this operation may be an off-heap reference that the caller must release
    */
-  @Retained
   public Object getRetained(Object key, Object aCallbackArgument, boolean generateCallbacks,
       boolean disableCopyOnRead, ClientProxyMembershipID requestingClient,
       EntryEventImpl clientEvent, boolean returnTombstones)
@@ -1343,7 +1300,6 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
    * @param opScopeIsLocal if true then just check local storage for a value; if false then try to
    *        find the value if it is not local
    */
-  @Retained
   private Object getRetained(Object key, Object aCallbackArgument, boolean generateCallbacks,
       boolean disableCopyOnRead, ClientProxyMembershipID requestingClient,
       EntryEventImpl clientEvent, boolean returnTombstones, boolean opScopeIsLocal)
@@ -1436,12 +1392,10 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
    * @param clientEvent the client event, if any
    * @param returnTombstones whether to return tombstones
    */
-  @Retained
   Object nonTxnFindObject(KeyInfo keyInfo, boolean isCreate, boolean generateCallbacks,
       Object localValue, boolean disableCopyOnRead, boolean preferCD,
       ClientProxyMembershipID requestingClient, EntryEventImpl clientEvent,
       boolean returnTombstones) throws TimeoutException, CacheLoaderException {
-    @Retained
     Object result;
     if (isProxy()) {
       result =
@@ -1583,7 +1537,7 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
   @Override
   public boolean isCopyOnRead() {
     return compressor == null && cache.isCopyOnRead()
-        && !isUsedForPartitionedRegionAdmin && !isUsedForMetaRegion && !getOffHeap()
+        && !isUsedForPartitionedRegionAdmin && !isUsedForMetaRegion
         && !isSecret();
   }
 
@@ -1632,13 +1586,8 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
   public Object put(Object key, Object value, Object aCallbackArgument)
       throws TimeoutException, CacheWriterException {
     long startPut = getStatisticsClock().getTime();
-    @Released
     EntryEventImpl event = newUpdateEntryEvent(key, value, aCallbackArgument);
-    try {
-      return validatedPut(event, startPut);
-    } finally {
-      event.release();
-    }
+    return validatedPut(event, startPut);
   }
 
   Object validatedPut(EntryEventImpl event, long startPut)
@@ -1653,11 +1602,7 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
         null, // expectedOldValue
         false // requireOldValue
     )) {
-      if (!event.isOldValueOffHeap()) {
-        // don't copy it to heap just to return from put.
-        // TODO: come up with a better way to do this.
-        oldValue = event.getOldValue();
-      }
+      oldValue = event.getOldValue();
       if (!getDataView().isDeferredStats()) {
         getCachePerfStats().endPut(startPut, false);
       }
@@ -1665,7 +1610,6 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
     return handleNotAvailable(oldValue);
   }
 
-  @Retained
   EntryEventImpl newUpdateEntryEvent(Object key, Object value, Object aCallbackArgument) {
 
     validateArguments(key, value, aCallbackArgument);
@@ -1681,20 +1625,11 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
     // was modified to call the other EntryEventImpl constructor so that
     // an id will be generated by default. Null was passed in anyway.
     // generate EventID
-    @Retained
     final EntryEventImpl event =
         entryEventFactory.create(this, Operation.UPDATE, key, value,
             aCallbackArgument, false, getMyId());
-    boolean eventReturned = false;
-    try {
-      extractDeltaIntoEvent(value, event);
-      eventReturned = true;
-      return event;
-    } finally {
-      if (!eventReturned) {
-        event.release();
-      }
-    }
+    extractDeltaIntoEvent(value, event);
+    return event;
   }
 
   private void extractDeltaIntoEvent(Object value, EntryEventImpl event) {
@@ -2036,15 +1971,8 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
       RegionEntry entry = entries.getEntry(keyInfo.getKey());
       boolean result = entry != null;
       if (result) {
-        ReferenceCountHelper.skipRefCountTracking();
         // no need to decompress since we only want to know if we have an existing value
         Object val = entry.getTransformedValue();
-        if (val instanceof StoredObject) {
-          OffHeapHelper.release(val);
-          ReferenceCountHelper.unskipRefCountTracking();
-          return true;
-        }
-        ReferenceCountHelper.unskipRefCountTracking();
         // No need to to check CachedDeserializable because INVALID and LOCAL_INVALID will never be
         // faulted out of mem If val is NOT_AVAILABLE that means we have a valid value on disk.
         result = !Token.isInvalidOrRemoved(val);
@@ -2233,17 +2161,12 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
    */
   void validatedInvalidate(Object key, Object aCallbackArgument)
       throws TimeoutException, EntryNotFoundException {
-    @Released
     EntryEventImpl event = entryEventFactory.create(this, Operation.INVALIDATE, key, null,
         aCallbackArgument, false, getMyId());
-    try {
-      if (generateEventID()) {
-        event.setNewEventId(cache.getDistributedSystem());
-      }
-      basicInvalidate(event);
-    } finally {
-      event.release();
+    if (generateEventID()) {
+      event.setNewEventId(cache.getDistributedSystem());
     }
+    basicInvalidate(event);
   }
 
   @Override
@@ -2251,7 +2174,6 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
     validateKey(key);
     checkReadiness();
     checkForNoAccess();
-    @Released
     EntryEventImpl event = entryEventFactory.create(this, Operation.LOCAL_DESTROY, key, null,
         aCallbackArgument, false, getMyId());
     if (generateEventID()) {
@@ -2269,8 +2191,6 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
       throw new Error(
           "No distributed lock should have been attempted for localDestroy",
           e);
-    } finally {
-      event.release();
     }
   }
 
@@ -2323,18 +2243,13 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
     checkReadiness();
     checkForNoAccess();
 
-    @Released
     EntryEventImpl event = entryEventFactory.create(this, Operation.LOCAL_INVALIDATE, key,
         null, aCallbackArgument, false, getMyId());
-    try {
-      if (generateEventID()) {
-        event.setNewEventId(cache.getDistributedSystem());
-      }
-      event.setLocalInvalid(true);
-      basicInvalidate(event);
-    } finally {
-      event.release();
+    if (generateEventID()) {
+      event.setNewEventId(cache.getDistributedSystem());
     }
+    event.setLocalInvalid(true);
+    basicInvalidate(event);
   }
 
   @Override
@@ -2873,57 +2788,52 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
         op = Operation.LOCAL_LOAD_UPDATE;
       }
 
-      @Released
       EntryEventImpl event =
           entryEventFactory.create(this, op, key, value, aCallbackArgument, false,
               getMyId(), generateCallbacks);
-      try {
 
-        // do not put an invalid entry into the cache if there's
-        // already one there with the same version
-        if (fromServer) {
-          if (alreadyInvalid(key, event)) {
+      // do not put an invalid entry into the cache if there's
+      // already one there with the same version
+      if (fromServer) {
+        if (alreadyInvalid(key, event)) {
+          return null;
+        }
+        event.setFromServer(fromServer);
+        event.setVersionTag(holder.getVersionTag());
+        if (clientEvent != null) {
+          clientEvent.setVersionTag(holder.getVersionTag());
+        }
+      }
+
+      // set the event id so that we can propagate the value to the server
+      if (!fromServer) {
+        event.setNewEventId(cache.getDistributedSystem());
+      }
+      try {
+        try {
+          re = basicPutEntry(event, 0L);
+          if (!fromServer && clientEvent != null) {
+            clientEvent.setVersionTag(event.getVersionTag());
+            clientEvent.isConcurrencyConflict(event.isConcurrencyConflict());
+          }
+          if (fromServer && event.getRawNewValue() == Token.TOMBSTONE) {
+            // tombstones are destroyed entries
             return null;
           }
-          event.setFromServer(fromServer);
-          event.setVersionTag(holder.getVersionTag());
-          if (clientEvent != null) {
-            clientEvent.setVersionTag(holder.getVersionTag());
-          }
-        }
-
-        // set the event id so that we can propagate the value to the server
-        if (!fromServer) {
-          event.setNewEventId(cache.getDistributedSystem());
-        }
-        try {
-          try {
-            re = basicPutEntry(event, 0L);
-            if (!fromServer && clientEvent != null) {
-              clientEvent.setVersionTag(event.getVersionTag());
-              clientEvent.isConcurrencyConflict(event.isConcurrencyConflict());
-            }
-            if (fromServer && event.getRawNewValue() == Token.TOMBSTONE) {
-              // tombstones are destroyed entries
-              return null;
-            }
-          } catch (ConcurrentCacheModificationException ignore) {
-            // this means the value attempted to overwrite a newer modification and was rejected
-            if (logger.isDebugEnabled()) {
-              logger.debug("caught concurrent modification attempt when applying {}", event);
-            }
-            notifyBridgeClients(event);
-          }
-          if (!getDataView().isDeferredStats()) {
-            getCachePerfStats().endPut(startPut, event.isOriginRemote());
-          }
-        } catch (CacheWriterException cwe) {
+        } catch (ConcurrentCacheModificationException ignore) {
+          // this means the value attempted to overwrite a newer modification and was rejected
           if (logger.isDebugEnabled()) {
-            logger.debug("findObjectInSystem: writer exception putting entry {}", event, cwe);
+            logger.debug("caught concurrent modification attempt when applying {}", event);
           }
+          notifyBridgeClients(event);
         }
-      } finally {
-        event.release();
+        if (!getDataView().isDeferredStats()) {
+          getCachePerfStats().endPut(startPut, event.isOriginRemote());
+        }
+      } catch (CacheWriterException cwe) {
+        if (logger.isDebugEnabled()) {
+          logger.debug("findObjectInSystem: writer exception putting entry {}", event, cwe);
+        }
       }
     }
     if (isCreate) {
@@ -2953,7 +2863,6 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
    * @return whether the entry is already invalid
    */
   private boolean alreadyInvalid(Object key, EntryEventImpl event) {
-    @Unretained(ENTRY_EVENT_NEW_VALUE)
     Object newValue = event.getRawNewValue();
     if (newValue == null || Token.isInvalid(newValue)) {
       RegionEntry entry = entries.getEntry(key);
@@ -3484,7 +3393,6 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
     return getDataView().getValueInVM(getKeyInfo(key), this, rememberRead);
   }
 
-  @Retained
   Object nonTXbasicGetValueInVM(KeyInfo keyInfo) {
     RegionEntry regionEntry = entries.getEntry(keyInfo.getKey());
     if (regionEntry == null) {
@@ -4119,7 +4027,6 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
     }
     checkReadiness();
     validateKey(key);
-    @Released
     EntryEventImpl event = entryEventFactory.create(this, Operation.LOCAL_DESTROY, key, false,
         getMyId(), false, true);
     try {
@@ -4136,8 +4043,6 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
           e);
     } catch (EntryNotFoundException ignore) {
       // not a problem
-    } finally {
-      event.release();
     }
   }
 
@@ -5158,64 +5063,59 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
 
     long startPut = getStatisticsClock().getTime();
 
-    @Released
     final EntryEventImpl event =
         entryEventFactory.create(this, Operation.CREATE, key, value,
             theCallbackArg, false, client.getDistributedMember(),
             true, eventId);
 
-    try {
-      event.setContext(client);
+    event.setContext(client);
 
-      // if this is a replayed operation or WAN event we may already have a version tag
-      event.setVersionTag(clientEvent.getVersionTag());
-      // carry over the possibleDuplicate flag from clientEvent
-      event.setPossibleDuplicate(clientEvent.isPossibleDuplicate());
+    // if this is a replayed operation or WAN event we may already have a version tag
+    event.setVersionTag(clientEvent.getVersionTag());
+    // carry over the possibleDuplicate flag from clientEvent
+    event.setPossibleDuplicate(clientEvent.isPossibleDuplicate());
 
-      // Only make create with null a local invalidate for
-      // normal regions. Otherwise, it will become a distributed invalidate.
-      if (getDataPolicy() == DataPolicy.NORMAL) {
-        event.setLocalInvalid(true);
-      }
-
-      // Set the new value to the input byte[] if it isn't null
-      if (value != null) {
-        // If the byte[] represents an object, then store it serialized
-        // in a CachedDeserializable; otherwise store it directly as a byte[]
-        if (isObject) {
-          // The value represents an object
-          event.setSerializedNewValue(value);
-        } else {
-          // The value does not represent an object
-          event.setNewValue(value);
-        }
-      }
-
-      // cannot overwrite an existing key
-      boolean ifNew = true;
-      // can create a new key
-      boolean ifOld = false;
-      // use now
-      long lastModified = 0L;
-      // not okay to overwrite the DESTROYED token
-      boolean overwriteDestroyed = false;
-
-      boolean success = basicUpdate(event, ifNew, ifOld, lastModified, overwriteDestroyed);
-      clientEvent.isConcurrencyConflict(event.isConcurrencyConflict());
-
-      if (success) {
-        clientEvent.setVersionTag(event.getVersionTag());
-        getCachePerfStats().endPut(startPut, event.isOriginRemote());
-      } else {
-        stopper.checkCancelInProgress(null);
-        if (throwEntryExists) {
-          throw new EntryExistsException("" + key, event.getOldValue());
-        }
-      }
-      return success;
-    } finally {
-      event.release();
+    // Only make create with null a local invalidate for
+    // normal regions. Otherwise, it will become a distributed invalidate.
+    if (getDataPolicy() == DataPolicy.NORMAL) {
+      event.setLocalInvalid(true);
     }
+
+    // Set the new value to the input byte[] if it isn't null
+    if (value != null) {
+      // If the byte[] represents an object, then store it serialized
+      // in a CachedDeserializable; otherwise store it directly as a byte[]
+      if (isObject) {
+        // The value represents an object
+        event.setSerializedNewValue(value);
+      } else {
+        // The value does not represent an object
+        event.setNewValue(value);
+      }
+    }
+
+    // cannot overwrite an existing key
+    boolean ifNew = true;
+    // can create a new key
+    boolean ifOld = false;
+    // use now
+    long lastModified = 0L;
+    // not okay to overwrite the DESTROYED token
+    boolean overwriteDestroyed = false;
+
+    boolean success = basicUpdate(event, ifNew, ifOld, lastModified, overwriteDestroyed);
+    clientEvent.isConcurrencyConflict(event.isConcurrencyConflict());
+
+    if (success) {
+      clientEvent.setVersionTag(event.getVersionTag());
+      getCachePerfStats().endPut(startPut, event.isOriginRemote());
+    } else {
+      stopper.checkCancelInProgress(null);
+      if (throwEntryExists) {
+        throw new EntryExistsException("" + key, event.getOldValue());
+      }
+    }
+    return success;
   }
 
   public boolean basicBridgePut(Object key, Object value, byte[] deltaBytes, boolean isObject,
@@ -5227,57 +5127,52 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
     Object theCallbackArg = callbackArg;
     long startPut = getStatisticsClock().getTime();
 
-    @Released
     final EntryEventImpl event = entryEventFactory.create(this, Operation.UPDATE, key,
         null, theCallbackArg, false,
         memberId.getDistributedMember(), generateCallbacks, eventID);
 
-    try {
-      event.setContext(memberId);
-      event.setDeltaBytes(deltaBytes);
+    event.setContext(memberId);
+    event.setDeltaBytes(deltaBytes);
 
-      // if this is a replayed operation we may already have a version tag
-      event.setVersionTag(clientEvent.getVersionTag());
-      // carry over the possibleDuplicate flag from clientEvent
-      event.setPossibleDuplicate(clientEvent.isPossibleDuplicate());
+    // if this is a replayed operation we may already have a version tag
+    event.setVersionTag(clientEvent.getVersionTag());
+    // carry over the possibleDuplicate flag from clientEvent
+    event.setPossibleDuplicate(clientEvent.isPossibleDuplicate());
 
-      // Set the new value to the input byte[]. If the byte[] represents an object, then store it
-      // serialized in a CachedDeserializable; otherwise store it directly as a byte[].
-      if (isObject && value instanceof byte[]) {
-        event.setSerializedNewValue((byte[]) value);
-      } else {
-        event.setNewValue(value);
-      }
-
-      boolean success = false;
-
-      try {
-        boolean ifNew = false; // can overwrite an existing key
-        boolean ifOld = false; // can create a new key
-        long lastModified = 0L; // use now
-        boolean overwriteDestroyed = false; // not okay to overwrite the DESTROYED token
-        success = basicUpdate(event, ifNew, ifOld, lastModified, overwriteDestroyed);
-
-      } catch (ConcurrentCacheModificationException ignore) {
-        // thrown by WAN conflicts
-        event.isConcurrencyConflict(true);
-      }
-
-      clientEvent.isConcurrencyConflict(event.isConcurrencyConflict());
-
-      if (success) {
-        clientEvent.setVersionTag(event.getVersionTag());
-        getCachePerfStats().endPut(startPut, event.isOriginRemote());
-      } else if (clientEvent.isConcurrencyConflict() && clientEvent.getVersionTag() == null) {
-        clientEvent.setVersionTag(event.getVersionTag());
-      } else {
-        stopper.checkCancelInProgress(null);
-      }
-
-      return success;
-    } finally {
-      event.release();
+    // Set the new value to the input byte[]. If the byte[] represents an object, then store it
+    // serialized in a CachedDeserializable; otherwise store it directly as a byte[].
+    if (isObject && value instanceof byte[]) {
+      event.setSerializedNewValue((byte[]) value);
+    } else {
+      event.setNewValue(value);
     }
+
+    boolean success = false;
+
+    try {
+      boolean ifNew = false; // can overwrite an existing key
+      boolean ifOld = false; // can create a new key
+      long lastModified = 0L; // use now
+      boolean overwriteDestroyed = false; // not okay to overwrite the DESTROYED token
+      success = basicUpdate(event, ifNew, ifOld, lastModified, overwriteDestroyed);
+
+    } catch (ConcurrentCacheModificationException ignore) {
+      // thrown by WAN conflicts
+      event.isConcurrencyConflict(true);
+    }
+
+    clientEvent.isConcurrencyConflict(event.isConcurrencyConflict());
+
+    if (success) {
+      clientEvent.setVersionTag(event.getVersionTag());
+      getCachePerfStats().endPut(startPut, event.isOriginRemote());
+    } else if (clientEvent.isConcurrencyConflict() && clientEvent.getVersionTag() == null) {
+      clientEvent.setVersionTag(event.getVersionTag());
+    } else {
+      stopper.checkCancelInProgress(null);
+    }
+
+    return success;
   }
 
   /**
@@ -5370,39 +5265,34 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
       concurrencyConfigurationCheck(versionTag);
 
       // Create an event and put the entry
-      @Released
       EntryEventImpl event =
           entryEventFactory.create(this, Operation.INVALIDATE, key, null,
               callbackArgument, true, serverId);
-      try {
 
-        event.setVersionTag(versionTag);
-        event.setFromServer(true);
-        if (generateEventID() && !cache.getCacheServers().isEmpty()) {
-          event.setNewEventId(cache.getDistributedSystem());
-        } else {
-          event.setEventId(eventID);
-        }
+      event.setVersionTag(versionTag);
+      event.setFromServer(true);
+      if (generateEventID() && !cache.getCacheServers().isEmpty()) {
+        event.setNewEventId(cache.getDistributedSystem());
+      } else {
+        event.setEventId(eventID);
+      }
 
-        // If the marker has been processed, process this invalidate event
-        // normally; otherwise, this event occurred in the past and has been
-        // stored for a durable client. In this case, just invoke the invalidate
-        // callbacks.
-        if (processedMarker) {
-          // changed to force new entry creation for consistency
-          final boolean forceNewEntry = getConcurrencyChecksEnabled();
-          basicInvalidate(event, true, forceNewEntry);
-          if (event.isConcurrencyConflict()) {
-            // we must throw this for the CacheClientUpdater
-            throw new ConcurrentCacheModificationException();
-          }
-        } else {
-          if (isInitialized()) {
-            invokeInvalidateCallbacks(EnumListenerEvent.AFTER_INVALIDATE, event, true);
-          }
+      // If the marker has been processed, process this invalidate event
+      // normally; otherwise, this event occurred in the past and has been
+      // stored for a durable client. In this case, just invoke the invalidate
+      // callbacks.
+      if (processedMarker) {
+        // changed to force new entry creation for consistency
+        final boolean forceNewEntry = getConcurrencyChecksEnabled();
+        basicInvalidate(event, true, forceNewEntry);
+        if (event.isConcurrencyConflict()) {
+          // we must throw this for the CacheClientUpdater
+          throw new ConcurrentCacheModificationException();
         }
-      } finally {
-        event.release();
+      } else {
+        if (isInitialized()) {
+          invokeInvalidateCallbacks(EnumListenerEvent.AFTER_INVALIDATE, event, true);
+        }
       }
     }
   }
@@ -5419,40 +5309,35 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
       concurrencyConfigurationCheck(versionTag);
 
       // Create an event and destroy the entry
-      @Released
       EntryEventImpl event =
           entryEventFactory.create(this, Operation.DESTROY, key, null,
               callbackArgument, true, serverId);
-      try {
-        event.setFromServer(true);
-        event.setVersionTag(versionTag);
+      event.setFromServer(true);
+      event.setVersionTag(versionTag);
 
-        if (generateEventID() && !cache.getCacheServers().isEmpty()) {
-          event.setNewEventId(cache.getDistributedSystem());
-        } else {
-          event.setEventId(eventID);
-        }
+      if (generateEventID() && !cache.getCacheServers().isEmpty()) {
+        event.setNewEventId(cache.getDistributedSystem());
+      } else {
+        event.setEventId(eventID);
+      }
 
-        // If the marker has been processed, process this destroy event normally;
-        // otherwise, this event occurred in the past and has been stored for a
-        // durable client. In this case, just invoke the destroy callbacks.
-        if (logger.isDebugEnabled()) {
-          logger.debug("basicBridgeClientDestroy(processedMarker={})", processedMarker);
-        }
+      // If the marker has been processed, process this destroy event normally;
+      // otherwise, this event occurred in the past and has been stored for a
+      // durable client. In this case, just invoke the destroy callbacks.
+      if (logger.isDebugEnabled()) {
+        logger.debug("basicBridgeClientDestroy(processedMarker={})", processedMarker);
+      }
 
-        if (processedMarker) {
-          basicDestroy(event, false, null);
-          if (event.isConcurrencyConflict()) {
-            // we must throw an exception for CacheClientUpdater
-            throw new ConcurrentCacheModificationException();
-          }
-        } else {
-          if (isInitialized()) {
-            invokeDestroyCallbacks(EnumListenerEvent.AFTER_DESTROY, event, true, true);
-          }
+      if (processedMarker) {
+        basicDestroy(event, false, null);
+        if (event.isConcurrencyConflict()) {
+          // we must throw an exception for CacheClientUpdater
+          throw new ConcurrentCacheModificationException();
         }
-      } finally {
-        event.release();
+      } else {
+        if (isInitialized()) {
+          invokeDestroyCallbacks(EnumListenerEvent.AFTER_DESTROY, event, true, true);
+        }
       }
     }
   }
@@ -5486,28 +5371,23 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
       throws TimeoutException, EntryNotFoundException, CacheWriterException {
 
     // Create an event and put the entry
-    @Released
     final EntryEventImpl event =
         entryEventFactory.create(this, Operation.DESTROY, key, null,
             callbackArg, false, memberId.getDistributedMember(), true, clientEvent.getEventId());
 
+    event.setContext(memberId);
+    // if this is a replayed or WAN operation we may already have a version tag
+    event.setVersionTag(clientEvent.getVersionTag());
+    event.setPossibleDuplicate(clientEvent.isPossibleDuplicate());
     try {
-      event.setContext(memberId);
-      // if this is a replayed or WAN operation we may already have a version tag
-      event.setVersionTag(clientEvent.getVersionTag());
-      event.setPossibleDuplicate(clientEvent.isPossibleDuplicate());
-      try {
-        basicDestroy(event, true, null);
-      } catch (ConcurrentCacheModificationException ignore) {
-        // thrown by WAN conflicts
-        event.isConcurrencyConflict(true);
-      } finally {
-        clientEvent.setVersionTag(event.getVersionTag());
-        clientEvent.isConcurrencyConflict(event.isConcurrencyConflict());
-        clientEvent.setIsRedestroyedEntry(event.getIsRedestroyedEntry());
-      }
+      basicDestroy(event, true, null);
+    } catch (ConcurrentCacheModificationException ignore) {
+      // thrown by WAN conflicts
+      event.isConcurrencyConflict(true);
     } finally {
-      event.release();
+      clientEvent.setVersionTag(event.getVersionTag());
+      clientEvent.isConcurrencyConflict(event.isConcurrencyConflict());
+      clientEvent.setIsRedestroyedEntry(event.getIsRedestroyedEntry());
     }
   }
 
@@ -5517,26 +5397,21 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
       throws TimeoutException, EntryNotFoundException, CacheWriterException {
 
     // Create an event and put the entry
-    @Released
     final EntryEventImpl event =
         entryEventFactory.create(this, Operation.INVALIDATE, key, null,
             callbackArg, false, memberId.getDistributedMember(), true, clientEvent.getEventId());
 
+    event.setContext(memberId);
+
+    // if this is a replayed operation we may already have a version tag
+    event.setVersionTag(clientEvent.getVersionTag());
+    event.setPossibleDuplicate(clientEvent.isPossibleDuplicate());
+
     try {
-      event.setContext(memberId);
-
-      // if this is a replayed operation we may already have a version tag
-      event.setVersionTag(clientEvent.getVersionTag());
-      event.setPossibleDuplicate(clientEvent.isPossibleDuplicate());
-
-      try {
-        basicInvalidate(event);
-      } finally {
-        clientEvent.setVersionTag(event.getVersionTag());
-        clientEvent.isConcurrencyConflict(event.isConcurrencyConflict());
-      }
+      basicInvalidate(event);
     } finally {
-      event.release();
+      clientEvent.setVersionTag(event.getVersionTag());
+      clientEvent.isConcurrencyConflict(event.isConcurrencyConflict());
     }
   }
 
@@ -5546,7 +5421,6 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
       ClientProxyMembershipID memberId, boolean fromClient, EntryEventImpl clientEvent) {
 
     // Create an event and update version stamp of the entry
-    @Released
     EntryEventImpl event = entryEventFactory.create(this, Operation.UPDATE_VERSION_STAMP, key, null,
         null, false, memberId.getDistributedMember(), false, clientEvent.getEventId());
 
@@ -5561,7 +5435,6 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
     } finally {
       clientEvent.setVersionTag(event.getVersionTag());
       clientEvent.isConcurrencyConflict(event.isConcurrencyConflict());
-      event.release();
     }
   }
 
@@ -6368,40 +6241,22 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
       // This is new to 6.5. If a heap lru region is created
       // we make sure that the eviction percentage is enabled.
       InternalResourceManager rm = cache.getInternalResourceManager();
-      if (!getOffHeap()) {
-        if (!rm.getHeapMonitor().hasEvictionThreshold()) {
-          float criticalPercentage = rm.getCriticalHeapPercentage();
-          if (criticalPercentage > 0.0f) {
-            if (criticalPercentage >= 10.f) {
-              evictionPercentage = criticalPercentage - 5.0f;
-            } else {
-              evictionPercentage = criticalPercentage;
-            }
-          }
-          rm.setEvictionHeapPercentage(evictionPercentage);
-          if (logWriter.fineEnabled()) {
-            logWriter
-                .fine("Enabled heap eviction at " + evictionPercentage + " percent for LRU region");
+      if (!rm.getHeapMonitor().hasEvictionThreshold()) {
+        float criticalPercentage = rm.getCriticalHeapPercentage();
+        if (criticalPercentage > 0.0f) {
+          if (criticalPercentage >= 10.f) {
+            evictionPercentage = criticalPercentage - 5.0f;
+          } else {
+            evictionPercentage = criticalPercentage;
           }
         }
-
-      } else {
-        if (!rm.getOffHeapMonitor().hasEvictionThreshold()) {
-          float criticalPercentage = rm.getCriticalOffHeapPercentage();
-          if (criticalPercentage > 0.0f) {
-            if (criticalPercentage >= 10.f) {
-              evictionPercentage = criticalPercentage - 5.0f;
-            } else {
-              evictionPercentage = criticalPercentage;
-            }
-          }
-          rm.setEvictionOffHeapPercentage(evictionPercentage);
-          if (logWriter.fineEnabled()) {
-            logWriter.fine(
-                "Enabled off-heap eviction at " + evictionPercentage + " percent for LRU region");
-          }
+        rm.setEvictionHeapPercentage(evictionPercentage);
+        if (logWriter.fineEnabled()) {
+          logWriter
+              .fine("Enabled heap eviction at " + evictionPercentage + " percent for LRU region");
         }
       }
+
     }
 
     if (!isInternalRegion()) {
@@ -6646,9 +6501,7 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
    * @param key - the key that this event is related to
    * @return an event for EVICT_DESTROY
    */
-  @Retained
   EntryEventImpl generateEvictDestroyEvent(final Object key) {
-    @Retained
     EntryEventImpl event = entryEventFactory.create(this, Operation.EVICT_DESTROY, key,
         null, null, false, getMyId());
 
@@ -6664,7 +6517,6 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
   boolean evictDestroy(EvictableEntry entry) {
     checkReadiness();
 
-    @Released
     final EntryEventImpl event = generateEvictDestroyEvent(entry.getKey());
 
     try {
@@ -6683,8 +6535,6 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
       throw new Error(
           "EntryNotFoundException should be masked for evictDestroy",
           yetAnotherError);
-    } finally {
-      event.release();
     }
   }
 
@@ -7024,7 +6874,6 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
           try {
             cache.getEventThreadPool().execute(eventDispatcher);
           } catch (RejectedExecutionException ignore) {
-            eventDispatcher.release();
             dispatchEvent(this, event, op);
           }
         }
@@ -7477,16 +7326,11 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
       try {
 
         // EventID will not be generated by this constructor
-        @Released
         EntryEventImpl event = entryEventFactory.create(this, operation, keyObject, null, null,
             rgnEvent.isOriginRemote(), rgnEvent.getDistributedMember());
 
-        try {
-          event.setLocalInvalid(!rgnEvent.getOperation().isDistributed());
-          basicInvalidate(event, false);
-        } finally {
-          event.release();
-        }
+        event.setLocalInvalid(!rgnEvent.getOperation().isDistributed());
+        basicInvalidate(event, false);
 
       } catch (EntryNotFoundException ignore) {
         // ignore
@@ -7619,7 +7463,7 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
     return DiskRegion.create(diskStoreImpl, getFullPath(), false,
         getDataPolicy().withPersistence(), isOverflowEnabled(), isDiskSynchronous(), stats,
         getCancelCriterion(), this, getAttributes(), diskFlags, "NO_PARTITITON", -1,
-        getCompressor(), getOffHeap());
+        getCompressor());
   }
 
   /**
@@ -8765,39 +8609,34 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
           long startPut = getStatisticsClock().getTime();
           validateKey(key);
 
-          @Released
           EntryEventImpl event = entryEventFactory.create(this, Operation.LOCAL_LOAD_CREATE, key,
               value, callback, false, getMyId(), true);
 
-          try {
-            event.setFromServer(true);
-            event.setVersionTag(entry.getVersionTag());
+          event.setFromServer(true);
+          event.setVersionTag(entry.getVersionTag());
 
-            if (!alreadyInvalid(key, event)) {
-              // don't update if it's already here & invalid
-              TXStateProxy txState = cache.getTXMgr().pauseTransaction();
-              try {
-                basicPutEntry(event, 0L);
-              } catch (ConcurrentCacheModificationException e) {
-                if (isDebugEnabled) {
-                  logger.debug(
-                      "getAll result for {} not stored in cache due to concurrent modification",
-                      key, e);
-                }
-              } finally {
-                cache.getTXMgr().unpauseTransaction(txState);
+          if (!alreadyInvalid(key, event)) {
+            // don't update if it's already here & invalid
+            TXStateProxy txState = cache.getTXMgr().pauseTransaction();
+            try {
+              basicPutEntry(event, 0L);
+            } catch (ConcurrentCacheModificationException e) {
+              if (isDebugEnabled) {
+                logger.debug(
+                    "getAll result for {} not stored in cache due to concurrent modification",
+                    key, e);
               }
-              getCachePerfStats().endPut(startPut, event.isOriginRemote());
+            } finally {
+              cache.getTXMgr().unpauseTransaction(txState);
             }
+            getCachePerfStats().endPut(startPut, event.isOriginRemote());
+          }
 
-            if (!createTombstone) {
-              allResults.put(key, value);
-              if (isTraceEnabled) {
-                logger.trace("Added remote result for getAll request: {}, {}", key, value);
-              }
+          if (!createTombstone) {
+            allResults.put(key, value);
+            if (isTraceEnabled) {
+              logger.trace("Added remote result for getAll request: {}, {}", key, value);
             }
-          } finally {
-            event.release();
           }
         }
       }
@@ -8865,26 +8704,17 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
 
     long startPut = getStatisticsClock().getTime();
 
-    @Released
     final EntryEventImpl event =
         entryEventFactory.create(this, Operation.PUTALL_CREATE, null,
             null, callbackArg, false,
             memberId.getDistributedMember(), !skipCallbacks, eventId);
 
-    try {
-      event.setContext(memberId);
-      event.setPossibleDuplicate(isRetry);
-      DistributedPutAllOperation putAllOp = new DistributedPutAllOperation(event, map.size(), true);
-      try {
-        VersionedObjectList result = basicPutAll(map, putAllOp, retryVersions);
-        getCachePerfStats().endPutAll(startPut);
-        return result;
-      } finally {
-        putAllOp.freeOffHeapResources();
-      }
-    } finally {
-      event.release();
-    }
+    event.setContext(memberId);
+    event.setPossibleDuplicate(isRetry);
+    DistributedPutAllOperation putAllOp = new DistributedPutAllOperation(event, map.size(), true);
+    VersionedObjectList result = basicPutAll(map, putAllOp, retryVersions);
+    getCachePerfStats().endPutAll(startPut);
+    return result;
   }
 
   /**
@@ -8903,50 +8733,32 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
 
     long startOp = getStatisticsClock().getTime();
 
-    @Released
     final EntryEventImpl event =
         entryEventFactory.create(this, Operation.REMOVEALL_DESTROY, null,
             null, callbackArg, false,
             memberId.getDistributedMember(), true, eventId);
 
-    try {
-      event.setContext(memberId);
-      event.setPossibleDuplicate(isRetry);
-      DistributedRemoveAllOperation removeAllOp =
-          new DistributedRemoveAllOperation(event, keys.size(), true);
-      try {
-        VersionedObjectList result = basicRemoveAll(keys, removeAllOp, retryVersions);
-        getCachePerfStats().endRemoveAll(startOp);
-        return result;
-      } finally {
-        removeAllOp.freeOffHeapResources();
-      }
-    } finally {
-      event.release();
-    }
+    event.setContext(memberId);
+    event.setPossibleDuplicate(isRetry);
+    DistributedRemoveAllOperation removeAllOp =
+        new DistributedRemoveAllOperation(event, keys.size(), true);
+    VersionedObjectList result = basicRemoveAll(keys, removeAllOp, retryVersions);
+    getCachePerfStats().endRemoveAll(startOp);
+    return result;
   }
 
   // TODO: return value is never used
   public VersionedObjectList basicImportPutAll(Map map, boolean skipCallbacks) {
     long startPut = getStatisticsClock().getTime();
 
-    @Released
     EntryEventImpl event = entryEventFactory.create(this, Operation.PUTALL_CREATE, null, null, null,
         true, getMyId(), !skipCallbacks);
 
-    try {
-      DistributedPutAllOperation putAllOp =
-          new DistributedPutAllOperation(event, map.size(), false);
-      try {
-        VersionedObjectList result = basicPutAll(map, putAllOp, null);
-        getCachePerfStats().endPutAll(startPut);
-        return result;
-      } finally {
-        putAllOp.freeOffHeapResources();
-      }
-    } finally {
-      event.release();
-    }
+    DistributedPutAllOperation putAllOp =
+        new DistributedPutAllOperation(event, map.size(), false);
+    VersionedObjectList result = basicPutAll(map, putAllOp, null);
+    getCachePerfStats().endPutAll(startPut);
+    return result;
   }
 
   @Override
@@ -8954,12 +8766,7 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
     long startPut = getStatisticsClock().getTime();
     final DistributedPutAllOperation putAllOp = newPutAllOperation(map, aCallbackArgument);
     if (putAllOp != null) {
-      try {
-        basicPutAll(map, putAllOp, null);
-      } finally {
-        putAllOp.getBaseEvent().release();
-        putAllOp.freeOffHeapResources();
-      }
+      basicPutAll(map, putAllOp, null);
     }
 
     getCachePerfStats().endPutAll(startPut);
@@ -8980,12 +8787,7 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
     long startOp = getStatisticsClock().getTime();
     DistributedRemoveAllOperation operation = newRemoveAllOperation(keys, aCallbackArgument);
     if (operation != null) {
-      try {
-        basicRemoveAll(keys, operation, null);
-      } finally {
-        operation.getBaseEvent().release();
-        operation.freeOffHeapResources();
-      }
+      basicRemoveAll(keys, operation, null);
     }
     getCachePerfStats().endRemoveAll(startOp);
   }
@@ -9202,9 +9004,6 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
         runtimeException = ex;
       } catch (Exception ex) {
         runtimeException = new RuntimeException(ex);
-      } finally {
-        putAllOp.getBaseEvent().release();
-        putAllOp.freeOffHeapResources();
       }
       getDataView().postPutAll(putAllOp, succeeded, this);
     } finally {
@@ -9424,9 +9223,6 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
         runtimeException = ex;
       } catch (Exception ex) {
         runtimeException = new RuntimeException(ex);
-      } finally {
-        removeAllOp.getBaseEvent().release();
-        removeAllOp.freeOffHeapResources();
       }
       getDataView().postRemoveAll(removeAllOp, succeeded, this);
     } finally {
@@ -9495,7 +9291,6 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
     final EntryEventImpl event = entryEventFactory.create(this, Operation.PUTALL_CREATE, null, null,
         callbackArg, true, getMyId());
 
-    event.disallowOffHeapValues();
     return new DistributedPutAllOperation(event, map.size(), false);
   }
 
@@ -9518,7 +9313,6 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
     // No need for release since disallowOffHeapValues called.
     final EntryEventImpl event = entryEventFactory.create(this, Operation.REMOVEALL_DESTROY, null,
         null, callbackArg, false, getMyId());
-    event.disallowOffHeapValues();
     return new DistributedRemoveAllOperation(event, keys.size(), false);
   }
 
@@ -9548,33 +9342,28 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
     // event is marked as a PUTALL_CREATE but if the entry exists it
     // will be changed to a PUTALL_UPDATE later on.
 
-    @Released
     EntryEventImpl event =
         entryEventFactory.createPutAllEvent(putallOp, this, Operation.PUTALL_CREATE, key, value);
 
-    try {
-      if (tagHolder != null) {
-        event.setVersionTag(tagHolder.getVersionTag());
-        event.setFromServer(tagHolder.isFromServer());
-        event.setPossibleDuplicate(tagHolder.isPossibleDuplicate());
-      }
-      if (generateEventID()) {
-        event.setEventId(new EventID(putallOp.getBaseEvent().getEventId(), offset));
-      }
+    if (tagHolder != null) {
+      event.setVersionTag(tagHolder.getVersionTag());
+      event.setFromServer(tagHolder.isFromServer());
+      event.setPossibleDuplicate(tagHolder.isPossibleDuplicate());
+    }
+    if (generateEventID()) {
+      event.setEventId(new EventID(putallOp.getBaseEvent().getEventId(), offset));
+    }
 
-      // TODO: could be called once for the entire putAll instead of calling it for every key
-      discoverJTA();
+    // TODO: could be called once for the entire putAll instead of calling it for every key
+    discoverJTA();
 
-      /*
-       * If this is tx, do putEntry, unless it is a local region?
-       */
-      performPutAllEntry(event);
-      if (tagHolder != null) {
-        tagHolder.setVersionTag(event.getVersionTag());
-        tagHolder.isConcurrencyConflict(event.isConcurrencyConflict());
-      }
-    } finally {
-      event.release();
+    /*
+     * If this is tx, do putEntry, unless it is a local region?
+     */
+    performPutAllEntry(event);
+    if (tagHolder != null) {
+      tagHolder.setVersionTag(event.getVersionTag());
+      tagHolder.isConcurrencyConflict(event.isConcurrencyConflict());
     }
   }
 
@@ -9586,40 +9375,35 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
     checkReadiness();
     validateKey(key);
 
-    @Released
     EntryEventImpl event = entryEventFactory.createRemoveAllEvent(op, this, key);
 
+    if (tagHolder != null) {
+      event.setVersionTag(tagHolder.getVersionTag());
+      event.setFromServer(tagHolder.isFromServer());
+      event.setPossibleDuplicate(tagHolder.isPossibleDuplicate());
+    }
+    if (generateEventID()) {
+      event.setEventId(new EventID(op.getBaseEvent().getEventId(), offset));
+    }
+
+    // TODO: could be called once for the entire removeAll instead of calling it for every key
+    discoverJTA();
+
+    /*
+     * If this is tx, do destroyEntry, unless it is a local region?
+     */
     try {
-      if (tagHolder != null) {
-        event.setVersionTag(tagHolder.getVersionTag());
-        event.setFromServer(tagHolder.isFromServer());
-        event.setPossibleDuplicate(tagHolder.isPossibleDuplicate());
-      }
-      if (generateEventID()) {
-        event.setEventId(new EventID(op.getBaseEvent().getEventId(), offset));
-      }
-
-      // TODO: could be called once for the entire removeAll instead of calling it for every key
-      discoverJTA();
-
-      /*
-       * If this is tx, do destroyEntry, unless it is a local region?
-       */
-      try {
-        performRemoveAllEntry(event);
-      } catch (EntryNotFoundException ignore) {
-        if (event.getVersionTag() == null) {
-          if (logger.isDebugEnabled()) {
-            logger.debug("RemoveAll encountered EntryNotFoundException: event={}", event);
-          }
+      performRemoveAllEntry(event);
+    } catch (EntryNotFoundException ignore) {
+      if (event.getVersionTag() == null) {
+        if (logger.isDebugEnabled()) {
+          logger.debug("RemoveAll encountered EntryNotFoundException: event={}", event);
         }
       }
-      if (tagHolder != null) {
-        tagHolder.setVersionTag(event.getVersionTag());
-        tagHolder.isConcurrencyConflict(event.isConcurrencyConflict());
-      }
-    } finally {
-      event.release();
+    }
+    if (tagHolder != null) {
+      tagHolder.setVersionTag(event.getVersionTag());
+      tagHolder.isConcurrencyConflict(event.isConcurrencyConflict());
     }
   }
 
@@ -9649,7 +9433,6 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
     }
 
     for (Iterator it = putAllOp.eventIterator(); it.hasNext();) {
-      @Unretained
       EntryEventImpl event = (EntryEventImpl) it.next();
 
       if (successfulKeys.contains(event.getKey())) {
@@ -9684,7 +9467,6 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
     }
 
     for (Iterator it = removeAllOp.eventIterator(); it.hasNext();) {
-      @Unretained
       EntryEventImpl event = (EntryEventImpl) it.next();
 
       if (successfulKeys.contains(event.getKey())) {
@@ -10211,13 +9993,11 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
     assert getScope().isLocal();
     if (event.isLocal()) {
       if (event.getState().isCritical() && !event.getPreviousState().isCritical()
-          && (event.getType() == ResourceType.HEAP_MEMORY
-              || event.getType() == ResourceType.OFFHEAP_MEMORY && getOffHeap())) {
+          && (event.getType() == ResourceType.HEAP_MEMORY)) {
         // start rejecting operations
         setMemoryThresholdReached(true);
       } else if (!event.getState().isCritical() && event.getPreviousState().isCritical()
-          && (event.getType() == ResourceType.HEAP_MEMORY
-              || event.getType() == ResourceType.OFFHEAP_MEMORY && getOffHeap())) {
+          && (event.getType() == ResourceType.HEAP_MEMORY)) {
         setMemoryThresholdReached(false);
       }
     }
@@ -10309,15 +10089,10 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
 
   @Override
   public void destroyRecoveredEntry(Object key) {
-    @Released
     EntryEventImpl event = entryEventFactory.create(this, Operation.LOCAL_DESTROY, key, null, null,
         false, getMyId(), false);
-    try {
-      event.inhibitCacheListenerNotification(true);
-      mapDestroy(event, true, false, null, false, true);
-    } finally {
-      event.release();
-    }
+    event.inhibitCacheListenerNotification(true);
+    mapDestroy(event, true, false, null, false, true);
   }
 
   @Override
@@ -10498,7 +10273,6 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
     // an id will be generated by default. Null was passed in anyway.
     // generate EventID
 
-    @Released
     EntryEventImpl event = entryEventFactory.create(this, Operation.PUT_IF_ABSENT, key, value,
         callbackArgument, false, getMyId());
 
@@ -10519,8 +10293,6 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
       return null;
     } catch (EntryNotFoundException ignore) {
       return event.getOldValue();
-    } finally {
-      event.release();
     }
   }
 
@@ -10548,7 +10320,6 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
       value = Token.INVALID;
     }
 
-    @Released
     EntryEventImpl event =
         entryEventFactory.create(this, Operation.REMOVE, key, null, callbackArg, false, getMyId());
 
@@ -10567,8 +10338,6 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
         throw new RegionDestroyedException(toString(), getFullPath(), rde);
       }
       throw rde;
-    } finally {
-      event.release();
     }
     return true;
   }
@@ -10594,7 +10363,6 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
     checkReadiness();
     checkForLimitedOrNoAccess();
 
-    @Released
     EntryEventImpl event = entryEventFactory.create(this, Operation.REPLACE, key, newValue,
         callbackArg, false, getMyId());
 
@@ -10625,8 +10393,6 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
     } catch (EntryNotFoundException ignore) {
       // put failed on server
       return false;
-    } finally {
-      event.release();
     }
   }
 
@@ -10654,7 +10420,6 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
     checkReadiness();
     checkForLimitedOrNoAccess();
 
-    @Released
     EntryEventImpl event =
         entryEventFactory.create(this, Operation.REPLACE, key, value, callbackArg, false,
             getMyId());
@@ -10677,8 +10442,6 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
     } catch (EntryNotFoundException ignore) {
       // put failed on server
       return null;
-    } finally {
-      event.release();
     }
   }
 
@@ -10691,66 +10454,61 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
     EventID eventId = clientEvent.getEventId();
     long startPut = getStatisticsClock().getTime();
 
-    @Released
     final EntryEventImpl event =
         entryEventFactory.create(this, Operation.PUT_IF_ABSENT, key, null,
             callbackArg, false, client.getDistributedMember(), true, eventId);
 
-    try {
-      event.setContext(client);
+    event.setContext(client);
 
-      // if this is a replayed operation we may already have a version tag
-      event.setVersionTag(clientEvent.getVersionTag());
-      event.setPossibleDuplicate(clientEvent.isPossibleDuplicate());
+    // if this is a replayed operation we may already have a version tag
+    event.setVersionTag(clientEvent.getVersionTag());
+    event.setPossibleDuplicate(clientEvent.isPossibleDuplicate());
 
-      // Set the new value to the input byte[] if it isn't null
-      if (value != null) {
-        // If the byte[] represents an object, then store it serialized
-        // in a CachedDeserializable; otherwise store it directly as a byte[]
-        if (isObject) {
-          // The value represents an object
-          event.setSerializedNewValue((byte[]) value);
-        } else {
-          // The value does not represent an object
-          event.setNewValue(value);
-        }
-      }
-
-      validateArguments(key, event.basicGetNewValue(), callbackArg);
-
-      // cannot overwrite an existing key
-      boolean ifNew = true;
-      // can create a new key
-      boolean ifOld = false;
-      // need the old value if the create fails
-      boolean requireOldValue = true;
-
-      boolean basicPut = basicPut(event, ifNew, ifOld, null, requireOldValue);
-
-      getCachePerfStats().endPut(startPut, false);
-      stopper.checkCancelInProgress(null);
-
-      Object oldValue = event.getRawOldValueAsHeapObject();
-      if (oldValue == Token.NOT_AVAILABLE) {
-        oldValue = AbstractRegion.handleNotAvailable(oldValue);
-      }
-
-      if (basicPut) {
-        clientEvent.setVersionTag(event.getVersionTag());
-        clientEvent.isConcurrencyConflict(event.isConcurrencyConflict());
+    // Set the new value to the input byte[] if it isn't null
+    if (value != null) {
+      // If the byte[] represents an object, then store it serialized
+      // in a CachedDeserializable; otherwise store it directly as a byte[]
+      if (isObject) {
+        // The value represents an object
+        event.setSerializedNewValue((byte[]) value);
       } else {
-        if (oldValue == null) {
-          // putIfAbsent on server can return null if the
-          // operation was not performed (oldValue in cache was null).
-          // We return the INVALID token instead of null to distinguish
-          // this case from successful operation
-          return Token.INVALID;
-        }
+        // The value does not represent an object
+        event.setNewValue(value);
       }
-      return oldValue;
-    } finally {
-      event.release();
     }
+
+    validateArguments(key, event.basicGetNewValue(), callbackArg);
+
+    // cannot overwrite an existing key
+    boolean ifNew = true;
+    // can create a new key
+    boolean ifOld = false;
+    // need the old value if the create fails
+    boolean requireOldValue = true;
+
+    boolean basicPut = basicPut(event, ifNew, ifOld, null, requireOldValue);
+
+    getCachePerfStats().endPut(startPut, false);
+    stopper.checkCancelInProgress(null);
+
+    Object oldValue = event.getRawOldValueAsHeapObject();
+    if (oldValue == Token.NOT_AVAILABLE) {
+      oldValue = AbstractRegion.handleNotAvailable(oldValue);
+    }
+
+    if (basicPut) {
+      clientEvent.setVersionTag(event.getVersionTag());
+      clientEvent.isConcurrencyConflict(event.isConcurrencyConflict());
+    } else {
+      if (oldValue == null) {
+        // putIfAbsent on server can return null if the
+        // operation was not performed (oldValue in cache was null).
+        // We return the INVALID token instead of null to distinguish
+        // this case from successful operation
+        return Token.INVALID;
+      }
+    }
+    return oldValue;
   }
 
   @Override
@@ -10767,53 +10525,48 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
     EventID eventId = clientEvent.getEventId();
     long startPut = getStatisticsClock().getTime();
 
-    @Released
     final EntryEventImpl event =
         entryEventFactory.create(this, Operation.REPLACE, key, null,
             callbackArg, false, client.getDistributedMember(), true, eventId);
 
-    try {
-      event.setContext(client);
+    event.setContext(client);
 
-      // if this is a replayed operation we may already have a version tag
-      event.setVersionTag(clientEvent.getVersionTag());
-      event.setPossibleDuplicate(clientEvent.isPossibleDuplicate());
+    // if this is a replayed operation we may already have a version tag
+    event.setVersionTag(clientEvent.getVersionTag());
+    event.setPossibleDuplicate(clientEvent.isPossibleDuplicate());
 
-      // Set the new value to the input byte[] if it isn't null
-      if (value != null) {
-        // If the byte[] represents an object, then store it serialized
-        // in a CachedDeserializable; otherwise store it directly as a byte[]
-        if (isObject) {
-          // The value represents an object
-          event.setSerializedNewValue((byte[]) value);
-        } else {
-          // The value does not represent an object
-          event.setNewValue(value);
-        }
+    // Set the new value to the input byte[] if it isn't null
+    if (value != null) {
+      // If the byte[] represents an object, then store it serialized
+      // in a CachedDeserializable; otherwise store it directly as a byte[]
+      if (isObject) {
+        // The value represents an object
+        event.setSerializedNewValue((byte[]) value);
+      } else {
+        // The value does not represent an object
+        event.setNewValue(value);
       }
-
-      validateArguments(key, event.basicGetNewValue(), callbackArg);
-
-      // can overwrite an existing key
-      boolean ifNew = false;
-      // cannot create a new key
-      boolean ifOld = true;
-      boolean requireOldValue = false;
-
-      boolean success = basicPut(event, ifNew, ifOld, expectedOldValue, requireOldValue);
-
-      clientEvent.isConcurrencyConflict(event.isConcurrencyConflict());
-      if (success) {
-        clientEvent.setVersionTag(event.getVersionTag());
-      }
-
-      getCachePerfStats().endPut(startPut, false);
-      stopper.checkCancelInProgress(null);
-
-      return success;
-    } finally {
-      event.release();
     }
+
+    validateArguments(key, event.basicGetNewValue(), callbackArg);
+
+    // can overwrite an existing key
+    boolean ifNew = false;
+    // cannot create a new key
+    boolean ifOld = true;
+    boolean requireOldValue = false;
+
+    boolean success = basicPut(event, ifNew, ifOld, expectedOldValue, requireOldValue);
+
+    clientEvent.isConcurrencyConflict(event.isConcurrencyConflict());
+    if (success) {
+      clientEvent.setVersionTag(event.getVersionTag());
+    }
+
+    getCachePerfStats().endPut(startPut, false);
+    stopper.checkCancelInProgress(null);
+
+    return success;
   }
 
   // TODO: fromClient is always true
@@ -10825,60 +10578,55 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
     EventID eventId = clientEvent.getEventId();
     long startPut = getStatisticsClock().getTime();
 
-    @Released
     final EntryEventImpl event =
         entryEventFactory.create(this, Operation.REPLACE, key, null,
             callbackArg, false, client.getDistributedMember(), true, eventId);
 
-    try {
-      event.setContext(client);
+    event.setContext(client);
 
-      // if this is a replayed operation we may already have a version tag
-      event.setVersionTag(clientEvent.getVersionTag());
-      event.setPossibleDuplicate(clientEvent.isPossibleDuplicate());
+    // if this is a replayed operation we may already have a version tag
+    event.setVersionTag(clientEvent.getVersionTag());
+    event.setPossibleDuplicate(clientEvent.isPossibleDuplicate());
 
-      // Set the new value to the input byte[] if it isn't null
-      if (value != null) {
-        // If the byte[] represents an object, then store it serialized
-        // in a CachedDeserializable; otherwise store it directly as a byte[]
-        if (isObject) {
-          // The value represents an object
-          event.setSerializedNewValue((byte[]) value);
-        } else {
-          // The value does not represent an object
-          event.setNewValue(value);
-        }
+    // Set the new value to the input byte[] if it isn't null
+    if (value != null) {
+      // If the byte[] represents an object, then store it serialized
+      // in a CachedDeserializable; otherwise store it directly as a byte[]
+      if (isObject) {
+        // The value represents an object
+        event.setSerializedNewValue((byte[]) value);
+      } else {
+        // The value does not represent an object
+        event.setNewValue(value);
       }
-
-      validateArguments(key, event.basicGetNewValue(), callbackArg);
-
-      // can overwrite an existing key
-      boolean ifNew = false;
-      // cannot create a new key
-      boolean ifOld = true;
-      boolean requireOldValue = true;
-
-      boolean succeeded = basicPut(event, ifNew, ifOld, null, requireOldValue);
-
-      getCachePerfStats().endPut(startPut, false);
-      stopper.checkCancelInProgress(null);
-
-      clientEvent.isConcurrencyConflict(event.isConcurrencyConflict());
-      if (succeeded) {
-        clientEvent.setVersionTag(event.getVersionTag());
-        Object oldValue = event.getRawOldValueAsHeapObject();
-        if (oldValue == Token.NOT_AVAILABLE) {
-          oldValue = AbstractRegion.handleNotAvailable(oldValue);
-        }
-        if (oldValue == null) {
-          oldValue = Token.INVALID;
-        }
-        return oldValue;
-      }
-      return null;
-    } finally {
-      event.release();
     }
+
+    validateArguments(key, event.basicGetNewValue(), callbackArg);
+
+    // can overwrite an existing key
+    boolean ifNew = false;
+    // cannot create a new key
+    boolean ifOld = true;
+    boolean requireOldValue = true;
+
+    boolean succeeded = basicPut(event, ifNew, ifOld, null, requireOldValue);
+
+    getCachePerfStats().endPut(startPut, false);
+    stopper.checkCancelInProgress(null);
+
+    clientEvent.isConcurrencyConflict(event.isConcurrencyConflict());
+    if (succeeded) {
+      clientEvent.setVersionTag(event.getVersionTag());
+      Object oldValue = event.getRawOldValueAsHeapObject();
+      if (oldValue == Token.NOT_AVAILABLE) {
+        oldValue = AbstractRegion.handleNotAvailable(oldValue);
+      }
+      if (oldValue == null) {
+        oldValue = Token.INVALID;
+      }
+      return oldValue;
+    }
+    return null;
   }
 
   // TODO: fromClient is always true
@@ -10887,25 +10635,20 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
       throws TimeoutException, EntryNotFoundException, CacheWriterException {
 
     // Create an event and put the entry
-    @Released
     final EntryEventImpl event =
         entryEventFactory.create(this, Operation.REMOVE, key, null,
             callbackArg, false, memberId.getDistributedMember(), true, clientEvent.getEventId());
 
+    event.setContext(memberId);
+    event.setVersionTag(clientEvent.getVersionTag());
+    event.setPossibleDuplicate(clientEvent.isPossibleDuplicate());
+    // we rely on exceptions to tell us that the operation didn't take
+    // place. AbstractRegionMap performs the checks and throws the exception
     try {
-      event.setContext(memberId);
-      event.setVersionTag(clientEvent.getVersionTag());
-      event.setPossibleDuplicate(clientEvent.isPossibleDuplicate());
-      // we rely on exceptions to tell us that the operation didn't take
-      // place. AbstractRegionMap performs the checks and throws the exception
-      try {
-        basicDestroy(event, true, expectedOldValue);
-      } finally {
-        clientEvent.setVersionTag(event.getVersionTag());
-        clientEvent.setIsRedestroyedEntry(event.getIsRedestroyedEntry());
-      }
+      basicDestroy(event, true, expectedOldValue);
     } finally {
-      event.release();
+      clientEvent.setVersionTag(event.getVersionTag());
+      clientEvent.setIsRedestroyedEntry(event.getIsRedestroyedEntry());
     }
   }
 
@@ -11347,33 +11090,19 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
     /**
      * released by the release method
      */
-    @Retained
     private final InternalCacheEvent event;
 
     private final EnumListenerEvent op;
 
     EventDispatcher(InternalCacheEvent event, EnumListenerEvent op) {
-      if (offHeap && event instanceof EntryEventImpl) {
-        // Make a copy that has its own off-heap refcount
-        event = new EntryEventImpl((EntryEventImpl) event);
-      }
       this.event = event;
       this.op = op;
     }
 
     @Override
     public void run() {
-      try {
-        dispatchEvent(LocalRegion.this, event, op);
-      } finally {
-        release();
-      }
+      dispatchEvent(LocalRegion.this, event, op);
     }
 
-    void release() {
-      if (offHeap && event instanceof EntryEventImpl) {
-        ((Releasable) event).release();
-      }
-    }
   }
 }

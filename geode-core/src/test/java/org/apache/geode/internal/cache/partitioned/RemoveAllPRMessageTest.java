@@ -104,7 +104,6 @@ public class RemoveAllPRMessageTest {
     InternalDistributedSystem ids = mock(InternalDistributedSystem.class);
     when(bucketRegion.getCache()).thenReturn(cache);
     when(cache.getDistributedSystem()).thenReturn(ids);
-    when(ids.getOffHeapStore()).thenReturn(null);
 
     message.doLocalRemoveAll(partitionedRegion, mock(InternalDistributedMember.class), true);
 
@@ -123,7 +122,6 @@ public class RemoveAllPRMessageTest {
     InternalDistributedSystem ids = mock(InternalDistributedSystem.class);
     when(bucketRegion.getCache()).thenReturn(cache);
     when(cache.getDistributedSystem()).thenReturn(ids);
-    when(ids.getOffHeapStore()).thenReturn(null);
 
     message.doLocalRemoveAll(partitionedRegion, mock(InternalDistributedMember.class), true);
 

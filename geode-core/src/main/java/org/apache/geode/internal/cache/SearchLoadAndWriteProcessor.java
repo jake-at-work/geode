@@ -69,9 +69,6 @@ import org.apache.geode.internal.cache.LocalRegion.InitializationLevel;
 import org.apache.geode.internal.cache.versions.DiskVersionTag;
 import org.apache.geode.internal.cache.versions.VersionStamp;
 import org.apache.geode.internal.cache.versions.VersionTag;
-import org.apache.geode.internal.offheap.Releasable;
-import org.apache.geode.internal.offheap.annotations.Released;
-import org.apache.geode.internal.offheap.annotations.Retained;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -218,22 +215,13 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
     if (scope == Scope.LOCAL && (region.getPartitionAttributes() == null)) {
       return false;
     }
-    @Released
     CacheEvent listenerEvent = getEventForListener(event);
-    try {
-      if (action == BEFOREUPDATE && listenerEvent.getOperation().isCreate()) {
-        action = BEFORECREATE;
-      }
-      boolean cacheWrote = netWrite(listenerEvent, action, netWriteRecipients);
-      requestInProgress = false;
-      return cacheWrote;
-    } finally {
-      if (event != listenerEvent) {
-        if (listenerEvent instanceof EntryEventImpl) {
-          ((Releasable) listenerEvent).release();
-        }
-      }
+    if (action == BEFOREUPDATE && listenerEvent.getOperation().isCreate()) {
+      action = BEFORECREATE;
     }
+    boolean cacheWrote = netWrite(listenerEvent, action, netWriteRecipients);
+    requestInProgress = false;
+    return cacheWrote;
   }
 
   @Override
@@ -824,14 +812,12 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
    * @param event the original event
    * @return the original event or a new event having a change in operation
    */
-  @Retained
   private CacheEvent getEventForListener(CacheEvent event) {
     Operation op = event.getOperation();
     if (!op.isEntry()) {
       return event;
     } else {
       EntryEventImpl r = (EntryEventImpl) event;
-      @Retained
       EntryEventImpl result = r;
       if (r.isSingleHop()) {
         // fix for bug #46130 - origin remote incorrect for one-hop operation in receiver
@@ -874,7 +860,6 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
         return false;
       }
     }
-    @Released
     CacheEvent event = getEventForListener(pevent);
 
     int action = paction;
@@ -908,11 +893,6 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
     } finally {
       if (event instanceof EntryEventImpl) {
         ((EntryEventImpl) event).setReadOldValueFromDisk(false);
-      }
-      if (event != pevent) {
-        if (event instanceof EntryEventImpl) {
-          ((Releasable) event).release();
-        }
       }
     }
     localWrite = true;

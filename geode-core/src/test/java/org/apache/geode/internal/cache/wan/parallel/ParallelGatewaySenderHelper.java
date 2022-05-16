@@ -108,7 +108,7 @@ public class ParallelGatewaySenderHelper {
     when(queueRegion.getCache()).thenReturn(cache);
     EvictionAttributesImpl ea = (EvictionAttributesImpl) EvictionAttributes
         .createLRUMemoryAttributes(100, null, EvictionAction.OVERFLOW_TO_DISK);
-    EvictionController eviction = AbstractEvictionController.create(ea, false,
+    EvictionController eviction = AbstractEvictionController.create(ea,
         cache.getDistributedSystem(), "queueRegion");
     when(queueRegion.getEvictionController()).thenReturn(eviction);
     return queueRegion;

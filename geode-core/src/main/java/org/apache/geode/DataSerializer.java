@@ -60,7 +60,6 @@ import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.internal.cache.InternalCache;
 import org.apache.geode.internal.cache.tier.sockets.ClientProxyMembershipID;
 import org.apache.geode.internal.logging.log4j.LogMarker;
-import org.apache.geode.internal.offheap.StoredObject;
 import org.apache.geode.internal.serialization.DSCODE;
 import org.apache.geode.internal.serialization.KnownVersion;
 import org.apache.geode.internal.serialization.StaticSerialization;
@@ -1362,16 +1361,7 @@ public abstract class DataSerializer {
   public static void writeObjectAsByteArray(Object obj, DataOutput out) throws IOException {
     Object object = obj;
     if (obj instanceof CachedDeserializable) {
-      if (obj instanceof StoredObject) {
-        StoredObject so = (StoredObject) obj;
-        if (logger.isTraceEnabled(LogMarker.SERIALIZER_VERBOSE)) {
-          logger.trace(LogMarker.SERIALIZER_VERBOSE, "writeObjectAsByteArray StoredObject");
-        }
-        so.sendAsByteArray(out);
-        return;
-      } else {
-        object = ((CachedDeserializable) obj).getSerializedValue();
-      }
+      object = ((CachedDeserializable) obj).getSerializedValue();
     }
     if (logger.isTraceEnabled(LogMarker.SERIALIZER_VERBOSE)) {
       if (object == null) {

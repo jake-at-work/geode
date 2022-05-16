@@ -54,7 +54,7 @@ public class ParallelGatewaySenderAlertThresholdDistributedTest extends WANTestB
     vm7.invoke(createSenderAlertThresholdWithoutDiskStoreRunnable);
 
     SerializableRunnableIF createPartitionedRegionRunnableln =
-        () -> WANTestBase.createPartitionedRegion(getUniqueName(), "ln", 1, 100, isOffHeap());
+        () -> WANTestBase.createPartitionedRegion(getUniqueName(), "ln", 1, 100);
     vm4.invoke(createPartitionedRegionRunnableln);
     vm5.invoke(createPartitionedRegionRunnableln);
     vm6.invoke(createPartitionedRegionRunnableln);
@@ -68,7 +68,7 @@ public class ParallelGatewaySenderAlertThresholdDistributedTest extends WANTestB
     vm7.invoke(() -> WANTestBase.pauseSender("ln"));
 
     SerializableRunnableIF createPartitionedRegionRunnable =
-        () -> WANTestBase.createPartitionedRegion(getUniqueName(), null, 1, 100, isOffHeap());
+        () -> WANTestBase.createPartitionedRegion(getUniqueName(), null, 1, 100);
     vm2.invoke(createPartitionedRegionRunnable);
     vm3.invoke(createPartitionedRegionRunnable);
 
@@ -140,7 +140,7 @@ public class ParallelGatewaySenderAlertThresholdDistributedTest extends WANTestB
     vm7.invoke(createSenderAlertThresholdWithoutDiskStoreRunnable);
 
     SerializableRunnableIF createPartitionedRegionRunnableln =
-        () -> WANTestBase.createPartitionedRegion(getUniqueName(), "ln", 1, 100, isOffHeap());
+        () -> WANTestBase.createPartitionedRegion(getUniqueName(), "ln", 1, 100);
     vm4.invoke(createPartitionedRegionRunnableln);
     vm5.invoke(createPartitionedRegionRunnableln);
     vm6.invoke(createPartitionedRegionRunnableln);
@@ -149,7 +149,7 @@ public class ParallelGatewaySenderAlertThresholdDistributedTest extends WANTestB
     startSenderInVMs("ln", vm4, vm5, vm6, vm7);
 
     SerializableRunnableIF createPartitionedRegionRunnable =
-        () -> WANTestBase.createPartitionedRegion(getUniqueName(), null, 1, 100, isOffHeap());
+        () -> WANTestBase.createPartitionedRegion(getUniqueName(), null, 1, 100);
     vm2.invoke(createPartitionedRegionRunnable);
     vm3.invoke(createPartitionedRegionRunnable);
 

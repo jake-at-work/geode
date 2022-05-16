@@ -21,7 +21,6 @@ import org.apache.geode.cache.EntryDestroyedException;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionDestroyedException;
 import org.apache.geode.cache.StatisticsDisabledException;
-import org.apache.geode.internal.offheap.annotations.Unretained;
 
 /** ******************* Class Entry ***************************************** */
 
@@ -90,17 +89,14 @@ public class TXEntry implements Region.Entry {
   }
 
   @Override
-  @Unretained
   public Object getValue() {
     return getValue(true);
   }
 
-  @Unretained
   public Object getValue(boolean createIfAbsent) {
     checkTX();
     // Object value = this.localRegion.getDeserialized(this.key, false, this.myTX,
     // this.rememberReads);
-    @Unretained
     Object value = myTX.getDeserializedValue(keyInfo, localRegion, false, false, false,
         null, false, false, createIfAbsent);
     if (value == null) {

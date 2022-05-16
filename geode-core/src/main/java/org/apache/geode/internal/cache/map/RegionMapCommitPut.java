@@ -30,7 +30,6 @@ import org.apache.geode.internal.cache.RegionEntry;
 import org.apache.geode.internal.cache.TXEntryState;
 import org.apache.geode.internal.cache.TXRmtEvent;
 import org.apache.geode.internal.cache.Token;
-import org.apache.geode.internal.offheap.annotations.Released;
 import org.apache.geode.internal.sequencelog.EntryLogger;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 
@@ -52,7 +51,7 @@ public class RegionMapCommitPut extends AbstractRegionMapPut {
   private Operation putOp;
 
   public RegionMapCommitPut(FocusedRegionMap focusedRegionMap, InternalRegion owner,
-      @Released EntryEventImpl callbackEvent, Operation putOp, boolean didDestroy,
+      EntryEventImpl callbackEvent, Operation putOp, boolean didDestroy,
       TransactionId txId, TXRmtEvent txEvent, List<EntryEventImpl> pendingCallbacks,
       TXEntryState txEntryState) {
     super(focusedRegionMap, owner, callbackEvent);
@@ -279,9 +278,6 @@ public class RegionMapCommitPut extends AbstractRegionMapPut {
     }
     if (getOwner().getConcurrencyChecksEnabled() && txEntryState != null) {
       txEntryState.setVersionTag(getEvent().getVersionTag());
-    }
-    if (!isCallbackEventInPending()) {
-      getEvent().release();
     }
   }
 

@@ -19,8 +19,6 @@ import java.util.Arrays;
 
 import org.apache.geode.internal.HeapDataOutputStream;
 import org.apache.geode.internal.InternalDataSerializer;
-import org.apache.geode.internal.offheap.StoredObject;
-import org.apache.geode.internal.offheap.annotations.Unretained;
 import org.apache.geode.internal.serialization.KnownVersion;
 import org.apache.geode.pdx.PdxInstance;
 import org.apache.geode.pdx.PdxSerializable;
@@ -29,17 +27,13 @@ import org.apache.geode.pdx.PdxSerializer;
 
 public class ValueComparisonHelper {
 
-  public static boolean checkEquals(@Unretained Object v1, @Unretained Object v2,
+  public static boolean checkEquals(Object v1, Object v2,
       boolean isCompressedOffHeap, InternalCache cache) {
     // need to give PdxInstance#equals priority
     if (v1 instanceof PdxInstance) {
       return checkPdxEquals((PdxInstance) v1, v2, cache);
     } else if (v2 instanceof PdxInstance) {
       return checkPdxEquals((PdxInstance) v2, v1, cache);
-    } else if (v1 instanceof StoredObject) {
-      return checkOffHeapEquals((StoredObject) v1, v2, cache);
-    } else if (v2 instanceof StoredObject) {
-      return checkOffHeapEquals((StoredObject) v2, v1, cache);
     } else if (v1 instanceof CachedDeserializable) {
       return checkCDEquals((CachedDeserializable) v1, v2, isCompressedOffHeap, cache);
     } else if (v2 instanceof CachedDeserializable) {
@@ -168,41 +162,6 @@ public class ValueComparisonHelper {
       }
     }
     return basicEquals(obj, pdx);
-  }
-
-  private static boolean checkOffHeapEquals(@Unretained StoredObject ohVal, @Unretained Object obj,
-      InternalCache cache) {
-    if (ohVal.isSerializedPdxInstance()) {
-      PdxInstance pi = InternalDataSerializer.readPdxInstance(ohVal.getSerializedValue(), cache);
-      return ValueComparisonHelper.checkPdxEquals(pi, obj, cache);
-    }
-    if (obj instanceof StoredObject) {
-      return ohVal.checkDataEquals((StoredObject) obj);
-    } else {
-      byte[] serializedObj;
-      if (obj instanceof CachedDeserializable) {
-        CachedDeserializable cdObj = (CachedDeserializable) obj;
-        if (!ohVal.isSerialized()) {
-          assert cdObj.isSerialized();
-          return false;
-        }
-        serializedObj = cdObj.getSerializedValue();
-      } else if (obj instanceof byte[]) {
-        if (ohVal.isSerialized()) {
-          return false;
-        }
-        serializedObj = (byte[]) obj;
-      } else {
-        if (!ohVal.isSerialized()) {
-          return false;
-        }
-        if (obj == null || obj == Token.NOT_AVAILABLE || Token.isInvalidOrRemoved(obj)) {
-          return false;
-        }
-        serializedObj = EntryEventImpl.serialize(obj);
-      }
-      return ohVal.checkDataEquals(serializedObj);
-    }
   }
 
   private static boolean checkCDEquals(CachedDeserializable cd, Object obj,

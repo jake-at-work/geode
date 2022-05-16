@@ -41,7 +41,6 @@ import org.apache.geode.internal.cache.versions.VersionHolder;
 import org.apache.geode.internal.cache.versions.VersionSource;
 import org.apache.geode.internal.cache.versions.VersionStamp;
 import org.apache.geode.internal.cache.versions.VersionTag;
-import org.apache.geode.internal.offheap.annotations.Released;
 import org.apache.geode.internal.serialization.ByteArrayDataInput;
 import org.apache.geode.internal.serialization.KnownVersion;
 import org.apache.geode.internal.util.concurrent.ConcurrentMapWithReusableEntries;
@@ -272,7 +271,6 @@ class ProxyRegionMap extends BaseRegionMap {
       }
       if (shouldInvokeCallbacks(owner, !inTokenMode)) {
         // fix for bug 39526
-        @Released
         EntryEventImpl e =
             txCallbackEventFactory.createCallbackEvent(owner, op, key, null,
                 rmtOrigin, event, eventId, aCallbackArgument, filterRoutingInfo, bridgeContext,
@@ -296,7 +294,6 @@ class ProxyRegionMap extends BaseRegionMap {
       }
       if (shouldInvokeCallbacks(owner, owner.isInitialized())) {
         // fix for bug 39526
-        @Released
         EntryEventImpl e = txCallbackEventFactory.createCallbackEvent(owner,
             localOp ? Operation.LOCAL_INVALIDATE : Operation.INVALIDATE, key, newValue, rmtOrigin,
             event, eventId, aCallbackArgument, filterRoutingInfo, bridgeContext, txEntryState,
@@ -322,7 +319,6 @@ class ProxyRegionMap extends BaseRegionMap {
       }
       if (shouldInvokeCallbacks(owner, owner.isInitialized())) {
         // fix for bug 39526
-        @Released
         EntryEventImpl e = txCallbackEventFactory
             .createCallbackEvent(owner, putOperation, key,
                 newValue, rmtOrigin, event, eventId, aCallbackArgument, filterRoutingInfo,

@@ -82,7 +82,6 @@ import org.apache.geode.internal.cache.versions.VersionTag;
 import org.apache.geode.internal.logging.InternalLogWriter;
 import org.apache.geode.internal.logging.log4j.LogMarker;
 import org.apache.geode.internal.net.SocketCreator;
-import org.apache.geode.internal.offheap.annotations.Released;
 import org.apache.geode.internal.sequencelog.EntryLogger;
 import org.apache.geode.internal.serialization.ByteArrayDataInput;
 import org.apache.geode.internal.serialization.KnownVersion;
@@ -691,7 +690,6 @@ public class CacheClientUpdater extends LoggingThread implements ClientUpdater, 
       } else if (region.hasServerProxy() && ServerResponseMatrix
           .checkForValidStateAfterNotification(region, key, clientMessage.getMessageType())
           && (withInterest || !withCQs)) {
-        @Released
         EntryEventImpl newEvent = null;
 
         try {
@@ -732,10 +730,6 @@ public class CacheClientUpdater extends LoggingThread implements ClientUpdater, 
               eventId);
 
           isOpCompleted = true;
-        } finally {
-          if (newEvent != null) {
-            newEvent.release();
-          }
         }
 
         if (isDebugEnabled) {

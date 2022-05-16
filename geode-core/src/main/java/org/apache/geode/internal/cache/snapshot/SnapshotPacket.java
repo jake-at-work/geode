@@ -29,8 +29,6 @@ import org.apache.geode.internal.cache.EntrySnapshot;
 import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.cache.NonTXEntry;
 import org.apache.geode.internal.cache.Token;
-import org.apache.geode.internal.offheap.OffHeapHelper;
-import org.apache.geode.internal.offheap.annotations.Released;
 import org.apache.geode.internal.serialization.DataSerializableFixedID;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.KnownVersion;
@@ -68,14 +66,9 @@ public class SnapshotPacket implements DataSerializableFixedID {
     public <K, V> SnapshotRecord(LocalRegion region, Entry<K, V> entry) throws IOException {
       key = BlobHelper.serializeToBlob(entry.getKey());
       if (entry instanceof NonTXEntry && region != null) {
-        @Released
         Object v =
             ((NonTXEntry) entry).getRegionEntry().getValueOffHeapOrDiskWithoutFaultIn(region);
-        try {
-          value = convertToBytes(v);
-        } finally {
-          OffHeapHelper.release(v);
-        }
+        value = convertToBytes(v);
       } else if (entry instanceof EntrySnapshot) {
         EntrySnapshot entrySnapshot = (EntrySnapshot) entry;
         Object entryValue = entrySnapshot.getValuePreferringCachedDeserializable();

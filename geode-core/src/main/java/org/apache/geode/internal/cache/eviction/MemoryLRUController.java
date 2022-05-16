@@ -35,30 +35,29 @@ import org.apache.geode.internal.cache.persistence.DiskRegionView;
 public class MemoryLRUController extends SizeLRUController {
 
   private long limit;
-  private final boolean isOffHeap;
 
   private static final long ONE_MEG = 1024L * 1024L;
 
   /**
    * Create an instance of the capacity controller the given settings.
    *
-   *
    * @param megabytes the amount of memory allowed in this region specified in megabytes.<br>
    *        <p>
-   *        For a region with {@link org.apache.geode.cache.DataPolicy#PARTITION}, it is overridden
-   *        by {@link org.apache.geode.cache.PartitionAttributesFactory#setLocalMaxMemory(int) "
+   *        For a region with {@link org.apache.geode.cache.DataPolicy#PARTITION}, it is
+   *        overridden by
+   *        {@link
+   *        org.apache.geode.cache.PartitionAttributesFactory#setLocalMaxMemory(int) "
    *        local max memory "} specified for the
-   *        {@link org.apache.geode.cache.PartitionAttributes}. It signifies the amount of memory
-   *        allowed in the region, collectively for its primary buckets and redundant copies for
-   *        this VM. It can be different for the same region in different VMs.
-   * @param sizer classname of a class that implements ObjectSizer, used to compute object sizes for
-   *        MemLRU
-   * @param isOffHeap true if the region that owns this cc is stored off heap
+   *        {@link org.apache.geode.cache.PartitionAttributes}. It signifies the amount of
+   *        memory allowed in the region, collectively for its primary buckets and
+   *        redundant copies for this VM. It can be different for the same region in
+   *        different VMs.
+   * @param sizer classname of a class that implements ObjectSizer, used to compute object sizes
+   *        for MemLRU
    */
   public MemoryLRUController(EvictionCounters evictionCounters, int megabytes, ObjectSizer sizer,
-      EvictionAction evictionAction, boolean isOffHeap, EvictionAlgorithm algorithm) {
+      EvictionAction evictionAction, EvictionAlgorithm algorithm) {
     super(evictionCounters, evictionAction, sizer, algorithm);
-    this.isOffHeap = isOffHeap;
     setMaximumMegabytes(megabytes);
   }
 
@@ -97,15 +96,9 @@ public class MemoryLRUController extends SizeLRUController {
       return 0;
     }
 
-    int size = 0;
-    int keySize = 0;
-    if (!isOffHeap) {
-      size += getPerEntryOverhead();
-      keySize = sizeof(key);
-    }
-    int valueSize = sizeof(value);
-    size += keySize;
-    size += valueSize;
+    int size = getPerEntryOverhead();
+    size += sizeof(key);
+    size += sizeof(value);
     return size;
   }
 

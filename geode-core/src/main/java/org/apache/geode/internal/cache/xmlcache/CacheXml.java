@@ -767,7 +767,9 @@ public abstract class CacheXml implements EntityResolver2, ErrorHandler {
    * The name of the <code>off-heap</code> attribute
    *
    * @since Geode 1.0
+   * @deprecated No replacement.
    */
+  @Deprecated
   protected static final String OFF_HEAP = "off-heap";
 
   protected static final String TCP_NO_DELAY = "tcp-no-delay";

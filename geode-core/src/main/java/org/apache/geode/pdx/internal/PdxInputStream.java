@@ -19,7 +19,6 @@ import java.nio.ByteBuffer;
 import java.util.Date;
 
 import org.apache.geode.DataSerializer;
-import org.apache.geode.internal.offheap.StoredObject;
 import org.apache.geode.internal.tcp.ByteBufferInputStream;
 import org.apache.geode.internal.tcp.ImmutableByteBufferInputStream;
 import org.apache.geode.pdx.PdxSerializationException;
@@ -76,10 +75,6 @@ public class PdxInputStream extends ImmutableByteBufferInputStream {
 
   public PdxInputStream() {
     // for serialization
-  }
-
-  public PdxInputStream(StoredObject blob) {
-    super(blob);
   }
 
   public String readString(int positionForField) {

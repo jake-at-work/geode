@@ -51,7 +51,6 @@ import org.apache.geode.internal.cache.RemoteOperationException;
 import org.apache.geode.internal.cache.versions.DiskVersionTag;
 import org.apache.geode.internal.cache.versions.VersionTag;
 import org.apache.geode.internal.logging.log4j.LogMarker;
-import org.apache.geode.internal.offheap.annotations.Released;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -174,60 +173,55 @@ public class RemoteInvalidateMessage extends RemoteDestroyMessage {
       eventSender = getSender();
     }
     final Object key = getKey();
-    @Released
     final EntryEventImpl event = EntryEventImpl.create(r, getOperation(), key, null, /* newValue */
         getCallbackArg(),
         useOriginRemote/* originRemote - false to force distribution in buckets */,
         eventSender, true/* generateCallbacks */, false/* initializeId */);
-    try {
-      if (bridgeContext != null) {
-        event.setContext(bridgeContext);
-      }
-
-      event.setCausedByMessage(this);
-
-      if (versionTag != null) {
-        versionTag.replaceNullIDs(getSender());
-        event.setVersionTag(versionTag);
-      }
-      Assert.assertTrue(eventId != null);
-      event.setEventId(eventId);
-
-      event.setPossibleDuplicate(possibleDuplicate);
-
-      // for cqs, which needs old value based on old value being sent on wire.
-      boolean eventShouldHaveOldValue = getHasOldValue();
-      if (eventShouldHaveOldValue) {
-        if (getOldValueIsSerialized()) {
-          event.setSerializedOldValue(getOldValueBytes());
-        } else {
-          event.setOldValue(getOldValueBytes());
-        }
-      }
-      boolean sendReply = true;
-      try {
-        r.checkReadiness();
-        r.checkForLimitedOrNoAccess();
-        r.basicInvalidate(event);
-        if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
-          logger.trace(LogMarker.DM_VERBOSE, "remoteInvalidated key: {}", key);
-        }
-        sendReply(getSender(), processorId, dm, /* ex */null, event.getRegion(),
-            event.getVersionTag(), startTime);
-        sendReply = false;
-      } catch (EntryNotFoundException eee) {
-        // failed = true;
-        if (logger.isDebugEnabled()) {
-          logger.debug("operateOnRegion caught EntryNotFoundException");
-        }
-        sendReply(getSender(), getProcessorId(), dm, new ReplyException(eee), r, null, startTime);
-        sendReply = false; // this prevents us from acking later
-      }
-
-      return sendReply;
-    } finally {
-      event.release();
+    if (bridgeContext != null) {
+      event.setContext(bridgeContext);
     }
+
+    event.setCausedByMessage(this);
+
+    if (versionTag != null) {
+      versionTag.replaceNullIDs(getSender());
+      event.setVersionTag(versionTag);
+    }
+    Assert.assertTrue(eventId != null);
+    event.setEventId(eventId);
+
+    event.setPossibleDuplicate(possibleDuplicate);
+
+    // for cqs, which needs old value based on old value being sent on wire.
+    boolean eventShouldHaveOldValue = getHasOldValue();
+    if (eventShouldHaveOldValue) {
+      if (getOldValueIsSerialized()) {
+        event.setSerializedOldValue(getOldValueBytes());
+      } else {
+        event.setOldValue(getOldValueBytes());
+      }
+    }
+    boolean sendReply = true;
+    try {
+      r.checkReadiness();
+      r.checkForLimitedOrNoAccess();
+      r.basicInvalidate(event);
+      if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
+        logger.trace(LogMarker.DM_VERBOSE, "remoteInvalidated key: {}", key);
+      }
+      sendReply(getSender(), processorId, dm, /* ex */null, event.getRegion(),
+          event.getVersionTag(), startTime);
+      sendReply = false;
+    } catch (EntryNotFoundException eee) {
+      // failed = true;
+      if (logger.isDebugEnabled()) {
+        logger.debug("operateOnRegion caught EntryNotFoundException");
+      }
+      sendReply(getSender(), getProcessorId(), dm, new ReplyException(eee), r, null, startTime);
+      sendReply = false; // this prevents us from acking later
+    }
+
+    return sendReply;
   }
 
   @Override

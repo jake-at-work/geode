@@ -86,13 +86,11 @@ import org.apache.geode.internal.cache.control.InternalResourceManager;
 import org.apache.geode.internal.cache.control.ResourceAdvisor;
 import org.apache.geode.internal.cache.event.EventTrackerExpiryTask;
 import org.apache.geode.internal.cache.eviction.HeapEvictor;
-import org.apache.geode.internal.cache.eviction.OffHeapEvictor;
 import org.apache.geode.internal.cache.extension.ExtensionPoint;
 import org.apache.geode.internal.cache.persistence.PersistentMemberManager;
 import org.apache.geode.internal.cache.tier.sockets.CacheClientNotifier;
 import org.apache.geode.internal.cache.tier.sockets.ClientProxyMembershipID;
 import org.apache.geode.internal.logging.InternalLogWriter;
-import org.apache.geode.internal.offheap.MemoryAllocator;
 import org.apache.geode.internal.security.SecurityService;
 import org.apache.geode.internal.statistics.StatisticsClock;
 import org.apache.geode.management.internal.JmxManagerAdvisor;
@@ -670,11 +668,6 @@ public class InternalCacheForClientAccess implements InternalCache {
   @Override
   public void purgeCCPTimer() {
     delegate.purgeCCPTimer();
-  }
-
-  @Override
-  public MemoryAllocator getOffHeapStore() {
-    return delegate.getOffHeapStore();
   }
 
   @Override
@@ -1281,12 +1274,6 @@ public class InternalCacheForClientAccess implements InternalCache {
   @VisibleForTesting
   public HeapEvictor getHeapEvictor() {
     return delegate.getHeapEvictor();
-  }
-
-  @Override
-  @VisibleForTesting
-  public OffHeapEvictor getOffHeapEvictor() {
-    return delegate.getOffHeapEvictor();
   }
 
   @Override

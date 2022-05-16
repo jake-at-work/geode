@@ -18,7 +18,6 @@ import static java.lang.System.lineSeparator;
 
 import java.io.PrintStream;
 import java.util.EnumSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
@@ -33,7 +32,6 @@ import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.compression.Compressor;
 import org.apache.geode.internal.CopyOnWriteHashSet;
 import org.apache.geode.internal.cache.DiskInitFile.DiskRegionFlag;
-import org.apache.geode.internal.cache.entries.OffHeapRegionEntry;
 import org.apache.geode.internal.cache.persistence.DiskRegionView;
 import org.apache.geode.internal.cache.persistence.PersistentMemberID;
 import org.apache.geode.internal.cache.persistence.PersistentMemberPattern;
@@ -44,7 +42,6 @@ import org.apache.geode.internal.cache.versions.VersionSource;
 import org.apache.geode.internal.cache.versions.VersionTag;
 import org.apache.geode.internal.classloader.ClassPathLoader;
 import org.apache.geode.internal.logging.log4j.LogMarker;
-import org.apache.geode.internal.util.concurrent.ConcurrentMapWithReusableEntries;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 
 /**
@@ -85,8 +82,6 @@ public abstract class AbstractDiskRegion implements DiskRegionView {
   private int startingBucketId;
   private String compressorClassName;
   private Compressor compressor;
-
-  private boolean offHeap;
 
   /**
    * Records the version vector of what has been persisted to disk. This may lag behind the version
@@ -147,7 +142,6 @@ public abstract class AbstractDiskRegion implements DiskRegionView {
       versionVector = drv.getRegionVersionVector();
       compressorClassName = drv.getCompressorClassName();
       compressor = drv.getCompressor();
-      offHeap = drv.getOffHeap();
       if (drv instanceof PlaceHolderDiskRegion) {
         setRVVTrusted(((PlaceHolderDiskRegion) drv).getRVVTrusted());
       }
@@ -232,7 +226,6 @@ public abstract class AbstractDiskRegion implements DiskRegionView {
     versionVector = drv.getRegionVersionVector();
     compressorClassName = drv.getCompressorClassName();
     compressor = drv.getCompressor();
-    offHeap = drv.getOffHeap();
   }
 
   @Override
@@ -278,7 +271,7 @@ public abstract class AbstractDiskRegion implements DiskRegionView {
   public void setConfig(byte lruAlgorithm, byte lruAction, int lruLimit, int concurrencyLevel,
       int initialCapacity, float loadFactor, boolean statisticsEnabled, boolean isBucket,
       EnumSet<DiskRegionFlag> flags, String partitionName, int startingBucketId,
-      String compressorClassName, boolean offHeap) {
+      String compressorClassName) {
     this.lruAlgorithm = lruAlgorithm;
     this.lruAction = lruAction;
     this.lruLimit = lruLimit;
@@ -294,7 +287,6 @@ public abstract class AbstractDiskRegion implements DiskRegionView {
     this.partitionName = partitionName;
     this.startingBucketId = startingBucketId;
     this.compressorClassName = compressorClassName;
-    this.offHeap = offHeap;
     if (!ds.isOffline()) {
       createCompressorFromClassName();
     }
@@ -636,19 +628,6 @@ public abstract class AbstractDiskRegion implements DiskRegionView {
     if (isReadyForRecovery()) {
       ds.updateDiskRegion(this);
       entriesMapIncompatible = false;
-      if (entries != null) {
-        ConcurrentMapWithReusableEntries<Object, Object> other =
-            entries.getCustomEntryConcurrentHashMap();
-        for (Map.Entry<Object, Object> me : other.entrySetWithReusableEntries()) {
-          RegionEntry oldRe = (RegionEntry) me.getValue();
-          if (oldRe instanceof OffHeapRegionEntry) {
-            ((OffHeapRegionEntry) oldRe).release();
-          } else {
-            // no need to keep iterating; they are all either off heap or on heap.
-            break;
-          }
-        }
-      }
       entries = null;
       readyForRecovery = false;
     }
@@ -902,7 +881,7 @@ public abstract class AbstractDiskRegion implements DiskRegionView {
       }
     }
     msg += " -concurrencyLevel=" + getConcurrencyLevel() + " -initialCapacity="
-        + getInitialCapacity() + " -loadFactor=" + getLoadFactor() + " -offHeap=" + getOffHeap()
+        + getInitialCapacity() + " -loadFactor=" + getLoadFactor()
         + " -compressor=" + (getCompressorClassName() == null ? "none" : getCompressorClassName())
         + " -statisticsEnabled=" + getStatisticsEnabled();
     if (logger.isTraceEnabled(LogMarker.PERSIST_RECOVERY_VERBOSE)) {
@@ -944,8 +923,6 @@ public abstract class AbstractDiskRegion implements DiskRegionView {
     sb.append("-initialCapacity=" + getInitialCapacity());
     sb.append(lineSeparator);
     sb.append("-loadFactor=" + getLoadFactor());
-    sb.append(lineSeparator);
-    sb.append("-offHeap=" + getOffHeap());
     sb.append(lineSeparator);
     sb.append(
         "-compressor=" + (getCompressorClassName() == null ? "none" : getCompressorClassName()));
@@ -1026,7 +1003,6 @@ public abstract class AbstractDiskRegion implements DiskRegionView {
     msg.append("\n\tconcurrencyLevel=").append(getConcurrencyLevel());
     msg.append("\n\tinitialCapacity=").append(getInitialCapacity());
     msg.append("\n\tloadFactor=").append(getLoadFactor());
-    msg.append("\n\toffHeap=").append(getOffHeap());
     msg.append("\n\tstatisticsEnabled=").append(getStatisticsEnabled());
 
     msg.append("\n\tdrId=").append(getId());
@@ -1100,11 +1076,6 @@ public abstract class AbstractDiskRegion implements DiskRegionView {
   @Override
   public Compressor getCompressor() {
     return compressor;
-  }
-
-  @Override
-  public boolean getOffHeap() {
-    return offHeap;
   }
 
   @Override

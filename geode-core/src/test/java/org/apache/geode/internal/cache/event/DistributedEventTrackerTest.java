@@ -71,7 +71,6 @@ public class DistributedEventTrackerTest {
     InternalDistributedSystem ids = mock(InternalDistributedSystem.class);
     when(region.getCache()).thenReturn(cache);
     when(cache.getDistributedSystem()).thenReturn(ids);
-    when(ids.getOffHeapStore()).thenReturn(null);
 
     member = mock(DistributedMember.class);
     eventTracker = new DistributedEventTracker(region);

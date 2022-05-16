@@ -23,8 +23,6 @@ import org.apache.geode.internal.cache.PlaceHolderDiskRegion;
 import org.apache.geode.internal.cache.Token;
 import org.apache.geode.internal.cache.entries.DiskEntry.RecoveredEntry;
 import org.apache.geode.internal.cache.persistence.DiskStoreID;
-import org.apache.geode.internal.offheap.StoredObject;
-import org.apache.geode.internal.offheap.annotations.Unretained;
 import org.apache.geode.util.internal.GeodeGlossary;
 
 
@@ -155,16 +153,13 @@ public class EntryLogger {
     return source;
   }
 
-  private static Object processValue(@Unretained Object rawNewValue) {
+  private static Object processValue(Object rawNewValue) {
     if (rawNewValue != null && Token.isInvalid(rawNewValue)) {
       return "invalid";
     }
 
     if (!TRACK_VALUES) {
       return "present";
-    }
-    if (rawNewValue instanceof StoredObject) {
-      return "off-heap";
     }
     if (rawNewValue instanceof CachedDeserializable) {
       rawNewValue = ((CachedDeserializable) rawNewValue).getDeserializedForReading();

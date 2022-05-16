@@ -23,7 +23,6 @@ import org.apache.geode.internal.cache.versions.VersionTag;
 public class VersionTagHolder extends EntryEventImpl {
   public VersionTagHolder(VersionTag<?> tag) {
     setVersionTag(tag);
-    disallowOffHeapValues();
   }
 
   public VersionTagHolder() {

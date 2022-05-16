@@ -27,7 +27,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.geode.distributed.internal.deadlock.UnsafeThreadLocal;
-import org.apache.geode.internal.offheap.AddressableMemoryManager;
 import org.apache.geode.internal.stats50.VMStats50;
 import org.apache.geode.unsafe.internal.com.sun.jmx.remote.security.MBeanServerAccessController;
 import org.apache.geode.unsafe.internal.sun.nio.ch.DirectBuffer;

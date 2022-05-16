@@ -111,20 +111,20 @@ public class ParallelWANPersistenceEnabledGatewaySenderDUnitTest extends WANTest
     vm7.invoke(() -> WANTestBase.createSender("ln", 2, true, 100, 10, false, true, null, true));
 
     vm4.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
     vm5.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
     vm6.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
     vm7.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
 
     startSenderInVMs("ln", vm4, vm5, vm6, vm7);
 
     vm2.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), null, 1,
-        100, isOffHeap()));
+        100));
     vm3.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), null, 1,
-        100, isOffHeap()));
+        100));
 
     vm4.invoke(() -> WANTestBase.doPuts(getTestMethodName(), 1000));
 
@@ -169,9 +169,9 @@ public class ParallelWANPersistenceEnabledGatewaySenderDUnitTest extends WANTest
     logger.info("Started the senders");
 
     vm2.invoke(
-        () -> WANTestBase.createPartitionedRegion(getTestMethodName(), null, 1, 100, isOffHeap()));
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName(), null, 1, 100));
     vm3.invoke(
-        () -> WANTestBase.createPartitionedRegion(getTestMethodName(), null, 1, 100, isOffHeap()));
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName(), null, 1, 100));
 
     vm4.invoke(() -> WANTestBase.doPuts(getTestMethodName(), 1000));
 
@@ -180,8 +180,7 @@ public class ParallelWANPersistenceEnabledGatewaySenderDUnitTest extends WANTest
   }
 
   protected SerializableRunnableIF createPartitionedRegionRunnable() {
-    return () -> WANTestBase.createPartitionedRegion(getTestMethodName(), "ln", 1, 100,
-        isOffHeap());
+    return () -> WANTestBase.createPartitionedRegion(getTestMethodName(), "ln", 1, 100);
   }
 
 
@@ -221,9 +220,9 @@ public class ParallelWANPersistenceEnabledGatewaySenderDUnitTest extends WANTest
 
     // create PR on remote site
     vm2.invoke(
-        () -> WANTestBase.createPartitionedRegion(getTestMethodName(), null, 1, 100, isOffHeap()));
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName(), null, 1, 100));
     vm3.invoke(
-        () -> WANTestBase.createPartitionedRegion(getTestMethodName(), null, 1, 100, isOffHeap()));
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName(), null, 1, 100));
 
     // create PR on local site
     vm4.invoke(createPartitionedRegionRunnable());
@@ -373,19 +372,19 @@ public class ParallelWANPersistenceEnabledGatewaySenderDUnitTest extends WANTest
 
     // create PR on remote site
     vm2.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), null, 1,
-        100, isOffHeap()));
+        100));
     vm3.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), null, 1,
-        100, isOffHeap()));
+        100));
 
     // create PR on local site
     vm4.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
     vm5.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
     vm6.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
     vm7.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
 
     // start the senders on local site
     startSenderInVMs("ln", vm4, vm5, vm6, vm7);
@@ -434,13 +433,13 @@ public class ParallelWANPersistenceEnabledGatewaySenderDUnitTest extends WANTest
     logger.info("Created the senders back from the disk store.");
     // create PR on local site
     AsyncInvocation inv1 = vm4.invokeAsync(() -> WANTestBase
-        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100, isOffHeap()));
+        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100));
     AsyncInvocation inv2 = vm5.invokeAsync(() -> WANTestBase
-        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100, isOffHeap()));
+        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100));
     AsyncInvocation inv3 = vm6.invokeAsync(() -> WANTestBase
-        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100, isOffHeap()));
+        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100));
     AsyncInvocation inv4 = vm7.invokeAsync(() -> WANTestBase
-        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100, isOffHeap()));
+        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100));
 
     try {
       inv1.join();
@@ -504,13 +503,13 @@ public class ParallelWANPersistenceEnabledGatewaySenderDUnitTest extends WANTest
 
     // create PR on local site
     vm4.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
     vm5.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
     vm6.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
     vm7.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
 
     // start the senders on local site
     startSenderInVMs("ln", vm4, vm5, vm6, vm7);
@@ -560,13 +559,13 @@ public class ParallelWANPersistenceEnabledGatewaySenderDUnitTest extends WANTest
 
     // create PR on local site
     AsyncInvocation inv1 = vm4.invokeAsync(() -> WANTestBase
-        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100, isOffHeap()));
+        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100));
     AsyncInvocation inv2 = vm5.invokeAsync(() -> WANTestBase
-        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100, isOffHeap()));
+        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100));
     AsyncInvocation inv3 = vm6.invokeAsync(() -> WANTestBase
-        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100, isOffHeap()));
+        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100));
     AsyncInvocation inv4 = vm7.invokeAsync(() -> WANTestBase
-        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100, isOffHeap()));
+        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100));
 
     try {
       inv1.join();
@@ -599,9 +598,9 @@ public class ParallelWANPersistenceEnabledGatewaySenderDUnitTest extends WANTest
 
     logger.info("Creating the partitioned region at receiver. ");
     vm2.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), null, 1,
-        100, isOffHeap()));
+        100));
     vm3.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), null, 1,
-        100, isOffHeap()));
+        100));
     createReceiverInVMs(vm2, vm3);
 
     vm4.invoke(pauseSenderRunnable());
@@ -658,19 +657,19 @@ public class ParallelWANPersistenceEnabledGatewaySenderDUnitTest extends WANTest
 
     // create PR on remote site
     vm2.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), null, 1,
-        100, isOffHeap()));
+        100));
     vm3.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), null, 1,
-        100, isOffHeap()));
+        100));
 
     // create PR on local site
     vm4.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
     vm5.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
     vm6.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
     vm7.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
 
     // start the senders on local site
     startSenderInVMs("ln", vm4, vm5, vm6, vm7);
@@ -720,13 +719,13 @@ public class ParallelWANPersistenceEnabledGatewaySenderDUnitTest extends WANTest
 
     // create PR on local site
     AsyncInvocation inv1 = vm4.invokeAsync(() -> WANTestBase
-        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100, isOffHeap()));
+        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100));
     AsyncInvocation inv2 = vm5.invokeAsync(() -> WANTestBase
-        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100, isOffHeap()));
+        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100));
     AsyncInvocation inv3 = vm6.invokeAsync(() -> WANTestBase
-        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100, isOffHeap()));
+        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100));
     AsyncInvocation inv4 = vm7.invokeAsync(() -> WANTestBase
-        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100, isOffHeap()));
+        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100));
 
     try {
       inv1.join();
@@ -801,19 +800,19 @@ public class ParallelWANPersistenceEnabledGatewaySenderDUnitTest extends WANTest
 
     // create PR on remote site
     vm2.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), null, 1,
-        100, isOffHeap()));
+        100));
     vm3.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), null, 1,
-        100, isOffHeap()));
+        100));
 
     // create PR on local site
     vm4.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
     vm5.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
     vm6.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
     vm7.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
 
     // start the senders on local site
     startSenderInVMs("ln", vm4, vm5, vm6, vm7);
@@ -863,13 +862,13 @@ public class ParallelWANPersistenceEnabledGatewaySenderDUnitTest extends WANTest
 
     // create PR on local site
     AsyncInvocation inv1 = vm4.invokeAsync(() -> WANTestBase
-        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100, isOffHeap()));
+        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100));
     AsyncInvocation inv2 = vm5.invokeAsync(() -> WANTestBase
-        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100, isOffHeap()));
+        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100));
     AsyncInvocation inv3 = vm6.invokeAsync(() -> WANTestBase
-        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100, isOffHeap()));
+        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100));
     AsyncInvocation inv4 = vm7.invokeAsync(() -> WANTestBase
-        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100, isOffHeap()));
+        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100));
 
     try {
       inv1.join();
@@ -935,19 +934,19 @@ public class ParallelWANPersistenceEnabledGatewaySenderDUnitTest extends WANTest
 
     // create PR on remote site
     vm2.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), null, 1,
-        100, isOffHeap()));
+        100));
     vm3.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), null, 1,
-        100, isOffHeap()));
+        100));
 
     // create PR on local site
     vm4.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
     vm5.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
     vm6.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
     vm7.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
 
     // start the senders on local site
     startSenderInVMs("ln", vm4, vm5, vm6, vm7);
@@ -997,13 +996,13 @@ public class ParallelWANPersistenceEnabledGatewaySenderDUnitTest extends WANTest
 
     // create PR on local site
     vm4.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
     vm5.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
     vm6.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
     vm7.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
 
     logger.info("Created back the partitioned regions");
 
@@ -1049,13 +1048,13 @@ public class ParallelWANPersistenceEnabledGatewaySenderDUnitTest extends WANTest
 
     // create PR on local site
     vm4.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
     vm5.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
     vm6.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
     vm7.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
 
     // start puts in region on local site
     vm4.invoke(() -> WANTestBase.doPutsWithKeyAsString(getTestMethodName(), 1000));
@@ -1076,25 +1075,15 @@ public class ParallelWANPersistenceEnabledGatewaySenderDUnitTest extends WANTest
 
     logger.info("Created back the cache");
 
-    // // create PR on local site
-    // vm4.invoke(WANTestBase.class, "createPersistentPartitionedRegion",
-    // new Object[] { testName, "ln", 1, 100, isOffHeap() });
-    // vm5.invoke(WANTestBase.class, "createPersistentPartitionedRegion",
-    // new Object[] { testName, "ln", 1, 100, isOffHeap() });
-    // vm6.invoke(WANTestBase.class, "createPersistentPartitionedRegion",
-    // new Object[] { testName, "ln", 1, 100, isOffHeap() });
-    // vm7.invoke(WANTestBase.class, "createPersistentPartitionedRegion",
-    // new Object[] { testName, "ln", 1, 100, isOffHeap() });
-
     // create PR on local site
     AsyncInvocation inv1 = vm4.invokeAsync(() -> WANTestBase
-        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100, isOffHeap()));
+        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100));
     AsyncInvocation inv2 = vm5.invokeAsync(() -> WANTestBase
-        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100, isOffHeap()));
+        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100));
     AsyncInvocation inv3 = vm6.invokeAsync(() -> WANTestBase
-        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100, isOffHeap()));
+        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100));
     AsyncInvocation inv4 = vm7.invokeAsync(() -> WANTestBase
-        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100, isOffHeap()));
+        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100));
 
     try {
       inv1.join();
@@ -1150,19 +1139,19 @@ public class ParallelWANPersistenceEnabledGatewaySenderDUnitTest extends WANTest
 
     // create PR on remote site
     vm2.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), null, 1,
-        100, isOffHeap()));
+        100));
     vm3.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), null, 1,
-        100, isOffHeap()));
+        100));
 
     // create PR on local site
     vm4.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
     vm5.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
     vm6.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
     vm7.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
 
     // start the senders on local site
     startSenderInVMs("ln", vm4, vm5, vm6, vm7);
@@ -1268,9 +1257,9 @@ public class ParallelWANPersistenceEnabledGatewaySenderDUnitTest extends WANTest
 
     // create PR on remote site
     vm2.invoke(
-        () -> WANTestBase.createPartitionedRegion(getTestMethodName(), null, 1, 100, isOffHeap()));
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName(), null, 1, 100));
     vm3.invoke(
-        () -> WANTestBase.createPartitionedRegion(getTestMethodName(), null, 1, 100, isOffHeap()));
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName(), null, 1, 100));
 
     // create non persistent PR on local site
     vm4.invoke(createPartitionedRegionRunnable());
@@ -1381,19 +1370,19 @@ public class ParallelWANPersistenceEnabledGatewaySenderDUnitTest extends WANTest
 
     // create PR on remote site
     vm2.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), null, 1,
-        100, isOffHeap()));
+        100));
     vm3.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), null, 1,
-        100, isOffHeap()));
+        100));
 
     // create PR on local site
     vm4.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
     vm5.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
     vm6.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
     vm7.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
 
     // start the senders on local site
     startSenderInVMs("ln", vm4, vm5, vm6, vm7);
@@ -1453,13 +1442,13 @@ public class ParallelWANPersistenceEnabledGatewaySenderDUnitTest extends WANTest
 
     // create PR on local site
     AsyncInvocation inv1 = vm4.invokeAsync(() -> WANTestBase
-        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100, isOffHeap()));
+        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100));
     AsyncInvocation inv2 = vm5.invokeAsync(() -> WANTestBase
-        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100, isOffHeap()));
+        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100));
     AsyncInvocation inv3 = vm6.invokeAsync(() -> WANTestBase
-        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100, isOffHeap()));
+        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100));
     AsyncInvocation inv4 = vm7.invokeAsync(() -> WANTestBase
-        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100, isOffHeap()));
+        .createPersistentPartitionedRegion(getTestMethodName(), "ln", 1, 100));
 
     try {
       inv1.join();
@@ -1508,19 +1497,19 @@ public class ParallelWANPersistenceEnabledGatewaySenderDUnitTest extends WANTest
     vm6.invoke(() -> WANTestBase.createSender("ln", 2, true, 100, 10, false, true, null, true));
     vm7.invoke(() -> WANTestBase.createSender("ln", 2, true, 100, 10, false, true, null, true));
 
-    vm4.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100,
-        isOffHeap()));
-    vm5.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100,
-        isOffHeap()));
+    vm4.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100));
+    vm5.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 100));
     vm6.invoke(() -> WANTestBase.createPartitionedRegionAsAccessor(getTestMethodName() + "_PR",
         "ln", 1, 100));
     vm7.invoke(() -> WANTestBase.createPartitionedRegionAsAccessor(getTestMethodName() + "_PR",
         "ln", 1, 100));
 
-    vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100,
-        isOffHeap()));
-    vm3.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100,
-        isOffHeap()));
+    vm2.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100));
+    vm3.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100));
 
     startSenderInVMs("ln", vm4, vm5, vm6, vm7);
 
@@ -1556,20 +1545,20 @@ public class ParallelWANPersistenceEnabledGatewaySenderDUnitTest extends WANTest
       vm7.invoke(() -> WANTestBase.createSender("ln", 2, true, 100, 10, false, true, null, true));
 
       vm4.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-          100, isOffHeap()));
+          100));
       vm5.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-          100, isOffHeap()));
+          100));
       vm6.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-          100, isOffHeap()));
+          100));
       vm7.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-          100, isOffHeap()));
+          100));
 
       startSenderInVMs("ln", vm4, vm5, vm6, vm7);
 
       vm2.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), null, 1,
-          100, isOffHeap()));
+          100));
       vm3.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), null, 1,
-          100, isOffHeap()));
+          100));
 
       vm4.invoke(() -> WANTestBase.doPuts(getTestMethodName(), 113));
 
@@ -1594,13 +1583,13 @@ public class ParallelWANPersistenceEnabledGatewaySenderDUnitTest extends WANTest
       createCacheInVMs(lnPort, vm4, vm5, vm6, vm7);
 
       AsyncInvocation async4 = vm4.invokeAsync(() -> WANTestBase
-          .createPersistentPartitionedRegion(getTestMethodName(), null, 1, 100, isOffHeap()));
+          .createPersistentPartitionedRegion(getTestMethodName(), null, 1, 100));
       AsyncInvocation async5 = vm5.invokeAsync(() -> WANTestBase
-          .createPersistentPartitionedRegion(getTestMethodName(), null, 1, 100, isOffHeap()));
+          .createPersistentPartitionedRegion(getTestMethodName(), null, 1, 100));
       AsyncInvocation async6 = vm6.invokeAsync(() -> WANTestBase
-          .createPersistentPartitionedRegion(getTestMethodName(), null, 1, 100, isOffHeap()));
+          .createPersistentPartitionedRegion(getTestMethodName(), null, 1, 100));
       AsyncInvocation async7 = vm7.invokeAsync(() -> WANTestBase
-          .createPersistentPartitionedRegion(getTestMethodName(), null, 1, 100, isOffHeap()));
+          .createPersistentPartitionedRegion(getTestMethodName(), null, 1, 100));
 
       async7.getResult(30 * 1000);
       async5.getResult(30 * 1000);
@@ -1657,9 +1646,9 @@ public class ParallelWANPersistenceEnabledGatewaySenderDUnitTest extends WANTest
 
     // create PR on remote site
     vm2.invoke(
-        () -> WANTestBase.createPartitionedRegion(getTestMethodName(), null, 1, 100, isOffHeap()));
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName(), null, 1, 100));
     vm3.invoke(
-        () -> WANTestBase.createPartitionedRegion(getTestMethodName(), null, 1, 100, isOffHeap()));
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName(), null, 1, 100));
 
     // create PR on local site
     vm4.invoke(createPartitionedRegionRunnable());
@@ -1751,9 +1740,9 @@ public class ParallelWANPersistenceEnabledGatewaySenderDUnitTest extends WANTest
 
     // create PR on remote site
     vm2.invoke(
-        () -> WANTestBase.createPartitionedRegion(getTestMethodName(), null, 1, 100, isOffHeap()));
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName(), null, 1, 100));
     vm3.invoke(
-        () -> WANTestBase.createPartitionedRegion(getTestMethodName(), null, 1, 100, isOffHeap()));
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName(), null, 1, 100));
 
     // create PR on local site
     vm4.invoke(createPartitionedRegionRunnable());
@@ -1853,9 +1842,9 @@ public class ParallelWANPersistenceEnabledGatewaySenderDUnitTest extends WANTest
 
     // create PR on remote site
     vm2.invoke(
-        () -> WANTestBase.createPartitionedRegion(getTestMethodName(), null, 1, 1000, isOffHeap()));
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName(), null, 1, 1000));
     vm3.invoke(
-        () -> WANTestBase.createPartitionedRegion(getTestMethodName(), null, 1, 1000, isOffHeap()));
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName(), null, 1, 1000));
 
     // create PR on local site
     vm4.invoke(createPartitionedRegionRunnable());
@@ -1953,9 +1942,9 @@ public class ParallelWANPersistenceEnabledGatewaySenderDUnitTest extends WANTest
 
     // create PR on remote site
     vm2.invoke(
-        () -> WANTestBase.createPartitionedRegion(getTestMethodName(), null, 1, 100, isOffHeap()));
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName(), null, 1, 100));
     vm3.invoke(
-        () -> WANTestBase.createPartitionedRegion(getTestMethodName(), null, 1, 100, isOffHeap()));
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName(), null, 1, 100));
 
     // create PR on local site
     vm4.invoke(createPartitionedRegionRunnable());
@@ -2048,15 +2037,15 @@ public class ParallelWANPersistenceEnabledGatewaySenderDUnitTest extends WANTest
 
     // create PR on remote site
     vm2.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), null, 1,
-        13, isOffHeap()));
+        13));
     vm3.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), null, 1,
-        13, isOffHeap()));
+        13));
 
     // create PR on local site
     vm4.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-        13, isOffHeap()));
+        13));
     vm5.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-        13, isOffHeap()));
+        13));
 
     // start the senders on local site
     startSenderInVMs("ln", vm4, vm5);
@@ -2085,7 +2074,7 @@ public class ParallelWANPersistenceEnabledGatewaySenderDUnitTest extends WANTest
     // create PR on local site
     vm5.invoke("Create back the partitioned region",
         () -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-            13, isOffHeap()));
+            13));
 
     // wait for senders running
     vm5.invoke("Waiting for senders running.", waitForSenderRunnable());
@@ -2142,9 +2131,9 @@ public class ParallelWANPersistenceEnabledGatewaySenderDUnitTest extends WANTest
 
     // create PR on remote site
     vm2.invoke(
-        () -> WANTestBase.createPartitionedRegion(getTestMethodName(), null, 1, 100, isOffHeap()));
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName(), null, 1, 100));
     vm3.invoke(
-        () -> WANTestBase.createPartitionedRegion(getTestMethodName(), null, 1, 100, isOffHeap()));
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName(), null, 1, 100));
 
     // create PR on local site
     vm4.invoke(createPartitionedRegionRunnable());
@@ -2262,15 +2251,15 @@ public class ParallelWANPersistenceEnabledGatewaySenderDUnitTest extends WANTest
     vm5.invoke(() -> WANTestBase.createSender("ln", 2, true, 100, 10, false, true, null, false));
 
     vm4.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
     vm5.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), "ln", 1,
-        100, isOffHeap()));
+        100));
 
 
     vm2.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), null, 1,
-        100, isOffHeap()));
+        100));
     vm3.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName(), null, 1,
-        100, isOffHeap()));
+        100));
 
     vm4.invoke(() -> WANTestBase.doPuts(getTestMethodName(), 1000));
 

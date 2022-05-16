@@ -158,17 +158,17 @@ public class SerialWANConflationDistributedTest extends WANTestBase {
 
     createCacheInVMs(nyPort, vm2, vm3);
 
-    vm2.invoke(() -> createPartitionedRegion(getTestMethodName(), null, 1, 8, isOffHeap()));
-    vm3.invoke(() -> createPartitionedRegion(getTestMethodName(), null, 1, 8, isOffHeap()));
+    vm2.invoke(() -> createPartitionedRegion(getTestMethodName(), null, 1, 8));
+    vm3.invoke(() -> createPartitionedRegion(getTestMethodName(), null, 1, 8));
 
     createReceiverInVMs(vm2, vm3);
 
     createCacheInVMs(lnPort, vm4, vm5, vm6, vm7);
 
-    vm4.invoke(() -> createPartitionedRegion(getTestMethodName(), "ln", 1, 8, isOffHeap()));
-    vm5.invoke(() -> createPartitionedRegion(getTestMethodName(), "ln", 1, 8, isOffHeap()));
-    vm6.invoke(() -> createPartitionedRegion(getTestMethodName(), "ln", 1, 8, isOffHeap()));
-    vm7.invoke(() -> createPartitionedRegion(getTestMethodName(), "ln", 1, 8, isOffHeap()));
+    vm4.invoke(() -> createPartitionedRegion(getTestMethodName(), "ln", 1, 8));
+    vm5.invoke(() -> createPartitionedRegion(getTestMethodName(), "ln", 1, 8));
+    vm6.invoke(() -> createPartitionedRegion(getTestMethodName(), "ln", 1, 8));
+    vm7.invoke(() -> createPartitionedRegion(getTestMethodName(), "ln", 1, 8));
 
     vm4.invoke(() -> createSender("ln", 2, false, 100, 50, false, false, null, true));
     vm5.invoke(() -> createSender("ln", 2, false, 100, 50, false, false, null, true));
@@ -220,17 +220,17 @@ public class SerialWANConflationDistributedTest extends WANTestBase {
 
     createCacheInVMs(nyPort, vm2, vm3);
 
-    vm2.invoke(() -> createPartitionedRegion(getTestMethodName(), null, 1, 8, isOffHeap()));
-    vm3.invoke(() -> createPartitionedRegion(getTestMethodName(), null, 1, 8, isOffHeap()));
+    vm2.invoke(() -> createPartitionedRegion(getTestMethodName(), null, 1, 8));
+    vm3.invoke(() -> createPartitionedRegion(getTestMethodName(), null, 1, 8));
 
     createReceiverInVMs(vm2, vm3);
 
     createCacheInVMs(lnPort, vm4, vm5, vm6, vm7);
 
-    vm4.invoke(() -> createPartitionedRegion(getTestMethodName(), "ln", 1, 8, isOffHeap()));
-    vm5.invoke(() -> createPartitionedRegion(getTestMethodName(), "ln", 1, 8, isOffHeap()));
-    vm6.invoke(() -> createPartitionedRegion(getTestMethodName(), "ln", 1, 8, isOffHeap()));
-    vm7.invoke(() -> createPartitionedRegion(getTestMethodName(), "ln", 1, 8, isOffHeap()));
+    vm4.invoke(() -> createPartitionedRegion(getTestMethodName(), "ln", 1, 8));
+    vm5.invoke(() -> createPartitionedRegion(getTestMethodName(), "ln", 1, 8));
+    vm6.invoke(() -> createPartitionedRegion(getTestMethodName(), "ln", 1, 8));
+    vm7.invoke(() -> createPartitionedRegion(getTestMethodName(), "ln", 1, 8));
 
     vm4.invoke(() -> createSender("ln", 2, false, 100, 50, true, false, null, true));
     vm5.invoke(() -> createSender("ln", 2, false, 100, 50, true, false, null, true));
@@ -291,14 +291,14 @@ public class SerialWANConflationDistributedTest extends WANTestBase {
 
     createCacheInVMs(nyPort, vm2);
     vm2.invoke(() -> createReplicatedRegion(getTestMethodName(), null, Scope.DISTRIBUTED_ACK,
-        DataPolicy.PERSISTENT_REPLICATE, isOffHeap()));
+        DataPolicy.PERSISTENT_REPLICATE));
     createReceiverInVMs(vm2);
 
     // Create Region, associate gateway and insert some entries.
     vm4.invoke(() -> {
       createCache(lnPort);
-      createReplicatedRegion(getTestMethodName(), "ln", Scope.DISTRIBUTED_ACK, DataPolicy.REPLICATE,
-          isOffHeap());
+      createReplicatedRegion(getTestMethodName(), "ln", Scope.DISTRIBUTED_ACK,
+          DataPolicy.REPLICATE);
 
       // Large batch time interval and low batch size so no events are processed before the restart.
       createSender("ln", 2, false, 100, 10, true, true, null, 120000);
@@ -333,8 +333,8 @@ public class SerialWANConflationDistributedTest extends WANTestBase {
       });
 
       // Create the region, processing will continue and no NPE should be thrown anymore.
-      createReplicatedRegion(getTestMethodName(), "ln", Scope.DISTRIBUTED_ACK, DataPolicy.REPLICATE,
-          isOffHeap());
+      createReplicatedRegion(getTestMethodName(), "ln", Scope.DISTRIBUTED_ACK,
+          DataPolicy.REPLICATE);
     });
     vm2.invoke(() -> validateRegionSize(getTestMethodName(), 5));
 

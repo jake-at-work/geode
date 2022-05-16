@@ -47,7 +47,6 @@ import org.apache.geode.internal.cache.TXManagerImpl;
 import org.apache.geode.internal.cache.TXStateProxy;
 import org.apache.geode.internal.cache.tier.sockets.ClientProxyMembershipID;
 import org.apache.geode.internal.logging.log4j.LogMarker;
-import org.apache.geode.internal.offheap.OffHeapHelper;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.KnownVersion;
 import org.apache.geode.internal.serialization.SerializationContext;
@@ -125,8 +124,6 @@ public class RemoteGetMessage extends RemoteOperationMessageWithDirectReply {
     } catch (DataLocationException e) {
       sendReply(getSender(), getProcessorId(), dm, new ReplyException(e), r, startTime);
       return false;
-    } finally {
-      OffHeapHelper.release(val);
     }
 
   }

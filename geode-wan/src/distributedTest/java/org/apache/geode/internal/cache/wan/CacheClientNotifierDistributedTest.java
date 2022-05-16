@@ -187,7 +187,7 @@ public class CacheClientNotifierDistributedTest extends WANTestBase {
 
     // create PR for receiver
     vm2.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName() + "_PR",
-        null, 1, 100, isOffHeap()));
+        null, 1, 100));
 
     // create cache server1 with overflow
     int serverPort = createCacheServerWithCSC(vm2, true, 3, "entry", "DEFAULT");
@@ -214,7 +214,7 @@ public class CacheClientNotifierDistributedTest extends WANTestBase {
     vm5.invoke(() -> WANTestBase.createCache(lnPort));
     vm5.invoke(() -> WANTestBase.createSender("ln", 2, false, 100, 400, false, false, null, true));
     vm5.invoke(() -> WANTestBase.createPersistentPartitionedRegion(getTestMethodName() + "_PR",
-        "ln", 1, 100, isOffHeap()));
+        "ln", 1, 100));
     vm5.invoke(() -> WANTestBase.startSender("ln"));
     vm5.invoke(() -> WANTestBase.doPuts(getTestMethodName() + "_PR", NUM_KEYS));
 

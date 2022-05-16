@@ -460,9 +460,6 @@ public class CreateRegionCommand extends SingleGfshCommand {
       regionAttributes.setAsyncEventQueueIds(Strings.join(asyncEventQueueIds, ","));
     }
 
-    if (offHeap != null) {
-      regionAttributes.setOffHeap(offHeap);
-    }
     if (concurrencyLevel != null) {
       regionAttributes.setConcurrencyLevel(concurrencyLevel.toString());
     }

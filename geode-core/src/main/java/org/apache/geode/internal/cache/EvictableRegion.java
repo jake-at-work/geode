@@ -22,8 +22,6 @@ public interface EvictableRegion extends RegionMapOwner {
 
   EvictionAttributes getEvictionAttributes();
 
-  boolean getOffHeap();
-
   /**
    * If this region represents a bucket then this methods needs to return the existing controller
    * from the partitioned region that owns this bucket. Otherwise returns null.

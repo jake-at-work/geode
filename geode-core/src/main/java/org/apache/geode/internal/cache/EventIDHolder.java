@@ -27,6 +27,5 @@ public class EventIDHolder extends EntryEventImpl {
    */
   public EventIDHolder(EventID id) {
     setEventId(id);
-    disallowOffHeapValues();
   }
 }

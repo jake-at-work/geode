@@ -240,7 +240,6 @@ public class SerialGatewaySenderQueueJUnitTest {
       boolean isLastEventInTransaction, Region region) {
     GatewaySenderEventImpl event = mock(GatewaySenderEventImpl.class);
     when(event.getTransactionId()).thenReturn(new TXId(null, transactionId));
-    when(event.makeHeapCopyIfOffHeap()).thenReturn(event);
     when(event.isLastEventInTransaction()).thenReturn(isLastEventInTransaction);
     when(event.getRegion()).thenReturn(region);
     return event;

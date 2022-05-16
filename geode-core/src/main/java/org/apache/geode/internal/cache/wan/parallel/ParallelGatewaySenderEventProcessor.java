@@ -124,27 +124,19 @@ public class ParallelGatewaySenderEventProcessor extends AbstractGatewaySenderEv
 
   @Override
   protected void enqueueEvent(GatewayQueueEvent<?, ?> gatewayQueueEvent) {
-    boolean queuedEvent = false;
-    try {
-      if (getSender().beforeEnqueue(gatewayQueueEvent)) {
-        long start = getSender().getStatistics().startTime();
-        try {
-          queuedEvent = queue.put(gatewayQueueEvent);
-        } catch (InterruptedException e) {
-          e.printStackTrace();
-        }
-        getSender().getStatistics().endPut(start);
-      } else {
-        if (logger.isDebugEnabled()) {
-          logger.debug("The Event {} is filtered.", gatewayQueueEvent);
-        }
-        getSender().getStatistics().incEventsFiltered();
+    if (getSender().beforeEnqueue(gatewayQueueEvent)) {
+      long start = getSender().getStatistics().startTime();
+      try {
+        queue.put(gatewayQueueEvent);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
       }
-    } finally {
-      if (!queuedEvent) {
-        // it was not queued for some reason
-        ((GatewaySenderEventImpl) gatewayQueueEvent).release();
+      getSender().getStatistics().endPut(start);
+    } else {
+      if (logger.isDebugEnabled()) {
+        logger.debug("The Event {} is filtered.", gatewayQueueEvent);
       }
+      getSender().getStatistics().incEventsFiltered();
     }
   }
 

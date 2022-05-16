@@ -88,7 +88,6 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
             setEvictionPercentage(heapPercentage);
             final Properties sp = System.getProperties();
             final AttributesFactory factory = new AttributesFactory();
-            factory.setOffHeap(isOffHeap());
             factory.setPartitionAttributes(
                 new PartitionAttributesFactory().setRedundantCopies(redundantCopies).create());
             factory.setEvictionAttributes(
@@ -233,7 +232,6 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
         setEvictionPercentage(heapPercentage);
         final Properties sp = System.getProperties();
         final AttributesFactory factory = new AttributesFactory();
-        factory.setOffHeap(isOffHeap());
         factory.setPartitionAttributes(
             new PartitionAttributesFactory().setRedundantCopies(redundantCopies).create());
         factory.setEvictionAttributes(EvictionAttributes.createLRUHeapAttributes());
@@ -346,7 +344,6 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
           public void run() {
             try {
               final AttributesFactory factory = new AttributesFactory();
-              factory.setOffHeap(isOffHeap());
               factory.setPartitionAttributes(
                   new PartitionAttributesFactory().setRedundantCopies(redundantCopies)
                       .setLocalMaxMemory(localMaxMem).setTotalNumBuckets(maxBuckets).create());
@@ -452,7 +449,6 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() {
         final AttributesFactory factory = new AttributesFactory();
-        factory.setOffHeap(isOffHeap());
         factory.setPartitionAttributes(
             new PartitionAttributesFactory().setRedundantCopies(redundantCopies)
                 .setLocalMaxMemory(16).setTotalNumBuckets(maxBuckets).create());
@@ -527,7 +523,6 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
           public void run() {
             try {
               final AttributesFactory factory = new AttributesFactory();
-              factory.setOffHeap(isOffHeap());
               factory.setPartitionAttributes(new PartitionAttributesFactory()
                   .setRedundantCopies(redundantCopies).setTotalNumBuckets(maxBuckets).create());
               factory.setEvictionAttributes(EvictionAttributes.createLRUEntryAttributes(maxEntries,
@@ -625,7 +620,6 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() {
         final AttributesFactory factory = new AttributesFactory();
-        factory.setOffHeap(isOffHeap());
         factory.setPartitionAttributes(new PartitionAttributesFactory()
             .setRedundantCopies(redundantCopies).setTotalNumBuckets(maxBuckets).create());
         factory.setEvictionAttributes(
@@ -659,7 +653,6 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
           public void run() {
             try {
               final AttributesFactory factory = new AttributesFactory();
-              factory.setOffHeap(isOffHeap());
               factory.setPartitionAttributes(new PartitionAttributesFactory()
                   .setRedundantCopies(redundantCopies).setTotalNumBuckets(8).create());
               factory
@@ -768,7 +761,6 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
         {
           final int buks = 11;
           final AttributesFactory factory = new AttributesFactory();
-          factory.setOffHeap(isOffHeap());
           factory.setPartitionAttributes(new PartitionAttributesFactory().setTotalNumBuckets(buks)
               .setRedundantCopies(0).create());
           factory.setEvictionAttributes(EvictionAttributes.createLRUEntryAttributes((buks / 2)));
@@ -786,7 +778,6 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
         }
 
         final AttributesFactory factory = new AttributesFactory();
-        factory.setOffHeap(isOffHeap());
         factory.setPartitionAttributes(
             new PartitionAttributesFactory().setRedundantCopies(redundantCopies).create());
         factory.setEvictionAttributes(firstEvictionAttrs);
@@ -801,7 +792,6 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
           @Override
           public void run() {
             final AttributesFactory factory = new AttributesFactory();
-            factory.setOffHeap(isOffHeap());
             factory.setPartitionAttributes(
                 new PartitionAttributesFactory().setRedundantCopies(redundantCopies).create());
             // Assert a different algo is invalid
@@ -862,7 +852,6 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
             final PartitionAttributes pra = new PartitionAttributesFactory()
                 .setRedundantCopies(redundantCopies).setLocalMaxMemory(0).create();
             AttributesFactory factory = new AttributesFactory();
-            factory.setOffHeap(isOffHeap());
             factory.setPartitionAttributes(pra);
             factory.setEvictionAttributes(firstEvictionAttrs);
             setEvictionPercentage(50);
@@ -893,7 +882,6 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() {
         final AttributesFactory factory = new AttributesFactory();
-        factory.setOffHeap(isOffHeap());
         factory.setPartitionAttributes(
             new PartitionAttributesFactory().setRedundantCopies(redundantCopies).create());
         factory.setEvictionAttributes(firstEa);
@@ -909,7 +897,6 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
           @Override
           public void run() {
             final AttributesFactory factory = new AttributesFactory();
-            factory.setOffHeap(isOffHeap());
             factory.setPartitionAttributes(
                 new PartitionAttributesFactory().setRedundantCopies(redundantCopies).create());
             // Creating LRU Entry Count Eviction Attribute : Action :
@@ -978,7 +965,6 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() {
         final AttributesFactory factory = new AttributesFactory();
-        factory.setOffHeap(isOffHeap());
         factory.setPartitionAttributes(
             new PartitionAttributesFactory().setRedundantCopies(redundantCopies).create());
         factory.setEvictionAttributes(firstEvictionAttributes);
@@ -994,7 +980,6 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
           @Override
           public void run() {
             final AttributesFactory factory = new AttributesFactory();
-            factory.setOffHeap(isOffHeap());
             factory.setPartitionAttributes(
                 new PartitionAttributesFactory().setRedundantCopies(redundantCopies).create());
 
@@ -1028,7 +1013,6 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
       public void run2() {
         getCache().getResourceManager().setEvictionHeapPercentage(heapPercentage);
         final AttributesFactory factory = new AttributesFactory();
-        factory.setOffHeap(isOffHeap());
         factory.setPartitionAttributes(
             new PartitionAttributesFactory().setRedundantCopies(redundantCopies).create());
         factory.setEvictionAttributes(firstEvictionAttributes);
@@ -1045,7 +1029,6 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
           public void run() {
             setEvictionPercentage(heapPercentage);
             final AttributesFactory factory = new AttributesFactory();
-            factory.setOffHeap(isOffHeap());
             factory.setPartitionAttributes(
                 new PartitionAttributesFactory().setRedundantCopies(redundantCopies).create());
             // Assert that a different algo is invalid
@@ -1143,7 +1126,6 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
           @Override
           public void run2() {
             final AttributesFactory factory = new AttributesFactory();
-            factory.setOffHeap(isOffHeap());
             factory.setPartitionAttributes(new PartitionAttributesFactory().setLocalMaxMemory(0)
                 .setRedundantCopies(redundantCopies).create());
             factory.setEvictionAttributes(firstEvictionAttributes);
@@ -1161,7 +1143,6 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
           @Override
           public void run() {
             final AttributesFactory factory = new AttributesFactory();
-            factory.setOffHeap(isOffHeap());
             factory.setPartitionAttributes(
                 new PartitionAttributesFactory().setRedundantCopies(redundantCopies).create());
             // Assert that the same attrs is valid
@@ -1201,7 +1182,6 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
             {
               final int totalNumBuckets = 11;
               final AttributesFactory factory = new AttributesFactory();
-              factory.setOffHeap(isOffHeap());
               factory.setPartitionAttributes(new PartitionAttributesFactory()
                   .setTotalNumBuckets(totalNumBuckets).setRedundantCopies(0).create());
               factory.setEvictionAttributes(
@@ -1222,7 +1202,6 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
 
             // Set the "global" eviction attributes
             final AttributesFactory factory = new AttributesFactory();
-            factory.setOffHeap(isOffHeap());
             factory.setPartitionAttributes(
                 new PartitionAttributesFactory().setRedundantCopies(redundantCopies).create());
             factory.setEvictionAttributes(firstEvictionAttributes);
@@ -1262,7 +1241,6 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
         // attributes... and do these tests
         PartitionAttributes pra = createPartitionAttributes(firstEvictionAttributes.getMaximum());
         final AttributesFactory factory = new AttributesFactory();
-        factory.setOffHeap(isOffHeap());
         factory.setPartitionAttributes(pra);
 
         // Assert that no eviction attributes is invalid
@@ -1426,7 +1404,6 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
             final PartitionAttributes pra = new PartitionAttributesFactory()
                 .setRedundantCopies(redundantCopies).setLocalMaxMemory(0).create();
             AttributesFactory factory = new AttributesFactory();
-            factory.setOffHeap(isOffHeap());
             factory.setPartitionAttributes(pra);
             final Region pr = createRootRegion(name, factory.create());
             assertNotNull(pr);
@@ -1439,7 +1416,6 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
             final PartitionAttributes pra = new PartitionAttributesFactory()
                 .setRedundantCopies(redundantCopies).setLocalMaxMemory(0).create();
             AttributesFactory factory = new AttributesFactory();
-            factory.setOffHeap(isOffHeap());
             factory.setPartitionAttributes(pra);
             factory.setEvictionAttributes(firstEvictionAttrs);
             final Region pr = createRootRegion(name, factory.create());
@@ -1454,7 +1430,6 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
             final PartitionAttributes pra = new PartitionAttributesFactory()
                 .setRedundantCopies(redundantCopies).setLocalMaxMemory(0).create();
             AttributesFactory factory = new AttributesFactory();
-            factory.setOffHeap(isOffHeap());
             factory.setPartitionAttributes(pra);
             factory.setEvictionAttributes(secondEvictionAttrs);
             final Region pr = createRootRegion(name, factory.create());
@@ -1468,7 +1443,6 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
             final PartitionAttributes pra = new PartitionAttributesFactory()
                 .setRedundantCopies(redundantCopies).setLocalMaxMemory(0).create();
             AttributesFactory factory = new AttributesFactory();
-            factory.setOffHeap(isOffHeap());
             factory.setPartitionAttributes(pra);
             factory.setEvictionAttributes(firstEvictionAttrs);
             final Region pr = createRootRegion(name, factory.create());
@@ -1506,7 +1480,6 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
             final PartitionAttributes pra = new PartitionAttributesFactory()
                 .setRedundantCopies(redundantCopies).setLocalMaxMemory(0).create();
             AttributesFactory factory = new AttributesFactory();
-            factory.setOffHeap(isOffHeap());
             factory.setPartitionAttributes(pra);
             final Region pr = createRootRegion(name, factory.create());
             assertNotNull(pr);
@@ -1519,7 +1492,6 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
             final PartitionAttributes pra = new PartitionAttributesFactory()
                 .setRedundantCopies(redundantCopies).setLocalMaxMemory(0).create();
             AttributesFactory factory = new AttributesFactory();
-            factory.setOffHeap(isOffHeap());
             factory.setPartitionAttributes(pra);
             factory.setEvictionAttributes(firstEvictionAttrs);
             final Region pr = createRootRegion(name, factory.create());
@@ -1534,7 +1506,6 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
             final PartitionAttributes pra = new PartitionAttributesFactory()
                 .setRedundantCopies(redundantCopies).setLocalMaxMemory(0).create();
             AttributesFactory factory = new AttributesFactory();
-            factory.setOffHeap(isOffHeap());
             factory.setPartitionAttributes(pra);
             factory.setEvictionAttributes(secondEvictionAttrs);
             final Region pr = createRootRegion(name, factory.create());
@@ -1548,7 +1519,6 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
             final PartitionAttributes pra = new PartitionAttributesFactory()
                 .setRedundantCopies(redundantCopies).setLocalMaxMemory(0).create();
             AttributesFactory factory = new AttributesFactory();
-            factory.setOffHeap(isOffHeap());
             factory.setPartitionAttributes(pra);
             factory.setEvictionAttributes(firstEvictionAttrs);
             final Region pr = createRootRegion(name, factory.create());
@@ -1583,7 +1553,6 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
             final PartitionAttributes pra = new PartitionAttributesFactory()
                 .setRedundantCopies(redundantCopies).setLocalMaxMemory(0).create();
             AttributesFactory factory = new AttributesFactory();
-            factory.setOffHeap(isOffHeap());
             factory.setPartitionAttributes(pra);
             final Region pr = createRootRegion(name, factory.create());
             assertNotNull(pr);
@@ -1596,7 +1565,6 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
             final PartitionAttributes pra = new PartitionAttributesFactory()
                 .setRedundantCopies(redundantCopies).setLocalMaxMemory(0).create();
             AttributesFactory factory = new AttributesFactory();
-            factory.setOffHeap(isOffHeap());
             factory.setPartitionAttributes(pra);
             factory.setEvictionAttributes(firstEvictionAttrs);
             final Region pr = createRootRegion(name, factory.create());
@@ -1611,7 +1579,6 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
             final PartitionAttributes pra = new PartitionAttributesFactory()
                 .setRedundantCopies(redundantCopies).setLocalMaxMemory(0).create();
             AttributesFactory factory = new AttributesFactory();
-            factory.setOffHeap(isOffHeap());
             factory.setPartitionAttributes(pra);
             factory.setEvictionAttributes(firstEvictionAttrs);
             final Region pr = createRootRegion(name, factory.create());
@@ -1626,7 +1593,6 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
             final PartitionAttributes pra = new PartitionAttributesFactory()
                 .setRedundantCopies(redundantCopies).setLocalMaxMemory(0).create();
             AttributesFactory factory = new AttributesFactory();
-            factory.setOffHeap(isOffHeap());
             factory.setPartitionAttributes(pra);
             factory.setEvictionAttributes(firstEvictionAttrs);
             final Region pr = createRootRegion(name, factory.create());
@@ -1664,7 +1630,6 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
       @Override
       public void run2() {
         final AttributesFactory factory = new AttributesFactory();
-        factory.setOffHeap(isOffHeap());
         factory.setPartitionAttributes(new PartitionAttributesFactory()
             .setRedundantCopies(redundantCopies).setTotalNumBuckets(maxBuckets).create());
         factory.setEvictionAttributes(
@@ -1681,7 +1646,6 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
           public void run() {
             try {
               final AttributesFactory factory = new AttributesFactory();
-              factory.setOffHeap(isOffHeap());
               factory.setPartitionAttributes(
                   new PartitionAttributesFactory().setRedundantCopies(redundantCopies)
                       .setLocalMaxMemory(0).setTotalNumBuckets(maxBuckets).create());
@@ -1725,10 +1689,6 @@ public class PartitionedRegionEvictionDUnitTest extends JUnit4CacheTestCase {
 
   protected void setEvictionPercentage(float percentage) {
     getCache().getResourceManager().setEvictionHeapPercentage(percentage);
-  }
-
-  protected boolean isOffHeap() {
-    return false;
   }
 
   protected ResourceType getMemoryType() {

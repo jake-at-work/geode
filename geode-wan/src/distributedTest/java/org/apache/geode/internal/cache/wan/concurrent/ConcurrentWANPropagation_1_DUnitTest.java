@@ -67,13 +67,13 @@ public class ConcurrentWANPropagation_1_DUnitTest extends WANTestBase {
     startSenderInVMs("ln", vm4, vm5);
 
     vm4.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR", "ln"));
     vm5.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR", "ln"));
     vm6.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR", "ln"));
     vm7.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR", "ln"));
 
     IgnoredException.addIgnoredException(BatchException70.class.getName());
     IgnoredException.addIgnoredException(ServerOperationException.class.getName());
@@ -83,9 +83,9 @@ public class ConcurrentWANPropagation_1_DUnitTest extends WANTestBase {
     createCacheInVMs(nyPort, vm2, vm3);
 
     vm2.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR", null));
     vm3.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR", null));
 
     vm2.invoke(WANTestBase::createReceiver);
     vm3.invoke(WANTestBase::createReceiver);
@@ -111,20 +111,20 @@ public class ConcurrentWANPropagation_1_DUnitTest extends WANTestBase {
         true, 5, OrderPolicy.THREAD));
 
     vm2.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR", null));
     vm3.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR", null));
 
     startSenderInVMs("ln", vm4, vm5);
 
     vm4.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR", "ln"));
     vm5.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR", "ln"));
     vm6.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR", "ln"));
     vm7.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR", "ln"));
 
     vm4.invoke(() -> WANTestBase.doPuts(getUniqueName() + "_RR", 1000));
 
@@ -152,20 +152,20 @@ public class ConcurrentWANPropagation_1_DUnitTest extends WANTestBase {
         true, 5, OrderPolicy.THREAD));
 
     vm2.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR", null));
     vm3.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR", null));
 
     startSenderInVMs("ln", vm4, vm5);
 
     vm4.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR", "ln"));
     vm5.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR", "ln"));
     vm6.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR", "ln"));
     vm7.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR", "ln"));
 
     vm4.invoke(() -> WANTestBase.doPuts(getUniqueName() + "_RR", 1000));
 
@@ -187,13 +187,13 @@ public class ConcurrentWANPropagation_1_DUnitTest extends WANTestBase {
         true, 5, OrderPolicy.THREAD));
 
     vm4.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR", "ln"));
     vm5.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR", "ln"));
     vm6.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR", "ln"));
     vm7.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR", "ln"));
 
     startSenderInVMs("ln", vm4, vm5);
 
@@ -236,38 +236,38 @@ public class ConcurrentWANPropagation_1_DUnitTest extends WANTestBase {
 
     // create one RR (RR_1) on remote site
     vm2.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", null));
     vm3.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", null));
 
     // create another RR (RR_2) on remote site
     vm2.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_2", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_2", null));
     vm3.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_2", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_2", null));
 
     // start the senders on local site
     startSenderInVMs("ln", vm4, vm5);
 
     // create one RR (RR_1) on local site
     vm4.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", "ln"));
     vm5.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", "ln"));
     vm6.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", "ln"));
     vm7.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", "ln"));
 
     // create another RR (RR_2) on local site
     vm4.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_2", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_2", "ln"));
     vm5.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_2", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_2", "ln"));
     vm6.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_2", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_2", "ln"));
     vm7.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_2", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_2", "ln"));
 
     // start puts in RR_1 in another thread
     AsyncInvocation inv1 =
@@ -305,9 +305,9 @@ public class ConcurrentWANPropagation_1_DUnitTest extends WANTestBase {
 
     // create one RR (RR_1) on remote site
     vm2.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", null));
     vm3.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", null));
 
     createReceiverInVMs(vm2, vm3);
 
@@ -319,13 +319,13 @@ public class ConcurrentWANPropagation_1_DUnitTest extends WANTestBase {
 
     // create one RR (RR_1) on local site
     vm4.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", "ln"));
     vm5.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", "ln"));
     vm6.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", "ln"));
     vm7.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", "ln"));
 
     // senders are created on local site
     vm4.invoke(() -> WANTestBase.createConcurrentSender("ln", 2, false, 100, 10, false, false, null,
@@ -386,38 +386,38 @@ public class ConcurrentWANPropagation_1_DUnitTest extends WANTestBase {
 
     // create one RR (RR_1) on remote site
     vm2.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", null));
     vm3.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", null));
 
     // create another RR (RR_2) on remote site
     vm2.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_2", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_2", null));
     vm3.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_2", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_2", null));
 
     // start the senders on local site
     startSenderInVMs("ln", vm4, vm5);
 
     // create one RR (RR_1) on local site
     vm4.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", "ln"));
     vm5.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", "ln"));
     vm6.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", "ln"));
     vm7.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", "ln"));
 
     // create another RR (RR_2) on local site
     vm4.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_2", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_2", "ln"));
     vm5.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_2", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_2", "ln"));
     vm6.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_2", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_2", "ln"));
     vm7.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_2", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_2", "ln"));
     // destroy RR_2 on remote site in the middle
     vm2.invoke(() -> WANTestBase.destroyRegion(getUniqueName() + "_RR_2"));
 
@@ -464,39 +464,31 @@ public class ConcurrentWANPropagation_1_DUnitTest extends WANTestBase {
 
     // create one RR (RR_1) on remote site
     vm2.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", null));
     vm3.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", null));
 
     // create another RR (RR_2) on remote site
     vm2.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_2", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_2", null));
     vm3.invoke(
-        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_2", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_2", null));
 
 
     // start the senders on local site
     startSenderInVMs("ln", vm4, vm5);
 
     // create one RR (RR_1) on local site
-    vm4.invoke(() -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", senderId,
-        isOffHeap()));
-    vm5.invoke(() -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", senderId,
-        isOffHeap()));
-    vm6.invoke(() -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", senderId,
-        isOffHeap()));
-    vm7.invoke(() -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", senderId,
-        isOffHeap()));
+    vm4.invoke(() -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", senderId));
+    vm5.invoke(() -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", senderId));
+    vm6.invoke(() -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", senderId));
+    vm7.invoke(() -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_1", senderId));
 
     // create another RR (RR_2) on local site
-    vm4.invoke(() -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_2", senderId,
-        isOffHeap()));
-    vm5.invoke(() -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_2", senderId,
-        isOffHeap()));
-    vm6.invoke(() -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_2", senderId,
-        isOffHeap()));
-    vm7.invoke(() -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_2", senderId,
-        isOffHeap()));
+    vm4.invoke(() -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_2", senderId));
+    vm5.invoke(() -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_2", senderId));
+    vm6.invoke(() -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_2", senderId));
+    vm7.invoke(() -> WANTestBase.createReplicatedRegion(getUniqueName() + "_RR_2", senderId));
 
     IgnoredException.addIgnoredException(BatchException70.class.getName());
     IgnoredException.addIgnoredException(ServerOperationException.class.getName());

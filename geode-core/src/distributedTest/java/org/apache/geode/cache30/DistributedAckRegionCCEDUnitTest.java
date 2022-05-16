@@ -29,7 +29,6 @@ import java.util.Set;
 
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.DataPolicy;
@@ -61,9 +60,7 @@ import org.apache.geode.internal.cache.vmotion.VMotionObserverHolder;
 import org.apache.geode.test.dunit.AsyncInvocation;
 import org.apache.geode.test.dunit.SerializableRunnable;
 import org.apache.geode.test.dunit.VM;
-import org.apache.geode.test.junit.categories.OffHeapTest;
 
-@Category({OffHeapTest.class})
 public class DistributedAckRegionCCEDUnitTest extends DistributedAckRegionDUnitTest {
 
   @Override
@@ -238,7 +235,6 @@ public class DistributedAckRegionCCEDUnitTest extends DistributedAckRegionDUnitT
       // alone
       DistributedCacheOperation op = new UpdateOperation(event, tag.getVersionTimeStamp());
       op.distribute();
-      event.release();
     });
 
     partialCreate.get();

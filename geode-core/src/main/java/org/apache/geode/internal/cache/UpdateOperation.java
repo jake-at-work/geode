@@ -15,7 +15,6 @@
 
 package org.apache.geode.internal.cache;
 
-import static org.apache.geode.internal.offheap.annotations.OffHeapIdentifier.ENTRY_EVENT_NEW_VALUE;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -37,8 +36,6 @@ import org.apache.geode.internal.Assert;
 import org.apache.geode.internal.InternalDataSerializer;
 import org.apache.geode.internal.cache.EntryEventImpl.NewValueImporter;
 import org.apache.geode.internal.cache.tier.sockets.ClientProxyMembershipID;
-import org.apache.geode.internal.offheap.annotations.Retained;
-import org.apache.geode.internal.offheap.annotations.Unretained;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -117,7 +114,6 @@ public class UpdateOperation extends AbstractUpdateOperation {
 
     protected byte[] newValue;
 
-    @Unretained(ENTRY_EVENT_NEW_VALUE)
     protected transient Object newValueObj;
 
     private byte[] deltaBytes;
@@ -179,39 +175,30 @@ public class UpdateOperation extends AbstractUpdateOperation {
     }
 
     @Override
-    @Retained
     protected InternalCacheEvent createEvent(DistributedRegion rgn) throws EntryNotFoundException {
       EntryEventImpl ev = createEntryEvent(rgn);
-      boolean evReturned = false;
-      try {
-        ev.setEventId(eventId);
+      ev.setEventId(eventId);
 
-        ev.setDeltaBytes(deltaBytes);
+      ev.setDeltaBytes(deltaBytes);
 
-        if (hasDelta()) {
-          newValueObj = null;
-          // New value will be set once it is generated with fromDelta() inside
-          // EntryEventImpl.processDeltaBytes()
-          ev.setNewValue(newValueObj);
-        } else {
-          setNewValueInEvent(newValue, newValueObj, ev, deserializationPolicy);
-        }
-        if (filterRouting != null) {
-          ev.setLocalFilterInfo(filterRouting.getFilterInfo(rgn.getMyId()));
-        }
-        ev.setTailKey(tailKey);
-
-        ev.setVersionTag(versionTag);
-
-        ev.setInhibitAllNotifications(inhibitAllNotifications);
-
-        evReturned = true;
-        return ev;
-      } finally {
-        if (!evReturned) {
-          ev.release();
-        }
+      if (hasDelta()) {
+        newValueObj = null;
+        // New value will be set once it is generated with fromDelta() inside
+        // EntryEventImpl.processDeltaBytes()
+        ev.setNewValue(newValueObj);
+      } else {
+        setNewValueInEvent(newValue, newValueObj, ev, deserializationPolicy);
       }
+      if (filterRouting != null) {
+        ev.setLocalFilterInfo(filterRouting.getFilterInfo(rgn.getMyId()));
+      }
+      ev.setTailKey(tailKey);
+
+      ev.setVersionTag(versionTag);
+
+      ev.setInhibitAllNotifications(inhibitAllNotifications);
+
+      return ev;
     }
 
     @Override
@@ -297,11 +284,9 @@ public class UpdateOperation extends AbstractUpdateOperation {
       }
     }
 
-    @Retained
     protected EntryEventImpl createEntryEvent(DistributedRegion rgn) {
       Object argNewValue = null;
       final boolean originRemote = true;
-      @Retained
       EntryEventImpl result = EntryEventImpl.create(rgn, getOperation(), key, argNewValue, // oldValue,
           callbackArg, originRemote, getSender(), generateCallbacks);
       setOldValueInEvent(result);
@@ -481,7 +466,7 @@ public class UpdateOperation extends AbstractUpdateOperation {
     }
 
     @Override
-    public void importNewObject(@Unretained(ENTRY_EVENT_NEW_VALUE) Object nv,
+    public void importNewObject(Object nv,
         boolean isSerialized) {
       if (nv == null) {
         deserializationPolicy = DESERIALIZATION_POLICY_NONE;
@@ -508,14 +493,12 @@ public class UpdateOperation extends AbstractUpdateOperation {
     protected transient ClientProxyMembershipID clientID;
 
     @Override
-    @Retained
     public EntryEventImpl createEntryEvent(DistributedRegion rgn) {
       // Object oldValue = null;
       final Object argNewValue = null;
       // boolean localLoad = false, netLoad = false, netSearch = false,
       // distributed = true;
       final boolean originRemote = true;
-      @Retained
       EntryEventImpl ev = EntryEventImpl.create(rgn, getOperation(), key, argNewValue,
           callbackArg, originRemote, getSender(), generateCallbacks);
       ev.setContext(clientID);

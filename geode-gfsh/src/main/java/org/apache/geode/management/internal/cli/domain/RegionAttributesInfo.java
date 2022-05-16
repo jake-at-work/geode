@@ -83,7 +83,6 @@ public class RegionAttributesInfo implements Serializable {
   private String entryIdleTimeoutAction = ExpirationAction.INVALIDATE.toString();
   private String regionIdleTimeoutAction = ExpirationAction.INVALIDATE.toString();
 
-  private final boolean offHeap;
   private String customExpiryIdleTimeoutClass = null;
   private String customExpiryTTLClass = null;
 
@@ -182,7 +181,6 @@ public class RegionAttributesInfo implements Serializable {
       evictionAttributesInfo = new EvictionAttributesInfo(evictionAttributes);
 
     }
-    offHeap = ra.getOffHeap();
 
     CustomExpiry<?, ?> customIdleTimeout = ra.getCustomEntryIdleTimeout();
     if (customIdleTimeout != null) {
@@ -324,10 +322,6 @@ public class RegionAttributesInfo implements Serializable {
 
   public String getRegionTimeToLiveAction() {
     return regionTimeToLiveAction;
-  }
-
-  public boolean getOffHeap() {
-    return offHeap;
   }
 
   public String getCustomExpiryIdleTimeoutClass() {
@@ -497,10 +491,6 @@ public class RegionAttributesInfo implements Serializable {
 
     if (cacheWriterClassName != null && !cacheWriterClassName.isEmpty()) {
       nonDefaultAttributes.put(RegionAttributesNames.CACHE_WRITER, cacheWriterClassName);
-    }
-
-    if (offHeap != RegionAttributesDefault.OFF_HEAP) {
-      nonDefaultAttributes.put(RegionAttributesNames.OFF_HEAP, Boolean.toString(offHeap));
     }
 
     if (!asyncEventQueueIDs.isEmpty()) {

@@ -79,8 +79,8 @@ public class ProxyBucketRegionTest {
     when(partitionedRegion.getDiskStore()).thenReturn(ds);
     when(ds.getDiskInitFile()).thenReturn(dif);
     when(dif.createDiskRegion(any(), anyString(), anyBoolean(), anyBoolean(), anyBoolean(),
-        anyBoolean(), any(), any(), any(), any(), any(), anyString(), anyInt(), any(),
-        anyBoolean())).thenReturn(dr);
+        anyBoolean(), any(), any(), any(), any(), any(), anyString(), anyInt(), any()))
+            .thenReturn(dr);
     when(dm.getConfig()).thenReturn(config);
     when(config.getAckWaitThreshold()).thenReturn(10);
     when(cache.getCancelCriterion()).thenReturn(cancel);

@@ -150,7 +150,6 @@ import org.apache.geode.internal.cache.control.InternalResourceManager;
 import org.apache.geode.internal.cache.control.ResourceAdvisor;
 import org.apache.geode.internal.cache.event.EventTrackerExpiryTask;
 import org.apache.geode.internal.cache.eviction.HeapEvictor;
-import org.apache.geode.internal.cache.eviction.OffHeapEvictor;
 import org.apache.geode.internal.cache.extension.Extensible;
 import org.apache.geode.internal.cache.extension.ExtensionPoint;
 import org.apache.geode.internal.cache.extension.SimpleExtensionPoint;
@@ -166,7 +165,6 @@ import org.apache.geode.internal.lang.SystemProperty;
 import org.apache.geode.internal.lang.SystemPropertyHelper;
 import org.apache.geode.internal.logging.InternalLogWriter;
 import org.apache.geode.internal.logging.LocalLogWriter;
-import org.apache.geode.internal.offheap.MemoryAllocator;
 import org.apache.geode.internal.security.SecurityService;
 import org.apache.geode.internal.security.SecurityServiceFactory;
 import org.apache.geode.internal.statistics.StatisticsClock;
@@ -2210,11 +2208,6 @@ public class CacheCreation implements InternalCache {
   }
 
   @Override
-  public MemoryAllocator getOffHeapStore() {
-    throw new UnsupportedOperationException("Should not be invoked");
-  }
-
-  @Override
   public <K, V> Region<K, V> createVMRegion(final String name, final RegionAttributes<K, V> p_attrs,
       final InternalRegionArguments internalRegionArgs)
       throws RegionExistsException, TimeoutException {
@@ -2494,12 +2487,6 @@ public class CacheCreation implements InternalCache {
   @Override
   @VisibleForTesting
   public HeapEvictor getHeapEvictor() {
-    throw new UnsupportedOperationException("Should not be invoked");
-  }
-
-  @Override
-  @VisibleForTesting
-  public OffHeapEvictor getOffHeapEvictor() {
     throw new UnsupportedOperationException("Should not be invoked");
   }
 

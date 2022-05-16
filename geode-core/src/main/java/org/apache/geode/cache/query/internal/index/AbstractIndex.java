@@ -72,7 +72,6 @@ import org.apache.geode.internal.cache.RegionEntry;
 import org.apache.geode.internal.cache.RegionEntryContext;
 import org.apache.geode.internal.cache.partitioned.Bucket;
 import org.apache.geode.internal.cache.persistence.query.CloseableIterator;
-import org.apache.geode.internal.offheap.annotations.Retained;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.pdx.PdxInstance;
 import org.apache.geode.pdx.internal.PdxString;
@@ -283,7 +282,7 @@ public abstract class AbstractIndex implements IndexProtocol {
   }
 
   @Override
-  public void query(Object key, int operator, Collection results, @Retained CompiledValue iterOp,
+  public void query(Object key, int operator, Collection results, CompiledValue iterOp,
       RuntimeIterator indpndntItr, ExecutionContext context, List projAttrib,
       SelectResults intermediateResults, boolean isIntersection) throws TypeMismatchException,
       FunctionDomainException, NameResolutionException, QueryInvocationTargetException {

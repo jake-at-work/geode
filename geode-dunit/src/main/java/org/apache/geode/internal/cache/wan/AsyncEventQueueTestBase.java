@@ -216,14 +216,13 @@ public class AsyncEventQueueTestBase extends JUnit4DistributedTestCase {
   }
 
   public static void createReplicatedRegionWithAsyncEventQueue(String regionName,
-      String asyncQueueIds, Boolean offHeap) {
+      String asyncQueueIds) {
     IgnoredException exp1 =
         IgnoredException.addIgnoredException(ForceReattemptException.class.getName());
     try {
       AttributesFactory fact = new AttributesFactory();
       addAsyncEventQueueIds(fact, asyncQueueIds);
       fact.setDataPolicy(DataPolicy.REPLICATE);
-      fact.setOffHeap(offHeap);
       RegionFactory regionFactory = cache.createRegionFactory(fact.create());
       Region r = regionFactory.create(regionName);
       assertNotNull(r);
@@ -568,7 +567,7 @@ public class AsyncEventQueueTestBase extends JUnit4DistributedTestCase {
   }
 
   public static void createPartitionedRegionWithAsyncEventQueue(String regionName,
-      String asyncEventQueueId, Boolean offHeap) {
+      String asyncEventQueueId) {
     IgnoredException exp =
         IgnoredException.addIgnoredException(ForceReattemptException.class.getName());
     IgnoredException exp1 =
@@ -579,7 +578,6 @@ public class AsyncEventQueueTestBase extends JUnit4DistributedTestCase {
       PartitionAttributesFactory pfact = new PartitionAttributesFactory();
       pfact.setTotalNumBuckets(16);
       fact.setPartitionAttributes(pfact.create());
-      fact.setOffHeap(offHeap);
       Region r = cache.createRegionFactory(fact.create()).addAsyncEventQueueId(asyncEventQueueId)
           .create(regionName);
       assertNotNull(r);
@@ -1585,9 +1583,6 @@ public class AsyncEventQueueTestBase extends JUnit4DistributedTestCase {
    * Returns true if the test should create off-heap regions. OffHeap tests should over-ride this
    * method and return false.
    */
-  public boolean isOffHeap() {
-    return false;
-  }
 
   private static class MyFixedPartitionResolver implements FixedPartitionResolver {
 

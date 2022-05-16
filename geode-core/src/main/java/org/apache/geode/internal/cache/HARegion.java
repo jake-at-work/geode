@@ -45,7 +45,6 @@ import org.apache.geode.internal.cache.ha.HARegionQueue;
 import org.apache.geode.internal.cache.ha.ThreadIdentifier;
 import org.apache.geode.internal.cache.tier.sockets.ClientProxyMembershipID;
 import org.apache.geode.internal.cache.tier.sockets.HAEventWrapper;
-import org.apache.geode.internal.offheap.annotations.Released;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
 import org.apache.geode.internal.statistics.StatisticsClock;
@@ -207,24 +206,19 @@ public class HARegion extends DistributedRegion {
       throws TimeoutException, CacheWriterException {
     checkReadiness();
 
-    @Released
     EntryEventImpl event = EntryEventImpl.create(this, Operation.UPDATE, key, value,
         aCallbackArgument, false, getMyId());
-    try {
 
-      Object oldValue = null;
+    Object oldValue = null;
 
-      if (basicPut(event, false, // ifNew
-          false, // ifOld
-          null, // expectedOldValue
-          false // requireOldValue
-      )) {
-        oldValue = event.getOldValue();
-      }
-      return handleNotAvailable(oldValue);
-    } finally {
-      event.release();
+    if (basicPut(event, false, // ifNew
+        false, // ifOld
+        null, // expectedOldValue
+        false // requireOldValue
+    )) {
+      oldValue = event.getOldValue();
     }
+    return handleNotAvailable(oldValue);
   }
 
   /**
@@ -355,14 +349,9 @@ public class HARegion extends DistributedRegion {
             op = Operation.LOCAL_LOAD_UPDATE;
           }
 
-          @Released
           EntryEventImpl event = EntryEventImpl.create(this, op, key, value, aCallbackArgument,
               false, getMyId(), generateCallbacks);
-          try {
-            re = basicPutEntry(event, 0L);
-          } finally {
-            event.release();
-          }
+          re = basicPutEntry(event, 0L);
         } catch (CacheWriterException cwe) {
           // @todo smenon Log the exception
         }

@@ -14,8 +14,6 @@
  */
 package org.apache.geode.internal.cache;
 
-import static org.apache.geode.internal.offheap.annotations.OffHeapIdentifier.TX_ENTRY_STATE;
-
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -43,12 +41,6 @@ import org.apache.geode.distributed.internal.membership.InternalDistributedMembe
 import org.apache.geode.internal.Assert;
 import org.apache.geode.internal.cache.versions.VersionTag;
 import org.apache.geode.internal.lang.StringUtils;
-import org.apache.geode.internal.offheap.OffHeapHelper;
-import org.apache.geode.internal.offheap.Releasable;
-import org.apache.geode.internal.offheap.StoredObject;
-import org.apache.geode.internal.offheap.annotations.Released;
-import org.apache.geode.internal.offheap.annotations.Retained;
-import org.apache.geode.internal.offheap.annotations.Unretained;
 import org.apache.geode.internal.serialization.DataSerializableFixedID;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.KnownVersion;
@@ -63,14 +55,13 @@ import org.apache.geode.util.internal.GeodeGlossary;
  *
  * @since GemFire 4.0
  */
-public class TXEntryState implements Releasable {
+public class TXEntryState {
   private static final Logger logger = LogService.getLogger();
 
   /**
    * This field is final except for when it is nulled out during cleanup
    */
-  @Retained(TX_ENTRY_STATE)
-  private Object originalVersionId;
+  private final Object originalVersionId;
   private final Object originalValue;
 
   /**
@@ -362,7 +353,6 @@ public class TXEntryState implements Releasable {
    * Gets the pending value for near side operations. Special cases local destroy and local
    * invalidate to fix bug 34387.
    */
-  @Unretained
   public Object getNearSidePendingValue() {
     if (isOpLocalDestroy()) {
       return null;
@@ -467,7 +457,6 @@ public class TXEntryState implements Releasable {
     }
   }
 
-  @Retained
   public Object getValueInVM(Object key) throws EntryNotFoundException {
     if (!existsLocally()) {
       throw new EntryNotFoundException(String.valueOf(key));
@@ -918,28 +907,18 @@ public class TXEntryState implements Releasable {
     }
   }
 
-  @Retained
   EntryEvent getEvent(InternalRegion r, Object key, TXState txs) {
     InternalRegion eventRegion = r;
     if (r.isUsedForPartitionedRegionBucket()) {
       eventRegion = r.getPartitionedRegion();
     }
-    @Retained
     EntryEventImpl result = new TxEntryEventImpl(eventRegion, key);
-    boolean returnedResult = false;
-    try {
-      if (destroy == DESTROY_NONE || isOpDestroy()) {
-        result.setOldValue(getOriginalValue());
-      }
-      result.setOriginRemote(txs.isOriginRemoteForEvents());
-      result.setTransactionId(txs.getTransactionId());
-      returnedResult = true;
-      return result;
-    } finally {
-      if (!returnedResult) {
-        result.release();
-      }
+    if (destroy == DESTROY_NONE || isOpDestroy()) {
+      result.setOldValue(getOriginalValue());
     }
+    result.setOriginRemote(txs.isOriginRemoteForEvents());
+    result.setTransactionId(txs.getTransactionId());
+    return result;
   }
 
   /**
@@ -1422,9 +1401,6 @@ public class TXEntryState implements Releasable {
     if (o1 == o2) {
       return true;
     }
-    if (o1 instanceof StoredObject) {
-      return o1.equals(o2);
-    }
     return false;
   }
 
@@ -1443,44 +1419,40 @@ public class TXEntryState implements Releasable {
       r.checkReadiness();
       RegionEntry re = r.basicGetEntry(key);
       Object curCmtVersionId = null;
-      try {
-        if ((re == null) || re.isValueNull()) {
-          curCmtVersionId = Token.REMOVED_PHASE1;
-        } else {
-          if (re.getValueWasResultOfSearch()) {
-            return;
-          }
-
-          /*
-           * The originalVersionId may be compressed so grab the value as stored in the map which
-           * will match if compression is turned on.
-           */
-          curCmtVersionId = re.getTransformedValue();
+      if ((re == null) || re.isValueNull()) {
+        curCmtVersionId = Token.REMOVED_PHASE1;
+      } else {
+        if (re.getValueWasResultOfSearch()) {
+          return;
         }
-        if (!areIdentical(getOriginalVersionId(), curCmtVersionId)) {
-          // I'm not sure it is a good idea to call getDeserializedValue.
-          // Might be better to add a toString impl on CachedDeserializable.
-          // if (curCmtVersionId instanceof CachedDeserializable) {
-          // curCmtVersionId =
-          // ((CachedDeserializable)curCmtVersionId).getDeserializedValue();
-          // }
-          if (VERBOSE_CONFLICT_STRING || logger.isDebugEnabled()) {
-            String fromString = calcConflictString(getOriginalVersionId());
-            String toString = calcConflictString(curCmtVersionId);
-            if (!fromString.equals(toString)) {
-              throw new CommitConflictException(
-                  String.format(
-                      "Entry for key %s on region %s had already been changed from %s to %s",
 
-                      key, r.getDisplayName(), fromString, toString));
-            }
+        /*
+         * The originalVersionId may be compressed so grab the value as stored in the map which
+         * will match if compression is turned on.
+         */
+        curCmtVersionId = re.getTransformedValue();
+      }
+      if (!areIdentical(getOriginalVersionId(), curCmtVersionId)) {
+        // I'm not sure it is a good idea to call getDeserializedValue.
+        // Might be better to add a toString impl on CachedDeserializable.
+        // if (curCmtVersionId instanceof CachedDeserializable) {
+        // curCmtVersionId =
+        // ((CachedDeserializable)curCmtVersionId).getDeserializedValue();
+        // }
+        if (VERBOSE_CONFLICT_STRING || logger.isDebugEnabled()) {
+          String fromString = calcConflictString(getOriginalVersionId());
+          String toString = calcConflictString(curCmtVersionId);
+          if (!fromString.equals(toString)) {
+            throw new CommitConflictException(
+                String.format(
+                    "Entry for key %s on region %s had already been changed from %s to %s",
+
+                    key, r.getDisplayName(), fromString, toString));
           }
-          throw new CommitConflictException(
-              String.format("Entry for key %s on region %s had a state change",
-                  key, r.getDisplayName()));
         }
-      } finally {
-        OffHeapHelper.release(curCmtVersionId);
+        throw new CommitConflictException(
+            String.format("Entry for key %s on region %s had a state change",
+                key, r.getDisplayName()));
       }
     } catch (CacheRuntimeException ex) {
       r.getCancelCriterion().checkCancelInProgress(null);
@@ -1492,10 +1464,6 @@ public class TXEntryState implements Releasable {
   private String calcConflictString(Object obj) {
     Object o = obj;
     if (o instanceof CachedDeserializable) {
-      if (o instanceof StoredObject && ((StoredObject) o).isCompressed()) {
-        // fix for bug 52113
-        return "<compressed value of size " + ((StoredObject) o).getValueSizeInBytes() + ">";
-      }
       try {
         o = ((CachedDeserializable) o).getDeserializedForReading();
       } catch (PdxSerializationException e) {
@@ -1843,15 +1811,6 @@ public class TXEntryState implements Releasable {
     return isBulkOp() ? Operation.PUTALL_UPDATE : Operation.UPDATE;
   }
 
-  @Override
-  @Released(TX_ENTRY_STATE)
-  public void release() {
-    Object tmp = originalVersionId;
-    if (OffHeapHelper.release(tmp)) {
-      originalVersionId = null; // fix for bug 47900
-    }
-  }
-
   private Operation getDestroyOperation() {
     if (isOpLocalDestroy()) {
       return Operation.LOCAL_DESTROY;
@@ -1953,7 +1912,6 @@ public class TXEntryState implements Releasable {
     /**
      * Creates a local tx entry event
      */
-    @Retained
     TxEntryEventImpl(InternalRegion r, Object key) {
       super(r, getNearSideOperation(), key, getNearSidePendingValue(),
           TXEntryState.this.getCallbackArgument(), false, r.getMyId(), true/* generateCallbacks */,
@@ -2043,9 +2001,7 @@ public class TXEntryState implements Releasable {
     this.tailKey = tailKey;
   }
 
-  public void close() {
-    release();
-  }
+  public void close() {}
 
   @Override
   public String toString() {

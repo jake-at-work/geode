@@ -1074,47 +1074,62 @@ public interface MemberMXBean {
    * Returns the number of off heap objects.
    *
    * @return the number of off heap objects
+   * @deprecated No replacement.
    */
+  @Deprecated
   int getOffHeapObjects();
 
   /**
    * Returns the size of the maximum configured off-heap memory in bytes.
    *
    * @return the size of the maximum configured off-heap memory in bytes
+   * @deprecated No replacement.
    */
+  @Deprecated
   long getOffHeapMaxMemory();
 
   /**
    * Returns the size of available (or unallocated) off-heap memory in bytes.
    *
    * @return the size of available (or unallocated) off-heap memory in bytes
+   * @deprecated No replacement.
    */
+  @Deprecated
   long getOffHeapFreeMemory();
 
   /**
    * Returns the size of utilized off-heap memory in bytes.
    *
    * @return the size of utilized off-heap memory in bytes
+   * @deprecated No replacement.
    */
+  @Deprecated
   long getOffHeapUsedMemory();
 
   /**
    * Returns the percentage of off-heap memory fragmentation.
    *
    * @return the percentage of off-heap memory fragmentation
+   * @deprecated No replacement.
    */
+  @Deprecated
   int getOffHeapFragmentation();
 
+  @Deprecated
   long getOffHeapFragments();
 
+  @Deprecated
   long getOffHeapFreedChunks();
 
+  @Deprecated
   int getOffHeapLargestFragment();
 
   /**
    * Returns the total time spent compacting in milliseconds.
    *
    * @return the total time spent compacting in milliseconds
+   * @deprecated No replacement.
    */
+  @Deprecated
   long getOffHeapCompactionTime();
 }

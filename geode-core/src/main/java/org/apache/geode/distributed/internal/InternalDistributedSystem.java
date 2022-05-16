@@ -95,8 +95,6 @@ import org.apache.geode.internal.config.ClusterConfigurationNotAvailableExceptio
 import org.apache.geode.internal.logging.InternalLogWriter;
 import org.apache.geode.internal.logging.LogWriterFactory;
 import org.apache.geode.internal.net.SocketCreatorFactory;
-import org.apache.geode.internal.offheap.MemoryAllocator;
-import org.apache.geode.internal.offheap.OffHeapStorage;
 import org.apache.geode.internal.security.SecurityService;
 import org.apache.geode.internal.security.SecurityServiceFactory;
 import org.apache.geode.internal.statistics.DummyStatisticsRegistry;
@@ -642,12 +640,6 @@ public class InternalDistributedSystem extends DistributedSystem
     return isLoner;
   }
 
-  private MemoryAllocator offHeapStore = null;
-
-  public MemoryAllocator getOffHeapStore() {
-    return offHeapStore;
-  }
-
   /**
    * Initializes this connection to a distributed system with the current configuration state.
    */
@@ -728,18 +720,13 @@ public class InternalDistributedSystem extends DistributedSystem
             ex);
       }
 
-      final long offHeapMemorySize =
-          OffHeapStorage.parseOffHeapMemorySize(getConfig().getOffHeapMemorySize());
-
-      offHeapStore = OffHeapStorage.createOffHeapStorage(this, offHeapMemorySize, this);
-
       // Note: this can only happen on a linux system
       if (getConfig().getLockMemory()) {
         // This calculation is not exact, but seems fairly close. So far we have
         // not loaded much into the heap and the current RSS usage is already
         // included the available memory calculation.
         long avail = LinuxProcFsStatistics.getAvailableMemory(logger);
-        long size = offHeapMemorySize + Runtime.getRuntime().totalMemory();
+        long size = Runtime.getRuntime().totalMemory();
         lockMemory(avail, size);
       }
 
@@ -1634,25 +1621,19 @@ public class InternalDistributedSystem extends DistributedSystem
 
     } finally {
       try {
-        if (getOffHeapStore() != null) {
-          getOffHeapStore().close();
+        removeSystem(this);
+        if (!attemptingToReconnect) {
+          loggingSession.shutdown();
         }
+        alertingService.useAlertMessaging(new NullAlertMessaging());
+        clusterAlertMessaging.get().close();
+        alertingSession.shutdown();
+        // Close the config object
+        config.close();
       } finally {
-        try {
-          removeSystem(this);
-          if (!attemptingToReconnect) {
-            loggingSession.shutdown();
-          }
-          alertingService.useAlertMessaging(new NullAlertMessaging());
-          clusterAlertMessaging.get().close();
-          alertingSession.shutdown();
-          // Close the config object
-          config.close();
-        } finally {
-          // Finally, mark ourselves as disconnected
-          setDisconnected();
-          SystemFailure.stopThreads();
-        }
+        // Finally, mark ourselves as disconnected
+        setDisconnected();
+        SystemFailure.stopThreads();
       }
     }
   }

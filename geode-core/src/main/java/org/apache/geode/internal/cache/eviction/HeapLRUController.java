@@ -102,9 +102,8 @@ public class HeapLRUController extends SizeLRUController {
   @Override
   public boolean mustEvict(EvictionCounters stats, InternalRegion region, int delta) {
     InternalCache cache = (InternalCache) region.getRegionService();
-    boolean offheap = region.getAttributes().getOffHeap();
     boolean shouldEvict =
-        cache.getInternalResourceManager().getMemoryMonitor(offheap).getState().isEviction();
+        cache.getInternalResourceManager().getMemoryMonitor().getState().isEviction();
 
     if (region instanceof BucketRegion) {
       return shouldEvict && ((BucketRegion) region).getSizeForEviction() > 0;
@@ -116,7 +115,7 @@ public class HeapLRUController extends SizeLRUController {
   public boolean lruLimitExceeded(EvictionCounters stats, DiskRegionView diskRegionView) {
     InternalResourceManager resourceManager =
         diskRegionView.getDiskStore().getCache().getInternalResourceManager();
-    return resourceManager.getMemoryMonitor(diskRegionView.getOffHeap()).getState().isEviction();
+    return resourceManager.getMemoryMonitor().getState().isEviction();
   }
 
 }

@@ -47,8 +47,6 @@ import org.apache.geode.internal.cache.wan.GatewaySenderEventImpl;
 import org.apache.geode.internal.cache.wan.parallel.BucketRegionQueueUnavailableException;
 import org.apache.geode.internal.cache.wan.parallel.ConcurrentParallelGatewaySenderQueue;
 import org.apache.geode.internal.concurrent.Atomics;
-import org.apache.geode.internal.offheap.OffHeapClearRequired;
-import org.apache.geode.internal.offheap.annotations.Released;
 import org.apache.geode.internal.statistics.StatisticsClock;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 
@@ -207,7 +205,7 @@ public class BucketRegionQueue extends AbstractBucketRegionQueue {
 
   @Override
   public void closeEntries() {
-    OffHeapClearRequired.doWithOffHeapClear(BucketRegionQueue.super::closeEntries);
+    super.closeEntries();
     indexes.clear();
     eventSeqNumDeque.clear();
     markAsDuplicate.clear();
@@ -216,8 +214,7 @@ public class BucketRegionQueue extends AbstractBucketRegionQueue {
   @Override
   public Set<VersionSource> clearEntries(final RegionVersionVector rvv) {
     final AtomicReference<Set<VersionSource>> result = new AtomicReference<>();
-    OffHeapClearRequired.doWithOffHeapClear(
-        () -> result.set(BucketRegionQueue.super.clearEntries(rvv)));
+    result.set(BucketRegionQueue.super.clearEntries(rvv));
     eventSeqNumDeque.clear();
     markAsDuplicate.clear();
     return result.get();
@@ -246,38 +243,32 @@ public class BucketRegionQueue extends AbstractBucketRegionQueue {
       Object expectedOldValue, boolean requireOldValue, long lastModified,
       boolean overwriteDestroyed, boolean invokeCallbacks, boolean throwConcurrentModification)
       throws TimeoutException, CacheWriterException {
-    try {
-      boolean success = super.virtualPut(event, ifNew, ifOld, expectedOldValue, requireOldValue,
-          lastModified, overwriteDestroyed, invokeCallbacks, throwConcurrentModification);
+    boolean success = super.virtualPut(event, ifNew, ifOld, expectedOldValue, requireOldValue,
+        lastModified, overwriteDestroyed, invokeCallbacks, throwConcurrentModification);
 
-      if (success) {
-        if (getPartitionedRegion().getColocatedWith() == null) {
-          return success;
-        }
+    if (success) {
+      if (getPartitionedRegion().getColocatedWith() == null) {
+        return success;
+      }
 
-        if (getPartitionedRegion().isConflationEnabled() && getBucketAdvisor().isPrimary()) {
-          Object object = event.getNewValue();
-          Long key = (Long) event.getKey();
-          if (object instanceof Conflatable) {
-            if (logger.isDebugEnabled()) {
-              logger.debug("Key :{} , Object : {} is conflatable", key, object);
-            }
-            // TODO: TO optimize by destroying on primary and secondary separately
-            // in case of conflation
-            conflateOldEntry((Conflatable) object, key);
-          } else {
-            if (logger.isDebugEnabled()) {
-              logger.debug("Object : {} is not conflatable", object);
-            }
+      if (getPartitionedRegion().isConflationEnabled() && getBucketAdvisor().isPrimary()) {
+        Object object = event.getNewValue();
+        Long key = (Long) event.getKey();
+        if (object instanceof Conflatable) {
+          if (logger.isDebugEnabled()) {
+            logger.debug("Key :{} , Object : {} is conflatable", key, object);
+          }
+          // TODO: TO optimize by destroying on primary and secondary separately
+          // in case of conflation
+          conflateOldEntry((Conflatable) object, key);
+        } else {
+          if (logger.isDebugEnabled()) {
+            logger.debug("Object : {} is not conflatable", object);
           }
         }
-      } else {
-        GatewaySenderEventImpl.release(event.getRawNewValue());
       }
-      return success;
-    } finally {
-      GatewaySenderEventImpl.release(event.getRawOldValue());
     }
+    return success;
   }
 
   private void conflateOldEntry(Conflatable object, Long tailKey) {
@@ -364,14 +355,10 @@ public class BucketRegionQueue extends AbstractBucketRegionQueue {
     if (getPartitionedRegion().isConflationEnabled()) {
       indexEntryFound = containsKey(event.getKey()) && removeIndex((Long) event.getKey());
     }
-    try {
-      if (indexEntryFound || forceBasicDestroy) {
-        super.basicDestroy(event, cacheWrite, expectedOldValue);
-      } else {
-        throw new EntryNotFoundException(event.getKey().toString());
-      }
-    } finally {
-      GatewaySenderEventImpl.release(event.getRawOldValue());
+    if (indexEntryFound || forceBasicDestroy) {
+      super.basicDestroy(event, cacheWrite, expectedOldValue);
+    } else {
+      throw new EntryNotFoundException(event.getKey().toString());
     }
 
     // Primary buckets should already remove the key while peeking
@@ -603,7 +590,6 @@ public class BucketRegionQueue extends AbstractBucketRegionQueue {
     if (logger.isDebugEnabled()) {
       logger.debug(" destroying primary key {}", key);
     }
-    @Released
     EntryEventImpl event = newDestroyEntryEvent(key, null);
     try {
       event.setEventId(new EventID(cache.getInternalDistributedSystem()));
@@ -627,8 +613,6 @@ public class BucketRegionQueue extends AbstractBucketRegionQueue {
       if (isBucketDestroyed()) {
         throw new ForceReattemptException("Bucket moved while destroying key " + key, rde);
       }
-    } finally {
-      event.release();
     }
 
     notifyEntriesRemoved();

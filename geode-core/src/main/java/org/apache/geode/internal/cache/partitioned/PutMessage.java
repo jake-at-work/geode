@@ -14,8 +14,6 @@
  */
 package org.apache.geode.internal.cache.partitioned;
 
-import static org.apache.geode.internal.offheap.annotations.OffHeapIdentifier.ENTRY_EVENT_NEW_VALUE;
-import static org.apache.geode.internal.offheap.annotations.OffHeapIdentifier.ENTRY_EVENT_OLD_VALUE;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -62,9 +60,6 @@ import org.apache.geode.internal.cache.tier.sockets.ClientProxyMembershipID;
 import org.apache.geode.internal.cache.tx.RemotePutMessage;
 import org.apache.geode.internal.cache.versions.VersionTag;
 import org.apache.geode.internal.logging.log4j.LogMarker;
-import org.apache.geode.internal.offheap.annotations.Released;
-import org.apache.geode.internal.offheap.annotations.Retained;
-import org.apache.geode.internal.offheap.annotations.Unretained;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -87,7 +82,6 @@ public class PutMessage extends PartitionMessageWithDirectReply implements NewVa
   /**
    * Used on sender side only to defer serialization until toData is called.
    */
-  @Unretained(ENTRY_EVENT_NEW_VALUE)
   private transient Object valObj;
 
   /** The callback arg of the operation */
@@ -396,7 +390,6 @@ public class PutMessage extends PartitionMessageWithDirectReply implements NewVa
    * create a new EntryEvent to be used in notifying listeners, cache servers, etc. Caller must
    * release result if it is != to sourceEvent
    */
-  @Retained
   EntryEventImpl createListenerEvent(EntryEventImpl sourceEvent, PartitionedRegion r,
       InternalDistributedMember member) {
     final EntryEventImpl e2;
@@ -444,7 +437,7 @@ public class PutMessage extends PartitionMessageWithDirectReply implements NewVa
     this.valBytes = valBytes;
   }
 
-  private void setValObj(@Unretained(ENTRY_EVENT_NEW_VALUE) Object o) {
+  private void setValObj(Object o) {
     valObj = o;
   }
 
@@ -668,105 +661,92 @@ public class PutMessage extends PartitionMessageWithDirectReply implements NewVa
     if (eventSender == null) {
       eventSender = getSender();
     }
-    @Released
     final EntryEventImpl ev =
         EntryEventImpl.create(r, getOperation(), getKey(), null, /* newValue */
             getCallbackArg(), false/* originRemote - false to force distribution in buckets */,
             eventSender, generateCallbacks/* generateCallbacks */, false/* initializeId */);
-    try {
-      if (versionTag != null) {
-        versionTag.replaceNullIDs(getSender());
-        ev.setVersionTag(versionTag);
-      }
-      if (bridgeContext != null) {
-        ev.setContext(bridgeContext);
-      }
-      Assert.assertTrue(eventId != null);
-      ev.setEventId(eventId);
-      ev.setCausedByMessage(this);
-      ev.setInvokePRCallbacks(!notificationOnly);
-      ev.setPossibleDuplicate(posDup);
-      /*
-       * if (this.hasOldValue) { if (this.oldValueIsSerialized) {
-       * ev.setSerializedOldValue(getOldValueBytes()); } else { ev.setOldValue(getOldValueBytes());
-       * } }
-       */
-
-      ev.setDeltaBytes(deltaBytes);
-      if (hasDelta) {
-        valObj = null;
-        // New value will be set once it is generated with fromDelta() inside
-        // EntryEventImpl.processDeltaBytes()
-        ev.setNewValue(valObj);
-      } else {
-        switch (deserializationPolicy) {
-          case DistributedCacheOperation.DESERIALIZATION_POLICY_LAZY:
-            ev.setSerializedNewValue(getValBytes());
-            break;
-          case DistributedCacheOperation.DESERIALIZATION_POLICY_NONE:
-            ev.setNewValue(getValBytes());
-            break;
-          default:
-            throw new AssertionError("unknown deserialization policy: " + deserializationPolicy);
-        }
-      }
-
-      if (!notificationOnly) {
-        if (ds == null) {
-          throw new AssertionError(
-              "This process should have storage" + " for this operation: " + this);
-        }
-        try {
-          ev.setOriginRemote(false);
-          result =
-              r.getDataView().putEntryOnRemote(ev, ifNew, ifOld, expectedOldValue,
-                  requireOldValue, lastModified, true/* overwriteDestroyed *not* used */);
-
-          if (!result) { // make sure the region hasn't gone away
-            r.checkReadiness();
-          }
-        } catch (CacheWriterException | PrimaryBucketException cwe) {
-          sendReply(getSender(), getProcessorId(), dm, new ReplyException(cwe), r, startTime);
-          return false;
-        } catch (InvalidDeltaException ide) {
-          sendReply(getSender(), getProcessorId(), dm, new ReplyException(ide), r, startTime);
-          r.getCachePerfStats().incDeltaFullValuesRequested();
-          return false;
-        }
-        if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
-          logger.trace(LogMarker.DM_VERBOSE, "PutMessage {} with key: {} val: {}",
-              (result ? "updated bucket" : "did not update bucket"), getKey(),
-              (getValBytes() == null ? "null" : "(" + getValBytes().length + " bytes)"));
-        }
-      } else { // notificationOnly
-        @Released
-        EntryEventImpl e2 = createListenerEvent(ev, r, dm.getDistributionManagerId());
-        final EnumListenerEvent le;
-        try {
-          if (e2.getOperation().isCreate()) {
-            le = EnumListenerEvent.AFTER_CREATE;
-          } else {
-            le = EnumListenerEvent.AFTER_UPDATE;
-          }
-          r.invokePutCallbacks(le, e2, r.isInitialized(), true);
-        } finally {
-          // if e2 == ev then no need to free it here. The outer finally block will get it.
-          if (e2 != ev) {
-            e2.release();
-          }
-        }
-        result = true;
-      }
-
-      setOperation(ev.getOperation()); // set operation for reply message
-
-      if (sendReply) {
-        sendReply(getSender(), getProcessorId(), dm, null, r, startTime, ev);
-      }
-      return false;
-    } finally {
-      ev.release();
+    if (versionTag != null) {
+      versionTag.replaceNullIDs(getSender());
+      ev.setVersionTag(versionTag);
     }
+    if (bridgeContext != null) {
+      ev.setContext(bridgeContext);
+    }
+    Assert.assertTrue(eventId != null);
+    ev.setEventId(eventId);
+    ev.setCausedByMessage(this);
+    ev.setInvokePRCallbacks(!notificationOnly);
+    ev.setPossibleDuplicate(posDup);
+    /*
+     * if (this.hasOldValue) { if (this.oldValueIsSerialized) {
+     * ev.setSerializedOldValue(getOldValueBytes()); } else { ev.setOldValue(getOldValueBytes());
+     * } }
+     */
+
+    ev.setDeltaBytes(deltaBytes);
+    if (hasDelta) {
+      valObj = null;
+      // New value will be set once it is generated with fromDelta() inside
+      // EntryEventImpl.processDeltaBytes()
+      ev.setNewValue(valObj);
+    } else {
+      switch (deserializationPolicy) {
+        case DistributedCacheOperation.DESERIALIZATION_POLICY_LAZY:
+          ev.setSerializedNewValue(getValBytes());
+          break;
+        case DistributedCacheOperation.DESERIALIZATION_POLICY_NONE:
+          ev.setNewValue(getValBytes());
+          break;
+        default:
+          throw new AssertionError("unknown deserialization policy: " + deserializationPolicy);
+      }
+    }
+
+    if (!notificationOnly) {
+      if (ds == null) {
+        throw new AssertionError(
+            "This process should have storage" + " for this operation: " + this);
+      }
+      try {
+        ev.setOriginRemote(false);
+        result =
+            r.getDataView().putEntryOnRemote(ev, ifNew, ifOld, expectedOldValue,
+                requireOldValue, lastModified, true/* overwriteDestroyed *not* used */);
+
+        if (!result) { // make sure the region hasn't gone away
+          r.checkReadiness();
+        }
+      } catch (CacheWriterException | PrimaryBucketException cwe) {
+        sendReply(getSender(), getProcessorId(), dm, new ReplyException(cwe), r, startTime);
+        return false;
+      } catch (InvalidDeltaException ide) {
+        sendReply(getSender(), getProcessorId(), dm, new ReplyException(ide), r, startTime);
+        r.getCachePerfStats().incDeltaFullValuesRequested();
+        return false;
+      }
+      if (logger.isTraceEnabled(LogMarker.DM_VERBOSE)) {
+        logger.trace(LogMarker.DM_VERBOSE, "PutMessage {} with key: {} val: {}",
+            (result ? "updated bucket" : "did not update bucket"), getKey(),
+            (getValBytes() == null ? "null" : "(" + getValBytes().length + " bytes)"));
+      }
+    } else { // notificationOnly
+      EntryEventImpl e2 = createListenerEvent(ev, r, dm.getDistributionManagerId());
+      final EnumListenerEvent le;
+      if (e2.getOperation().isCreate()) {
+        le = EnumListenerEvent.AFTER_CREATE;
+      } else {
+        le = EnumListenerEvent.AFTER_UPDATE;
+      }
+      r.invokePutCallbacks(le, e2, r.isInitialized(), true);
+      result = true;
+    }
+
+    setOperation(ev.getOperation()); // set operation for reply message
+
+    if (sendReply) {
+      sendReply(getSender(), getProcessorId(), dm, null, r, startTime, ev);
+    }
+    return false;
   }
 
 
@@ -852,7 +832,6 @@ public class PutMessage extends PartitionMessageWithDirectReply implements NewVa
     /**
      * Old value in serialized form: either a byte[] or CachedDeserializable, or null if not set.
      */
-    @Unretained(ENTRY_EVENT_OLD_VALUE)
     Object oldValue;
 
     VersionTag versionTag;
@@ -989,7 +968,7 @@ public class PutMessage extends PartitionMessageWithDirectReply implements NewVa
 
 
     @Override
-    public void importOldObject(@Unretained(ENTRY_EVENT_OLD_VALUE) Object ov,
+    public void importOldObject(Object ov,
         boolean isSerialized) {
       oldValue = ov;
       oldValueIsSerialized = isSerialized;
@@ -1156,7 +1135,7 @@ public class PutMessage extends PartitionMessageWithDirectReply implements NewVa
   }
 
   @Override
-  public void importNewObject(@Unretained(ENTRY_EVENT_NEW_VALUE) Object nv, boolean isSerialized) {
+  public void importNewObject(Object nv, boolean isSerialized) {
     setDeserializationPolicy(isSerialized);
     setValObj(nv);
   }

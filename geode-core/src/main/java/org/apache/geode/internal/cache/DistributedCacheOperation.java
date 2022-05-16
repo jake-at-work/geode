@@ -76,10 +76,6 @@ import org.apache.geode.internal.cache.versions.RegionVersionVector;
 import org.apache.geode.internal.cache.versions.VersionSource;
 import org.apache.geode.internal.cache.versions.VersionTag;
 import org.apache.geode.internal.logging.log4j.LogMarker;
-import org.apache.geode.internal.offheap.Releasable;
-import org.apache.geode.internal.offheap.StoredObject;
-import org.apache.geode.internal.offheap.annotations.Released;
-import org.apache.geode.internal.offheap.annotations.Unretained;
 import org.apache.geode.internal.sequencelog.EntryLogger;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
@@ -125,10 +121,8 @@ public abstract class DistributedCacheOperation {
       final byte[] vBytes, final DataOutput out) throws IOException {
     if (vObj != null) {
       if (deserializationPolicy == DESERIALIZATION_POLICY_NONE) {
-        // We only have NONE with a vObj when vObj is off-heap and not serialized.
-        StoredObject so = (StoredObject) vObj;
-        assert !so.isSerialized();
-        so.sendAsByteArray(out);
+        throw new IllegalStateException(
+            "We only have NONE with a vObj when vObj is off-heap and not serialized.");
       } else { // LAZY
         DataSerializer.writeObjectAsByteArray(vObj, out);
       }
@@ -1010,7 +1004,6 @@ public abstract class DistributedCacheOperation {
      * @param event the entry event that contains the old value
      */
     public void appendOldValueToMessage(EntryEventImpl event) {
-      @Unretained
       Object val = event.getRawOldValue();
       if (val == null || val == Token.NOT_AVAILABLE || val == Token.REMOVED_PHASE1
           || val == Token.REMOVED_PHASE2 || val == Token.DESTROYED || val == Token.TOMBSTONE) {
@@ -1170,35 +1163,28 @@ public abstract class DistributedCacheOperation {
           return;
         }
 
-        @Released
         InternalCacheEvent event = createEvent(rgn);
-        try {
-          boolean isEntry = event.getOperation().isEntry();
+        boolean isEntry = event.getOperation().isEntry();
 
-          if (isEntry && possibleDuplicate) {
-            ((EntryEventImpl) event).setPossibleDuplicate(true);
-            // If the state of the initial image yet to be received is unknown,
-            // we must not apply the event. It may already be reflected in the
-            // initial image state and, in fact, have been modified by subsequent
-            // events. This code path could be modified to pass the event to
-            // listeners and bridges, but it should not apply the change to the
-            // region
-            if (!rgn.isEventTrackerInitialized()
-                && (rgn.getDataPolicy().withReplication() || rgn.getDataPolicy().withPreloaded())) {
-              if (logger.isTraceEnabled()) {
-                logger.trace(LogMarker.DM_BRIDGE_SERVER_VERBOSE,
-                    "Ignoring possible duplicate event");
-              }
-              return;
+        if (isEntry && possibleDuplicate) {
+          ((EntryEventImpl) event).setPossibleDuplicate(true);
+          // If the state of the initial image yet to be received is unknown,
+          // we must not apply the event. It may already be reflected in the
+          // initial image state and, in fact, have been modified by subsequent
+          // events. This code path could be modified to pass the event to
+          // listeners and bridges, but it should not apply the change to the
+          // region
+          if (!rgn.isEventTrackerInitialized()
+              && (rgn.getDataPolicy().withReplication() || rgn.getDataPolicy().withPreloaded())) {
+            if (logger.isTraceEnabled()) {
+              logger.trace(LogMarker.DM_BRIDGE_SERVER_VERBOSE,
+                  "Ignoring possible duplicate event");
             }
-          }
-
-          sendReply = operateOnRegion(event, dm);
-        } finally {
-          if (event instanceof EntryEventImpl) {
-            ((Releasable) event).release();
+            return;
           }
         }
+
+        sendReply = operateOnRegion(event, dm);
       } catch (RegionDestroyedException ignore) {
         closed = true;
         if (logger.isDebugEnabled()) {

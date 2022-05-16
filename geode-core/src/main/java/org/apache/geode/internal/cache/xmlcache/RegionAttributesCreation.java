@@ -186,13 +186,6 @@ public class RegionAttributesCreation extends UserSpecifiedRegionAttributes
    */
   private Compressor compressor;
 
-  /**
-   * True if usage of off-heap memory is enabled for this region.
-   *
-   * @since Geode 1.0
-   */
-  private boolean offHeap;
-
   private static RegionAttributes getDefaultAttributes(CacheCreation cc) {
     if (cc != null) {
       return cc.getDefaultAttributes();
@@ -274,7 +267,6 @@ public class RegionAttributesCreation extends UserSpecifiedRegionAttributes
     cloningEnabled = attrs.getCloningEnabled();
 
     compressor = attrs.getCompressor();
-    offHeap = attrs.getOffHeap();
     if (attrs instanceof UserSpecifiedRegionAttributes) {
       UserSpecifiedRegionAttributes nonDefault = (UserSpecifiedRegionAttributes) attrs;
       requiresPoolName = nonDefault.requiresPoolName;
@@ -526,10 +518,6 @@ public class RegionAttributesCreation extends UserSpecifiedRegionAttributes
     }
     if (!equal(compressor, other.getCompressor())) {
       throw new RuntimeException("Compressors are not the same.");
-    }
-    if (offHeap != other.getOffHeap()) {
-      throw new RuntimeException(
-          "EnableOffHeapMemory is not the same");
     }
     return true;
   }
@@ -1540,15 +1528,6 @@ public class RegionAttributesCreation extends UserSpecifiedRegionAttributes
         setMulticastEnabled(parent.getMulticastEnabled());
       }
     }
-    if (!hasOffHeap()) {
-      if (parentIsUserSpecified) {
-        if (parentWithHas.hasOffHeap()) {
-          setOffHeap(parent.getOffHeap());
-        }
-      } else {
-        setOffHeap(parent.getOffHeap());
-      }
-    }
   }
 
   @Override
@@ -1667,16 +1646,6 @@ public class RegionAttributesCreation extends UserSpecifiedRegionAttributes
   @Override
   public Compressor getCompressor() {
     return compressor;
-  }
-
-  public void setOffHeap(boolean offHeap) {
-    this.offHeap = offHeap;
-    setHasOffHeap(true);
-  }
-
-  @Override
-  public boolean getOffHeap() {
-    return offHeap;
   }
 
   public void prepareForValidation() {

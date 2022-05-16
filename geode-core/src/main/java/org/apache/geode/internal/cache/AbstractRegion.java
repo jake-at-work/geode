@@ -211,13 +211,6 @@ public abstract class AbstractRegion implements InternalRegion, AttributesMutato
 
   protected boolean enableAsyncConflation;
 
-  /**
-   * True if this region uses off-heap memory; otherwise false (default)
-   *
-   * @since Geode 1.0
-   */
-  protected boolean offHeap;
-
   private boolean cloningEnable = false;
 
   private DiskWriteAttributes diskWriteAttributes;
@@ -298,17 +291,6 @@ public abstract class AbstractRegion implements InternalRegion, AttributesMutato
     lastModifiedTime = new AtomicLong(lastAccessedTime.get());
     dataPolicy = attrs.getDataPolicy(); // do this one first
     scope = attrs.getScope();
-
-    offHeap = attrs.getOffHeap();
-
-    // fix bug #52033 by invoking setOffHeap now (localMaxMemory may now be the temporary
-    // placeholder for off-heap until DistributedSystem is created
-    // found non-null PartitionAttributes and offHeap is true so let's setOffHeap on PA now
-    PartitionAttributes<?, ?> partitionAttributes1 = attrs.getPartitionAttributes();
-    if (offHeap && partitionAttributes1 != null) {
-      PartitionAttributesImpl impl = (PartitionAttributesImpl) partitionAttributes1;
-      impl.setOffHeap(true);
-    }
 
     evictionAttributes = new EvictionAttributesImpl(attrs.getEvictionAttributes());
     if (attrs.getPartitionAttributes() != null && evictionAttributes.getAlgorithm()
@@ -1872,11 +1854,6 @@ public abstract class AbstractRegion implements InternalRegion, AttributesMutato
   @Override
   public ExtensionPoint<Region<?, ?>> getExtensionPoint() {
     return extensionPoint;
-  }
-
-  @Override
-  public boolean getOffHeap() {
-    return offHeap;
   }
 
   @Override

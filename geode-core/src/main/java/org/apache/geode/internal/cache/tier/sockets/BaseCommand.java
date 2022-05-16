@@ -79,7 +79,6 @@ import org.apache.geode.internal.cache.tier.InterestType;
 import org.apache.geode.internal.cache.tier.MessageType;
 import org.apache.geode.internal.cache.versions.VersionStamp;
 import org.apache.geode.internal.cache.versions.VersionTag;
-import org.apache.geode.internal.offheap.OffHeapHelper;
 import org.apache.geode.internal.security.SecurityService;
 import org.apache.geode.internal.sequencelog.EntryLogger;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -1269,11 +1268,7 @@ public abstract class BaseCommand implements Command {
           vt = vs == null ? null : vs.asVersionTag();
           key = entry.getKey();
           value = ((NonTXEntry) entry).getRegionEntry().getValueRetain(region, true);
-          try {
-            updateValues(values, key, value, vt);
-          } finally {
-            OffHeapHelper.release(value);
-          }
+          updateValues(values, key, value, vt);
         }
       } else { // Map.Entry (remote entries)
         List<?> list = (List<?>) entry.getValue();

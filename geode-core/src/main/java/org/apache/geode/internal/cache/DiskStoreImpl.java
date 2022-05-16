@@ -3648,7 +3648,7 @@ public class DiskStoreImpl implements DiskStore {
   public String modifyRegion(String regName, String lruOption, String lruActionOption,
       String lruLimitOption, String concurrencyLevelOption, String initialCapacityOption,
       String loadFactorOption, String compressorClassNameOption, String statisticsEnabledOption,
-      String offHeapOption, boolean printToConsole) {
+      boolean printToConsole) {
     assert isOffline();
     DiskRegionView drv = getDiskInitFile().getDiskRegionByName(regName);
     if (drv == null) {
@@ -3659,12 +3659,12 @@ public class DiskStoreImpl implements DiskStore {
       } else {
         return getDiskInitFile().modifyPRRegion(regName, lruOption, lruActionOption, lruLimitOption,
             concurrencyLevelOption, initialCapacityOption, loadFactorOption,
-            compressorClassNameOption, statisticsEnabledOption, offHeapOption, printToConsole);
+            compressorClassNameOption, statisticsEnabledOption, printToConsole);
       }
     } else {
       return getDiskInitFile().modifyRegion(drv, lruOption, lruActionOption, lruLimitOption,
           concurrencyLevelOption, initialCapacityOption, loadFactorOption,
-          compressorClassNameOption, statisticsEnabledOption, offHeapOption, printToConsole);
+          compressorClassNameOption, statisticsEnabledOption, printToConsole);
     }
   }
 
@@ -4039,7 +4039,7 @@ public class DiskStoreImpl implements DiskStore {
     synchronized (prEvictionControllerMap) {
       result = prEvictionControllerMap.get(prName);
       if (result == null) {
-        result = AbstractEvictionController.create(dr.getEvictionAttributes(), dr.getOffHeap(),
+        result = AbstractEvictionController.create(dr.getEvictionAttributes(),
             dr.getStatisticsFactory(), prName);
         prEvictionControllerMap.put(prName, result);
       }
@@ -4183,13 +4183,13 @@ public class DiskStoreImpl implements DiskStore {
   public static String modifyRegion(String dsName, File[] dsDirs, String regName, String lruOption,
       String lruActionOption, String lruLimitOption, String concurrencyLevelOption,
       String initialCapacityOption, String loadFactorOption, String compressorClassNameOption,
-      String statisticsEnabledOption, String offHeapOption, boolean printToConsole)
+      String statisticsEnabledOption, boolean printToConsole)
       throws Exception {
     try {
       DiskStoreImpl dsi = createForOffline(dsName, dsDirs);
       return dsi.modifyRegion(regName, lruOption, lruActionOption, lruLimitOption,
           concurrencyLevelOption, initialCapacityOption, loadFactorOption,
-          compressorClassNameOption, statisticsEnabledOption, offHeapOption, printToConsole);
+          compressorClassNameOption, statisticsEnabledOption, printToConsole);
     } finally {
       cleanupOffline();
     }

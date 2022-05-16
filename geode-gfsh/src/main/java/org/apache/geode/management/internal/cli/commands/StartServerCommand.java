@@ -72,7 +72,7 @@ public class StartServerCommand extends OfflineGfshCommand {
       @CliOption(key = CliStrings.START_SERVER__CRITICAL__HEAP__PERCENTAGE,
           help = CliStrings.START_SERVER__CRITICAL__HEAP__HELP) final Float criticalHeapPercentage,
       @CliOption(key = CliStrings.START_SERVER__CRITICAL_OFF_HEAP_PERCENTAGE,
-          help = CliStrings.START_SERVER__CRITICAL_OFF_HEAP__HELP) final Float criticalOffHeapPercentage,
+          help = CliStrings.START_SERVER__CRITICAL_OFF_HEAP__HELP) @Deprecated final Float criticalOffHeapPercentage,
       @CliOption(key = CliStrings.START_SERVER__DIR,
           help = CliStrings.START_SERVER__DIR__HELP) String workingDirectory,
       @CliOption(key = CliStrings.START_SERVER__DISABLE_DEFAULT_SERVER,
@@ -87,7 +87,7 @@ public class StartServerCommand extends OfflineGfshCommand {
       @CliOption(key = CliStrings.START_SERVER__EVICTION__HEAP__PERCENTAGE,
           help = CliStrings.START_SERVER__EVICTION__HEAP__PERCENTAGE__HELP) final Float evictionHeapPercentage,
       @CliOption(key = CliStrings.START_SERVER__EVICTION_OFF_HEAP_PERCENTAGE,
-          help = CliStrings.START_SERVER__EVICTION_OFF_HEAP_PERCENTAGE__HELP) final Float evictionOffHeapPercentage,
+          help = CliStrings.START_SERVER__EVICTION_OFF_HEAP_PERCENTAGE__HELP) @Deprecated final Float evictionOffHeapPercentage,
       @CliOption(key = CliStrings.START_SERVER__FORCE, unspecifiedDefaultValue = "false",
           specifiedDefaultValue = "true",
           help = CliStrings.START_SERVER__FORCE__HELP) final Boolean force,
@@ -135,7 +135,7 @@ public class StartServerCommand extends OfflineGfshCommand {
       @CliOption(key = CliStrings.START_SERVER__MESSAGE__TIME__TO__LIVE,
           help = CliStrings.START_SERVER__MESSAGE__TIME__TO__LIVE__HELP) final Integer messageTimeToLive,
       @CliOption(key = CliStrings.START_SERVER__OFF_HEAP_MEMORY_SIZE,
-          help = CliStrings.START_SERVER__OFF_HEAP_MEMORY_SIZE__HELP) final String offHeapMemorySize,
+          help = CliStrings.START_SERVER__OFF_HEAP_MEMORY_SIZE__HELP) @Deprecated final String offHeapMemorySize,
       @CliOption(key = CliStrings.START_SERVER__PROPERTIES, optionContext = ConverterHint.FILE,
           help = CliStrings.START_SERVER__PROPERTIES__HELP) File gemfirePropertiesFile,
       @CliOption(key = CliStrings.START_SERVER__REBALANCE, unspecifiedDefaultValue = "false",
@@ -198,14 +198,14 @@ public class StartServerCommand extends OfflineGfshCommand {
     String resolvedWorkingDirectory = resolveWorkingDirectory(workingDirectory, memberName);
 
     return doStartServer(memberName, assignBuckets, bindAddress, cacheXmlPathname, classpath,
-        criticalHeapPercentage, criticalOffHeapPercentage, resolvedWorkingDirectory,
+        criticalHeapPercentage, resolvedWorkingDirectory,
         disableDefaultServer,
         disableExitWhenOutOfMemory, enableTimeStatistics, evictionHeapPercentage,
-        evictionOffHeapPercentage, force, group, hostNameForClients, jmxManagerHostnameForClients,
+        force, group, hostNameForClients, jmxManagerHostnameForClients,
         includeSystemClasspath, initialHeap, jvmArgsOpts, locators, locatorWaitTime, lockMemory,
         logLevel, maxConnections, maxHeap, maxMessageCount, maxThreads, mcastBindAddress, mcastPort,
         memcachedPort, memcachedProtocol, memcachedBindAddress, messageTimeToLive,
-        offHeapMemorySize, gemfirePropertiesFile, rebalance,
+        gemfirePropertiesFile, rebalance,
         gemfireSecurityPropertiesFile, serverBindAddress, serverPort, socketBufferSize,
         springXmlLocation, statisticsArchivePathname, requestSharedConfiguration, startRestApi,
         httpServicePort, httpServiceBindAddress, userName, passwordToUse, redirectOutput);
@@ -213,16 +213,16 @@ public class StartServerCommand extends OfflineGfshCommand {
 
   ResultModel doStartServer(String memberName, Boolean assignBuckets, String bindAddress,
       String cacheXmlPathname, String classpath, Float criticalHeapPercentage,
-      Float criticalOffHeapPercentage, String workingDirectory, Boolean disableDefaultServer,
+      String workingDirectory, Boolean disableDefaultServer,
       Boolean disableExitWhenOutOfMemory, Boolean enableTimeStatistics,
-      Float evictionHeapPercentage, Float evictionOffHeapPercentage, Boolean force, String group,
+      Float evictionHeapPercentage, Boolean force, String group,
       String hostNameForClients, String jmxManagerHostnameForClients,
       Boolean includeSystemClasspath, String initialHeap, String[] jvmArgsOpts, String locators,
       Integer locatorWaitTime, Boolean lockMemory, String logLevel, Integer maxConnections,
       String maxHeap, Integer maxMessageCount, Integer maxThreads, String mcastBindAddress,
       Integer mcastPort, Integer memcachedPort, String memcachedProtocol,
       String memcachedBindAddress,
-      Integer messageTimeToLive, String offHeapMemorySize, File gemfirePropertiesFile,
+      Integer messageTimeToLive, File gemfirePropertiesFile,
       Boolean rebalance, File gemfireSecurityPropertiesFile, String serverBindAddress,
       Integer serverPort, Integer socketBufferSize, String springXmlLocation,
       String statisticsArchivePathname, Boolean requestSharedConfiguration, Boolean startRestApi,
@@ -287,8 +287,6 @@ public class StartServerCommand extends OfflineGfshCommand {
     StartMemberUtils.setPropertyIfNotNull(gemfireProperties, ConfigurationProperties.LOCK_MEMORY,
         lockMemory);
     StartMemberUtils.setPropertyIfNotNull(gemfireProperties,
-        ConfigurationProperties.OFF_HEAP_MEMORY_SIZE, offHeapMemorySize);
-    StartMemberUtils.setPropertyIfNotNull(gemfireProperties,
         ConfigurationProperties.START_DEV_REST_API, startRestApi);
     StartMemberUtils.setPropertyIfNotNull(gemfireProperties,
         ConfigurationProperties.HTTP_SERVICE_PORT, httpServicePort);
@@ -309,8 +307,7 @@ public class StartServerCommand extends OfflineGfshCommand {
         .setSpringXmlLocation(springXmlLocation).setWorkingDirectory(workingDirectory)
         .setCriticalHeapPercentage(criticalHeapPercentage)
         .setEvictionHeapPercentage(evictionHeapPercentage)
-        .setCriticalOffHeapPercentage(criticalOffHeapPercentage)
-        .setEvictionOffHeapPercentage(evictionOffHeapPercentage).setMaxConnections(maxConnections)
+        .setMaxConnections(maxConnections)
         .setMaxMessageCount(maxMessageCount).setMaxThreads(maxThreads)
         .setMessageTimeToLive(messageTimeToLive).setSocketBufferSize(socketBufferSize);
     if (hostNameForClients != null) {
@@ -509,16 +506,6 @@ public class StartServerCommand extends OfflineGfshCommand {
     if (launcher.getEvictionHeapPercentage() != null) {
       commandLine.add("--" + CliStrings.START_SERVER__EVICTION__HEAP__PERCENTAGE + "="
           + launcher.getEvictionHeapPercentage());
-    }
-
-    if (launcher.getCriticalOffHeapPercentage() != null) {
-      commandLine.add("--" + CliStrings.START_SERVER__CRITICAL_OFF_HEAP_PERCENTAGE + "="
-          + launcher.getCriticalOffHeapPercentage());
-    }
-
-    if (launcher.getEvictionOffHeapPercentage() != null) {
-      commandLine.add("--" + CliStrings.START_SERVER__EVICTION_OFF_HEAP_PERCENTAGE + "="
-          + launcher.getEvictionOffHeapPercentage());
     }
 
     if (launcher.getMaxConnections() != null) {

@@ -75,7 +75,6 @@ import org.apache.geode.internal.cache.versions.VersionSource;
 import org.apache.geode.internal.cache.wan.AbstractGatewaySender;
 import org.apache.geode.internal.cache.wan.GatewaySenderEventImpl;
 import org.apache.geode.internal.cache.wan.GatewaySenderStats;
-import org.apache.geode.internal.offheap.OffHeapClearRequired;
 import org.apache.geode.internal.statistics.StatisticsClock;
 import org.apache.geode.logging.internal.log4j.api.LogService;
 import org.apache.geode.management.ManagementService;
@@ -740,7 +739,7 @@ public class SerialGatewaySenderQueue implements RegionQueue {
       logger.debug("{}: Peeked {}->{}", this, currentKey, object);
     }
     if (object instanceof GatewaySenderEventImpl) {
-      GatewaySenderEventImpl copy = ((GatewaySenderEventImpl) object).makeHeapCopyIfOffHeap();
+      GatewaySenderEventImpl copy = ((GatewaySenderEventImpl) object);
       if (copy == null) {
         logger.debug(
             "Unable to make heap copy and will not be added to peekedIds for object" + " : {} ",
@@ -1215,7 +1214,6 @@ public class SerialGatewaySenderQueue implements RegionQueue {
             // release not needed since disallowOffHeapValues called
             EntryEventImpl event = EntryEventImpl.create((LocalRegion) region, Operation.DESTROY,
                 (lastDestroyedKey + 1), null/* newValue */, null, false, cache.getMyId());
-            event.disallowOffHeapValues();
             event.setTailKey(temp);
 
             BatchDestroyOperation op = new BatchDestroyOperation(event);
@@ -1353,14 +1351,14 @@ public class SerialGatewaySenderQueue implements RegionQueue {
 
     @Override
     public void closeEntries() {
-      OffHeapClearRequired.doWithOffHeapClear(super::closeEntries);
+      super.closeEntries();
     }
 
     @SuppressWarnings("rawtypes")
     @Override
     public Set<VersionSource> clearEntries(final RegionVersionVector rvv) {
       final AtomicReference<Set<VersionSource>> result = new AtomicReference<>();
-      OffHeapClearRequired.doWithOffHeapClear(() -> result.set(super.clearEntries(rvv)));
+      result.set(super.clearEntries(rvv));
       return result.get();
     }
 
@@ -1368,11 +1366,7 @@ public class SerialGatewaySenderQueue implements RegionQueue {
     public void basicDestroy(final EntryEventImpl event, final boolean cacheWrite,
         Object expectedOldValue)
         throws EntryNotFoundException, CacheWriterException, TimeoutException {
-      try {
-        super.basicDestroy(event, cacheWrite, expectedOldValue);
-      } finally {
-        GatewaySenderEventImpl.release(event.getRawOldValue());
-      }
+      super.basicDestroy(event, cacheWrite, expectedOldValue);
     }
 
     @Override
@@ -1380,21 +1374,8 @@ public class SerialGatewaySenderQueue implements RegionQueue {
         Object expectedOldValue, boolean requireOldValue, long lastModified,
         boolean overwriteDestroyed, boolean invokeCallbacks, boolean throwConcurrentModificaiton)
         throws TimeoutException, CacheWriterException {
-      try {
-        boolean success = super.virtualPut(event, ifNew, ifOld, expectedOldValue, requireOldValue,
-            lastModified, overwriteDestroyed, invokeCallbacks, throwConcurrentModificaiton);
-        if (!success) {
-          // release offheap reference if GatewaySenderEventImpl is not put into
-          // the region queue
-          GatewaySenderEventImpl.release(event.getRawNewValue());
-        }
-        return success;
-      } finally {
-        // GatewaySenderQueue probably only adding new events into the queue.
-        // Add the finally block just in case if there actually is an update
-        // in the sender queue or occurs in the the future.
-        GatewaySenderEventImpl.release(event.getRawOldValue());
-      }
+      return super.virtualPut(event, ifNew, ifOld, expectedOldValue, requireOldValue,
+          lastModified, overwriteDestroyed, invokeCallbacks, throwConcurrentModificaiton);
     }
   }
 

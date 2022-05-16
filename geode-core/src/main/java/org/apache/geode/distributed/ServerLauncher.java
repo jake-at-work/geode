@@ -230,9 +230,6 @@ public class ServerLauncher extends AbstractLauncher<String> {
   private final Float criticalHeapPercentage;
   private final Float evictionHeapPercentage;
 
-  private final Float criticalOffHeapPercentage;
-  private final Float evictionOffHeapPercentage;
-
   private final String hostNameForClients;
   private final Integer maxConnections;
   private final Integer maxMessageCount;
@@ -320,8 +317,6 @@ public class ServerLauncher extends AbstractLauncher<String> {
     workingDirectory = builder.getWorkingDirectory();
     criticalHeapPercentage = builder.getCriticalHeapPercentage();
     evictionHeapPercentage = builder.getEvictionHeapPercentage();
-    criticalOffHeapPercentage = builder.getCriticalOffHeapPercentage();
-    evictionOffHeapPercentage = builder.getEvictionOffHeapPercentage();
     maxConnections = builder.getMaxConnections();
     maxMessageCount = builder.getMaxMessageCount();
     maxThreads = builder.getMaxThreads();
@@ -651,12 +646,14 @@ public class ServerLauncher extends AbstractLauncher<String> {
     return evictionHeapPercentage;
   }
 
+  @Deprecated
   public Float getCriticalOffHeapPercentage() {
-    return criticalOffHeapPercentage;
+    return null;
   }
 
+  @Deprecated
   public Float getEvictionOffHeapPercentage() {
-    return evictionOffHeapPercentage;
+    return null;
   }
 
   public String getHostNameForClients() {
@@ -823,14 +820,6 @@ public class ServerLauncher extends AbstractLauncher<String> {
           }
           if (evictionHeapPercentage != null) {
             cache.getResourceManager().setEvictionHeapPercentage(getEvictionHeapPercentage());
-          }
-          if (criticalOffHeapPercentage != null) {
-            cache.getResourceManager()
-                .setCriticalOffHeapPercentage(getCriticalOffHeapPercentage());
-          }
-          if (evictionOffHeapPercentage != null) {
-            cache.getResourceManager()
-                .setEvictionOffHeapPercentage(getEvictionOffHeapPercentage());
           }
 
           cache.setIsServer(true);
@@ -1493,9 +1482,6 @@ public class ServerLauncher extends AbstractLauncher<String> {
     private Float criticalHeapPercentage;
     private Float evictionHeapPercentage;
 
-    private Float criticalOffHeapPercentage;
-    private Float evictionOffHeapPercentage;
-
     private String hostNameForClients;
     private Integer loadPollInterval;
     private Integer maxConnections;
@@ -1607,16 +1593,6 @@ public class ServerLauncher extends AbstractLauncher<String> {
         if (options.hasArgument(CliStrings.START_SERVER__EVICTION__HEAP__PERCENTAGE)) {
           setEvictionHeapPercentage(Float.parseFloat(ObjectUtils
               .toString(options.valueOf(CliStrings.START_SERVER__EVICTION__HEAP__PERCENTAGE))));
-        }
-
-        if (options.hasArgument(CliStrings.START_SERVER__CRITICAL_OFF_HEAP_PERCENTAGE)) {
-          setCriticalOffHeapPercentage(Float.parseFloat(ObjectUtils
-              .toString(options.valueOf(CliStrings.START_SERVER__CRITICAL_OFF_HEAP_PERCENTAGE))));
-        }
-
-        if (options.hasArgument(CliStrings.START_SERVER__EVICTION_OFF_HEAP_PERCENTAGE)) {
-          setEvictionOffHeapPercentage(Float.parseFloat(ObjectUtils
-              .toString(options.valueOf(CliStrings.START_SERVER__EVICTION_OFF_HEAP_PERCENTAGE))));
         }
 
         if (options.hasArgument(CliStrings.START_SERVER__MAX__CONNECTIONS)) {
@@ -2273,19 +2249,13 @@ public class ServerLauncher extends AbstractLauncher<String> {
       return this;
     }
 
+    @Deprecated
     public Float getCriticalOffHeapPercentage() {
-      return criticalOffHeapPercentage;
+      return 0.0F;
     }
 
+    @Deprecated
     public Builder setCriticalOffHeapPercentage(final Float criticalOffHeapPercentage) {
-      if (criticalOffHeapPercentage != null) {
-        if (criticalOffHeapPercentage < 0 || criticalOffHeapPercentage > 100.0f) {
-          throw new IllegalArgumentException(
-              String.format("Critical off-heap percentage (%1$s) must be between 0 and 100!",
-                  criticalOffHeapPercentage));
-        }
-      }
-      this.criticalOffHeapPercentage = criticalOffHeapPercentage;
       return this;
     }
 
@@ -2305,19 +2275,13 @@ public class ServerLauncher extends AbstractLauncher<String> {
       return this;
     }
 
+    @Deprecated
     public Float getEvictionOffHeapPercentage() {
-      return evictionOffHeapPercentage;
+      return 0.0F;
     }
 
+    @Deprecated
     public Builder setEvictionOffHeapPercentage(final Float evictionOffHeapPercentage) {
-      if (evictionOffHeapPercentage != null) {
-        if (evictionOffHeapPercentage < 0 || evictionOffHeapPercentage > 100.0f) {
-          throw new IllegalArgumentException(
-              String.format("Eviction off-heap percentage (%1$s) must be between 0 and 100",
-                  evictionOffHeapPercentage));
-        }
-      }
-      this.evictionOffHeapPercentage = evictionOffHeapPercentage;
       return this;
     }
 

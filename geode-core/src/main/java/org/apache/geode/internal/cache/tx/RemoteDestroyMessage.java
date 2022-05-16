@@ -14,7 +14,6 @@
  */
 package org.apache.geode.internal.cache.tx;
 
-import static org.apache.geode.internal.offheap.annotations.OffHeapIdentifier.ENTRY_EVENT_OLD_VALUE;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -63,8 +62,6 @@ import org.apache.geode.internal.cache.tier.sockets.ClientProxyMembershipID;
 import org.apache.geode.internal.cache.versions.DiskVersionTag;
 import org.apache.geode.internal.cache.versions.VersionTag;
 import org.apache.geode.internal.logging.log4j.LogMarker;
-import org.apache.geode.internal.offheap.annotations.Released;
-import org.apache.geode.internal.offheap.annotations.Unretained;
 import org.apache.geode.internal.serialization.DeserializationContext;
 import org.apache.geode.internal.serialization.SerializationContext;
 import org.apache.geode.logging.internal.log4j.api.LogService;
@@ -118,7 +115,6 @@ public class RemoteDestroyMessage extends RemoteOperationMessageWithDirectReply
 
   private byte[] oldValBytes;
 
-  @Unretained(ENTRY_EVENT_OLD_VALUE)
   private transient Object oldValObj;
 
   boolean useOriginRemote;
@@ -167,7 +163,7 @@ public class RemoteDestroyMessage extends RemoteOperationMessageWithDirectReply
     oldValBytes = valBytes;
   }
 
-  private void setOldValObj(@Unretained(ENTRY_EVENT_OLD_VALUE) Object o) {
+  private void setOldValObj(Object o) {
     oldValObj = o;
   }
 
@@ -325,35 +321,12 @@ public class RemoteDestroyMessage extends RemoteOperationMessageWithDirectReply
     if (eventSender == null) {
       eventSender = getSender();
     }
-    @Released
     EntryEventImpl event = null;
-    try {
-      if (bridgeContext != null) {
-        event = EntryEventImpl.create(r, getOperation(), getKey(), null/* newValue */,
-            getCallbackArg(), false/* originRemote */, eventSender, true/* generateCallbacks */);
-        event.setContext(bridgeContext);
+    if (bridgeContext != null) {
+      event = EntryEventImpl.create(r, getOperation(), getKey(), null/* newValue */,
+          getCallbackArg(), false/* originRemote */, eventSender, true/* generateCallbacks */);
+      event.setContext(bridgeContext);
 
-        // for cq processing and client notification by BS.
-        if (hasOldValue) {
-          if (oldValueIsSerialized) {
-            event.setSerializedOldValue(getOldValueBytes());
-          } else {
-            event.setOldValue(getOldValueBytes());
-          }
-        }
-      } // bridgeContext != null
-      else {
-        event = EntryEventImpl.create(r, getOperation(), getKey(), null, /* newValue */
-            getCallbackArg(), useOriginRemote, eventSender, true/* generateCallbacks */,
-            false/* initializeId */);
-      }
-
-      event.setCausedByMessage(this);
-
-      if (versionTag != null) {
-        versionTag.replaceNullIDs(getSender());
-        event.setVersionTag(versionTag);
-      }
       // for cq processing and client notification by BS.
       if (hasOldValue) {
         if (oldValueIsSerialized) {
@@ -362,37 +335,53 @@ public class RemoteDestroyMessage extends RemoteOperationMessageWithDirectReply
           event.setOldValue(getOldValueBytes());
         }
       }
+    } // bridgeContext != null
+    else {
+      event = EntryEventImpl.create(r, getOperation(), getKey(), null, /* newValue */
+          getCallbackArg(), useOriginRemote, eventSender, true/* generateCallbacks */,
+          false/* initializeId */);
+    }
 
-      Assert.assertTrue(eventId != null);
-      event.setEventId(eventId);
+    event.setCausedByMessage(this);
 
-      event.setPossibleDuplicate(possibleDuplicate);
-
-      try {
-        r.getDataView().destroyOnRemote(event, true, expectedOldValue);
-        sendReply(dm, event.getVersionTag());
-      } catch (CacheWriterException cwe) {
-        sendReply(getSender(), processorId, dm, new ReplyException(cwe), r, startTime);
-        return false;
-      } catch (EntryNotFoundException eee) {
-        if (logger.isDebugEnabled()) {
-          logger.debug("operateOnRegion caught EntryNotFoundException", eee);
-        }
-        ReplyMessage.send(getSender(), getProcessorId(), new ReplyException(eee),
-            getReplySender(dm), r.isInternalRegion());
-      } catch (DataLocationException e) {
-        if (logger.isDebugEnabled()) {
-          logger.debug("operateOnRegion caught DataLocationException");
-        }
-        ReplyMessage.send(getSender(), getProcessorId(), new ReplyException(e), getReplySender(dm),
-            r.isInternalRegion());
-      }
-      return false;
-    } finally {
-      if (event != null) {
-        event.release();
+    if (versionTag != null) {
+      versionTag.replaceNullIDs(getSender());
+      event.setVersionTag(versionTag);
+    }
+    // for cq processing and client notification by BS.
+    if (hasOldValue) {
+      if (oldValueIsSerialized) {
+        event.setSerializedOldValue(getOldValueBytes());
+      } else {
+        event.setOldValue(getOldValueBytes());
       }
     }
+
+    Assert.assertTrue(eventId != null);
+    event.setEventId(eventId);
+
+    event.setPossibleDuplicate(possibleDuplicate);
+
+    try {
+      r.getDataView().destroyOnRemote(event, true, expectedOldValue);
+      sendReply(dm, event.getVersionTag());
+    } catch (CacheWriterException cwe) {
+      sendReply(getSender(), processorId, dm, new ReplyException(cwe), r, startTime);
+      return false;
+    } catch (EntryNotFoundException eee) {
+      if (logger.isDebugEnabled()) {
+        logger.debug("operateOnRegion caught EntryNotFoundException", eee);
+      }
+      ReplyMessage.send(getSender(), getProcessorId(), new ReplyException(eee),
+          getReplySender(dm), r.isInternalRegion());
+    } catch (DataLocationException e) {
+      if (logger.isDebugEnabled()) {
+        logger.debug("operateOnRegion caught DataLocationException");
+      }
+      ReplyMessage.send(getSender(), getProcessorId(), new ReplyException(e), getReplySender(dm),
+          r.isInternalRegion());
+    }
+    return false;
   }
 
   @Override
@@ -554,7 +543,7 @@ public class RemoteDestroyMessage extends RemoteOperationMessageWithDirectReply
   }
 
   @Override
-  public void importOldObject(@Unretained(ENTRY_EVENT_OLD_VALUE) Object ov, boolean isSerialized) {
+  public void importOldObject(Object ov, boolean isSerialized) {
     setOldValueIsSerialized(isSerialized);
     // Defer serialization until toData is called.
     setOldValObj(ov);

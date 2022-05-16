@@ -876,9 +876,10 @@ public class RegionFactory<K, V> {
    * @param offHeap boolean flag to enable off-heap memory
    * @return a reference to this RegionFactory instance
    * @since Geode 1.0
+   * @deprecated No replacement.
    */
+  @Deprecated
   public RegionFactory<K, V> setOffHeap(boolean offHeap) {
-    attrsFactory.setOffHeap(offHeap);
     return this;
   }
 }

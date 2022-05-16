@@ -23,7 +23,6 @@ import org.apache.geode.cache.Region.Entry;
 import org.apache.geode.cache.UnsupportedOperationInTransactionException;
 import org.apache.geode.internal.cache.tier.sockets.ClientProxyMembershipID;
 import org.apache.geode.internal.cache.tier.sockets.VersionedObjectList;
-import org.apache.geode.internal.offheap.annotations.Retained;
 
 /**
  * @since GemFire 6.0tx
@@ -36,7 +35,6 @@ public interface InternalDataView {
    * @param retainResult if true then the result may be a retained off-heap reference
    * @return the object associated with the key
    */
-  @Retained
   Object getDeserializedValue(KeyInfo keyInfo, LocalRegion localRegion, boolean updateStats,
       boolean disableCopyOnRead, boolean preferCD, EntryEventImpl clientEvent,
       boolean returnTombstones, boolean retainResult, boolean createIfAbsent);

@@ -64,13 +64,13 @@ public class ConcurrentParallelGatewaySenderOperation2DistributedTest extends WA
     vm2.invoke(() -> WANTestBase.createSender("ln", 2, true, 100, 10, false, true, null, true));
     vm2.invoke(() -> WANTestBase.createSender("ln2", 2, true, 100, 10, false, true, null, true));
     vm2.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln,ln2", 1,
-        100, false));
+        100));
 
     createCacheInVMs(nyPort, vm4, vm5);
-    vm4.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100,
-        false));
-    vm5.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100,
-        false));
+    vm4.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100));
+    vm5.invoke(
+        () -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", null, 1, 100));
     vm4.invoke(WANTestBase::createReceiver);
 
     vm2.invoke(() -> WANTestBase.startSender("ln"));
@@ -79,7 +79,7 @@ public class ConcurrentParallelGatewaySenderOperation2DistributedTest extends WA
     vm3.invoke(() -> WANTestBase.createSender("ln", 2, true, 100, 10, false, true, null, true));
     vm3.invoke(() -> WANTestBase.createSender("ln2", 2, true, 100, 10, false, true, null, true));
     vm3.invoke(() -> WANTestBase.createPartitionedRegion(getTestMethodName() + "_PR", "ln,ln2", 1,
-        100, false));
+        100));
 
     vm3.invoke(() -> WANTestBase.startSender("ln"));
     vm3.invoke(() -> WANTestBase.startSender("ln2"));
@@ -126,14 +126,14 @@ public class ConcurrentParallelGatewaySenderOperation2DistributedTest extends WA
       createCacheInVMs(lnPort, vm4);
       vm4.invoke(() -> AbstractGatewaySender.MAXIMUM_SHUTDOWN_WAIT_TIME = -1);
       vm4.invoke(
-          () -> createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 10, isOffHeap()));
+          () -> createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 10));
       vm4.invoke(() -> createConcurrentSender("ln", 2, true, 100, 10, false, false, null, false, 5,
           OrderPolicy.KEY));
       vm4.invoke(() -> startSender("ln"));
       vm4.invoke(() -> pauseSender("ln"));
 
       createCacheInVMs(nyPort, vm2);
-      vm2.invoke(() -> createPartitionedRegion(regionName, null, 1, 10, isOffHeap()));
+      vm2.invoke(() -> createPartitionedRegion(regionName, null, 1, 10));
       vm2.invoke(WANTestBase::createReceiver);
 
       vm4.invoke(() -> doPuts(regionName, 10));
@@ -145,7 +145,7 @@ public class ConcurrentParallelGatewaySenderOperation2DistributedTest extends WA
 
       vm2.invoke(() -> validateRegionSize(regionName, 0));
 
-      vm4.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 10, isOffHeap()));
+      vm4.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 10));
       vm4.invoke(() -> doPutsFrom(regionName, 10, 20));
 
       vm2.invoke(() -> await()
@@ -169,14 +169,14 @@ public class ConcurrentParallelGatewaySenderOperation2DistributedTest extends WA
       createCacheInVMs(lnPort, vm4);
       vm4.invoke(() -> AbstractGatewaySender.MAXIMUM_SHUTDOWN_WAIT_TIME = -1);
       vm4.invoke(
-          () -> createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 10, isOffHeap()));
+          () -> createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 10));
       vm4.invoke(() -> createConcurrentSender("ln", 2, true, 100, 10, false, false, null, false, 4,
           OrderPolicy.KEY));
       vm4.invoke(() -> startSender("ln"));
       vm4.invoke(() -> pauseSender("ln"));
 
       createCacheInVMs(nyPort, vm2);
-      vm2.invoke(() -> createPartitionedRegion(regionName, null, 1, 10, isOffHeap()));
+      vm2.invoke(() -> createPartitionedRegion(regionName, null, 1, 10));
       vm2.invoke(WANTestBase::createReceiver);
 
       vm4.invoke(() -> doPuts(regionName, 10));
@@ -190,7 +190,7 @@ public class ConcurrentParallelGatewaySenderOperation2DistributedTest extends WA
 
       vm2.invoke(() -> validateRegionSize(regionName, 10));
 
-      vm4.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 10, isOffHeap()));
+      vm4.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 10));
       vm4.invoke(() -> doPutsFrom(regionName, 10, 20));
 
       vm2.invoke(() -> await()
@@ -213,14 +213,14 @@ public class ConcurrentParallelGatewaySenderOperation2DistributedTest extends WA
       createCacheInVMs(lnPort, vm4);
       vm4.invoke(() -> AbstractGatewaySender.MAXIMUM_SHUTDOWN_WAIT_TIME = -1);
       vm4.invoke(
-          () -> createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 10, isOffHeap()));
+          () -> createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 10));
       vm4.invoke(() -> createConcurrentSender("ln", 2, true, 100, 10, false, false, null, false, 7,
           OrderPolicy.KEY));
       vm4.invoke(() -> startSender("ln"));
       vm4.invoke(() -> pauseSender("ln"));
 
       createCacheInVMs(nyPort, vm2);
-      vm2.invoke(() -> createPartitionedRegion(regionName, null, 1, 10, isOffHeap()));
+      vm2.invoke(() -> createPartitionedRegion(regionName, null, 1, 10));
       vm2.invoke(WANTestBase::createReceiver);
 
       vm4.invoke(() -> doPuts(regionName, 10));
@@ -232,7 +232,7 @@ public class ConcurrentParallelGatewaySenderOperation2DistributedTest extends WA
 
       vm2.invoke(() -> validateRegionSize(regionName, 0));
 
-      vm4.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 10, isOffHeap()));
+      vm4.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 10));
       vm4.invoke(() -> doPutsFrom(regionName, 10, 20));
 
       vm2.invoke(() -> await()
@@ -279,7 +279,7 @@ public class ConcurrentParallelGatewaySenderOperation2DistributedTest extends WA
       vm2.invoke(() -> validateRegionSizeWithinRange(getTestMethodName() + "_PR", 10, 101));
 
       vm4.invoke(
-          () -> createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 10, isOffHeap()));
+          () -> createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 10));
 
       vm4.invoke(() -> doPutsFrom(getTestMethodName() + "_PR", 10, 20));
 
@@ -350,14 +350,14 @@ public class ConcurrentParallelGatewaySenderOperation2DistributedTest extends WA
       createCacheInVMs(lnPort, vm4);
       vm4.invoke(() -> AbstractGatewaySender.MAXIMUM_SHUTDOWN_WAIT_TIME = -1);
       vm4.invoke(
-          () -> createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 10, isOffHeap()));
+          () -> createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 10));
       vm4.invoke(() -> createConcurrentSender("ln", 2, true, 100, 10, false, false, null, false, 5,
           OrderPolicy.KEY));
       vm4.invoke(() -> startSender("ln"));
       vm4.invoke(() -> pauseSender("ln"));
 
       createCacheInVMs(nyPort, vm2);
-      vm2.invoke(() -> createPartitionedRegion(regionName, null, 1, 10, isOffHeap()));
+      vm2.invoke(() -> createPartitionedRegion(regionName, null, 1, 10));
       vm2.invoke(WANTestBase::createReceiver);
 
       vm4.invoke(() -> doPuts(regionName, 10));
@@ -379,7 +379,7 @@ public class ConcurrentParallelGatewaySenderOperation2DistributedTest extends WA
       }
       vm2.invoke(() -> validateRegionSize(regionName, 0));
 
-      vm4.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 10, isOffHeap()));
+      vm4.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 10));
       vm4.invoke(() -> doPutsFrom(regionName, 10, 20));
 
       vm2.invoke(() -> await()
@@ -423,13 +423,13 @@ public class ConcurrentParallelGatewaySenderOperation2DistributedTest extends WA
       vm7.invoke(() -> startSender("ln3"));
 
       String regionName = getTestMethodName() + "_PR";
-      vm7.invoke(() -> createPartitionedRegion(regionName, "ln1,ln2,ln3", 1, 10, isOffHeap()));
+      vm7.invoke(() -> createPartitionedRegion(regionName, "ln1,ln2,ln3", 1, 10));
 
       LogWriterUtils.getLogWriter().info("Created PRs on local site");
 
-      vm4.invoke(() -> createPartitionedRegion(regionName, null, 1, 10, isOffHeap()));
-      vm5.invoke(() -> createPartitionedRegion(regionName, null, 1, 10, isOffHeap()));
-      vm6.invoke(() -> createPartitionedRegion(regionName, null, 1, 10, isOffHeap()));
+      vm4.invoke(() -> createPartitionedRegion(regionName, null, 1, 10));
+      vm5.invoke(() -> createPartitionedRegion(regionName, null, 1, 10));
+      vm6.invoke(() -> createPartitionedRegion(regionName, null, 1, 10));
 
       vm7.invoke(() -> doPuts(regionName, 10));
 
@@ -439,7 +439,7 @@ public class ConcurrentParallelGatewaySenderOperation2DistributedTest extends WA
 
       vm7.invoke(() -> localDestroyRegion(regionName));
 
-      vm7.invoke(() -> createPartitionedRegion(regionName, "ln1,ln2,ln3", 1, 10, isOffHeap()));
+      vm7.invoke(() -> createPartitionedRegion(regionName, "ln1,ln2,ln3", 1, 10));
 
       vm7.invoke(() -> doPutsFrom(regionName, 10, 20));
 
@@ -466,7 +466,7 @@ public class ConcurrentParallelGatewaySenderOperation2DistributedTest extends WA
       createAndStartSender(vm5, lnPort, 5, true, false);
 
       String regionName = getTestMethodName() + "_PR";
-      vm2.invoke(() -> createPartitionedRegion(regionName, null, 1, 10, isOffHeap()));
+      vm2.invoke(() -> createPartitionedRegion(regionName, null, 1, 10));
 
       AsyncInvocation<Void> inv1 = vm4.invokeAsync(() -> WANTestBase.doPuts(regionName, 10));
       Wait.pause(1000);
@@ -482,7 +482,7 @@ public class ConcurrentParallelGatewaySenderOperation2DistributedTest extends WA
 
       validateRegionSizes(regionName, 10, vm4, vm2);
 
-      vm5.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 10, isOffHeap()));
+      vm5.invoke(() -> createPartitionedRegion(regionName, "ln", 1, 10));
 
       vm4.invoke(() -> doPutsFrom(regionName, 10, 20));
 
@@ -512,8 +512,8 @@ public class ConcurrentParallelGatewaySenderOperation2DistributedTest extends WA
       createAndStartTwoSenders(vm5, lnPort, 4);
 
       String regionName = getTestMethodName() + "_PR";
-      vm6.invoke(() -> WANTestBase.createPartitionedRegion(regionName, null, 1, 100, isOffHeap()));
-      vm7.invoke(() -> WANTestBase.createPartitionedRegion(regionName, null, 1, 100, isOffHeap()));
+      vm6.invoke(() -> WANTestBase.createPartitionedRegion(regionName, null, 1, 100));
+      vm7.invoke(() -> WANTestBase.createPartitionedRegion(regionName, null, 1, 100));
 
       AsyncInvocation<Void> inv1 = vm4.invokeAsync(() -> WANTestBase.doPuts(regionName, 10));
 
@@ -530,7 +530,7 @@ public class ConcurrentParallelGatewaySenderOperation2DistributedTest extends WA
       validateRegionSizes(regionName, 10, vm4, vm6, vm7);
 
       vm5.invoke(
-          () -> WANTestBase.createPartitionedRegion(regionName, "ln1,ln2", 1, 100, isOffHeap()));
+          () -> WANTestBase.createPartitionedRegion(regionName, "ln1,ln2", 1, 100));
 
       vm4.invoke(() -> WANTestBase.doPutsFrom(regionName, 10, 20));
 
@@ -558,7 +558,7 @@ public class ConcurrentParallelGatewaySenderOperation2DistributedTest extends WA
 
       LogWriterUtils.getLogWriter().info("Created PRs on local site");
 
-      vm2.invoke(() -> createCustomerOrderShipmentPartitionedRegion(null, 1, 100, isOffHeap()));
+      vm2.invoke(() -> createCustomerOrderShipmentPartitionedRegion(null, 1, 100));
 
       AsyncInvocation<Void> inv1 =
           vm4.invokeAsync(() -> WANTestBase.putColocatedPartitionedRegion(10));
@@ -600,8 +600,7 @@ public class ConcurrentParallelGatewaySenderOperation2DistributedTest extends WA
 
       LogWriterUtils.getLogWriter().info("Created PRs on local site");
 
-      vm2.invoke(() -> WANTestBase.createCustomerOrderShipmentPartitionedRegion(null, 1, 100,
-          isOffHeap()));
+      vm2.invoke(() -> WANTestBase.createCustomerOrderShipmentPartitionedRegion(null, 1, 100));
 
       vm4.invokeAsync(() -> WANTestBase.putColocatedPartitionedRegion(2000));
       Wait.pause(1000);
@@ -658,7 +657,7 @@ public class ConcurrentParallelGatewaySenderOperation2DistributedTest extends WA
   protected void createAndStartSender(VM vm, int port, int concurrencyLevel, boolean manualStart,
       boolean pause) {
     vm.invoke(() -> createCache_INFINITE_MAXIMUM_SHUTDOWN_WAIT_TIME(port));
-    vm.invoke(() -> createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 10, isOffHeap()));
+    vm.invoke(() -> createPartitionedRegion(getTestMethodName() + "_PR", "ln", 1, 10));
     createSender(vm, concurrencyLevel, manualStart);
     vm.invoke(() -> startSender("ln"));
     if (pause) {
@@ -672,7 +671,7 @@ public class ConcurrentParallelGatewaySenderOperation2DistributedTest extends WA
     String regionName = getTestMethodName() + "_PR";
     createCacheInVMs(port, vm2);
     vm2.invoke(WANTestBase::createReceiver);
-    vm2.invoke(() -> createPartitionedRegion(regionName, null, 1, 10, isOffHeap()));
+    vm2.invoke(() -> createPartitionedRegion(regionName, null, 1, 10));
     vm4.invoke(() -> doPuts(regionName, 10));
     vm4.invoke(() -> validateRegionSize(regionName, 10));
     // since sender is paused, no dispatching
@@ -683,7 +682,7 @@ public class ConcurrentParallelGatewaySenderOperation2DistributedTest extends WA
     // Note: This is a test-specific method used to create and start 2 senders.
     vm.invoke(() -> createCache_INFINITE_MAXIMUM_SHUTDOWN_WAIT_TIME(port));
     vm.invoke(
-        () -> createPartitionedRegion(getTestMethodName() + "_PR", "ln1,ln2", 1, 100, isOffHeap()));
+        () -> createPartitionedRegion(getTestMethodName() + "_PR", "ln1,ln2", 1, 100));
     createSenders(vm, concurrencyLevel);
     vm.invoke(() -> startSender("ln1"));
     vm.invoke(() -> startSender("ln2"));
@@ -692,7 +691,7 @@ public class ConcurrentParallelGatewaySenderOperation2DistributedTest extends WA
   protected void createAndStartSenderWithCustomerOrderShipmentRegion(VM vm, int port,
       int concurrencyLevel, boolean manualStart) {
     vm.invoke(() -> createCache_INFINITE_MAXIMUM_SHUTDOWN_WAIT_TIME(port));
-    vm.invoke(() -> createCustomerOrderShipmentPartitionedRegion("ln", 1, 100, isOffHeap()));
+    vm.invoke(() -> createCustomerOrderShipmentPartitionedRegion("ln", 1, 100));
     createSender(vm, concurrencyLevel, manualStart);
     vm.invoke(() -> startSender("ln"));
   }

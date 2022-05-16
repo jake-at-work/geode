@@ -14,9 +14,6 @@
  */
 package org.apache.geode.internal.cache;
 
-import static org.apache.geode.internal.offheap.annotations.OffHeapIdentifier.ABSTRACT_REGION_ENTRY_FILL_IN_VALUE;
-import static org.apache.geode.internal.offheap.annotations.OffHeapIdentifier.ABSTRACT_REGION_ENTRY_PREPARE_VALUE_FOR_CACHE;
-
 import org.apache.geode.cache.CacheWriterException;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.EntryNotFoundException;
@@ -28,10 +25,6 @@ import org.apache.geode.internal.cache.eviction.EvictionList;
 import org.apache.geode.internal.cache.versions.VersionSource;
 import org.apache.geode.internal.cache.versions.VersionStamp;
 import org.apache.geode.internal.cache.versions.VersionTag;
-import org.apache.geode.internal.offheap.StoredObject;
-import org.apache.geode.internal.offheap.annotations.Released;
-import org.apache.geode.internal.offheap.annotations.Retained;
-import org.apache.geode.internal.offheap.annotations.Unretained;
 import org.apache.geode.internal.serialization.ByteArrayDataInput;
 import org.apache.geode.internal.serialization.KnownVersion;
 
@@ -177,7 +170,7 @@ public interface RegionEntry {
    * @since GemFire 3.2.1
    */
   boolean fillInValue(InternalRegion region,
-      @Retained(ABSTRACT_REGION_ENTRY_FILL_IN_VALUE) Entry entry, ByteArrayDataInput in,
+      Entry entry, ByteArrayDataInput in,
       DistributionManager distributionManager, final KnownVersion version);
 
   /**
@@ -200,11 +193,9 @@ public interface RegionEntry {
   /**
    * Just like getValue but the result may be a retained off-heap reference.
    */
-  @Retained
   Object getValueRetain(RegionEntryContext context);
 
-  @Released
-  void setValue(RegionEntryContext context, @Unretained Object value) throws RegionClearedException;
+  void setValue(RegionEntryContext context, Object value) throws RegionClearedException;
 
   /**
    * This flavor of setValue was added so that the event could be passed down to Helper.writeToDisk.
@@ -214,23 +205,15 @@ public interface RegionEntry {
       throws RegionClearedException;
 
   /**
-   * Obtain, retain and return the value of this entry. WARNING: if a StoredObject is returned and
-   * it has a refCount then the caller MUST make sure that {@link StoredObject#release()} before the
-   * returned object is garbage collected.
-   *
-   * This is only retained in off-heap subclasses. However, it's marked as Retained here so that
-   * callers are aware that the value may be retained.
+   * Gets the value field of this entry.
    *
    * @param decompress if true returned value will be decompressed if it is compressed
-   * @return possible OFF_HEAP_OBJECT (caller must release)
    */
-  @Retained
   Object getValueRetain(RegionEntryContext context, boolean decompress);
 
   /**
    * Gets the value field of this entry.
    */
-  @Unretained
   Object getValue();
 
   /**
@@ -246,7 +229,7 @@ public interface RegionEntry {
    * @param event the cache event that caused this change
    * @throws RegionClearedException thrown if the region is concurrently cleared
    */
-  void setValueWithTombstoneCheck(@Unretained Object value, EntryEvent event)
+  void setValueWithTombstoneCheck(Object value, EntryEvent event)
       throws RegionClearedException;
 
   /**
@@ -255,7 +238,6 @@ public interface RegionEntry {
    *
    * @since GemFire 8.0
    */
-  @Retained
   Object getTransformedValue();
 
   /**
@@ -323,9 +305,8 @@ public interface RegionEntry {
    *        to "create" a destroyed entry to mark the destroy
    * @return true if destroy was done; false if not
    */
-  @Released
   boolean destroy(InternalRegion region, EntryEventImpl event, boolean inTokenMode,
-      boolean cacheWrite, @Unretained Object expectedOldValue, boolean forceDestroy,
+      boolean cacheWrite, Object expectedOldValue, boolean forceDestroy,
       boolean removeRecoveredEntry)
       throws CacheWriterException, EntryNotFoundException, TimeoutException, RegionClearedException;
 
@@ -362,7 +343,6 @@ public interface RegionEntry {
    * this will not fault in the value rather return a temporary copy. The value returned will be
    * kept off heap (and compressed) if possible.
    */
-  @Retained
   Object getValueOffHeapOrDiskWithoutFaultIn(InternalRegion region);
 
   /**
@@ -455,10 +435,8 @@ public interface RegionEntry {
    */
   void resetRefCount(EvictionList lruList);
 
-  @Retained(ABSTRACT_REGION_ENTRY_PREPARE_VALUE_FOR_CACHE)
   Object prepareValueForCache(RegionEntryContext context, Object value, boolean isEntryUpdate);
 
-  @Retained(ABSTRACT_REGION_ENTRY_PREPARE_VALUE_FOR_CACHE)
   Object prepareValueForCache(RegionEntryContext context, Object value, EntryEventImpl event,
       boolean isEntryUpdate);
 

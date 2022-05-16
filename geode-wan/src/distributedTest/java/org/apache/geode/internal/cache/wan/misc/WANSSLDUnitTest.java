@@ -47,12 +47,12 @@ public class WANSSLDUnitTest extends WANTestBase {
     vm4.invoke(() -> WANTestBase.createSender("ln", 2, false, 100, 10, false, false, null, true));
 
     vm2.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null));
 
     vm4.invoke(() -> WANTestBase.startSender("ln"));
 
     vm4.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln"));
 
     vm4.invoke(() -> WANTestBase.doPuts(getTestMethodName() + "_RR", 1000));
 
@@ -77,7 +77,7 @@ public class WANSSLDUnitTest extends WANTestBase {
         () -> WANTestBase.createSender(senderId, 2, false, 100, 10, false, false, null, true));
 
     String regionName = getTestMethodName() + "_RR";
-    vm2.invoke(() -> WANTestBase.createReplicatedRegion(regionName, null, isOffHeap()));
+    vm2.invoke(() -> WANTestBase.createReplicatedRegion(regionName, null));
 
     vm4.invoke(() -> WANTestBase.startSender(senderId));
 
@@ -87,7 +87,7 @@ public class WANSSLDUnitTest extends WANTestBase {
     // Verify the sender is not connected
     vm4.invoke(() -> verifySenderConnectedState(senderId, false));
 
-    vm4.invoke(() -> WANTestBase.createReplicatedRegion(regionName, "ln", isOffHeap()));
+    vm4.invoke(() -> WANTestBase.createReplicatedRegion(regionName, "ln"));
 
     // Do some puts in the sender
     int numPuts = 10;
@@ -108,7 +108,7 @@ public class WANSSLDUnitTest extends WANTestBase {
 
     // Restart the receiver with SSL disabled
     createCacheInVMs(nyPort, vm2);
-    vm2.invoke(() -> createReplicatedRegion(regionName, null, isOffHeap()));
+    vm2.invoke(() -> createReplicatedRegion(regionName, null));
     vm2.invoke(WANTestBase::createReceiver);
 
     // Wait for the queue to drain
@@ -135,12 +135,12 @@ public class WANSSLDUnitTest extends WANTestBase {
     vm4.invoke(() -> WANTestBase.createSender("ln", 2, false, 100, 10, false, false, null, true));
 
     vm2.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null, isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", null));
 
     vm4.invoke(() -> WANTestBase.startSender("ln"));
 
     vm4.invoke(
-        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln", isOffHeap()));
+        () -> WANTestBase.createReplicatedRegion(getTestMethodName() + "_RR", "ln"));
 
     vm4.invoke(() -> WANTestBase.doPuts(getTestMethodName() + "_RR", 1));
 

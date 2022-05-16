@@ -41,7 +41,6 @@ import org.apache.geode.cache.query.internal.types.StructTypeImpl;
 import org.apache.geode.cache.query.internal.types.TypeUtils;
 import org.apache.geode.cache.query.types.ObjectType;
 import org.apache.geode.cache.query.types.StructType;
-import org.apache.geode.internal.offheap.annotations.Retained;
 import org.apache.geode.pdx.PdxInstance;
 import org.apache.geode.pdx.internal.PdxString;
 
@@ -163,7 +162,7 @@ public class CompiledComparison extends AbstractCompiledValue
    */
   @Override
   public SelectResults filterEvaluate(ExecutionContext context, SelectResults intermediateResults,
-      boolean completeExpansionNeeded, @Retained CompiledValue iterOperands,
+      boolean completeExpansionNeeded, CompiledValue iterOperands,
       RuntimeIterator[] indpndntItrs, boolean isIntersection, boolean conditioningNeeded,
       boolean evaluateProjection) throws FunctionDomainException, TypeMismatchException,
       NameResolutionException, QueryInvocationTargetException {
@@ -348,7 +347,7 @@ public class CompiledComparison extends AbstractCompiledValue
   // Invariant: the receiver is dependent on the current iterator.
   private SelectResults singleBaseCollectionFilterEvaluate(ExecutionContext context,
       SelectResults intermediateResults, final boolean completeExpansionNeeded,
-      @Retained CompiledValue iterOperands, IndexInfo indexInfo, RuntimeIterator[] indpndntItr,
+      CompiledValue iterOperands, IndexInfo indexInfo, RuntimeIterator[] indpndntItr,
       boolean isIntersection, boolean conditioningNeeded, boolean evaluateProj)
       throws TypeMismatchException, FunctionDomainException,
       NameResolutionException, QueryInvocationTargetException {
