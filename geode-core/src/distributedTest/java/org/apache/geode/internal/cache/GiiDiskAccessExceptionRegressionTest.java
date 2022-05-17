@@ -200,9 +200,5 @@ public class GiiDiskAccessExceptionRegressionTest extends CacheTestCase {
       return this;
     }
 
-    @Override
-    public RegionEntryFactory makeOnHeap() {
-      return this;
-    }
   }
 }

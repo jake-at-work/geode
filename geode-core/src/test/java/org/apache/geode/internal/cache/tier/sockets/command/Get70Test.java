@@ -176,8 +176,9 @@ public class Get70Test {
   public void callsEndGetForClient_ifGetSucceedsWithHit() throws IOException {
     CachePerfStats regionPerfStats = mock(CachePerfStats.class);
     when(region.getRegionPerfStats()).thenReturn(regionPerfStats);
-    when(region.getRetained(any(), any(), anyBoolean(), anyBoolean(), any(), any(), anyBoolean()))
-        .thenReturn("data");
+    when(region.get(any(), any(), anyBoolean(), anyBoolean(), anyBoolean(), any(), any(),
+        anyBoolean()))
+            .thenReturn("data");
 
     get70.cmdExecute(message, serverConnection, securityService, 0);
 
@@ -188,8 +189,9 @@ public class Get70Test {
   public void callsEndGetForClient_ifGetSucceedsWithMiss() throws IOException {
     CachePerfStats regionPerfStats = mock(CachePerfStats.class);
     when(region.getRegionPerfStats()).thenReturn(regionPerfStats);
-    when(region.getRetained(any(), any(), anyBoolean(), anyBoolean(), any(), any(), anyBoolean()))
-        .thenReturn(null);
+    when(region.get(any(), any(), anyBoolean(), anyBoolean(), anyBoolean(), any(), any(),
+        anyBoolean()))
+            .thenReturn(null);
 
     get70.cmdExecute(message, serverConnection, securityService, 0);
 

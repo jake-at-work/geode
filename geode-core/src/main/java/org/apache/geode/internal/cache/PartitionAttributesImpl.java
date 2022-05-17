@@ -49,8 +49,6 @@ public class PartitionAttributesImpl implements PartitionAttributes, Cloneable, 
   private static final Logger logger = LogService.getLogger();
   private static final long serialVersionUID = -7120239286748961954L;
 
-  private static final int OFF_HEAP_LOCAL_MAX_MEMORY_PLACEHOLDER = 1;
-
   /** Partition resolver. */
   private transient PartitionResolver partitionResolver;
   private transient boolean hasPartitionResolver;
@@ -204,12 +202,6 @@ public class PartitionAttributesImpl implements PartitionAttributes, Cloneable, 
   }
 
   /**
-   * Returns localMaxMemory that must not be a temporary placeholder for offHeapLocalMaxMemory if
-   * off-heap. This must return the true final value of localMaxMemory which requires the
-   * DistributedSystem to be created if off-heap. See bug #52003.
-   *
-   * @throws IllegalStateException if off-heap and the actual value is not yet known (because the
-   *         DistributedSystem has not yet been created)
    * @see #getLocalMaxMemoryForValidation()
    */
   @Override
@@ -219,10 +211,8 @@ public class PartitionAttributesImpl implements PartitionAttributes, Cloneable, 
 
   /**
    * Returns localMaxMemory for validation of attributes before Region is created (possibly before
-   * DistributedSystem is created). Returned value may be the temporary placeholder representing
-   * offHeapLocalMaxMemory which cannot be calculated until the DistributedSystem is created.
+   * DistributedSystem is created).
    *
-   * @see #OFF_HEAP_LOCAL_MAX_MEMORY_PLACEHOLDER
    * @see #getLocalMaxMemory()
    */
   public int getLocalMaxMemoryForValidation() {
@@ -314,16 +304,11 @@ public class PartitionAttributesImpl implements PartitionAttributes, Cloneable, 
         + "]";
   }
 
-  /**
-   * @throws IllegalStateException if off-heap and the actual value is not yet known (because the
-   *         DistributedSystem has not yet been created)
-   */
   @Override
   public void toData(DataOutput out) throws IOException {
     out.writeInt(redundancy);
     out.writeLong(totalMaxMemory);
-    out.writeInt(getLocalMaxMemory()); // call the gettor to force it to be computed in the offheap
-                                       // case
+    out.writeInt(getLocalMaxMemory());
     out.writeInt(totalNumBuckets);
     DataSerializer.writeString(colocatedRegionName, out);
     DataSerializer.writeObject(localProperties, out);

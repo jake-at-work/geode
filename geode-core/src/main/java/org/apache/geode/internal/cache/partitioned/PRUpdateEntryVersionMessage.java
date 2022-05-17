@@ -101,7 +101,6 @@ public class PRUpdateEntryVersionMessage extends PartitionMessageWithDirectReply
   protected boolean operateOnPartitionedRegion(ClusterDistributionManager dm, PartitionedRegion pr,
       long startTime) throws CacheException, QueryException, DataLocationException,
       InterruptedException, IOException {
-    // release not needed because disallowOffHeapValues called
     final EntryEventImpl event =
         EntryEventImpl.create(pr, getOperation(), getKey(), null, /* newValue */
             null, /* callbackargs */

@@ -119,7 +119,6 @@ public class GetMemberInformationFunction implements InternalFunction {
     memberInfo.setCacheXmlFilePath(config.getCacheXmlFile().getCanonicalPath());
     memberInfo.setLocators(config.getLocators());
     memberInfo.setServerBindAddress(config.getServerBindAddress());
-    memberInfo.setOffHeapMemorySize(config.getOffHeapMemorySize());
     memberInfo.setHttpServicePort(config.getHttpServicePort());
     memberInfo.setHttpServiceBindAddress(config.getHttpServiceBindAddress());
 

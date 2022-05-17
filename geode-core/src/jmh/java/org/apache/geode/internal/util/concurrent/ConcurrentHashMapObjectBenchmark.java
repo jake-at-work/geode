@@ -366,10 +366,6 @@ public class ConcurrentHashMapObjectBenchmark {
       return null;
     }
 
-    @Override
-    public RegionEntryFactory makeOnHeap() {
-      return null;
-    }
   }
 
 }

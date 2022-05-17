@@ -42,7 +42,7 @@ public class RegionEntryFactoryBuilder {
     bitRepresentation |= withVersioning ? 8 : 0;
 
     /*
-     * The bits represent all options |offHeap|versioning|disk|lru|stats|
+     * The bits represent all options |versioning|disk|lru|stats|
      */
     switch (bitRepresentation) {
       case (0):

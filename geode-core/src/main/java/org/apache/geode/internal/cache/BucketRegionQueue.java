@@ -387,8 +387,7 @@ public class BucketRegionQueue extends AbstractBucketRegionQueue {
     if (object == Token.TOMBSTONE) {
       object = null;
     }
-    return object; // OFFHEAP: ok since callers are careful to do destroys on region queue after
-                   // finished with peeked object.
+    return object;
   }
 
   public Object peek() {
@@ -432,8 +431,7 @@ public class BucketRegionQueue extends AbstractBucketRegionQueue {
         // }
         eventSeqNumDeque.remove(key);
       }
-      return object; // OFFHEAP: ok since callers are careful to do destroys on
-                     // region queue after finished with peeked object.
+      return object;
     } finally {
       getInitializationLock().readLock().unlock();
     }

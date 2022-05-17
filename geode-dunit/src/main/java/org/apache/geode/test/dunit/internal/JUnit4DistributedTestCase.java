@@ -152,8 +152,7 @@ public abstract class JUnit4DistributedTestCase implements DistributedTestFixtur
    * Do not override this method. Override {@link #getDistributedSystemProperties()} instead.
    *
    * <p>
-   * Note: "final" was removed so that WANTestBase can override this method. This was part of the xd
-   * offheap merge.
+   * Note: "final" was removed so that WANTestBase can override this method.
    *
    * @since GemFire 3.0
    */

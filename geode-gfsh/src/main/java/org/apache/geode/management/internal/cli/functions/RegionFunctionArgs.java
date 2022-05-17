@@ -73,7 +73,6 @@ public class RegionFunctionArgs implements Serializable {
   private PartitionArgs partitionArgs;
   private Integer evictionMax;
   private String compressor;
-  private Boolean offHeap;
   private RegionAttributes<?, ?> regionAttributes;
 
   public RegionFunctionArgs() {}
@@ -240,10 +239,6 @@ public class RegionFunctionArgs implements Serializable {
     this.compressor = compressor;
   }
 
-  public void setOffHeap(Boolean offHeap) {
-    this.offHeap = offHeap;
-  }
-
   public void setRegionAttributes(RegionAttributes<?, ?> regionAttributes) {
     this.regionAttributes = regionAttributes;
   }
@@ -337,10 +332,6 @@ public class RegionFunctionArgs implements Serializable {
    */
   public Boolean getDiskSynchronous() {
     return diskSynchronous;
-  }
-
-  public Boolean getOffHeap() {
-    return offHeap;
   }
 
   /**

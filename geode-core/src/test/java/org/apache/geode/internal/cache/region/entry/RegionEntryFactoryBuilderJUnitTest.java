@@ -36,7 +36,7 @@ public class RegionEntryFactoryBuilderJUnitTest {
 
   /**
    * This method will test that the correct RegionEntryFactory is created dependent on the 5
-   * conditionals: enableStats, enableLRU, enableDisk, enableVersion, enableOffHeap
+   * conditionals: enableStats, enableLRU, enableDisk, enableVersion
    */
   @Test
   @Parameters({"VMThinRegionEntryHeapFactory,false,false,false,false",

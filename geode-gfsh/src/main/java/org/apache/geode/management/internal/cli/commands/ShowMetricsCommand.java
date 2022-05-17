@@ -63,7 +63,6 @@ public class ShowMetricsCommand extends GfshCommand {
     function,
     jvm,
     lock,
-    offheap,
     member,
     notification,
     partition,
@@ -94,7 +93,7 @@ public class ShowMetricsCommand extends GfshCommand {
       Collections.unmodifiableList(
           Arrays.asList(Category.communication, Category.diskstore, Category.distribution,
               Category.eviction, Category.function, Category.jvm, Category.lock, Category.member,
-              Category.offheap, Category.region, Category.serialization, Category.transaction));
+              Category.region, Category.serialization, Category.transaction));
 
   @Immutable
   static final List<Category> MEMBER_WITH_PORT_METRIC_CATEGORIES =
@@ -102,7 +101,7 @@ public class ShowMetricsCommand extends GfshCommand {
           Arrays.asList(Category.cacheserver, Category.communication, Category.diskstore,
               Category.distribution, Category.eviction, Category.function, Category.jvm,
               Category.lock,
-              Category.member, Category.notification, Category.offheap, Category.query,
+              Category.member, Category.notification, Category.query,
               Category.region,
               Category.serialization, Category.transaction));
 
@@ -491,26 +490,6 @@ public class ShowMetricsCommand extends GfshCommand {
           memberMxBean.getInitialImageTime(), csvBuilder);
       writeToTableAndCsv(metricsTable, "", "getInitialImageKeysReceived",
           memberMxBean.getInitialImageKeysReceived(), csvBuilder);
-    }
-    if (categoriesToDisplay.contains(Category.offheap)) {
-      writeToTableAndCsv(metricsTable, "offheap", "maxMemory", memberMxBean.getOffHeapMaxMemory(),
-          csvBuilder);
-      writeToTableAndCsv(metricsTable, "", "freeMemory", memberMxBean.getOffHeapFreeMemory(),
-          csvBuilder);
-      writeToTableAndCsv(metricsTable, "", "usedMemory", memberMxBean.getOffHeapUsedMemory(),
-          csvBuilder);
-      writeToTableAndCsv(metricsTable, "", "objects", memberMxBean.getOffHeapObjects(), csvBuilder);
-      writeToTableAndCsv(metricsTable, "", "fragmentation", memberMxBean.getOffHeapFragmentation(),
-          csvBuilder);
-      writeToTableAndCsv(metricsTable, "", "largestFragment",
-          memberMxBean.getOffHeapLargestFragment(),
-          csvBuilder);
-      writeToTableAndCsv(metricsTable, "", "fragments", memberMxBean.getOffHeapFragments(),
-          csvBuilder);
-      writeToTableAndCsv(metricsTable, "", "freedChunks", memberMxBean.getOffHeapFreedChunks(),
-          csvBuilder);
-      writeToTableAndCsv(metricsTable, "", "compactionTime",
-          memberMxBean.getOffHeapCompactionTime(), csvBuilder);
     }
   }
 

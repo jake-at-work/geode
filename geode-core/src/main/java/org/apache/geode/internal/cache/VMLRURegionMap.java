@@ -160,7 +160,7 @@ public class VMLRURegionMap extends AbstractRegionMap {
         // no need to worry about the value changing form with entry LRU.
         return false;
       }
-      Object curVal = le.getValue(); // OFFHEAP: _getValue ok
+      Object curVal = le.getValue();
       if (curVal != cd) {
         return false;
       }
@@ -722,7 +722,6 @@ public class VMLRURegionMap extends AbstractRegionMap {
     changeTotalEntrySize(-1 * e.getEntrySize());// subtract the size.
     Token vTok = regionEntry.getValueAsToken();
     if (vTok == Token.DESTROYED || vTok == Token.TOMBSTONE) {
-      // OFFHEAP noop TODO: use re.isDestroyedOrTombstone
       // if in token mode we need to recalculate the size of the entry since it's
       // staying in the map and may be resurrected
       e.updateEntrySize(getEvictionController());

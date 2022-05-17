@@ -211,7 +211,6 @@ public class RegionMBeanCompositeDataFactory {
     }
 
     boolean diskSynchronus = regAttrs.isDiskSynchronous();
-    boolean offheap = regAttrs.getOffHeap();
 
     Set<String> eventQueueIds = regAttrs.getAsyncEventQueueIds();
     Set<String> gatewaySenderIds = regAttrs.getGatewaySenderIds();
@@ -223,7 +222,7 @@ public class RegionMBeanCompositeDataFactory {
         lockGrantor, multicastEnabled, concurrencyLevel, indexMaintenanceSynchronous,
         statisticsEnabled, subsciptionConflationEnabled, asyncConflationEnabled, poolName,
         isCloningEnabled, diskStoreName, interestPolicy, diskSynchronus, cacheListeners,
-        compressorClassName, offheap, eventQueueIds, gatewaySenderIds);
+        compressorClassName, eventQueueIds, gatewaySenderIds);
 
     return regionAttributesData;
   }

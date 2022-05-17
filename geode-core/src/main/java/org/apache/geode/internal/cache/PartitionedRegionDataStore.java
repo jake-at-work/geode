@@ -1965,7 +1965,7 @@ public class PartitionedRegionDataStore implements HasCachePerfStats {
     invokeBucketReadHook();
     try {
       ret = bucketRegion.get(key, aCallbackArgument, true, disableCopyOnRead, preferCD,
-          requestingClient, clientEvent, returnTombstones, opScopeIsLocal, false);
+          requestingClient, clientEvent, returnTombstones, opScopeIsLocal);
       checkIfBucketMoved(bucketRegion);
     } catch (RegionDestroyedException rde) {
       if (partitionedRegion.isLocallyDestroyed || partitionedRegion.isClosed) {

@@ -624,17 +624,10 @@ public class ByteSourceJUnitTest {
     }
   }
 
-  /**
-   * Override as needed in subclass.
-   */
-  protected boolean isTestOffHeap() {
-    return false;
-  }
-
   @Test
   public void testHasArray() {
     ByteSource bs = createByteSource(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
-    assertEquals(!isTestOffHeap(), bs.hasArray());
+    assertEquals(true, bs.hasArray());
   }
 
   @Test

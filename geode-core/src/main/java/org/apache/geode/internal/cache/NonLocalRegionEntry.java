@@ -55,7 +55,7 @@ public class NonLocalRegionEntry implements RegionEntry, VersionStamp {
       // client get() operations need to see tombstone values
       value = Token.TOMBSTONE;
     } else {
-      value = re.getValue(br); // OFFHEAP: copy into heap cd
+      value = re.getValue(br);
     }
     Assert.assertTrue(value != Token.NOT_AVAILABLE,
         "getEntry did not fault value in from disk");
@@ -215,11 +215,6 @@ public class NonLocalRegionEntry implements RegionEntry, VersionStamp {
 
   @Override
   public Object getValue(RegionEntryContext context) {
-    return value;
-  }
-
-  @Override
-  public Object getValueRetain(RegionEntryContext context) {
     return value;
   }
 

@@ -85,11 +85,6 @@ class LRUTestEntry implements EvictableEntry {
   }
 
   @Override
-  public Object getValueRetain(final RegionEntryContext context) {
-    return null;
-  }
-
-  @Override
   public void setValue(final RegionEntryContext context, final Object value)
       throws RegionClearedException {
 

@@ -1939,30 +1939,12 @@ public interface ConfigurationProperties {
    * <U>Since</U>: GemFire 8.0
    */
   String USER_COMMAND_PACKAGES = "user-command-packages";
-  /**
-   * The static String definition of the <i>"off-heap-memory-size"</i> property
-   * <a name="off-heap-memory-size"></a>
-   * <p>
-   * <U>Description</U>: The total size of off-heap memory specified as
-   * off-heap-memory-size=&lt;n&gt;[g|m]. &lt;n&gt; is the size. [g|m] indicates whether the size
-   * should be
-   * interpreted as gigabytes or megabytes. By default no off-heap memory is allocated. A non-zero
-   * value will cause that much memory to be allocated from the operating system and reserved for
-   * off-heap use.
-   * <p>
-   * <U>Default</U>: <code>""</code>
-   * <p>
-   * <U>Since</U>: Geode 1.0
-   *
-   * @deprecated No replacement.
-   */
-  @Deprecated
-  String OFF_HEAP_MEMORY_SIZE = "off-heap-memory-size";
+
   /**
    * The static String definition of the <i>"lock-memory"</i> property
    * <a name="lock-memory"></a>
    * <p>
-   * <U>Description</U>: Include this option to lock GemFire heap and off-heap memory pages into
+   * <U>Description</U>: Include this option to lock GemFire heap memory pages into
    * RAM. This prevents the operating system from swapping the pages out to disk, which can cause
    * sever performance degradation. When you use this command, also configure the operating system
    * limits for locked memory.

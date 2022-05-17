@@ -1127,11 +1127,6 @@ public class ClientUpdateMessageImpl implements ClientUpdateMessage, Sizeable, N
   }
 
   @Override
-  public boolean isUnretainedNewReferenceOk() {
-    return false;
-  }
-
-  @Override
   public void importNewObject(Object nv, boolean isSerialized) {
     if (!isSerialized) {
       throw new IllegalStateException("Expected importNewBytes to be called.");

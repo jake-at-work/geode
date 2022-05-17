@@ -88,7 +88,7 @@ public class NonTXEntry implements Region.Entry {
 
   public Object getValue(boolean ignoreCopyOnRead) {
     Object value =
-        region.getDeserialized(basicGetEntry(), false, ignoreCopyOnRead, false, false);
+        region.getDeserialized(basicGetEntry(), false, ignoreCopyOnRead, false);
     if (value == null) {
       throw new EntryDestroyedException(getKey().toString());
     } else if (Token.isInvalid(value)) {

@@ -328,7 +328,6 @@ import org.apache.geode.management.configuration.ClassName;
  *       &lt;attribute name="statistics-enabled" type="{http://www.w3.org/2001/XMLSchema}boolean" /&gt;
  *       &lt;attribute name="cloning-enabled" type="{http://www.w3.org/2001/XMLSchema}boolean" /&gt;
  *       &lt;attribute name="concurrency-checks-enabled" type="{http://www.w3.org/2001/XMLSchema}boolean" default="true" /&gt;
- *       &lt;attribute name="off-heap" type="{http://www.w3.org/2001/XMLSchema}boolean" /&gt;
  *     &lt;/restriction&gt;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
@@ -431,10 +430,6 @@ public class RegionAttributesType implements Serializable {
   protected Boolean cloningEnabled;
   @XmlAttribute(name = "concurrency-checks-enabled")
   protected Boolean concurrencyChecksEnabled;
-
-  @Deprecated
-  @XmlAttribute(name = "off-heap")
-  protected final Boolean offHeap = false;
 
   /**
    * Gets the value of the keyConstraint property.
@@ -1564,32 +1559,6 @@ public class RegionAttributesType implements Serializable {
   public void setConcurrencyChecksEnabled(Boolean value) {
     concurrencyChecksEnabled = value;
   }
-
-  /**
-   * Gets the value of the offHeap property.
-   *
-   * possible object is
-   * {@link Boolean }
-   *
-   * @return the value of the offHeap property
-   * @deprecated No replacement.
-   */
-  @Deprecated
-  public Boolean isOffHeap() {
-    return false;
-  }
-
-  /**
-   * Sets the value of the offHeap property.
-   *
-   * allowed object is
-   * {@link Boolean }
-   *
-   * @param value the value of the offHeap property
-   * @deprecated No replacement.
-   */
-  @Deprecated
-  public void setOffHeap(Boolean value) {}
 
   public void setLruHeapPercentageEvictionAction(EnumActionDestroyOverflow action) {
     if (evictionAttributes == null) {

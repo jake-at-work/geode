@@ -79,8 +79,6 @@ public class MemberDetailsService implements PulseService {
       responseJSON.put("loadAverage", TWO_PLACE_DECIMAL_FORMAT.format(loadAvg));
       responseJSON.put("sockets", clusterMember.getTotalFileDescriptorOpen());
       responseJSON.put("threads", clusterMember.getNumThreads());
-      responseJSON.put("offHeapFreeSize", clusterMember.getOffHeapFreeSize());
-      responseJSON.put("offHeapUsedSize", clusterMember.getOffHeapUsedSize());
       responseJSON.put("regionsCount", clusterMember.getMemberRegionsList().length);
 
       // Number of member clients

@@ -524,27 +524,6 @@ public class InternalResourceManager implements ResourceManager {
   }
 
   @Override
-  public void setCriticalOffHeapPercentage(float offHeapPercentage) {
-
-  }
-
-  @Override
-  public float getCriticalOffHeapPercentage() {
-    return 0.0F;
-  }
-
-
-  @Override
-  public void setEvictionOffHeapPercentage(float offHeapPercentage) {
-
-  }
-
-  @Override
-  public float getEvictionOffHeapPercentage() {
-    return 0.0F;
-  }
-
-  @Override
   public void setCriticalHeapPercentage(float heapPercentage) {
     getHeapMonitor().setCriticalThreshold(heapPercentage);
   }

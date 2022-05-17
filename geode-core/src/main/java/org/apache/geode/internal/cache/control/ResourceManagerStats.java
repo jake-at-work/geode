@@ -61,17 +61,11 @@ public class ResourceManagerStats {
   private static final int rebalancePrimaryTransferTimeId;
   private static final int rebalanceMembershipChanges;
   private static final int heapCriticalEventsId;
-  private static final int offHeapCriticalEventsId;
   private static final int heapSafeEventsId;
-  private static final int offHeapSafeEventsId;
   private static final int evictionStartEventsId;
-  private static final int offHeapEvictionStartEventsId;
   private static final int evictionStopEventsId;
-  private static final int offHeapEvictionStopEventsId;
   private static final int criticalThresholdId;
-  private static final int offHeapCriticalThresholdId;
   private static final int evictionThresholdId;
-  private static final int offHeapEvictionThresholdId;
   private static final int tenuredHeapUsageId;
   private static final int resourceEventsDeliveredId;
   private static final int resourceEventQueueSizeId;
@@ -169,28 +163,16 @@ public class ResourceManagerStats {
 
             f.createLongGauge("heapCriticalEvents",
                 "Total number of times the heap usage went over critical threshold.", "events"),
-            f.createLongGauge("offHeapCriticalEvents",
-                "Total number of times off-heap usage went over critical threshold.", "events"),
             f.createLongGauge("heapSafeEvents",
                 "Total number of times the heap usage fell below critical threshold.", "events"),
-            f.createLongGauge("offHeapSafeEvents",
-                "Total number of times off-heap usage fell below critical threshold.", "events"),
             f.createLongGauge("evictionStartEvents",
                 "Total number of times heap usage went over eviction threshold.", "events"),
-            f.createLongGauge("offHeapEvictionStartEvents",
-                "Total number of times off-heap usage went over eviction threshold.", "events"),
             f.createLongGauge("evictionStopEvents",
                 "Total number of times heap usage fell below eviction threshold.", "events"),
-            f.createLongGauge("offHeapEvictionStopEvents",
-                "Total number of times off-heap usage fell below eviction threshold.", "events"),
             f.createLongGauge("criticalThreshold",
                 "The currently set heap critical threshold value in bytes", "bytes"),
-            f.createLongGauge("offHeapCriticalThreshold",
-                "The currently set off-heap critical threshold value in bytes", "bytes"),
             f.createLongGauge("evictionThreshold",
                 "The currently set heap eviction threshold value in bytes", "bytes"),
-            f.createLongGauge("offHeapEvictionThreshold",
-                "The currently set off-heap eviction threshold value in bytes", "bytes"),
             f.createLongGauge("tenuredHeapUsed", "Total memory used in the tenured/old space",
                 "bytes"),
             f.createLongCounter("resourceEventsDelivered",
@@ -232,17 +214,11 @@ public class ResourceManagerStats {
     rebalancePrimaryTransferTimeId = type.nameToId("rebalancePrimaryTransferTime");
     rebalanceMembershipChanges = type.nameToId("rebalanceMembershipChanges");
     heapCriticalEventsId = type.nameToId("heapCriticalEvents");
-    offHeapCriticalEventsId = type.nameToId("offHeapCriticalEvents");
     heapSafeEventsId = type.nameToId("heapSafeEvents");
-    offHeapSafeEventsId = type.nameToId("offHeapSafeEvents");
     evictionStartEventsId = type.nameToId("evictionStartEvents");
-    offHeapEvictionStartEventsId = type.nameToId("offHeapEvictionStartEvents");
     evictionStopEventsId = type.nameToId("evictionStopEvents");
-    offHeapEvictionStopEventsId = type.nameToId("offHeapEvictionStopEvents");
     criticalThresholdId = type.nameToId("criticalThreshold");
-    offHeapCriticalThresholdId = type.nameToId("offHeapCriticalThreshold");
     evictionThresholdId = type.nameToId("evictionThreshold");
-    offHeapEvictionThresholdId = type.nameToId("offHeapEvictionThreshold");
     tenuredHeapUsageId = type.nameToId("tenuredHeapUsed");
     resourceEventsDeliveredId = type.nameToId("resourceEventsDelivered");
     resourceEventQueueSizeId = type.nameToId("resourceEventQueueSize");
@@ -455,28 +431,12 @@ public class ResourceManagerStats {
     return stats.getLong(heapCriticalEventsId);
   }
 
-  public void incOffHeapCriticalEvents() {
-    stats.incLong(offHeapCriticalEventsId, 1L);
-  }
-
-  public long getOffHeapCriticalEvents() {
-    return stats.getLong(offHeapCriticalEventsId);
-  }
-
   public void incHeapSafeEvents() {
     stats.incLong(heapSafeEventsId, 1L);
   }
 
   public long getHeapSafeEvents() {
     return stats.getLong(heapSafeEventsId);
-  }
-
-  public void incOffHeapSafeEvents() {
-    stats.incLong(offHeapSafeEventsId, 1L);
-  }
-
-  public long getOffHeapSafeEvents() {
-    return stats.getLong(offHeapSafeEventsId);
   }
 
   public void incEvictionStartEvents() {
@@ -487,28 +447,12 @@ public class ResourceManagerStats {
     return stats.getLong(evictionStartEventsId);
   }
 
-  public void incOffHeapEvictionStartEvents() {
-    stats.incLong(offHeapEvictionStartEventsId, 1L);
-  }
-
-  public long getOffHeapEvictionStartEvents() {
-    return stats.getLong(offHeapEvictionStartEventsId);
-  }
-
   public void incEvictionStopEvents() {
     stats.incLong(evictionStopEventsId, 1L);
   }
 
   public long getEvictionStopEvents() {
     return stats.getLong(evictionStopEventsId);
-  }
-
-  public void incOffHeapEvictionStopEvents() {
-    stats.incLong(offHeapEvictionStopEventsId, 1L);
-  }
-
-  public long getOffHeapEvictionStopEvents() {
-    return stats.getLong(offHeapEvictionStopEventsId);
   }
 
   public void changeCriticalThreshold(long newValue) {
@@ -519,28 +463,12 @@ public class ResourceManagerStats {
     return stats.getLong(criticalThresholdId);
   }
 
-  public void changeOffHeapCriticalThreshold(long newValue) {
-    stats.setLong(offHeapCriticalThresholdId, newValue);
-  }
-
-  public long getOffHeapCriticalThreshold() {
-    return stats.getLong(offHeapCriticalThresholdId);
-  }
-
   public void changeEvictionThreshold(long newValue) {
     stats.setLong(evictionThresholdId, newValue);
   }
 
   public long getEvictionThreshold() {
     return stats.getLong(evictionThresholdId);
-  }
-
-  public void changeOffHeapEvictionThreshold(long newValue) {
-    stats.setLong(offHeapEvictionThresholdId, newValue);
-  }
-
-  public long getOffHeapEvictionThreshold() {
-    return stats.getLong(offHeapEvictionThresholdId);
   }
 
   public void changeTenuredHeapUsed(long newValue) {

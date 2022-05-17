@@ -37,9 +37,6 @@ public class PulseTestConstants {
   public static final String MEMBER_VIEW_CPUUSAGE_ID = "memberCPUUsageValue";
   public static final String MEMBER_VIEW_READPERSEC_ID = "memberGetsPerSecValue";
   public static final String MEMBER_VIEW_WRITEPERSEC_ID = "memberPutsPerSecValue";
-  public static final String MEMBER_VIEW_OFFHEAPFREESIZE_ID = "offHeapFreeSize";
-  public static final String MEMBER_VIEW_OFFHEAPUSEDSIZE_ID = "offHeapUsedSize";
-
   public static final String REGION_NAME_LABEL = "regionName";
   public static final String REGION_PATH_LABEL = "regionPath";
   public static final String REGION_TYPE_LABEL = "regionType";

@@ -750,11 +750,6 @@ public abstract class CacheXml implements EntityResolver2, ErrorHandler {
   protected static final String CRITICAL_HEAP_PERCENTAGE = "critical-heap-percentage";
   /** The name of the <code>eviction-heap-percentage</code> attribute of the resource-manager */
   protected static final String EVICTION_HEAP_PERCENTAGE = "eviction-heap-percentage";
-  /** The name of the <code>critical-off-heap-percentage</code> attribute of the resource-manager */
-  protected static final String CRITICAL_OFF_HEAP_PERCENTAGE = "critical-off-heap-percentage";
-  /** The name of the <code>eviction-off-heap-percentage</code> attribute of the resource-manager */
-  protected static final String EVICTION_OFF_HEAP_PERCENTAGE = "eviction-off-heap-percentage";
-
   protected static final String ASYNC_EVENT_LISTENER = "async-event-listener";
   public static final String ASYNC_EVENT_QUEUE = "async-event-queue";
   public static final String PAUSE_EVENT_PROCESSING = "pause-event-processing";
@@ -763,14 +758,6 @@ public abstract class CacheXml implements EntityResolver2, ErrorHandler {
 
   /** The name of the <code>compressor</code> attribute */
   protected static final String COMPRESSOR = "compressor";
-  /**
-   * The name of the <code>off-heap</code> attribute
-   *
-   * @since Geode 1.0
-   * @deprecated No replacement.
-   */
-  @Deprecated
-  protected static final String OFF_HEAP = "off-heap";
 
   protected static final String TCP_NO_DELAY = "tcp-no-delay";
 

@@ -76,12 +76,7 @@ public abstract class AbstractOplogDiskRegionEntry extends AbstractDiskRegionEnt
 
   @Override
   public Object getValue(RegionEntryContext context) {
-    return Helper.faultInValue(this, (InternalRegion) context); // OFFHEAP returned to callers
-  }
-
-  @Override
-  public Object getValueRetain(RegionEntryContext context) {
-    return Helper.faultInValueRetain(this, (InternalRegion) context);
+    return Helper.faultInValue(this, (InternalRegion) context);
   }
 
   @Override

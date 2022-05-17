@@ -741,7 +741,6 @@ public class HashIndex extends AbstractIndex {
    */
   private Object getTargetObject(RegionEntry entry) {
     if (indexOnValues) {
-      // OFFHEAP: incrc, deserialize, decrc
       Object o = entry.getValue((LocalRegion) getRegion());
       try {
         if (o == Token.INVALID) {

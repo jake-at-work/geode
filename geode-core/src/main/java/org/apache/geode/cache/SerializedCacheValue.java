@@ -19,14 +19,6 @@ package org.apache.geode.cache;
  * Class <code>SerializedCacheValue</code> represents a serialized cache value. Instances of this
  * class obtained from a region can be put into another region without a copy of this value being
  * made. The two region entries will both have a reference to the same value.
- * <p>
- * If this value originated from a region stored off heap then this object can only be used as long
- * as notification method that obtained it has not returned. For example if your implementation of
- * {@link CacheListener#afterUpdate(EntryEvent)} obtains one by calling
- * {@link EntryEvent#getSerializedOldValue()} then the SerializedCacheValue returned is only valid
- * until your afterUpdate method returns. It is not safe to store instances of this class and use
- * them later when using off heap storage. Attempts to access off-heap data from this event after it
- * has expired will result in an IllegalStateException.
  *
  * @since GemFire 5.5
  */
@@ -36,9 +28,6 @@ public interface SerializedCacheValue<V> {
    * Returns the raw byte[] that represents this cache value.
    *
    * @return the raw byte[] that represents this cache value
-   * @throws IllegalStateException if off-heap and called after the method that was passed the
-   *         EntryEvent that this serialize value was obtained from returns and this value does not
-   *         already have the serialized value.
    */
   byte[] getSerializedValue();
 
@@ -46,8 +35,6 @@ public interface SerializedCacheValue<V> {
    * Returns the deserialized object for this cache value.
    *
    * @return the deserialized object for this cache value
-   * @throws IllegalStateException if off-heap and called after the method that was passed the
-   *         EntryEvent that this serialize value was obtained from returns.
    */
   V getDeserializedValue();
 }

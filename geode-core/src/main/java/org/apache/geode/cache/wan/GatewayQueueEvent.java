@@ -16,7 +16,6 @@ package org.apache.geode.cache.wan;
 
 import org.apache.geode.cache.Operation;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.asyncqueue.AsyncEventListener;
 
 /**
  * Represents <code>Cache</code> events going through <code>GatewaySender</code>s.
@@ -58,9 +57,6 @@ public interface GatewayQueueEvent<K, V> {
    * Returns the deserialized value associated with this event.
    *
    * @return the deserialized value associated with this event
-   *
-   * @throws IllegalStateException may be thrown if the event's value was stored off-heap and
-   *         {@link AsyncEventListener#processEvents(java.util.List)} has already returned.
    */
   V getDeserializedValue();
 
@@ -68,9 +64,6 @@ public interface GatewayQueueEvent<K, V> {
    * Returns the serialized form of the value associated with this event.
    *
    * @return the serialized form of the value associated with this event
-   *
-   * @throws IllegalStateException may be thrown if the event's value was stored off-heap and
-   *         {@link AsyncEventListener#processEvents(java.util.List)} has already returned.
    */
   byte[] getSerializedValue();
 }

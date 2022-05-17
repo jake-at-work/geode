@@ -175,9 +175,7 @@ public class EntriesSet extends AbstractSet implements LogWithToString {
             if (re != null) {
               try {
                 if (keepSerialized) {
-                  result = ((NonTXEntry) re).getRawValue(); // OFFHEAP: need to either copy into a
-                                                            // cd or figure out when result will be
-                                                            // released.
+                  result = ((NonTXEntry) re).getRawValue();
                 } else if (ignoreCopyOnReadForQuery) {
                   result = ((NonTXEntry) re).getValue(true);
                 } else {

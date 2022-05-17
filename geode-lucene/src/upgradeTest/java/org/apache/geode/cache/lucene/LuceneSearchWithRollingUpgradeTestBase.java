@@ -421,7 +421,6 @@ public abstract class LuceneSearchWithRollingUpgradeTestBase extends JUnit4Distr
   private Properties getSystemProperties() {
     Properties props = DistributedTestUtils.getAllDistributedSystemProperties(new Properties());
     props.remove("disable-auto-reconnect");
-    props.remove(DistributionConfig.OFF_HEAP_MEMORY_SIZE_NAME);
     props.remove(DistributionConfig.LOCK_MEMORY_NAME);
     return props;
   }

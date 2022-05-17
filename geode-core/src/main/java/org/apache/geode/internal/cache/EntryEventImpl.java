@@ -17,7 +17,6 @@ package org.apache.geode.internal.cache;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.function.Function;
 
 import org.apache.logging.log4j.Logger;
 
@@ -194,8 +193,6 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
     if (in.readBoolean()) { // isDelta
       assert false : "isDelta should never be true";
     } else {
-      // OFFHEAP Currently values are never deserialized to off heap memory. If that changes then
-      // this code needs to change.
       if (in.readBoolean()) { // newValueSerialized
         newValueBytes = DataSerializer.readByteArray(in);
         cachedSerializedNewValue = newValueBytes;
@@ -207,8 +204,6 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
       }
     }
 
-    // OFFHEAP Currently values are never deserialized to off heap memory. If that changes then this
-    // code needs to change.
     if (in.readBoolean()) { // oldValueSerialized
       oldValueBytes = DataSerializer.readByteArray(in);
       oldValue = null; // set later in basicGetOldValue
@@ -721,13 +716,12 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
       if (ov != null) {
         boolean doCopyOnRead = getRegion().isCopyOnRead();
         if (ov instanceof CachedDeserializable) {
-          return callWithOffHeapLock((CachedDeserializable) ov, oldValueCD -> {
-            if (doCopyOnRead) {
-              return oldValueCD.getDeserializedWritableCopy(getRegion(), re);
-            } else {
-              return oldValueCD.getDeserializedValue(getRegion(), re);
-            }
-          });
+          final CachedDeserializable oldValueCD = (CachedDeserializable) ov;
+          if (doCopyOnRead) {
+            return oldValueCD.getDeserializedWritableCopy(getRegion(), re);
+          } else {
+            return oldValueCD.getDeserializedValue(getRegion(), re);
+          }
         } else {
           if (doCopyOnRead) {
             return CopyHelper.copy(ov);
@@ -780,19 +774,6 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
     readOldValueFromDisk = v;
   }
 
-  /**
-   * Like getRawNewValue except that if the result is an off-heap reference then copy it to the
-   * heap. Note: to prevent the heap copy use getRawNewValue instead
-   */
-  public Object getRawNewValueAsHeapObject() {
-    return basicGetNewValue();
-  }
-
-  /**
-   * If new value is off-heap return the StoredObject form (unretained OFF_HEAP_REFERENCE). Its
-   * refcount is not inced by this call and the returned object can only be safely used for the
-   * lifetime of the EntryEventImpl instance that returned the value. Else return the raw form.
-   */
   public Object getRawNewValue() {
     return basicGetNewValue();
   }
@@ -855,12 +836,6 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
     }
   }
 
-  /**
-   * Note if v might be an off-heap reference that you did not retain for this EntryEventImpl then
-   * call retainsAndSetOldValue instead of this method.
-   *
-   * @param v the caller should have already retained this off-heap reference.
-   */
   void basicSetOldValue(Object v) {
     final Object curOldValue = oldValue;
     if (v == curOldValue) {
@@ -890,37 +865,8 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
     return result;
   }
 
-  /**
-   * Like getRawOldValue except that if the result is an off-heap reference then copy it to the
-   * heap. To avoid the heap copy use getRawOldValue instead.
-   */
-  public Object getRawOldValueAsHeapObject() {
-    return basicGetOldValue();
-  }
-
-  /*
-   * If the old value is off-heap return the StoredObject form (unretained OFF_HEAP_REFERENCE). Its
-   * refcount is not inced by this call and the returned object can only be safely used for the
-   * lifetime of the EntryEventImpl instance that returned the value. Else return the raw form.
-   */
   public Object getRawOldValue() {
     return basicGetOldValue();
-  }
-
-  /**
-   * Just like getRawOldValue except if the raw old value is off-heap deserialize it.
-   */
-  public Object getOldValueAsOffHeapDeserializedOrRaw() {
-    Object result = basicGetOldValue();
-    return AbstractRegion.handleNotAvailable(result);
-  }
-
-  /**
-   * Added this function to expose isCopyOnRead function to the child classes of EntryEventImpl
-   *
-   */
-  protected boolean isRegionCopyOnRead() {
-    return getRegion().isCopyOnRead();
   }
 
   /**
@@ -957,15 +903,6 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
       }
     }
     return null;
-  }
-
-  /**
-   * Invoke the given function with a lock if the given value is offheap.
-   *
-   * @return the value returned from invoking the function
-   */
-  private <T, R> R callWithOffHeapLock(T value, Function<T, R> function) {
-    return function.apply(value);
   }
 
   public String getNewValueStringForm() {
@@ -1112,15 +1049,6 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
     boolean prefersNewSerialized();
 
     /**
-     * Only return true if the importer can use the value before the event that exported it is
-     * released. If false is returned then off-heap values will be copied to the heap for the
-     * importer.
-     *
-     * @return true if the importer can deal with the value being an unretained OFF_HEAP_REFERENCE.
-     */
-    boolean isUnretainedNewReferenceOk();
-
-    /**
      * Import a new value that is currently in object form.
      *
      * @param nv the new value to import; unretained if isUnretainedNewReferenceOk returns true
@@ -1181,14 +1109,6 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
      * @return true if the importer prefers the value to be in serialized form.
      */
     boolean prefersOldSerialized();
-
-    /**
-     * Only return true if the importer can use the value before the event that exported it is
-     * released.
-     *
-     * @return true if the importer can deal with the value being an unretained OFF_HEAP_REFERENCE.
-     */
-    boolean isUnretainedOldReferenceOk();
 
     /**
      * @return return true if you want the old value to possibly be an instanceof
@@ -2385,23 +2305,7 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
       if (serializedValue != null) {
         return serializedValue;
       }
-      return callWithOffHeapLock(CachedDeserializable::getSerializedValue);
-    }
-
-    /**
-     * The only methods that need to use this method are those on the external SerializedCacheValue
-     * interface and any other method that a customer could call that may access the off-heap
-     * values. For example if toString was implemented on this class to access the value then it
-     * would need to use this method.
-     */
-    private <R> R callWithOffHeapLock(Function<CachedDeserializable, R> function) {
-      if (event != null) {
-        // this call does not use getCd() to access this.cd
-        // because the check for offHeapOk is done by event.callWithOffHeapLock
-        return event.callWithOffHeapLock(cd, function);
-      } else {
-        return function.apply(cd);
-      }
+      return cd.getSerializedValue();
     }
 
     @Override
@@ -2421,9 +2325,7 @@ public class EntryEventImpl implements InternalEntryEvent, InternalCacheEvent,
 
     @Override
     public Object getDeserializedValue(Region rgn, RegionEntry reentry) {
-      return callWithOffHeapLock(cd -> {
-        return cd.getDeserializedValue(rgn, reentry);
-      });
+      return cd.getDeserializedValue(rgn, reentry);
     }
 
     @Override

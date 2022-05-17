@@ -739,23 +739,6 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
           generateIt = true;
         }
       }
-
-      if (version.compareTo(CacheXmlVersion.GEODE_1_0) >= 0) {
-        if (creation.getResourceManager().hasCriticalOffHeap()) {
-          float chp = creation.getResourceManager().getCriticalOffHeapPercentage();
-          if (generateDefaults() || chp != MemoryThresholds.DEFAULT_CRITICAL_PERCENTAGE) {
-            atts.addAttribute("", "", CRITICAL_OFF_HEAP_PERCENTAGE, "", String.valueOf(chp));
-            generateIt = true;
-          }
-        }
-        if (creation.getResourceManager().hasEvictionOffHeap()) {
-          float ehp = creation.getResourceManager().getEvictionOffHeapPercentage();
-          if (generateDefaults() || ehp != MemoryThresholds.DEFAULT_EVICTION_PERCENTAGE) {
-            atts.addAttribute("", "", EVICTION_OFF_HEAP_PERCENTAGE, "", String.valueOf(ehp));
-            generateIt = true;
-          }
-        }
-      }
       if (generateIt) {
         generateResourceManagerElement(atts);
       }
@@ -770,21 +753,6 @@ public class CacheXmlGenerator extends CacheXml implements XMLReader {
         int ehp = (int) cache.getResourceManager().getEvictionHeapPercentage();
         if (generateDefaults() || ehp != MemoryThresholds.DEFAULT_EVICTION_PERCENTAGE) {
           atts.addAttribute("", "", EVICTION_HEAP_PERCENTAGE, "", String.valueOf(ehp));
-        }
-      }
-
-      if (version.compareTo(CacheXmlVersion.GEODE_1_0) >= 0) {
-        {
-          int chp = (int) cache.getResourceManager().getCriticalOffHeapPercentage();
-          if (generateDefaults() || chp != MemoryThresholds.DEFAULT_CRITICAL_PERCENTAGE) {
-            atts.addAttribute("", "", CRITICAL_OFF_HEAP_PERCENTAGE, "", String.valueOf(chp));
-          }
-        }
-        {
-          int ehp = (int) cache.getResourceManager().getEvictionOffHeapPercentage();
-          if (generateDefaults() || ehp != MemoryThresholds.DEFAULT_EVICTION_PERCENTAGE) {
-            atts.addAttribute("", "", EVICTION_OFF_HEAP_PERCENTAGE, "", String.valueOf(ehp));
-          }
         }
       }
       if (generateDefaults() || atts.getLength() > 0) {

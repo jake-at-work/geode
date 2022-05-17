@@ -18,7 +18,6 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.apache.geode.distributed.ConfigurationProperties.LOCATORS;
 import static org.apache.geode.distributed.ConfigurationProperties.LOG_LEVEL;
 import static org.apache.geode.distributed.ConfigurationProperties.MCAST_PORT;
-import static org.apache.geode.distributed.ConfigurationProperties.OFF_HEAP_MEMORY_SIZE;
 import static org.apache.geode.internal.AvailablePortHelper.getRandomAvailableTCPPort;
 import static org.apache.geode.test.awaitility.GeodeAwaitility.await;
 import static org.apache.geode.test.dunit.LogWriterUtils.getDUnitLogLevel;
@@ -308,13 +307,6 @@ public class ClientServerTransactionDUnitTest extends RemoteTransactionDUnitTest
     return clientVM;
   }
 
-  private void configureOffheapSystemProperty() {
-    Properties p = getDistributedSystemProperties();
-    // p.setProperty(LOG_LEVEL, "finer");
-    p.setProperty(OFF_HEAP_MEMORY_SIZE, "1m");
-    getSystem(p);
-  }
-
   private void createSubscriptionRegion(String regionName, int copies,
       int totalBuckets) {
     PartitionAttributesFactory paf = new PartitionAttributesFactory();
@@ -322,8 +314,8 @@ public class ClientServerTransactionDUnitTest extends RemoteTransactionDUnitTest
     AttributesFactory attr = new AttributesFactory();
     attr.setPartitionAttributes(paf.create());
     attr.setConcurrencyChecksEnabled(true);
-    Region offheapRegion = getCache().createRegion(regionName, attr.create());
-    assertNotNull(offheapRegion);
+    Region region = getCache().createRegion(regionName, attr.create());
+    assertNotNull(region);
   }
 
   private void createClient(int port, String regionName) throws Exception {
@@ -4045,25 +4037,15 @@ public class ClientServerTransactionDUnitTest extends RemoteTransactionDUnitTest
 
   @Test
   public void testCreateSubscriptionEventsWithPrWhioleBucketRegionIsDestroyed() {
-    testSubscriptionEventsWhenBucketRegionIsDestroyed(false, forop.CREATE);
+    testSubscriptionEventsWhenBucketRegionIsDestroyed(forop.CREATE);
   }
 
   @Test
   public void testDestroySubscriptionEventsWithPrWhileBucketRegionIsDestroyed() {
-    testSubscriptionEventsWhenBucketRegionIsDestroyed(false, forop.DESTROY);
+    testSubscriptionEventsWhenBucketRegionIsDestroyed(forop.DESTROY);
   }
 
-  @Test
-  public void testCreateSubscriptionEventsWithOffheapPrWhioleBucketRegionIsDestroyed() {
-    testSubscriptionEventsWhenBucketRegionIsDestroyed(true, forop.CREATE);
-  }
-
-  @Test
-  public void testDestroySubscriptionEventsWithOffheapPrWhileBucketRegionIsDestroyed() {
-    testSubscriptionEventsWhenBucketRegionIsDestroyed(true, forop.DESTROY);
-  }
-
-  private void testSubscriptionEventsWhenBucketRegionIsDestroyed(boolean offheap, forop op) {
+  private void testSubscriptionEventsWhenBucketRegionIsDestroyed(forop op) {
     int copies = 1;
     int totalBuckets = 1;
 
@@ -4075,9 +4057,6 @@ public class ClientServerTransactionDUnitTest extends RemoteTransactionDUnitTest
     VM client2 = host.getVM(3);
 
     final String regionName = "SubscriptionPr";
-
-    server1.invoke(this::configureOffheapSystemProperty);
-    server2.invoke(this::configureOffheapSystemProperty);
 
     final int port1 = createRegionsAndStartServer(server1, false);
     // Create PR

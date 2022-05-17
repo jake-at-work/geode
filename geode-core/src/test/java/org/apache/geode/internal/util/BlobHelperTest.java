@@ -41,7 +41,6 @@ import org.apache.geode.internal.serialization.KnownVersion;
  * TODO: add coverage for additional methods:
  * <li>{@link BlobHelper#deserializeBlob(byte[], KnownVersion, ByteArrayDataInput)}
  * <li>{@link BlobHelper#deserializeBuffer(ByteArrayDataInput, int)}
- * <li>{@link BlobHelper#deserializeOffHeapBlob(StoredObject)}
  * <li>{@link BlobHelper#serializeToBlob(Object, KnownVersion)}
  */
 public class BlobHelperTest {

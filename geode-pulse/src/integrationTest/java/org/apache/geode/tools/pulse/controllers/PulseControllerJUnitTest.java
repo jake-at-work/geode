@@ -290,7 +290,6 @@ public class PulseControllerJUnitTest {
         .andExpect(jsonPath("$.ClusterRegion.region[0].memberNames[0].id").value(MEMBER_ID))
         .andExpect(jsonPath("$.ClusterRegion.region[0].emptyNodes").value(0))
         .andExpect(jsonPath("$.ClusterRegion.region[0].type").value(REGION_TYPE))
-        .andExpect(jsonPath("$.ClusterRegion.region[0].isEnableOffHeapMemory").value("OFF"))
         .andExpect(jsonPath("$.ClusterRegion.region[0].putsRate").value(12.31D))
         .andExpect(jsonPath("$.ClusterRegion.region[0].totalMemory").value(0))
         .andExpect(jsonPath("$.ClusterRegion.region[0].entryCount").value(0))
@@ -323,7 +322,6 @@ public class PulseControllerJUnitTest {
         .andExpect(jsonPath("$.ClusterRegions.regions[0].memberNames[0].id").value(MEMBER_ID))
         .andExpect(jsonPath("$.ClusterRegions.regions[0].emptyNodes").value(0))
         .andExpect(jsonPath("$.ClusterRegions.regions[0].type").value(REGION_TYPE))
-        .andExpect(jsonPath("$.ClusterRegions.regions[0].isEnableOffHeapMemory").value("OFF"))
         .andExpect(jsonPath("$.ClusterRegions.regions[0].putsRate").value(12.31D))
         .andExpect(jsonPath("$.ClusterRegions.regions[0].totalMemory").value(0))
         .andExpect(jsonPath("$.ClusterRegions.regions[0].entryCount").value(0))
@@ -351,8 +349,6 @@ public class PulseControllerJUnitTest {
         .andExpect(jsonPath("$.ClusterSelectedRegion.selectedRegion.getsRate").value(27.99D))
         .andExpect(jsonPath("$.ClusterSelectedRegion.selectedRegion.emptyNodes").value(0))
         .andExpect(jsonPath("$.ClusterSelectedRegion.selectedRegion.type").value(REGION_TYPE))
-        .andExpect(
-            jsonPath("$.ClusterSelectedRegion.selectedRegion.isEnableOffHeapMemory").value("OFF"))
         .andExpect(jsonPath("$.ClusterSelectedRegion.selectedRegion.path").value(REGION_PATH))
         .andExpect(
             jsonPath("$.ClusterSelectedRegion.selectedRegion.members[0].cpuUsage").value(55.77D))
@@ -498,7 +494,6 @@ public class PulseControllerJUnitTest {
         .andExpect(jsonPath("$.MemberDetails.clusterId").isNotEmpty())
         .andExpect(jsonPath("$.MemberDetails.numClients").value(1))
         .andExpect(jsonPath("$.MemberDetails.userName").value(PRINCIPAL_USER))
-        .andExpect(jsonPath("$.MemberDetails.offHeapFreeSize").value(0))
         .andExpect(jsonPath("$.MemberDetails.memberId").value(MEMBER_ID))
         .andExpect(jsonPath("$.MemberDetails.status").value("Normal"));
   }

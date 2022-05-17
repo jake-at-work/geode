@@ -18,7 +18,6 @@ import static org.apache.geode.cache.Region.SEPARATOR;
 import static org.apache.geode.distributed.ConfigurationProperties.DISTRIBUTED_SYSTEM_ID;
 import static org.apache.geode.distributed.ConfigurationProperties.LOCATORS;
 import static org.apache.geode.distributed.ConfigurationProperties.MCAST_PORT;
-import static org.apache.geode.distributed.ConfigurationProperties.OFF_HEAP_MEMORY_SIZE;
 import static org.apache.geode.distributed.ConfigurationProperties.REMOTE_LOCATORS;
 import static org.apache.geode.distributed.ConfigurationProperties.START_LOCATOR;
 import static org.apache.geode.test.awaitility.GeodeAwaitility.await;
@@ -44,7 +43,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.geode.DataSerializable;
@@ -60,13 +58,11 @@ import org.apache.geode.cache.DiskStore;
 import org.apache.geode.cache.DiskStoreFactory;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.EntryOperation;
-import org.apache.geode.cache.FixedPartitionAttributes;
 import org.apache.geode.cache.FixedPartitionResolver;
 import org.apache.geode.cache.LoaderHelper;
 import org.apache.geode.cache.PartitionAttributesFactory;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
-import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.asyncqueue.AsyncEvent;
 import org.apache.geode.cache.asyncqueue.AsyncEventListener;
 import org.apache.geode.cache.asyncqueue.AsyncEventQueue;
@@ -96,8 +92,6 @@ import org.apache.geode.internal.cache.ForceReattemptException;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.internal.cache.RegionQueue;
-import org.apache.geode.internal.cache.control.InternalResourceManager;
-import org.apache.geode.internal.cache.control.InternalResourceManager.ResourceObserver;
 import org.apache.geode.internal.size.Sizeable;
 import org.apache.geode.test.awaitility.GeodeAwaitility;
 import org.apache.geode.test.dunit.Assert;
@@ -251,32 +245,6 @@ public class AsyncEventQueueTestBase extends JUnit4DistributedTestCase {
         String asyncQueueId = tokenizer.nextToken();
         fact.addAsyncEventQueueId(asyncQueueId);
       }
-    }
-  }
-
-  public static void createReplicatedRegionWithSenderAndAsyncEventQueue(String regionName,
-      String senderIds, String asyncChannelId, Boolean offHeap) {
-    IgnoredException exp =
-        IgnoredException.addIgnoredException(ForceReattemptException.class.getName());
-    try {
-
-      AttributesFactory fact = new AttributesFactory();
-      if (senderIds != null) {
-        StringTokenizer tokenizer = new StringTokenizer(senderIds, ",");
-        while (tokenizer.hasMoreTokens()) {
-          String senderId = tokenizer.nextToken();
-          fact.addGatewaySenderId(senderId);
-        }
-      }
-      fact.setDataPolicy(DataPolicy.REPLICATE);
-      fact.setOffHeap(offHeap);
-      fact.setScope(Scope.DISTRIBUTED_ACK);
-      RegionFactory regionFactory = cache.createRegionFactory(fact.create());
-      regionFactory.addAsyncEventQueueId(asyncChannelId);
-      Region r = regionFactory.create(regionName);
-      assertNotNull(r);
-    } finally {
-      exp.remove();
     }
   }
 
@@ -587,31 +555,6 @@ public class AsyncEventQueueTestBase extends JUnit4DistributedTestCase {
     }
   }
 
-  public static void createFixedPartitionedRegionWithAsyncEventQueue(String regionName,
-      String asyncEventQueueId, String partitionName, final List<String> allPartitions,
-      boolean offHeap) {
-    IgnoredException exp =
-        IgnoredException.addIgnoredException(ForceReattemptException.class.getName());
-    IgnoredException exp1 =
-        IgnoredException.addIgnoredException(PartitionOfflineException.class.getName());
-    try {
-      AttributesFactory fact = new AttributesFactory();
-
-      PartitionAttributesFactory pfact = new PartitionAttributesFactory();
-      pfact.setTotalNumBuckets(16);
-      pfact.addFixedPartitionAttributes(
-          FixedPartitionAttributes.createFixedPartition(partitionName, true));
-      pfact.setPartitionResolver(new MyFixedPartitionResolver(allPartitions));
-      fact.setPartitionAttributes(pfact.create());
-      fact.setOffHeap(offHeap);
-      Region r = cache.createRegionFactory(fact.create()).addAsyncEventQueueId(asyncEventQueueId)
-          .create(regionName);
-      assertNotNull(r);
-    } finally {
-      exp.remove();
-      exp1.remove();
-    }
-  }
 
   public static void createColocatedPartitionedRegionWithAsyncEventQueue(String regionName,
       String asyncEventQueueId, Integer totalNumBuckets, String colocatedWith) {
@@ -649,43 +592,6 @@ public class AsyncEventQueueTestBase extends JUnit4DistributedTestCase {
     Region r = cache.createRegionFactory(fact.create()).addAsyncEventQueueId(asyncEventQueueId)
         .create(regionName);
     assertNotNull(r);
-  }
-
-  /**
-   * Create PartitionedRegion with 1 redundant copy
-   */
-  public static void createPRWithRedundantCopyWithAsyncEventQueue(String regionName,
-      String asyncEventQueueId, Boolean offHeap) throws InterruptedException {
-    IgnoredException exp =
-        IgnoredException.addIgnoredException(ForceReattemptException.class.getName());
-
-
-    CountDownLatch recoveryDone = new CountDownLatch(2);
-
-    ResourceObserver observer = new InternalResourceManager.ResourceObserverAdapter() {
-      @Override
-      public void recoveryFinished(Region region) {
-        recoveryDone.countDown();
-      }
-    };
-    InternalResourceManager.setResourceObserver(observer);
-
-
-    try {
-      AttributesFactory fact = new AttributesFactory();
-
-      PartitionAttributesFactory pfact = new PartitionAttributesFactory();
-      pfact.setTotalNumBuckets(16);
-      pfact.setRedundantCopies(1);
-      fact.setPartitionAttributes(pfact.create());
-      fact.setOffHeap(offHeap);
-      Region r = cache.createRegionFactory(fact.create()).addAsyncEventQueueId(asyncEventQueueId)
-          .create(regionName);
-      assertNotNull(r);
-      recoveryDone.await();
-    } finally {
-      exp.remove();
-    }
   }
 
   public static void createPartitionedRegionAccessorWithAsyncEventQueue(String regionName,
@@ -1569,20 +1475,8 @@ public class AsyncEventQueueTestBase extends JUnit4DistributedTestCase {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    // For now all WANTestBase tests allocate off-heap memory even though
-    // many of them never use it.
-    // The problem is that WANTestBase has static methods that create instances
-    // of WANTestBase (instead of instances of the subclass). So we can't override
-    // this method so that only the off-heap subclasses allocate off heap memory.
-    Properties props = new Properties();
-    props.setProperty(OFF_HEAP_MEMORY_SIZE, "300m");
-    return props;
+    return new Properties();
   }
-
-  /**
-   * Returns true if the test should create off-heap regions. OffHeap tests should over-ride this
-   * method and return false.
-   */
 
   private static class MyFixedPartitionResolver implements FixedPartitionResolver {
 

@@ -42,8 +42,6 @@ import org.apache.geode.annotations.Experimental;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *       &lt;attribute name="critical-heap-percentage" type="{http://www.w3.org/2001/XMLSchema}string" /&gt;
  *       &lt;attribute name="eviction-heap-percentage" type="{http://www.w3.org/2001/XMLSchema}string" /&gt;
- *       &lt;attribute name="critical-off-heap-percentage" type="{http://www.w3.org/2001/XMLSchema}string" /&gt;
- *       &lt;attribute name="eviction-off-heap-percentage" type="{http://www.w3.org/2001/XMLSchema}string" /&gt;
  *     &lt;/restriction&gt;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
@@ -60,10 +58,6 @@ public class ResourceManagerType {
   protected String criticalHeapPercentage;
   @XmlAttribute(name = "eviction-heap-percentage")
   protected String evictionHeapPercentage;
-  @XmlAttribute(name = "critical-off-heap-percentage")
-  protected String criticalOffHeapPercentage;
-  @XmlAttribute(name = "eviction-off-heap-percentage")
-  protected String evictionOffHeapPercentage;
 
   /**
    * Gets the value of the criticalHeapPercentage property.
@@ -111,62 +105,6 @@ public class ResourceManagerType {
    */
   public void setEvictionHeapPercentage(String value) {
     evictionHeapPercentage = value;
-  }
-
-  /**
-   * Gets the value of the criticalOffHeapPercentage property.
-   *
-   * possible object is
-   * {@link String }
-   *
-   * @return the value of the criticalOffHeapPercentage property
-   * @deprecated No replacement.
-   */
-  @Deprecated
-  public String getCriticalOffHeapPercentage() {
-    return criticalOffHeapPercentage;
-  }
-
-  /**
-   * Sets the value of the criticalOffHeapPercentage property.
-   *
-   * allowed object is
-   * {@link String }
-   *
-   * @param value the value of the criticalOffHeapPercentage property
-   * @deprecated No replacement.
-   */
-  @Deprecated
-  public void setCriticalOffHeapPercentage(String value) {
-    criticalOffHeapPercentage = value;
-  }
-
-  /**
-   * Gets the value of the evictionOffHeapPercentage property.
-   *
-   * possible object is
-   * {@link String }
-   *
-   * @return the value of the evictionOffHeapPercentage property
-   * @deprecated No replacement.
-   */
-  @Deprecated
-  public String getEvictionOffHeapPercentage() {
-    return evictionOffHeapPercentage;
-  }
-
-  /**
-   * Sets the value of the evictionOffHeapPercentage property.
-   *
-   * allowed object is
-   * {@link String }
-   *
-   * @param value the value of the evictionOffHeapPercentage property
-   * @deprecated No replacement.
-   */
-  @Deprecated
-  public void setEvictionOffHeapPercentage(String value) {
-    evictionOffHeapPercentage = value;
   }
 
 }

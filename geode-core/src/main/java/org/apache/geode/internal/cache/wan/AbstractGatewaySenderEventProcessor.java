@@ -846,7 +846,6 @@ public abstract class AbstractGatewaySenderEventProcessor extends LoggingThread
     if (pdxRegion != null && pdxRegion.size() != pdxEventsMap.size()) {
       for (Map.Entry<Object, Object> typeEntry : pdxRegion.entrySet()) {
         if (!pdxEventsMap.containsKey(typeEntry.getKey())) {
-          // event should never be off-heap so it does not need to be released
           EntryEventImpl event = EntryEventImpl.create((LocalRegion) pdxRegion, Operation.UPDATE,
               typeEntry.getKey(), typeEntry.getValue(), null, false, cache.getMyId());
           event.setEventId(new EventID(cache.getInternalDistributedSystem()));
@@ -857,7 +856,6 @@ public abstract class AbstractGatewaySenderEventProcessor extends LoggingThread
           GatewaySenderEventCallbackArgument geCallbackArg = new GatewaySenderEventCallbackArgument(
               event.getRawCallbackArgument(), sender.getMyDSId(), allRemoteDSIds);
           event.setCallbackArgument(geCallbackArg);
-          // OFFHEAP: event for pdx type meta data so it should never be off-heap
           GatewaySenderEventImpl pdxSenderEvent =
               new GatewaySenderEventImpl(EnumListenerEvent.AFTER_UPDATE, event, null);
 

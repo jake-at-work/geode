@@ -911,11 +911,6 @@ public class RemotePutMessage extends RemoteOperationMessageWithDirectReply
     }
 
     @Override
-    public boolean isUnretainedOldReferenceOk() {
-      return true;
-    }
-
-    @Override
     public boolean isCachedDeserializableValueOk() {
       return true;
     }
@@ -1012,11 +1007,6 @@ public class RemotePutMessage extends RemoteOperationMessageWithDirectReply
     return true;
   }
 
-  @Override
-  public boolean isUnretainedNewReferenceOk() {
-    return true;
-  }
-
   private void setDeserializationPolicy(boolean isSerialized) {
     if (!isSerialized) {
       deserializationPolicy = DistributedCacheOperation.DESERIALIZATION_POLICY_NONE;
@@ -1037,11 +1027,6 @@ public class RemotePutMessage extends RemoteOperationMessageWithDirectReply
 
   @Override
   public boolean prefersOldSerialized() {
-    return true;
-  }
-
-  @Override
-  public boolean isUnretainedOldReferenceOk() {
     return true;
   }
 

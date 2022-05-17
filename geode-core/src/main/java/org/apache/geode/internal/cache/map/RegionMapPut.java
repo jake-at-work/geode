@@ -386,10 +386,10 @@ public class RegionMapPut extends AbstractRegionMapPut {
         if (getOwner().getConcurrencyChecksEnabled() &&
             event.getOperation() == Operation.PUT_IF_ABSENT &&
             event.isPossibleDuplicate()) {
-          Object retainedValue = getRegionEntry().getValueRetain(getOwner());
-          if (ValueComparisonHelper.checkEquals(retainedValue,
-                getEvent().getRawNewValue(),
-                isCompressedOffHeap(event), getOwner().getCache())) {
+          final Object value = getRegionEntry().getValue(getOwner());
+          if (ValueComparisonHelper.checkEquals(value,
+              getEvent().getRawNewValue(),
+              false, getOwner().getCache())) {
             if (logger.isDebugEnabled()) {
               logger.debug("retried putIfAbsent found same value already in cache "
                   + "- allowing the operation.  entry={}; event={}", getRegionEntry(),
@@ -403,12 +403,6 @@ public class RegionMapPut extends AbstractRegionMapPut {
       }
     }
     return true;
-  }
-
-
-  private boolean isCompressedOffHeap(EntryEventImpl event) {
-    return event.getRegion().getAttributes().getOffHeap()
-        && event.getRegion().getAttributes().getCompressor() != null;
   }
 
   private boolean checkExpectedOldValuePrecondition() {

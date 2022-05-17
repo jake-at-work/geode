@@ -27,7 +27,7 @@ import org.apache.geode.internal.util.concurrent.CustomEntryConcurrentHashMap.Ha
 /*
  * macros whose definition changes this class:
  *
- * disk: DISK lru: LRU stats: STATS versioned: VERSIONED offheap: OFFHEAP
+ * disk: DISK lru: LRU stats: STATS versioned: VERSIONED
  *
  * One of the following key macros must be defined:
  *

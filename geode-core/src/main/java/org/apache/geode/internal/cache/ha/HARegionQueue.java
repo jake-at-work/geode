@@ -665,14 +665,6 @@ public class HARegionQueue implements RegionQueue {
       giiLock.readLock().unlock();
     }
 
-    // basicPut() invokes dace.putObject() to put onto HARegionQueue
-    // However, dace.putObject could return true even though
-    // the event is not put onto the HARegionQueue due to eliding events etc.
-    // So it is not reliable to be used whether offheap ref ownership is passed over to
-    // the queue (if and when HARegionQueue uses offheap). The probable
-    // solution could be that to let dace.putObject() to increase offheap REF count
-    // when it puts the event onto the region queue. Also always release (dec)
-    // the offheap REF count from the caller.
     return true;
   }
 

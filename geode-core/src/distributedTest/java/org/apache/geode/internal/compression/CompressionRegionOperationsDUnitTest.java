@@ -480,16 +480,11 @@ public class CompressionRegionOperationsDUnitTest extends JUnit4CacheTestCase {
    */
   private boolean createCompressedRegionOnVm(final VM vm, final String name,
       final Compressor compressor) {
-    return createCompressedRegionOnVm(vm, name, compressor, false);
-  }
-
-  protected boolean createCompressedRegionOnVm(final VM vm, final String name,
-      final Compressor compressor, final boolean offHeap) {
     return (Boolean) vm.invoke(new SerializableCallable() {
       @Override
       public Object call() throws Exception {
         try {
-          createRegion(name, compressor, offHeap);
+          createRegion(name, compressor);
         } catch (IllegalStateException e) {
           return Boolean.FALSE;
         }
@@ -505,8 +500,8 @@ public class CompressionRegionOperationsDUnitTest extends JUnit4CacheTestCase {
    * @param name a region name.
    * @param compressor a compressor.
    */
-  private Region createRegion(String name, Compressor compressor, boolean offHeap) {
+  private Region createRegion(String name, Compressor compressor) {
     return getCache().<String, String>createRegionFactory().setDataPolicy(DataPolicy.REPLICATE)
-        .setCloningEnabled(true).setCompressor(compressor).setOffHeap(offHeap).create(name);
+        .setCloningEnabled(true).setCompressor(compressor).create(name);
   }
 }

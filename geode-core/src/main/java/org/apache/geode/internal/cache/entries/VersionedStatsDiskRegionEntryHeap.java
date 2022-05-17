@@ -77,9 +77,5 @@ public abstract class VersionedStatsDiskRegionEntryHeap extends VersionedStatsDi
       return this;
     }
 
-    @Override
-    public RegionEntryFactory makeOnHeap() {
-      return this;
-    }
   }
 }

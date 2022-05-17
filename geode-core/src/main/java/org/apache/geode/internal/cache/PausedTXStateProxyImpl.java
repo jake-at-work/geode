@@ -110,7 +110,7 @@ public class PausedTXStateProxyImpl implements TXStateProxy {
   @Override
   public Object getDeserializedValue(KeyInfo keyInfo, LocalRegion localRegion, boolean updateStats,
       boolean disableCopyOnRead, boolean preferCD, EntryEventImpl clientEvent,
-      boolean returnTombstones, boolean retainResult, boolean createIfAbsent) {
+      boolean returnTombstones, boolean createIfAbsent) {
     return null;
   }
 

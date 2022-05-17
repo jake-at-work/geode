@@ -2469,23 +2469,6 @@ public class CacheXmlParser extends CacheXml implements ContentHandler {
       }
     }
 
-    {
-      String chp = atts.getValue(CRITICAL_OFF_HEAP_PERCENTAGE);
-      if (chp != null) {
-        rmc.setCriticalOffHeapPercentage(parseFloat(chp));
-      } else {
-        rmc.setCriticalOffHeapPercentageToDefault();
-      }
-    }
-
-    {
-      String ehp = atts.getValue(EVICTION_OFF_HEAP_PERCENTAGE);
-      if (ehp != null) {
-        rmc.setEvictionOffHeapPercentage(parseFloat(ehp));
-      } else {
-        rmc.setEvictionOffHeapPercentageToDefault();
-      }
-    }
     stack.push(rmc);
   }
 

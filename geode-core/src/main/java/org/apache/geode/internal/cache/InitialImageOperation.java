@@ -1986,7 +1986,7 @@ public class InitialImageOperation {
               continue;
             }
             if (logger.isDebugEnabled()) {
-              Object v = mapEntry.getValueInVM(rgn); // OFFHEAP: noop
+              Object v = mapEntry.getValueInVM(rgn);
               if (v instanceof Conflatable) {
                 if (((Conflatable) v).getEventId() == null) {
                   logger.debug("bug 44959: chunkEntries found conflatable with no eventID: {}", v);

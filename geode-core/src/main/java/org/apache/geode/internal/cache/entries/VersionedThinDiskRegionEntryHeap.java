@@ -77,9 +77,5 @@ public abstract class VersionedThinDiskRegionEntryHeap extends VersionedThinDisk
       return this;
     }
 
-    @Override
-    public RegionEntryFactory makeOnHeap() {
-      return this;
-    }
   }
 }

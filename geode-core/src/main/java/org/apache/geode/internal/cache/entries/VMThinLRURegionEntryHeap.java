@@ -75,9 +75,5 @@ public abstract class VMThinLRURegionEntryHeap extends VMThinLRURegionEntry {
       return VersionedThinLRURegionEntryHeap.getEntryFactory();
     }
 
-    @Override
-    public RegionEntryFactory makeOnHeap() {
-      return this;
-    }
   }
 }

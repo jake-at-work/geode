@@ -20,7 +20,7 @@ import org.apache.geode.internal.cache.control.ResourceAdvisor.ResourceManagerPr
 
 /**
  * Implemented by classes that the ResourceManager creates in order to monitor a specific type of
- * resource (heap memory, off-heap memory, disk, etc.).
+ * resource (heap memory, disk, etc.).
  *
  * @since Geode 1.0
  */

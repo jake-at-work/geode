@@ -821,7 +821,7 @@ public class RegionFactory<K, V> {
   }
 
   /**
-   * Sets cloning on region Note: off-heap regions always behave as if cloning is enabled.
+   * Sets cloning on region.
    *
    * @param cloningEnable whether cloning is enabled for the region
    * @return a reference to this RegionFactory object
@@ -870,16 +870,4 @@ public class RegionFactory<K, V> {
     return this;
   }
 
-  /**
-   * Enables this region's usage of off-heap memory if true.
-   *
-   * @param offHeap boolean flag to enable off-heap memory
-   * @return a reference to this RegionFactory instance
-   * @since Geode 1.0
-   * @deprecated No replacement.
-   */
-  @Deprecated
-  public RegionFactory<K, V> setOffHeap(boolean offHeap) {
-    return this;
-  }
 }

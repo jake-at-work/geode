@@ -288,8 +288,8 @@ public class DistributedPutAllOperation extends AbstractUpdateOperation {
     public PutAllEntryData(EntryEventImpl event) {
 
       key = event.getKey();
-      value = event.getRawNewValueAsHeapObject();
-      Object oldValue = event.getRawOldValueAsHeapObject();
+      value = event.getRawNewValue();
+      Object oldValue = event.getRawOldValue();
 
       if (oldValue == Token.NOT_AVAILABLE || Token.isRemoved(oldValue)) {
         this.oldValue = null;

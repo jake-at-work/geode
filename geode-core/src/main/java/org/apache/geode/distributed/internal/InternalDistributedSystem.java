@@ -823,7 +823,7 @@ public class InternalDistributedSystem extends DistributedSystem
       } else {
         throw new IllegalStateException(
             String.format(
-                "Insufficient free memory (%s) when attempting to lock %s bytes.  Either reduce the amount of heap or off-heap memory requested or free up additional system memory.  You may also specify -D%s=true on the command-line to override the constraint check.",
+                "Insufficient free memory (%s) when attempting to lock %s bytes.  Either reduce the amount of heap memory requested or free up additional system memory.  You may also specify -D%s=true on the command-line to override the constraint check.",
                 avail, size, ALLOW_MEMORY_OVERCOMMIT));
       }
     } else {

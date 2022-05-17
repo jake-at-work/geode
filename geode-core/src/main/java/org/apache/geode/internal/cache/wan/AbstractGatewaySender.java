@@ -1518,11 +1518,11 @@ public abstract class AbstractGatewaySender implements InternalGatewaySender, Di
   /**
    * Instances of this class allow us to delay queuing an incoming event. What used to happen was
    * that the tmpQ would have a GatewaySenderEventImpl added to it. But then when we took it out we
-   * had to ask it for its EntryEventImpl. Then we created another GatewaySenderEventImpl. As part
-   * of the off-heap work, the GatewaySenderEventImpl no longer has a EntryEventImpl. So this class
+   * had to ask it for its EntryEventImpl. Then we created another GatewaySenderEventImpl. The
+   * GatewaySenderEventImpl no longer has a EntryEventImpl. So this class
    * allows us to defer creation of the GatewaySenderEventImpl until we are ready to actually
    * enqueue it. The caller is responsible for giving us an EntryEventImpl that we own and that we
-   * will release. This is done by making a copy/clone of the original event. This fixes bug 52029.
+   * will release. This is done by making a copy/clone of the original event.
    */
   public static class TmpQueueEvent {
     private final EnumListenerEvent operation;

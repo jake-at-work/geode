@@ -132,12 +132,11 @@ public class HeapEvictor implements ResourceListener<MemoryEvent> {
 
   protected boolean includePartitionedRegion(PartitionedRegion region) {
     return region.getEvictionAttributes().getAlgorithm().isLRUHeap()
-        && region.getDataStore() != null && !region.getAttributes().getOffHeap();
+        && region.getDataStore() != null;
   }
 
   protected boolean includeLocalRegion(LocalRegion region) {
-    return region.getEvictionAttributes().getAlgorithm().isLRUHeap()
-        && !region.getAttributes().getOffHeap();
+    return region.getEvictionAttributes().getAlgorithm().isLRUHeap();
   }
 
   private List<LocalRegion> getAllRegionList() {

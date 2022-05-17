@@ -646,16 +646,6 @@ public class ServerLauncher extends AbstractLauncher<String> {
     return evictionHeapPercentage;
   }
 
-  @Deprecated
-  public Float getCriticalOffHeapPercentage() {
-    return null;
-  }
-
-  @Deprecated
-  public Float getEvictionOffHeapPercentage() {
-    return null;
-  }
-
   public String getHostNameForClients() {
     return hostNameForClients;
   }
@@ -1542,10 +1532,6 @@ public class ServerLauncher extends AbstractLauncher<String> {
           .ofType(Float.class);
       parser.accepts(CliStrings.START_SERVER__EVICTION__HEAP__PERCENTAGE).withRequiredArg()
           .ofType(Float.class);
-      parser.accepts(CliStrings.START_SERVER__CRITICAL_OFF_HEAP_PERCENTAGE).withRequiredArg()
-          .ofType(Float.class);
-      parser.accepts(CliStrings.START_SERVER__EVICTION_OFF_HEAP_PERCENTAGE).withRequiredArg()
-          .ofType(Float.class);
       parser.accepts(CliStrings.START_SERVER__MAX__CONNECTIONS).withRequiredArg()
           .ofType(Integer.class);
       parser.accepts(CliStrings.START_SERVER__MAX__MESSAGE__COUNT).withRequiredArg()
@@ -2249,16 +2235,6 @@ public class ServerLauncher extends AbstractLauncher<String> {
       return this;
     }
 
-    @Deprecated
-    public Float getCriticalOffHeapPercentage() {
-      return 0.0F;
-    }
-
-    @Deprecated
-    public Builder setCriticalOffHeapPercentage(final Float criticalOffHeapPercentage) {
-      return this;
-    }
-
     public Float getEvictionHeapPercentage() {
       return evictionHeapPercentage;
     }
@@ -2272,16 +2248,6 @@ public class ServerLauncher extends AbstractLauncher<String> {
         }
       }
       this.evictionHeapPercentage = evictionHeapPercentage;
-      return this;
-    }
-
-    @Deprecated
-    public Float getEvictionOffHeapPercentage() {
-      return 0.0F;
-    }
-
-    @Deprecated
-    public Builder setEvictionOffHeapPercentage(final Float evictionOffHeapPercentage) {
       return this;
     }
 

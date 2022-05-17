@@ -2088,7 +2088,7 @@ public class BucketRegion extends DistributedRegion implements Bucket {
 
   @Override
   public int calculateRegionEntryValueSize(RegionEntry regionEntry) {
-    return calcMemSize(regionEntry.getValue()); // OFFHEAP _getValue ok
+    return calcMemSize(regionEntry.getValue());
   }
 
   @Override

@@ -53,12 +53,6 @@ public class MemberClusterStatsMonitor {
 
   private static final String JVM_PAUSES = "JVMPauses";
 
-  private static final String OFF_HEAP_MAX_MEMORY = "OffHeapMaxMemory";
-
-  private static final String OFF_HEAP_USED_MEMORY = "OffHeapUsedMemory";
-
-  private static final String OFF_HEAP_FREE_MEMORY = "OffHeapFreeMemory";
-
   private static final String TXN_COMMITTED_TOTAL_COUNT = "TransactionCommittedTotalCount";
 
   private static final String TXN_ROLLEDBACK_TOTAL_COUNT = "TransactionRolledBackTotalCount";
@@ -112,9 +106,6 @@ public class MemberClusterStatsMonitor {
     typeMap.put(MAX_MEMORY, Long.TYPE);
     typeMap.put(USED_MEMORY, Long.TYPE);
     typeMap.put(FREE_MEMORY, Long.TYPE);
-    typeMap.put(OFF_HEAP_MAX_MEMORY, Long.TYPE);
-    typeMap.put(OFF_HEAP_USED_MEMORY, Long.TYPE);
-    typeMap.put(OFF_HEAP_FREE_MEMORY, Long.TYPE);
   }
 
   public float getDiskReadsRate() {
@@ -215,14 +206,6 @@ public class MemberClusterStatsMonitor {
 
   public long getJVMPauses() {
     return aggregator.getLongValue(JVM_PAUSES);
-  }
-
-  public long getOffHeapFreeMemory() {
-    return aggregator.getLongValue(OFF_HEAP_FREE_MEMORY);
-  }
-
-  public long getOffHeapUsedMemory() {
-    return aggregator.getLongValue(OFF_HEAP_USED_MEMORY);
   }
 
   public int getTransactionCommitted() {

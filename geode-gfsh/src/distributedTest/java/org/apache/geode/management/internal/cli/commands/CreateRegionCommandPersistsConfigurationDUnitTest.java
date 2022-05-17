@@ -256,7 +256,6 @@ public class CreateRegionCommandPersistsConfigurationDUnitTest {
         + " --eviction-action=local-destroy"
         + " --eviction-entry-count=1000"
         + " --key-constraint=" + Object.class.getName()
-        + " --off-heap=false"
         + " --region-idle-time-expiration=100"
         + " --region-idle-time-expiration-action=local-destroy"
         + " --region-time-to-live-expiration=200"

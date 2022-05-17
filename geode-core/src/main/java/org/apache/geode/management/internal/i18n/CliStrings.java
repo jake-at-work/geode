@@ -314,9 +314,6 @@ public class CliStrings {
   public static final String ALTER_DISK_STORE__STATISTICS__ENABLED = "enable-statistics";
   public static final String ALTER_DISK_STORE__STATISTICS__ENABLED__HELP =
       "Whether to enable statistics. Valid values are: true and false.";
-  public static final String ALTER_DISK_STORE__OFF_HEAP = "off-heap";
-  public static final String ALTER_DISK_STORE__OFF_HEAP__HELP =
-      "Whether to use off-heap memory for the region. Valid values are: true and false.";
   public static final String ALTER_DISK_STORE__REMOVE = "remove";
   public static final String ALTER_DISK_STORE__REMOVE__HELP =
       "Whether to remove the region from the disk store.";
@@ -1071,10 +1068,6 @@ public class CliStrings {
       "The fully-qualified class name of the Compressor to use when compressing region entry values.  The default is no compression.";
   public static final String CREATE_REGION__MSG__INVALID_COMPRESSOR =
       "{0} is an invalid Compressor."; // leave space in the end
-
-  public static final String CREATE_REGION__OFF_HEAP = "off-heap";
-  public static final String CREATE_REGION__OFF_HEAP__HELP =
-      "Causes the values of the region to be stored in off-heap memory. The default is on heap.";
 
   public static final String CREATE_REGION__PARTITION_LISTENER = "partition-listener";
   public static final String CREATE_REGION__PARTITION_LISTENER__HELP =
@@ -2128,8 +2121,8 @@ public class CliStrings {
       "Categories available based upon the parameters specified are:\n"
           + "- no parameters specified: cluster, cache, diskstore, query\n"
           + "- region specified: callback, cluster, diskstore, eviction, partition, region\n"
-          + "- member specified: communication, diskstore, distribution, eviction, function, jvm, lock, member, offheap, region, serialization, transaction\n"
-          + "- member and port specified: cacheserver, communication, diskstore, distribution, eviction, function, jvm, lock, member, notification, offheap, query, region, serialization, transaction\n"
+          + "- member specified: communication, diskstore, distribution, eviction, function, jvm, lock, member, region, serialization, transaction\n"
+          + "- member and port specified: cacheserver, communication, diskstore, distribution, eviction, function, jvm, lock, member, notification, query, region, serialization, transaction\n"
           + "- member and region specified: callback, diskstore, eviction, partition, region";
   public static final String SHOW_METRICS__FILE = "file";
   public static final String SHOW_METRICS__FILE__HELP =
@@ -2606,7 +2599,7 @@ public class CliStrings {
       "Sets the list of Locators used by the Cache Server to join the appropriate Geode cluster.";
   public static final String START_SERVER__LOCK_MEMORY = ConfigurationProperties.LOCK_MEMORY;
   public static final String START_SERVER__LOCK_MEMORY__HELP =
-      "Causes Geode to lock heap and off-heap memory pages into RAM. This prevents the operating system from swapping the pages out to disk, which can cause severe performance degradation. When you use this option, also configure the operating system limits for locked memory.";
+      "Causes Geode to lock heap memory pages into RAM. This prevents the operating system from swapping the pages out to disk, which can cause severe performance degradation. When you use this option, also configure the operating system limits for locked memory.";
   public static final String START_SERVER__LOCATOR_WAIT_TIME = "locator-wait-time";
   public static final String START_SERVER__LOCATOR_WAIT_TIME_HELP =
       "Sets the number of seconds the server will wait for a locator to become available during startup before giving up.";
@@ -2634,10 +2627,6 @@ public class CliStrings {
   public static final String START_SERVER__MEMCACHED_BIND_ADDRESS = MEMCACHED_BIND_ADDRESS;
   public static final String START_SERVER__MEMCACHED_BIND_ADDRESS__HELP =
       "Sets the IP address the Geode memcached service listens on for memcached clients. The default is to bind to the first non-loopback address for this machine.";
-  public static final String START_SERVER__OFF_HEAP_MEMORY_SIZE =
-      ConfigurationProperties.OFF_HEAP_MEMORY_SIZE;
-  public static final String START_SERVER__OFF_HEAP_MEMORY_SIZE__HELP =
-      "The total size of off-heap memory specified as off-heap-memory-size=<n>[g|m]. <n> is the size. [g|m] indicates whether the size should be interpreted as gigabytes or megabytes. A non-zero size causes that much memory to be allocated from the operating system and reserved for off-heap use.";
   public static final String START_SERVER__PROPERTIES = "properties-file";
   public static final String START_SERVER__PROPERTIES__HELP =
       "The gemfire.properties file for configuring the Cache Server's distributed system. The file's path can be absolute or relative to the gfsh working directory.";
@@ -2679,16 +2668,6 @@ public class CliStrings {
       "Set the percentage of heap at or above which the eviction should begin on Regions configured for HeapLRU eviction. Changing this value may cause eviction to begin immediately. "
           + "Only one change to this attribute or critical heap percentage will be allowed at any given time and its effect will be fully realized before the next change is allowed. This feature requires additional VM flags to perform properly. ";
 
-  public static final String START_SERVER__CRITICAL_OFF_HEAP_PERCENTAGE =
-      "critical-off-heap-percentage";
-  public static final String START_SERVER__CRITICAL_OFF_HEAP__HELP =
-      "Set the percentage of off-heap memory at or above which the cache is considered in danger of becoming inoperable due to out of memory exceptions";
-
-  public static final String START_SERVER__EVICTION_OFF_HEAP_PERCENTAGE =
-      "eviction-off-heap-percentage";
-  public static final String START_SERVER__EVICTION_OFF_HEAP_PERCENTAGE__HELP =
-      "Set the percentage of off-heap memory at or above which the eviction should begin on Regions configured for off-heap and HeapLRU eviction. Changing this value may cause eviction to begin immediately."
-          + " Only one change to this attribute or critical off-heap percentage will be allowed at any given time and its effect will be fully realized before the next change is allowed.";
   public static final String START_SERVER__HOSTNAME__FOR__CLIENTS = "hostname-for-clients";
   public static final String START_SERVER__HOSTNAME__FOR__CLIENTS__HELP =
       "Sets the ip address or host name that this cache server is to listen on for client connections."

@@ -96,14 +96,14 @@ public class SerialEventListenerDistributedTest implements Serializable {
   }
 
   /**
-   * Override as needed to add to the configuration, such as off-heap-memory-size.
+   * Override as needed to add to the configuration.
    */
   protected Properties getDistributedSystemProperties() {
     return new Properties();
   }
 
   /**
-   * Override as needed to add to the configuration, such as regionFactory.setOffHeap(boolean).
+   * Override as needed to add to the configuration.
    */
   protected RegionFactory<?, ?> configureRegion(RegionFactory<?, ?> regionFactory) {
     return regionFactory;

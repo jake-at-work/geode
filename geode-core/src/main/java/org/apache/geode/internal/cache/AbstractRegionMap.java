@@ -505,8 +505,7 @@ public abstract class AbstractRegionMap extends BaseRegionMap
       Iterator<Map.Entry<Object, Object>> it = other.entrySetWithReusableEntries().iterator();
       while (it.hasNext()) {
         Map.Entry<Object, Object> me = it.next();
-        it.remove(); // This removes the RegionEntry from "rm" but it does not decrement its
-                     // refcount to an offheap value.
+        it.remove();
         RegionEntry oldRe = (RegionEntry) me.getValue();
         Object key = me.getKey();
 
@@ -592,7 +591,6 @@ public abstract class AbstractRegionMap extends BaseRegionMap
   }
 
   @Override
-  // Region entry may contain an off-heap value
   public RegionEntry initRecoveredEntry(Object key, DiskEntry.RecoveredEntry value) {
     boolean needsCallback = false;
     RegionEntry newRe =
@@ -611,10 +609,7 @@ public abstract class AbstractRegionMap extends BaseRegionMap
             getEntryMap().remove(key, oldRe);
             oldRe = putEntryIfAbsent(key, newRe);
           }
-          /*
-           * Entry already exists which should be impossible. Free the current entry (if off-heap)
-           * and throw an exception.
-           */
+          // Entry already exists which should be impossible.
           else {
             throw new IllegalStateException(
                 "Could not recover entry for key " + key + ".  The entry already exists!");
@@ -671,11 +666,7 @@ public abstract class AbstractRegionMap extends BaseRegionMap
             // will dec entryCount.
           }
           final int oldSize = _getOwner().calculateRegionEntryValueSize(re);
-          re.setValue(_getOwner(), value); // OFFHEAP no need to call
-                                           // AbstractRegionMap.prepareValueForCache because
-                                           // setValue is overridden for disk and that code takes
-                                           // apart value (RecoveredEntry) and prepares its nested
-                                           // value for the cache
+          re.setValue(_getOwner(), value);
           if (re.isTombstone()) {
             _getOwner().scheduleTombstone(re, re.getVersionStamp().asVersionTag());
             if (!oldIsDestroyedOrRemoved) {
@@ -1250,13 +1241,7 @@ public abstract class AbstractRegionMap extends BaseRegionMap
                         // was already invalid, do not invoke listeners or increment stat
                         handleAlreadyInvalidEntry(event, owner, oldRe);
                         try {
-                          oldRe.setValue(owner, oldRe.getValueInVM(owner)); // OFFHEAP noop setting
-                                                                            // an already invalid to
-                                                                            // invalid; No need to
-                                                                            // call
-                                                                            // prepareValueForCache
-                                                                            // since it is an
-                                                                            // invalid token.
+                          oldRe.setValue(owner, oldRe.getValueInVM(owner));
                         } catch (RegionClearedException e) {
                           // that's okay - when writing an invalid into a disk, the
                           // region has been cleared (including this token)
@@ -1274,8 +1259,7 @@ public abstract class AbstractRegionMap extends BaseRegionMap
                         FilterProfile fp = owner.getFilterProfile();
                         if (!oldRe.isRemoved() && (fp != null && fp.getCqCount() > 0)) {
 
-                          Object oldValue = oldRe.getValueInVM(owner); // OFFHEAP EntryEventImpl
-                                                                       // oldValue
+                          Object oldValue = oldRe.getValueInVM(owner);
 
                           // this will not fault in the value.
                           if (oldValue == Token.NOT_AVAILABLE) {
@@ -1505,7 +1489,7 @@ public abstract class AbstractRegionMap extends BaseRegionMap
                           event.setOldValue(re.getValueOnDiskOrBuffer(owner));
                         } else {
                           Object v = re.getValueInVM(owner);
-                          event.setOldValue(v); // OFFHEAP escapes to EntryEventImpl oldValue
+                          event.setOldValue(v);
                         }
                       }
                       final boolean oldWasTombstone = re.isTombstone();
@@ -1725,7 +1709,7 @@ public abstract class AbstractRegionMap extends BaseRegionMap
                   opCompleted = true;
                   final boolean oldWasTombstone = oldRe.isTombstone();
                   final int oldSize = owner.calculateRegionEntryValueSize(oldRe);
-                  Object oldValue = oldRe.getValueInVM(owner); // OFFHEAP eei
+                  Object oldValue = oldRe.getValueInVM(owner);
                   // Create an entry event only if the calling context is
                   // a receipt of a TXCommitMessage AND there are callbacks
                   // installed
@@ -1841,7 +1825,7 @@ public abstract class AbstractRegionMap extends BaseRegionMap
             // Fix GEODE-3204, do not invalidate the region entry if it is a removed token
             if (!Token.isRemoved(re.getValueAsToken())) {
               final int oldSize = owner.calculateRegionEntryValueSize(re);
-              Object oldValue = re.getValueInVM(owner); // OFFHEAP eei
+              Object oldValue = re.getValueInVM(owner);
               // Create an entry event only if the calling context is
               // a receipt of a TXCommitMessage AND there are callbacks
               // installed

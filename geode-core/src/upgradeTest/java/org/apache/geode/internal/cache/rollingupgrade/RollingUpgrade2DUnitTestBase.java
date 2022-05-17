@@ -644,7 +644,6 @@ public abstract class RollingUpgrade2DUnitTestBase extends JUnit4DistributedTest
     props.put(DistributionConfig.ENABLE_CLUSTER_CONFIGURATION_NAME, "true");
     props.put(DistributionConfig.USE_CLUSTER_CONFIGURATION_NAME, "false");
     props.remove(DistributionConfig.LOAD_CLUSTER_CONFIG_FROM_DIR_NAME);
-    props.remove(DistributionConfig.OFF_HEAP_MEMORY_SIZE_NAME);
     props.remove(DistributionConfig.LOCK_MEMORY_NAME);
     return props;
   }

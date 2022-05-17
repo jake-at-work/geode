@@ -35,12 +35,6 @@ public class ResourceManagerCreation implements ResourceManager {
   private volatile float evictionHeapPercentage;
   private boolean evictionHeapSet = false;
 
-  private volatile float criticalOffHeapPercentage;
-  private boolean criticalOffHeapSet = false;
-
-  private volatile float evictionOffHeapPercentage;
-  private boolean evictionOffHeapSet = false;
-
   /*
    * (non-Javadoc)
    *
@@ -115,52 +109,13 @@ public class ResourceManagerCreation implements ResourceManager {
     return criticalHeapSet;
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.geode.cache.control.ResourceManager#getCriticalOffHeapPercentage()
-   */
-  @Override
-  public float getCriticalOffHeapPercentage() {
-    return criticalOffHeapPercentage;
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.geode.cache.control.ResourceManager#setCriticalOffHeapPercentage(int)
-   */
-  @Override
-  public void setCriticalOffHeapPercentage(final float offHeapPercentage) {
-    criticalOffHeapSet = true;
-    criticalOffHeapPercentage = offHeapPercentage;
-  }
-
-  public void setCriticalOffHeapPercentageToDefault() {
-    criticalOffHeapPercentage = MemoryThresholds.DEFAULT_CRITICAL_PERCENTAGE;
-  }
-
-  /**
-   * Determine if the critical off-heap was configured
-   *
-   * @return true if it was configured
-   */
-  public boolean hasCriticalOffHeap() {
-    return criticalOffHeapSet;
-  }
 
   public void configure(ResourceManager r) {
     if (hasCriticalHeap()) {
       r.setCriticalHeapPercentage(criticalHeapPercentage);
     }
-    if (hasCriticalOffHeap()) {
-      r.setCriticalOffHeapPercentage(criticalOffHeapPercentage);
-    }
     if (hasEvictionHeap()) {
       r.setEvictionHeapPercentage(evictionHeapPercentage);
-    }
-    if (hasEvictionOffHeap()) {
-      r.setEvictionOffHeapPercentage(evictionOffHeapPercentage);
     }
   }
 
@@ -172,10 +127,6 @@ public class ResourceManagerCreation implements ResourceManager {
       throw new RuntimeException("Resource Manager critical heap percentages differ: "
           + getCriticalHeapPercentage() + " != " + other.getCriticalHeapPercentage());
     }
-    if (getCriticalOffHeapPercentage() != other.getCriticalOffHeapPercentage()) {
-      throw new RuntimeException("Resource Manager critical off-heap percentages differ: "
-          + getCriticalOffHeapPercentage() + " != " + other.getCriticalOffHeapPercentage());
-    }
     if (hasEvictionHeap()) {
       // If we don't have it set don't compare since other may have been set to
       // a smart default.
@@ -184,31 +135,13 @@ public class ResourceManagerCreation implements ResourceManager {
             + getEvictionHeapPercentage() + " != " + other.getEvictionHeapPercentage());
       }
     }
-    if (hasEvictionOffHeap()) {
-      // If we don't have it set don't compare since other may have been set to
-      // a smart default.
-      if (getEvictionOffHeapPercentage() != other.getEvictionOffHeapPercentage()) {
-        throw new RuntimeException("Resource Manager eviction off-heap percentages differ: "
-            + getEvictionOffHeapPercentage() + " != " + other.getEvictionOffHeapPercentage());
-      }
-    }
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.geode.cache.control.ResourceManager#getEvictionHeapPercentage()
-   */
   @Override
   public float getEvictionHeapPercentage() {
     return evictionHeapPercentage;
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.geode.cache.control.ResourceManager#setEvictionHeapPercentage(int)
-   */
   @Override
   public void setEvictionHeapPercentage(float heapPercentage) {
     evictionHeapSet = true;
@@ -228,37 +161,4 @@ public class ResourceManagerCreation implements ResourceManager {
     return evictionHeapSet;
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.geode.cache.control.ResourceManager#getEvictionOffHeapPercentage()
-   */
-  @Override
-  public float getEvictionOffHeapPercentage() {
-    return evictionOffHeapPercentage;
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.geode.cache.control.ResourceManager#setEvictionOffHeapPercentage(int)
-   */
-  @Override
-  public void setEvictionOffHeapPercentage(final float offHeapPercentage) {
-    evictionOffHeapSet = true;
-    evictionOffHeapPercentage = offHeapPercentage;
-  }
-
-  public void setEvictionOffHeapPercentageToDefault() {
-    evictionOffHeapPercentage = MemoryThresholds.DEFAULT_EVICTION_PERCENTAGE;
-  }
-
-  /**
-   * Determine if the eviction off-heap was configured
-   *
-   * @return true if the eviction off-heap was configured
-   */
-  public boolean hasEvictionOffHeap() {
-    return evictionOffHeapSet;
-  }
 }

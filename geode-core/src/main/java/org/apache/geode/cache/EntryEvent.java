@@ -20,14 +20,6 @@ package org.apache.geode.cache;
  * circumstances of the event. It is passed in to <code>CacheListener</code>,
  * <code>CapacityController</code>, and <code>CacheWriter</code>.
  * <p>
- * If this event originated from a region stored off heap then this event can only be used as long
- * as the notification method that obtained it has not returned. For example in your implementation
- * of {@link CacheListener#afterUpdate(EntryEvent)} the event parameter is only valid until your
- * afterUpdate method returns. It is not safe to store instances of this class and use them later
- * when using off heap storage. Attempts to access off-heap data from this event after it has
- * expired will result in an IllegalStateException.
- *
- *
  *
  * @see CacheListener
  * @see CacheWriter
@@ -53,8 +45,6 @@ public interface EntryEvent<K, V> extends CacheEvent<K, V> {
    *
    * @return the old value in the cache prior to this event. If the entry did not exist, was
    *         invalid, or was not available, then null is returned.
-   * @throws IllegalStateException if off-heap and called after the method that was passed this
-   *         EntryEvent returns.
    */
   V getOldValue();
 
@@ -62,8 +52,6 @@ public interface EntryEvent<K, V> extends CacheEvent<K, V> {
    * Returns the serialized form of the value in the cache before this event.
    *
    * @return the serialized form of the value in the cache before this event
-   * @throws IllegalStateException if off-heap and called after the method that was passed this
-   *         EntryEvent returns.
    *
    * @since GemFire 5.5
    */
@@ -73,8 +61,6 @@ public interface EntryEvent<K, V> extends CacheEvent<K, V> {
    * Returns the value in the cache after this event.
    *
    * @return the value in the cache after this event
-   * @throws IllegalStateException if off-heap and called after the method that was passed this
-   *         EntryEvent returns.
    */
   V getNewValue();
 
@@ -82,8 +68,6 @@ public interface EntryEvent<K, V> extends CacheEvent<K, V> {
    * Returns the serialized form of the value in the cache after this event.
    *
    * @return the serialized form of the value in the cache after this event
-   * @throws IllegalStateException if off-heap and called after the method that was passed this
-   *         EntryEvent returns.
    *
    * @since GemFire 5.5
    */

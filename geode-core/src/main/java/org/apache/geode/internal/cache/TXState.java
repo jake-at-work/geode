@@ -876,8 +876,6 @@ public class TXState implements TXStateInterface {
   /**
    * Note that cleanup does more than is needed in this method. This method only needs to do stuff
    * that is required when a Cache close is done and we have txs that are still in progress.
-   * Currently the only thing that is needed is to decrement off-heap refcounts since off-heap
-   * memory lives after a cache close.
    */
   @Override
   public void close() {
@@ -1617,7 +1615,7 @@ public class TXState implements TXStateInterface {
   @Override
   public Object getDeserializedValue(KeyInfo keyInfo, LocalRegion localRegion, boolean updateStats,
       boolean disableCopyOnRead, boolean preferCD, EntryEventImpl clientEvent,
-      boolean returnTombstones, boolean retainResult, boolean createIfAbsent) {
+      boolean returnTombstones, boolean createIfAbsent) {
     TXEntryState tx = txReadEntry(keyInfo, localRegion, true, createIfAbsent);
     if (tx != null) {
       Object v = tx.getValue(keyInfo, localRegion, preferCD);
@@ -1627,7 +1625,7 @@ public class TXState implements TXStateInterface {
       return v;
     } else {
       return localRegion.getDeserializedValue(null, keyInfo, updateStats, disableCopyOnRead,
-          preferCD, clientEvent, returnTombstones, retainResult);
+          preferCD, clientEvent, returnTombstones);
     }
   }
 

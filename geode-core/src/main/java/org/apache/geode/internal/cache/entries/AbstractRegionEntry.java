@@ -364,7 +364,7 @@ public abstract class AbstractRegionEntry implements HashRegionEntry<Object, Obj
     } else {
       Object preparedValue = v;
       if (preparedValue != null) {
-        preparedValue = prepareValueForGII(preparedValue);
+        preparedValue = preparedValue;
         if (preparedValue == null) {
           return false;
         }
@@ -384,20 +384,6 @@ public abstract class AbstractRegionEntry implements HashRegionEntry<Object, Obj
     return true;
   }
 
-  /**
-   * To fix bug 49901 if v is a GatewaySenderEventImpl then make a heap copy of it if it is offheap.
-   *
-   * @return the value to provide to the gii request; null if no value should be provided.
-   */
-  static Object prepareValueForGII(Object v) {
-    assert v != null;
-    if (v instanceof GatewaySenderEventImpl) {
-      return ((GatewaySenderEventImpl) v);
-    } else {
-      return v;
-    }
-  }
-
   @Override
   public boolean isOverflowedToDisk(InternalRegion region,
       DistributedRegion.DiskPosition diskPosition) {
@@ -415,17 +401,6 @@ public abstract class AbstractRegionEntry implements HashRegionEntry<Object, Obj
     // gets the temporary value of token.REMOVED as the correct value will get indexed
     // by the Index Update Thread , once the index creation thread has exited.
 
-    if (Token.isRemoved(result)) {
-      return null;
-    } else {
-      setRecentlyUsed(context);
-      return result;
-    }
-  }
-
-  @Override
-  public Object getValueRetain(RegionEntryContext context) {
-    Object result = getValueRetain(context, true);
     if (Token.isRemoved(result)) {
       return null;
     } else {
@@ -603,9 +578,7 @@ public abstract class AbstractRegionEntry implements HashRegionEntry<Object, Obj
     // if it has been destroyed then don't do anything
     Token vTok = getValueAsToken();
     if (acceptedVersionTag || create || (vTok != Token.DESTROYED || vTok != Token.TOMBSTONE)) {
-      // OFFHEAP noop
       Object newValueToWrite = newValue;
-      // OFFHEAP noop
       boolean putValue = acceptedVersionTag || create || (newValueToWrite != Token.LOCAL_INVALID
           && (wasRecovered || (vTok == Token.LOCAL_INVALID)));
 
@@ -617,10 +590,8 @@ public abstract class AbstractRegionEntry implements HashRegionEntry<Object, Obj
         newValueToWrite =
             ((CachedDeserializable) newValueToWrite).getDeserializedValue(region, null);
         if (!create && newValueToWrite instanceof Versionable) {
-          // Heap value should always be deserialized at this point // OFFHEAP will not be
-          // deserialized
           final Object oldValue = getValueInVM(region);
-          // BUGFIX for 35029. If oldValue is null the newValue should be put.
+          // If oldValue is null the newValue should be put.
           if (oldValue == null) {
             putValue = true;
           } else if (oldValue instanceof Versionable) {
@@ -856,10 +827,8 @@ public abstract class AbstractRegionEntry implements HashRegionEntry<Object, Obj
     if (Token.isInvalid(expectedOldValue)) {
       return actualValue == null || Token.isInvalid(actualValue);
     } else {
-      boolean isCompressedOffHeap =
-          region.getAttributes().getOffHeap() && region.getAttributes().getCompressor() != null;
       return ValueComparisonHelper
-          .checkEquals(expectedOldValue, actualValue, isCompressedOffHeap, region.getCache());
+          .checkEquals(expectedOldValue, actualValue, false, region.getCache());
     }
   }
 
@@ -1090,8 +1059,6 @@ public abstract class AbstractRegionEntry implements HashRegionEntry<Object, Obj
 
   /**
    * Reads the value of this region entry. Provides low level access to the value field.
-   *
-   * @return possible OFF_HEAP_OBJECT (caller uses region entry reference)
    */
   protected abstract Object getValueField();
 
@@ -1155,8 +1122,6 @@ public abstract class AbstractRegionEntry implements HashRegionEntry<Object, Obj
   }
 
   protected StringBuilder appendFieldsToString(final StringBuilder sb) {
-    // OFFHEAP _getValue ok: the current toString on ObjectChunk is safe to use without incing
-    // refcount.
     sb.append("key=").append(getKey()).append("; rawValue=").append(getValue());
     VersionStamp stamp = getVersionStamp();
     if (stamp != null) {
@@ -1696,7 +1661,6 @@ public abstract class AbstractRegionEntry implements HashRegionEntry<Object, Obj
 
       // gateway conflict resolvers will usually want to see the old value
       if (!timestampedEvent.hasOldValue() && isRemoved()) {
-        // OFFHEAP: since isRemoved I think getValue will never be stored off heap in this case
         timestampedEvent.setOldValue(getValue(timestampedEvent.getRegion()));
       }
 
@@ -1800,10 +1764,6 @@ public abstract class AbstractRegionEntry implements HashRegionEntry<Object, Obj
     return Token.isInvalidOrRemoved(getValueAsToken());
   }
 
-  /**
-   * This is only retained in off-heap subclasses. However, it's marked as Retained here so that
-   * callers are aware that the value may be retained.
-   */
   @Override
   public Object getValueRetain(RegionEntryContext context, boolean decompress) {
     if (decompress) {

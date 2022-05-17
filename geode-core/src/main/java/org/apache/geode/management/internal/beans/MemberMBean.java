@@ -672,48 +672,6 @@ public class MemberMBean extends NotificationBroadcasterSupport implements Membe
   }
 
   @Override
-  public int getOffHeapObjects() {
-    return 0;
-  }
-
-  @Override
-  public long getOffHeapMaxMemory() {
-    return 0;
-  }
-
-  @Override
-  public long getOffHeapFreeMemory() {
-    return 0;
-  }
-
-  @Override
-  public long getOffHeapUsedMemory() {
-    return 0;
-  }
-
-  @Override
-  public int getOffHeapFragmentation() {
-    return 0;
-  }
-
-  public long getOffHeapFragments() {
-    return 0;
-  }
-
-  public long getOffHeapFreedChunks() {
-    return 0;
-  }
-
-  public int getOffHeapLargestFragment() {
-    return 0;
-  }
-
-  @Override
-  public long getOffHeapCompactionTime() {
-    return 0;
-  }
-
-  @Override
   public long getMaxMemory() {
     return bridge.getMaxMemory();
   }

@@ -222,7 +222,7 @@ public class RegionMapCommitPut extends AbstractRegionMapPut {
   }
 
   private static Object computeNewValue(EntryEventImpl callbackEvent) {
-    Object newValue = callbackEvent.getRawNewValueAsHeapObject();
+    Object newValue = callbackEvent.getRawNewValue();
     if (newValue == null) {
       if (callbackEvent.isLocalInvalid()) {
         newValue = Token.LOCAL_INVALID;

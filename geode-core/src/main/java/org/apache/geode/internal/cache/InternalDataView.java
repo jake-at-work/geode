@@ -32,12 +32,11 @@ public interface InternalDataView {
   /**
    * @param clientEvent TODO
    * @param returnTombstones TODO
-   * @param retainResult if true then the result may be a retained off-heap reference
    * @return the object associated with the key
    */
   Object getDeserializedValue(KeyInfo keyInfo, LocalRegion localRegion, boolean updateStats,
       boolean disableCopyOnRead, boolean preferCD, EntryEventImpl clientEvent,
-      boolean returnTombstones, boolean retainResult, boolean createIfAbsent);
+      boolean returnTombstones, boolean createIfAbsent);
 
   /**
    * @param expectedOldValue TODO

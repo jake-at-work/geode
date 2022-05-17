@@ -376,7 +376,7 @@ public interface DiskEntry extends RegionEntry {
       } else {
         Object preparedValue = value;
         if (preparedValue != null) {
-          preparedValue = AbstractRegionEntry.prepareValueForGII(preparedValue);
+          preparedValue = preparedValue;
           if (preparedValue == null) {
             return false;
           }
@@ -745,8 +745,7 @@ public interface DiskEntry extends RegionEntry {
           if (!caughtCacheClosed) {
             // Ensure that the value is rightly set despite clear so
             // that it can be distributed correctly
-            entry.setValueWithContext(region, newValue); // OFFHEAP newValue was already
-                                                         // preparedForCache
+            entry.setValueWithContext(region, newValue);
           }
         }
       } else if (newValue instanceof RecoveredEntry) {
@@ -774,7 +773,7 @@ public interface DiskEntry extends RegionEntry {
               // writeToDisk can throw RegionClearedException which
               // was supposed to stop us from changing entry.
               newValueStoredInEntry = true;
-              entry.setValueWithContext(region, newValue); // OFFHEAP newValue already prepared
+              entry.setValueWithContext(region, newValue);
               // newValue is prepared and compressed. We can't write compressed values to disk.
               if (!entry.isRemovedFromDisk()) {
                 writeToDisk(entry, region, false, event);
@@ -782,7 +781,7 @@ public interface DiskEntry extends RegionEntry {
             } else {
               writeBytesToDisk(entry, region, false, createValueWrapper(newValue, event));
               newValueStoredInEntry = true;
-              entry.setValueWithContext(region, newValue); // OFFHEAP newValue already prepared
+              entry.setValueWithContext(region, newValue);
             }
 
           } else {
@@ -803,11 +802,11 @@ public interface DiskEntry extends RegionEntry {
               result = new AsyncDiskEntry(region, entry, tag);
             }
             newValueStoredInEntry = true;
-            entry.setValueWithContext(region, newValue); // OFFHEAP newValue already prepared
+            entry.setValueWithContext(region, newValue);
           }
         } else if (did != null) {
           newValueStoredInEntry = true;
-          entry.setValueWithContext(region, newValue); // OFFHEAP newValue already prepared
+          entry.setValueWithContext(region, newValue);
 
           // Mark the id as needing to be written
           // The disk remove that this section used to do caused bug 30961
@@ -881,18 +880,6 @@ public interface DiskEntry extends RegionEntry {
     }
 
     public static Object faultInValue(DiskEntry entry, InternalRegion region) {
-      return faultInValue(entry, region, false);
-    }
-
-    public static Object faultInValueRetain(DiskEntry entry, InternalRegion region) {
-      return faultInValue(entry, region, true);
-    }
-
-    /**
-     * @param retainResult if true then the result may be a retained off-heap reference
-     */
-    private static Object faultInValue(DiskEntry entry, InternalRegion region,
-        boolean retainResult) {
       DiskRegion dr = region.getDiskRegion();
       Object v = entry.getValueRetain(region, true);
 

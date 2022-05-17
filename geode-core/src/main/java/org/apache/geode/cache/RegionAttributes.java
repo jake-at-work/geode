@@ -486,16 +486,4 @@ public interface RegionAttributes<K, V> {
    */
   Compressor getCompressor();
 
-  /**
-   * Returns whether or not this region uses off-heap memory.
-   *
-   * @return True if a usage of off-heap memory is enabled; false if usage of off-heap memory is
-   *         disabled (default).
-   * @since Geode 1.0
-   * @deprecated No replacement.
-   */
-  @Deprecated
-  default boolean getOffHeap() {
-    return false;
-  };
 }

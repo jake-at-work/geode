@@ -187,7 +187,7 @@ public abstract class TXStateStub implements TXStateInterface {
   @Override
   public Object getDeserializedValue(KeyInfo keyInfo, LocalRegion localRegion, boolean updateStats,
       boolean disableCopyOnRead, boolean preferCD, EntryEventImpl clientEvent,
-      boolean returnTombstones, boolean retainResult, boolean createIfAbsent) {
+      boolean returnTombstones, boolean createIfAbsent) {
     // We never have a local value if we are a stub...
     return null;
   }

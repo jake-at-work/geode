@@ -40,7 +40,6 @@ public class TXRmtEvent implements TransactionEvent {
 
   private final Cache cache;
 
-  // This list of EntryEventImpls are released by calling freeOffHeapResources
   private List events;
 
   TXRmtEvent(TransactionId txId, Cache cache) {
@@ -116,7 +115,7 @@ public class TXRmtEvent implements TransactionEvent {
     EntryEventImpl event = EntryEventImpl.create(eventRegion, op, key, newValue, aCallbackArgument, // callbackArg
         true, // originRemote
         originator);
-    event.setOldValue(re.getValueInVM(r)); // OFFHEAP: copy into heap cd
+    event.setOldValue(re.getValueInVM(r));
     event.setTransactionId(getTransactionId());
     return event;
   }

@@ -1137,12 +1137,11 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
    * @param preferCachedDeserializable true if the preferred result form is CachedDeserializable
    * @param clientEvent client's event, if any (for version tag retrieval)
    * @param returnTombstones whether destroyed entries should be returned
-   * @param retainResult if true then the result may be a retained off-heap reference
    * @return the value for the given key
    */
   public Object getDeserializedValue(RegionEntry regionEntry, final KeyInfo keyInfo,
       final boolean updateStats, boolean disableCopyOnRead, boolean preferCachedDeserializable,
-      EntryEventImpl clientEvent, boolean returnTombstones, boolean retainResult) {
+      EntryEventImpl clientEvent, boolean returnTombstones) {
     if (diskRegion != null) {
       diskRegion.setClearCountReference();
     }
@@ -1165,7 +1164,7 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
             // value & version must be obtained atomically
             clientEvent.setVersionTag(regionEntry.getVersionStamp().asVersionTag());
             value = getDeserialized(regionEntry, updateStats, disableCopyOnRead,
-                preferCachedDeserializable, retainResult);
+                preferCachedDeserializable);
           }
         } finally {
           if (disabled) {
@@ -1180,7 +1179,7 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
         }
       } else {
         value = getDeserialized(regionEntry, updateStats, disableCopyOnRead,
-            preferCachedDeserializable, retainResult);
+            preferCachedDeserializable);
       }
       if (logger.isTraceEnabled() && !(this instanceof HARegion)) {
         logger.trace(
@@ -1200,7 +1199,6 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
   /**
    * @param disableCopyOnRead if true then do not make a copy on read
    * @param preferCachedDeserializable true if the preferred result form is CachedDeserializable
-   * @param retainResult if true then the result may be a retained off-heap reference
    * @return the value found, which can be
    *         <ul>
    *         <li>null if the value was removed from the region entry
@@ -1209,17 +1207,12 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
    *         </ul>
    */
   Object getDeserialized(RegionEntry regionEntry, boolean updateStats, boolean disableCopyOnRead,
-      boolean preferCachedDeserializable, boolean retainResult) {
-    assert !retainResult || preferCachedDeserializable;
+      boolean preferCachedDeserializable) {
     boolean disabledLRUCallback = entries.disableLruUpdateCallback();
     try {
       Object value;
       try {
-        if (retainResult) {
-          value = regionEntry.getValueRetain(this);
-        } else {
-          value = regionEntry.getValue(this);
-        }
+        value = regionEntry.getValue(this);
       } catch (DiskAccessException dae) {
         handleDiskAccessException(dae);
         throw dae;
@@ -1280,44 +1273,17 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
       EntryEventImpl clientEvent, boolean returnTombstones)
       throws TimeoutException, CacheLoaderException {
     return get(key, aCallbackArgument, generateCallbacks, disableCopyOnRead, preferCD,
-        requestingClient, clientEvent, returnTombstones, false, false);
-  }
-
-  /**
-   * The result of this operation may be an off-heap reference that the caller must release
-   */
-  public Object getRetained(Object key, Object aCallbackArgument, boolean generateCallbacks,
-      boolean disableCopyOnRead, ClientProxyMembershipID requestingClient,
-      EntryEventImpl clientEvent, boolean returnTombstones)
-      throws TimeoutException, CacheLoaderException {
-    return getRetained(key, aCallbackArgument, generateCallbacks, disableCopyOnRead,
         requestingClient, clientEvent, returnTombstones, false);
   }
 
   /**
-   * The result of this operation may be an off-heap reference that the caller must release.
-   *
    * @param opScopeIsLocal if true then just check local storage for a value; if false then try to
    *        find the value if it is not local
-   */
-  private Object getRetained(Object key, Object aCallbackArgument, boolean generateCallbacks,
-      boolean disableCopyOnRead, ClientProxyMembershipID requestingClient,
-      EntryEventImpl clientEvent, boolean returnTombstones, boolean opScopeIsLocal)
-      throws TimeoutException, CacheLoaderException {
-    return get(key, aCallbackArgument, generateCallbacks, disableCopyOnRead, true, requestingClient,
-        clientEvent, returnTombstones, opScopeIsLocal, false);
-  }
-
-  /**
-   * @param opScopeIsLocal if true then just check local storage for a value; if false then try to
-   *        find the value if it is not local
-   * @param retainResult if true then the result may be a retained off-heap reference.
    */
   Object get(Object key, Object aCallbackArgument, boolean generateCallbacks,
       boolean disableCopyOnRead, boolean preferCD, ClientProxyMembershipID requestingClient,
-      EntryEventImpl clientEvent, boolean returnTombstones, boolean opScopeIsLocal,
-      boolean retainResult) throws TimeoutException, CacheLoaderException {
-    assert !retainResult || preferCD;
+      EntryEventImpl clientEvent, boolean returnTombstones, boolean opScopeIsLocal)
+      throws TimeoutException, CacheLoaderException {
     validateKey(key);
     checkReadiness();
     checkForNoAccess();
@@ -1327,7 +1293,7 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
     try {
       KeyInfo keyInfo = getKeyInfo(key, aCallbackArgument);
       Object value = getDataView().getDeserializedValue(keyInfo, this, true, disableCopyOnRead,
-          preferCD, clientEvent, returnTombstones, retainResult, true);
+          preferCD, clientEvent, returnTombstones, true);
       final boolean isCreate = value == null;
       isMiss = value == null || Token.isInvalid(value)
           || !returnTombstones && value == Token.TOMBSTONE;
@@ -1418,7 +1384,7 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
     boolean partitioned = getDataPolicy().withPartitioning();
     if (!partitioned) {
       localValue = getDeserializedValue(null, keyInfo, isCreate, disableCopyOnRead, preferCD,
-          clientEvent, false, false);
+          clientEvent, false);
 
       // stats have now been updated
       if (localValue != null && !Token.isInvalid(localValue)) {
@@ -2978,7 +2944,6 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
         Object key = event.getKey();
         Object value = event.getRawNewValue();
 
-        // serverPut is called by cacheWriteBeforePut so the new value will not yet be off-heap
         Object callbackArg = event.getRawCallbackArgument();
         boolean isCreate = event.isCreate();
         Object result = mySRP.put(key, value, event.getDeltaBytes(), event, op, requireOldValue,
@@ -3398,7 +3363,6 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
     if (regionEntry == null) {
       checkEntryNotFound(keyInfo.getKey());
     }
-    // OFFHEAP returned to callers
     // The warning for regionEntry possibly being null is incorrect, as checkEntryNotFound() always
     // throws, making the following line unreachable if regionEntry is null
     Object value = regionEntry.getValueInVM(this); // lgtm [java/dereferenced-value-may-be-null]
@@ -3500,14 +3464,14 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
   Object getNoLRU(Object key, boolean adamant, boolean allowTombstone, boolean serializedFormOkay) {
     Object value = null;
     try {
-      value = getValueInVM(key); // OFFHEAP deserialize
+      value = getValueInVM(key);
       if (value == null) {
         // must be on disk
         // fault it in w/o putting it back in the region
         value = getValueOnDiskOrBuffer(key);
         if (value == null) {
           // try memory one more time in case it was already faulted back in
-          value = getValueInVM(key); // OFFHEAP deserialize
+          value = getValueInVM(key);
           if (value == null) {
             if (adamant) {
               value = get(key);
@@ -3566,7 +3530,6 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
           if (value == null) {
             NonTXEntry lre = (NonTXEntry) entry;
             RegionEntry re = lre.getRegionEntry();
-            // OFFHEAP: incrc, copy info heap cd for serialization, decrc
             value = re.getValue(this);
             if (value == Token.INVALID) {
               out.writeByte(SNAPSHOT_VALUE_INVALID);
@@ -9287,7 +9250,6 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
     // Create a dummy event for the PutAll operation. Always create a
     // PutAll operation, even if there is no distribution, so that individual
     // events can be tracked and handed off to callbacks in postPutAll
-    // No need for release since disallowOffHeapValues called.
     final EntryEventImpl event = entryEventFactory.create(this, Operation.PUTALL_CREATE, null, null,
         callbackArg, true, getMyId());
 
@@ -9310,7 +9272,6 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
     // Create a dummy event for the removeAll operation. Always create a
     // removeAll operation, even if there is no distribution, so that individual
     // events can be tracked and handed off to callbacks in postRemoveAll
-    // No need for release since disallowOffHeapValues called.
     final EntryEventImpl event = entryEventFactory.create(this, Operation.REMOVEALL_DESTROY, null,
         null, callbackArg, false, getMyId());
     return new DistributedRemoveAllOperation(event, keys.size(), false);
@@ -10075,8 +10036,7 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
    *
    * @param localMemoryIsCritical true if the local memory is in a critical state
    * @param criticalMembers set of members whose memory is in a critical state
-   * @see ResourceManager#setCriticalHeapPercentage(float) and
-   *      ResourceManager#setCriticalOffHeapPercentage(float)
+   * @see ResourceManager#setCriticalHeapPercentage(float)
    * @since GemFire 6.0
    */
   void initialCriticalMembers(boolean localMemoryIsCritical,
@@ -10491,7 +10451,7 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
     getCachePerfStats().endPut(startPut, false);
     stopper.checkCancelInProgress(null);
 
-    Object oldValue = event.getRawOldValueAsHeapObject();
+    Object oldValue = event.getRawOldValue();
     if (oldValue == Token.NOT_AVAILABLE) {
       oldValue = AbstractRegion.handleNotAvailable(oldValue);
     }
@@ -10617,7 +10577,7 @@ public class LocalRegion extends AbstractRegion implements LoaderHelperFactory,
     clientEvent.isConcurrencyConflict(event.isConcurrencyConflict());
     if (succeeded) {
       clientEvent.setVersionTag(event.getVersionTag());
-      Object oldValue = event.getRawOldValueAsHeapObject();
+      Object oldValue = event.getRawOldValue();
       if (oldValue == Token.NOT_AVAILABLE) {
         oldValue = AbstractRegion.handleNotAvailable(oldValue);
       }

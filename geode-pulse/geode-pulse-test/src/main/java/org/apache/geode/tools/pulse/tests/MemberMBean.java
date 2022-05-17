@@ -70,13 +70,5 @@ public interface MemberMBean {
 
   int getPort();
 
-  long getOffHeapFreeSize();
-
-  long getOffHeapUsedSize();
-
-  long getOffHeapFreeMemory();
-
-  long getOffHeapUsedMemory();
-
   String getVersion();
 }

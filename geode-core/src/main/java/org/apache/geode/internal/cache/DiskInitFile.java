@@ -541,7 +541,7 @@ public class DiskInitFile implements DiskInitFileInterpreter {
   public void cmnRegionConfig(long drId, byte lruAlgorithm, byte lruAction, int lruLimit,
       int concurrencyLevel, int initialCapacity, float loadFactor, boolean statisticsEnabled,
       boolean isBucket, EnumSet<DiskRegionFlag> flags, String partitionName, int startingBucketId,
-      String compressorClassName, boolean offHeap) {
+      String compressorClassName) {
     DiskRegionView dr = getDiskRegionById(drId);
     if (dr != null) {
       // We don't want gateway queues to turn on versioning. Unfortunately, the only

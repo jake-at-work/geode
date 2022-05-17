@@ -42,10 +42,6 @@ public class DistTxEntryEvent extends EntryEventImpl {
 
   private String regionName;
 
-  /**
-   * TODO DISTTX: callers of this constructor need to make sure that release is called. In general
-   * the distributed tx code needs to be reviewed to see if it correctly handles off-heap.
-   */
   public DistTxEntryEvent(EntryEventImpl entry) {
     super(entry);
   }

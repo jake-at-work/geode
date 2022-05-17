@@ -64,7 +64,6 @@ public class PartitionAttributesImplJUnitTest {
   private long totalMaxMemory;
   private int maxNumberOfBuckets;
 
-  private int newTestAvailableOffHeapMemory;
   private int greaterLocalMaxMemory;
 
   private FixedPartitionAttributesImpl fixedPartitionAttributes;
@@ -109,7 +108,6 @@ public class PartitionAttributesImplJUnitTest {
     totalMaxMemory = 567;
     maxNumberOfBuckets = 678;
 
-    newTestAvailableOffHeapMemory = 789;
     greaterLocalMaxMemory = 890;
 
     partitionListener = new PartitionListener() {
@@ -145,7 +143,7 @@ public class PartitionAttributesImplJUnitTest {
   }
 
   @Test
-  public void testMergeWithoutOffHeap() {
+  public void testMerge() {
     PartitionAttributesImpl instance = createPartitionAttributesImpl();
     instance.setLocalMaxMemory(localMaxMemory);
 
@@ -164,7 +162,7 @@ public class PartitionAttributesImplJUnitTest {
   }
 
   @Test
-  public void testCloneWithoutOffHeap() {
+  public void testClone() {
     PartitionAttributesImpl instance = createPartitionAttributesImpl();
     instance.setLocalMaxMemory(localMaxMemory);
 
@@ -244,7 +242,7 @@ public class PartitionAttributesImplJUnitTest {
   }
 
   @Test
-  public void testSetAllWithoutOffHeapAndDefaultLocalMaxMemory() {
+  public void testSetAllAndDefaultLocalMaxMemory() {
     PartitionAttributesImpl source = new PartitionAttributesImpl();
     source.setColocatedWith(colocatedRegionFullPath);
 
@@ -270,7 +268,7 @@ public class PartitionAttributesImplJUnitTest {
   }
 
   @Test
-  public void testSetAllWithoutOffHeapAndNonDefaultLocalMaxMemory() {
+  public void testSetAllAndNonDefaultLocalMaxMemory() {
     PartitionAttributesImpl source = new PartitionAttributesImpl();
     source.setColocatedWith(colocatedRegionFullPath);
 

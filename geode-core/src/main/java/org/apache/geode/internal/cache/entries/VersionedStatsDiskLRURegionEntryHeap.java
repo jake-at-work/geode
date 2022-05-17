@@ -78,9 +78,5 @@ public abstract class VersionedStatsDiskLRURegionEntryHeap
       return this;
     }
 
-    @Override
-    public RegionEntryFactory makeOnHeap() {
-      return this;
-    }
   }
 }

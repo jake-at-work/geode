@@ -115,8 +115,6 @@ public class CachedDeserializableFactory {
    */
   public static int overhead() {
     // TODO: revisit this code. If we move to per-region cds then this can no longer be static.
-    // TODO: This method also does not work well with the way off heap is determined using the
-    // cache.
 
     if (STORE_ALL_VALUE_FORMS) {
       return StoreAllCachedDeserializable.MEM_OVERHEAD;

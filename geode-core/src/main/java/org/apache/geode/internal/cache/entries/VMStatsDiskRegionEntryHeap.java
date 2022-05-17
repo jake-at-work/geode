@@ -75,9 +75,5 @@ public abstract class VMStatsDiskRegionEntryHeap extends VMStatsDiskRegionEntry 
       return VersionedStatsDiskRegionEntryHeap.getEntryFactory();
     }
 
-    @Override
-    public RegionEntryFactory makeOnHeap() {
-      return this;
-    }
   }
 }

@@ -110,7 +110,6 @@ import static org.apache.geode.distributed.ConfigurationProperties.MEMCACHED_BIN
 import static org.apache.geode.distributed.ConfigurationProperties.MEMCACHED_PORT;
 import static org.apache.geode.distributed.ConfigurationProperties.MEMCACHED_PROTOCOL;
 import static org.apache.geode.distributed.ConfigurationProperties.NAME;
-import static org.apache.geode.distributed.ConfigurationProperties.OFF_HEAP_MEMORY_SIZE;
 import static org.apache.geode.distributed.ConfigurationProperties.REDUNDANCY_ZONE;
 import static org.apache.geode.distributed.ConfigurationProperties.REMOTE_LOCATORS;
 import static org.apache.geode.distributed.ConfigurationProperties.REMOVE_UNRESPONSIVE_CLIENT;
@@ -1410,11 +1409,8 @@ public abstract class AbstractDistributionConfig extends AbstractConfig
 
     m.put(START_DEV_REST_API,
         "If true then the developer(API) REST service will be started when the cache is created. Defaults to false.");
-    m.put(OFF_HEAP_MEMORY_SIZE, String.format(
-        "The amount of off-heap memory to be allocated for GemFire. Value is <n>[g|m], where <n> is the size and [g|m] specifies the units in gigabytes or megabytes. Defaults to %s.",
-        DEFAULT_OFF_HEAP_MEMORY_SIZE));
     m.put(LOCK_MEMORY, String.format(
-        "Locks heap and off-heap memory pages into RAM, thereby preventing the operating system from swapping them out to disk. Defaults to %s",
+        "Locks heap memory pages into RAM, thereby preventing the operating system from swapping them out to disk. Defaults to %s",
         DEFAULT_LOCK_MEMORY));
     m.put(DISTRIBUTED_TRANSACTIONS,
         "Flag to indicate whether all transactions including JTA should be distributed transactions.  Default is false, meaning colocated transactions.");

@@ -33,7 +33,6 @@ import static org.apache.geode.distributed.ConfigurationProperties.JMX_MANAGER_S
 import static org.apache.geode.distributed.ConfigurationProperties.LOCATORS;
 import static org.apache.geode.distributed.ConfigurationProperties.LOG_LEVEL;
 import static org.apache.geode.distributed.ConfigurationProperties.MCAST_PORT;
-import static org.apache.geode.distributed.ConfigurationProperties.OFF_HEAP_MEMORY_SIZE;
 import static org.apache.geode.distributed.ConfigurationProperties.REMOTE_LOCATORS;
 import static org.apache.geode.distributed.ConfigurationProperties.START_LOCATOR;
 import static org.apache.geode.internal.AvailablePortHelper.getRandomAvailableTCPPort;
@@ -3901,15 +3900,7 @@ public class WANTestBase extends DistributedTestCase {
 
   @Override
   public Properties getDistributedSystemProperties() {
-    // For now all WANTestBase tests allocate off-heap memory even though
-    // many of them never use it.
-    // The problem is that WANTestBase has static methods that create instances
-    // of WANTestBase (instead of instances of the subclass). So we can't override
-    // this method so that only the off-heap subclasses allocate off heap memory.
-    Properties props = new Properties();
-    props.setProperty(OFF_HEAP_MEMORY_SIZE, "200m");
-
-    return props;
+    return new Properties();
   }
 
   /**

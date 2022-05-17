@@ -82,7 +82,6 @@ public class AlterRegionCommandWithRemoteLocator {
     gfsh.execute("configure pdx --auto-serializable-classes=Trade --read-serialized=true");
     int locator2Port = locator2.getPort();
     Properties serverProp = new Properties();
-    serverProp.setProperty("off-heap-memory-size", "5m");
     server1 = lsRule.startServerVM(2, server -> server.withConnectionToLocator(locator2Port)
         .withSystemProperty("gemfire.preAllocateDisk", "false").withProperties(serverProp));
     server2 = lsRule.startServerVM(3, server -> server.withConnectionToLocator(locator2Port)
@@ -134,35 +133,35 @@ public class AlterRegionCommandWithRemoteLocator {
     gfsh.connectAndVerify(locator2);
     gfsh.execute(
         "create region --name=" + SEPARATOR
-            + "Positions --redundant-copies=2 --type=PARTITION_PERSISTENT --off-heap=true");
+            + "Positions --redundant-copies=2 --type=PARTITION_PERSISTENT");
     gfsh.execute(
         "create region --name=" + SEPARATOR
-            + "RealTimePositions --redundant-copies=2 --type=PARTITION_PERSISTENT --off-heap=true");
+            + "RealTimePositions --redundant-copies=2 --type=PARTITION_PERSISTENT");
     gfsh.execute(
         "create region --name=" + SEPARATOR
-            + "Transactions --redundant-copies=2 --type=PARTITION_PERSISTENT --off-heap=true");
+            + "Transactions --redundant-copies=2 --type=PARTITION_PERSISTENT");
     gfsh.execute(
         "create region --name=" + SEPARATOR
-            + "Accounts --redundant-copies=2 --type=PARTITION_PERSISTENT --off-heap=true");
+            + "Accounts --redundant-copies=2 --type=PARTITION_PERSISTENT");
     gfsh.execute(
         "create region --name=" + SEPARATOR
-            + "RealTimeTransactions --redundant-copies=2 --type=PARTITION_PERSISTENT --off-heap=true");
+            + "RealTimeTransactions --redundant-copies=2 --type=PARTITION_PERSISTENT");
     gfsh.execute(
         "create region --name=" + SEPARATOR
-            + "AccountBalances --redundant-copies=2 --type=PARTITION_PERSISTENT --off-heap=true");
+            + "AccountBalances --redundant-copies=2 --type=PARTITION_PERSISTENT");
     gfsh.execute("create region --name=" + SEPARATOR
-        + "FxRates --type=REPLICATE_PERSISTENT --off-heap=true");
+        + "FxRates --type=REPLICATE_PERSISTENT");
     gfsh.execute("create region --name=" + SEPARATOR
-        + "AssetClasses --type=REPLICATE_PERSISTENT --off-heap=true");
+        + "AssetClasses --type=REPLICATE_PERSISTENT");
     gfsh.execute("create region --name=" + SEPARATOR
-        + "MarketPrices --type=REPLICATE_PERSISTENT --off-heap=true");
+        + "MarketPrices --type=REPLICATE_PERSISTENT");
     gfsh.execute("create region --name=" + SEPARATOR
-        + "Currency --type=REPLICATE_PERSISTENT --off-heap=true");
+        + "Currency --type=REPLICATE_PERSISTENT");
     gfsh.execute("create region --name=" + SEPARATOR
-        + "Securities --type=REPLICATE_PERSISTENT --off-heap=true");
+        + "Securities --type=REPLICATE_PERSISTENT");
     gfsh.execute(
         "create region --name=" + SEPARATOR
-            + "SecurityCrossReferences --type=REPLICATE_PERSISTENT --off-heap=true");
+            + "SecurityCrossReferences --type=REPLICATE_PERSISTENT");
     gfsh.execute(
         "create region --name=" + SEPARATOR
             + "Visibility --type=REPLICATE --enable-statistics=true  --entry-time-to-live-expiration-action=destroy --entry-time-to-live-expiration=300");

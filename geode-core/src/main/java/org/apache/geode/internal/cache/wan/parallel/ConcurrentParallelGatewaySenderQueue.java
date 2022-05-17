@@ -61,13 +61,7 @@ public class ConcurrentParallelGatewaySenderQueue implements RegionQueue {
   }
 
   @Override
-  public void close() {
-    /*
-     * this.commonQueue.close(); // no need to free peekedEvents since they all had makeOffHeap
-     * called on them. throw new
-     * UnsupportedOperationException("CPGAQ method(close) is not supported");
-     */
-  }
+  public void close() {}
 
   @Override
   public Region getRegion() {

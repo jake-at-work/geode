@@ -56,7 +56,6 @@ public class RegionAttributesData {
   private final String interestPolicy;
   private final boolean diskSynchronous;
   private final String compressorClassName;
-  private final boolean offHeap;
   private final Set<String> asyncEventQueueIds;
   private final Set<String> gatewaySenderIds;
 
@@ -97,7 +96,6 @@ public class RegionAttributesData {
    * @param diskSynchronous whether disk writes are synchronous
    * @param cacheListeners an array of CacheListeners for the Region
    * @param compressorClassName the compressor class name used by the region.
-   * @param offHeap whether the region uses off-heap memory
    * @param asyncEventQueueIds the set of async event queue IDs
    * @param gatewaySenderIds the set of gateway sender IDs
    */
@@ -108,7 +106,7 @@ public class RegionAttributesData {
       "concurrencyLevel", "indexMaintenanceSynchronous", "statisticsEnabled",
       "subscriptionConflationEnabled", "asyncConflationEnabled", "poolName", "cloningEnabled",
       "diskStoreName", "interestPolicy", "diskSynchronous", "cacheListeners", "compressorClassName",
-      "offHeap", "asyncEventQueueIds", "gatewaySenderIds"})
+      "asyncEventQueueIds", "gatewaySenderIds"})
 
 
   public RegionAttributesData(String cacheLoaderClassName, String cacheWriterClassName,
@@ -120,7 +118,7 @@ public class RegionAttributesData {
       boolean statisticsEnabled, boolean subscriptionConflationEnabled,
       boolean asyncConflationEnabled, String poolName, boolean cloningEnabled, String diskStoreName,
       String interestPolicy, boolean diskSynchronous, String[] cacheListeners,
-      String compressorClassName, boolean offHeap, Set<String> asyncEventQueueIds,
+      String compressorClassName, Set<String> asyncEventQueueIds,
       Set<String> gatewaySenderIds) {
 
     this.cacheLoaderClassName = cacheLoaderClassName;
@@ -152,7 +150,6 @@ public class RegionAttributesData {
     this.diskSynchronous = diskSynchronous;
     this.cacheListeners = cacheListeners;
     this.compressorClassName = compressorClassName;
-    this.offHeap = offHeap;
     this.asyncEventQueueIds = asyncEventQueueIds;
     this.gatewaySenderIds = gatewaySenderIds;
   }
@@ -426,15 +423,6 @@ public class RegionAttributesData {
   }
 
   /**
-   * Returns true if the region uses off-heap memory.
-   *
-   * @return false if the region does not use off-heap memory.
-   */
-  public boolean getOffHeap() {
-    return offHeap;
-  }
-
-  /**
    * Returns the set of async event queue IDs.
    *
    * @return a set of ids.
@@ -470,7 +458,7 @@ public class RegionAttributesData {
         + indexMaintenanceSynchronous + ", initialCapacity=" + initialCapacity + ", interestPolicy="
         + interestPolicy + ", keyConstraintClassName=" + keyConstraintClassName + ", loadFactor="
         + loadFactor + ", lockGrantor=" + lockGrantor + ", multicastEnabled=" + multicastEnabled
-        + ", offHeap=" + offHeap + ", poolName=" + poolName + ", regionIdleTimeout="
+        + ", poolName=" + poolName + ", regionIdleTimeout="
         + regionIdleTimeout + ", regionTimeToLive=" + regionTimeToLive + ", scope=" + scope
         + ", statisticsEnabled=" + statisticsEnabled + ", subscriptionConflationEnabled="
         + subscriptionConflationEnabled + ", valueConstraintClassName=" + valueConstraintClassName

@@ -1321,14 +1321,6 @@ public class DistributedSystemBridge {
     return memberMBeanMonitor.getTotalHeapSize();
   }
 
-  public long getOffHeapFreeSize() {
-    return memberMBeanMonitor.getOffHeapFreeMemory();
-  }
-
-  public long getOffHeapUsedSize() {
-    return memberMBeanMonitor.getOffHeapUsedMemory();
-  }
-
   public int getTransactionCommitted() {
     return memberMBeanMonitor.getTransactionCommitted();
   }

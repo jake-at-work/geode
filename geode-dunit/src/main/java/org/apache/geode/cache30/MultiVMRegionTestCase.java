@@ -6084,8 +6084,7 @@ public abstract class MultiVMRegionTestCase extends RegionTestCase {
           TombstoneService.NON_REPLICATE_TOMBSTONE_TIMEOUT = 900;
           TombstoneService.EXPIRED_TOMBSTONE_LIMIT = numEntries;
           TombstoneService.IDLE_EXPIRATION = true;
-          TombstoneService.GC_MEMORY_THRESHOLD = 0; // turn this off so heap profile won't cause
-          // test to fail
+          TombstoneService.GC_MEMORY_THRESHOLD = 0;
           TombstoneService.MAX_SLEEP_TIME = 500;
         }
       };

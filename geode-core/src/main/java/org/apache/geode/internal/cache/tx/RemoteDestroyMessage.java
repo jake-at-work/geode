@@ -527,11 +527,6 @@ public class RemoteDestroyMessage extends RemoteOperationMessageWithDirectReply
   }
 
   @Override
-  public boolean isUnretainedOldReferenceOk() {
-    return true;
-  }
-
-  @Override
   public boolean isCachedDeserializableValueOk() {
     return false;
   }

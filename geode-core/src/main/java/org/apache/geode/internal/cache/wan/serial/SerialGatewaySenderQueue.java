@@ -283,17 +283,11 @@ public class SerialGatewaySenderQueue implements RegionQueue {
 
   @Override
   public AsyncEvent<?, ?> take() throws CacheException {
-    // Unsupported since we have no callers.
-    // If we do want to support it then each caller needs
-    // to call freeOffHeapResources and the returned GatewaySenderEventImpl
     throw new UnsupportedOperationException();
   }
 
   @Override
   public List<AsyncEvent<?, ?>> take(int batchSize) throws CacheException {
-    // This method has no callers.
-    // If we do want to support it then the callers
-    // need to call freeOffHeapResources on each returned GatewaySenderEventImpl
     throw new UnsupportedOperationException();
   }
 
@@ -383,8 +377,6 @@ public class SerialGatewaySenderQueue implements RegionQueue {
     }
 
     return object.event;
-    // OFFHEAP returned object only used to see if queue is empty
-    // so no need to worry about off-heap refCount.
   }
 
   @Override
@@ -446,8 +438,6 @@ public class SerialGatewaySenderQueue implements RegionQueue {
       logger.trace("{}: Peeked a batch of {} entries", this, batch.size());
     }
     return batch;
-    // OFFHEAP: all returned AsyncEvent end up being removed from queue after the batch is sent
-    // so no need to worry about off-heap refCount.
   }
 
   @VisibleForTesting
@@ -1211,7 +1201,6 @@ public class SerialGatewaySenderQueue implements RegionQueue {
                 continue;
               }
             }
-            // release not needed since disallowOffHeapValues called
             EntryEventImpl event = EntryEventImpl.create((LocalRegion) region, Operation.DESTROY,
                 (lastDestroyedKey + 1), null/* newValue */, null, false, cache.getMyId());
             event.setTailKey(temp);

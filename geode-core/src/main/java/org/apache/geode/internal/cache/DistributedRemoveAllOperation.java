@@ -65,9 +65,6 @@ import org.apache.geode.logging.internal.log4j.api.LogService;
 public class DistributedRemoveAllOperation extends AbstractUpdateOperation {
   private static final Logger logger = LogService.getLogger();
 
-  /**
-   * Release is called by freeOffHeapResources.
-   */
   protected final RemoveAllEntryData[] removeAllData;
 
   public int removeAllDataSize;

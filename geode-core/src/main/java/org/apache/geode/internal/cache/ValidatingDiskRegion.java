@@ -365,11 +365,6 @@ public class ValidatingDiskRegion extends DiskRegion implements DiskRecoveryStor
     }
 
     @Override
-    public Object getValueRetain(RegionEntryContext context) {
-      return null;
-    }
-
-    @Override
     public void setValue(RegionEntryContext context, Object value) throws RegionClearedException {
       // nothing
     }

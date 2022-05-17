@@ -75,9 +75,5 @@ public abstract class VMStatsLRURegionEntryHeap extends VMStatsLRURegionEntry {
       return VersionedStatsLRURegionEntryHeap.getEntryFactory();
     }
 
-    @Override
-    public RegionEntryFactory makeOnHeap() {
-      return this;
-    }
   }
 }

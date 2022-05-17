@@ -190,11 +190,6 @@ public interface RegionEntry {
    */
   Object getValue(RegionEntryContext context);
 
-  /**
-   * Just like getValue but the result may be a retained off-heap reference.
-   */
-  Object getValueRetain(RegionEntryContext context);
-
   void setValue(RegionEntryContext context, Object value) throws RegionClearedException;
 
   /**
@@ -340,8 +335,7 @@ public interface RegionEntry {
 
   /**
    * Gets the value for this entry. For DiskRegions, unlike {@link #getValue(RegionEntryContext)}
-   * this will not fault in the value rather return a temporary copy. The value returned will be
-   * kept off heap (and compressed) if possible.
+   * this will not fault in the value rather return a temporary copy.
    */
   Object getValueOffHeapOrDiskWithoutFaultIn(InternalRegion region);
 

@@ -220,7 +220,7 @@ public class Get70 extends BaseCommand {
    */
   protected Entry getEntry(Region<?, ?> region, Object key, Object callbackArg,
       ServerConnection servConn) {
-    return getEntryRetained(region, key, callbackArg, servConn);
+    return getValueAndIsObject(region, key, callbackArg, servConn);
   }
 
   // take the result 3 element "result" as argument instead of
@@ -262,53 +262,10 @@ public class Get70 extends BaseCommand {
         || data == Token.DESTROYED) {
       data = null;
     } else if (data == Token.INVALID || data == Token.LOCAL_INVALID) {
-      data = null; // fix for bug 35884
-      wasInvalid = true;
-    } else if (data instanceof byte[]) {
-      isObject = false;
-    }
-    boolean keyNotPresent = !wasInvalid && (data == null || data == Token.TOMBSTONE);
-    return new Entry(data, isObject, keyNotPresent, versionTag);
-  }
-
-  /**
-   * Same as getValueAndIsObject but the returned value can be a retained off-heap reference.
-   */
-  public Entry getEntryRetained(Region<?, ?> region, Object key, Object callbackArg,
-      ServerConnection servConn) {
-
-    // Region.Entry entry;
-    String regionName = region.getFullPath();
-    if (servConn != null) {
-      servConn.setModificationInfo(true, regionName, key);
-    }
-
-    ClientProxyMembershipID id = servConn == null ? null : servConn.getProxyID();
-    VersionTagHolder versionHolder = new VersionTagHolder();
-
-    Object data =
-        ((LocalRegion) region).getRetained(key, callbackArg, true, true, id, versionHolder, true);
-    final VersionTag<?> versionTag = versionHolder.getVersionTag();
-
-    // If it is Token.REMOVED, Token.DESTROYED,
-    // Token.INVALID, or Token.LOCAL_INVALID
-    // set it to null. If it is NOT_AVAILABLE, get the value from
-    // disk. If it is already a byte[], set isObject to false.
-    boolean wasInvalid = false;
-    boolean isObject = true;
-    if (data == Token.REMOVED_PHASE1 || data == Token.REMOVED_PHASE2 || data == Token.DESTROYED) {
       data = null;
-    } else if (data == Token.INVALID || data == Token.LOCAL_INVALID) {
-      data = null; // fix for bug 35884
       wasInvalid = true;
     } else if (data instanceof byte[]) {
       isObject = false;
-    } else if (data instanceof CachedDeserializable) {
-      CachedDeserializable cd = (CachedDeserializable) data;
-      isObject = cd.isSerialized();
-      if (cd.usesHeapForStorage()) {
-        data = cd.getValue();
-      }
     }
     boolean keyNotPresent = !wasInvalid && (data == null || data == Token.TOMBSTONE);
     return new Entry(data, isObject, keyNotPresent, versionTag);

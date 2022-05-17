@@ -41,10 +41,8 @@ import org.apache.geode.internal.ByteBufferWriter;
 public class ByteBufferInputStream extends InputStream
     implements DataInput, java.io.Externalizable {
   /**
-   * This interface is used to wrap either a ByteBuffer or an offheap Chunk as the source of bytes
-   * for a ByteBufferInputStream.
-   *
-   *
+   * This interface is used to wrap either a ByteBuffer as the source of bytes for a
+   * ByteBufferInputStream.
    */
   public interface ByteSource {
     int position();

@@ -1224,8 +1224,7 @@ public class AttributesFactory<K, V> {
   }
 
   /**
-   * Sets cloning on region. Default is false. Note: off-heap regions always behave as if cloning is
-   * enabled.
+   * Sets cloning on region. Default is false.
    *
    * @param cloningEnable boolean specifying if cloning is enabled on the region
    *
@@ -1277,16 +1276,6 @@ public class AttributesFactory<K, V> {
       setCloningEnabled(true);
     }
   }
-
-  /**
-   * Enables this region's usage of off-heap memory if true.
-   *
-   * @since Geode 1.0
-   * @param offHeap boolean flag to enable off-heap memory
-   * @deprecated No replacement.
-   */
-  @Deprecated
-  public void setOffHeap(boolean offHeap) {}
 
   // FACTORY METHOD
 

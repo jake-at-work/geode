@@ -419,7 +419,6 @@ public class SerialGatewaySenderEventProcessor extends AbstractGatewaySenderEven
         waitForFailoverCompletion();
       }
       // If it is, create and enqueue an initialized GatewayEventImpl
-      // OFFHEAP ok
       senderEvent = new GatewaySenderEventImpl(operation, event, substituteValue,
           getTransactionMetadataDisposition(isLastEventInTransaction));
 

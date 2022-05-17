@@ -99,7 +99,6 @@ public class CacheDistributionAdvisor extends DistributionAdvisor {
   private static final int GATEWAY_SENDER_IDS_MASK = 0x200000;
 
   private static final int ASYNC_EVENT_QUEUE_IDS_MASK = 0x400000;
-  private static final int IS_OFF_HEAP_MASK = 0x800000;
   private static final int CACHE_SERVICE_PROFILES_MASK = 0x1000000;
 
 

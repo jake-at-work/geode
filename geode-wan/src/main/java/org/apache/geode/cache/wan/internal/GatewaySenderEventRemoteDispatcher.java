@@ -951,13 +951,10 @@ public class GatewaySenderEventRemoteDispatcher implements GatewaySenderEventDis
     static boolean isRecoverableWhenDispatchingBatch(final Throwable t) {
       /*
        * We consider {@link ServerConnectivityException} to be a temporary connectivity issue and
-       * is therefore recoverable. The {@link IllegalStateException} can occur if off-heap is used,
-       * and a GatewaySenderEventImpl is serialized after being freed. This can happen if the
-       * region is destroyed concurrently while the gateway sender event is being processed.
+       * is therefore recoverable.
        */
       return isRecoverableInAllCases(t)
-          || t instanceof ServerConnectivityException
-          || t instanceof IllegalStateException;
+          || t instanceof ServerConnectivityException;
     }
 
     /**

@@ -165,7 +165,7 @@ public interface AttributesMutator<K, V> {
   EvictionAttributesMutator getEvictionAttributesMutator();
 
   /**
-   * Sets cloning on region Note: off-heap regions always behave as if cloning is enabled.
+   * Sets cloning on region.
    *
    * @param cloningEnable boolean specifying if cloning is enabled on the region
    *

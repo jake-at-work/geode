@@ -110,7 +110,6 @@ import static org.apache.geode.distributed.ConfigurationProperties.MEMCACHED_BIN
 import static org.apache.geode.distributed.ConfigurationProperties.MEMCACHED_PORT;
 import static org.apache.geode.distributed.ConfigurationProperties.MEMCACHED_PROTOCOL;
 import static org.apache.geode.distributed.ConfigurationProperties.NAME;
-import static org.apache.geode.distributed.ConfigurationProperties.OFF_HEAP_MEMORY_SIZE;
 import static org.apache.geode.distributed.ConfigurationProperties.REDUNDANCY_ZONE;
 import static org.apache.geode.distributed.ConfigurationProperties.REMOTE_LOCATORS;
 import static org.apache.geode.distributed.ConfigurationProperties.REMOVE_UNRESPONSIVE_CLIENT;
@@ -2976,36 +2975,6 @@ public interface DistributionConfig
   @Deprecated
   @ConfigAttributeSetter(name = JMX_MANAGER_SSL_ENABLED)
   void setJmxManagerSSLEnabled(boolean enabled);
-
-  /**
-   * Returns the value of the {@link ConfigurationProperties#OFF_HEAP_MEMORY_SIZE} property.
-   *
-   * @since Geode 1.0
-   */
-  @ConfigAttributeGetter(name = OFF_HEAP_MEMORY_SIZE)
-  String getOffHeapMemorySize();
-
-  /**
-   * Sets the value of the {@link ConfigurationProperties#OFF_HEAP_MEMORY_SIZE} property.
-   *
-   * @since Geode 1.0
-   */
-  @ConfigAttributeSetter(name = OFF_HEAP_MEMORY_SIZE)
-  void setOffHeapMemorySize(String value);
-
-  /**
-   * The name of the {@link ConfigurationProperties#OFF_HEAP_MEMORY_SIZE} property
-   *
-   * @since Geode 1.0
-   */
-  @ConfigAttribute(type = String.class)
-  String OFF_HEAP_MEMORY_SIZE_NAME = OFF_HEAP_MEMORY_SIZE;
-  /**
-   * The default {@link ConfigurationProperties#OFF_HEAP_MEMORY_SIZE} value of <code>""</code>.
-   *
-   * @since Geode 1.0
-   */
-  String DEFAULT_OFF_HEAP_MEMORY_SIZE = "";
 
   /**
    * Returns the value of the {@link ConfigurationProperties#JMX_MANAGER_SSL_PROTOCOLS} property.

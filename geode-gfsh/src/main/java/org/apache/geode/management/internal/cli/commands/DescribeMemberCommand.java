@@ -73,11 +73,6 @@ public class DescribeMemberCommand extends GfshCommand {
     memberInfo.addData("Used Heap", memberInformation.getHeapUsage() + "M");
     memberInfo.addData("Max Heap", memberInformation.getMaxHeapSize() + "M");
 
-    String offHeapMemorySize = memberInformation.getOffHeapMemorySize();
-    if (offHeapMemorySize != null && !offHeapMemorySize.isEmpty()) {
-      memberInfo.addData("Off Heap Size", offHeapMemorySize);
-    }
-
     memberInfo.addData("Working Dir", memberInformation.getWorkingDirPath());
     memberInfo.addData("Log file", memberInformation.getLogFilePath());
 

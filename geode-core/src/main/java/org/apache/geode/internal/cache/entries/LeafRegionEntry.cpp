@@ -64,13 +64,6 @@ import org.apache.geode.internal.cache.versions.VersionSource;
 import org.apache.geode.internal.cache.versions.VersionStamp;
 import org.apache.geode.internal.cache.versions.VersionTag;
 #endif
-#ifdef OFFHEAP
-import org.apache.geode.internal.cache.Token;
-import org.apache.geode.internal.offheap.OffHeapRegionEntryHelper;
-import org.apache.geode.internal.offheap.annotations.Released;
-import org.apache.geode.internal.offheap.annotations.Retained;
-import org.apache.geode.internal.offheap.annotations.Unretained;
-#endif
 import org.apache.geode.internal.util.concurrent.CustomEntryConcurrentHashMap.HashEntry;
 
 /*
@@ -80,7 +73,6 @@ import org.apache.geode.internal.util.concurrent.CustomEntryConcurrentHashMap.Ha
  * lru: LRU
  * stats: STATS
  * versioned: VERSIONED
- * offheap: OFFHEAP
  *
  * One of the following key macros must be defined:
  *
@@ -110,31 +102,7 @@ public class LEAF_CLASS extends PARENT_CLASS {
   @SuppressWarnings("unused")
   private volatile long lastModified;
 
-#ifdef OFFHEAP
-#else
   private volatile Object value;
-#endif
-#ifdef OFFHEAP
-  // --------------------------------------- offheap fields ---------------------------------------
-
-  /**
-   * All access done using OFF_HEAP_ADDRESS_UPDATER so it is used even though the compiler can not
-   * tell it is.
-   */
-  @SuppressWarnings("unused")
-  @Retained @Released private volatile long offHeapAddress;
-  /**
-   * I needed to add this because I wanted clear to call setValue which normally can only be called
-   * while the re is synced. But if I sync in that code it causes a lock ordering deadlock with the
-   * disk regions because they also get a rw lock in clear. Some hardware platforms do not support
-   * CAS on a long. If gemfire is run on one of those the AtomicLongFieldUpdater does a sync on the
-   * RegionEntry and we will once again be deadlocked. I don't know if we support any of the
-   * hardware platforms that do not have a 64bit CAS. If we do then we can expect deadlocks on disk
-   * regions.
-   */
-  private static final AtomicLongFieldUpdater<LEAF_CLASS> OFF_HEAP_ADDRESS_UPDATER =
-      AtomicLongFieldUpdater.newUpdater(LEAF_CLASS.class, "offHeapAddress");
-#endif
 #ifdef DISK
 
   // ---------------------------------------- disk fields -----------------------------------------
@@ -202,9 +170,6 @@ public class LEAF_CLASS extends PARENT_CLASS {
 #endif
 
   public LEAF_CLASS (final RegionEntryContext context, final KEY_TYPE key,
-#ifdef OFFHEAP
-      @Retained
-#endif
       final Object value
 #if defined(KEY_STRING1) || defined(KEY_STRING2)
       , final boolean byteEncode
@@ -285,60 +250,6 @@ public class LEAF_CLASS extends PARENT_CLASS {
 
   // DO NOT modify this class. It was generated from LeafRegionEntry.cpp
 
-#ifdef OFFHEAP
-  @Override
-  public Token getValueAsToken() {
-    return OffHeapRegionEntryHelper.getValueAsToken(this);
-  }
-
-  @Override
-  protected Object getValueField() {
-    return OffHeapRegionEntryHelper._getValue(this);
-  }
-
-  // DO NOT modify this class. It was generated from LeafRegionEntry.cpp
-
-  @Override
-#ifdef OFFHEAP
-  @Unretained
-  protected void setValueField(@Unretained final Object value) {
-#else
-  protected void setValueField(final Object value) {
-#endif
-    OffHeapRegionEntryHelper.setValue(this, value);
-  }
-
-  @Override
-#ifdef OFFHEAP
-  @Retained
-#endif
-  public Object getValueRetain(final RegionEntryContext context, final boolean decompress) {
-    return OffHeapRegionEntryHelper._getValueRetain(this, decompress, context);
-  }
-
-  @Override
-  public long getAddress() {
-    return OFF_HEAP_ADDRESS_UPDATER.get(this);
-  }
-
-  @Override
-  public boolean setAddress(final long expectedAddress, long newAddress) {
-    return OFF_HEAP_ADDRESS_UPDATER.compareAndSet(this, expectedAddress, newAddress);
-  }
-
-  @Override
-#ifdef OFFHEAP
-  @Released
-#endif
-  public void release() {
-    OffHeapRegionEntryHelper.releaseEntry(this);
-  }
-
-  @Override
-  public void returnToPool() {
-    // never implemented
-  }
-#else
   @Override
   protected Object getValueField() {
     return this.value;
@@ -348,7 +259,6 @@ public class LEAF_CLASS extends PARENT_CLASS {
   protected void setValueField(final Object value) {
     this.value = value;
   }
-#endif
 
   @Override
   protected long getLastModifiedField() {
@@ -458,7 +368,6 @@ public class LEAF_CLASS extends PARENT_CLASS {
 
   @Override
   public synchronized int updateEntrySize(final EvictionController evictionController) {
-    // OFFHEAP: getValue ok w/o incing refcount because we are synced and only getting the size
     return updateEntrySize(evictionController, getValue());
   }
 

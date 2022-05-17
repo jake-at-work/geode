@@ -50,8 +50,7 @@ public class PartitionedRegionIntegrationTest {
   @Test
   public void bucketSorterIsNotCreatedIfNoEviction() {
     PartitionedRegion region =
-        (PartitionedRegion) server.createRegion(RegionShortcut.PARTITION, "PR1",
-            rf -> rf.setOffHeap(false));
+        (PartitionedRegion) server.createRegion(RegionShortcut.PARTITION, "PR1");
     ScheduledExecutorService bucketSorter = region.getBucketSorter();
     assertThat(bucketSorter).isNull();
   }

@@ -4345,7 +4345,7 @@ public class PartitionedRegion extends LocalRegion
     if (re == null || re.isDestroyedOrRemoved()) {
       return null;
     } else {
-      return re.getValue(this); // OFFHEAP: spin until we can copy into a heap cd?
+      return re.getValue(this);
     }
   }
 
@@ -4408,7 +4408,7 @@ public class PartitionedRegion extends LocalRegion
         for (final Map.Entry o : (Iterable<Map.Entry>) br.entrySet()) {
           NonTXEntry entry = (NonTXEntry) o;
           RegionEntry re = entry.getRegionEntry();
-          Object value = re.getValue(br); // OFFHEAP: incrc, deserialize, decrc
+          Object value = re.getValue(br);
           VersionStamp versionStamp = re.getVersionStamp();
           VersionTag versionTag = versionStamp != null ? versionStamp.asVersionTag() : null;
           if (versionTag != null) {

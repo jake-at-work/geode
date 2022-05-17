@@ -461,11 +461,6 @@ public class UpdateOperation extends AbstractUpdateOperation {
     }
 
     @Override
-    public boolean isUnretainedNewReferenceOk() {
-      return true;
-    }
-
-    @Override
     public void importNewObject(Object nv,
         boolean isSerialized) {
       if (nv == null) {

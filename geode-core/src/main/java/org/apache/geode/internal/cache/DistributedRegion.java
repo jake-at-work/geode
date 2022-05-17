@@ -2370,7 +2370,7 @@ public class DistributedRegion extends LocalRegion implements InternalDistribute
 
   private Object determineResult(boolean preferCD, EntryEventImpl event) {
     if (preferCD) {
-      return event.getRawNewValueAsHeapObject();
+      return event.getRawNewValue();
     }
     return event.getNewValue();
   }
@@ -2420,7 +2420,6 @@ public class DistributedRegion extends LocalRegion implements InternalDistribute
           if (clientEvent != null) {
             clientEvent.setVersionTag(re.getVersionStamp().asVersionTag());
           }
-          // OFFHEAP: need to incrc, copy to heap to setNewValue, decrc
           event.setNewValue(re.getValue(this));
         }
       }

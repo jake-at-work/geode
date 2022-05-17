@@ -98,7 +98,7 @@ public class TXEntry implements Region.Entry {
     // Object value = this.localRegion.getDeserialized(this.key, false, this.myTX,
     // this.rememberReads);
     Object value = myTX.getDeserializedValue(keyInfo, localRegion, false, false, false,
-        null, false, false, createIfAbsent);
+        null, false, createIfAbsent);
     if (value == null) {
       throw new EntryDestroyedException(keyInfo.getKey().toString());
     } else if (Token.isInvalid(value)) {

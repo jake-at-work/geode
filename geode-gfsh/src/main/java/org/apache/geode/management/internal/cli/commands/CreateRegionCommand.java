@@ -167,8 +167,6 @@ public class CreateRegionCommand extends SingleGfshCommand {
           help = CliStrings.CREATE_REGION__KEYCONSTRAINT__HELP) String keyConstraint,
       @CliOption(key = CliStrings.CREATE_REGION__LOCALMAXMEMORY,
           help = CliStrings.CREATE_REGION__LOCALMAXMEMORY__HELP) Integer prLocalMaxMemory,
-      @CliOption(key = CliStrings.CREATE_REGION__OFF_HEAP, specifiedDefaultValue = "true",
-          help = CliStrings.CREATE_REGION__OFF_HEAP__HELP) Boolean offHeap,
       @CliOption(key = CliStrings.CREATE_REGION__PARTITION_LISTENER,
           optionContext = "splittingRegex=,(?![^{]*\\})",
           help = CliStrings.CREATE_REGION__PARTITION_LISTENER__HELP) ClassName[] partitionListener,

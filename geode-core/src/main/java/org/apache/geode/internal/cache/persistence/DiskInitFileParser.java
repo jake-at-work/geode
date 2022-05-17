@@ -298,7 +298,7 @@ public class DiskInitFileParser {
           interpreter.cmnRegionConfig(drId, lruAlgorithm, lruAction, lruLimit, concurrencyLevel,
               initialCapacity, loadFactor, statisticsEnabled, isBucket, flags,
               ProxyBucketRegion.NO_FIXED_PARTITION_NAME, // fixes bug 43910
-              -1, null, false);
+              -1, null);
         }
           break;
         case DiskInitFile.IFREC_REGION_CONFIG_ID_66: {
@@ -321,7 +321,7 @@ public class DiskInitFileParser {
           }
           interpreter.cmnRegionConfig(drId, lruAlgorithm, lruAction, lruLimit, concurrencyLevel,
               initialCapacity, loadFactor, statisticsEnabled, isBucket, flags, partitionName,
-              startingBucketId, null, false);
+              startingBucketId, null);
         }
           break;
         case DiskInitFile.IFREC_REGION_CONFIG_ID_80: {
@@ -352,7 +352,7 @@ public class DiskInitFileParser {
           }
           interpreter.cmnRegionConfig(drId, lruAlgorithm, lruAction, lruLimit, concurrencyLevel,
               initialCapacity, loadFactor, statisticsEnabled, isBucket, flags, partitionName,
-              startingBucketId, compressorClassName, false);
+              startingBucketId, compressorClassName);
         }
           break;
         case DiskInitFile.IFREC_REGION_CONFIG_ID_90: {
@@ -376,6 +376,8 @@ public class DiskInitFileParser {
           if (dis.readBoolean()) {
             flags.add(DiskRegionFlag.IS_WITH_VERSIONING);
           }
+
+          @SuppressWarnings("unused")
           boolean offHeap = dis.readBoolean();
 
           readEndOfRecord(dis);
@@ -385,7 +387,7 @@ public class DiskInitFileParser {
           }
           interpreter.cmnRegionConfig(drId, lruAlgorithm, lruAction, lruLimit, concurrencyLevel,
               initialCapacity, loadFactor, statisticsEnabled, isBucket, flags, partitionName,
-              startingBucketId, compressorClassName, offHeap);
+              startingBucketId, compressorClassName);
         }
           break;
         case DiskInitFile.IFREC_OFFLINE_AND_EQUAL_MEMBER_ID: {

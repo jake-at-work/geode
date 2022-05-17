@@ -634,11 +634,6 @@ public class DistributionConfigImpl extends AbstractDistributionConfig implement
   private String serializableObjectFilter = DEFAULT_SERIALIZABLE_OBJECT_FILTER;
 
   /**
-   * "off-heap-memory-size" with value of "" or "<size>[g|m]"
-   */
-  protected String offHeapMemorySize = DEFAULT_OFF_HEAP_MEMORY_SIZE;
-
-  /**
    * Whether pages should be locked into memory or allowed to swap to disk
    */
   private boolean lockMemory = DEFAULT_LOCK_MEMORY;
@@ -824,7 +819,6 @@ public class DistributionConfigImpl extends AbstractDistributionConfig implement
     startDevRestApi = other.getStartDevRestApi();
 
     // following added for 9.0
-    offHeapMemorySize = other.getOffHeapMemorySize();
 
     Map<String, ConfigSource> otherSources = ((DistributionConfigImpl) other).sourceMap;
     if (otherSources != null) {
@@ -3355,7 +3349,7 @@ public class DistributionConfigImpl extends AbstractDistributionConfig implement
         .append(sslParameterExtension, that.sslParameterExtension)
         .append(locatorSSLAlias, that.locatorSSLAlias).append(sslDefaultAlias, that.sslDefaultAlias)
         .append(sourceMap, that.sourceMap).append(userCommandPackages, that.userCommandPackages)
-        .append(offHeapMemorySize, that.offHeapMemorySize).append(shiroInit, that.shiroInit)
+        .append(shiroInit, that.shiroInit)
         .append(threadMonitorEnabled, that.threadMonitorEnabled)
         .append(threadMonitorInterval, that.threadMonitorInterval)
         .append(threadMonitorTimeLimit, that.threadMonitorTimeLimit).isEquals();
@@ -3429,7 +3423,7 @@ public class DistributionConfigImpl extends AbstractDistributionConfig implement
         .append(sslTrustStorePassword).append(sslParameterExtension)
         .append(sslWebServiceRequireAuthentication)
         .append(locatorSSLAlias).append(sslDefaultAlias).append(sourceMap)
-        .append(userCommandPackages).append(offHeapMemorySize).append(lockMemory).append(shiroInit)
+        .append(userCommandPackages).append(lockMemory).append(shiroInit)
         .append(modifiable).append(threadMonitorEnabled).append(threadMonitorInterval)
         .append(threadMonitorTimeLimit).toHashCode();
   }
@@ -3499,16 +3493,6 @@ public class DistributionConfigImpl extends AbstractDistributionConfig implement
   @Override
   public void setMemcachedProtocol(String protocol) {
     memcachedProtocol = protocol;
-  }
-
-  @Override
-  public String getOffHeapMemorySize() {
-    return offHeapMemorySize;
-  }
-
-  @Override
-  public void setOffHeapMemorySize(String value) {
-    offHeapMemorySize = value;
   }
 
   @Override

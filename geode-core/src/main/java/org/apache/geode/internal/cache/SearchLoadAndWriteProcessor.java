@@ -1520,8 +1520,7 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
               synchronized (entry) {
                 assert region.isInitialized();
                 if (dm.cacheTimeMillis() - startTime < timeoutMs) {
-                  o = region.getNoLRU(key, false, true, true); // OFFHEAP: incrc, copy bytes,
-                                                               // decrc
+                  o = region.getNoLRU(key, false, true, true);
                   if (o != null && !Token.isInvalid(o) && !Token.isRemoved(o)
                       && !region.isExpiredWithRegardTo(key, ttl, idleTime)) {
                     isPresent = true;
@@ -1875,7 +1874,7 @@ public class SearchLoadAndWriteProcessor implements MembershipListener {
                 if (versionStamp != null) {
                   versionTag = versionStamp.asVersionTag();
                 }
-                Object eov = region.getNoLRU(key, false, true, true); // OFFHEAP: incrc, copy
+                Object eov = region.getNoLRU(key, false, true, true);
                 // bytes, decrc
                 if (eov != null) {
                   if (eov == Token.INVALID || eov == Token.LOCAL_INVALID) {

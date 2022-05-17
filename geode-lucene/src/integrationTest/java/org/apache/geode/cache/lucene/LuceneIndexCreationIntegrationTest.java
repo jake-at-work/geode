@@ -74,7 +74,6 @@ import org.apache.geode.test.junit.runners.GeodeParamsRunner;
  * classes starting with LuceneIndexCreation*. Most tests belong in this class, except for:
  * <ul>
  * <li>Tests that use persistence are in {@link LuceneIndexCreationPersistenceIntegrationTest}</li>
- * <li>Tests that use offheap are in {@link LuceneIndexCreationOffHeapIntegrationTest}</li>
  * </ul>
  */
 @Category({LuceneTest.class})

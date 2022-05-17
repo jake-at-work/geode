@@ -75,9 +75,5 @@ public abstract class VMThinDiskLRURegionEntryHeap extends VMThinDiskLRURegionEn
       return VersionedThinDiskLRURegionEntryHeap.getEntryFactory();
     }
 
-    @Override
-    public RegionEntryFactory makeOnHeap() {
-      return this;
-    }
   }
 }

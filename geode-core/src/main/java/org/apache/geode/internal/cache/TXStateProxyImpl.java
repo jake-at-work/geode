@@ -338,10 +338,10 @@ public class TXStateProxyImpl implements TXStateProxy {
   @Override
   public Object getDeserializedValue(KeyInfo keyInfo, LocalRegion localRegion, boolean updateStats,
       boolean disableCopyOnRead, boolean preferCD, EntryEventImpl clientEvent,
-      boolean returnTombstones, boolean retainResult, boolean createIfAbsent) {
+      boolean returnTombstones, boolean createIfAbsent) {
     try {
       Object val = getRealDeal(keyInfo, localRegion).getDeserializedValue(keyInfo, localRegion,
-          updateStats, disableCopyOnRead, preferCD, null, false, retainResult, createIfAbsent);
+          updateStats, disableCopyOnRead, preferCD, null, false, createIfAbsent);
       trackBucketForTx(keyInfo);
       if (val != null) {
         // fixes bug 51057: TXStateStub on client always returns null, so do not increment

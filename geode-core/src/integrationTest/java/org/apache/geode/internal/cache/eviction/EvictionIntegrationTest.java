@@ -14,11 +14,8 @@
  */
 package org.apache.geode.internal.cache.eviction;
 
-import static org.apache.geode.distributed.ConfigurationProperties.OFF_HEAP_MEMORY_SIZE;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -26,8 +23,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.EvictionAction;
@@ -39,30 +34,16 @@ import org.apache.geode.internal.cache.LocalRegion;
 import org.apache.geode.internal.cache.PartitionedRegion;
 import org.apache.geode.test.junit.categories.EvictionTest;
 import org.apache.geode.test.junit.rules.ServerStarterRule;
-import org.apache.geode.test.junit.runners.CategoryWithParameterizedRunnerFactory;
 
 
-@RunWith(Parameterized.class)
-@Parameterized.UseParametersRunnerFactory(CategoryWithParameterizedRunnerFactory.class)
 @Category({EvictionTest.class})
 public class EvictionIntegrationTest {
-
-  @Parameterized.Parameters(name = "offHeap={0}")
-  public static Collection booleans() {
-    return Arrays.asList(true, false);
-  }
-
-  @Parameterized.Parameter
-  public boolean offHeap;
 
   @Rule
   public ServerStarterRule server = new ServerStarterRule().withNoCacheServer();
 
   @Before
   public void setUp() {
-    if (offHeap) {
-      server.withProperty(OFF_HEAP_MEMORY_SIZE, "200m");
-    }
     server.startServer();
   }
 
@@ -70,10 +51,9 @@ public class EvictionIntegrationTest {
   public void testEntryLruEvictions() {
     int maxEntry = 3;
     PartitionedRegion pr1 = (PartitionedRegion) server.createPartitionRegion("PR1",
-        f -> f.setOffHeap(offHeap)
-            .setEvictionAttributes(
-                EvictionAttributes.createLRUEntryAttributes(maxEntry,
-                    EvictionAction.LOCAL_DESTROY)),
+        f -> f.setEvictionAttributes(
+            EvictionAttributes.createLRUEntryAttributes(maxEntry,
+                EvictionAction.LOCAL_DESTROY)),
         f -> f.setRedundantCopies(0).setTotalNumBuckets(4));
 
     // put in one extra entry after maxEntry
@@ -88,10 +68,9 @@ public class EvictionIntegrationTest {
   public void testEntryLru() {
     int maxEntry = 12;
     PartitionedRegion pr1 = (PartitionedRegion) server.createPartitionRegion("PR1",
-        f -> f.setOffHeap(offHeap)
-            .setEvictionAttributes(
-                EvictionAttributes.createLRUEntryAttributes(maxEntry,
-                    EvictionAction.LOCAL_DESTROY)),
+        f -> f.setEvictionAttributes(
+            EvictionAttributes.createLRUEntryAttributes(maxEntry,
+                EvictionAction.LOCAL_DESTROY)),
         f -> f.setRedundantCopies(0).setTotalNumBuckets(4));
 
     for (int i = 0; i < 3; i++) {
@@ -113,10 +92,9 @@ public class EvictionIntegrationTest {
     int extraEntries = 10;
     int maxEntries = 20;
     PartitionedRegion pr1 = (PartitionedRegion) server.createPartitionRegion("PR1",
-        f -> f.setOffHeap(offHeap)
-            .setEvictionAttributes(
-                EvictionAttributes.createLRUEntryAttributes(maxEntries,
-                    EvictionAction.LOCAL_DESTROY)),
+        f -> f.setEvictionAttributes(
+            EvictionAttributes.createLRUEntryAttributes(maxEntries,
+                EvictionAction.LOCAL_DESTROY)),
         f -> f.setRedundantCopies(1).setTotalNumBuckets(5));
 
     for (int counter = 1; counter <= maxEntries + extraEntries; counter++) {
@@ -140,15 +118,14 @@ public class EvictionIntegrationTest {
   public void testMemLruForPRAndDR() {
     int maxEntries = 40;
     PartitionedRegion pr1 = (PartitionedRegion) server.createPartitionRegion("PR1",
-        f -> f.setOffHeap(offHeap)
-            .setEvictionAttributes(EvictionAttributes.createLRUMemoryAttributes(
-                ObjectSizer.DEFAULT,
-                EvictionAction.LOCAL_DESTROY)),
+        f -> f.setEvictionAttributes(EvictionAttributes.createLRUMemoryAttributes(
+            ObjectSizer.DEFAULT,
+            EvictionAction.LOCAL_DESTROY)),
         f -> f.setRedundantCopies(0).setTotalNumBuckets(4).setLocalMaxMemory(maxEntries));
 
     LocalRegion dr1 =
         (LocalRegion) server.createRegion(RegionShortcut.LOCAL, "DR1",
-            f -> f.setOffHeap(offHeap).setDataPolicy(DataPolicy.NORMAL).setEvictionAttributes(
+            f -> f.setDataPolicy(DataPolicy.NORMAL).setEvictionAttributes(
                 EvictionAttributes.createLRUMemoryAttributes(ObjectSizer.DEFAULT,
                     EvictionAction.LOCAL_DESTROY)));
 
@@ -171,25 +148,22 @@ public class EvictionIntegrationTest {
   @Test
   public void testEachTaskSize() {
     server.createPartitionRegion("PR1",
-        f -> f.setOffHeap(offHeap)
-            .setEvictionAttributes(EvictionAttributes.createLRUHeapAttributes(
-                null, EvictionAction.LOCAL_DESTROY)),
+        f -> f.setEvictionAttributes(EvictionAttributes.createLRUHeapAttributes(
+            null, EvictionAction.LOCAL_DESTROY)),
         f -> f.setRedundantCopies(1).setTotalNumBuckets(6));
 
     server.createPartitionRegion("PR2",
-        f -> f.setOffHeap(offHeap)
-            .setEvictionAttributes(EvictionAttributes.createLRUHeapAttributes(
-                null, EvictionAction.LOCAL_DESTROY)),
+        f -> f.setEvictionAttributes(EvictionAttributes.createLRUHeapAttributes(
+            null, EvictionAction.LOCAL_DESTROY)),
         f -> f.setRedundantCopies(1).setTotalNumBuckets(10));
 
     server.createPartitionRegion("PR3",
-        f -> f.setOffHeap(offHeap)
-            .setEvictionAttributes(EvictionAttributes.createLRUHeapAttributes(
-                null, EvictionAction.LOCAL_DESTROY)),
+        f -> f.setEvictionAttributes(EvictionAttributes.createLRUHeapAttributes(
+            null, EvictionAction.LOCAL_DESTROY)),
         f -> f.setRedundantCopies(1).setTotalNumBuckets(15));
 
     server.createRegion(RegionShortcut.LOCAL, "DR1",
-        f -> f.setOffHeap(offHeap).setDataPolicy(DataPolicy.NORMAL).setEvictionAttributes(
+        f -> f.setDataPolicy(DataPolicy.NORMAL).setEvictionAttributes(
             EvictionAttributes.createLRUHeapAttributes(null, EvictionAction.LOCAL_DESTROY)));
 
     HeapEvictor evictor = server.getCache().getHeapEvictor();

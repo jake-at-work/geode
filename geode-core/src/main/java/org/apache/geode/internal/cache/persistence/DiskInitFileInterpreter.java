@@ -72,7 +72,7 @@ public interface DiskInitFileInterpreter {
   void cmnRegionConfig(long drId, byte lruAlgorithm, byte lruAction, int lruLimit,
       int concurrencyLevel, int initialCapacity, float loadFactor, boolean statisticsEnabled,
       boolean isBucket, EnumSet<DiskRegionFlag> flags, String partitionName, int startingBucketId,
-      String compressorClassName, boolean offHeap);
+      String compressorClassName);
 
   void cmnKrfCreate(long oplogId);
 

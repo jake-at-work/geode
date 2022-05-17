@@ -1390,12 +1390,6 @@ public class JMXDataUpdater implements IClusterUpdater, NotificationListener {
           member.setPutsRate(getDoubleAttribute(attribute.getValue(), attribute.getName()));
           member.getPutsPerSecond().add(member.getPutsRate());
           break;
-        case PulseConstants.MBEAN_ATTRIBUTE_OFFHEAPFREESIZE:
-          member.setOffHeapFreeSize(getLongAttribute(attribute.getValue(), attribute.getName()));
-          break;
-        case PulseConstants.MBEAN_ATTRIBUTE_OFFHEAPUSEDSIZE:
-          member.setOffHeapUsedSize(getLongAttribute(attribute.getValue(), attribute.getName()));
-          break;
         case PulseConstants.MBEAN_ATTRIBUTE_SERVERGROUPS:
           String[] sgValues = (String[]) attribute.getValue();
           member.getServerGroups().clear();

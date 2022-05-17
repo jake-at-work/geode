@@ -246,7 +246,7 @@ public interface ClientRegionFactory<K, V> {
   ClientRegionFactory<K, V> setStatisticsEnabled(boolean statisticsEnabled);
 
   /**
-   * Sets cloning on region Note: off-heap regions always behave as if cloning is enabled.
+   * Sets cloning on region.
    *
    * @param cloningEnable whether cloning is enabled on the region
    * @return a reference to this ClientRegionFactory object

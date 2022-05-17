@@ -486,13 +486,6 @@ class ProxyRegionMap extends BaseRegionMap {
     }
 
     @Override
-    public Object getValueRetain(RegionEntryContext context) {
-      throw new UnsupportedOperationException(
-          String.format("No entry support on regions with DataPolicy %s",
-              DataPolicy.EMPTY));
-    }
-
-    @Override
     public void setValue(RegionEntryContext context, Object value) {
       throw new UnsupportedOperationException(
           String.format("No entry support on regions with DataPolicy %s",

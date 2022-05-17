@@ -41,9 +41,9 @@ public class LocalRegionDataView implements InternalDataView {
   @Override
   public Object getDeserializedValue(KeyInfo keyInfo, LocalRegion localRegion, boolean updateStats,
       boolean disableCopyOnRead, boolean preferCD, EntryEventImpl clientEvent,
-      boolean returnTombstones, boolean retainResult, boolean createIfAbsent) {
+      boolean returnTombstones, boolean createIfAbsent) {
     return localRegion.getDeserializedValue(null, keyInfo, updateStats, disableCopyOnRead, preferCD,
-        clientEvent, returnTombstones, retainResult);
+        clientEvent, returnTombstones);
   }
 
   /*

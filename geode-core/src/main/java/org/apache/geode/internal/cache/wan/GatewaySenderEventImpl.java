@@ -464,7 +464,7 @@ public class GatewaySenderEventImpl
   }
 
   /**
-   * Return the currently held form of the object. May return a retained OFF_HEAP_REFERENCE.
+   * Return the currently held form of the object.
    */
   public Object getRawValue() {
     Object result = value;
@@ -862,8 +862,6 @@ public class GatewaySenderEventImpl
       // If the value is already serialized, use it.
       valueIsObject = 0x01;
       if (event.getCachedSerializedNewValue() != null) {
-        // We want this to have lower precedence than StoredObject so that the gateway
-        // can share a reference to the off-heap value.
         value = event.getCachedSerializedNewValue();
       } else {
         final Object newValue = event.getRawNewValue();

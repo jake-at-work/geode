@@ -108,7 +108,7 @@ public class DistributionConfigImplTest {
   @Test
   public void testGetAttributeNames() {
     String[] attNames = AbstractDistributionConfig._getAttNames();
-    assertThat(attNames).hasSize(167);
+    assertThat(attNames).hasSize(166);
 
     List<String> boolList = new ArrayList<>();
     List<String> intList = new ArrayList<>();
@@ -144,7 +144,7 @@ public class DistributionConfigImplTest {
     // are.
     assertThat(boolList).hasSize(35);
     assertThat(intList).hasSize(34);
-    assertThat(stringList).hasSize(88);
+    assertThat(stringList).hasSize(87);
     assertThat(fileList).hasSize(5);
     assertThat(otherList).hasSize(5);
   }

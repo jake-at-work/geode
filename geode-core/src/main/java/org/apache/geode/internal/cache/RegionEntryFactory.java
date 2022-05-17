@@ -41,9 +41,4 @@ public interface RegionEntryFactory {
    */
   RegionEntryFactory makeVersioned();
 
-  /**
-   * Return the equivalent on heap version of this entry factory. This is used for creating
-   * temporary region entries that shouldn't be stored off heap.
-   */
-  RegionEntryFactory makeOnHeap();
 }

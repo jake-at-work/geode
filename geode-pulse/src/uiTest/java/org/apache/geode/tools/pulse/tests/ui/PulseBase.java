@@ -51,8 +51,6 @@ import static org.apache.geode.tools.pulse.tests.ui.PulseTestConstants.DATA_VIEW
 import static org.apache.geode.tools.pulse.tests.ui.PulseTestConstants.MEMBER_VIEW_CPUUSAGE_ID;
 import static org.apache.geode.tools.pulse.tests.ui.PulseTestConstants.MEMBER_VIEW_JVMPAUSES_ID;
 import static org.apache.geode.tools.pulse.tests.ui.PulseTestConstants.MEMBER_VIEW_LOADAVG_ID;
-import static org.apache.geode.tools.pulse.tests.ui.PulseTestConstants.MEMBER_VIEW_OFFHEAPFREESIZE_ID;
-import static org.apache.geode.tools.pulse.tests.ui.PulseTestConstants.MEMBER_VIEW_OFFHEAPUSEDSIZE_ID;
 import static org.apache.geode.tools.pulse.tests.ui.PulseTestConstants.MEMBER_VIEW_READPERSEC_ID;
 import static org.apache.geode.tools.pulse.tests.ui.PulseTestConstants.MEMBER_VIEW_REGION_ID;
 import static org.apache.geode.tools.pulse.tests.ui.PulseTestConstants.MEMBER_VIEW_SOCKETS_ID;
@@ -317,53 +315,6 @@ public abstract class PulseBase {
     String LoadAvg = getWebDriver().findElement(By.id(MEMBER_VIEW_LOADAVG_ID)).getText();
     String memberLoadAvg = JMXProperties.getInstance().getProperty("member.M1.loadAverage");
     assertEquals(TWO_PLACE_DECIMAL_FORMAT.format(Double.valueOf(memberLoadAvg)), LoadAvg);
-  }
-
-  @Ignore("WIP") // May be useful in near future
-  @Test
-  public void testOffHeapFreeSize() {
-
-    String OffHeapFreeSizeString =
-        getWebDriver().findElement(By.id(MEMBER_VIEW_OFFHEAPFREESIZE_ID)).getText();
-    String OffHeapFreeSizetemp = OffHeapFreeSizeString.replaceAll("[a-zA-Z]", "");
-    float OffHeapFreeSize = Float.parseFloat(OffHeapFreeSizetemp);
-    float memberOffHeapFreeSize =
-        Float.parseFloat(JMXProperties.getInstance().getProperty("member.M1.OffHeapFreeSize"));
-    if (memberOffHeapFreeSize < 1048576) {
-      memberOffHeapFreeSize = memberOffHeapFreeSize / 1024;
-
-    } else if (memberOffHeapFreeSize < 1073741824) {
-      memberOffHeapFreeSize = memberOffHeapFreeSize / 1024 / 1024;
-    } else {
-      memberOffHeapFreeSize = memberOffHeapFreeSize / 1024 / 1024 / 1024;
-    }
-    memberOffHeapFreeSize =
-        Float.parseFloat(new DecimalFormat("##.##").format(memberOffHeapFreeSize));
-    assertEquals(memberOffHeapFreeSize, OffHeapFreeSize, 0);
-
-  }
-
-  @Ignore("WIP") // May be useful in near future
-  @Test
-  public void testOffHeapUsedSize() {
-
-    String OffHeapUsedSizeString =
-        getWebDriver().findElement(By.id(MEMBER_VIEW_OFFHEAPUSEDSIZE_ID)).getText();
-    String OffHeapUsedSizetemp = OffHeapUsedSizeString.replaceAll("[a-zA-Z]", "");
-    float OffHeapUsedSize = Float.parseFloat(OffHeapUsedSizetemp);
-    float memberOffHeapUsedSize =
-        Float.parseFloat(JMXProperties.getInstance().getProperty("member.M1.OffHeapUsedSize"));
-    if (memberOffHeapUsedSize < 1048576) {
-      memberOffHeapUsedSize = memberOffHeapUsedSize / 1024;
-
-    } else if (memberOffHeapUsedSize < 1073741824) {
-      memberOffHeapUsedSize = memberOffHeapUsedSize / 1024 / 1024;
-    } else {
-      memberOffHeapUsedSize = memberOffHeapUsedSize / 1024 / 1024 / 1024;
-    }
-    memberOffHeapUsedSize =
-        Float.parseFloat(new DecimalFormat("##.##").format(memberOffHeapUsedSize));
-    assertEquals(memberOffHeapUsedSize, OffHeapUsedSize, 0);
   }
 
   @Test

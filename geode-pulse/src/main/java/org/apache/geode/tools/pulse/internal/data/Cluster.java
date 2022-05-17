@@ -213,8 +213,6 @@ public class Cluster extends Thread {
     private long currentHeapSize;
     private long maxHeapSize;
     private int avgHeapUsage;
-    private long OffHeapFreeSize;
-    private long OffHeapUsedSize;
     private long totalBytesOnDisk;
     private String memberPort;
 
@@ -472,22 +470,6 @@ public class Cluster extends Thread {
 
     public void setAvgHeapUsage(int avgHeapUsage) {
       this.avgHeapUsage = avgHeapUsage;
-    }
-
-    public long getOffHeapFreeSize() {
-      return OffHeapFreeSize;
-    }
-
-    public void setOffHeapFreeSize(long offHeapFreeSize) {
-      OffHeapFreeSize = offHeapFreeSize;
-    }
-
-    public long getOffHeapUsedSize() {
-      return OffHeapUsedSize;
-    }
-
-    public void setOffHeapUsedSize(long offHeapUsedSize) {
-      OffHeapUsedSize = offHeapUsedSize;
     }
 
     public void setId(String id) {
@@ -1427,7 +1409,6 @@ public class Cluster extends Thread {
     private String scope;
     private String diskStoreName;
     private boolean diskSynchronous;
-    private boolean enableOffHeapMemory;
     private String compressionCodec = "";
 
     private List<String> memberName = new ArrayList<>();
@@ -1658,14 +1639,6 @@ public class Cluster extends Thread {
 
     public void setPutsPerSecTrend(CircularFifoBuffer putsPerSecTrend) {
       this.putsPerSecTrend = putsPerSecTrend;
-    }
-
-    public boolean isEnableOffHeapMemory() {
-      return enableOffHeapMemory;
-    }
-
-    public void setEnableOffHeapMemory(boolean enableOffHeapMemory) {
-      this.enableOffHeapMemory = enableOffHeapMemory;
     }
 
     public String getCompressionCodec() {

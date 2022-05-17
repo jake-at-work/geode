@@ -54,7 +54,6 @@ public class MemberInformation extends RuntimeInfo
   private int clientCount;
   private double cpuUsage;
   private Set<String> hostedRegions;
-  private String offHeapMemorySize;
   private boolean webSSL;
   private boolean isSecured;
   private boolean isCoordinator;
@@ -246,14 +245,6 @@ public class MemberInformation extends RuntimeInfo
     this.hostedRegions = hostedRegions;
   }
 
-  public String getOffHeapMemorySize() {
-    return offHeapMemorySize;
-  }
-
-  public void setOffHeapMemorySize(String v) {
-    offHeapMemorySize = v;
-  }
-
   public boolean isWebSSL() {
     return webSSL;
   }
@@ -306,8 +297,7 @@ public class MemberInformation extends RuntimeInfo
         Objects.equals(getHost(), that.getHost()) &&
         Objects.equals(getHttpServiceBindAddress(), that.getHttpServiceBindAddress()) &&
         Objects.equals(cacheServerList, that.cacheServerList) &&
-        Objects.equals(getHostedRegions(), that.getHostedRegions()) &&
-        Objects.equals(getOffHeapMemorySize(), that.getOffHeapMemorySize());
+        Objects.equals(getHostedRegions(), that.getHostedRegions());
   }
 
   @Override
@@ -319,7 +309,6 @@ public class MemberInformation extends RuntimeInfo
             getMaxHeapSize(), getInitHeapSize(), getCacheXmlFilePath(), getHost(), getProcessId(),
             getLocatorPort(), getHttpServicePort(), getHttpServiceBindAddress(), isServer(),
             cacheServerList, getClientCount(), getCpuUsage(), getHostedRegions(),
-            getOffHeapMemorySize(),
             isWebSSL(), isSecured(), isCoordinator());
   }
 }

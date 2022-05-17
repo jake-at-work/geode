@@ -183,9 +183,6 @@ public class ClusterSelectedRegionService implements PulseService {
       regionJSON.put("persistence",
           reg.getPersistentEnabled() ? PulseService.VALUE_ON : PulseService.VALUE_OFF);
 
-      regionJSON.put("isEnableOffHeapMemory",
-          reg.isEnableOffHeapMemory() ? PulseService.VALUE_ON : PulseService.VALUE_OFF);
-
       String regCompCodec = reg.getCompressionCodec();
       if (StringUtils.isNotBlank(regCompCodec)) {
         regionJSON.put("compressionCodec", reg.getCompressionCodec());

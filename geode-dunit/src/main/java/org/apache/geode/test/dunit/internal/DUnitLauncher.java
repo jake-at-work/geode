@@ -346,9 +346,6 @@ public class DUnitLauncher {
     DUnitEnv.set(new StandAloneDUnitEnv(master));
     addSuspectFileAppender(getWorkspaceDir());
 
-    // Free off heap memory when disconnecting from the distributed system
-    System.setProperty(GEMFIRE_PREFIX + "free-off-heap-memory", "true");
-
     // indicate that this CM is controlled by the eclipse dunit.
     System.setProperty(LAUNCHED_PROPERTY, "true");
   }

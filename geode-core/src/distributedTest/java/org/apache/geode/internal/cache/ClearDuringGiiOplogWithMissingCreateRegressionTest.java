@@ -221,9 +221,5 @@ public class ClearDuringGiiOplogWithMissingCreateRegressionTest extends CacheTes
       return this;
     }
 
-    @Override
-    public RegionEntryFactory makeOnHeap() {
-      return this;
-    }
   }
 }

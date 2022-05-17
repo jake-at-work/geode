@@ -957,11 +957,6 @@ public class PutMessage extends PartitionMessageWithDirectReply implements NewVa
     }
 
     @Override
-    public boolean isUnretainedOldReferenceOk() {
-      return true;
-    }
-
-    @Override
     public boolean isCachedDeserializableValueOk() {
       return true;
     }
@@ -1120,11 +1115,6 @@ public class PutMessage extends PartitionMessageWithDirectReply implements NewVa
 
   @Override
   public boolean prefersNewSerialized() {
-    return true;
-  }
-
-  @Override
-  public boolean isUnretainedNewReferenceOk() {
     return true;
   }
 

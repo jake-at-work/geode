@@ -686,11 +686,9 @@ public interface Region<K, V> extends ConcurrentMap<K, V> {
    *         <code>null</code> is returned. If the entry was "invalid" then <code>null</code> is
    *         returned. In some cases <code>null</code> may be returned even if a previous value
    *         exists. If the region is a client proxy then <code>null</code> is returned. If the
-   *         region is off-heap and the old value was stored in off-heap memory then
-   *         <code>null</code> is returned. If the region is partitioned and the put is done on a
-   *         non-primary then <code>null</code> is returned. If the value is not currently stored in
-   *         memory but is on disk and if the region does not have cqs then <code>null</code> is
-   *         returned.
+   *         region is partitioned and the put is done on a non-primary then <code>null</code> is
+   *         returned. If the value is not currently stored in memory but is on disk and if the
+   *         region does not have cqs then <code>null</code> is returned.
    * @throws NullPointerException if key is null
    * @throws IllegalArgumentException if key, value, or aCallbackArgument do not meet
    *         serializability requirements
@@ -883,11 +881,9 @@ public interface Region<K, V> extends ConcurrentMap<K, V> {
    * @return the previous value stored locally for the key. If the entry was "invalid" then
    *         <code>null</code> is returned. In some cases <code>null</code> may be returned even if
    *         a previous value exists. If the region is a client proxy then <code>null</code> is
-   *         returned. If the region is off-heap and the old value was stored in off-heap memory
-   *         then <code>null</code> is returned. If the region is partitioned and the destroy is
-   *         done on a non-primary then <code>null</code> is returned. If the value is not currently
-   *         stored in memory but is on disk and if the region does not have cqs then
-   *         <code>null</code> is returned.
+   *         returned. If the region is partitioned and the destroy is done on a non-primary then
+   *         <code>null</code> is returned. If the value is not currently stored in memory but is on
+   *         disk and if the region does not have cqs then <code>null</code> is returned.
    * @throws NullPointerException if key is null
    * @throws IllegalArgumentException if key does not meet serializability requirements
    * @throws org.apache.geode.distributed.LeaseExpiredException if lease expired on distributed lock
@@ -915,11 +911,9 @@ public interface Region<K, V> extends ConcurrentMap<K, V> {
    * @return the previous value stored locally for the key. If the entry was "invalid" then
    *         <code>null</code> is returned. In some cases <code>null</code> may be returned even if
    *         a previous value exists. If the region is a client proxy then <code>null</code> is
-   *         returned. If the region is off-heap and the old value was stored in off-heap memory
-   *         then <code>null</code> is returned. If the region is partitioned and the destroy is
-   *         done on a non-primary then <code>null</code> is returned. If the value is not currently
-   *         stored in memory but is on disk and if the region does not have cqs then
-   *         <code>null</code> is returned.
+   *         returned. If the region is partitioned and the destroy is done on a non-primary then
+   *         <code>null</code> is returned. If the value is not currently stored in memory but is on
+   *         disk and if the region does not have cqs then <code>null</code> is returned.
    * @throws NullPointerException if key is null
    * @throws IllegalArgumentException if the key or aCallbackArgument do not meet serializability
    *         requirements
@@ -1534,11 +1528,9 @@ public interface Region<K, V> extends ConcurrentMap<K, V> {
    *         that was stored locally for the removed entry is returned. If the entry was "invalid"
    *         then <code>null</code> is returned. In some cases <code>null</code> may be returned
    *         even if a previous value exists. If the region is a client proxy then <code>null</code>
-   *         is returned. If the region is off-heap and the old value was stored in off-heap memory
-   *         then <code>null</code> is returned. If the region is partitioned and the remove is done
-   *         on a non-primary then <code>null</code> is returned. If the value is not currently
-   *         stored in memory but is on disk and if the region does not have cqs then
-   *         <code>null</code> is returned.
+   *         is returned. If the region is partitioned and the remove is done on a non-primary then
+   *         <code>null</code> is returned. If the value is not currently stored in memory but is on
+   *         disk and if the region does not have cqs then <code>null</code> is returned.
    * @throws NullPointerException if key is null
    * @throws IllegalArgumentException if key does not meet serializability requirements
    * @throws org.apache.geode.distributed.LeaseExpiredException if lease expired on distributed lock
@@ -2803,11 +2795,9 @@ public interface Region<K, V> extends ConcurrentMap<K, V> {
      *         then <code>null</code> is returned. If the entry was "invalid" then <code>null</code>
      *         is returned. In some cases <code>null</code> may be returned even if a previous value
      *         exists. If the region is a client proxy then <code>null</code> is returned. If the
-     *         region is off-heap and the old value was stored in off-heap memory then
-     *         <code>null</code> is returned. If the region is partitioned and the setValue is done
-     *         on a non-primary then <code>null</code> is returned. If the value is not currently
-     *         stored in memory but is on disk and if the region does not have cqs then
-     *         <code>null</code> is returned.
+     *         region is partitioned and the setValue is done on a non-primary then
+     *         <code>null</code> is returned. If the value is not currently stored in memory but is
+     *         on disk and if the region does not have cqs then <code>null</code> is returned.
      * @since GemFire 5.0
      * @see Region#put(Object, Object)
      */

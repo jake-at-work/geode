@@ -80,7 +80,7 @@ public class RegionMapCommitPutTest {
     when(internalRegion.getCache()).thenReturn(mock(InternalCache.class));
     when(internalRegion.getMyId()).thenReturn(myId);
     when(transactionId.getMemberId()).thenReturn(myId);
-    when(event.getRawNewValueAsHeapObject()).thenReturn(newValue);
+    when(event.getRawNewValue()).thenReturn(newValue);
     when(event.getKey()).thenReturn(key);
   }
 
@@ -602,7 +602,7 @@ public class RegionMapCommitPutTest {
     RegionEntry existingEntry = mock(RegionEntry.class);
     when(existingEntry.getValueInVM(any())).thenReturn(oldValue);
     when(focusedRegionMap.getEntry(eq(event))).thenReturn(existingEntry);
-    when(event.getRawNewValueAsHeapObject()).thenReturn(null);
+    when(event.getRawNewValue()).thenReturn(null);
     when(existingEntry.prepareValueForCache(any(), eq(Token.INVALID), eq(event), eq(true)))
         .thenReturn(Token.INVALID);
     createInstance(Operation.UPDATE, false, txRmtEvent, null);
@@ -621,7 +621,7 @@ public class RegionMapCommitPutTest {
     RegionEntry existingEntry = mock(RegionEntry.class);
     when(existingEntry.getValueInVM(any())).thenReturn(oldValue);
     when(focusedRegionMap.getEntry(eq(event))).thenReturn(existingEntry);
-    when(event.getRawNewValueAsHeapObject()).thenReturn(null);
+    when(event.getRawNewValue()).thenReturn(null);
     when(event.isLocalInvalid()).thenReturn(true);
     when(existingEntry.prepareValueForCache(any(), eq(Token.LOCAL_INVALID), eq(event), eq(true)))
         .thenReturn(Token.LOCAL_INVALID);

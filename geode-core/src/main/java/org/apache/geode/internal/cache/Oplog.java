@@ -7052,11 +7052,6 @@ public class Oplog implements CompactableOplog, Flushable {
     }
 
     @Override
-    public Object getValueRetain(RegionEntryContext context) {
-      return null;
-    }
-
-    @Override
     public void setValue(RegionEntryContext context, Object value) throws RegionClearedException {
       // nothing
     }

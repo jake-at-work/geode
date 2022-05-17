@@ -145,13 +145,6 @@ public class ClusterRegionsService implements PulseService {
         regionJSON.put("persistence", VALUE_OFF);
       }
 
-      boolean isEnableOffHeapMemory = reg.isEnableOffHeapMemory();
-      if (isEnableOffHeapMemory) {
-        regionJSON.put("isEnableOffHeapMemory", VALUE_ON);
-      } else {
-        regionJSON.put("isEnableOffHeapMemory", VALUE_OFF);
-      }
-
       String regCompCodec = reg.getCompressionCodec();
       if (StringUtils.isNotBlank(regCompCodec)) {
         regionJSON.put("compressionCodec", reg.getCompressionCodec());

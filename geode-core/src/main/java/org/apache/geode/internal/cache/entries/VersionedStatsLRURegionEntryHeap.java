@@ -77,9 +77,5 @@ public abstract class VersionedStatsLRURegionEntryHeap extends VersionedStatsLRU
       return this;
     }
 
-    @Override
-    public RegionEntryFactory makeOnHeap() {
-      return this;
-    }
   }
 }

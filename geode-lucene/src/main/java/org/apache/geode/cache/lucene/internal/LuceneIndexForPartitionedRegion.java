@@ -102,7 +102,6 @@ public class LuceneIndexForPartitionedRegion extends LuceneIndexImpl {
     // TODO: 1) dataRegion should be withStorage
     // 2) Persistence to Persistence
     // 3) Replicate to Replicate, Partition To Partition
-    // 4) Offheap to Offheap
     if (!withStorage) {
       regionShortCut = RegionShortcut.PARTITION_PROXY;
     } else if (withPersistence) {

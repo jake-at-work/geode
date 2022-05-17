@@ -15,8 +15,7 @@
 package org.apache.geode.internal.cache;
 
 /**
- * This class is an event that just holds an EventID. Unlike other EntryEventImpls this class does
- * not need to be released since its values are never off-heap.
+ * This class is an event that just holds an EventID.
  */
 public class EventIDHolder extends EntryEventImpl {
   /*

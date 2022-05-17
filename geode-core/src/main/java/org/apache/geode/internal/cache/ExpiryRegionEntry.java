@@ -94,7 +94,7 @@ class ExpiryRegionEntry implements Region.Entry {
   @Override
   public Object getValue() {
     Object value =
-        region.getDeserialized(getCheckedRegionEntry(), false, false, false, false);
+        region.getDeserialized(getCheckedRegionEntry(), false, false, false);
     if (value == null) {
       throw new EntryDestroyedException(getKey().toString());
     } else if (Token.isInvalid(value)) {

@@ -1149,7 +1149,7 @@ public class ParallelGatewaySenderQueue implements RegionQueue {
         }
       }
     }
-    return object; // OFFHEAP: ok since only callers uses it to check for empty queue
+    return object;
   }
 
   // This method may need synchronization in case it is used by
@@ -1573,8 +1573,7 @@ public class ParallelGatewaySenderQueue implements RegionQueue {
         stats.incEventsNotQueuedConflated();
       }
     }
-    return object; // OFFHEAP: ok since callers are careful to do destroys on region queue after
-                   // finished with peeked object.
+    return object;
   }
 
   protected List<Object> peekEventsWithTransactionId(PartitionedRegion prQ, int bucketId,
@@ -1594,8 +1593,7 @@ public class ParallelGatewaySenderQueue implements RegionQueue {
       return Collections.emptyList();
     }
 
-    return objects; // OFFHEAP: ok since callers are careful to do destroys on region queue after
-    // finished with peeked objects.
+    return objects;
   }
 
   @VisibleForTesting

@@ -54,8 +54,6 @@ public class AlterOfflineDiskStoreCommand extends GfshCommand {
           help = CliStrings.ALTER_DISK_STORE__LRU__EVICTION__ALGORITHM__HELP) String lruEvictionAlgo,
       @CliOption(key = CliStrings.ALTER_DISK_STORE__LRU__EVICTION__LIMIT,
           help = CliStrings.ALTER_DISK_STORE__LRU__EVICTION__LIMIT__HELP) Integer lruEvictionLimit,
-      @CliOption(key = CliStrings.ALTER_DISK_STORE__OFF_HEAP,
-          help = CliStrings.ALTER_DISK_STORE__OFF_HEAP__HELP) Boolean offHeap,
       @CliOption(key = CliStrings.ALTER_DISK_STORE__REMOVE,
           help = CliStrings.ALTER_DISK_STORE__REMOVE__HELP, specifiedDefaultValue = "true",
           unspecifiedDefaultValue = "false") boolean remove) {
@@ -83,7 +81,7 @@ public class AlterOfflineDiskStoreCommand extends GfshCommand {
 
       if ((lruEvictionAlgo != null) || (lruEvictionAction != null) || (lruEvictionLimit != null)
           || (concurrencyLevel != null) || (initialCapacity != null) || (loadFactor != null)
-          || (compressorClassName != null) || (offHeap != null) || (statisticsEnabled != null)) {
+          || (compressorClassName != null) || (statisticsEnabled != null)) {
         if (!remove) {
           String lruEvictionLimitString =
               lruEvictionLimit == null ? null : lruEvictionLimit.toString();
@@ -94,7 +92,6 @@ public class AlterOfflineDiskStoreCommand extends GfshCommand {
           String loadFactorString = loadFactor == null ? null : loadFactor.toString();
           String statisticsEnabledString =
               statisticsEnabled == null ? null : statisticsEnabled.toString();
-          String offHeapString = offHeap == null ? null : offHeap.toString();
 
           if ("none".equals(compressorClassName)) {
             compressorClassName = "";
